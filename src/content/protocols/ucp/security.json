@@ -1,0 +1,307 @@
+{
+ "protocol": "ucp",
+ "summary": "UCP authenticates the parties and protects messages: platforms are identified by a profile URL and its keys, requests, responses and webhooks can carry RFC 9421 signatures with a Content-Digest, replay is stopped by signed idempotency keys, and credentials flow one way as opaque tokens. It deliberately leaves out trust in a platform's intent, spending limits and reputation, and onboarding is permissionless, so abuse handling (discovery budgets, SSRF guards, allowlists) falls on each business. Without the AP2 extension the final safeguard is a human placing the order in a trusted UI. No advisory or CVE naming UCP existed on 2026-10-11, and two arXiv papers name UCP.",
+ "threats": [
+  {
+   "id": "ucp-t1",
+   "stride": "S",
+   "title": "Platform impersonation with a copied profile URL",
+   "description": "An attacker sends requests that name a well-known platform's profile in UCP-Agent without holding its key, hoping the business trusts the header alone.",
+   "preconditions": [
+    "The business authenticates with an API key or not at all",
+    "The business does not bind the principal to the profile"
+   ],
+   "impact": "Orders and data requests attributed to a trusted platform.",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Verify RFC 9421 signatures against the keys in the named profile, or confirm that the API key, OAuth client or mTLS identity may act for that profile, as the spec requires.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "id": "ucp-t2",
+   "stride": "S",
+   "title": "Namespace squatting on shared hosting suffixes",
+   "description": "A party publishes a capability under a namespace on a shared suffix such as github.io, where co-tenants share a registrable domain; authority binding passes because the Public Suffix List is not consulted.",
+   "preconditions": [
+    "The platform accepts capabilities from arbitrary namespaces",
+    "The namespace sits on a shared suffix"
+   ],
+   "impact": "A look-alike capability schema is accepted as provenance-checked.",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Treat authority binding as provenance, not trust. Allowlist vendor namespaces and declare entities only under a registrable domain you control.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "id": "ucp-t3",
+   "stride": "T",
+   "title": "Body tampering by an intermediary",
+   "description": "A proxy or gateway rewrites or re-serializes the JSON body of a signed request, changing amounts or items.",
+   "preconditions": [
+    "Requests pass through a component that parses and re-serializes JSON"
+   ],
+   "impact": "Changed orders, or valid requests rejected with digest_mismatch.",
+   "mitigatedBySpec": "yes",
+   "implementerNotes": "Sign with Content-Digest over the raw bytes and forbid re-serialization at proxies; verify the digest before parsing.",
+   "sources": [
+    "src-ucp-signatures",
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "id": "ucp-t4",
+   "stride": "T",
+   "title": "Checkout altered between display and completion",
+   "description": "The business or a man in the middle changes totals after the buyer reviewed them, and the platform completes against the new state.",
+   "preconditions": [
+    "AP2 extension not negotiated",
+    "The platform does not re-read the checkout before complete"
+   ],
+   "impact": "Buyer charged for something other than what they approved.",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Without AP2, show the latest checkout in the trusted UI immediately before complete. With AP2, the merchant signature and the checkout mandate bind the exact checkout.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec"
+   ]
+  },
+  {
+   "id": "ucp-t5",
+   "stride": "R",
+   "title": "Disputed purchase with no signed evidence",
+   "description": "A buyer says the agent bought something they did not approve, and neither side holds a signed record of consent.",
+   "preconditions": [
+    "AP2 extension not used",
+    "No logs of the trusted UI confirmation"
+   ],
+   "impact": "Liability falls back to card dispute rules with weak evidence.",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Keep the trusted UI confirmation, the order permalink and the confirmation email. The AP2 extension stores JCS-canonical mandates as durable evidence.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec",
+    "src-ucp-schema-order"
+   ]
+  },
+  {
+   "id": "ucp-t6",
+   "stride": "R",
+   "title": "Forged order webhooks",
+   "description": "An attacker posts fake shipment or refund events to a platform's webhook_url.",
+   "preconditions": [
+    "The webhook URL is known",
+    "The platform does not verify signatures or signer identity"
+   ],
+   "impact": "False order status shown to buyers; refunds or support actions on false data.",
+   "mitigatedBySpec": "yes",
+   "implementerNotes": "Webhooks must be RFC 9421 signed; reject events whose signer profile does not match the order's business and reconcile with GET /orders/{id}.",
+   "sources": [
+    "src-ucp-order",
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "id": "ucp-t7",
+   "stride": "I",
+   "title": "Payment credential leakage",
+   "description": "A business echoes a credential back, logs it, or a platform handles raw PAN data it should not touch.",
+   "preconditions": [
+    "PAN credential type in use",
+    "Logging of request bodies"
+   ],
+   "impact": "Card data exposure and PCI DSS scope creep.",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Credentials flow one way and must not be echoed; prefer token or network_token types; keep handler logic with the credential provider.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-schema-payment",
+    "src-ucp-checkout"
+   ]
+  },
+  {
+   "id": "ucp-t8",
+   "stride": "I",
+   "title": "Over-sharing buyer data with the platform",
+   "description": "Checkout payloads carry buyer email, addresses, signals such as buyer IP, and order history to the platform surface.",
+   "preconditions": [
+    "Identity linking or signals in use"
+   ],
+   "impact": "Privacy exposure and regulatory risk under GDPR and similar laws; concerns raised in a senator's letter (reported).",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Share only what the capability needs; do not persist signals beyond operational need; scope identity linking tokens narrowly.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-eweek-warren",
+    "src-ucp-identity-linking"
+   ]
+  },
+  {
+   "id": "ucp-t9",
+   "stride": "D",
+   "title": "Discovery amplification against businesses",
+   "description": "Many unknown platform profiles force the business to fetch and parse remote documents on every request.",
+   "preconditions": [
+    "Permissionless onboarding",
+    "No profile cache or rate limit"
+   ],
+   "impact": "Resource exhaustion at the business.",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Bound discovery cost with a fixed-size cache, a global rate limit, backoff or asynchronous discovery answering 503 with Retry-After; keep a registry of pre-approved platforms.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "id": "ucp-t10",
+   "stride": "E",
+   "title": "Server-side request forgery through profile URLs",
+   "description": "A platform names a profile URL that resolves to an internal or metadata address, so the business fetches internal resources.",
+   "preconditions": [
+    "The business fetches profile, jwks_uri or CIMD URLs without address checks"
+   ],
+   "impact": "Access to cloud metadata or internal services.",
+   "mitigatedBySpec": "yes",
+   "implementerNotes": "Reject non-HTTPS URLs, redirects and special-use IP ranges such as 169.254.169.254, and check resolved addresses against DNS rebinding.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "id": "ucp-t11",
+   "stride": "T",
+   "title": "Duplicate orders through retries",
+   "description": "A platform retries a lost complete call with a new idempotency key, or a business fails open when its idempotency store is down.",
+   "preconditions": [
+    "Network timeout on complete",
+    "Idempotency storage unavailable"
+   ],
+   "impact": "Two orders and two charges.",
+   "mitigatedBySpec": "yes",
+   "implementerNotes": "Resend only the identical request with the same key after polling Get Checkout; businesses keep keys 24 to 48 hours and fail closed with 503.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "id": "ucp-t12",
+   "stride": "E",
+   "title": "Downgrade away from AP2 protection",
+   "description": "An attacker or buggy client tries to complete a session without a mandate after AP2 was negotiated.",
+   "preconditions": [
+    "AP2 extension in the intersection"
+   ],
+   "impact": "Unprotected checkout despite a negotiated mandate requirement.",
+   "mitigatedBySpec": "yes",
+   "implementerNotes": "Once negotiated the session is security locked; the business must reject complete without ap2.checkout_mandate (mandate_required).",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-schema-ap2"
+   ]
+  },
+  {
+   "id": "ucp-t13",
+   "stride": "S",
+   "title": "Stale compromised signing key",
+   "description": "A leaked key stays in the profile keys array and keeps verifying.",
+   "preconditions": [
+    "Key compromise",
+    "Slow profile updates and long caches"
+   ],
+   "impact": "Forged requests or merchant authorizations accepted.",
+   "mitigatedBySpec": "partial",
+   "implementerNotes": "Remove compromised keys from keys immediately; a key is not effectively revoked until it is absent; keep cache max-age short enough for rotation.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-signatures"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "ucp-s1",
+   "title": "An injected tool result steers the agent to a look-alike store",
+   "preconditions": [
+    "The agent follows links from untrusted content",
+    "The buyer approves quickly in the review screen"
+   ],
+   "steps": [
+    "A web page tells the agent to buy from a look-alike domain",
+    "The look-alike publishes a valid profile at /.well-known/ucp",
+    "Negotiation and signatures succeed because they prove identity, not honesty",
+    "The buyer approves a checkout that shows the look-alike's name"
+   ],
+   "impact": "Payment to the wrong seller; recovery depends on card dispute rules.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-arxiv-260206345"
+   ]
+  },
+  {
+   "id": "ucp-s2",
+   "title": "Lost complete response and a careless retry",
+   "preconditions": [
+    "The platform does not implement the lost-response rules"
+   ],
+   "steps": [
+    "The platform calls complete and times out",
+    "It sends a new complete with a fresh idempotency key",
+    "The business treats it as a new operation"
+   ],
+   "impact": "Duplicate order and charge.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "id": "ucp-s3",
+   "title": "Profile URL used to probe internal services",
+   "preconditions": [
+    "The business fetches any URL in UCP-Agent"
+   ],
+   "steps": [
+    "An attacker sends UCP-Agent with a URL that resolves to 169.254.169.254",
+    "The business fetches it to read the profile",
+    "Metadata leaks through error messages or timing"
+   ],
+   "impact": "Exposure of cloud credentials or internal data.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  }
+ ],
+ "research": [
+  {
+   "title": "Zero-Trust Runtime Verification for Agentic Payment Protocols",
+   "date": "2026-02-06",
+   "finding": "Names UCP and AP2 as mandate-based protocols and studies replay and context-binding failures, proposing runtime verification.",
+   "publicationId": "pub-lan-2026-zerotrust",
+   "sources": [
+    "src-ucp-arxiv-260206345"
+   ]
+  },
+  {
+   "title": "Strabo: Declarative Specification and Implementation of Agentic Interaction Protocols",
+   "date": "2026-06-03",
+   "finding": "Models UCP checkout as a declarative protocol and reports interoperation with Google's UCP agents; useful for checking state and message ordering.",
+   "sources": [
+    "src-ucp-arxiv-260605043"
+   ]
+  },
+  {
+   "title": "Protocol-Level Attacks on Agentic Commerce Platforms",
+   "date": "2026-07-23",
+   "finding": "A cross-platform attack taxonomy for agentic commerce; the abstract does not name UCP, so read it as context.",
+   "publicationId": "pub-louck-2026-protocollevel",
+   "sources": [
+    "src-ucp-arxiv-context"
+   ]
+  }
+ ],
+ "cves": [],
+ "trustBoundaryDiagram": "ucp-context"
+}

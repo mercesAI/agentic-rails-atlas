@@ -1,0 +1,162 @@
+{
+ "protocol": "ucp",
+ "score": 2,
+ "scoreReasons": [
+  "Business profiles at /.well-known/ucp are public and cacheable, so anyone can see which capabilities, transports, handlers and keys a domain advertises.",
+  "No public registry, index or explorer of UCP businesses exists, so finding profiles means crawling domains (unverified absence as of 2026-10-11).",
+  "Checkouts, orders, tokens and webhooks are bilateral and private; no ledger or public log records transactions.",
+  "Governance and releases are public: GitHub releases, Discussions, announcements and a meeting-minutes repository.",
+  "No merchant counts or volumes are published by Google or the project."
+ ],
+ "public": [
+  {
+   "what": "Business profiles",
+   "where": "https://{domain}/.well-known/ucp",
+   "how": "HTTP GET; Cache-Control public with max-age of at least 60 seconds. Shows ucp.version, services, capabilities, payment_handlers and keys.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-schema-profile"
+   ]
+  },
+  {
+   "what": "OAuth metadata for identity linking",
+   "where": "/.well-known/oauth-protected-resource, /.well-known/oauth-authorization-server, /.well-known/openid-configuration",
+   "how": "RFC 9728 and RFC 8414 discovery documents.",
+   "sources": [
+    "src-ucp-identity-linking"
+   ]
+  },
+  {
+   "what": "Web Bot Auth key directory (optional)",
+   "where": "/.well-known/http-message-signatures-directory",
+   "how": "Signed directory for Web Bot Auth shaped signatures.",
+   "sources": [
+    "src-ucp-signatures",
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "what": "A2A Agent Cards",
+   "where": "The a2a service endpoint, for example /.well-known/agent-card.json",
+   "how": "Public Agent Card describing the business agent.",
+   "sources": [
+    "src-ucp-a2a",
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "what": "Release channels",
+   "where": "https://ucp.dev/versions.json",
+   "how": "Lists draft and dated versions; latest aliased to 2026-08-25 on 2026-10-11.",
+   "sources": [
+    "src-ucp-site-versions"
+   ]
+  },
+  {
+   "what": "Governance and releases",
+   "where": "GitHub releases, Discussions, announcements.md, meeting-minutes repository",
+   "how": "Public repository activity and dated announcements.",
+   "sources": [
+    "src-ucp-announcements",
+    "src-ucp-gh-org",
+    "src-ucp-gh-releases"
+   ]
+  },
+  {
+   "what": "Google traffic markers",
+   "where": "HTTP headers at the business",
+   "how": "UCP-Agent plus User-Agent beginning Google/UCP; health checks with Google-UCP-Prober/1.0.",
+   "sources": [
+    "src-ucp-google-faq"
+   ]
+  }
+ ],
+ "private": [
+  {
+   "what": "Checkout sessions and orders",
+   "why": "Point-to-point REST, MCP or A2A calls between platform and business."
+  },
+  {
+   "what": "Payment credentials and AP2 mandates",
+   "why": "Opaque tokens flow platform to business to PSP; never published."
+  },
+  {
+   "what": "Order webhooks (orderEvent)",
+   "why": "Sent to the platform's webhook_url with Webhook-Id and Webhook-Timestamp."
+  },
+  {
+   "what": "Embedded checkout messages",
+   "why": "ec.*, ep.cart.* and action.* JSON-RPC messages stay inside the host frame."
+  },
+  {
+   "what": "Identity linking tokens",
+   "why": "OAuth tokens between platform and business authorization server."
+  }
+ ],
+ "indexerCaptures": [
+  {
+   "signal": "UCP support and capability sets per domain",
+   "from": "Crawl of /.well-known/ucp across merchant domains",
+   "identifiers": [
+    "ucp.version",
+    "capability names",
+    "payment handler names",
+    "service endpoints",
+    "keys[].kid"
+   ],
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-schema-profile"
+   ]
+  },
+  {
+   "signal": "Release adoption",
+   "from": "ucp.version and supported_versions in crawled profiles, compared with versions.json",
+   "identifiers": [
+    "ucp.version",
+    "supported_versions keys"
+   ],
+   "sources": [
+    "src-ucp-site-versions",
+    "src-ucp-schema-profile"
+   ]
+  },
+  {
+   "signal": "Payment handler mix",
+   "from": "payment_handlers registries in crawled profiles",
+   "identifiers": [
+    "com.google.pay",
+    "dev.shopify.shop_pay",
+    "vendor handler names"
+   ],
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "signal": "AP2 extension availability",
+   "from": "Profiles listing dev.ucp.common.payment.ap2_mandate (advertised support, not live use)",
+   "identifiers": [
+    "dev.ucp.common.payment.ap2_mandate",
+    "vp_formats_supported"
+   ],
+   "sources": [
+    "src-ucp-ap2-spec"
+   ]
+  },
+  {
+   "signal": "Project activity",
+   "from": "GitHub API for the Universal-Commerce-Protocol organization",
+   "identifiers": [
+    "releases",
+    "tags",
+    "stars",
+    "Discussions"
+   ],
+   "sources": [
+    "src-ucp-gh-org",
+    "src-ucp-gh-repo"
+   ]
+  }
+ ]
+}

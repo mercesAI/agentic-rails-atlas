@@ -1,0 +1,285 @@
+{
+ "protocol": "ucp",
+ "summary": "UCP natively covers agent identity (profile plus keys), expiry, key and token revocation, replay protection through idempotency keys, and monitoring signals. Consent, step-up, payee scoping, evidence and disputes are partial and depend on optional extensions (AP2, authentication) or on the business and PSP. Spending caps and reputation are absent. A controls layer acts best at the platform before complete, at the trusted review screen, and at the business edge where profiles are fetched.",
+ "native": [
+  {
+   "protocol": "ucp",
+   "control": "agent-identity-verification",
+   "support": "native",
+   "note": "Platform profile URL in UCP-Agent with RFC 9421 signatures against its keys, or API key, OAuth or mTLS bound to that profile.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "agent-registration-kya",
+   "support": "partial",
+   "note": "Permissionless by design; businesses should keep a registry of pre-approved platforms. No know-your-agent registry.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "user-consent-capture",
+   "support": "partial",
+   "note": "Buyer places the order in a trusted UI unless AP2 is active; buyer_consent map; AP2 checkout_mandate as signed consent.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec",
+    "src-ucp-release-20260825"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "spending-caps",
+   "support": "external",
+   "note": "No cap field; limits live in AP2 mandates, the credential provider or the platform.",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-schema-checkout"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "merchant-payee-scoping",
+   "support": "partial",
+   "note": "Tokens are handler-specific and some (Adyen) are bound to session and merchant; AP2 mandates bind the merchant-signed checkout.",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-adyen-docs"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "time-windows-expiry",
+   "support": "native",
+   "note": "Checkout expires_at defaults to 6 hours; mandate_expired in the AP2 extension.",
+   "sources": [
+    "src-ucp-schema-checkout",
+    "src-ucp-schema-ap2"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "revocation",
+   "support": "native",
+   "note": "Remove keys from the profile; RFC 7009 token revocation required for identity linking; OpenID RISC recommended.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-identity-linking"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "step-up-authentication",
+   "support": "partial",
+   "note": "requires_escalation handoff through continue_url; 3DS2 device data collection and challenge actions in the optional authentication extension.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-payment-auth"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "replay-protection",
+   "support": "native",
+   "note": "Signed Idempotency-Key with 128-bit entropy, 24 to 48 hour storage and 409 on mismatch; Web Bot Auth shape adds nonce.",
+   "sources": [
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "receipts-evidence",
+   "support": "partial",
+   "note": "Order with permalink_url and a required confirmation email; AP2 mandates kept as JCS-canonical evidence.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "dispute-support",
+   "support": "partial",
+   "note": "Order adjustments can record disputes, refunds and returns; dispute handling stays with the business and PSP.",
+   "sources": [
+    "src-ucp-schema-order"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "reputation",
+   "support": "none",
+   "note": "No reputation mechanism for platforms or businesses.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "monitoring-signals",
+   "support": "native",
+   "note": "signals such as dev.ucp.buyer_ip and dev.ucp.user_agent, plus signed order webhooks.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-order"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "kill-switch",
+   "support": "partial",
+   "note": "Businesses can refuse platforms, answer 503 or cancel sessions; no protocol-level global stop.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-google-faq"
+   ]
+  }
+ ],
+ "gaps": [
+  {
+   "title": "No spending limits",
+   "description": "Nothing in the checkout schema caps what an agent may buy; limits must come from AP2 mandates, the wallet or the platform.",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-schema-checkout"
+   ]
+  },
+  {
+   "title": "Identity is not trust",
+   "description": "Signatures and authority binding prove who a platform or schema author is, not that it behaves well, and there is no reputation layer.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "title": "Consent evidence is optional",
+   "description": "Without AP2 the only consent record is the platform's trusted UI and the business confirmation email; live AP2 use is unverified.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec"
+   ]
+  },
+  {
+   "title": "Permissionless onboarding",
+   "description": "Any platform with a profile can call any business, so each business must build its own allowlists and discovery budgets.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "title": "Disputes outside the protocol",
+   "description": "Adjustments can record a dispute, but chargeback rules and liability stay with card networks and PSPs.",
+   "sources": [
+    "src-ucp-schema-order"
+   ]
+  }
+ ],
+ "controlPoints": [
+  {
+   "point": "before-authorization",
+   "what": "Decide whether the agent may buy from this business at all.",
+   "how": "Allowlist businesses and capability namespaces at the platform; check the intersection and the advertised handlers before create.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "point": "at-signing",
+   "what": "Bind consent to the exact checkout.",
+   "how": "Show the latest checkout in a trusted UI immediately before complete, or negotiate the AP2 extension so the checkout mandate covers the merchant-signed checkout.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec"
+   ]
+  },
+  {
+   "point": "at-edge",
+   "what": "Filter unknown or abusive platforms.",
+   "how": "Verify signatures, enforce pre-approved platform registries, cache and rate-limit profile fetches, and apply SSRF guards at the business edge.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "point": "at-settlement",
+   "what": "Apply payment risk checks.",
+   "how": "PSP fraud screening and 3DS2 through the authentication extension's actions.",
+   "sources": [
+    "src-ucp-payment-auth"
+   ]
+  },
+  {
+   "point": "after-the-fact",
+   "what": "Reconcile and detect anomalies.",
+   "how": "Verify signed order webhooks, reconcile with GET /orders/{id}, and track adjustments.",
+   "sources": [
+    "src-ucp-order",
+    "src-ucp-schema-order"
+   ]
+  }
+ ],
+ "checklist": [
+  {
+   "item": "Pin schema URLs to the release tag you target, not main.",
+   "why": "main carries drafts that are in no release.",
+   "sources": [
+    "src-ucp-repo-main"
+   ]
+  },
+  {
+   "item": "Bind every authenticated principal to the profile named in UCP-Agent.",
+   "why": "The header alone is not authentication.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "item": "Store idempotency keys for 48 hours and fail closed when storage is down.",
+   "why": "Prevents duplicate orders on retries.",
+   "sources": [
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "item": "Implement the lost complete response rules exactly.",
+   "why": "A new key on retry can place a second order.",
+   "sources": [
+    "src-ucp-checkout"
+   ]
+  },
+  {
+   "item": "Reject profile URLs on special-use IP ranges and never follow redirects.",
+   "why": "Stops SSRF through UCP-Agent.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "item": "Remove compromised keys from keys immediately and keep cache lifetimes short.",
+   "why": "A key stays valid until it is absent.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "item": "Verify webhook signatures and the signer's match with the order business.",
+   "why": "Stops forged order events.",
+   "sources": [
+    "src-ucp-order"
+   ]
+  },
+  {
+   "item": "Set spending limits outside UCP for unattended agents.",
+   "why": "The protocol has no cap field.",
+   "sources": [
+    "src-ucp-ap2-spec"
+   ]
+  }
+ ]
+}
