@@ -70,8 +70,9 @@ diagrams:
   - visa-tap-vic-token-passkey
   - visa-tap-composition
 playground:
-  status: coming-next
-  note: "An RFC 9421 signature builder and verifier with ephemeral WebCrypto Ed25519 keys: choose the covered components and the tag, see the signature base, check the 8-minute window and nonce replay, change a header and watch verification fail, inspect the consumer and payment objects field by field, and compare a TAP request with a Web Bot Auth request. Simulation only, no real cards or keys."
+  status: ready
+  component: visa-tap
+  note: "Sign a request with an ephemeral Ed25519 key, see the exact RFC 9421 signature base and headers, then walk the CDN checks (key, 8-minute window, nonce replay, tag, signature) while tampering in transit, inspect the consumer and payment objects field by field, and compare the same request signed as TAP and as Web Bot Auth, all simulated in the browser with fixture keys and no network."
 keyFacts:
   - label: Steward
     value: "Visa, developed with Cloudflare; presented as an enhancement to Visa Intelligent Commerce"
