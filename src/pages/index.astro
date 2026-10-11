@@ -1,128 +1,233 @@
 ---
 /**
- * Interim home. The bubble universe (BubbleUniverse island) replaces the
- * protocol list in a later phase; the slots below keep their positions.
+ * Home (ATLAS_PROMPT.md 4.3): the bubble universe island, then below the fold
+ * the accessible protocol card list (the screen-reader path), "Start here",
+ * the "Changed in the last 60 days" strip and the progress ring.
+ * Works with any subset of protocol pages.
  */
 import Base from '../layouts/Base.astro';
 import Monogram from '../components/ui/Monogram.astro';
 import StatusDot from '../components/ui/StatusDot.astro';
-import FreshnessBadge from '../components/ui/FreshnessBadge.astro';
 import Chip from '../components/ui/Chip.astro';
 import ProgressRing from '../components/islands/ProgressRing';
-import { getProtocols } from '../lib/content';
-import { SECTION_IDS } from '../lib/schemas';
-import { SITE_NAME, SITE_TAGLINE } from '../lib/constants';
+import BubbleUniverse from '../components/universe/BubbleUniverse';
+import { ORBIT_SEEDS } from '../components/universe/data/orbit-items';
+import {
+  buildPersonaMap,
+  daysBefore,
+  protocolRelations,
+  recentEvents,
+  resolveOrbit,
+  toUniverseProtocol,
+  type DatedEvent,
+  type PersonaSidecar,
+} from '../components/universe/lib/data';
+import { RAIL_LABELS } from '../components/universe/lib/encoding';
+import {
+  getOrbitEntries,
+  getPersonas,
+  getProtocols,
+  getRelations,
+  getSidecar,
+  getTimelineGlobal,
+} from '../lib/content';
+import { FAMILY_LABELS, LAYER_LABELS, SECTION_IDS } from '../lib/schemas';
+import { BUILD_DATE, SITE_NAME, SITE_TAGLINE } from '../lib/constants';
 
 const protocols = await getProtocols();
-const changed = protocols
-  .slice()
-  .sort((a, b) => b.latestVersion.date.localeCompare(a.latestVersion.date))
-  .slice(0, 4);
+const present = new Set<string>(protocols.map((p) => p.slug));
+const bySlug = new Map(protocols.map((p) => [p.slug, p]));
+
+const relations = protocolRelations(await getRelations(), present);
+
+const personaSidecars: PersonaSidecar[] = [];
+const events: (DatedEvent & { detail?: string })[] = [];
+for (const p of protocols) {
+  const ps = await getSidecar('protocolPersonas', p.slug);
+  if (ps) personaSidecars.push(ps);
+  const tl = await getSidecar('timeline', p.slug);
+  for (const e of tl?.events ?? []) events.push({ ...e, protocol: p.slug });
+}
+for (const e of await getTimelineGlobal()) events.push(e);
+
+const personaMap = buildPersonaMap(protocols, personaSidecars);
+const personas = (await getPersonas())
+  .map((p) => ({ id: p.id, name: p.name }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const orbitPages = new Set((await getOrbitEntries()).map((e) => e.data.slug));
+const orbit = resolveOrbit(ORBIT_SEEDS, orbitPages);
+
+const WINDOW_DAYS = 60;
+const since = daysBefore(BUILD_DATE, WINDOW_DAYS);
+const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
 ---
 <Base title={SITE_NAME}>
   <div class="home">
     <header class="home__intro">
       <p class="home__eyebrow">{SITE_NAME}</p>
       <h1 class="home__title">Atlas</h1>
-      <p class="home__lede">{SITE_TAGLINE} Eight protocols, each with sourced claims, diagrams, a plain-language version and simulations you can run in the browser.</p>
+      <p class="home__lede">{SITE_TAGLINE} Eight protocols for agent identity, intent, checkout and payment, each with sourced claims, diagrams, a plain-language version and simulations you can run in the browser.</p>
+      <p class="home__actions">
+        <a class="home__start" href="/learn/">Start here</a>
+        <a href="#protocols-h">Skip to the protocol list</a>
+      </p>
     </header>
 
-    <section class="home__protocols" aria-labelledby="protocols-h">
-      <h2 id="protocols-h">Protocols</h2>
+    <section class="home__universe" aria-labelledby="universe-h">
+      <h2 id="universe-h" class="home__section-title">Protocol universe</h2>
       {protocols.length === 0 ? (
         <p class="home__empty">Protocol pages are in progress. They appear here as each one passes its quality gates.</p>
       ) : (
-        <ol class="protocol-list">
-          {protocols.map((p) => (
-            <li data-family={p.family}>
-              <a href={`/p/${p.slug}/`} class="protocol-list__link">
-                <Monogram label={p.monogram} family={p.family} />
-                <span class="protocol-list__text">
-                  <span class="protocol-list__name">{p.name}</span>
-                  <span class="protocol-list__tagline">{p.tagline}</span>
-                </span>
-              </a>
-              <span class="protocol-list__meta">
-                <StatusDot status={p.status} />
-                {p.rails.map((r) => <Chip rail={r}>{r}</Chip>)}
-              </span>
-            </li>
-          ))}
-        </ol>
+        <BubbleUniverse
+          client:visible
+          protocols={protocols.map(toUniverseProtocol)}
+          relations={relations}
+          orbit={orbit}
+          personas={personas}
+          personaMap={personaMap}
+        />
       )}
     </section>
 
-    <aside class="home__side">
-      <section class="home__panel" aria-labelledby="start-h">
-        <h2 id="start-h">Start here</h2>
-        <p>New to agent payments? Read the glossary first, then compare the eight protocols side by side.</p>
-        <ul class="home__links">
-          <li><a href="/glossary/">Glossary</a></li>
-          <li><a href="/compare/">Compare</a></li>
-          <li><a href="/stack/">How the layers stack</a></li>
-          <li><a href="/methodology/">How claims are sourced</a></li>
-        </ul>
-      </section>
-
-      <section class="home__panel" aria-labelledby="changed-h">
-        <h2 id="changed-h">Changed recently</h2>
-        {changed.length === 0 ? (
-          <p class="home__empty">Nothing to report yet.</p>
+    <div class="home__below">
+      <section class="home__protocols" aria-labelledby="protocols-h">
+        <h2 id="protocols-h" tabindex="-1">Protocols</h2>
+        <p class="home__note">The same {protocols.length} protocols as the universe, in reading order.</p>
+        {protocols.length === 0 ? (
+          <p class="home__empty">Protocol pages are in progress.</p>
         ) : (
-          <ul class="home__changes">
-            {changed.map((p) => (
-              <li>
-                <a href={`/p/${p.slug}/`}>{p.name}</a> {p.latestVersion.label}
-                <FreshnessBadge date={p.lastVerified} />
+          <ol class="protocol-list">
+            {protocols.map((p) => (
+              <li data-family={p.family}>
+                <a href={`/p/${p.slug}/`} class="protocol-list__link">
+                  <Monogram label={p.monogram} family={p.family} />
+                  <span class="protocol-list__text">
+                    <span class="protocol-list__name">{p.name}</span>
+                    <span class="protocol-list__tagline">{p.tagline}</span>
+                  </span>
+                </a>
+                <p class="protocol-list__intro">{p.intro}</p>
+                <dl class="protocol-list__facts">
+                  <div><dt>Family</dt><dd>{FAMILY_LABELS[p.family]}</dd></div>
+                  <div><dt>Layer</dt><dd>{LAYER_LABELS[p.layerPrimary]}</dd></div>
+                  <div><dt>First announced</dt><dd><time datetime={p.firstAnnounced}>{p.firstAnnounced}</time></dd></div>
+                  <div><dt>Latest version</dt><dd>{p.latestVersion.label}, <time datetime={p.latestVersion.date}>{p.latestVersion.date}</time></dd></div>
+                </dl>
+                <span class="protocol-list__meta">
+                  <StatusDot status={p.status} />
+                  {p.rails.map((r) => <Chip rail={r}>{RAIL_LABELS[r]}</Chip>)}
+                </span>
               </li>
             ))}
-          </ul>
+          </ol>
         )}
       </section>
 
-      <section class="home__panel" aria-labelledby="progress-h">
-        <h2 id="progress-h">Your progress</h2>
-        <ProgressRing client:visible slugs={protocols.map((p) => p.slug)} sectionsPer={SECTION_IDS.length} label="Sections read" />
-        <p class="home__note">Stored only in this browser.</p>
-      </section>
-    </aside>
+      <aside class="home__side" aria-label="Getting started and progress">
+        <section class="home__panel" aria-labelledby="start-h">
+          <h2 id="start-h">Start here</h2>
+          <p>New to agent payments? The learning path walks through the layers in order, from identity to settlement.</p>
+          <ul class="home__links">
+            <li><a href="/learn/">Learning path</a></li>
+            <li><a href="/glossary/">Glossary</a></li>
+            <li><a href="/compare/">Compare</a></li>
+            <li><a href="/stack/">How the layers stack</a></li>
+            <li><a href="/methodology/">How claims are sourced</a></li>
+          </ul>
+        </section>
+
+        <section class="home__panel" aria-labelledby="progress-h">
+          <h2 id="progress-h">Your progress</h2>
+          <ProgressRing client:visible slugs={protocols.map((p) => p.slug)} sectionsPer={SECTION_IDS.length} label="Sections read" />
+          <p class="home__note">Stored only in this browser.</p>
+        </section>
+      </aside>
+    </div>
+
+    <section class="home__changed" aria-labelledby="changed-h">
+      <h2 id="changed-h">Changed in the last 60 days</h2>
+      <p class="home__note">Timeline events dated <time datetime={since}>{since}</time> to <time datetime={BUILD_DATE}>{BUILD_DATE}</time>, newest first.</p>
+      {changed.length === 0 ? (
+        <p class="home__empty">No dated events in this window.</p>
+      ) : (
+        <ol class="changes">
+          {changed.map((e) => {
+            const p = e.protocol ? bySlug.get(e.protocol as (typeof protocols)[number]['slug']) : undefined;
+            return (
+              <li class="changes__item" data-family={p?.family}>
+                <time class="changes__date" datetime={e.date}>{e.date}</time>
+                <span class="changes__lane">{p ? p.name : e.lane}</span>
+                {p ? (
+                  <a class="changes__title" href={`/p/${p.slug}/#m-timeline`}>{e.title}</a>
+                ) : (
+                  <span class="changes__title">{e.title}</span>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </section>
   </div>
 </Base>
 
 <style>
-  .home {
-    display: grid; gap: 3rem;
-    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
-    grid-template-areas: 'intro intro' 'protocols side';
-  }
-  .home__intro { grid-area: intro; max-width: 46rem; }
-  .home__protocols { grid-area: protocols; }
-  .home__side { grid-area: side; display: grid; gap: 1.25rem; align-content: start; }
-  @media (max-width: 900px) {
-    .home { grid-template-columns: 1fr; grid-template-areas: 'intro' 'protocols' 'side'; }
-  }
+  .home { display: grid; gap: 2.5rem; }
+  .home__intro { max-width: 48rem; }
   .home__eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-subtle); }
   .home__title { font-size: clamp(2.5rem, 7vw, 4.5rem); letter-spacing: -0.035em; margin-top: 0.3rem; }
-  .home__lede { margin-top: 1rem; font-size: 1.15rem; color: var(--fg-muted); max-width: 40rem; }
+  .home__lede { margin-top: 1rem; font-size: 1.125rem; color: var(--fg-muted); max-width: 44rem; }
+  .home__actions { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; font-size: 0.9375rem; }
+  .home__start {
+    display: inline-flex; align-items: center; padding: 0.5rem 1rem; border-radius: var(--radius-md);
+    background: var(--accent); color: var(--accent-fg); font-weight: 600; text-decoration: none;
+  }
+  .home__start:hover { color: var(--accent-fg); background: var(--link-hover); }
+  .home__section-title { font-size: 1.05rem; margin-bottom: 0.75rem; }
   h2 { font-size: 1.05rem; margin-bottom: 0.9rem; }
   .home__empty, .home__note { color: var(--fg-muted); font-size: 0.9rem; }
-  .home__note { margin-top: 0.75rem; }
-  .home__panel {
-    padding: 1.1rem 1.2rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-elevated);
+  .home__protocols .home__note { margin: -0.5rem 0 0.75rem; }
+
+  .home__below {
+    display: grid; gap: 3rem;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
   }
+  @media (max-width: 900px) { .home__below { grid-template-columns: 1fr; } }
+  .home__side { display: grid; gap: 1.25rem; align-content: start; }
+  .home__panel { padding: 1.1rem 1.2rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-elevated); }
   .home__panel p { font-size: 0.9rem; color: var(--fg-muted); }
+  .home__panel .home__note { margin-top: 0.75rem; }
   .home__links { margin-top: 0.75rem; display: grid; gap: 0.3rem; font-size: 0.9rem; }
-  .home__changes { display: grid; gap: 0.6rem; font-size: 0.9rem; }
-  .home__changes li { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+  #protocols-h:focus { outline: none; }
+
   .protocol-list { display: grid; border-top: 1px solid var(--border); }
   .protocol-list li {
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1.5rem;
-    padding: 1rem 0; border-bottom: 1px solid var(--border);
+    display: grid; gap: 0.6rem; padding: 1.1rem 0 1.2rem; border-bottom: 1px solid var(--border);
   }
   .protocol-list__link { display: flex; align-items: center; gap: 1rem; color: var(--fg); text-decoration: none; }
   .protocol-list__link:hover .protocol-list__name { color: var(--family-ink); }
   .protocol-list__text { display: grid; }
   .protocol-list__name { font-family: var(--font-heading); font-weight: 600; font-size: 1.1rem; }
   .protocol-list__tagline { font-size: 0.9rem; color: var(--fg-muted); }
+  .protocol-list__intro { font-size: 0.9375rem; color: var(--fg-muted); max-width: 68ch; }
+  .protocol-list__facts { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; font-size: 0.8125rem; }
+  .protocol-list__facts div { display: flex; gap: 0.4rem; }
+  .protocol-list__facts dt { color: var(--fg-subtle); }
+  .protocol-list__facts dd { margin: 0; color: var(--fg); }
   .protocol-list__meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+
+  .changes {
+    display: grid; gap: 0; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    border-top: 1px solid var(--border);
+  }
+  .changes__item {
+    display: grid; gap: 0.2rem; align-content: start; padding: 0.85rem 1rem 0.95rem 0.9rem;
+    border-bottom: 1px solid var(--border); border-left: 2px solid var(--border);
+  }
+  .changes__item[data-family] { border-left-color: var(--family-fill); }
+  .changes__date { font-family: var(--font-mono); font-size: 0.75rem; color: var(--fg-subtle); }
+  .changes__lane { font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .changes__title { font-size: 0.9rem; color: var(--fg); }
+  a.changes__title { color: var(--link); }
 </style>
