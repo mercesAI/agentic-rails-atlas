@@ -1,0 +1,78 @@
+classDiagram
+  class CheckoutSession {
+    string id
+    string status
+    string currency
+    Capabilities capabilities
+    LineItem[] line_items
+    object[] fulfillment_options
+    Total[] totals
+    object[] messages
+    Link[] links
+    Order order
+  }
+  class Capabilities {
+    Payment payment
+    InterventionCapabilities interventions
+    object extensions
+  }
+  class PaymentHandler {
+    string id
+    string name
+    string version
+    boolean requires_delegate_payment
+    boolean requires_pci_compliance
+    string psp
+    object config
+  }
+  class LineItem {
+    string id
+    Item item
+    integer quantity
+    Total[] totals
+  }
+  class Item {
+    string id
+    string name
+    integer unit_amount
+  }
+  class Total {
+    string type
+    string display_text
+    integer amount
+  }
+  class PaymentData {
+    string handler_id
+    object instrument
+    Address billing_address
+  }
+  class Allowance {
+    string reason
+    integer max_amount
+    string currency
+    string checkout_session_id
+    string merchant_id
+    string expires_at
+  }
+  class DelegatePaymentResponse {
+    string id
+    string created
+    object metadata
+  }
+  class Order {
+    string id
+    string checkout_session_id
+    string permalink_url
+    string status
+    Adjustment[] adjustments
+  }
+  CheckoutSession "1" --> "1" Capabilities
+  Capabilities "1" --> "*" PaymentHandler : payment.handlers
+  CheckoutSession "1" --> "*" LineItem
+  LineItem "1" --> "1" Item
+  CheckoutSession "1" --> "*" Total
+  CheckoutSession "1" --> "0..1" Order : after complete
+  PaymentData ..> PaymentHandler : handler_id
+  PaymentData ..> DelegatePaymentResponse : credential.token
+  DelegatePaymentResponse ..> Allowance : bound by
+  Allowance ..> CheckoutSession : checkout_session_id

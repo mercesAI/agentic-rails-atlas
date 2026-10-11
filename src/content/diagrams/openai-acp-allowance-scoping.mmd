@@ -1,0 +1,12 @@
+flowchart TB
+  T["Vault token vt_..."] --> R{"reason = one_time?<br/>first use"}
+  R -- "no: already used" --> X["Decline (PSP specific)"]
+  R -- "yes" --> M{"merchant_id matches?"}
+  M -- "no" --> X
+  M -- "yes" --> S{"checkout_session_id matches?"}
+  S -- "no" --> X
+  S -- "yes" --> C{"currency matches and<br/>amount <= max_amount?"}
+  C -- "no" --> X
+  C -- "yes" --> E{"before expires_at?"}
+  E -- "no" --> X
+  E -- "yes" --> OK["Charge allowed"]

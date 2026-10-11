@@ -1,0 +1,20 @@
+flowchart TB
+  ACP["ACP: checkout session + Delegate Payment"]
+  SPT["Stripe SPT (Stripe product)"]
+  VIC["Visa Intelligent Commerce tokens"]
+  MAP["Mastercard Agent Pay tokens"]
+  MPP["Stripe MPP"]
+  UCP["UCP"]
+  AP2["AP2 mandates"]
+  TAP["Visa TAP"]
+  X402["x402"]
+  E8004["ERC-8004"]
+  ACP -- "Delegate Payment implemented by" --> SPT
+  SPT -- "may carry" --> VIC
+  SPT -- "may carry" --> MAP
+  MPP -- "accepts cards via" --> SPT
+  ACP -. "side by side, no bridge" .- UCP
+  AP2 -. "no mandates in ACP" .- ACP
+  TAP -. "no documented link" .- ACP
+  X402 -. "different lane (Stripe: machine payments)" .- MPP
+  E8004 -. "no documented link" .- ACP

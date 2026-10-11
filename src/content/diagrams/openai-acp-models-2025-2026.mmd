@@ -1,0 +1,12 @@
+flowchart TB
+  subgraph M25["2025 model: Instant Checkout in chat"]
+    A1["Buyer in ChatGPT"] --> A2["ChatGPT runs ACP checkout<br/>create, update, complete"]
+    A2 --> A3["Delegate Payment token<br/>(Stripe SPT)"]
+    A3 --> A4["Merchant charges, merchant of record"]
+  end
+  subgraph M26["2026 model: discovery first"]
+    B0["Merchant pushes product feeds<br/>through ACP (direct or via providers)"] --> B1["Buyer discovers in ChatGPT"]
+    B1 --> B2["External checkout on merchant site<br/>(generally available)"]
+    B1 -.-> B3["Payment sheet in apps<br/>(private beta, select partners)"]
+  end
+  M25 == "scaled back 2026-03-24" ==> M26

@@ -1,0 +1,10 @@
+flowchart LR
+  V1["2025-09-29<br/>initial: checkout + Delegate Payment<br/>5 statuses, items with quantity"]
+  V2["2025-12-12<br/>fulfillment_details, selected_fulfillment_options<br/>authentication_required, affiliate attribution"]
+  V3["2026-01-16<br/>authentication_provider, adyen"]
+  V4["2026-01-30<br/>capabilities, payment handlers, extensions<br/>11 statuses, line_items without quantity"]
+  V5["2026-04-17 (latest)<br/>cart, Feed API, Delegate Authentication<br/>acp.json discovery, MCP binding, required Idempotency-Key"]
+  U["unreleased<br/>18 commits to 2026-07-18"]
+  V1 --> V2 --> V3 --> V4 --> V5 --> U
+  E1["edited after release<br/>2026-02-05 to 2026-02-13"] -.-> V4
+  E2["edited after release<br/>2026-05-01, 2026-06-15"] -.-> V5

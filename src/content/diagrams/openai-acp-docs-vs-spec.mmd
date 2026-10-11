@@ -1,0 +1,20 @@
+flowchart LR
+  subgraph SPEC["ACP spec 2026-04-17"]
+    S1["Feed: /feeds..."]
+    S2["Webhooks: order_create, order_update"]
+    S3["Complete: 200"]
+    S4["idempotency_conflict: 422"]
+    S5["TLS 1.3 MUST"]
+  end
+  subgraph DOCS["OpenAI developer docs"]
+    D1["Feed: /product_feeds... + promotions"]
+    D2["Webhooks: order_created, order_updated"]
+    D3["Complete: 201 Created"]
+    D4["idempotency_conflict: 409"]
+    D5["TLS 1.2 or later"]
+  end
+  S1 -. "differs" .- D1
+  S2 -. "differs" .- D2
+  S3 -. "differs" .- D3
+  S4 -. "differs" .- D4
+  S5 -. "differs" .- D5

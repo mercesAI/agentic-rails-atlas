@@ -1,0 +1,30 @@
+flowchart LR
+  subgraph BZ["Buyer"]
+    BU["Buyer confirms in the agent UI"]
+  end
+  subgraph AZ["Agent platform trust zone"]
+    AG["Agent (for example ChatGPT)"]
+    WH["Webhook receiver /agentic_checkout/webhooks/order_events"]
+    FD["Feed API /feeds"]
+  end
+  subgraph MZ["Merchant trust zone (merchant of record)"]
+    CS["Checkout API /checkout_sessions"]
+    WK["/.well-known/acp.json"]
+    MP["Merchant PSP and fraud stack"]
+  end
+  subgraph PZ["PSP or vault trust zone"]
+    DP["POST /agentic_commerce/delegate_payment"]
+  end
+  subgraph AU["Authentication provider"]
+    DA["/delegate_authentication (3DS2)"]
+  end
+  BU -- "1 choose and confirm" --> AG
+  AG -. "2 discovery, no auth" .-> WK
+  AG -- "3 create, update, complete (bearer key)" --> CS
+  AG -- "4 card + allowance" --> DP
+  DP -- "5 vault token vt_" --> AG
+  CS -- "6 charge token" --> MP
+  MP -. "token valid only inside allowance" .-> DP
+  CS -- "7 order events, HMAC signed" --> WH
+  CS -- "push products" --> FD
+  AG -. "step-up when required" .-> DA

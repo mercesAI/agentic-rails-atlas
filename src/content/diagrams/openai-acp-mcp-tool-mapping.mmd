@@ -1,0 +1,24 @@
+flowchart LR
+  subgraph REST["REST binding"]
+    R1["POST /checkout_sessions"]
+    R2["GET /checkout_sessions/{id}"]
+    R3["POST /checkout_sessions/{id}"]
+    R4["POST /checkout_sessions/{id}/complete"]
+    R5["POST /checkout_sessions/{id}/cancel"]
+    H["Headers: API-Version, Idempotency-Key,<br/>Signature, Timestamp, Request-Id"]
+  end
+  subgraph MCP["MCP binding (JSON-RPC 2.0, tools/call)"]
+    T1["create_checkout_session"]
+    T2["get_checkout_session"]
+    T3["update_checkout_session"]
+    T4["complete_checkout_session"]
+    T5["cancel_checkout_session"]
+    MT["arguments.meta: api_version, idempotency_key,<br/>signature, timestamp, request_id"]
+  end
+  R1 --- T1
+  R2 --- T2
+  R3 --- T3
+  R4 --- T4
+  R5 --- T5
+  H --- MT
+  AS["Apps SDK tool complete_checkout<br/>(ChatGPT payment sheet, not ACP)"] -. "different tool" .-> T4
