@@ -492,7 +492,7 @@ There is no official ACP SDK from OpenAI or Stripe. Reference implementations ar
 
 ## Relations to the other seven protocols
 
-- **ERC-8004 (Trustless Agents).** No documented relation. ACP has no on-chain identity, registry or reputation component (no such terms in the repository at 7fdd78d) [src-openai-acp-rfcs-dir]. Name collision to flag: ERC-8183 "Agentic Commerce" (Draft, created 2026-02-25, authors including Virtuals contributors) calls itself the "Agentic Commerce Protocol" and references ERC-8004 for reputation; it is an on-chain job escrow standard unrelated to OpenAI and Stripe's ACP [src-erc-8183].
+- **ERC-8004 (Trustless Agents).** No documented relation. ACP has no on-chain identity, registry or reputation component (no such terms in the repository at 7fdd78d) [src-openai-acp-rfcs-dir]. Name collision to flag: ERC-8183 "Agentic Commerce" (Draft, created 2026-02-25; author handles include `@ai-virtual-b` and `@twx-virtuals`) calls itself the "Agentic Commerce Protocol" and references ERC-8004 for reputation; it is an on-chain job escrow standard unrelated to OpenAI and Stripe's ACP [src-erc-8183].
 - **x402.** No documented relation in the ACP repository. Stripe's docs place them side by side but separate: selling through agents uses "UCP or ACP", while machine payments use "MPP or x402" [src-stripe-agentic-commerce].
 - **Visa TAP (Trusted Agent Protocol).** No documented relation in the ACP spec; ACP authenticates agents with bearer tokens and optional detached signatures, not TAP's HTTP Message Signatures. Indirect link through payments only: Stripe says it may use tokens from network programs such as Visa's Intelligent Commerce program under SPT card payments [src-stripe-spt] [src-openai-acp-rfc-checkout].
 - **UCP (Universal Commerce Protocol).** No bridge or mapping is specified in either repository. Convergent design: five checkout status names are identical (`incomplete`, `requires_escalation`, `complete_in_progress`, `completed`, `canceled`; UCP has `ready_for_complete` where ACP has `ready_for_payment`), both use reverse-DNS names for payment handlers and extensions (`dev.acp.*` versus `dev.ucp.*` and `com.google.pay`), and both publish a well-known discovery document (`/.well-known/acp.json` versus `/.well-known/ucp`) [src-openai-acp-schema-checkout-20260417] [src-ucp-checkout-schema] [src-ucp-reference-discovery]. Stripe supports both for sellers and says it is a UCP Tech Council member [src-stripe-agentic-commerce] [src-stripe-ucp-page]. Microsoft announced Copilot Checkout with ACP in January 2026, and its later merchant page requires a UCP-compliant feed [src-ms-copilot-checkout] [src-ms-agentic-commerce].
@@ -517,15 +517,76 @@ There is no official ACP SDK from OpenAI or Stripe. Reference implementations ar
 ### Disambiguation ("Do not get wrong")
 
 - Not IBM's **Agent Communication Protocol** (BeeAI), which merged into A2A under the Linux Foundation, announced 2025-08-29; its Python SDK is `acp-sdk` [src-ibm-acp-a2a] [src-ibm-acp-research] [src-pypi-acp-sdk]. Papers on "MCP, ACP, A2A, ANP" usually mean IBM's protocol [src-arxiv-2505-02279].
-- Not **Virtuals' Agent Commerce Protocol**; the SoK arXiv 2604.15367 lists an "Agent Commerce Protocol (ACP)" next to ERC-8183, which points to the Virtuals line, not this ACP [src-arxiv-2604-15367] [src-erc-8183].
-- Not the **Agent Client Protocol** (editor-to-coding-agent protocol) (unverified here; no primary source read).
+- Not **Virtuals' Agent Commerce Protocol**, which the Virtuals whitepaper describes as the commerce layer of its on-chain agent economy [src-virtuals-acp]. The SoK arXiv 2604.15367 lists an "Agent Commerce Protocol (ACP)" next to ERC-8183; by its name and context it most likely means the Virtuals protocol (inference) [src-arxiv-2604-15367] [src-erc-8183].
+- Not the **Agent Client Protocol**, "a protocol for connecting any editor to any agent" (GitHub `agentclientprotocol/agent-client-protocol`, created 2025-06-23) [src-agent-client-protocol].
 - OpenAI is **not the merchant of record** [src-openai-commerce-docs].
 - The **SPT is Stripe's product**, compatible with ACP Delegate Payment, not part of the ACP spec [src-openai-commerce-docs] [src-stripe-spt].
 - **Instant Checkout in its 2025 form was scaled back** in March 2026 [src-openai-product-discovery] [src-retailsystems-pivot].
 
 ## Resources
 
+All URLs returned HTTP 200 on 2026-10-11 unless noted (`curl -sSIL`).
+
+| Title | URL | Publisher | Date | Type | Badge | Note | Start here |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Agentic Commerce Protocol repository | https://github.com/agentic-commerce-protocol/agentic-commerce-protocol | OpenAI and Stripe | 2025-09-29 (created) | spec | primary | Dated spec folders, RFCs, changelog | yes |
+| Agentic Commerce Protocol site | https://www.agenticcommerce.dev/ | OpenAI and Stripe | n.d. | docs | primary | Overview and FAQ | yes |
+| ACP governance | https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/docs/governance.md | ACP project | 2026-03-10 | spec | primary | TSC, SEPs, veto | no |
+| ACP MCP binding | https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/docs/mcp-binding.md | ACP project | 2026-02-19 | spec | primary | Five MCP tools | no |
+| ACP changelog folder | https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/tree/main/changelog | ACP project | 2026-04-17 (latest) | spec | primary | What changed per version | yes |
+| Agentic Commerce (OpenAI developer docs) | https://developers.openai.com/commerce/ | OpenAI | n.d. | docs | primary | Feeds, checkout, delegated payment as implemented by OpenAI | yes |
+| Monetization (Apps SDK) | https://developers.openai.com/apps-sdk/build/monetization | OpenAI | n.d. | docs | primary | External checkout GA; payment sheet beta | no |
+| Buy it in ChatGPT | https://openai.com/index/buy-it-in-chatgpt/ | OpenAI | 2025-09-29 | announcement | primary (403 to scripts; archived copy) | Launch of Instant Checkout and ACP | no |
+| Powering Product Discovery in ChatGPT | https://openai.com/index/powering-product-discovery-in-chatgpt/ | OpenAI | 2026-03-24 | announcement | primary (403 to scripts; archived copy) | Shift to discovery; merchant checkout | yes |
+| Agentic commerce (Stripe Docs) | https://docs.stripe.com/agentic-commerce | Stripe | n.d. | docs | primary | Seller and agent integrations; ACP or UCP | no |
+| Shared payment tokens (Stripe Docs) | https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens | Stripe | n.d. | docs | primary | SPT lifecycle and limits | yes |
+| Developing an open standard for agentic commerce | https://stripe.com/blog/developing-an-open-standard-for-agentic-commerce | Stripe | 2025-09-29 | announcement | primary | Design goals | no |
+| Stripe powers Instant Checkout in ChatGPT | https://stripe.com/newsroom/news/stripe-openai-instant-checkout | Stripe | 2025-09-29 | announcement | primary | SPT introduced | no |
+| Stripe Agentic Commerce Suite | https://stripe.com/newsroom/news/agentic-commerce-suite | Stripe | 2025-12-11 | announcement | primary | Brands and platforms | no |
+| OpenAI and PayPal team up | https://newsroom.paypal-corp.com/2025-10-28-OpenAI-and-PayPal-Team-Up-to-Power-Instant-Checkout-and-Agentic-Commerce-in-ChatGPT | PayPal | 2025-10-28 | announcement | primary | PayPal adopts ACP | no |
+| Copilot Checkout and Brand Agents | https://about.ads.microsoft.com/en/blog/post/january-2026/conversations-that-convert-copilot-checkout-and-brand-agents | Microsoft Advertising | 2026-01-08 | announcement | primary | Mentions ACP | no |
+| Adyen agentic commerce docs | https://docs.adyen.com/online-payments/agentic-commerce | Adyen | n.d. | docs | primary | PSP listed for payment sheet | no |
+| Checkout.com ACP API reference | https://api-reference.checkout.com/tag/Agentic-Commerce-Protocol/ | Checkout.com | n.d. | docs | primary | PSP implementation | no |
+| Worldpay ACP docs | https://docs.worldpay.com/access/products/ai/acp | Worldpay | n.d. | docs | primary | PSP implementation | no |
+| Accept payments in ChatGPT apps (Stripe) | https://docs.stripe.com/agentic-commerce/apps | Stripe | n.d. | docs | primary | Apps and MCP with SPT | no |
+| Agentic commerce under the hood | https://stripe.com/sessions/2026/agentic-commerce-under-the | Stripe Sessions 2026 | 2026 | talk | secondary (gated video) | Production lessons | no |
+| Preparing for agent-to-agent commerce | https://stripe.com/sessions/2026/preparing-for-agent-to | Stripe Sessions 2026 with AWS | 2026 | talk | secondary (gated video) | | no |
+| Teaching agents to pay | https://www.wearedevelopers.com/world-congress/agenda/sessions/1081761 | WeAreDevelopers; Ben Smith (Stripe) | 2026-07-10 | talk | secondary | SPTs, endpoints, webhooks | no |
+| What is ACP? | https://departmentofproduct.substack.com/p/what-is-acp-agentic-commerce-protocol | Department of Product | 2025-10-06 | newsletter | secondary | Product-level walkthrough | no |
+| Stripe pushes agentic AI sales via chat | https://www.paymentsdive.com/news/stripe-pushes-agentic-ai-sales-via-chatgpt-openai-artificial-intelligence/761439/ | Payments Dive | 2025-09-30 | news | secondary | Launch analysis | no |
+| ACP: Shared Payment Tokens, Link Wallets, Agent Checkout | https://chudi.dev/blog/agent-commerce-readiness-acp-payment-tokens-link-wallets | Chudi Nnorukam | 2026-06-15 | tutorial | secondary | Merchant surfaces | no |
+| Accept Payments From AI Agents Using ACP | https://growwstacks.com/blog/how-to-accept-payments-from-ai-agents-with-acp | GrowwStacks | 2025-12-04 | tutorial | secondary | Steps and video | no |
+| What Every Builder Needs to Know About ACP | https://www.mindstudio.ai/blog/openai-stripe-agentic-commerce-protocol-new-payment-stack-builders | MindStudio | 2026-05-04 | long-form | secondary | Fraud and brand implications | no |
+| ACP Explained | https://eco.com/support/en/articles/14845478-acp-agentic-commerce-protocol-explained | Eco | 2026 | tutorial | secondary | Covers the Instant Checkout retirement | no |
+| Shopify merchants to pay 4% fee on ChatGPT checkout sales | https://www.pymnts.com/news/ecommerce/2026/shopify-merchants-to-pay-4percent-fee-on-sales-made-through-chatgpt-checkout | PYMNTS | 2026-01-21 | news | reported | Fee report via The Information | no |
+| OpenAI to pivot from Instant Checkout | https://retail-systems.com/rs/OpenAI_to_pivot_from_Instant_Checkout_ChatGPT_feature_months_after_launch.php | Retail Systems | 2026-03-10 | news | reported | "Moving to apps" quote | no |
+| A Formal Analysis of Agent Payment Protocols | https://arxiv.org/abs/2609.00060 | arXiv | 2026-08-30 | paper | preprint | Tamarin models incl. ACP | no |
+
+Appendix A URL note: `https://docs.paypal.ai/growth/agentic-commerce/agent-ready` (linked from OpenAI's payment sheet page) returned HTTP 404 on 2026-10-11 and is left out.
+
 ## Publications
+
+Verified with the arXiv API (`export.arxiv.org/api/query?id_list=...`) or DOI content negotiation on 2026-10-11.
+
+| Id | Title | First author | Date | Relation to ACP | Verified |
+| --- | --- | --- | --- | --- | --- |
+| arXiv 2609.00060 | A Formal Analysis of Agent Payment Protocols | Ke Jiang | 2026-08-30 | Formalizes ACP in Tamarin with x402, MPP, AP2 | arXiv API |
+| arXiv 2607.21824 | Protocol-Level Attacks on Agentic Commerce Platforms: A Cross-Platform Taxonomy, AIP-Bench, and Unified Defense | Yedidel Louck | 2026-07-23 | Protocol-layer attacks on agentic commerce platforms; abstract does not name ACP | arXiv API |
+| arXiv 2604.15367 | SoK: Security of Autonomous LLM Agents in Agentic Commerce | Qian'ang Mao | 2026-04-15 | Lists "Agent Commerce Protocol (ACP)" (likely Virtuals), not clearly this ACP | arXiv API |
+| arXiv 2607.19436 | Building Trust in Autonomous Commerce: A Verifiable Global Event Timeline and AI-Ready Fraud Intelligence Layer | Rajat Srivastava | 2026-07-21 | Says AP2 and ACP lack tamper-evident audit trails | arXiv API |
+| arXiv 2607.18347 | A Decision-Centered Reference Architecture for Trustworthy Agentic Commerce | Dimitrios S. Sfiris | 2026-07-20 | Merchant-side architecture (tagged ACP, UCP, AP2 in project research) | arXiv API |
+| arXiv 2508.02630 | What Is Your AI Agent Buying? Evaluation, Biases, Model Dependence, & Emerging Implications for Agentic E-Commerce | Amine Allouah | 2025-08-04 | Agent shopping behavior (context) | arXiv API |
+| arXiv 2510.25779 | Magentic Marketplace: An Open-Source Environment for Studying Agentic Markets | Gagan Bansal | 2025-10-27 | Agentic market simulation (context) | arXiv API |
+| arXiv 2609.28372 | Shopping by algorithm: How agentic AI deploys human heuristics as a surrogate consumer | Davood Wadi | 2026-09-23 | Agent consumer behavior (context) | arXiv API |
+| arXiv 2607.25253 | The User Asks, Platforms Compete: How Agentic Recommendation Markets Take Shape | Deyao Hong | 2026-07-28 | Platform competition (context) | arXiv API |
+| arXiv 2207.01206 | WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents | Shunyu Yao | 2022-07-04 | Shopping agent benchmark (background) | arXiv API |
+| arXiv 2406.12045 | tau-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains | Shunyu Yao | 2024-06-17 | Retail tool-use benchmark (background) | arXiv API |
+| arXiv 2508.08544 | AI Agents and the Law | Mark O. Riedl, Deven R. Desai | 2025-08-12 | Agency law (context) | arXiv API |
+| DOI 10.1162/154247603322493212 | Platform Competition in Two-Sided Markets | Jean-Charles Rochet, Jean Tirole | 2003-06 (Journal of the European Economic Association) | Two-sided market economics (context for fees) | DOI content negotiation |
+| arXiv 2505.02279 | A survey of agent interoperability protocols: MCP, ACP, A2A, and ANP | Abul Ehtesham | 2025-05-04 | Disambiguation: its ACP is IBM's Agent Communication Protocol | arXiv API |
+| arXiv 2606.31498 | Governance Gaps in Agent Interoperability Protocols: What MCP, A2A, and ACP Cannot Express | Richard Kang | 2026-06-30 | Lists ACP among interoperability protocols with MCP, A2A, ANP; likely IBM's ACP (inference) | arXiv API |
+
+Seed arXiv ids all resolve with the titles above; no seed id was wrong.
 
 ## Seed audit
 
