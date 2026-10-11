@@ -360,3 +360,45 @@ Gaps worth showing: no user-to-agent delegation or mandate object (AP2 fills tha
 - Stripe at Sessions (2026-04-29): MPP payments via SPTs now include cards, Klarna and Affirm on the Payment Intents API; streaming payments announced as Metronome plus Tempo (the recap does not say "over MPP") [src-stripe-mpp-stripe-sessions].
 - Tempo Wallet "MPP Credits" let users fund agents by card [src-stripe-mpp-tempo-credits].
 - Stripe labels its MPP docs "Frontier" and uses API version `2026-07-29.preview` [src-stripe-mpp-stripe-docs].
+
+## Fees and costs
+
+| Item | Figure | As of | Confidence | Source |
+| --- | --- | --- | --- | --- |
+| Protocol fee | None defined in any spec; costs come from the rail | 2026-10-11 | verified | [src-stripe-mpp-core-01] |
+| Tempo gas | No native token; fees paid in USD TIP-20 stablecoins through the Fee AMM; bounded dynamic base fee; a 50,000-gas transfer costs at most about $0.0006 with a quiet-period floor near $0.00003; fees go to the proposing validator | 2026-10-11 | verified | [src-stripe-mpp-tempo-fees] |
+| Tempo session v2 gas | Open with an existing reserve balance 294,425 gas versus 1,055,229 in v1 (minus 72.1 percent); open with first reserve balance minus 39.2 percent; settle to a new payee balance plus 79.4 percent (559,871 gas). "Up to 72%" is the best case, not an average | 2026-06-17 | verified | [src-stripe-mpp-blog-sessions] |
+| Who pays gas on Tempo | Client by default; server when `feePayer: true` for charge, open and topUp; server always pays for `settle` and `close` | 2026-10-11 | verified | [src-stripe-mpp-tempo-session] [src-stripe-mpp-tempo-charge] |
+| Stripe `hostedFeePayer` | Stripe covers customers' Tempo network fees; needs `mppx` 0.9.2 or later, live mode, Tempo deposit address on the same account; not with Connect | 2026-10-11 | verified | [src-stripe-mpp-stripe-docs] |
+| Stripe MPP minimums | 0.50 USD for SPT card payments; 0.01 USDC for stablecoin payments | 2026-10-11 | verified | [src-stripe-mpp-stripe-docs] |
+| Stripe stablecoin payments fee | 1.5 percent per transaction reported at launch of USD-settled stablecoin payments; the current Stripe docs page states no percentage; whether it applies to MPP charges is unverified | reported 2025-12-10 | reported (figure), unverified (MPP applicability) | [src-stripe-mpp-yahoo-fee] [src-stripe-mpp-stripe-stablecoin] |
+| Stripe stablecoin limits | 10,000 USD per-transaction customer limit; no disputes; refunds in stablecoin to the original wallet | 2026-10-11 | verified | [src-stripe-mpp-stripe-stablecoin] |
+| SPT fee | No public SPT price schedule found | 2026-10-11 | unverified | [src-stripe-mpp-stripe-docs] |
+| Card method | Card economics unchanged (interchange and acquirer fees); no MPP-specific card pricing published by Visa | 2026-10-11 | reported | [src-stripe-mpp-visa-card] |
+| Average payment size | Visa and Artemis measured about 25,000 USD across about 115,000 MPP transfers to 2026-04-21 (about $0.22 each) | 2026-04-21 | reported | [src-stripe-mpp-forkast-visa] |
+
+## Metrics with dates and caveats
+
+| Metric | Value | Window | As of | Caveat | Source |
+| --- | --- | --- | --- | --- | --- |
+| MPPscan transactions | 4,072,426 | all time | 2026-10-11 | Indexer's own definition; includes test and self-dealing traffic it cannot filter; mostly Tempo | [src-stripe-mpp-mppscan] |
+| MPPscan volume | 435,476 USD | all time | 2026-10-11 | Same | [src-stripe-mpp-mppscan] |
+| MPPscan unique senders / recipients | 224,244 / 6,101 | all time | 2026-10-11 | Address counts, not agents or businesses | [src-stripe-mpp-mppscan] |
+| MPPscan last 30 days | 998,771 transactions; 8,774 USD | 30 days | 2026-10-11 | About $0.009 per transaction | [src-stripe-mpp-mppscan] |
+| MPPscan last 7 days (homepage default) | 126,902 transactions; 1,484 USD; 3,711 senders; 167 recipients | 7 days | 2026-10-11 | | [src-stripe-mpp-mppscan] |
+| Directory size | 129 services | snapshot | 2026-10-11 | Listing, not usage | [src-stripe-mpp-directory-api] |
+| Launch directory | more than 100 services | launch | 2026-03-18 | Self-reported | [src-stripe-mpp-tempo-mainnet] |
+| Visa and Artemis | about 25,000 USD over about 115,000 transfers | to 2026-04-21 | 2026-07-20 | Secondary report | [src-stripe-mpp-forkast-visa] |
+| GitHub stars | `mpp-specs` 95; `mppx` 186 | snapshot | 2026-10-11 | Popularity only | [src-stripe-mpp-gh-specs-commits] [src-stripe-mpp-mppx-repo] |
+
+Dispute on the seed figure: the seed says MPPScan figures "cited by Merit Systems on 2026-06-24 (about 4M transactions, about $435K volume)". The Merit Systems glossary page carries "Updated June 24, 2026" as its article date, but its stats block is live and refreshed hourly; on 2026-10-11 it showed 4.1M transactions and $435.4K, exactly the current all-time API values. The 4M and $435K figures are therefore 2026-10-11 numbers, not June numbers. A search-engine summary of the same page reported about 2.3M transactions and $314.4K, which could be an older render; that value could not be confirmed [src-stripe-mpp-merit-glossary] [src-stripe-mpp-mppscan]. Note also the gap between volume and count: about $0.11 average all time, falling to under $0.01 in the last 30 days, which points to many tiny or test payments.
+
+## Relations to the other seven protocols
+
+- **x402.** Competing and interoperable HTTP 402 designs. Header mapping: x402 `PAYMENT-REQUIRED` to `WWW-Authenticate: Payment`, `PAYMENT-SIGNATURE` to `Authorization: Payment` (or `Payment-Authorization`), `PAYMENT-RESPONSE` to `Payment-Receipt`. x402 `exact` maps to MPP `charge`; x402 `upto` and EVM `batch-settlement` are the comparable usage-based mechanisms to MPP `session`. `mppx` can serve both on one route and its x402 headers are implemented in `src/x402/Header.ts`; Cloudflare calls MPP backwards compatible with x402. Stripe sits on both: it co-authors MPP and is an x402 Foundation TSC member (see the x402 dossier, clm-x402-213 and clm-x402-214). The discovery draft cites x402scan's OpenAPI-first approach and `/.well-known/x402` as prior art, and both explorers are run by Merit Systems [src-stripe-mpp-vs-x402] [src-stripe-mpp-mppx-changelog] [src-stripe-mpp-cloudflare] [src-stripe-mpp-discovery].
+- **Visa TAP.** Two links. (1) Visa's `card` method spec says a client may add Trusted Agent Protocol signature headers; this wording has been in the file since the 2026-03-18 public commit. (2) Visa's 2026-03-18 announcement says the card spec and SDK are built on Visa Intelligent Commerce and TAP. Separately, `mppx` added TAP and Web Bot Auth request-attestation profiles (merged 2026-08-04, blog 2026-08-12). The `mpp-card` 0.1.8 package contains no TAP signing code [src-stripe-mpp-card-history] [src-stripe-mpp-visa-card] [src-stripe-mpp-blog-identity] [src-stripe-mpp-mpp-card-pkg].
+- **OpenAI ACP.** No protocol cross-reference. Shared component: Stripe Shared Payment Tokens, which the `stripe` MPP method carries in `payload.spt` and which Stripe also uses for agentic checkout; Stripe presents MPP, ACP and x402 support side by side in its agentic commerce offering [src-stripe-mpp-stripe-charge] [src-stripe-mpp-stripe-blog].
+- **Google UCP.** No documented relation: the cloned UCP repositories contain no reference to MPP, paymentauth or `mppx` [src-stripe-mpp-specs-repo].
+- **AP2.** No cross-reference in either direction; the cloned AP2 repository never mentions the Machine Payments Protocol. Inside AP2 documents "MPP" means Merchant Payment Processor, a role that builds the authorization message. Conceptually complementary (AP2 carries user authorization evidence, MPP negotiates and settles payment), but no spec defines a binding [src-stripe-mpp-ap2-glossary].
+- **ERC-8004.** No integration. The discovery draft compares itself with ERC-8004 and says it is off-chain but "compatible with future on-chain anchoring" [src-stripe-mpp-discovery].
+- **Mastercard Agent Pay.** Tempo and Stripe are in the initial partner group of Mastercard Agent Pay for Machines (AP4M, announced 2026-06-10), per secondary coverage; none of the articles read mentions MPP compatibility, and no Tempo or Mastercard page confirming MPP compatibility could be opened (correction 2.1.2: the claim is dropped). Other links: Tempo's mainnet post lists Mastercard among Tempo's partners; mpp.dev governance names Mastercard as an example of a rail that would maintain its own method, but no Mastercard method spec exists; the Visa `card` method accepts `"mastercard"` as a `network` value [src-stripe-mpp-ap4m-coverage] [src-stripe-mpp-tempo-mainnet] [src-stripe-mpp-governance] [src-stripe-mpp-card-charge].
