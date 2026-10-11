@@ -1,0 +1,63 @@
+sequenceDiagram
+  accTitle: A crawler pays per page: (a) Cloudflare Monetization Gateway beta with USDC on Base, (b) the credit-backed cloudflare:402 network
+  accDescr: Sequence diagram: A crawler pays per page: (a) Cloudflare Monetization Gateway beta with USDC on Base, (b) the credit-backed cloudflare:402 network. 7 participants: AI crawler or agent, Cloudflare edge (gateway), Publisher origin, Coinbase x402 facilitator, Base (USDC), Crawler key directory, and Cloudflare billing (merchant of record). 13 steps, 13 crossing a trust boundary, 8 failure branches. Based on several protocols x402 V2 (repository at f8f8330) cloudflare:402 network version 1.0.0 Monetization Gateway beta post (2026-09-30) (2026-09-30). Step 1: AI crawler or agent to Cloudflare edge (gateway): (a) Request a priced resource. This step crosses a trust boundary. Step 2: Cloudflare edge (gateway) to AI crawler or agent: (a) 402 with PAYMENT-REQUIRED (USDC on Base). This step crosses a trust boundary. Step 3: AI crawler or agent to Cloudflare edge (gateway): (a) Retry with PAYMENT-SIGNATURE. This step crosses a trust boundary. If The wallet holds too little USDC: Verification fails, for example with insufficient_funds nothing is served. Step 4: Cloudflare edge (gateway) to Coinbase x402 facilitator: (a) POST /verify, then POST /settle. This step crosses a trust boundary. If The settle call times out: Indeterminate: settlement may still have happened settlement_pending is retried and reconciled. Step 5: Coinbase x402 facilitator to Base (USDC): (a) USDC transfer on Base. This step crosses a trust boundary. Step 6: Cloudflare edge (gateway) to AI crawler or agent: (a) 200 with the resource and PAYMENT-RESPONSE. This step crosses a trust boundary. Step 7: AI crawler or agent to Crawler key directory: (b) One-time setup: publish keys and register the signature agent. This step crosses a trust boundary. Step 8: AI crawler or agent to Cloudflare edge (gateway): (b) GET the page. This step crosses a trust boundary. Step 9: Cloudflare edge (gateway) to AI crawler or agent: (b) 402: batch-settlement on cloudflare:402, payTo merchant. This step crosses a trust boundary. If The signature agent is not recognized: The amount may be missing from accepts the client should retry with authentication. Step 10: AI crawler or agent to Cloudflare edge (gateway): (b) Retry signed with RFC 9421 plus PAYMENT-SIGNATURE. This step crosses a trust boundary. Step 11: Cloudflare edge (gateway) to Crawler key directory: (b) Fetch the key, check the agent is known, verify. This step crosses a trust boundary. If Unknown signature agent: signature_agent_unknown. If Bad or missing message signature: invalid_signature. If Agent not tied to a valid billing identity: payment_failed. If Amount does not match: price_not_acceptable. Step 12: Cloudflare edge (gateway) to AI crawler or agent: (b) 200 with the page and PAYMENT-RESPONSE (no transaction). This step crosses a trust boundary. Step 13: Cloudflare billing (merchant of record) to Publisher origin: (b) Batched billing and periodic payout over off-chain rails. This step crosses a trust boundary. If The crawler's account cannot be charged at the end of the period: Handled under Cloudflare's registration terms x402 defines nothing.
+  autonumber
+  participant p_crawler as AI crawler or agent
+  participant p_edge as Cloudflare edge (gateway)
+  participant p_origin as Publisher origin
+  participant p_facilitator as Coinbase x402 facilitator
+  participant p_base as Base (USDC)
+  participant p_keydir as Crawler key directory
+  participant p_billing as Cloudflare billing (merchant of record)
+  p_crawler->>p_edge: (a) Request a priced resource
+  Note over p_crawler,p_edge: Crosses a trust boundary
+  p_edge-->>p_crawler: (a) 402 with PAYMENT-REQUIRED (USDC on Base)
+  Note over p_edge,p_crawler: Crosses a trust boundary
+  alt Expected path
+    p_crawler->>p_edge: (a) Retry with PAYMENT-SIGNATURE
+    Note over p_crawler,p_edge: Crosses a trust boundary
+  else The wallet holds too little USDC
+    Note over p_crawler,p_edge: Verification fails, for example with insufficient_funds#59; nothing is served.
+  end
+  alt Expected path
+    p_edge->>p_facilitator: (a) POST /verify, then POST /settle
+    Note over p_edge,p_facilitator: Crosses a trust boundary
+  else The settle call times out
+    Note over p_edge,p_facilitator: Indeterminate: settlement may still have happened#59; settlement_pending is retried and reconciled.
+  end
+  p_facilitator->>p_base: (a) USDC transfer on Base
+  Note over p_facilitator,p_base: Crosses a trust boundary
+  p_edge->>p_crawler: (a) 200 with the resource and PAYMENT-RESPONSE
+  Note over p_edge,p_crawler: Crosses a trust boundary
+  p_crawler->>p_keydir: (b) One-time setup: publish keys and register the signature agent
+  Note over p_crawler,p_keydir: Crosses a trust boundary
+  p_crawler->>p_edge: (b) GET the page
+  Note over p_crawler,p_edge: Crosses a trust boundary
+  alt Expected path
+    p_edge-->>p_crawler: (b) 402: batch-settlement on cloudflare:402, payTo merchant
+    Note over p_edge,p_crawler: Crosses a trust boundary
+  else The signature agent is not recognized
+    Note over p_edge,p_crawler: The amount may be missing from accepts#59; the client should retry with authentication.
+  end
+  p_crawler->>p_edge: (b) Retry signed with RFC 9421 plus PAYMENT-SIGNATURE
+  Note over p_crawler,p_edge: Crosses a trust boundary
+  alt Expected path
+    p_edge->>p_keydir: (b) Fetch the key, check the agent is known, verify
+    Note over p_edge,p_keydir: Crosses a trust boundary
+  else Unknown signature agent
+    Note over p_edge,p_keydir: signature_agent_unknown.
+  else Bad or missing message signature
+    Note over p_edge,p_keydir: invalid_signature.
+  else Agent not tied to a valid billing identity
+    Note over p_edge,p_keydir: payment_failed.
+  else Amount does not match
+    Note over p_edge,p_keydir: price_not_acceptable.
+  end
+  p_edge->>p_crawler: (b) 200 with the page and PAYMENT-RESPONSE (no transaction)
+  Note over p_edge,p_crawler: Crosses a trust boundary
+  alt Expected path
+    p_billing->>p_origin: (b) Batched billing and periodic payout over off-chain rails
+    Note over p_billing,p_origin: Crosses a trust boundary
+  else The crawler#39;s account cannot be charged at the end of the period
+    Note over p_billing,p_origin: Handled under Cloudflare#39;s registration terms#59; x402 defines nothing.
+  end
