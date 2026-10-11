@@ -10,6 +10,24 @@ interface Props {
 
 const isUrl = (s: string) => /^https?:\/\//.test(s);
 
+/** Up to two lines of about 20 characters; a longer label is cut at a word with "...". */
+function wrapLabel(label: string, max = 20): string[] {
+  const words = label.split(/\s+/);
+  const lines: string[] = [];
+  let cur = '';
+  for (const w of words) {
+    if (!cur) cur = w;
+    else if ((cur + ' ' + w).length <= max) cur += ' ' + w;
+    else {
+      lines.push(cur);
+      cur = w;
+    }
+  }
+  if (cur) lines.push(cur);
+  if (lines.length <= 2) return lines.map((l) => (l.length > max + 4 ? `${l.slice(0, max)}...` : l));
+  return [lines[0] ?? '', `${(lines[1] ?? '').slice(0, max)}...`];
+}
+
 /**
  * State machine as a layered SVG (no graph library). Click a transition, in the
  * drawing or in the list, to see its trigger, API call and spec reference.
@@ -86,8 +104,18 @@ export default function StateMachineExplorer({ machine, specUrl }: Props) {
                 {s?.terminal && (
                   <rect x={n.x + 3} y={n.y + 3} width={layout.nodeW - 6} height={layout.nodeH - 6} rx="6" className="sm__inner" />
                 )}
-                <text x={n.x + layout.nodeW / 2} y={n.y + layout.nodeH / 2} dominantBaseline="central" textAnchor="middle">
-                  {(s?.label ?? n.id).length > 20 ? `${(s?.label ?? n.id).slice(0, 19)}.` : (s?.label ?? n.id)}
+                {s?.initial && (
+                  <>
+                    <circle cx={n.x - 14} cy={n.y + layout.nodeH / 2} r="5" className="sm__start" />
+                    <line x1={n.x - 9} y1={n.y + layout.nodeH / 2} x2={n.x} y2={n.y + layout.nodeH / 2} className="sm__start-line" />
+                  </>
+                )}
+                <text x={n.x + layout.nodeW / 2} y={n.y + layout.nodeH / 2} textAnchor="middle">
+                  {wrapLabel(s?.label ?? n.id).map((line, li, all) => (
+                    <tspan key={li} x={n.x + layout.nodeW / 2} dy={li === 0 ? `${0.35 - (all.length - 1) * 0.6}em` : '1.2em'}>
+                      {line}
+                    </tspan>
+                  ))}
                 </text>
               </g>
             );
@@ -95,8 +123,8 @@ export default function StateMachineExplorer({ machine, specUrl }: Props) {
         </svg>
       </div>
       <p className="sm__legend">
-        Initial state has a thick left edge; terminal states have a double border. Numbers on the lines match the
-        transition list.
+        A filled dot marks the initial state; terminal states have a double border; dashed lines go back to an earlier
+        state. Numbers on the lines match the transition list.
       </p>
 
       <div className="sm__panel">

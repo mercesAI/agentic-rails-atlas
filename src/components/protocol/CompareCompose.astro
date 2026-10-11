@@ -29,7 +29,7 @@ const sortedCells = [...cells].sort((a, b) => dimOrder.indexOf(a.dimension) - di
 const scenarios = (await getScenarioEntries()).filter((s) => s.data.protocols.includes(slug as never)).sort((a, b) => a.data.order - b.data.order);
 const hasSlot = Astro.slots.has('default');
 ---
-{hasSlot ? <div class="prose compare-text"><slot /></div> : html.trim() ? <div class="prose compare-text" set:html={html} /> : <p class="in-progress"><span class="in-progress__mark" aria-hidden="true"></span>The written comparison is in progress.</p>}
+{hasSlot ? <div class="prose compare-text"><slot /></div> : html.trim() ? <div class="prose compare-text" set:html={html} /> : <p class="in-progress"><span class="in-progress__mark" aria-hidden="true"></span><span>The written comparison is in progress.</span></p>}
 <h3 id="p-compare-relations">Relations to other protocols</h3>
 {relations.length === 0 ? (
   <p>No relation is recorded yet.</p>

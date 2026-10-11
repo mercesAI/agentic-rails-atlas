@@ -111,7 +111,7 @@
 .sec-sources__empty { font-size: 0.82rem; color: var(--fg-muted); }
 
 /* ---------------------------------------------------------------- sections */
-.psec { scroll-margin-top: var(--proto-top); max-width: 80ch; }
+.psec { scroll-margin-top: var(--proto-top); max-width: 80ch; min-width: 0; }
 .psec > * + * { margin-top: 1rem; }
 .psec__h { font-size: clamp(1.45rem, 3vw, 1.85rem); letter-spacing: -0.015em; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
 .psec__letter { font-family: var(--font-mono); font-size: 0.8em; color: var(--family-ink, var(--fg-muted)); margin-right: 0.15em; }
@@ -126,6 +126,7 @@
   display: flex; gap: 0.6rem; align-items: baseline; padding: 0.8rem 1rem; color: var(--fg-muted);
   background: var(--bg-sunken); border: 1px dashed var(--border-strong); border-radius: var(--radius-md); font-size: 0.9rem;
 }
+.in-progress code { overflow-wrap: anywhere; }
 .in-progress__mark { flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; border: 1.5px dashed var(--fg-subtle); }
 .tldr { font-size: 1.2rem; line-height: 1.55; color: var(--fg); max-width: 60ch; }
 .changed-list { list-style: none; padding: 0; display: grid; gap: 0.4rem; }
@@ -224,7 +225,8 @@
 .sm__svg text { font-family: var(--font-body); font-size: 12px; fill: var(--diagram-text); pointer-events: none; }
 .sm__node rect { fill: var(--diagram-node-bg); stroke: var(--diagram-node-border); stroke-width: 1.2; }
 .sm__node .sm__inner { fill: none; }
-.sm__node[data-initial] rect:first-child { stroke-width: 3; }
+.sm__start { fill: var(--diagram-text); }
+.sm__start-line { stroke: var(--diagram-text); stroke-width: 1.5; }
 .sm__node[data-active] rect:first-child { stroke: var(--accent); stroke-width: 2.5; }
 .sm__node { cursor: pointer; }
 .sm__edge { cursor: pointer; }
@@ -461,3 +463,11 @@
   .diagram-figure__alt { display: block; }
   .fp, .sm, .persona-card, .scenario-card, .faq__item { break-inside: avoid; }
 }
+
+/* Code blocks on protocol pages sit on the elevated surface: github-light keyword red
+   fails 4.5:1 on --bg-sunken in the light theme (see docs/integration-notes/template.md). */
+.proto .astro-code, .proto pre.shiki { background-color: var(--bg-elevated) !important; }
+
+/* Scroll containers must contain their .sr-only descendants (absolutely positioned), or the
+   hidden text escapes the clip and widens the page on small screens. */
+.proto .table-wrap, .proto .sm__canvas, .proto .fp__steps, .proto .sm__list, .proto .diagram-figure__canvas { position: relative; }

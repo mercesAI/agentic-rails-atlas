@@ -69,11 +69,11 @@ export function layoutStateMachine(
   machine: Pick<StateMachine, 'states' | 'transitions'>,
   opts: LayoutOptions = {},
 ): Layout {
-  const nodeW = opts.nodeW ?? 150;
-  const nodeH = opts.nodeH ?? 44;
-  const colGap = opts.colGap ?? 90;
+  const nodeW = opts.nodeW ?? 160;
+  const nodeH = opts.nodeH ?? 48;
+  const colGap = opts.colGap ?? 80;
   const rowGap = opts.rowGap ?? 36;
-  const pad = opts.pad ?? 24;
+  const pad = opts.pad ?? 28;
   const layers = computeLayers(machine);
   const rowsPerLayer = new Map<number, number>();
   const nodes: LaidOutNode[] = machine.states.map((s) => {
