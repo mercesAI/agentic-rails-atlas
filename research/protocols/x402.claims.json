@@ -908,6 +908,340 @@
       "asOf": "2026-10-10",
       "specVersion": "v2",
       "topic": "objects"
+    },
+    {
+      "id": "clm-x402-093",
+      "text": "In the V2 HTTP flow the resource server answers an unpaid request with status 402 and a PAYMENT-REQUIRED header holding base64 encoded PaymentRequired JSON.",
+      "sources": [
+        "src-x402-transport-http-v2",
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-094",
+      "text": "In the V2 HTTP flow the client retries the same request with a PAYMENT-SIGNATURE header holding a base64 encoded PaymentPayload.",
+      "sources": [
+        "src-x402-transport-http-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-095",
+      "text": "In the default authorization flow the resource server calls the facilitator's POST /verify, runs the handler only if the payment is valid, then calls POST /settle.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-096",
+      "text": "The facilitator /verify and /settle request body contains x402Version, paymentPayload and paymentRequirements.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-097",
+      "text": "After settlement the server returns 200 with the resource and a PAYMENT-RESPONSE header holding a base64 encoded SettleResponse, or 402 with PAYMENT-RESPONSE carrying success false.",
+      "sources": [
+        "src-x402-transport-http-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-098",
+      "text": "V2 HTTP header names differ from V1: V1 used a JSON body for requirements and the headers X-PAYMENT and X-PAYMENT-RESPONSE, while V2 uses PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE.",
+      "sources": [
+        "src-x402-migration-guide",
+        "src-x402-transport-http-v1",
+        "src-x402-transport-http-v2"
+      ],
+      "confidence": "verified",
+      "topic": "transports"
+    },
+    {
+      "id": "clm-x402-099",
+      "text": "x402 V2 defines three payment flows in extra.paymentFlow: authorization (verify, execute, settle), upfront (settle before the resource) and escrow (settle, execute, settle).",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-100",
+      "text": "The x402 V2 spec requires that at least one verify or settle call runs before the resource executes, and /verify must not write state.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-101",
+      "text": "Clients must not build a payment for an unrecognized payment flow and should prefer authorization when several flows are offered.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-102",
+      "text": "The exact scheme on Lightning uses the upfront flow: the server issues a fresh BOLT11 invoice in extra.invoice, the client returns the preimage, and the facilitator checks the hash and records it in a replay store.",
+      "sources": [
+        "src-x402-scheme-exact-lnbtc"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-103",
+      "text": "The auth-capture scheme defaults to the escrow flow, where a first settle places a hold, the resource runs and a second settle captures the actual amount or voids the hold.",
+      "sources": [
+        "src-x402-scheme-auth-capture",
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-104",
+      "text": "In the EVM upto scheme the client signs a Permit2 authorization for a ceiling amount and the server settles the metered charge, which must not exceed the ceiling; a zero charge needs no transaction.",
+      "sources": [
+        "src-x402-scheme-upto-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-105",
+      "text": "The EVM upto scheme returns 412 Precondition Failed with the code PERMIT2_ALLOWANCE_REQUIRED when the Permit2 allowance is missing.",
+      "sources": [
+        "src-x402-scheme-upto-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-106",
+      "text": "The batch-settlement EVM scheme opens a payment channel with a deposit, carries a cumulative voucher on each request and later claims and settles many vouchers in one token transfer.",
+      "sources": [
+        "src-x402-scheme-batch-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-107",
+      "text": "In batch-settlement EVM a client can leave a channel with initiateWithdraw and then finalizeWithdraw after a withdrawDelay of 15 minutes to 30 days.",
+      "sources": [
+        "src-x402-scheme-batch-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-108",
+      "text": "In the cloudflare:402 binding the client signs each request with RFC 9421 headers Signature-Agent, Signature-Input and Signature, sends amount and asset in PAYMENT-SIGNATURE with asset USD, and Cloudflare bills the identity later.",
+      "sources": [
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-109",
+      "text": "The cloudflare:402 binding defines error codes blocked, price_not_acceptable, payment_failed, invalid_signature, signature_agent_unknown, invalid_payment_signature, origin_error and unknown.",
+      "sources": [
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-110",
+      "text": "Exact EVM verification failures include insufficient_funds, invalid_exact_evm_payload_signature, invalid_network, invalid_scheme, unsupported_scheme and invalid_x402_version.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-x402-111",
+      "text": "A settle timeout is indeterminate in x402: settlement may still have happened, and settlement_pending is a non-terminal result that the server retries once and reconciles.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-docs-facilitator-concept"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "states"
+    },
+    {
+      "id": "clm-x402-112",
+      "text": "The V2 HTTP transport uses status 402 for payment required, 400 for an invalid payment, 402 for a failed payment, 500 for a server error and 200 for success.",
+      "sources": [
+        "src-x402-transport-http-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "states"
+    },
+    {
+      "id": "clm-x402-113",
+      "text": "The A2A transport uses the x402.payment.status values payment-required, payment-rejected, payment-submitted, payment-verified, payment-completed and payment-failed.",
+      "sources": [
+        "src-x402-transport-a2a-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "states"
+    },
+    {
+      "id": "clm-x402-114",
+      "text": "The auth-capture scheme defines the operations authorize, charge, capture, void, refund and reclaim, where reclaim is client only after extra.captureDeadline.",
+      "sources": [
+        "src-x402-scheme-auth-capture"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "states"
+    },
+    {
+      "id": "clm-x402-115",
+      "text": "Batch-settlement channel contracts emit ChannelCreated, Deposited, Claimed, Settled, Refunded, WithdrawInitiated, WithdrawFinalized and ChannelClosed events.",
+      "sources": [
+        "src-x402-contracts"
+      ],
+      "confidence": "verified",
+      "topic": "states"
+    },
+    {
+      "id": "clm-x402-116",
+      "text": "In the MCP transport an unpaid tool call returns a result with isError true and PaymentRequired in structuredContent, the client retries with _meta x402/payment, and the server returns _meta x402/payment-response.",
+      "sources": [
+        "src-x402-transport-mcp-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "transports"
+    },
+    {
+      "id": "clm-x402-117",
+      "text": "In the A2A transport the agent puts the task in input-required with x402.payment.required metadata, and the client answers with x402.payment.payload; receipts return in x402.payment.receipts.",
+      "sources": [
+        "src-x402-transport-a2a-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "transports"
+    },
+    {
+      "id": "clm-x402-118",
+      "text": "The x402 A2A transport spec uses the extension URI https://github.com/google-a2a/a2a-x402/v0.1, while a2a-x402 v0.2 uses https://github.com/google-agentic-commerce/a2a-x402/blob/main/spec/v0.2.",
+      "sources": [
+        "src-x402-transport-a2a-v2",
+        "src-x402-a2a-spec"
+      ],
+      "confidence": "verified",
+      "topic": "transports"
+    },
+    {
+      "id": "clm-x402-119",
+      "text": "Facilitator APIs are HTTP in every x402 transport: POST /verify, POST /settle, GET /supported, GET /discovery/resources and GET /discovery/search.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "transports"
+    },
+    {
+      "id": "clm-x402-120",
+      "text": "Cloudflare AI Gateway accepts a PAYMENT-METHOD: x402 header to pay for inference with x402 instead of the account's billing method.",
+      "sources": [
+        "src-x402-cf-changelog"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "transports"
+    },
+    {
+      "id": "clm-x402-121",
+      "text": "Every x402 EVM signature uses EIP-712 typed data, and exact with eip3009 signs TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce).",
+      "sources": [
+        "src-x402-scheme-exact-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-x402-122",
+      "text": "x402 uses EIP-3009, EIP-2612, Uniswap Permit2, ERC-7710 delegations, ERC-1271 and ERC-6492 smart wallet signatures, and ERC-8021 builder codes on EVM chains.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-core-changelog",
+        "src-x402-ext-builder-code"
+      ],
+      "confidence": "verified",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-x402-123",
+      "text": "x402 network identifiers are CAIP-2 strings such as eip155:8453 and stellar:pubnet; ach:us and sepa:eu appear only as examples of the encouraged format for non-blockchain rails.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-docs-networks"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-x402-124",
+      "text": "The cloudflare:402 binding and the http-message-signatures extension use RFC 9421 HTTP Message Signatures with Ed25519 and key directories at /.well-known/http-message-signatures-directory.",
+      "sources": [
+        "src-x402-scheme-batch-cf",
+        "src-x402-ext-http-sig"
+      ],
+      "confidence": "verified",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-x402-125",
+      "text": "The x402ExactPermit2Proxy and x402UptoPermit2Proxy contracts are deployed with CREATE2 at the same address on every supported EVM chain.",
+      "sources": [
+        "src-x402-contracts"
+      ],
+      "confidence": "verified",
+      "topic": "crypto"
     }
   ]
 }
