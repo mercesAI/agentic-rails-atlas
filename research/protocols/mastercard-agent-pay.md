@@ -497,12 +497,61 @@ Conclusion for writers: as of 2026-10-11 treat Agent Pay card payments as standa
 7. **Inconsistent tag spelling.** `Agent-pay-auth` and `agent-pay-auth` on the same developer site; Cloudflare's 2025 post implies browse and pay tags for both networks; Mastercard's guide gives one Mastercard tag. The Level 1 guide's sample verification code accepts only the two Visa tags [src-mcap-dev-level1] [src-mcap-dev-testing] [src-mcap-cloudflare-blog].
 8. **VI spec issues.** RFC 9901 duplicate-digest conflict (issue #29); the CHANGELOG says five constraint types while the spec registers eight; the same 0.1 label covers two incompatible key sets; no revocation; PERMISSIVE default conflicts with the rule that open mandates with unknown types MUST be rejected, since constraints appear only in open mandates; no commits since 2026-04-20 while issues accumulate [src-mcap-vi-issue29] [src-mcap-vi-changelog] [src-mcap-vi-constraints] [src-mcap-vi-security].
 9. **Stateful constraints need network state.** Budgets and recurrence require the payment network to track every L3 by L2; no API for that state is defined [src-mcap-vi-security].
-10. **Developer documentation odds and ends.** The VI design rationale lists "Mastercard ACP" among JSON payment APIs without defining it [src-mcap-vi-rationale]; Mastercard's guide places the Santander transaction in Latin America while the March 2026 release places it in Europe [src-mcap-dev-rails] [src-mcap-santander-2026].
+10. **Developer documentation odds and ends.** The VI design rationale lists "Mastercard ACP" among JSON payment APIs without defining it [src-mcap-vi-rationale]. Mastercard's guide credits Latin American live transactions to Santander; that is consistent with Santander being one of the 17 LAC participants, and is separate from Santander's 2026-03-02 European pilot [src-mcap-dev-rails] [src-mcap-latam-2026] [src-mcap-santander-2026].
 11. **Open regulatory questions.** How Regulation E, PSD2 SCA and chargeback rights apply to autonomous mandates is not settled by any source found.
 
 ## Resources
 
+Types use `ResourceType` in `src/lib/schemas.ts`. URL status from `curl -sSIL` on 2026-10-11; 403 means bot-blocked to curl (the page exists per Appendix A, opened 2026-10-10, or per search results).
+
+| Title | URL | Publisher | Date | Type | Badge | Note | Start here |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Mastercard Agent Pay (product page) | https://www.mastercard.com/us/en/business/artificial-intelligence/mastercard-agent-pay.html | Mastercard | ongoing | docs | official | Program overview; HTTP 403 to curl and WebFetch | no |
+| Mastercard Unveils Agent Pay (launch release) | https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-Unveils-Agent-Pay-Pioneering-Agentic-Payments-Technology-to-Power-Commerce-in-the-Age-of-AI-2025.pdf | Mastercard Investor Relations | 2025-04-29 | announcement | official | Agentic Tokens, registered agents, launch partners | yes |
+| Verifiable Intent repository | https://github.com/agent-intent/verifiable-intent | agent-intent (Mastercard) | 2026-03-05 | repo | official | Spec, constraint registry, threat model, Python SDK | yes |
+| Verifiable Intent documentation | https://verifiableintent.dev | agent-intent | 2026 | docs | official | Rendered spec and protocol mappings | no |
+| The Rails for Agentic Commerce | https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/ai-revolution/14/index.md | Mastercard Developers | 2026 | tutorial | official | Agent certification, tokens, intent, merchant registration | yes |
+| Level 1 Agentic Commerce guide | https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md | Mastercard Developers | 2026 | docs | official | Web Bot Auth headers, `Agent-pay-auth` tag, tokens in forms | no |
+| Level 3 Agentic Commerce guide | https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md | Mastercard Developers | 2026 | docs | official | Intent API objects, DSRP payload, VI | no |
+| Securing agentic commerce with Visa and Mastercard | https://blog.cloudflare.com/secure-agentic-commerce/ | Cloudflare | 2025-10-24 | tutorial | partner | Edge verification checks for TAP and Agent Pay | yes |
+| Mastercard Launches Agent Pay for Machines | https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-Launches-Agent-Pay-for-Machines-to-Unlock-Super-Fast-Always-On-Payments-2026.pdf | Mastercard Investor Relations | 2026-06-10 | announcement | official | AP4M capabilities and 32 participants | no |
+| Mastercard Advances Agentic Commerce With New Trust and Intelligence Services | https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-Advances-Agentic-Commerce-With-New-Trust-and-Intelligence-Services-2026.pdf | Mastercard Investor Relations | 2026-09-30 | announcement | official | Trust Framework, probability score, Skyfire KYA | no |
+| Europe is Building the Foundations for Trusted Agentic Commerce | https://newsroom.mastercard.com/news/europe/en/perspectives/en/2026/europe-is-building-the-foundations-for-trusted-agentic-commerce/ | Mastercard Newsroom | 2026-06-02 | announcement | official | All European issuers enabled; 36 banks | no |
+| Supporting additional payment methods for agentic commerce | https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce | Stripe | 2026-03-03 | announcement | partner | SPTs carry Mastercard agentic network tokens | no |
+| How EMVCo is working to enable card-based agentic payments | https://www.emvco.com/knowledge-hub/how-emvco-is-working-to-enable-secure-interoperable-and-scalable-card-based-agentic-payments/ | EMVCo | 2026-09 | standard | official | Intent Services; cites VI | no |
+| Mastercard Developers Agent Toolkit | https://github.com/mastercard/developers-agent-toolkit | Mastercard | 2025-07-22 | tool | official | MCP server for documentation only | no |
+| Mastercard focuses on 'Verifiable Intent', CDO says | https://fidoalliance.org/finainews-podcast-mastercard-focuses-on-verifiable-intent-for-agentic-payments-cdo-says/ | FinAi Podcast with Pablo Fourez (FIDO Alliance page) | 2026-09-15 | podcast | official | Year one of Agent Pay; HTTP 403 to curl | no |
+| Mastercard x Checkout.com on agentic commerce | https://www.checkout.com/es-es/blog/mastercard-x-checkout-una-conversacion-sobre-el-agentic-commerce | Checkout.com (Fourez, O'Neill) | 2026-05-21 | talk | partner | Video; Spanish page | no |
+| Mastercard Agent Pay: Enabling Trusted Payments | https://www.merchantadvisorygroup.org/mag-calendar/2025/07/29/default-calendar/mastercard-agent-pay--enabling-trusted-payments-in-the-age-of-ai-agents | Merchant Advisory Group | 2025-07-29 | talk | community | Merchant briefing | no |
+| How Verifiable Intent builds trust | https://www.mastercard.com/us/en/news-and-trends/stories/2026/verifiable-intent.html | Mastercard Stories (Pablo Fourez) | 2026-03-05 | announcement | official | Executive explainer; HTTP 403 to curl | no |
+| Verifiable Intent: Mastercard's New Trust Primitive | https://atxp.ai/blog/verifiable-intent-mastercard-ai-agents | ATXP | 2026-03-22 | tutorial | community | Developer view | no |
+| Agent Pay Explained: Agentic Tokens and VI | https://stellagent.ai/insights/mastercard-agent-pay-agentic-tokens | Stellagent | 2026-04-09 | analysis | community | Compared with Visa | no |
+| Visa and Mastercard's Battle for Standards | https://stellagent.ai/insights/visa-mastercard-agentic-standards-battle | Stellagent | 2026-03-06 | analysis | community | March 2026 launches | no |
+| Mastercard bets payments run through AI agents | https://ppc.land/mastercard-bets-future-payments-run-through-ai-agents-instead-of-people/ | PPC Land | 2026-01-11 | analysis | community | Consent and audit trail | no |
+| Agent Pay for Machines (AP4M) | https://www.theblock.co/post/404288 | The Block | 2026-06-10 | analysis | community | Stablecoin extension; HTTP 403 to curl | no |
+| Mastercard, Google Introduce Verifiable Intent | https://fintechnews.sg/127287/ai/mastercard-google-verifiable-intent/ | Fintech News Singapore | 2026-03-06 | analysis | community | Launch summary | no |
+| Mastercard Agent Pay Explained | https://eco.com/support/en/articles/14845483-mastercard-agent-pay-explained | Eco | 2026-09-07 | tutorial | community | Tokenization, pilots; says MDES, which Mastercard pages read do not | no |
+| Securing agentic commerce (cross-cutting) | https://blog.cloudflare.com/secure-agentic-commerce/ | Cloudflare | 2025-10-24 | tutorial | partner | Same post, listed in Appendix A cross-cutting | no |
+| A Formal Analysis of Agent Payment Protocols | https://arxiv.org/abs/2609.00060 | arXiv (Jiang et al.) | 2026-08-30 | analysis | academic | Does not model Agent Pay; context | no |
+
 ## Publications
+
+No paper names Agent Pay or Verifiable Intent (search of arXiv titles on 2026-10-11 found none). Each entry below was checked on 2026-10-11 by the method shown.
+
+| Id | Title | Authors | Venue and date | Relevance | Checked with |
+| --- | --- | --- | --- | --- | --- |
+| arXiv 2609.27452 | Issuer-Sovereign Agentic Payments | Dishant Sharma, Rajneesh Kaushal, Ashu Kanaujia | arXiv, 2026-09-23 | Closest topical work: issuer control over agent payments | export.arxiv.org API |
+| arXiv 2609.00060 | A Formal Analysis of Agent Payment Protocols | Ke Jiang, Mohan Yu, Yuan Chang, Mohit Kumar Jangid, Jianyu Niu, Cong Wang, Yinqian Zhang | arXiv, 2026-08-30 | Formal models of neighboring protocols; Agent Pay not modeled | export.arxiv.org API |
+| DOI 10.1109/SP.2010.33 | Chip and PIN is Broken | Murdoch, Drimer, Anderson, Bond | IEEE S&P 2010 | EMV card protocol flaws (foundation) | doi.org CSL JSON |
+| DOI 10.1109/SP.2014.11 | Chip and Skim: Cloning EMV Cards with the Pre-play Attack | Bond, Choudary, Murdoch, Skorobogatov, Anderson | IEEE S&P 2014 | Unpredictable-number weaknesses | doi.org CSL JSON |
+| DOI 10.1109/SP40001.2021.00037 (arXiv 2006.08249) | The EMV Standard: Break, Fix, Verify | Basin, Sasse, Toro-Pozo | IEEE S&P 2021 | Tamarin analysis of EMV | doi.org CSL JSON; export.arxiv.org |
+| USENIX Security 2021 (no DOI) | Card Brand Mixup Attack: Bypassing the PIN in non-Visa Cards by Using Them for Visa Transactions | Basin, Sasse, Toro-Pozo | USENIX Security 2021 | Cross-brand confusion | usenix.org page title |
+| DOI 10.1109/SP46214.2022.9833642 | Practical EMV Relay Protection | Radu, Chothia, Newton, Boureanu, Chen | IEEE S&P 2022 | Relay defenses | doi.org CSL JSON |
+| DOI 10.1007/978-3-642-14577-3_27 | Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication | Murdoch, Anderson | FC 2010, LNCS | Earlier network-run authentication layer and liability design | doi.org CSL JSON |
+| DOI 10.1007/978-3-030-84252-9_5 (ePrint 2020/756) | Provable Security Analysis of FIDO2 | Barbosa, Boldyreva, Chen, Warinschi | CRYPTO 2021, LNCS | Passkeys used for Agent Pay consent | doi.org CSL JSON; eprint.iacr.org HTTP 200 |
+| DOI 10.2307/3087474 | Cooperation among Competitors: Some Economics of Payment Card Associations | Rochet, Tirole | RAND Journal of Economics, 2002 | Card network economics (interchange) | Crossref API and doi.org CSL JSON |
+
+Correction to the seed: the Rochet and Tirole DOI is 10.2307/3087474 (10.2307/3087478 resolves to a different paper) [src-mcap-doi-rochet].
 
 ## Seed audit
 
