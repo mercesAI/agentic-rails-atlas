@@ -1,0 +1,191 @@
+[
+  {
+    "id": "agent-registry",
+    "term": "agentRegistry",
+    "aliases": [
+      "agent registry identifier"
+    ],
+    "plain": "The string that names the Identity Registry an agent lives in: chain family, chain id and registry address joined by colons, such as eip155:1 plus the address. Together with agentId it identifies an agent globally.",
+    "ste": "A text value with the chain family, the chain number and the address of the registry.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "identity-registry-erc-8004",
+    "term": "Identity Registry (ERC-8004)",
+    "aliases": [
+      "ERC-8004 Identity Registry"
+    ],
+    "plain": "The ERC-721 contract that mints agent identities, stores agentURI and metadata, and holds the agentWallet. Not the same thing as the ERC-3643 Identity Registry.",
+    "ste": "The contract that makes a token for each agent and keeps the address of its file.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-3643-spec"
+    ]
+  },
+  {
+    "id": "validation-registry",
+    "term": "Validation Registry",
+    "aliases": [],
+    "plain": "The third ERC-8004 registry, where a named validator records a 0 to 100 check of an agent's work. Specified in the Draft text, not officially deployed.",
+    "ste": "A registry where a validator writes the result of a check. It is not officially on a chain.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-contracts-readme"
+    ]
+  },
+  {
+    "id": "proof-of-payment",
+    "term": "proofOfPayment",
+    "aliases": [
+      "proof of payment"
+    ],
+    "plain": "An optional object in an ERC-8004 feedback file with fromAddress, toAddress, chainId and txHash. It points to a payment such as an x402 settlement; the registry never stores or checks it.",
+    "ste": "An object in the feedback file that identifies a payment transaction.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "feedback-auth",
+    "term": "feedbackAuth",
+    "aliases": [],
+    "plain": "A removed ERC-8004 mechanism: an agent-signed permission that a client needed before giving feedback. Removed from the contracts on 2025-11-12 and from the text on 2026-01-07.",
+    "ste": "A permission that the agent signed for feedback. The standard does not use it now.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-commit-rm-feedbackauth",
+      "src-erc-8004-commit-jan07"
+    ]
+  },
+  {
+    "id": "supported-trust",
+    "term": "supportedTrust",
+    "aliases": [],
+    "plain": "An optional list in the registration file naming the trust models an agent supports, such as reputation, crypto-economic or tee-attestation. Empty means discovery only.",
+    "ste": "A list of trust models that an agent supports.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "feedback-index",
+    "term": "feedbackIndex",
+    "aliases": [],
+    "plain": "A counter that starts at 1 for the feedback one client gave one agent. Used to read, revoke or respond to a specific entry.",
+    "ste": "A number that identifies one feedback item from one client.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "value-decimals",
+    "term": "valueDecimals",
+    "aliases": [],
+    "plain": "The number of decimal places (0 to 18) that applies to an ERC-8004 feedback value. An uptime of 99.77% is value 9977 with valueDecimals 2.",
+    "ste": "The number of decimal places of a feedback value.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "agent-registration-well-known",
+    "term": "/.well-known/agent-registration.json",
+    "aliases": [
+      "domain proof"
+    ],
+    "plain": "An optional file an agent serves on a service domain to show it controls that domain, with a registrations entry that matches its on-chain id.",
+    "ste": "A file on a web domain that shows that the agent controls the domain.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "trusted-reviewer-list",
+    "term": "Trusted reviewer list",
+    "aliases": [
+      "clientAddresses filter"
+    ],
+    "plain": "The list of client addresses a reader passes to getSummary. ERC-8004 requires it because unfiltered feedback is open to Sybil attacks.",
+    "ste": "The list of reviewers that a reader trusts.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-reputation-sol"
+    ]
+  },
+  {
+    "id": "onchainid",
+    "term": "ONCHAINID",
+    "aliases": [],
+    "plain": "The identity contract used by ERC-3643 tokens. It holds keys by purpose and claims signed by trusted issuers, such as KYC results.",
+    "ste": "A contract that keeps keys and signed claims for one identity.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-onchainid-identity",
+      "src-onchainid-structs"
+    ]
+  },
+  {
+    "id": "erc-3643",
+    "term": "ERC-3643 (T-REX)",
+    "aliases": [
+      "T-REX"
+    ],
+    "plain": "A Final ERC for permissioned tokens. Transfers pass only between wallets whose identities carry the claims the token requires.",
+    "ste": "A standard for tokens that only verified holders can receive.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-3643-spec"
+    ]
+  },
+  {
+    "id": "erc-8226",
+    "term": "ERC-8226 Regulated Agent Mandate",
+    "aliases": [
+      "RAMS"
+    ],
+    "plain": "A Draft ERC that lets a verified principal give an agent scoped, time-bounded and capped authority, using ERC-8004 for agent identity and ERC-3643 or ERC-7943 for token compliance.",
+    "ste": "A draft standard that gives an agent limited authority for regulated tokens.",
+    "protocols": [
+      "erc-8004",
+      "ap2"
+    ],
+    "sources": [
+      "src-erc-8226"
+    ]
+  }
+]

@@ -1,0 +1,553 @@
+{
+  "cells": [
+    {
+      "protocol": "erc-8004",
+      "dimension": "primary-job",
+      "value": "On-chain agent identity, discovery and public feedback",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "detail": "Three registries: identity (ERC-721 plus a registration file), reputation, and validation (specified only)."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "layers-covered",
+      "value": "Identity and trust; reputation and feedback; discovery",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "detail": "No checkout, authorization or settlement layer."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "stewards",
+      "value": "ERC-8004 team (community), coordinated by De Rossi (MetaMask) and Crapis (Ethereum Foundation)",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "detail": "Co-authors Jordan Ellis (Google) and Erik Reppel (Coinbase); no foundation found."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "governance-model",
+      "value": "ethereum/ERCs editorial process; contracts controlled by one proxy owner",
+      "sources": [
+        "src-erc-8004-commit-draft",
+        "src-erc-8004-onchain-probe"
+      ],
+      "confidence": "verified",
+      "detail": "An EIP editor returned the text to Draft on 2026-01-13; one externally owned account owns the proxies on Ethereum and Base (2026-10-11)."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "license-spec-and-code",
+      "value": "Spec CC0; contracts MIT per file headers (README says CC0)",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "first-announced",
+      "value": "2025-08-13 (created)",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-commit-add"
+      ],
+      "confidence": "verified",
+      "detail": "Merged into ethereum/ERCs on 2025-08-18."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "latest-version-and-date",
+      "value": "Draft text of 2026-01-25; contracts 2.0.0",
+      "sources": [
+        "src-erc-8004-commit-jan25",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "maturity",
+      "value": "Draft ERC; Identity and Reputation live on 25 mainnets; Validation not officially deployed",
+      "sources": [
+        "src-erc-8004-eip-page",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified",
+      "detail": "README list as of 2026-08-15, unchanged on 2026-10-11."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "transports",
+      "value": "EVM transactions and reads; files over IPFS, HTTPS or data URI; /.well-known domain proof",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "settlement-rails",
+      "value": "None (moves no money)",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ],
+      "confidence": "verified",
+      "detail": "Registries live on EVM chains; payments happen on other rails."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "agent-identity-model",
+      "value": "ERC-721 token per agent pointing to a registration file; global id agentRegistry plus agentId",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "user-authorization-model",
+      "value": "None",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8226"
+      ],
+      "confidence": "verified",
+      "detail": "No consent or mandate object; ERC-8226 (Draft) proposes one on top."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Not applicable",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "detail": "Registries record identity and feedback, not purchases."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "merchant-of-record",
+      "value": "Not applicable",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "detail": "No payment flows through ERC-8004."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "credential-type",
+      "value": "ERC-721 token plus EIP-712 or ERC-1271 wallet-binding signature",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "cryptography",
+      "value": "EIP-712, ERC-1271, keccak256 file commitments",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified",
+      "detail": "ECDSA recovery also accepts EIP-7702 delegated accounts in the reference code."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "replay-protection",
+      "value": "Partial: EIP-712 domain and a 5-minute deadline on wallet binding, no nonce",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "native-spending-controls",
+      "value": "None (moves no money)",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "revocation",
+      "value": "Feedback revocation by its client; wallet unset; no identity revocation or burn",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "refunds-and-disputes",
+      "value": "No disputes; appendResponse can show a refund",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "privacy-exposure",
+      "value": "Everything on-chain is public and permanent; files public if their URI is",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "detail": "The text says on-chain pointers and hashes cannot be deleted."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "discovery-mechanism",
+      "value": "Registration files with services (A2A, MCP, web, ENS, DID), indexed by explorers and subgraphs",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-thegraph-agent0"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Permissionless",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "decentralization",
+      "value": "Open registries on public chains, with one upgrade key on Ethereum and Base",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-onchain-probe"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "observability-score",
+      "value": "5 of 5",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-8004scan"
+      ],
+      "confidence": "verified",
+      "detail": "All state and events are public; quality of the data is the weak point."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; gas only",
+      "sources": [
+        "src-quicknode-8004-faq",
+        "src-erc-8004-gas-probe",
+        "src-cobo-8004"
+      ],
+      "confidence": "verified",
+      "detail": "Measured 2026-10-11 with eth_estimateGas: register about 203,412 gas, first giveFeedback about 155,185 to 178,504 gas; cents on mainnet that day, dollars at early-2026 gas prices."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "who-pays",
+      "value": "Caller pays gas",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-gas-probe"
+      ],
+      "confidence": "verified",
+      "detail": "Owner pays to register; client or an EIP-7702 sponsor pays for feedback."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "builds-on-standards",
+      "value": "ERC-721 (URIStorage), EIP-712, ERC-1271, EIP-155, UUPS proxies",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "composes-with",
+      "value": "x402 (x402Support, agentWallet, proofOfPayment); MPP discovery draft cites it; AP2 indirectly via A2A",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-mpp-discovery-draft",
+        "src-ap2-glossary"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "erc-8004-contracts 2.0.0; agent0-sdk 1.7.1 (npm, PyPI); create-8004-agent; ChaosChain; Lucid Agents",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-npm-agent0-sdk",
+        "src-pypi-agent0-sdk",
+        "src-npm-create-8004-agent"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "adoption-evidence",
+      "value": "Many registrations, few live agents",
+      "sources": [
+        "src-8004scan",
+        "src-pub-2606-26028",
+        "src-csoai-census"
+      ],
+      "confidence": "reported",
+      "detail": "561,576+ agents on 8004scan (2026-10-11) against 3% to 15% live in arXiv:2606.26028 (data to 2026-05-13). Count is not quality."
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "published-security-research",
+      "value": "Yes: an empirical study of Sybil reviewers and liveness; an unmerged community audit; no CVE",
+      "sources": [
+        "src-pub-2606-26028",
+        "src-erc-8004-pr-51",
+        "src-erc-8004-contracts-history"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "regulatory-touchpoints",
+      "value": "Data protection (permanent public records); no KYC; payment rules apply to linked rails",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-policy-eu-gdpr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "biggest-open-question",
+      "value": "Can reputation be made Sybil-resistant without a gate, and who controls the upgrade key?",
+      "sources": [
+        "src-pub-2606-26028",
+        "src-erc-8004-onchain-probe"
+      ],
+      "confidence": "verified"
+    }
+  ],
+  "radar": [
+    {
+      "protocol": "erc-8004",
+      "axis": "openness",
+      "value": 5,
+      "justification": "CC0 text, open contracts, permissionless registration on public chains.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "decentralization",
+      "value": 3,
+      "justification": "Public chains and anyone can read or write, but one externally owned account can upgrade the registries on Ethereum and Base.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Draft ERC with two of three registries deployed; the text last changed 2026-01-25.",
+      "sources": [
+        "src-erc-8004-eip-page",
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Hundreds of thousands of registrations but only 3% to 15% live agents and majority Sybil reviewers in measured data.",
+      "sources": [
+        "src-8004scan",
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "human-not-present",
+      "value": 4,
+      "justification": "Designed for agents to find and rate agents without people; no payment or consent step to support.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "dispute-support",
+      "value": 1,
+      "justification": "Only appendResponse and feedback revocation; no dispute process.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    }
+  ],
+  "controlsCells": [
+    {
+      "protocol": "erc-8004",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The on-chain agentId, owner and agentWallet are verifiable, and the optional /.well-known file proves domain control. Nothing proves who operates the agent.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "agent-registration-kya",
+      "support": "partial",
+      "note": "A permissionless registry for discovery: anyone can mint an identity, with no KYC or know-your-agent check.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "user-consent-capture",
+      "support": "none",
+      "note": "No consent or mandate object; ERC-8226 (Draft) proposes one on top.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8226"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "spending-caps",
+      "support": "none",
+      "note": "ERC-8004 moves no money, so it has no caps.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "merchant-payee-scoping",
+      "support": "partial",
+      "note": "agentWallet publishes a payee address that the wallet itself signed for; nothing limits what a client may pay.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "time-windows-expiry",
+      "support": "partial",
+      "note": "Only the wallet-binding signature expires (at most 5 minutes ahead in the reference code).",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "revocation",
+      "support": "partial",
+      "note": "Clients revoke their own feedback and owners can unset the wallet; an identity cannot be revoked or burned.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "Not covered.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "EIP-712 domain and deadline bind the wallet signature, but there is no nonce; feedback uses per-client indexes.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "proofOfPayment and file hashes live in off-chain files and are never verified on-chain.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Only appendResponse, for example to show a refund; no dispute resolution.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "reputation",
+      "support": "native",
+      "note": "The Reputation Registry: tagged values per client, revocation, responses and a filtered summary.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Public events and tags such as reachable, uptime and responseTime that monitors can publish as feedback.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-bp-reputation"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "kill-switch",
+      "support": "none",
+      "note": "No pause and no burn; only the registry owner can change the code by upgrade.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-minimaluups-mainnet"
+      ]
+    }
+  ]
+}
