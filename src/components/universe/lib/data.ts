@@ -96,7 +96,7 @@ export function recentEvents<T extends DatedEvent>(events: readonly T[], buildDa
   const seen = new Set<string>();
   return events
     .filter((e) => e.date >= cutoff && e.date <= buildDate && e.kind !== 'prehistory')
-    .sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title))
+    .sort((a, b) => b.date.localeCompare(a.date))
     .filter((e) => {
       const key = `${e.date}|${e.title.toLowerCase()}`;
       if (seen.has(key)) return false;
