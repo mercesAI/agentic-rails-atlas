@@ -1,6 +1,6 @@
 # UCP: Universal Commerce Protocol (`ucp`) research dossier
 
-Accessed 2026-10-11. Vendor commits read:
+Accessed 2026-10-11. Claims: `ucp.claims.json` (222 claims). Sources: `ucp.sources.json` (63 records). Field tables were read at tag v2026-08-25 (commit cd78fb38e819de77d9b527d110476eccb876f1bd), fetched into the shallow clone. Vendor commits read:
 
 | Repository | Commit | Commit date |
 | --- | --- | --- |
