@@ -1242,6 +1242,298 @@
       ],
       "confidence": "verified",
       "topic": "crypto"
+    },
+    {
+      "id": "clm-x402-126",
+      "text": "In exact EVM payments the client signature covers the recipient and the amount, so the facilitator can broadcast the transaction but cannot change the amount or destination.",
+      "sources": [
+        "src-x402-scheme-exact-evm"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-127",
+      "text": "x402 replay protection relies on a 32 byte random nonce that EIP-3009 token contracts refuse to reuse, plus validAfter and validBefore time windows.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-128",
+      "text": "The EVM upto scheme adds witness.facilitator so that only the announced facilitator can settle the payment.",
+      "sources": [
+        "src-x402-scheme-upto-evm"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-129",
+      "text": "The exact scheme defines no refund, and any remedy is the resource server's own arrangement.",
+      "sources": [
+        "src-x402-scheme-exact"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-130",
+      "text": "Refunds exist in x402 only in auth-capture (void, refund, reclaim), in batch-settlement channels, or through third parties such as x402r.",
+      "sources": [
+        "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm",
+        "src-x402-docs-devtools"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-131",
+      "text": "The upto scheme requires clients to trust servers to charge fairly up to the ceiling, and the upfront flow leaves a client charged if the handler fails.",
+      "sources": [
+        "src-x402-scheme-upto-evm",
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-132",
+      "text": "GitHub advisory GHSA-3j63-5h8p-gf7c, published 2025-08-20 with high severity, affects the npm packages x402, x402-next, x402-express and x402-hono below 0.5.2 and mainly impacts resource server builders.",
+      "sources": [
+        "src-x402-ghsa-2025"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-133",
+      "text": "GitHub advisory GHSA-qr2g-p6q7-w82m, published 2026-03-07 with high severity, affects facilitators processing Solana payments and is patched in @x402/svm 2.6.0, PyPI x402 2.3.0 and Go 2.5.0.",
+      "sources": [
+        "src-x402-ghsa-2026"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-134",
+      "text": "Neither x402 GitHub advisory has a CVE identifier.",
+      "sources": [
+        "src-x402-ghsa-2025",
+        "src-x402-ghsa-2026"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-135",
+      "text": "The x402 repository ships three Cantina audit reports for the EVM contracts, dated February, March and May 2026.",
+      "sources": [
+        "src-x402-repo"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-136",
+      "text": "The x402 SECURITY.md still routes vulnerability reports to Coinbase's HackerOne program.",
+      "sources": [
+        "src-x402-security-md"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-137",
+      "text": "The x402 Solana SDK blocks duplicate settlement submissions with a 120 second in-memory SettlementCache.",
+      "sources": [
+        "src-x402-docs-facilitator-concept"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-138",
+      "text": "arXiv:2605.11781, Five Attacks on x402 Agentic Payment Protocol (2026-05-12), presents five practical attacks on authorization, binding, replay protection and web-layer handling and audits three open source SDKs.",
+      "sources": [
+        "src-x402-arxiv-2605-11781"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-139",
+      "text": "arXiv:2607.19545, When HTTP 402 Meets the Blockchain (2026-07-21), studies facilitator-mediated deployments, proposes eight security rules for facilitators and reports four new attack vectors.",
+      "sources": [
+        "src-x402-arxiv-2607-19545"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-140",
+      "text": "The claim that all 15 tested facilitators violated at least one rule in arXiv:2607.19545 is not visible in the paper's abstract.",
+      "sources": [
+        "src-x402-arxiv-2607-19545"
+      ],
+      "confidence": "unverified",
+      "asOf": "2026-10-10",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-141",
+      "text": "arXiv:2605.30998, Free-Riding the Agentic Web (2026-05-29), describes four flaw classes in x402 including cross-resource substitution and a duplicate settlement race.",
+      "sources": [
+        "src-x402-arxiv-2605-30998"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-142",
+      "text": "arXiv:2603.01179, A402 (2026-03-01), argues x402 does not make execution, payment and delivery atomic and proposes Atomic Service Channels.",
+      "sources": [
+        "src-x402-arxiv-2603-01179"
+      ],
+      "confidence": "verified",
+      "topic": "criticism"
+    },
+    {
+      "id": "clm-x402-143",
+      "text": "arXiv:2604.11430, Hardening x402 (2026-04-13), treats resource metadata sent to servers and facilitators as a PII leakage channel and proposes redacting middleware.",
+      "sources": [
+        "src-x402-arxiv-2604-11430"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-144",
+      "text": "arXiv:2609.00060, A Formal Analysis of Agent Payment Protocols (2026-08-30), builds Tamarin models of x402, MPP, ACP and AP2.",
+      "sources": [
+        "src-x402-arxiv-2609-00060"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-x402-145",
+      "text": "The x402 TypeScript client applies spendControls by default: only default assets and at most $1 per payment, set by DEFAULT_MAX_AMOUNT_PER_PAYMENT in x402Client.ts.",
+      "sources": [
+        "src-x402-sdk-spendcontrols",
+        "src-x402-core-changelog"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-146",
+      "text": "Passing spendControls false disables the x402 client spending limits, which the browser paywall does because a human approves in the UI.",
+      "sources": [
+        "src-x402-sdk-spendcontrols"
+      ],
+      "confidence": "verified",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-147",
+      "text": "Client-side budget management is out of scope for the x402 protocol, so spending budgets exist only in SDKs and wallets.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-sdk-features"
+      ],
+      "confidence": "verified",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-148",
+      "text": "Time-bound authorization in x402 comes from validAfter, validBefore, deadline, maxTimeoutSeconds and invoice expiry.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-149",
+      "text": "The payment-identifier extension provides idempotency, and a server returns 409 when the same identifier arrives with a different payload fingerprint.",
+      "sources": [
+        "src-x402-ext-payment-identifier"
+      ],
+      "confidence": "verified",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-150",
+      "text": "x402 has no dispute process in the protocol.",
+      "sources": [
+        "src-x402-scheme-exact",
+        "src-x402-scheme-auth-capture"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-151",
+      "text": "The offer-receipt extension provides signed offers and receipts, but per the SDK parity table it is implemented in TypeScript only.",
+      "sources": [
+        "src-x402-ext-offer-receipt",
+        "src-x402-sdk-features"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-152",
+      "text": "Identity in x402 is optional and separate from payment, provided by sign-in-with-x, auth-hints (OAuth 2.0 with DPoP) and RFC 9421 agent signatures for cloudflare:402.",
+      "sources": [
+        "src-x402-ext-siwx",
+        "src-x402-ext-auth-hints",
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-153",
+      "text": "x402 has no sanctions or KYT layer in the protocol; the CDP facilitator runs OFAC and Know Your Transaction checks on payments.",
+      "sources": [
+        "src-x402-fee-cdp",
+        "src-x402-cdp-facilitator"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-154",
+      "text": "The builder-code extension provides on-chain attribution but not revenue sharing; affiliate splits come from the third-party x402aff package.",
+      "sources": [
+        "src-x402-ext-builder-code",
+        "src-x402-docs-devtools"
+      ],
+      "confidence": "verified",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-x402-155",
+      "text": "The x402 SDKs expose lifecycle hooks such as onBeforeVerify, onAfterVerify, onBeforeSettle, onAfterSettle and onVerifiedPaymentCanceled, plus client hooks onBeforePaymentCreation and onPaymentRequired.",
+      "sources": [
+        "src-x402-sdk-features"
+      ],
+      "confidence": "verified",
+      "topic": "controls"
     }
   ]
 }
