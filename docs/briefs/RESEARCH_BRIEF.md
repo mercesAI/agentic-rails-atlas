@@ -26,7 +26,7 @@ If a site blocks you, append one line to `research/blocked.md` (`- 2026-10-11, <
 - Separate specified from deployed, announced from pilot from beta from live.
 - No em dashes anywhere. US spelling. Dates as YYYY-MM-DD. Paraphrase; at most one quotation under 15 words per source.
 - Record the three facts you are least sure about at the end of the dossier under "Least certain".
-- Validate your JSON before you finish: `pnpm tsx -e "import {ClaimsFile, Source} from './src/lib/schemas'; import fs from 'node:fs'; const z=await import('zod'); ClaimsFile.parse(JSON.parse(fs.readFileSync('research/protocols/<slug>.claims.json','utf8'))); z.z.array(Source).parse(JSON.parse(fs.readFileSync('research/protocols/<slug>.sources.json','utf8'))); console.log('ok')"`.
+- Validate your JSON before you finish: `pnpm tsx research/validate.ts <slug>` (checks both schemas, source ids, duplicate ids and em dashes).
 - Finish with a short reply: counts (sources, claims by confidence, resources, publications), the corrected seed facts, and the least-certain facts.
 
 ## Work incrementally
