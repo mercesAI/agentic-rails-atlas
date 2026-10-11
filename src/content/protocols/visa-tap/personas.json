@@ -1,0 +1,392 @@
+{
+  "protocol": "visa-tap",
+  "personas": [
+    {
+      "persona": "cdn-security",
+      "role": "Runs the Site Protection Provider in front of merchant sites and verifies TAP signatures at the edge on the merchant's behalf.",
+      "goals": [
+        "Let approved shopping agents through without opening the door to bots",
+        "Verify signatures fast enough to sit on every request",
+        "Give merchants one rule that covers Visa and Mastercard agents"
+      ],
+      "pains": [
+        "Two networks with two directories and different tags",
+        "A key store whose single RSA key does not match the Ed25519 examples",
+        "Nonce records that must be shared across edge locations"
+      ],
+      "implements": [
+        "The header checks: tag, minimum fields, window, nonce, key, signature",
+        "Key caching by keyid with refresh from the Visa JWKS",
+        "Logging of verification outcomes for the zone owner"
+      ],
+      "mustTrust": [
+        "Visa's onboarding of agents and its key store",
+        "Checkout Enablers to pass headers through unchanged",
+        "Its own RFC 9421 implementation to match the agents' serialization"
+      ],
+      "questions": [
+        "Where do production agent keys come from, if not the published JWKS?",
+        "Must I keep nonces, given that TAP makes it optional?",
+        "How do I treat a request that carries both a TAP and a Web Bot Auth signature?"
+      ],
+      "firstSteps": [
+        "Read the TAP specification's verification steps and Cloudflare's 2025-10-24 post",
+        "Fetch https://mcp.visa.com/.well-known/jwks and inspect what it holds",
+        "Build a verifier that blocks windows over 8 minutes and repeated nonces"
+      ],
+      "metrics": [
+        "Share of agent traffic with a valid TAP signature",
+        "Verification latency at the edge",
+        "Blocks by reason (tag, window, nonce, key, signature)"
+      ],
+      "story": "Ana runs bot management for a CDN. A retail customer wants shopping agents in and scrapers out. She turns on TAP verification: the edge reads Signature-Input, checks the tag, the 8-minute window and the nonce, fetches the key for keyid and verifies the signature. On day one the dashboard shows a spike of requests tagged web-bot-auth from an agent that copied Cloudflare's example, and she routes them to the normal bot policy. She also notices the Visa key store holds one RSA key, so she asks Visa how production keys reach her edge. Until she gets an answer, she keeps the rule in log-only mode.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-cf-blog",
+        "src-visa-tap-jwks",
+        "src-akamai-pr"
+      ]
+    },
+    {
+      "persona": "merchant-enterprise",
+      "role": "Runs a large online store that wants to serve Visa-approved agents, recognize returning customers and take payment data in a signed container.",
+      "goals": [
+        "Sell to customers who shop through agents",
+        "Recognize returning customers from the ID Token",
+        "Reduce fraud on agent checkouts"
+      ],
+      "pains": [
+        "Proprietary terms that require updates within six months",
+        "No test vectors for the body object signatures",
+        "Personal data in contextualData that brings privacy duties"
+      ],
+      "implements": [
+        "Verification of agenticConsumer and agenticPaymentContainer",
+        "A mapping table from obfuscated email and phone values to accounts",
+        "Decryption of the payment payload with a key onboarded to Visa"
+      ],
+      "mustTrust": [
+        "Its CDN's verification of the header signature",
+        "Visa's ID Token and key store",
+        "The acquirer and card rules for liability, since TAP sets none"
+      ],
+      "questions": [
+        "Do I verify the body objects myself or does my CDN do it?",
+        "What happens to a chargeback on an agent purchase?",
+        "How do I hash key-entered card data the same way Visa does?"
+      ],
+      "firstSteps": [
+        "Accept the Product Terms and read the merchant specification",
+        "Ask the CDN to turn on TAP verification in log-only mode",
+        "Onboard a merchant public key for the encrypted payload"
+      ],
+      "metrics": [
+        "Agent checkout conversion",
+        "Fraud and chargeback rate on agent orders",
+        "Share of agent orders matched to existing accounts"
+      ],
+      "story": "Malik leads payments at a fashion retailer. Agents were tripping the bot wall at checkout, so he asks the CDN to let TAP-signed requests through. His team then builds the merchant side: compare each body object's nonce with the header nonce, verify the signatures, and decrypt the payload. The ID Token does not give emails in the clear, so they build a table that maps obfuscated values to existing accounts. Legal asks who carries a dispute on an agent order. He finds no agent-specific rule from Visa and books the orders as ordinary tokenized card-not-present sales for now.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-terms",
+        "src-worldpay-liability",
+        "src-visa-tap-cf-blog"
+      ]
+    },
+    {
+      "persona": "ai-platform",
+      "role": "Operates the AI agent as an Agent Provider onboarded to Visa Intelligent Commerce and signs every merchant request with its registered key.",
+      "goals": [
+        "Get past merchant bot defenses",
+        "Complete purchases with VIC credentials",
+        "Keep one signing setup across Visa and Mastercard"
+      ],
+      "pains": [
+        "The client implementation guide is only for onboarded agents",
+        "Body object signing has no canonical form or test vector",
+        "Two networks with different tags and directories"
+      ],
+      "implements": [
+        "RFC 9421 signing with the TAP tags and an 8-minute window",
+        "Signed agenticConsumer and agenticPaymentContainer objects",
+        "VIC calls for card enrollment, instructions, credentials and confirmations"
+      ],
+      "mustTrust": [
+        "Visa to keep its key in the key store",
+        "Checkout Enablers and CDNs to pass headers intact",
+        "Merchants to treat the consumer data with care"
+      ],
+      "questions": [
+        "Which merchants verify TAP today?",
+        "How should I serialize the body object signature base?",
+        "Must I send both a TAP and a Web Bot Auth signature?"
+      ],
+      "firstSteps": [
+        "Apply for VIC onboarding and obtain the client guide",
+        "Sign browsing requests with agent-browser-auth against a test merchant",
+        "Add the payment container at checkout with the same key and nonce"
+      ],
+      "metrics": [
+        "Agent checkouts blocked by bot defenses",
+        "Checkout success rate per merchant",
+        "Signature verification failures reported by merchants"
+      ],
+      "story": "Priya builds the shopping agent for an AI assistant. After VIC onboarding, her agent signs each product page request with agent-browser-auth and each checkout with agent-payer-auth, inside an 8-minute window. Checkout also needs the two signed objects, and her first build fails at a merchant because the merchant joined the fields in a different order. With no test vector in the specification, she agrees a byte format with that merchant and files the question with Visa. The user's passkey approval sits in VIC, so her agent never asks for a card number.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-overview",
+        "src-visa-vic-dev",
+        "src-visa-tap-gh-meta"
+      ]
+    },
+    {
+      "persona": "issuer",
+      "role": "Issues the Visa cards that VIC tokenizes for agents and decides on authorization, without seeing the TAP signature itself.",
+      "goals": [
+        "Approve legitimate agent purchases",
+        "Keep step-up and passkey checks effective",
+        "Know which transactions an agent started"
+      ],
+      "pains": [
+        "No public agent transaction indicator from Visa",
+        "No agent-specific liability rule",
+        "Customers who dispute what their agent bought"
+      ],
+      "implements": [
+        "Step-up verification and passkey setup for agent tokens through VIC",
+        "Risk rules for agent-specific tokens",
+        "Agentic Ready participation"
+      ],
+      "mustTrust": [
+        "Visa's onboarding of agents",
+        "Merchants and CDNs to verify TAP",
+        "VIC confirmations as evidence in disputes"
+      ],
+      "questions": [
+        "Can I tell a TAP-verified purchase in the authorization message?",
+        "Who carries the loss when an agent misreads the user?",
+        "What does the passkey approval prove in a dispute?"
+      ],
+      "firstSteps": [
+        "Join Visa's Agentic Ready program",
+        "Review how VIC step-up and passkeys work for my cardholders",
+        "Map agent token transactions in fraud monitoring"
+      ],
+      "metrics": [
+        "Approval rate on agent tokens",
+        "Fraud and dispute rate on agent purchases",
+        "Passkey enrollment rate"
+      ],
+      "story": "Lena runs digital fraud at a European bank in the Agentic Ready program. Her cardholders now link cards to shopping agents: VIC runs step-up verification, the user sets up a passkey, and the agent gets its own token. When a purchase arrives she sees a token transaction, not the merchant's TAP check, so she relies on Visa's signals. A customer disputes a hotel booking made by an agent. The passkey approval of the Payment Instruction helps, but no agent-specific liability rule exists yet, so the case runs under the usual card rules.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-ar-eu",
+        "src-visa-eu-live",
+        "src-worldpay-liability"
+      ]
+    },
+    {
+      "persona": "network",
+      "role": "Visa itself: writes the specification, onboards agents, hosts the key store and signs the ID Token.",
+      "goals": [
+        "Make agent commerce on Visa credentials safe enough for merchants to allow it",
+        "Keep agent identity tied to VIC participation",
+        "Align with standards bodies over time"
+      ],
+      "pains": [
+        "A competing Mastercard design with another tag and directory",
+        "Criticism of proprietary terms and an unversioned specification",
+        "A sample repository that has not changed since 2025-10-28"
+      ],
+      "implements": [
+        "The TAP specification and Product Terms",
+        "The key store at mcp.visa.com",
+        "The Agentic Directory and Agent Score"
+      ],
+      "mustTrust": [
+        "Agent Providers to protect their signing keys",
+        "CDNs to verify correctly",
+        "Merchants to handle consumer data lawfully"
+      ],
+      "questions": [
+        "When does TAP get a version number and test vectors?",
+        "Can the key store be shared across payment schemes?",
+        "How does TAP map to the IETF Web Bot Auth draft?"
+      ],
+      "firstSteps": [
+        "Publish versioned specifications and test vectors",
+        "Publish the production key distribution model",
+        "Bring the sample code to RFC 9421 conformance"
+      ],
+      "metrics": [
+        "Merchants verifying TAP",
+        "Agent transactions on VIC",
+        "Disputes and fraud on agent transactions"
+      ],
+      "story": "Tom works on the agentic commerce team at Visa. TAP launched on 2025-10-14 with twelve partners and Cloudflare, and by 2026-07-02 agents completed live purchases at named European merchants. His inbox holds the hard questions: why the key store has one sandbox RSA key, why the examples cannot verify, and why community fixes sit unmerged. He also follows the IETF Web Bot Auth draft, which differs from TAP in tags and key discovery. He drafts a plan for a versioned specification with test vectors and a public directory.",
+      "sources": [
+        "src-visa-tap-pr",
+        "src-visa-eu-live",
+        "src-visa-tap-jwks",
+        "src-visa-tap-gh-meta",
+        "src-wba-draft"
+      ]
+    },
+    {
+      "persona": "fraud-risk",
+      "role": "Designs fraud rules for a merchant or acquirer and decides how much a valid TAP signature should lower friction.",
+      "goals": [
+        "Separate approved agents from malicious bots",
+        "Stop replay and relay of signed requests",
+        "Detect card testing through agents"
+      ],
+      "pains": [
+        "Signatures that do not cover the method, query or body",
+        "Optional nonce tracking",
+        "Consumer data that may be used even when unverified"
+      ],
+      "implements": [
+        "Rules that combine TAP results with other bot signals",
+        "Nonce storage and replay alerts",
+        "Credential hash comparison at key-entered checkout"
+      ],
+      "mustTrust": [
+        "The CDN's verification results",
+        "Visa's agent onboarding",
+        "VIC's passkey approval of the user's instruction"
+      ],
+      "questions": [
+        "Is a valid browse signature enough to skip a challenge?",
+        "What should I do with a payment container whose key I cannot find?",
+        "Can an unsalted credential hash leak card data?"
+      ],
+      "firstSteps": [
+        "Log TAP verification results next to existing bot scores",
+        "Turn on nonce tracking with an 8-minute retention",
+        "Treat unverified consumer data as untrusted in risk scoring"
+      ],
+      "metrics": [
+        "Fraud rate on TAP-verified versus unverified traffic",
+        "Replay attempts blocked",
+        "False declines on agent checkouts"
+      ],
+      "story": "Sam tunes fraud rules for an acquirer's merchants. A valid TAP signature proves an approved agent signed this host and path in the last 8 minutes, but nothing about the method or body. He scores TAP as one strong signal among others, keeps nonce records so a copied request fails, and refuses payment containers that fail verification. When a merchant asks to use unverified consumer data to skip login, he says no. He also flags the credential hash: without a stated salt, the hash of a card number and a three-digit code is weak.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-wba-draft",
+        "src-visa-threats"
+      ]
+    }
+  ],
+  "responsibilities": {
+    "columns": [
+      "cdn-security",
+      "merchant-enterprise",
+      "ai-platform",
+      "issuer",
+      "network",
+      "fraud-risk"
+    ],
+    "rows": [
+      {
+        "step": "Onboard the agent and register its key",
+        "marks": {
+          "cdn-security": "relies-on",
+          "merchant-enterprise": "relies-on",
+          "ai-platform": "implements",
+          "issuer": "relies-on",
+          "network": "owns",
+          "fraud-risk": "observes"
+        }
+      },
+      {
+        "step": "Host the key store (JWKS)",
+        "marks": {
+          "cdn-security": "relies-on",
+          "merchant-enterprise": "relies-on",
+          "ai-platform": "",
+          "issuer": "",
+          "network": "owns",
+          "fraud-risk": "observes"
+        }
+      },
+      {
+        "step": "Sign each request with a TAP tag",
+        "marks": {
+          "cdn-security": "verifies",
+          "merchant-enterprise": "verifies",
+          "ai-platform": "owns",
+          "issuer": "",
+          "network": "",
+          "fraud-risk": "observes"
+        }
+      },
+      {
+        "step": "Verify header signature, window and nonce",
+        "marks": {
+          "cdn-security": "owns",
+          "merchant-enterprise": "implements",
+          "ai-platform": "relies-on",
+          "issuer": "",
+          "network": "",
+          "fraud-risk": "relies-on"
+        }
+      },
+      {
+        "step": "Sign the consumer and payment objects",
+        "marks": {
+          "cdn-security": "",
+          "merchant-enterprise": "verifies",
+          "ai-platform": "owns",
+          "issuer": "",
+          "network": "implements",
+          "fraud-risk": ""
+        }
+      },
+      {
+        "step": "Verify body objects and process payment data",
+        "marks": {
+          "cdn-security": "observes",
+          "merchant-enterprise": "owns",
+          "ai-platform": "",
+          "issuer": "",
+          "network": "",
+          "fraud-risk": "relies-on"
+        }
+      },
+      {
+        "step": "Approve the purchase instruction with a passkey (VIC)",
+        "marks": {
+          "cdn-security": "",
+          "merchant-enterprise": "",
+          "ai-platform": "implements",
+          "issuer": "relies-on",
+          "network": "owns",
+          "fraud-risk": "observes"
+        }
+      },
+      {
+        "step": "Authorize the card payment",
+        "marks": {
+          "cdn-security": "",
+          "merchant-enterprise": "relies-on",
+          "ai-platform": "",
+          "issuer": "owns",
+          "network": "implements",
+          "fraud-risk": "observes"
+        }
+      },
+      {
+        "step": "Handle a dispute on an agent purchase",
+        "marks": {
+          "cdn-security": "",
+          "merchant-enterprise": "implements",
+          "ai-platform": "",
+          "issuer": "owns",
+          "network": "relies-on",
+          "fraud-risk": "observes"
+        }
+      }
+    ]
+  }
+}
