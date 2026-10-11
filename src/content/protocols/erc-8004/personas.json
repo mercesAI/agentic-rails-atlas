@@ -1,0 +1,405 @@
+{
+  "protocol": "erc-8004",
+  "personas": [
+    {
+      "persona": "agent-dev",
+      "role": "Builds the agent, writes its registration file and registers it in the Identity Registry.",
+      "goals": [
+        "Make the agent discoverable by other agents and explorers",
+        "Advertise MCP, A2A and web endpoints in one place",
+        "Keep the payee address correct after key changes"
+      ],
+      "pains": [
+        "No JSON Schema for the registration file, so required fields are a reading of an example",
+        "Tutorials written before 2026-01-25 still use endpoints and score",
+        "The agentId is known only after minting, so the file must be published twice"
+      ],
+      "implements": [
+        "A registration file with type, services, x402Support, active, registrations and supportedTrust",
+        "register and setAgentURI calls, or an SDK such as agent0-sdk",
+        "The /.well-known/agent-registration.json domain proof"
+      ],
+      "mustTrust": [
+        "The file host to serve the file (or IPFS content addressing)",
+        "The registry owner not to upgrade the contracts against them",
+        "Explorers to read the file the same way they do"
+      ],
+      "questions": [
+        "Which fields do explorers actually require?",
+        "Should the file be on IPFS or in a data URI?",
+        "How do I keep agentWallet set after a transfer?"
+      ],
+      "firstSteps": [
+        "Read the Identity Registry section of the Draft text",
+        "Register a test agent on Ethereum Sepolia or Base Sepolia",
+        "Check how 8004scan renders the file"
+      ],
+      "metrics": [
+        "Whether the agent shows as reachable in explorers",
+        "Feedback count from trusted clients",
+        "Time to rebind the wallet after a change"
+      ],
+      "story": "Ana ships a weather agent with an MCP server. She writes a registration file, pins it to IPFS and calls register on Base Sepolia. The Registered event gives her agent id 812, so she adds it to the registrations list, pins the new file and calls setAgentURI. Her MCP server lives on another domain, so she serves the well-known file there too. An old tutorial told her to add an agentWallet endpoint; she deletes it and asks her payment wallet to sign the AgentWalletSet message instead, within the five-minute window. Before mainnet she checks that explorers show her services and the x402Support flag.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-bp-registration",
+        "src-erc-8004-commit-jan25"
+      ]
+    },
+    {
+      "persona": "autonomous-agent",
+      "role": "Finds other agents in the registry, pays them through another protocol and writes feedback afterward.",
+      "goals": [
+        "Pick a counterparty it has never met",
+        "Pay the right address",
+        "Leave feedback that others can verify"
+      ],
+      "pains": [
+        "Most registered agents have no live endpoint",
+        "Raw summaries are polluted by Sybil reviewers",
+        "Feedback costs gas"
+      ],
+      "implements": [
+        "Lookups of agentURI and getAgentWallet",
+        "A trusted reviewer list for getSummary",
+        "Feedback files with proofOfPayment, then giveFeedback"
+      ],
+      "mustTrust": [
+        "Its own reviewer list",
+        "The registration file as served at lookup time",
+        "The payment rail it uses, such as x402"
+      ],
+      "questions": [
+        "Which reviewers should count?",
+        "Is the advertised endpoint the one I am talking to?",
+        "Is this agentWallet still current?"
+      ],
+      "firstSteps": [
+        "Resolve the agent file and check its registrations entry",
+        "Call getSummary with reviewers it trusts",
+        "Probe the endpoint before paying"
+      ],
+      "metrics": [
+        "Share of hires that delivered",
+        "Feedback written per paid task",
+        "Spend on agents without trusted feedback"
+      ],
+      "story": "A research agent needs a translation service. It queries an indexer for agents tagged with translation skills, reads each registration file and drops those whose MCP endpoint does not answer. For the rest it calls getSummary with the twenty client addresses its operator trusts. It pays the best one through x402 at the address returned by getAgentWallet, keeps the transaction hash, uploads a feedback file with proofOfPayment and then calls giveFeedback with the file URI. The gas comes from a sponsor, as the text allows for clients that need not be registered.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol",
+        "src-csoai-census",
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "persona": "validator",
+      "role": "Would check an agent's work and post a 0 to 100 response in the Validation Registry, which is specified but not officially deployed.",
+      "goals": [
+        "Offer re-execution, zkML or TEE checks as a service",
+        "Publish results others can query",
+        "Get paid for the work"
+      ],
+      "pains": [
+        "No officially deployed Validation Registry",
+        "Incentives and slashing are out of scope",
+        "LLM outputs vary between runs, which weakens re-execution"
+      ],
+      "implements": [
+        "A validator contract or service that reads requestURI",
+        "validationResponse calls with tags such as soft and hard",
+        "Evidence files at responseURI"
+      ],
+      "mustTrust": [
+        "The request data at requestURI",
+        "Its own attestation or proof system",
+        "The registry code, which one key can upgrade"
+      ],
+      "questions": [
+        "Will the Validation Registry be redesigned before a listed deployment?",
+        "Can I lower a response after a pass, and should I?",
+        "Who pays for validation?"
+      ],
+      "firstSteps": [
+        "Read the Validation Registry section and issue 28",
+        "Deploy the reference contract on a local chain",
+        "Prototype one validation method"
+      ],
+      "metrics": [
+        "Requests answered",
+        "Time to final response",
+        "Disputed responses"
+      ],
+      "story": "Kai runs a TEE attestation service and wants to post results through ERC-8004. He finds the Validation Registry in the text, but the contracts README lists no address and calls that part still under discussion. A contract answers at the scripted address on Base, yet nobody announced it, so he does not build on it. He deploys the reference code on a local chain instead, posts a soft response and then a hard one, and notices that a later answer can also lower a pass. He follows the open issue on that and waits for an official deployment.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-issue-28",
+        "src-erc-8004-validation-sol"
+      ]
+    },
+    {
+      "persona": "api-seller",
+      "role": "Sells an API or agent service, registers it so buyers can find it, and receives payments at agentWallet.",
+      "goals": [
+        "Be found by agent buyers",
+        "Show a payment-backed track record",
+        "Keep the payee address safe"
+      ],
+      "pains": [
+        "Competitors and spammers can rate it from fresh addresses",
+        "Responses do not change a low score",
+        "x402 payments look like ordinary transfers to indexers"
+      ],
+      "implements": [
+        "x402Support true and an agentWallet bound by signature",
+        "appendResponse to answer complaints, for example with refund evidence",
+        "revenues feedback through its facilitator, as best practices suggest"
+      ],
+      "mustTrust": [
+        "Readers to filter reviewers sensibly",
+        "The facilitator that publishes revenues feedback",
+        "The registry owner"
+      ],
+      "questions": [
+        "How do I get feedback from real customers counted?",
+        "What happens to my reputation if I sell the agent token?",
+        "Is my wallet binding replayable?"
+      ],
+      "firstSteps": [
+        "Register the service with x402Support true",
+        "Bind a dedicated payment wallet",
+        "Ask paying clients to include proofOfPayment"
+      ],
+      "metrics": [
+        "Feedback from paying clients",
+        "Revenue tracked by revenues feedback",
+        "Responses posted to complaints"
+      ],
+      "story": "Omar sells a pricing API to agents and already takes x402 payments. He registers it with x402Support true and binds a cold wallet as agentWallet. A week later a burst of zero scores arrives from addresses that never paid him. He cannot delete them, so he appends responses that link to his payment logs and asks his facilitator to publish revenues feedback, as the best-practices guide suggests. His larger buyers already pass a trusted reviewer list to getSummary, and the burst never shows up in their numbers.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-bp-reputation",
+        "src-erc-8004-reputation-sol",
+        "src-x402-spec-v2"
+      ]
+    },
+    {
+      "persona": "controls-builder",
+      "role": "Builds policy around agents: which agents a fleet may hire or pay, based on registry data plus its own checks.",
+      "goals": [
+        "Turn public signals into an allowlist",
+        "Block payments to stale wallets",
+        "Explain decisions to auditors"
+      ],
+      "pains": [
+        "No native spending caps, consent or kill switch",
+        "Values are not comparable across tags",
+        "One upgrade key can change registry behavior"
+      ],
+      "implements": [
+        "Trusted reviewer lists and weighting by proofOfPayment",
+        "Checks that agentWallet was set after the last transfer",
+        "Monitoring of URIUpdated, MetadataSet and Transfer events"
+      ],
+      "mustTrust": [
+        "Its own indexer",
+        "The off-chain files it caches",
+        "The payment layer that enforces caps"
+      ],
+      "questions": [
+        "Which signals are strong enough to allow a payment?",
+        "How do I detect a sold agent?",
+        "What if the registry is upgraded?"
+      ],
+      "firstSteps": [
+        "Index the identity and reputation events for the chains you use",
+        "Define a trusted reviewer set",
+        "Alert on transfers and wallet changes"
+      ],
+      "metrics": [
+        "Payments blocked by policy",
+        "Agents with stale wallets",
+        "Time from upgrade to alert"
+      ],
+      "story": "Lena runs controls for a company whose agents buy data from other agents. She indexes Transfer, URIUpdated and MetadataSet events and refuses payment to any agent whose token moved since its wallet was last bound. She scores reputation only from reviewers that paid with a verifiable proofOfPayment. Spending caps live in her payment layer, because ERC-8004 has none. When she learns that one externally owned account can upgrade the registries, she adds an alert on the proxy implementation slot and writes the risk into her vendor review.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-bp-reputation"
+      ]
+    },
+    {
+      "persona": "security-researcher",
+      "role": "Studies the registries, the deployed proxies and the feedback data for attacks and failure modes.",
+      "goals": [
+        "Measure Sybil feedback and placeholder registrations",
+        "Find contract and governance weaknesses",
+        "Publish reproducible findings"
+      ],
+      "pains": [
+        "No named audit report",
+        "No public log query over large block ranges on free RPCs",
+        "Values with no common unit"
+      ],
+      "implements": [
+        "Event crawls and census-style probes",
+        "eth_call reads of owner and implementation slots",
+        "Graph analysis of reviewers"
+      ],
+      "mustTrust": [
+        "RPC providers and indexers",
+        "The census and study methods it reuses",
+        "Its own detection heuristics"
+      ],
+      "questions": [
+        "Who holds the upgrade key?",
+        "How much feedback is grounded in payment?",
+        "Can requestHash squatting block validation?"
+      ],
+      "firstSteps": [
+        "Read the Security Considerations and PR 51",
+        "Read owner() on the three proxies",
+        "Reproduce the arXiv:2606.26028 liveness measure on one chain"
+      ],
+      "metrics": [
+        "Share of live agents",
+        "Share of Sybil reviewers",
+        "Open issues without a fix"
+      ],
+      "story": "Priya reads the proxies on Ethereum and Base and finds one externally owned account owning all three, with no published holder. She checks the community audit in PR 51, still unmerged, and confirms from the code that a validator can lower a pass and that a requestHash can be claimed first by anyone. Then she samples feedback: most reviewers rate many agents with identical values within minutes, the same pattern arXiv:2606.26028 reported. She writes it up with dates and block numbers, because every one of these facts can change with an upgrade.",
+      "sources": [
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-pr-51",
+        "src-erc-8004-validation-sol",
+        "src-erc-8004-issue-28",
+        "src-pub-2606-26028"
+      ]
+    }
+  ],
+  "responsibilities": {
+    "columns": [
+      "agent-dev",
+      "autonomous-agent",
+      "validator",
+      "api-seller",
+      "controls-builder",
+      "security-researcher"
+    ],
+    "rows": [
+      {
+        "step": "Write and host the registration file",
+        "marks": {
+          "agent-dev": "owns",
+          "autonomous-agent": "relies-on",
+          "validator": "",
+          "api-seller": "implements",
+          "controls-builder": "observes",
+          "security-researcher": "observes"
+        }
+      },
+      {
+        "step": "Register the agent (register)",
+        "marks": {
+          "agent-dev": "owns",
+          "autonomous-agent": "",
+          "validator": "",
+          "api-seller": "implements",
+          "controls-builder": "",
+          "security-researcher": "observes"
+        }
+      },
+      {
+        "step": "Bind the payment wallet (setAgentWallet)",
+        "marks": {
+          "agent-dev": "implements",
+          "autonomous-agent": "relies-on",
+          "validator": "",
+          "api-seller": "owns",
+          "controls-builder": "verifies",
+          "security-researcher": ""
+        }
+      },
+      {
+        "step": "Prove domain control (/.well-known)",
+        "marks": {
+          "agent-dev": "implements",
+          "autonomous-agent": "verifies",
+          "validator": "",
+          "api-seller": "owns",
+          "controls-builder": "verifies",
+          "security-researcher": ""
+        }
+      },
+      {
+        "step": "Pay the agent (outside ERC-8004)",
+        "marks": {
+          "agent-dev": "",
+          "autonomous-agent": "owns",
+          "validator": "",
+          "api-seller": "relies-on",
+          "controls-builder": "verifies",
+          "security-researcher": ""
+        }
+      },
+      {
+        "step": "Write feedback with proofOfPayment",
+        "marks": {
+          "agent-dev": "",
+          "autonomous-agent": "owns",
+          "validator": "",
+          "api-seller": "relies-on",
+          "controls-builder": "observes",
+          "security-researcher": "observes"
+        }
+      },
+      {
+        "step": "Choose trusted reviewers for getSummary",
+        "marks": {
+          "agent-dev": "",
+          "autonomous-agent": "implements",
+          "validator": "",
+          "api-seller": "",
+          "controls-builder": "owns",
+          "security-researcher": "verifies"
+        }
+      },
+      {
+        "step": "Append responses to feedback",
+        "marks": {
+          "agent-dev": "implements",
+          "autonomous-agent": "",
+          "validator": "",
+          "api-seller": "owns",
+          "controls-builder": "observes",
+          "security-researcher": ""
+        }
+      },
+      {
+        "step": "Answer validation requests (specified only)",
+        "marks": {
+          "agent-dev": "relies-on",
+          "autonomous-agent": "",
+          "validator": "owns",
+          "api-seller": "",
+          "controls-builder": "",
+          "security-researcher": "verifies"
+        }
+      },
+      {
+        "step": "Watch transfers, URI changes and upgrades",
+        "marks": {
+          "agent-dev": "",
+          "autonomous-agent": "relies-on",
+          "validator": "",
+          "api-seller": "",
+          "controls-builder": "owns",
+          "security-researcher": "implements"
+        }
+      }
+    ]
+  }
+}

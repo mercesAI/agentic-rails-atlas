@@ -1,0 +1,333 @@
+{
+  "protocol": "erc-8004",
+  "summary": "ERC-8004 makes agent data public and comparable; it does not make it true. The text admits Sybil feedback is possible and offers one defense, filtering by trusted reviewers. Since feedbackAuth was removed, anyone except the owner and operators can rate any agent, and proofOfPayment is never checked on-chain. Files over HTTPS can change silently. Wallet binding is signed but has no nonce. One externally owned account can upgrade all registries on Ethereum and Base (2026-10-11). The Validation Registry is specified, not officially deployed, and its reference code lets a validator lower a pass. No CVE, advisory or named audit report was found.",
+  "threats": [
+    {
+      "id": "erc-8004-t1",
+      "stride": "S",
+      "title": "Sybil reviewers inflate reputation",
+      "description": "One operator funds many fresh addresses and rates its own or a client's agent. Since feedbackAuth was removed, nothing ties feedback to a real interaction.",
+      "preconditions": [
+        "Gas is cheap on the target chain",
+        "Readers use unfiltered data or a naive reviewer list"
+      ],
+      "impact": "Fake agents rank above real ones; arXiv:2606.26028 measured coordinated Sybil behavior among 59.2% to 90.6% of reviewers (data to 2026-05-13).",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "getSummary refuses an empty reviewer list, but choosing reviewers is your job. Weight feedback that carries a verifiable proofOfPayment and discount clusters that rate many agents at once.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol",
+        "src-pub-2606-26028",
+        "src-erc-8004-commit-jan07"
+      ]
+    },
+    {
+      "id": "erc-8004-t2",
+      "stride": "S",
+      "title": "Owner rates its own agent from a fresh address",
+      "description": "The self-feedback check covers the owner and approved operators only. A new address controlled by the same person passes.",
+      "preconditions": [
+        "The owner controls a second funded address"
+      ],
+      "impact": "Self-promotion that looks like independent feedback.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Treat addresses without history or payment proof as untrusted reviewers.",
+      "sources": [
+        "src-erc-8004-reputation-sol",
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "id": "erc-8004-t3",
+      "stride": "T",
+      "title": "Registration file changed after review",
+      "description": "An HTTPS agentURI can serve different content at any time without an on-chain event, for example a new endpoint or a new payee hint.",
+      "preconditions": [
+        "The file is served over HTTPS, not IPFS or a data URI"
+      ],
+      "impact": "Clients act on capabilities or endpoints that changed after they vetted the agent.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Prefer content-addressed URIs; cache and hash the file you vetted; re-check before each high-value call.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "id": "erc-8004-t4",
+      "stride": "E",
+      "title": "Single upgrade key for all registries",
+      "description": "All three proxies are UUPS with _authorizeUpgrade restricted to the owner. On 2026-10-11 the owner on Ethereum and Base was one externally owned account whose holder is not published.",
+      "preconditions": [
+        "Compromise or misuse of that key"
+      ],
+      "impact": "New code could rewrite identities, wallets or feedback behavior on those chains.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Monitor the ERC-1967 implementation slot and owner(); keep your own snapshot of critical data; ask maintainers for a multisig or timelock, which their own upgrade notes advise.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-minimaluups-mainnet",
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-upgradeable-doc"
+      ]
+    },
+    {
+      "id": "erc-8004-t5",
+      "stride": "T",
+      "title": "Rogue validator lowers a pass",
+      "description": "validationResponse can be called again for the same request, and in the reference code a later answer can lower an earlier value.",
+      "preconditions": [
+        "A Validation Registry is in use (none is officially deployed)"
+      ],
+      "impact": "A validator can withdraw a pass after the requester relied on it.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Read the response history from events, not only the latest value. Issue 28 and PR 51 propose a monotonic rule; both were open on 2026-10-11.",
+      "sources": [
+        "src-erc-8004-validation-sol",
+        "src-erc-8004-issue-28",
+        "src-erc-8004-pr-51"
+      ]
+    },
+    {
+      "id": "erc-8004-t6",
+      "stride": "D",
+      "title": "requestHash squatting",
+      "description": "validationRequest rejects a requestHash that was already used, and the hash is a global key. Anyone who learns a hash first can occupy it.",
+      "preconditions": [
+        "The attacker sees the request data or hash before submission"
+      ],
+      "impact": "The legitimate request cannot be recorded under that hash. No exploit report was found; this is a reading of the code.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Salt request payloads so hashes are not predictable; submit promptly.",
+      "sources": [
+        "src-erc-8004-validation-sol"
+      ]
+    },
+    {
+      "id": "erc-8004-t7",
+      "stride": "R",
+      "title": "Proof of payment is never checked",
+      "description": "proofOfPayment lives in the off-chain feedback file. The registry stores no payment data and never verifies the file, its hash or the transaction.",
+      "preconditions": [
+        "Readers trust the presence of proofOfPayment without checking the chain"
+      ],
+      "impact": "Fabricated payment proofs make Sybil feedback look grounded.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Fetch the file, compare feedbackHash, and look up txHash on the named chain for the amount and payee before giving weight.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "id": "erc-8004-t8",
+      "stride": "S",
+      "title": "Wallet signature replay within its window",
+      "description": "The AgentWalletSet typed data has no nonce. Inside its deadline the same signature can be submitted again for the same agent, wallet and owner.",
+      "preconditions": [
+        "An operator unset the wallet and an observer resubmits the old signature before the deadline"
+      ],
+      "impact": "A wallet the owner just removed can be set again for up to 5 minutes.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Keep deadlines short; check getAgentWallet after any wallet change; sign with fresh deadlines.",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "id": "erc-8004-t9",
+      "stride": "S",
+      "title": "Stale payee after a transfer",
+      "description": "A transfer clears agentWallet, but payers that cached the old address may keep paying it, while the agentId and its feedback now belong to someone else.",
+      "preconditions": [
+        "A client caches agentWallet",
+        "The token is sold or moved"
+      ],
+      "impact": "Payments go to the previous owner; reputation carries over to a new operator.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Read getAgentWallet right before paying; watch Transfer events; discount feedback older than the last transfer.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "id": "erc-8004-t10",
+      "stride": "I",
+      "title": "Personal data made permanent",
+      "description": "Feedback events, hashes and URIs cannot be deleted from the chain. Clients or owners who put personal data in files or tags make it public and permanent.",
+      "preconditions": [
+        "Personal data in tags, endpoints or public files"
+      ],
+      "impact": "Privacy harm and possible conflict with erasure rights.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Keep personal data out of tags and files; use content you can stop serving, but remember the hash stays.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "id": "erc-8004-t11",
+      "stride": "D",
+      "title": "Unbounded reads",
+      "description": "getSummary and readAllFeedback loop over every matching entry, and the community audit lists unbounded array returns and quadratic gas.",
+      "preconditions": [
+        "An agent with very many entries or clients"
+      ],
+      "impact": "On-chain consumers and RPC reads can fail on popular or spammed agents.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Read from an indexer or events; pass short reviewer lists.",
+      "sources": [
+        "src-erc-8004-reputation-sol",
+        "src-erc-8004-pr-51"
+      ]
+    },
+    {
+      "id": "erc-8004-t12",
+      "stride": "S",
+      "title": "Capability claims not guaranteed",
+      "description": "The text ties a file to an on-chain agent but says it cannot guarantee that advertised capabilities are functional and non-malicious.",
+      "preconditions": [
+        "A client trusts the services list"
+      ],
+      "impact": "Clients call malicious or dead endpoints; the census found only 13,210 of 505,635 ids declaring an http(s) endpoint (2026-09-26).",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Use the /.well-known domain proof, probe endpoints, and require trust models beyond discovery for valuable tasks.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-csoai-census"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "erc-8004-s1",
+      "title": "A Sybil cluster lifts a new agent to the top of an explorer",
+      "preconditions": [
+        "Explorer ranks by raw average or count",
+        "Cheap gas"
+      ],
+      "steps": [
+        "An operator registers an agent",
+        "It funds 200 fresh addresses",
+        "Each address calls giveFeedback with value 100 and tag starred",
+        "An explorer that ranks by unfiltered data lists the agent first",
+        "Clients without a reviewer list hire it"
+      ],
+      "impact": "Clients pay an untested agent; honest agents lose visibility.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "id": "erc-8004-s2",
+      "title": "A sold agent keeps receiving payments at the old wallet",
+      "preconditions": [
+        "A payer cached agentWallet",
+        "The token is transferred"
+      ],
+      "steps": [
+        "The owner sells the agent token",
+        "The transfer clears agentWallet",
+        "A payer uses the cached address",
+        "The new owner binds a different wallet"
+      ],
+      "impact": "Payments reach the former owner; the new owner inherits the reputation.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "id": "erc-8004-s3",
+      "title": "An upgrade changes registry behavior overnight",
+      "preconditions": [
+        "Control of the owner key of the proxies"
+      ],
+      "steps": [
+        "The owner key authorizes a new implementation",
+        "The proxy points to new code",
+        "Reads and writes now follow the new rules"
+      ],
+      "impact": "Any reliance on registry behavior can break on Ethereum and Base at once.",
+      "sources": [
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "id": "erc-8004-s4",
+      "title": "Fake proof of payment",
+      "preconditions": [
+        "Readers weight feedback that has proofOfPayment without checking it"
+      ],
+      "steps": [
+        "A reviewer writes a file with an invented txHash",
+        "It calls giveFeedback with the file URI",
+        "A naive scorer counts it as paid feedback"
+      ],
+      "impact": "Sybil feedback passes a payment filter.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    }
+  ],
+  "research": [
+    {
+      "title": "Can Trustless Agents Be Trusted? An Empirical Study of the ERC-8004 Decentralized AI Agent Ecosystem",
+      "date": "2026-06-24",
+      "finding": "Only 3% (Ethereum), 4% (BSC) and 15% (Base) of agents had a valid file and a live endpoint; 73.5%, 59.2% and 90.6% of reviewers showed coordinated Sybil behavior (data to 2026-05-13).",
+      "publicationId": "pub-xiong-2026-trustless",
+      "sources": [
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "title": "From Agent Identity to Agent Economy",
+      "date": "2026-06-10",
+      "finding": "Describes early adoption as registration-heavy but operationally shallow.",
+      "publicationId": "pub-mafrur-2026-readiness",
+      "sources": [
+        "src-pub-2606-12128"
+      ]
+    },
+    {
+      "title": "Dissociative Identity: Language Model Agents Lack Grounding for Reputation Mechanisms",
+      "date": "2026-05-28",
+      "finding": "Argues that LLM agents lack the persistent identity that reputation mechanisms assume.",
+      "publicationId": "pub-hu-2026-dissociative",
+      "sources": [
+        "src-pub-2605-30169"
+      ]
+    },
+    {
+      "title": "Community security audit (PR 51)",
+      "date": "2026-02-13",
+      "finding": "Reports 1 high, 3 medium, 3 low and 2 informational findings, including the validation response downgrade and unbounded reads; unmerged on 2026-10-11.",
+      "sources": [
+        "src-erc-8004-pr-51"
+      ]
+    },
+    {
+      "title": "On-chain ownership read of the registry proxies",
+      "date": "2026-10-11",
+      "finding": "owner() of all three proxies on Ethereum and Base returns 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, an address with no contract code.",
+      "sources": [
+        "src-erc-8004-onchain-probe"
+      ]
+    }
+  ],
+  "cves": [
+    {
+      "id": "None found",
+      "date": "2026-10-11",
+      "summary": "No CVE and no GitHub security advisory was found for the ERC-8004 reference contracts; the repository advisory list was empty.",
+      "confidence": "reported",
+      "sources": [
+        "src-erc-8004-contracts-history"
+      ]
+    }
+  ],
+  "trustBoundaryDiagram": "erc-8004-trust-boundaries"
+}
