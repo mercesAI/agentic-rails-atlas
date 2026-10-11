@@ -108,6 +108,256 @@ keyFacts:
     claimIds: [clm-visa-tap-183, clm-visa-tap-186, clm-visa-tap-063, clm-visa-tap-154]
 ---
 
+<Mode eli5>
+
+Picture a big shop with a guard at the door. Many robots come to the shop. Some robots shop for real people. Others copy the price tags or try to cheat. The guard cannot tell them apart by looking, so he sends most robots away.
+
+Visa gives each good robot its own stamp and keeps a book of stamp shapes at its office. Each time a good robot walks in, it stamps a fresh note: which shop and which shelf it wants, the time, a code for this visit, and one word that says "just looking" or "I want to pay". The note is good for a few minutes only. The guard, or a security company the shop hires, compares the stamp with Visa's book. If the stamp matches and the note is fresh, the robot may come in.
+
+At the till the robot can hand over two more stamped envelopes. One says "this is a customer you may know" without saying the person's name or email. The other holds what the shop needs to get paid: a check that the card details the robot types are right, a locked box that only the shop can open, or a note that says "I owe you for this page".
+
+The stamp pays for nothing. It only says who the robot is and what it wants to do. The money still moves the normal card way, and the shopper's permission to spend lives in another Visa service.
+
+</Mode>
+
+Visa's Trusted Agent Protocol (TAP) answers one question for a merchant: is this automated request from an AI (artificial intelligence) agent that a payment network has approved, and does the agent want to browse or to pay?<Cite ids="clm-visa-tap-001 clm-visa-tap-031" /> The agent signs each HTTP (Hypertext Transfer Protocol) request with RFC 9421 HTTP Message Signatures and puts a tag in the signature: `agent-browser-auth` for browsing, `agent-payer-auth` for checkout and payment.<Cite ids="clm-visa-tap-037 clm-visa-tap-040" /> The merchant, or a CDN (content delivery network) in front of it, fetches the agent's public key from the network's key directory, checks a validity window of at most 8 minutes and a nonce, rebuilds the signed text and verifies the signature.<Cite ids="clm-visa-tap-075 clm-visa-tap-043 clm-visa-tap-069" /> At checkout the same key can sign two JSON objects in the request body, one that helps the merchant recognize the consumer and one that carries payment data.<Cite ids="clm-visa-tap-078 clm-visa-tap-047 clm-visa-tap-056" /> What TAP does not give you: a payment, the user's consent, spending limits or a liability rule. The money moves through Visa Intelligent Commerce tokens and ordinary card processing, and the user's approval lives there too.<Cite ids="clm-visa-tap-002 clm-visa-tap-129 clm-visa-tap-169" /> TAP is a Visa specification under Visa's own terms, not an IETF (Internet Engineering Task Force) standard.<Cite ids="clm-visa-tap-003" />
+
+### Problem and design goals
+
+Merchants and the services that protect their sites have long classed automated traffic as bots and blocked most of it, and an agent shopping for a real cardholder arrives as exactly that kind of traffic.<Cite ids="clm-visa-tap-236" /> Visa's launch release quoted Adobe data that AI-driven traffic to US retail sites rose more than 4,700 percent in the year to August 2025.<Cite ids="clm-visa-tap-172" /> Visa said on 2025-11-20 that malicious bot-initiated transactions had risen 25 percent over six months, and 40 percent in the US.<Cite ids="clm-visa-tap-173" /> Neither figure measures TAP traffic; they describe the problem TAP was built for.
+
+Visa announced TAP on 2025-10-14, said it was developed with Cloudflare, and presents it as an enhancement to Visa Intelligent Commerce (VIC), the agent payment program it unveiled on 2025-04-30.<Cite ids="clm-visa-tap-004 clm-visa-tap-005 clm-visa-tap-007 clm-visa-tap-008" /> The specification is written for the case where the merchant does not know the agent in advance, and a merchant that has not adopted it can ignore every signature.<Cite ids="clm-visa-tap-233" /> It names four goals for the agent signature: strong identity tied to a payment scheme's program, requests that cannot be altered unnoticed, replay protection through timestamps and nonces, and no reliance on IP addresses or extra header content.<Cite ids="clm-visa-tap-223" /> A key that belongs to Visa implies that the agent takes part in, and complies with, the VIC program.<Cite ids="clm-visa-tap-224" />
+
+The overview groups what an agent can prove into three kinds of information: agent intent, consumer recognition and payment information.<Cite ids="clm-visa-tap-225" /> The specification turns them into three signatures, one in the request headers and two in the request body.<Cite ids="clm-visa-tap-227" /> It covers two moments of a purchase. Browsing means asking about a product, its availability and its final cost after taxes and shipping; payment means buying it or paying for access to a resource.<Cite ids="clm-visa-tap-237" />
+
+### Actors and roles
+
+The specification names eight participants: Agent Providers, Checkout Enablers, Consumers, Site Protection Providers, Identity Providers, Merchants, Payment Schemes and a Key Store.<Cite ids="clm-visa-tap-030" /> An Agent Provider is a certified AI platform that a payment scheme has onboarded and approved to pay on behalf of its account holders.<Cite ids="clm-visa-tap-031" /> How Visa onboards agents is not public, and the guide that tells agents how to generate signatures is available only to onboarded agents.<Cite ids="clm-visa-tap-125 clm-visa-tap-087" />
+
+A Checkout Enabler is an intermediary that an agent may use to reach merchant sites, and TAP expects only one thing of it: pass the message signatures and query parameters through unchanged.<Cite ids="clm-visa-tap-032" /> A Site Protection Provider is the layer in front of the merchant's site, such as a CDN, a trust management system or a proxy.<Cite ids="clm-visa-tap-033" /> Verification can happen at the merchant or at that provider on the merchant's behalf.<Cite ids="clm-visa-tap-035" /> In practice the edge does much of the work: Cloudflare published its TAP checks on 2025-10-24, and Akamai announced TAP support across Akamai Cloud on 2025-12-17.<Cite ids="clm-visa-tap-085 clm-visa-tap-151" />
+
+The Merchant does not have to use TAP or register with any payment scheme to accept its credentials.<Cite ids="clm-visa-tap-034" /> A merchant that recognizes agents may serve them simpler pages or a shorter checkout.<Cite ids="clm-visa-tap-234" /> The Payment Scheme, Visa in this case, sets the rules for agent-initiated transactions and hosts the key store at `https://mcp.visa.com/.well-known/jwks`.<Cite ids="clm-visa-tap-030 clm-visa-tap-069" /> For VIC, Visa also acts as the Identity Provider: it signs the ID Token that the consumer object carries.<Cite ids="clm-visa-tap-050" /> The Consumer signs nothing in TAP; their approval of a purchase happens earlier, inside VIC, with a passkey.<Cite ids="clm-visa-tap-141" />
+
+### Core objects
+
+TAP has three signed things. The first is the agent recognition signature: two RFC 9421 header fields, `Signature-Input` with the metadata and `Signature` with the value.<Cite ids="clm-visa-tap-037" /> Its minimum covered components are `@authority` and `@path`, and it must carry six parameters: `created`, `expires`, `keyid`, `alg`, `nonce` and `tag`.<Cite ids="clm-visa-tap-038 clm-visa-tap-039" /> The two timestamps may be at most 8 minutes apart.<Cite ids="clm-visa-tap-043" /> The nonce is unusual: TAP calls it a session identifier and reuses the same value across every message signature and every signed body object of the interaction.<Cite ids="clm-visa-tap-042" /> Agents and payment schemes may add fields beyond this minimum.<Cite ids="clm-visa-tap-046" />
+
+The second is the Agentic Consumer Recognition Object, `agenticConsumer`, in the request body. It holds at least a `nonce`, an `idToken`, a `contextualData` object, a `kid`, an `alg` and a `signature`.<Cite ids="clm-visa-tap-047" /> `contextualData` carries a country code, a postal code, the consumer's IP address and device data, the last two collected when the consumer set up the Payment Instruction in VIC.<Cite ids="clm-visa-tap-048 clm-visa-tap-049" /> The ID Token is a JWT (JSON Web Token) compatible with an OpenID Connect ID Token and signed by Visa as a JWS (JSON Web Signature); its header needs `alg`, `kid` and `typ`, and the `none` algorithm is not allowed.<Cite ids="clm-visa-tap-050 clm-visa-tap-051" /> Its contact claims are obfuscated, so a merchant that wants to match a returning customer keeps its own mapping table from obfuscated email or phone values to its account holders.<Cite ids="clm-visa-tap-054 clm-visa-tap-055" /> Visa's overview also mentions a blockchain wallet address as possible consumer data, but the specification's tables define no such field.<Cite ids="clm-visa-tap-232" />
+
+The third is the Agentic Payment Container, `agenticPaymentContainer`, also in the body, with at least `nonce`, `kid`, `alg` and `signature`.<Cite ids="clm-visa-tap-056" /> What else it holds depends on how the merchant takes payment: a hash of the card credentials for a key-entered guest checkout, `cardMetadata` for display, an encrypted `payload` for merchants that process by API, or a `browsingIOU` after the merchant answered with HTTP 402.<Cite ids="clm-visa-tap-057" /> `cardMetadata` includes the last four digits and the payment account reference (PAR), which lets a merchant link token and virtual card payments to one funding account.<Cite ids="clm-visa-tap-058" /> The `payload` is encrypted to a merchant public key that the merchant onboards to each payment scheme, and it carries a token object, addresses and consumer contact details.<Cite ids="clm-visa-tap-061 clm-visa-tap-231" />
+
+Both body objects are signed with the same private key as the header signature and carry the same nonce, which is what links them to the request.<Cite ids="clm-visa-tap-078" /> TAP publishes no JSON Schema, OpenAPI file or test vectors, and the sample repository implements neither body object.<Cite ids="clm-visa-tap-064 clm-visa-tap-065" /> The field tables below therefore follow the specification page itself, which carries no version number.<Cite ids="clm-visa-tap-023" />
+
+<Mode spec>
+
+**Field tables.** Visa TAP merchant specification, unversioned and undated, read on 2026-10-11 at developer.visa.com. Descriptions are paraphrased. The page spells some names inconsistently (`keyId` and `keyid`, `IdToken` and `idToken`, `paymentCredentialsHash` and `credentialHash`); the tables use the names from the field lists.
+
+<FieldTable caption="Agent recognition signature: covered components and Signature-Input parameters (minimum set)" specVersion="TAP spec, unversioned (read 2026-10-11)" fields={[
+  { "name": "@authority", "type": "derived component", "required": true, "description": "Authority of the target URI; binds the signature to the merchant host.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "@path", "type": "derived component", "required": true, "description": "Absolute path of the target URI.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "created", "type": "integer (UNIX time)", "required": true, "description": "When the request was created; must be in the past.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "expires", "type": "integer (UNIX time)", "required": true, "description": "When the request stops being valid; in the future and at most 8 minutes after created.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "keyid", "type": "string", "required": true, "description": "Identifies the public key in the scheme's key store; merchants may cache it.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "alg", "type": "string", "required": true, "description": "Signing algorithm; the examples use Ed25519.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "nonce", "type": "string", "required": true, "description": "Session identifier shared by every signature and signed object of the interaction.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "tag", "type": "string", "required": true, "description": "agent-browser-auth for browsing or agent-payer-auth for checkout and payment.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" }
+]} />
+
+<FieldTable caption="agenticConsumer (Agentic Consumer Recognition Object, request body)" specVersion="TAP spec, unversioned (read 2026-10-11)" fields={[
+  { "name": "nonce", "type": "string", "required": true, "description": "Same nonce as the message signature.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "idToken", "type": "JWT", "required": true, "description": "ID Token signed by Visa for VIC; other identity tokens may appear as extra fields.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "contextualData", "type": "object", "required": true, "description": "Device and location identifiers of the consumer.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "kid", "type": "string", "required": true, "description": "Key id; should equal the keyid of the message signature.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "alg", "type": "string", "required": true, "description": "Signing algorithm; the example uses PS256.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "signature", "type": "string", "required": true, "description": "Signature over all other fields in the order received.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" }
+]} />
+
+<FieldTable caption="contextualData" specVersion="TAP spec, unversioned (read 2026-10-11)" fields={[
+  { "name": "countryCode", "type": "string", "required": false, "description": "ISO 3166-1 alpha-2 country code. Required status not stated.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "zip", "type": "string (16 characters)", "required": false, "description": "Postal code, or a city and state combination. Required status not stated.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "ipAddress", "type": "string", "required": false, "description": "IP address of the consumer's device, collected during the Payment Instruction.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "deviceData", "type": "object", "required": false, "description": "Device data collected during the Payment Instruction; its fields are not listed.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" }
+]} />
+
+<FieldTable caption="ID Token (Visa implementation): JOSE header and claims" specVersion="TAP spec, unversioned (read 2026-10-11)" fields={[
+  { "name": "alg (header)", "type": "string", "required": true, "description": "Per RFC 7518; none is not supported and PS256 is preferred to RS256.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "kid (header)", "type": "string", "required": true, "description": "Visa key id; the key type must match the algorithm.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "typ (header)", "type": "string", "required": true, "description": "Should be JWT+ext.id_token.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "iss, sub, exp, iat", "type": "string or number", "required": true, "description": "Issuer, a never-reassigned consumer id, expiry and issue time (cardinality 1).", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "aud", "type": "array", "required": true, "description": "One or more audiences.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "jti, auth_time, amr", "type": "string, number, array", "required": false, "description": "Token id, time of user authentication, authentication methods used.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "phone_number, email", "type": "string", "required": false, "description": "Obfuscated contact values (E.164 without the plus sign; lowercase RFC 5322).", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "phone_number_verified, email_verified", "type": "boolean", "required": false, "description": "Whether the provider verified the contact value.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "phone_number_mask, email_mask", "type": "string", "required": false, "description": "Masked values for display (private claims).", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" }
+]} />
+
+<FieldTable caption="agenticPaymentContainer (Agentic Payment Container, request body)" specVersion="TAP spec, unversioned (read 2026-10-11)" fields={[
+  { "name": "nonce", "type": "string", "required": true, "description": "Same nonce as the message signature.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "kid", "type": "string", "required": true, "description": "Key id; should equal the keyid of the message signature.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "alg", "type": "string", "required": true, "description": "Signing algorithm; the example uses PS256.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "signature", "type": "string", "required": true, "description": "Signature over the other fields in the order received.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "paymentCredentialsHash", "type": "object", "required": false, "description": "Hash of account number, expiry month and year and security code; for key-entered guest checkout. Called credentialHash in the processing section.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "cardMetadata", "type": "object", "required": false, "description": "lastFour, paymentAccountReference, shortDescription and card art (CardData: contentType, mimeType, width, height).", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "payload", "type": "encrypted object", "required": false, "description": "Token object (paymentToken, expirationMonth, expirationYear, cardholderName, dynamicData), shipping and billing addresses, consumerEmailAddress, consumerName, consumerMobileNumber.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "browsingIOU", "type": "object", "required": false, "description": "Present when the merchant asked for payment with HTTP 402.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" }
+]} />
+
+<FieldTable caption="browsingIOU (the specification lists these fields but does not mark which are required)" specVersion="TAP spec, unversioned (read 2026-10-11)" fields={[
+  { "name": "invoiceId", "type": "not stated", "required": false, "description": "Invoice id received in the 402 response.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "amount", "type": "not stated", "required": false, "description": "Amount received in the 402 response.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "cardAcceptorId", "type": "not stated", "required": false, "description": "Card acceptor id (CAID) received in the 402 response.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "acquirerId", "type": "not stated", "required": false, "description": "Id of the acquirer that will settle the funds.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "uri", "type": "string", "required": false, "description": "URI of the page that needs payment.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "sequenceCounter", "type": "not stated", "required": false, "description": "Agent tracking number.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "paymentService", "type": "not stated", "required": false, "description": "Payment service where the agent has an account.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "kid, alg, signature", "type": "string", "required": false, "description": "Key id, algorithm and signature of the IOU.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" }
+]} />
+
+<FieldTable caption="Public key retrieval (GET /keys with keyID) response: JWK" specVersion="TAP spec, unversioned (read 2026-10-11)" fields={[
+  { "name": "kty", "type": "string", "required": true, "description": "Key type, for example RSA, EC or oct.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "kid", "type": "string", "required": true, "description": "Key id used to select the key.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "use", "type": "string", "required": true, "description": "Intended use; sig for signatures.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "alg", "type": "string", "required": true, "description": "Algorithm, for example PS256 or ES256.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" },
+  { "name": "n, e", "type": "base64url", "required": false, "description": "RSA modulus and exponent.", "specRef": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications" }
+]} />
+
+Illustrative example, spec version TAP (unversioned, read 2026-10-11): a signed browsing request. The host, key id, nonce and signature are placeholders that will not verify; the window is 300 seconds. The specification's own examples reuse Web Bot Auth test values instead, as explained under security.
+
+```http
+GET /example-product HTTP/1.1
+Host: shop.example
+Signature-Input: sig2=("@authority" "@path");created=1767225600;keyid="agent-key-1";alg="Ed25519";expires=1767225900;nonce="bm9uY2UtcGxhY2Vob2xkZXI";tag="agent-browser-auth"
+Signature: sig2=:c2lnbmF0dXJlLXBsYWNlaG9sZGVy:
+```
+
+The RFC 9421 signature base for that request: one line per covered component, then the signature parameters as the last line.
+
+```text
+"@authority": shop.example
+"@path": /example-product
+"@signature-params": ("@authority" "@path");created=1767225600;keyid="agent-key-1";alg="Ed25519";expires=1767225900;nonce="bm9uY2UtcGxhY2Vob2xkZXI";tag="agent-browser-auth"
+```
+
+</Mode>
+
+### Message flow step by step
+
+The main sequence in section C follows one shopping trip: a signed browsing request, then a signed checkout request with both body objects, verified at a CDN and then at the merchant.<Cite ids="clm-visa-tap-237 clm-visa-tap-035" /> TAP defines verification steps for the merchant, not an API; the agent side lives in Visa's non-public client guide.<Cite ids="clm-visa-tap-075 clm-visa-tap-087" />
+
+1. The agent sends `GET` for a product page with `Signature-Input` and `Signature` headers covering `@authority` and `@path`, tagged `agent-browser-auth`.<Cite ids="clm-visa-tap-038 clm-visa-tap-040" /> A Checkout Enabler on the way must leave the headers and query parameters alone.<Cite ids="clm-visa-tap-032" />
+2. The verifier looks for a signature tagged `agent-browser-auth` or `agent-payer-auth`. With neither tag, the request was not signed by a trusted agent, and the merchant may block it or judge it by other means.<Cite ids="clm-visa-tap-041" />
+3. The verifier checks that every minimum field is present, that `created` is in the past and `expires` in the future, and that the two are at most 8 minutes apart.<Cite ids="clm-visa-tap-075 clm-visa-tap-043" />
+4. If the verifier keeps the nonces of the last 8 minutes, it blocks a nonce it has already seen.<Cite ids="clm-visa-tap-077" />
+5. It takes the public key for `keyid` from its cache or from the key store; a key that cannot be found or has expired blocks the request.<Cite ids="clm-visa-tap-076 clm-visa-tap-069" />
+6. It rebuilds the signature base and verifies the signature. Any failure in steps 3 to 6 blocks the request.<Cite ids="clm-visa-tap-076" /> On success the merchant treats the caller as a trusted agent that is browsing or paying, and may still limit what it can do.<Cite ids="clm-visa-tap-075" />
+7. At checkout the agent sends the same kind of signature with `agent-payer-auth`, plus `agenticConsumer` and `agenticPaymentContainer` in the body, all with the same nonce and key.<Cite ids="clm-visa-tap-040 clm-visa-tap-078 clm-visa-tap-228" />
+8. The merchant checks each body object: required fields, a nonce equal to the header nonce, the key for `kid`, and a signature over the other fields in the order received.<Cite ids="clm-visa-tap-079 clm-visa-tap-081" />
+9. The merchant processes the payment data: it compares its own hash of the key-entered card with the credential hash and declines on a mismatch, decrypts `payload` with its private key, or checks a `browsingIOU` against its 402 response.<Cite ids="clm-visa-tap-060 clm-visa-tap-061 clm-visa-tap-083" /> Authorization then runs through the merchant's acquirer as for any card payment; TAP adds nothing there.<Cite ids="clm-visa-tap-002 clm-visa-tap-170" />
+
+The two body objects fail differently. Consumer data that fails verification may be inaccurate, and the merchant may still use it.<Cite ids="clm-visa-tap-080" /> Payment data with missing fields, a nonce mismatch or a bad signature should not be used for payment, yet a missing key only makes it possibly inaccurate, and the same section leaves usability to the merchant's discretion.<Cite ids="clm-visa-tap-081 clm-visa-tap-219 clm-visa-tap-229" /> The nonce comparison may be skipped when a payment is requested without a message signature.<Cite ids="clm-visa-tap-082" />
+
+Cloudflare's edge runs the same checks in its own order: headers present, key fetched by `keyid`, time window, nonce unused, tag allowed, signature base rebuilt, Ed25519 verification.<Cite ids="clm-visa-tap-085" /> The same post's example request carries `tag="web-bot-auth"`, which its own tag check would reject; follow the Visa specification.<Cite ids="clm-visa-tap-086" /> Section C has the decision tree and three failure paths: an untagged request, an expired window and a replayed nonce.
+
+<Mode spec>
+
+Illustrative example, spec version TAP (unversioned, read 2026-10-11): a payment container answering a merchant's HTTP 402. The specification gives no types for most IOU fields, so every value here is a placeholder string, and the signatures will not verify.
+
+```json
+{
+  "agenticPaymentContainer": {
+    "nonce": "bm9uY2UtcGxhY2Vob2xkZXI",
+    "browsingIOU": {
+      "invoiceId": "inv-0001",
+      "amount": "0.25",
+      "cardAcceptorId": "caid-placeholder",
+      "acquirerId": "aid-placeholder",
+      "uri": "https://shop.example/reviews/123",
+      "sequenceCounter": "1",
+      "paymentService": "example-payment-service",
+      "kid": "agent-key-1",
+      "alg": "PS256",
+      "signature": "iou-signature-placeholder"
+    },
+    "kid": "agent-key-1",
+    "alg": "PS256",
+    "signature": "container-signature-placeholder"
+  }
+}
+```
+
+</Mode>
+
+### Lifecycle and states
+
+TAP has no stateful objects of its own, no order, mandate or token. The only state lives with the verifier: a nonce record, a key cache and the signature's validity window.<Cite ids="clm-visa-tap-089" /> The state machine in section C therefore follows one request through verification, from received to served, blocked or untrusted.
+
+The window is short on purpose. A signature lives at most 8 minutes, and the sample agent sets `expires` to exactly `created` plus 8 minutes with a random UUID as nonce.<Cite ids="clm-visa-tap-043 clm-visa-tap-101" /> Because the specification calls the nonce a session identifier shared across signatures, a verifier that blocks every repeated nonce could also block a legitimate second signature in the same session; the text does not resolve this.<Cite ids="clm-visa-tap-042 clm-visa-tap-077" />
+
+The purchase itself has a lifecycle, but it lives in VIC. Visa's API client enrolls a card with `POST /vacp/v1/cards`, creates, updates and cancels purchase instructions under `/vacp/v1/instructions`, fetches payment credentials with `POST /vacp/v1/instructions/{instructionId}/credentials` and reports outcomes with `POST /vacp/v1/instructions/{instructionId}/confirmations`.<Cite ids="clm-visa-tap-142 clm-visa-tap-143" /> VIC issues agent-specific tokens after step-up verification and passkey setup, and the user approves each Payment Instruction with a passkey before the agent fetches credentials.<Cite ids="clm-visa-tap-140 clm-visa-tap-141" /> Section C shows that link as its own sequence.
+
+### Security and trust model (summary)
+
+<Mode eli5>
+
+The stamp proves the robot is one Visa knows, and the short time limit stops anyone from copying an old note. But the note only names the shop and the shelf, not what the robot asks for there, and the guard does not have to keep a list of codes already used.
+
+</Mode>
+
+TAP's guarantee is narrow: a request signed with a key from the scheme's store, for this host and path, inside an 8-minute window, with a stated purpose.<Cite ids="clm-visa-tap-124 clm-visa-tap-038 clm-visa-tap-126" /> Trust rests on two things the public cannot inspect: Visa's onboarding of agents and the key store Visa runs.<Cite ids="clm-visa-tap-125 clm-visa-tap-074" />
+
+The gaps are specific. The minimum signature does not cover the method, the query string or a content digest, so the body, including both signed objects' transport, is not bound to the header signature.<Cite ids="clm-visa-tap-117 clm-visa-tap-095" /> The Web Bot Auth draft warns that a signature over the authority alone can be reused against any method, path or body until it expires.<Cite ids="clm-visa-tap-217" /> The specification's own benefits text claims coverage of method and headers that its minimum does not require.<Cite ids="clm-visa-tap-226" /> Nonce tracking is optional, so replay protection depends on the verifier keeping state.<Cite ids="clm-visa-tap-127" /> Body objects are signed over all fields in the order received, with no named canonicalization and no test vector.<Cite ids="clm-visa-tap-079 clm-visa-tap-028" /> The credential hash has no stated algorithm or salt, and the data it hashes (a 16-digit number, expiry and a 3-digit code) has little entropy.<Cite ids="clm-visa-tap-118 clm-visa-tap-059" />
+
+The published material does not hold together in places. The live key store held one 2048-bit RSA key from a Visa sandbox CA (certificate authority), with no `alg` or `use`, and no Ed25519 key, so the specification's example `keyid` cannot be resolved there.<Cite ids="clm-visa-tap-071 clm-visa-tap-072" /> The example `keyid`, nonce, timestamps and signature match a test vector in the Web Bot Auth draft that signs a different base with a different tag, and the browsing and checkout examples show the same signature, so neither example can verify as printed.<Cite ids="clm-visa-tap-114 clm-visa-tap-116" /> The example window is 3,600 seconds against the 8-minute rule.<Cite ids="clm-visa-tap-115" /> No CVE (Common Vulnerabilities and Exposures) entry or GitHub advisory names TAP, and the one formal analysis of agent payment protocols did not model it.<Cite ids="clm-visa-tap-119 clm-visa-tap-120 clm-visa-tap-121" /> Section H has the threat table.
+
+### Versioning and governance
+
+There is no version number. The specification page shows no version or date, the Product Terms are dated 2025-10-10, and the sample repository has six commits from 2025-10-12 to 2025-10-28 and no tags or releases.<Cite ids="clm-visa-tap-023 clm-visa-tap-012 clm-visa-tap-024" /> Nothing has been merged since; twelve later pull requests are open or were closed unmerged.<Cite ids="clm-visa-tap-026" />
+
+Visa governs TAP alone. The Product Terms grant a nonexclusive, nontransferable and revocable license, conditioned on implementing the current specification in full and in strict conformance.<Cite ids="clm-visa-tap-013 clm-visa-tap-014" /> They forbid modifications other than implementing or porting, and assign unpermitted modifications to Visa.<Cite ids="clm-visa-tap-015" /> Licensees must apply each Visa update at least yearly and within six months of its publication, though production use needs no Solution Approval review.<Cite ids="clm-visa-tap-016 clm-visa-tap-017" /> The implementer alone carries disclosure and consent duties toward users.<Cite ids="clm-visa-tap-018" /> The sample repository's LICENSE.md points to these terms while its source files carry MIT-style permission text, and GitHub reports no recognized license.<Cite ids="clm-visa-tap-019 clm-visa-tap-020 clm-visa-tap-021" />
+
+Visa calls TAP an open framework and says it will align with the IETF, the OpenID Foundation and EMVCo, with the first specifications applying to the Visa network in this phase.<Cite ids="clm-visa-tap-203 clm-visa-tap-010 clm-visa-tap-011" /> None of those bodies publishes TAP today.<Cite ids="clm-visa-tap-003" />
+
+### Extensibility
+
+The specification is a framework with a Visa implementation inside it, and the extension points are loose. Agents and schemes may add signature fields beyond the minimum.<Cite ids="clm-visa-tap-046" /> The consumer object may carry a loyalty number or another party's identity token, and the payment container's content changes with the merchant's processing path.<Cite ids="clm-visa-tap-047 clm-visa-tap-057" /> The specification says agents can talk over web or API channels and protocols such as MCP (Model Context Protocol) and ACP, but no binding for them exists.<Cite ids="clm-visa-tap-092" /> A shared key store across payment schemes is named as a goal; today each network runs its own.<Cite ids="clm-visa-tap-205" />
+
+### How it composes with the other seven
+
+TAP is an identity layer that sits in front of checkout and payment protocols. Visa authored the card method of Stripe and Tempo's MPP (Machine Payments Protocol), says that method and its SDK (software development kit) are built on VIC and TAP, and the `mppx` SDK can sign and verify TAP request attestations.<Cite ids="clm-visa-tap-185 clm-visa-tap-183 clm-visa-tap-162" /> The `browsingIOU` answers an HTTP 402 but uses none of x402's headers or payloads, while Visa sits on the x402 Foundation as a Premier member.<Cite ids="clm-visa-tap-190 clm-visa-tap-188" /> Visa says TAP complements OpenAI's ACP (Agentic Commerce Protocol), and Intelligent Commerce Connect accepts TAP, MPP, ACP and UCP payments, but no wire-level binding to ACP or UCP is published.<Cite ids="clm-visa-tap-192 clm-visa-tap-154 clm-visa-tap-193" /> AP2 and ERC-8004 have no documented link.<Cite ids="clm-visa-tap-197 clm-visa-tap-202" /> Section P goes further.
+
+### Limitations and open issues
+
+- **Proprietary and revocable.** The terms forbid modification and can be withdrawn, which limits independent implementations and forks.<Cite ids="clm-visa-tap-013 clm-visa-tap-015" />
+- **One directory per network.** Visa and Mastercard each host their own key directory, so a verifier needs one integration per network.<Cite ids="clm-visa-tap-123 clm-visa-tap-205" />
+- **Key store mismatch.** The published JWKS (JSON Web Key Set) does not hold the kind of key the examples use, and Visa has not said how production agent keys reach verifiers.<Cite ids="clm-visa-tap-071 clm-visa-tap-074" />
+- **Spec quality.** No version, no changelog, "RCF 9421" for RFC 9421, inconsistent field spellings, a Python sample whose signature parameters start with the label and leave out `alg`, and no test vectors.<Cite ids="clm-visa-tap-204 clm-visa-tap-068 clm-visa-tap-230 clm-visa-tap-064" />
+- **Sample drift.** The sample uses the unregistered algorithm name `rsa-pss-sha256`, adds spaces to the serialized parameters, builds a non-RFC base in the merchant backend, and its CDN proxy checks neither tag nor window and protects only `/product/` paths.<Cite ids="clm-visa-tap-097 clm-visa-tap-098 clm-visa-tap-099 clm-visa-tap-100 clm-visa-tap-088" />
+- **Privacy.** Every merchant the agent visits can receive the consumer's IP address, device data, country and postal code, and the specification sets no minimization or retention rule.<Cite ids="clm-visa-tap-136 clm-visa-tap-137" />
+- **Unclear transport.** The README says identifiers arrive through query parameters, the specification puts them in the body, and nothing says how a body travels on a `GET`.<Cite ids="clm-visa-tap-091" />
+- **No liability rule.** Worldpay wrote on 2026-07-30 that no liability shift exists yet for agentic transactions.<Cite ids="clm-visa-tap-169" />
+- **Open questions in the repository** ask what standing a payment instruction keeps after its agent is revoked and how receipts should be signed.<Cite ids="clm-visa-tap-206" />
+
+### What changed in 2025 and 2026
+
+- 2025-04-30: Visa unveiled Visa Intelligent Commerce.<Cite ids="clm-visa-tap-008" />
+- 2025-09-04: Visa announced an MCP server for VIC and piloted the Visa Acceptance Agent Toolkit.<Cite ids="clm-visa-tap-148" />
+- 2025-10-14: TAP launched with 12 named feedback partners, the specification and the sample repository.<Cite ids="clm-visa-tap-004 clm-visa-tap-006" />
+- 2025-10-24: Cloudflare published its edge verification checks for TAP and Agent Pay.<Cite ids="clm-visa-tap-085" />
+- 2025-10-28: the last merged change to the sample repository added nonce validation.<Cite ids="clm-visa-tap-025" />
+- 2025-12-17 and 2025-12-18: Akamai support; Visa reported hundreds of agent-initiated transactions completed with partners, a count of VIC transactions rather than TAP traffic.<Cite ids="clm-visa-tap-151 clm-visa-tap-174" />
+- 2026-03-17 and 2026-03-18: Agentic Ready launched in Europe with 21 issuers; Visa published its MPP card specification and the `mpp-card` SDK.<Cite ids="clm-visa-tap-178 clm-visa-tap-182" />
+- 2026-04-08: Intelligent Commerce Connect entered pilot, accepting TAP, MPP, ACP and UCP payments.<Cite ids="clm-visa-tap-154" />
+- 2026-06-10: the Agentic Directory and Agent Score.<Cite ids="clm-visa-tap-156" />
+- 2026-07-01 and 2026-07-02: Cloudflare folded signed agents into verified bots; 31 European issuers completed live agent purchases at merchant websites.<Cite ids="clm-visa-tap-135 clm-visa-tap-180 clm-visa-tap-181" />
+- 2026-08-12: TAP request attestation arrived in `mppx`.<Cite ids="clm-visa-tap-163" />
+- 2026-09-01: the IETF Web Bot Auth working group posted draft -00, which TAP predates and does not follow.<Cite ids="clm-visa-tap-104 clm-visa-tap-106" />
+
 ## Compare and compose
 
-Placeholder.
+Mastercard Agent Pay is the closest sibling. Cloudflare describes both as building on Web Bot Auth with a tag in `Signature-Input` and a required nonce, verified by the same edge checks.<Cite ids="clm-visa-tap-199 clm-visa-tap-085" /> The details differ: Mastercard's guide gives one tag, `Agent-pay-auth`, where Visa has two, and each network hosts its own key directory.<Cite ids="clm-visa-tap-220 clm-visa-tap-123" /> Mastercard's directory location is not publicly known, because the only host named in its guide did not resolve on 2026-10-11.<Cite ids="clm-visa-tap-221" /> Both networks also say "agentic token", for different products: Visa's agentic network tokens in VIC, Mastercard's Agentic Tokens in Agent Pay.<Cite ids="clm-visa-tap-201" />
+
+Against the IETF Web Bot Auth draft, TAP is aligned in direction and different in detail. The draft requires the tag `web-bot-auth`, a covered `Signature-Agent` header, a `keyid` that is a JWK thumbprint and a directory at `/.well-known/http-message-signatures-directory`; TAP uses its own tags, no `Signature-Agent`, a mandatory nonce, an 8-minute rather than 24-hour limit and Visa's JWKS.<Cite ids="clm-visa-tap-108 clm-visa-tap-109 clm-visa-tap-110 clm-visa-tap-111 clm-visa-tap-112 clm-visa-tap-113" /> TAP launched almost eleven months before the draft, so the draft is not its basis.<Cite ids="clm-visa-tap-106" /> UCP's own RFC 9421 signing, with `Content-Digest` and an optional Web Bot Auth profile, sits closer to the draft than TAP does, and the UCP specification never names TAP.<Cite ids="clm-visa-tap-194 clm-visa-tap-195" />
+
+With Stripe MPP, TAP is an optional layer. Visa's card method draft has said since its first commit that a client may add TAP signature headers for extra identity assurance; that commit was authored on 2026-01-05 and published on 2026-03-18.<Cite ids="clm-visa-tap-186 clm-visa-tap-212" /> Visa's 2026-03-18 post frames the card specification and SDK as built on VIC and TAP.<Cite ids="clm-visa-tap-183" /> In `mppx`, a TAP attestation identifies the agent but authorizes no payment and proves nothing about the user, so it pairs with an MPP credential rather than replacing it.<Cite ids="clm-visa-tap-215 clm-visa-tap-213" />
+
+With x402, the link is a shared status code and shared membership, not a shared format. TAP's `browsingIOU` answers a 402 with card-acquiring data, the sample merchant's 402 uses ad hoc `X-Payment` headers, and Visa said at launch that it was working with Coinbase to align on interoperability.<Cite ids="clm-visa-tap-190 clm-visa-tap-191 clm-visa-tap-189" /> For ACP and UCP, Visa's Intelligent Commerce Connect is the meeting point: it accepts payments initiated through either, alongside TAP and MPP.<Cite ids="clm-visa-tap-154" />
