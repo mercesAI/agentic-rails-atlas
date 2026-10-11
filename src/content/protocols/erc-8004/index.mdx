@@ -1,0 +1,117 @@
+---
+slug: erc-8004
+order: 1
+name: "ERC-8004: Trustless Agents"
+bubbleLabel: ERC-8004
+monogram: "8004"
+tagline: Agent identity and reputation registries
+intro: "A Draft Ethereum standard that gives AI agents a portable on-chain identity (an ERC-721 token that points to a registration file) and a public feedback log. A third registry for independent validation is specified but not officially deployed. It moves no money, which is why it is often paired with x402."
+family: identity-trust
+layerPrimary: identity-trust
+layersSecondary:
+  - reputation-feedback
+  - discovery
+rails:
+  - crypto
+  - rail-agnostic
+stewards:
+  - "ERC-8004 team (community effort, 8004.org); coordinated by Marco De Rossi (MetaMask) and Davide Crapis (Ethereum Foundation)"
+  - "Co-authors: Jordan Ellis (Google), Erik Reppel (Coinbase)"
+governance: "Community effort with no foundation or association found. The text changes through the ethereum/ERCs editorial process; an EIP editor returned it from Review to Draft on 2026-01-13. The deployed registries are UUPS proxies whose upgrade right sits with one externally owned account on Ethereum and Base (as of 2026-10-11)."
+license:
+  spec: CC0
+  code: "MIT per Solidity file headers; the contracts README says CC0"
+status: draft
+statusNote: "The ERC is Draft, not Final. The Identity and Reputation registries are listed on 25 mainnets in the contracts README (as of 2026-08-15). The Validation Registry is specified, not officially deployed."
+firstAnnounced: "2025-08-13"
+latestVersion:
+  label: "Draft text last changed 2026-01-25 (Updates from community feedback); registry contracts report version 2.0.0"
+  date: "2026-01-25"
+lastVerified: "2026-10-11"
+transports:
+  - "EVM transactions and eth_call against per-chain registry proxies"
+  - "Registration file by ipfs://, https:// or a base64 data: URI"
+  - "HTTPS /.well-known/agent-registration.json (optional domain proof)"
+buildsOn:
+  - "ERC-721 (URIStorage)"
+  - EIP-712
+  - ERC-1271
+  - EIP-155
+  - keccak256 commitments
+  - "UUPS proxies (ERC-1967)"
+composesWith:
+  - x402
+  - stripe-mpp
+  - ap2
+personas:
+  - agent-dev
+  - autonomous-agent
+  - validator
+  - api-seller
+  - controls-builder
+  - security-researcher
+disambiguation:
+  - "ERC-8004 defines agent identity, reputation and validation registries. ERC-8183 (Agentic Commerce) is job escrow with an evaluator, and ERC-8126 (AI Agent Verification) is a separate verification standard that requires ERC-8004."
+  - "ERC-8183 calls itself the Agentic Commerce Protocol. It is unrelated to the OpenAI and Stripe Agentic Commerce Protocol (ACP)."
+  - "The ERC-8004 Identity Registry is not the ERC-3643 (T-REX) Identity Registry, and an ERC-3643 Agent is an operator role, not an AI agent."
+mainFlow: erc-8004-register-and-bind-wallet
+stateMachine: erc-8004-identity-lifecycle
+diagrams:
+  - erc-8004-context
+  - erc-8004-registry-architecture
+  - erc-8004-data-model
+  - erc-8004-feedback-after-x402
+  - erc-8004-read-reputation
+  - erc-8004-sybil-filtering
+  - erc-8004-validation-specified
+  - erc-8004-failure-wallet-deadline
+  - erc-8004-failure-self-feedback
+  - erc-8004-transfer-clears-wallet
+  - erc-8004-revoke-and-respond
+  - erc-8004-composition
+  - erc-8004-trust-boundaries
+  - erc-8004-erc-3643-comparison
+playground:
+  status: coming-next
+  note: "Two simulators are planned. A registration file builder checks a file against the fields of the Draft text (type, services, registrations, supportedTrust) and composes the global agent id from namespace, chain id, registry address and agentId. A reputation aggregator shows how getSummary output changes with honest reviewers, Sybil reviewers, a trusted-client filter and weighting by proof of payment. Simulation only: ephemeral keys, fake chain ids, no real funds."
+keyFacts:
+  - label: Steward
+    value: "Community effort (8004.org), coordinated by Marco De Rossi (MetaMask) and Davide Crapis (Ethereum Foundation); co-authors Jordan Ellis (Google) and Erik Reppel (Coinbase); no foundation found"
+    claimIds: [clm-erc-8004-009, clm-erc-8004-011, clm-erc-8004-013]
+  - label: Governance
+    value: "ethereum/ERCs editorial process; returned from Review to Draft by an EIP editor on 2026-01-13"
+    claimIds: [clm-erc-8004-006, clm-erc-8004-013]
+  - label: License
+    value: "Spec CC0; contracts MIT per file headers (the README says CC0)"
+    claimIds: [clm-erc-8004-014, clm-erc-8004-015]
+  - label: First announced
+    value: "Created 2025-08-13; first merged into ethereum/ERCs on 2025-08-18"
+    claimIds: [clm-erc-8004-003, clm-erc-8004-004]
+  - label: Latest version
+    value: "Draft text last changed 2026-01-25; all three registry implementations report 2.0.0"
+    claimIds: [clm-erc-8004-008, clm-erc-8004-093]
+  - label: Status
+    value: "Draft, not Final. Identity and Reputation registries on 25 mainnets (README, 2026-08-15); Validation Registry specified, not officially deployed"
+    claimIds: [clm-erc-8004-002, clm-erc-8004-099, clm-erc-8004-083]
+  - label: Transports
+    value: "EVM transactions and reads; registration file over ipfs, https or a data URI; optional /.well-known domain proof"
+    claimIds: [clm-erc-8004-019, clm-erc-8004-043, clm-erc-8004-050]
+  - label: Rails
+    value: "None. It moves no money; payments on any rail can only enrich feedback"
+    claimIds: [clm-erc-8004-017]
+  - label: Builds on
+    value: "ERC-721 with URIStorage, EIP-712, ERC-1271, EIP-155, keccak256 commitments"
+    claimIds: [clm-erc-8004-020, clm-erc-8004-036, clm-erc-8004-007, clm-erc-8004-060]
+  - label: Composes with
+    value: "x402 (x402Support, agentWallet, proofOfPayment); MPP discovery draft cites it; A2A and MCP as services"
+    claimIds: [clm-erc-8004-159, clm-erc-8004-162, clm-erc-8004-047]
+  - label: Upgrade key
+    value: "One externally owned account owns all three proxies on Ethereum and Base (2026-10-11); the holder is not published"
+    claimIds: [clm-erc-8004-105, clm-erc-8004-106, clm-erc-8004-107]
+---
+
+Section B is being written.
+
+## Compare and compose
+
+Section P is being written.
