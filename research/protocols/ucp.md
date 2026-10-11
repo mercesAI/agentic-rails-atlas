@@ -224,3 +224,144 @@ Source: [src-ucp-schema-order].
 
 Required: `ucp`, `id`, `line_items` (full replacement on update), `currency`, `totals`. Optional: `context`, `signals`, `attribution`, `buyer`, `actions`, `messages`, `links`, `policies`, `continue_url`, `expires_at`. A checkout can be created from a cart with `cart_id`; the business must then use cart contents [src-ucp-schema-cart].
 
+## Message flows step by step
+
+Spec references are to files at tag v2026-08-25. All examples in the spec are labeled with `{{ ucp_version }}` templates; the site must label any payload as "Illustrative example, spec version 2026-08-25".
+
+### Flow 1: discovery, version selection and capability negotiation (happy path)
+
+1. Platform fetches `GET https://{business}/.well-known/ucp` (MAY; SHOULD cache per HTTP cache headers). Profiles must be HTTPS, must not redirect, must send `Cache-Control: public` with `max-age` of at least 60 seconds (overview "Profile Requirements") [src-ucp-overview].
+2. Platform selects a protocol version from `ucp.version` and the keys of `ucp.supported_versions` (SHOULD prefer the newest). If it picks an older version, it fetches the leaf profile and must check that its `ucp.version` equals the selected key [src-ucp-overview].
+3. Platform validates authority binding for each capability `schema` URL (WHATWG parse, `https`, no userinfo, at least two labels, reversed host must equal or be a label-aligned prefix of the name; no redirects) and rejects failures [src-ucp-overview].
+4. Platform sends its first operation with `UCP-Agent: profile="<platform profile URL>"` (RFC 8941 dictionary syntax), or with `meta["ucp-agent"].profile` over MCP [src-ucp-overview].
+5. Business fetches and validates the platform profile (unless cached), checks the version (`version_unsupported` otherwise), and computes the intersection: keep capabilities present on both sides; select the highest version present in both arrays; drop capabilities with no shared version; prune extensions whose parents are all absent; repeat pruning until stable [src-ucp-overview].
+6. Business returns a `ucp` envelope with `version` and the active `capabilities` in every response [src-ucp-overview].
+
+Failures (overview "Error Handling"): `invalid_profile_url` (REST 400, MCP -32001), `profile_unreachable` (424), `profile_malformed` (422), `version_unsupported` (422), `capabilities_incompatible` (HTTP 200 with a UCP response). Discovery and version failures are transport errors with an optional `continue_url`; capability failure is a UCP response with an optional `continue_url` [src-ucp-overview]. Businesses SHOULD bound discovery cost (fixed-size cache, global rate limit, backoff, or async discovery answering `503` with `Retry-After`) and must reject profile URLs that resolve to special-use IP ranges such as `169.254.169.254` [src-ucp-overview].
+
+### Flow 2: checkout over REST (happy path, buyer completes in trusted UI)
+
+1. `POST /checkout-sessions` with `line_items` (and optionally `buyer`, `context`, `payment`), headers `UCP-Agent`, `Idempotency-Key` and `Request-Id` (all three marked required in the OpenAPI), plus optional `Authorization`, `X-API-Key`, `Signature`, `Signature-Input`, `Content-Digest` [src-ucp-rest-openapi]. Response: checkout with `id`, `status` (usually `incomplete`), `ucp.payment_handlers`, `totals`, `links`, `expires_at` (default 6 hours) [src-ucp-schema-checkout].
+2. `PUT /checkout-sessions/{id}` sends the whole resource; it is a full replacement, not a patch [src-ucp-checkout].
+3. When all data is present the business returns `ready_for_complete` [src-ucp-checkout].
+4. Payment acquisition happens between platform and credential provider (Flow 4).
+5. `POST /checkout-sessions/{id}/complete` with `payment.instruments[]`. Response: `completed` with `order` (`id`, `permalink_url`), or `complete_in_progress` for asynchronous processing [src-ucp-checkout].
+6. Business must send a confirmation email after completion; a completed checkout is immutable [src-ucp-checkout].
+7. `GET /checkout-sessions/{id}` retrieves state; `POST /checkout-sessions/{id}/cancel` cancels any session not `completed` or `canceled` [src-ucp-checkout] [src-ucp-rest-openapi].
+
+Guideline: an agent may fill the checkout, but must hand it to "a trusted and deterministic UI" for the user to review and place the order, unless the AP2 extension is active [src-ucp-checkout].
+
+Failures: `requires_escalation` must carry `continue_url` and at least one message with severity `requires_buyer_input` or `requires_buyer_review`; an outstanding Action blocking completion yields `incomplete` with a `recoverable` error whose `path` points at the Action; a lost Complete response is recovered by `GET` with bounded backoff and, only if still unknown, by resending the identical request with the same idempotency key; idempotency key reuse with a different payload gives `409` [src-ucp-checkout] [src-ucp-signatures].
+
+### Flow 3: escalation and handoff with `continue_url`
+
+1. Business returns `status: requires_escalation`, `messages[]` (severity `requires_buyer_input` or `requires_buyer_review`) and `continue_url` (absolute HTTPS) [src-ucp-checkout].
+2. Platform resolves any `recoverable` errors first, then must open `continue_url` for the buyer [src-ucp-checkout].
+3. The buyer finishes on the business UI; the session reaches `completed` [src-ucp-checkout].
+`continue_url` can be server-state backed (`/checkout-sessions/{checkout_id}`, recommended) or a stateless checkout permalink; platforms SHOULD prefer the business-provided URL [src-ucp-checkout].
+
+### Flow 4: payment handler negotiation, acquisition and completion
+
+1. Negotiation: the business advertises handlers (for example `com.google.pay`, `dev.shopify.shop_pay`, or a processor tokenizer) in its profile and in `checkout.ucp.payment_handlers`, filtered by cart context, with resolved `available_instruments` that the platform must treat as authoritative [src-ucp-overview].
+2. Acquisition: the platform runs the handler's logic directly with the credential provider (for example exchanging credentials for a network token). The business is not involved [src-ucp-overview].
+3. Completion: the platform submits `payment.instruments[]` with `handler_id`, `type` and an opaque `credential` (`token`, `pan` or `network_token` types). Credentials flow platform to business only; the business must not echo them back [src-ucp-overview] [src-ucp-schema-payment].
+4. Exactly one instrument per submission unless `dev.ucp.common.payment.split_payments` is active; violations get `payment_failed` [src-ucp-overview].
+A generic `Tokenization API` (`POST /tokenize`, `POST /detokenize`) is published as a handler building block [src-ucp-tokenization-openapi].
+
+### Flow 5: 3DS2 through Actions (`dev.ucp.common.payment.authentication`, v2026-08-25)
+
+1. Both sides negotiate the extension (extends checkout) [src-ucp-payment-auth].
+2. After complete, the business returns `complete_in_progress` (or `incomplete`) with an `actions` entry of type `dev.ucp.common.payment.device_data_collection` or `dev.ucp.common.payment.three_ds_challenge`, each with an `id` and `config` (for example `config.url`, `config.payment_instrument_id`) [src-ucp-payment-auth].
+3. Platform runs the browser surface; the embedded surface reports `action.ready`, `action.done` or `action.error` (payment-actions embedded OpenRPC) [src-ucp-embedded-openrpc].
+4. Platform confirms the result with `GET /checkout-sessions/{id}` (the Action signal is not authoritative) [src-ucp-checkout].
+The extension does not carry EMV 3DS messages; the business, handler and PSP own the 3DS protocol state [src-ucp-payment-auth].
+
+### Flow 6: AP2 mandates inside a UCP checkout (spec flow; live use unverified)
+
+1. Business advertises `dev.ucp.common.payment.ap2_mandate` (extends `dev.ucp.shopping.checkout`, config `vp_formats_supported` with `dc+sd-jwt`); the platform advertises it and, under the trusted platform provider model, publishes at least one key in `keys` [src-ucp-ap2-spec].
+2. If the extension is in the intersection the session is "Security Locked": neither party may fall back to an unprotected checkout [src-ucp-ap2-spec].
+3. Every checkout response carries `ap2.merchant_authorization` (detached JWS over the JCS-canonicalized checkout without `ap2`; header `alg`, `kid`). The platform must verify it before showing the checkout to the user [src-ucp-ap2-spec].
+4. On complete the platform sends `ap2.checkout_mandate` (SD-JWT with key binding, containing the full checkout including the merchant signature) and the payment mandate inside `payment.instruments[*].credential.token` [src-ucp-ap2-spec].
+5. The business must reject a complete request without `ap2.checkout_mandate`; failures use `mandate_required`, `agent_missing_key`, `mandate_invalid_signature`, `mandate_expired`, `mandate_scope_mismatch`, `merchant_authorization_invalid`, `merchant_authorization_missing` [src-ucp-ap2-spec] [src-ucp-schema-ap2].
+Over A2A, the merchant signature appears as `ap2.merchant_authorization` and the mandate as `ap2.checkout_mandate` inside `DataPart` objects (`a2a.ucp.checkout`, `a2a.ucp.checkout.payment`) [src-ucp-a2a].
+Production use of AP2 mandates in any UCP deployment is unverified as of 2026-10-11 (ATLAS_FOLLOWUP 2.1.9; no public source found in this pass).
+
+### Flow 7: identity linking (`dev.ucp.common.identity_linking`)
+
+1. Platform resolves the authorization server: RFC 9728 protected-resource metadata (`/.well-known/oauth-protected-resource`), then RFC 8414 metadata at `/.well-known/oauth-authorization-server`, falling back to `/.well-known/openid-configuration` only on `404`; the `issuer` must match byte for byte [src-ucp-identity-linking].
+2. OAuth 2.0 Authorization Code flow with PKCE `S256` (plain PKCE forbidden); the business must return `iss` (RFC 9207) and enforce exact `redirect_uri` matching [src-ucp-identity-linking].
+3. Scopes are capability-derived, for example `dev.ucp.shopping.checkout:manage`, `dev.ucp.shopping.order:read`, `dev.ucp.shopping.order:manage` [src-ucp-identity-linking] [src-ucp-checkout].
+4. Accelerated IdP flow (v2026-08-25): the platform gets a JWT authorization grant from a trusted IdP by RFC 8693 token exchange and presents it at the business token endpoint with the RFC 7523 JWT bearer grant; the platform must not present a raw IdP token to a business. This profiles `draft-ietf-oauth-identity-chaining` [src-ucp-identity-linking].
+5. Revocation: businesses must implement RFC 7009; SHOULD support the OpenID RISC profile for account events [src-ucp-identity-linking].
+Access levels: public (no credentials), agent-authenticated (platform credentials), user-authenticated (platform credentials plus user token) [src-ucp-identity-linking].
+Failures: `identity_required`, `insufficient_scope` (with `WWW-Authenticate: Bearer` challenges), `identity_optional` [src-ucp-identity-linking].
+
+### Flow 8: order events by webhook
+
+1. The platform publishes `config.webhook_url` in its `dev.ucp.shopping.order` capability entry [src-ucp-order].
+2. The business POSTs the full current order snapshot to that URL (`orderEvent` webhook, operation `order_event_webhook`) with Standard Webhooks headers `Webhook-Id` and `Webhook-Timestamp`, and an RFC 9421 signature (must be signed) [src-ucp-order] [src-ucp-rest-openapi].
+3. The platform verifies the signature and must reject events where the signer's profile does not match the order's business [src-ucp-order].
+4. `GET /orders/{id}` (MCP `get_order`) is for reconciliation [src-ucp-order].
+
+## State machines
+
+### Checkout `status`
+
+| From | Event | To |
+| --- | --- | --- |
+| (new) | Create Checkout | `incomplete` (or later states if all data supplied) |
+| `incomplete` | data needs buyer input or review | `requires_escalation` |
+| `requires_escalation` | resolved via update | `incomplete` |
+| `incomplete` | all information collected, no Action outstanding | `ready_for_complete` |
+| `ready_for_complete` | Complete Checkout accepted asynchronously | `complete_in_progress` |
+| `ready_for_complete` or `complete_in_progress` | order placed | `completed` (terminal; `order` present) |
+| `requires_escalation` | buyer finishes via `continue_url` | `completed` |
+| any | session invalid or expired, or Cancel Checkout | `canceled` (terminal) |
+
+Rules: Update and new Complete are forbidden during `complete_in_progress`; `completed` is immutable; default `expires_at` is creation plus 6 hours [src-ucp-checkout] [src-ucp-schema-checkout].
+
+### Session security lock (AP2)
+
+`unlocked` to `security locked` once `dev.ucp.common.payment.ap2_mandate` is in the intersection; there is no transition back for that session [src-ucp-ap2-spec].
+
+### Adjustment `status`
+
+`pending` to `completed` or `failed` (enum in `adjustment.json`) [src-ucp-schema-order].
+
+### Response `ucp.status`
+
+`success` or `error` [src-ucp-schema-profile].
+
+## Transports
+
+| Transport | Description format | Binding facts | Source |
+| --- | --- | --- | --- |
+| REST | OpenAPI 3.1 (`services/shopping/rest.openapi.json`) | Paths appended to `endpoint`. Checkout: `POST /checkout-sessions`, `GET` and `PUT /checkout-sessions/{id}`, `POST /checkout-sessions/{id}/complete`, `POST /checkout-sessions/{id}/cancel`. Cart: `POST /carts`, `GET` and `PUT /carts/{id}`, `POST /carts/{id}/cancel`. Catalog: `POST /catalog/search`, `POST /catalog/lookup`, `POST /catalog/product`. Order: `GET /orders/{id}`. Common: `POST /locations/search`, `POST /locations/lookup`. Webhook `orderEvent` | [src-ucp-rest-openapi] |
+| MCP | OpenRPC (`services/shopping/mcp.openrpc.json`), streamable HTTP | Tools: `create_checkout`, `get_checkout`, `update_checkout`, `complete_checkout`, `cancel_checkout`, `create_cart`, `get_cart`, `update_cart`, `cancel_cart`, `search_catalog`, `lookup_catalog`, `get_product`, `get_order`; common: `search_locations`, `lookup_locations`. Profile in `meta["ucp-agent"]`. The glossary says capabilities map 1:1 to MCP tools | [src-ucp-mcp-openrpc] [src-ucp-glossary] |
+| A2A | Agent Card at `endpoint`; UCP A2A extension URI `https://ucp.dev/{version}/specification/reference` | Headers `UCP-Agent` and `X-A2A-Extensions`; data in `DataPart` keys `a2a.ucp.checkout`, `a2a.ucp.checkout.payment`, `a2a.ucp.checkout.signals` | [src-ucp-a2a] |
+| Embedded (EP) | OpenRPC (`services/shopping/embedded.openrpc.json`) | Checkout messages `ec.ready`, `ec.auth`, `ec.error`, `ec.start`, `ec.complete`, `ec.messages.change`, `ec.line_items.change`, `ec.buyer.change`, `ec.totals.change`, `ec.payment.change`, `ec.payment.instruments_change_request`, `ec.payment.credential_request`, `ec.window.open_request`, `ec.fulfillment.change`, `ec.fulfillment.address_change_request`; cart messages `ep.cart.*`; payment actions `action.ready`, `action.done`, `action.error` | [src-ucp-embedded-openrpc] |
+
+- HTTP headers in the REST OpenAPI: `UCP-Agent` (required), `Request-Id` (required), `Idempotency-Key` (required on state-changing operations), `Authorization`, `X-API-Key`, `Signature`, `Signature-Input`, `Content-Digest`, `User-Agent`, `Content-Type`, `Accept`, `Accept-Language`, `Accept-Encoding`; webhooks add `Webhook-Timestamp` and `Webhook-Id`; Web Bot Auth-shape requests add `Signature-Agent` [src-ucp-rest-openapi] [src-ucp-signatures].
+- Protocol errors: 401, 403, 409 (idempotency key reused with a different payload), 429, 500, 503, with MCP codes -32000 or -32603; `Retry-After` (REST) or `error.data.retry_after` (MCP) on 429 and 503 [src-ucp-overview].
+
+## Cryptography and standards used
+
+| Item | Standard | Use in UCP | Source |
+| --- | --- | --- | --- |
+| HTTP Message Signatures | RFC 9421 | Request, response and webhook signing; webhooks must be signed; requests SHOULD be signed when signatures are the chosen auth | [src-ucp-signatures] |
+| Content-Digest | RFC 9530 | `sha-256` over raw body bytes; intermediaries must not re-serialize JSON | [src-ucp-signatures] |
+| Algorithms | JWA | Verifiers must support `ES256`; `ES384` and `EdDSA` optional; open vocabulary | [src-ucp-signatures] |
+| Keys | JWK, JWK Set (RFC 7517), RFC 8037, thumbprint RFC 7638 | Top-level `keys[]` in the profile | [src-ucp-schema-profile] |
+| Structured fields | RFC 8941 | `UCP-Agent: profile="..."` | [src-ucp-overview] |
+| Web Bot Auth | `draft-meunier-webbotauth-httpsig-directory-00` | Optional interop since v2026-08-25: `Signature-Agent` header, `tag="web-bot-auth"`, `created` and `expires` required, `nonce` SHOULD, `keyid` is the JWK thumbprint | [src-ucp-signatures] |
+| JWS detached | RFC 7515 Appendix F | `ap2.merchant_authorization` | [src-ucp-ap2-spec] |
+| JCS | RFC 8785 | Canonicalization for mandates and merchant authorization | [src-ucp-ap2-spec] |
+| SD-JWT with key binding | (AP2 spec) | `ap2.checkout_mandate`, payment mandate | [src-ucp-ap2-spec] |
+| OAuth 2.0 family | RFC 8414, RFC 9728, RFC 9207, RFC 7009, RFC 8693, RFC 7523, PKCE S256, OpenID RISC | Identity linking | [src-ucp-identity-linking] |
+| Standard Webhooks | standardwebhooks.com | Webhook header names | [src-ucp-order] |
+| 3DS2 | EMV 3DS (not re-specified) | Actions for device data collection and challenge | [src-ucp-payment-auth] |
+| JSON Schema 2020-12, OpenAPI 3.1, OpenRPC | | Schemas and transport descriptions | [src-ucp-rest-openapi] |
+
+- Seed check "ES256 mandatory": precise wording is that all implementations must support verifying `ES256`; it is the baseline, not the only algorithm. AP2 mandate signing follows AP2's rule (ECDSA `ES256`, `ES384`, `ES512` in v0.2), and the spec notes an inconsistency in AP2 v0.2 tracked as AP2 issue #268 [src-ucp-signatures] [src-ucp-ap2-spec].
+- Replay protection is at the business layer through signed `Idempotency-Key` (128-bit minimum entropy, stored 24 hours minimum, 48 recommended, fail closed with 503 on storage failure). For default UCP signatures `created` is optional [src-ucp-signatures].
+
