@@ -1,0 +1,124 @@
+{
+  "protocol": "visa-tap",
+  "score": 1,
+  "scoreReasons": [
+    "The key store at https://mcp.visa.com/.well-known/jwks is public and can be polled, but on 2026-10-11 it held one RSA sandbox key that does not match the specification's examples.",
+    "TAP is off-chain and defines no events, receipts or public logs.",
+    "Signature-Input parameters (keyid, tag, nonce, timestamps) are visible only to the merchant, the CDN and intermediaries on the path.",
+    "The Agentic Directory has no public list or endpoint, and no count of verifying merchants or signed requests is published.",
+    "The sample repository and its pull requests are public, which shows spec activity but not deployment."
+  ],
+  "public": [
+    {
+      "what": "Visa key store",
+      "where": "https://mcp.visa.com/.well-known/jwks",
+      "how": "HTTP GET returns a JWK Set; served with cache-control public, max-age=3600. Poll it to watch for key additions or removals.",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "what": "Key retrieval operation",
+      "where": "GET /keys with a keyID parameter (host not named in the specification)",
+      "how": "Returns one JWK with kty, kid, use, alg, n and e.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "what": "Specification and terms",
+      "where": "developer.visa.com trusted-agent-protocol pages",
+      "how": "Unversioned pages; diff them over time to detect changes.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-terms"
+      ]
+    },
+    {
+      "what": "Sample repository activity",
+      "where": "https://github.com/visa/trusted-agent-protocol",
+      "how": "Commits, pull requests, issues and the GitHub advisories list.",
+      "sources": [
+        "src-visa-tap-gh-meta"
+      ]
+    },
+    {
+      "what": "Announcements of adopters",
+      "where": "Visa newsroom and partner releases",
+      "how": "Named merchants, issuers and CDNs with dates.",
+      "sources": [
+        "src-visa-eu-live",
+        "src-akamai-pr"
+      ]
+    }
+  ],
+  "private": [
+    {
+      "what": "Per-request signature headers",
+      "why": "Seen only by the merchant, its CDN and intermediaries on the request path."
+    },
+    {
+      "what": "Consumer object and ID Token",
+      "why": "Personal data sent only to the merchant in the request body."
+    },
+    {
+      "what": "Payment container and decrypted payload",
+      "why": "Card data for the merchant only."
+    },
+    {
+      "what": "Visa telemetry and risk scores",
+      "why": "Visa feeds TAP data into internal fraud models."
+    },
+    {
+      "what": "Cloudflare verification results",
+      "why": "Exposed to the zone owner, for example through cf.bot_management.signed_agent on Enterprise Bot Management."
+    },
+    {
+      "what": "VIC instructions and confirmations",
+      "why": "Bilateral calls between the agent and Visa under /vacp/v1."
+    }
+  ],
+  "indexerCaptures": [
+    {
+      "signal": "Key additions and removals in the Visa JWKS",
+      "from": "https://mcp.visa.com/.well-known/jwks",
+      "identifiers": [
+        "kid",
+        "kty",
+        "x5c certificate subject"
+      ],
+      "sources": [
+        "src-visa-tap-jwks"
+      ]
+    },
+    {
+      "signal": "Specification and sample code changes",
+      "from": "GitHub API for visa/trusted-agent-protocol and the specification page",
+      "identifiers": [
+        "commit sha",
+        "pull request number",
+        "page hash"
+      ],
+      "sources": [
+        "src-visa-tap-gh-meta",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "signal": "Own-site TAP traffic (for a merchant or CDN)",
+      "from": "Signature-Input headers in access logs",
+      "identifiers": [
+        "keyid",
+        "tag",
+        "nonce",
+        "created",
+        "expires"
+      ],
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-cf-blog"
+      ]
+    }
+  ]
+}
