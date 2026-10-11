@@ -1,0 +1,127 @@
+{
+  "id": "erc-8004-validation-specified",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 validation flow (specified, not officially deployed)",
+  "summary": "The Validation Registry as the Draft text specifies it. The contracts README lists no Validation Registry address on any chain, so this flow describes the specification, not a supported deployment.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "owner",
+      "label": "Agent owner or operator",
+      "kind": "human"
+    },
+    {
+      "id": "store",
+      "label": "Request data host",
+      "kind": "server"
+    },
+    {
+      "id": "validation",
+      "label": "Validation Registry (specified, not officially deployed)",
+      "kind": "registry"
+    },
+    {
+      "id": "validator",
+      "label": "Validator contract or service",
+      "kind": "validator"
+    }
+  ],
+  "steps": [
+    {
+      "from": "owner",
+      "to": "store",
+      "label": "Store request data",
+      "detail": "The owner stores everything the validator needs, including the inputs and outputs to check, at requestURI. requestHash is keccak256 of that payload and identifies the request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Validation Request"
+      },
+      "n": 1
+    },
+    {
+      "from": "owner",
+      "to": "validation",
+      "label": "validationRequest(validatorAddress, agentId, requestURI, requestHash)",
+      "detail": "Must be called by the owner or an operator. Emits ValidationRequest.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nValidationRegistry.validationRequest(0x7A11...7A11, 4242, \"ipfs://bafy...request\", 0x9f86...0a08)",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Validation Request"
+      },
+      "failures": [
+        {
+          "condition": "The requestHash was used before",
+          "outcome": "Reverts with \"exists\" in the reference code; the first owner to submit a hash occupies it."
+        },
+        {
+          "condition": "validatorAddress is zero",
+          "outcome": "Reverts with \"bad validator\"."
+        }
+      ],
+      "n": 2
+    },
+    {
+      "from": "validator",
+      "to": "store",
+      "label": "Fetch and check the work",
+      "detail": "The validator re-executes with stake behind it, checks a zkML proof or a TEE attestation. The method, incentives and slashing are outside the registry.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Validation Registry"
+      },
+      "n": 3
+    },
+    {
+      "from": "validator",
+      "to": "validation",
+      "label": "validationResponse(requestHash, response, responseURI, responseHash, \"soft\")",
+      "detail": "Only the named validator may answer. response is 0 to 100, binary (0 or 100) or a spectrum. Emits ValidationResponse.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nValidationRegistry.validationResponse(0x9f86...0a08, 100, \"ipfs://bafy...evidence\", 0x00...00, \"soft\")",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Validation Response"
+      },
+      "failures": [
+        {
+          "condition": "The caller is not the named validator",
+          "outcome": "Reverts with \"not validator\"."
+        },
+        {
+          "condition": "response is above 100",
+          "outcome": "Reverts with \"resp>100\"."
+        }
+      ],
+      "n": 4
+    },
+    {
+      "from": "validator",
+      "to": "validation",
+      "label": "validationResponse(requestHash, response, ..., \"hard\")",
+      "detail": "The validator may answer again for the same request, for example hard finality after soft. In the reference code a later answer may also lower the value, which an open issue reports as a rogue-validator risk.",
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/ValidationRegistryUpgradeable.sol",
+        "section": "validationResponse"
+      },
+      "n": 5
+    }
+  ],
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-validation-sol",
+    "src-erc-8004-contracts-readme",
+    "src-erc-8004-issue-28"
+  ]
+}

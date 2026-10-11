@@ -1,0 +1,247 @@
+{
+  "id": "erc-8004-register-and-bind-wallet",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 registration and wallet binding",
+  "summary": "An owner publishes a registration file, mints an agent identity, writes the new agentId back into the file, proves control of a service domain, and binds a separate payment wallet with an EIP-712 signature. No money moves at any step.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "owner",
+      "label": "Agent owner",
+      "kind": "human"
+    },
+    {
+      "id": "host",
+      "label": "File host (IPFS or HTTPS)",
+      "kind": "server"
+    },
+    {
+      "id": "identity",
+      "label": "Identity Registry",
+      "kind": "registry"
+    },
+    {
+      "id": "domain",
+      "label": "Service domain",
+      "kind": "server"
+    },
+    {
+      "id": "wallet",
+      "label": "New agent wallet",
+      "kind": "wallet"
+    }
+  ],
+  "steps": [
+    {
+      "from": "owner",
+      "to": "host",
+      "label": "Publish registration file",
+      "detail": "The owner writes the registration file (type, name, description, image, services, x402Support, active, registrations, supportedTrust) and hosts it on IPFS or HTTPS, or encodes it as a base64 data URI to keep it on-chain. The registries never fetch this file.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"type\": \"https://eips.ethereum.org/EIPS/eip-8004#registration-v1\",\n  \"name\": \"weather-oracle\",\n  \"description\": \"Returns current weather for a city. Pay per call with x402.\",\n  \"image\": \"https://agent.example/logo.png\",\n  \"services\": [\n    { \"name\": \"MCP\", \"endpoint\": \"https://mcp.agent.example/\", \"version\": \"2025-06-18\" }\n  ],\n  \"x402Support\": true,\n  \"active\": true,\n  \"registrations\": [],\n  \"supportedTrust\": [\"reputation\"]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Agent URI and Agent Registration File"
+      },
+      "failures": [
+        {
+          "condition": "The file is unreachable or not valid JSON",
+          "outcome": "Nothing fails on-chain; explorers and clients mark the agent as unreachable or invalid."
+        }
+      ],
+      "n": 1
+    },
+    {
+      "from": "owner",
+      "to": "identity",
+      "label": "register(agentURI)",
+      "detail": "The owner calls one of the three register overloads. The registry mints the next agentId to msg.sender and sets the reserved agentWallet key to msg.sender. The deployed code starts counting at 0.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).register(\"ipfs://bafy...agent\")\n// returns uint256 agentId",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Registration"
+      },
+      "failures": [
+        {
+          "condition": "The metadata array uses the key agentWallet",
+          "outcome": "Reverts with \"reserved key\"."
+        }
+      ],
+      "n": 2
+    },
+    {
+      "from": "identity",
+      "to": "owner",
+      "label": "Return events Transfer, MetadataSet, Registered",
+      "detail": "One Transfer event, one MetadataSet for agentWallet (the owner address), one MetadataSet per extra entry, and Registered(agentId, agentURI, owner). The owner reads the new agentId from the Registered log.",
+      "payload": {
+        "format": "text",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nTransfer(from=0x0, to=0x0E0E...0E0E, tokenId=4242)\nMetadataSet(agentId=4242, metadataKey=\"agentWallet\", metadataValue=0x0E0E...0E0E)\nRegistered(agentId=4242, agentURI=\"ipfs://bafy...agent\", owner=0x0E0E...0E0E)",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Registration"
+      },
+      "n": 3
+    },
+    {
+      "from": "owner",
+      "to": "host",
+      "label": "Write agentId into registrations",
+      "detail": "Because the id is known only after minting, the owner adds a registrations entry that names the agentId and the agentRegistry string, and publishes the new file.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n\"registrations\": [\n  { \"agentId\": 4242, \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" }\n]",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Identity Registry"
+      },
+      "n": 4
+    },
+    {
+      "from": "owner",
+      "to": "identity",
+      "label": "setAgentURI(agentId, newURI)",
+      "detail": "With a content-addressed file the URI changes, so the owner points the token at the new file. The registry emits URIUpdated(agentId, newURI, updatedBy).",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).setAgentURI(4242, \"ipfs://bafy...agent-v2\")\n// emits URIUpdated(4242, \"ipfs://bafy...agent-v2\", msg.sender)",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Update agentURI"
+      },
+      "failures": [
+        {
+          "condition": "The caller is neither owner nor operator",
+          "outcome": "Reverts with \"Not authorized\"."
+        }
+      ],
+      "n": 5
+    },
+    {
+      "from": "owner",
+      "to": "domain",
+      "label": "Serve /.well-known/agent-registration.json",
+      "detail": "Optional. For each HTTPS service domain that differs from the domain serving the file, the owner publishes a registrations list there. A reader may treat the domain as verified when an entry matches agentRegistry and agentId.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version Draft 2026-01-25.\nGET /.well-known/agent-registration.json HTTP/1.1\nHost: mcp.agent.example\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{ \"registrations\": [ { \"agentId\": 4242, \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" } ] }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Endpoint Domain Verification (Optional)"
+      },
+      "n": 6
+    },
+    {
+      "from": "owner",
+      "to": "wallet",
+      "label": "Ask the new wallet to sign AgentWalletSet",
+      "detail": "To receive payments at another address, the owner asks that wallet to sign EIP-712 typed data AgentWalletSet(agentId, newWallet, owner, deadline) under the domain ERC8004IdentityRegistry, version 1. The reference code accepts a deadline at most 5 minutes ahead.",
+      "payload": {
+        "format": "eip712",
+        "content": "// Illustrative example, spec version Draft 2026-01-25, contracts 2.0.0.\n{\n  \"domain\": { \"name\": \"ERC8004IdentityRegistry\", \"version\": \"1\", \"chainId\": 1, \"verifyingContract\": \"0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" },\n  \"primaryType\": \"AgentWalletSet\",\n  \"message\": { \"agentId\": \"4242\", \"newWallet\": \"0xB0B0...0B0B\", \"owner\": \"0x0E0E...0E0E\", \"deadline\": \"1791720240\" }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "setAgentWallet"
+      },
+      "failures": [
+        {
+          "condition": "The wallet is a smart contract wallet",
+          "outcome": "It does not sign with ECDSA; the registry calls its ERC-1271 isValidSignature instead."
+        }
+      ],
+      "n": 7
+    },
+    {
+      "from": "wallet",
+      "to": "owner",
+      "label": "Return signature",
+      "detail": "The wallet returns a 65-byte ECDSA signature, or for a contract wallet a signature its own ERC-1271 check accepts.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "setAgentWallet"
+      },
+      "n": 8
+    },
+    {
+      "from": "owner",
+      "to": "identity",
+      "label": "setAgentWallet(agentId, newWallet, deadline, signature)",
+      "detail": "The registry checks the deadline window, recovers the signer with ECDSA (covering EIP-7702 delegated accounts) or falls back to ERC-1271, and stores the wallet.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25, contracts 2.0.0.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).setAgentWallet(4242, 0xB0B0...0B0B, 1791720240, signature)",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "On-chain metadata"
+      },
+      "failures": [
+        {
+          "condition": "newWallet is the zero address",
+          "outcome": "Reverts with \"bad wallet\"."
+        },
+        {
+          "condition": "The deadline has passed",
+          "outcome": "Reverts with \"expired\"."
+        },
+        {
+          "condition": "The deadline is more than 5 minutes ahead",
+          "outcome": "Reverts with \"deadline too far\"."
+        },
+        {
+          "condition": "Neither ECDSA nor ERC-1271 validates the signature",
+          "outcome": "Reverts with \"invalid wallet sig\"."
+        }
+      ],
+      "n": 9
+    },
+    {
+      "from": "identity",
+      "to": "owner",
+      "label": "Return MetadataSet(agentWallet)",
+      "detail": "The registry emits MetadataSet for agentWallet with the new address. Payers read it with getAgentWallet(agentId). A later token transfer clears it.",
+      "payload": {
+        "format": "text",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nMetadataSet(agentId=4242, metadataKey=\"agentWallet\", metadataValue=0xB0B0...0B0B)",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "On-chain metadata"
+      },
+      "n": 10
+    }
+  ],
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-identity-sol",
+    "src-erc-8004-onchain-probe"
+  ]
+}

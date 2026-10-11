@@ -1,0 +1,120 @@
+{
+  "id": "erc-8004-revoke-and-respond",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 revoking feedback and appending responses",
+  "summary": "A client leaves low feedback, the agent appends a response pointing to a refund, an aggregator appends a spam tag, and the client finally revokes. Responses never change the value; revocation removes it from summaries.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client",
+      "kind": "agent"
+    },
+    {
+      "id": "agent",
+      "label": "Agent owner",
+      "kind": "human"
+    },
+    {
+      "id": "aggregator",
+      "label": "Data aggregator",
+      "kind": "platform"
+    },
+    {
+      "id": "reputation",
+      "label": "Reputation Registry",
+      "kind": "registry"
+    }
+  ],
+  "steps": [
+    {
+      "from": "client",
+      "to": "reputation",
+      "label": "giveFeedback(4242, 20, 0, \"successRate\", ...)",
+      "detail": "Stored as feedbackIndex 1 for this client.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Giving Feedback"
+      },
+      "n": 1
+    },
+    {
+      "from": "agent",
+      "to": "reputation",
+      "label": "appendResponse(4242, client, 1, responseURI, responseHash)",
+      "detail": "Anyone may respond; here the agent links a file that shows a refund. The reference code requires a non-empty responseURI and emits ResponseAppended.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).appendResponse(4242, 0xA11C...A11C, 1, \"ipfs://bafy...refund\", bytes32(0))",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Appending Responses"
+      },
+      "failures": [
+        {
+          "condition": "responseURI is empty",
+          "outcome": "Reverts with \"Empty URI\"."
+        },
+        {
+          "condition": "feedbackIndex is 0 or past the last index",
+          "outcome": "Reverts with \"index must be > 0\" or \"index out of bounds\"."
+        }
+      ],
+      "n": 2
+    },
+    {
+      "from": "aggregator",
+      "to": "reputation",
+      "label": "appendResponse(..., spam tag)",
+      "detail": "An aggregator can append its own judgment, for example a spam label. getResponseCount can filter by responder.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Appending Responses"
+      },
+      "n": 3
+    },
+    {
+      "from": "client",
+      "to": "reputation",
+      "label": "revokeFeedback(4242, 1)",
+      "detail": "Only the original client can revoke. isRevoked becomes true and FeedbackRevoked is emitted. There is no un-revoke.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).revokeFeedback(4242, 1)",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Revoking Feedback"
+      },
+      "failures": [
+        {
+          "condition": "The entry is already revoked",
+          "outcome": "Reverts with \"Already revoked\"."
+        }
+      ],
+      "n": 4
+    },
+    {
+      "from": "reputation",
+      "to": "client",
+      "label": "Return FeedbackRevoked",
+      "detail": "getSummary now skips the entry, and readAllFeedback omits it unless includeRevoked is true. The responses stay on record.",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Read Functions"
+      },
+      "n": 5
+    }
+  ],
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-reputation-sol"
+  ]
+}

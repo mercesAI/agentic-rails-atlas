@@ -1,0 +1,193 @@
+{
+  "id": "erc-8004-feedback-after-x402",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 feedback with proof of payment after an x402 payment",
+  "summary": "A client agent pays a seller agent through x402, writes an off-chain feedback file that carries proofOfPayment, uploads it, and only then calls giveFeedback with the file URI and hash. The registry stores value, decimals and tags; the proof stays off-chain and nobody on-chain checks it.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client agent",
+      "kind": "agent"
+    },
+    {
+      "id": "seller",
+      "label": "Seller agent (x402 server)",
+      "kind": "server"
+    },
+    {
+      "id": "facilitator",
+      "label": "x402 facilitator",
+      "kind": "facilitator"
+    },
+    {
+      "id": "ipfs",
+      "label": "IPFS or HTTPS host",
+      "kind": "server"
+    },
+    {
+      "id": "reputation",
+      "label": "Reputation Registry",
+      "kind": "registry"
+    },
+    {
+      "id": "indexer",
+      "label": "Indexer or reader",
+      "kind": "platform"
+    }
+  ],
+  "steps": [
+    {
+      "from": "client",
+      "to": "seller",
+      "label": "Pay for a call with x402",
+      "protocol": "x402",
+      "detail": "The client finds the seller through its registration file (x402Support true, MCP service) and pays with x402. ERC-8004 is not involved: the payment is orthogonal to the registries.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version x402 v2.0.\nGET /weather?city=Lisbon HTTP/1.1\nHost: mcp.agent.example\nPAYMENT-SIGNATURE: eyJ4NDAyVmVyc2lvbiI6Mi...",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "HTTP transport"
+      },
+      "n": 1
+    },
+    {
+      "from": "seller",
+      "to": "facilitator",
+      "label": "Verify and settle",
+      "protocol": "x402",
+      "detail": "The seller asks its facilitator to verify and settle. The payee is the address the agent advertises as agentWallet; the facilitator broadcasts the transfer.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "Facilitator"
+      },
+      "n": 2
+    },
+    {
+      "from": "seller",
+      "to": "client",
+      "label": "Return 200 with PAYMENT-RESPONSE",
+      "protocol": "x402",
+      "detail": "The response carries the settlement result with the transaction hash, which becomes the txHash in proofOfPayment.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version x402 v2.0.\nHTTP/1.1 200 OK\nPAYMENT-RESPONSE: eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4NWU1ZS4uLiJ9",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "HTTP transport"
+      },
+      "n": 3
+    },
+    {
+      "from": "client",
+      "to": "ipfs",
+      "label": "Upload feedback file with proofOfPayment",
+      "detail": "The client writes the feedback file first: the MUST fields (agentRegistry, agentId, clientAddress, createdAt, value, valueDecimals) plus optional tags, endpoint, mcp context and proofOfPayment {fromAddress, toAddress, chainId, txHash}.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 4242,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 87,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"mcp\": { \"tool\": \"get_weather\" },\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x5e5e...7a1c\"\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Off-Chain Feedback File Structure"
+      },
+      "n": 4
+    },
+    {
+      "from": "client",
+      "to": "client",
+      "label": "Compute feedbackHash",
+      "detail": "feedbackHash is keccak256 of the file content. For a content-addressed URI such as IPFS it is optional and may be bytes32(0).",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Giving Feedback"
+      },
+      "n": 5
+    },
+    {
+      "from": "client",
+      "to": "reputation",
+      "label": "giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash)",
+      "detail": "Only value and valueDecimals are required. The registry stores value, valueDecimals, tag1, tag2 and isRevoked under the next feedbackIndex for this client. The proof of payment is not an argument and is never stored on-chain.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(\n  4242, 87, 0, \"starred\", \"\", \"https://mcp.agent.example/\",\n  \"ipfs://bafy...feedback\", 0x0000000000000000000000000000000000000000000000000000000000000000\n)",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Giving Feedback"
+      },
+      "failures": [
+        {
+          "condition": "The caller is the owner or an operator of the agent",
+          "outcome": "Reverts with \"Self-feedback not allowed\"."
+        },
+        {
+          "condition": "valueDecimals is above 18",
+          "outcome": "Reverts with \"too many decimals\"."
+        },
+        {
+          "condition": "The agentId does not exist",
+          "outcome": "Reverts with ERC721NonexistentToken."
+        }
+      ],
+      "n": 6
+    },
+    {
+      "from": "reputation",
+      "to": "indexer",
+      "label": "Return NewFeedback event",
+      "detail": "The event carries agentId, clientAddress, feedbackIndex, value, valueDecimals, tag1, tag2, endpoint, feedbackURI and feedbackHash. endpoint, feedbackURI and feedbackHash exist on-chain only in this event.",
+      "payload": {
+        "format": "text",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nNewFeedback(agentId=4242, clientAddress=0xA11C...A11C, feedbackIndex=1, value=87, valueDecimals=0,\n  tag1=\"starred\", tag2=\"\", endpoint=\"https://mcp.agent.example/\",\n  feedbackURI=\"ipfs://bafy...feedback\", feedbackHash=0x00...00)",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Giving Feedback"
+      },
+      "n": 7
+    },
+    {
+      "from": "indexer",
+      "to": "ipfs",
+      "label": "Fetch the file and check the proof",
+      "detail": "A reader that wants payment-backed feedback fetches the file, compares its hash, and looks up txHash on the named chain to confirm the amount and the payee. The registry does none of this.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Off-Chain Feedback File Structure"
+      },
+      "failures": [
+        {
+          "condition": "The file is gone or its hash does not match",
+          "outcome": "The on-chain value still counts in getSummary; only off-chain scoring can discount it."
+        },
+        {
+          "condition": "The txHash does not exist or pays someone else",
+          "outcome": "Nothing on-chain flags it; the reader must reject it."
+        }
+      ],
+      "n": 8
+    }
+  ],
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-reputation-sol",
+    "src-erc-8004-bp-reputation",
+    "src-x402-spec-v2"
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": "erc-8004-read-reputation",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 reading reputation with a trusted reviewer list",
+  "summary": "A reader asks for an agent summary. Without a list of trusted client addresses getSummary reverts; with one it returns a count and a plain mean. Serious scoring reads every entry and the off-chain files.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "reader",
+      "label": "Reader (client agent or app)",
+      "kind": "agent"
+    },
+    {
+      "id": "reputation",
+      "label": "Reputation Registry",
+      "kind": "registry"
+    },
+    {
+      "id": "ipfs",
+      "label": "Feedback file hosts",
+      "kind": "server"
+    }
+  ],
+  "steps": [
+    {
+      "from": "reader",
+      "to": "reputation",
+      "label": "getSummary(agentId, [], \"\", \"\")",
+      "detail": "An empty reviewer list is refused. The text says unfiltered results are open to Sybil and spam attacks.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).getSummary(4242, new address[](0), \"\", \"\")",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Read Functions"
+      },
+      "failures": [
+        {
+          "condition": "clientAddresses is empty",
+          "outcome": "Reverts with \"clientAddresses required\"."
+        }
+      ],
+      "n": 1
+    },
+    {
+      "from": "reader",
+      "to": "reputation",
+      "label": "getClients(agentId)",
+      "detail": "The reader lists every address that ever rated the agent and decides which ones it trusts, for example addresses with a paid history or a known operator.",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Read Functions"
+      },
+      "n": 2
+    },
+    {
+      "from": "reader",
+      "to": "reputation",
+      "label": "getSummary(agentId, trustedClients, \"starred\", \"\")",
+      "detail": "The reference code skips revoked entries, filters by tags, normalizes every value to 18 decimals, takes a plain mean and reports it at the most common valueDecimals. There is no weighting.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).getSummary(4242, [0xA11C...A11C, 0xC4F3...C4F3], \"starred\", \"\")\n// returns (uint64 count, int128 summaryValue, uint8 summaryValueDecimals)",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/ReputationRegistryUpgradeable.sol",
+        "section": "getSummary"
+      },
+      "n": 3
+    },
+    {
+      "from": "reputation",
+      "to": "reader",
+      "label": "Return count, summaryValue, summaryValueDecimals",
+      "detail": "A count of matching entries and the mean. Appended responses do not change it.",
+      "payload": {
+        "format": "text",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n(count=2, summaryValue=85, summaryValueDecimals=0)",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Read Functions"
+      },
+      "n": 4
+    },
+    {
+      "from": "reader",
+      "to": "reputation",
+      "label": "readAllFeedback(agentId, trustedClients, tag1, tag2, false)",
+      "detail": "For off-chain scoring the reader pulls the parallel arrays of clients, indexes, values, decimals, tags and revoked flags, then the NewFeedback events for the file URIs.",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Read Functions"
+      },
+      "failures": [
+        {
+          "condition": "The agent has very many entries",
+          "outcome": "The loop grows with every entry; large reads can hit RPC gas limits, so indexers read events instead."
+        }
+      ],
+      "n": 5
+    },
+    {
+      "from": "reader",
+      "to": "ipfs",
+      "label": "Fetch feedback files",
+      "detail": "The reader fetches each feedbackURI, checks feedbackHash, and can weight entries that carry a verifiable proofOfPayment higher.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Off-Chain Feedback File Structure"
+      },
+      "n": 6
+    }
+  ],
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-reputation-sol",
+    "src-pub-2606-26028"
+  ]
+}

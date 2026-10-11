@@ -1,0 +1,107 @@
+{
+  "id": "erc-8004-failure-wallet-deadline",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 failure: wallet binding with a bad deadline",
+  "summary": "The owner asks for a wallet signature with a deadline too far ahead, then submits a correct signature too late. Both reverts come from the 5-minute window in the reference Identity Registry.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "owner",
+      "label": "Agent owner",
+      "kind": "human"
+    },
+    {
+      "id": "wallet",
+      "label": "New agent wallet",
+      "kind": "wallet"
+    },
+    {
+      "id": "identity",
+      "label": "Identity Registry",
+      "kind": "registry"
+    }
+  ],
+  "steps": [
+    {
+      "from": "owner",
+      "to": "wallet",
+      "label": "Request AgentWalletSet with a 30-minute deadline",
+      "detail": "A tool sets the deadline 30 minutes ahead, longer than the reference code allows.",
+      "payload": {
+        "format": "eip712",
+        "content": "// Illustrative example, spec version Draft 2026-01-25, contracts 2.0.0.\n{ \"primaryType\": \"AgentWalletSet\", \"message\": { \"agentId\": \"4242\", \"newWallet\": \"0xB0B0...0B0B\", \"owner\": \"0x0E0E...0E0E\", \"deadline\": \"now + 1800\" } }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "MAX_DEADLINE_DELAY"
+      },
+      "n": 1
+    },
+    {
+      "from": "owner",
+      "to": "identity",
+      "label": "setAgentWallet(...)",
+      "detail": "The registry compares the deadline with block time plus 5 minutes.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "setAgentWallet"
+      },
+      "failures": [
+        {
+          "condition": "deadline is more than 5 minutes after the block time",
+          "outcome": "Reverts with \"deadline too far\". No state changes."
+        }
+      ],
+      "n": 2
+    },
+    {
+      "from": "owner",
+      "to": "wallet",
+      "label": "Request a new signature with a 4-minute deadline",
+      "detail": "The owner asks again with a short deadline, as the contract tests do.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "setAgentWallet"
+      },
+      "n": 3
+    },
+    {
+      "from": "owner",
+      "to": "identity",
+      "label": "Submit after 6 minutes",
+      "detail": "The transaction waits in the mempool or the operator is slow, and the deadline passes before inclusion.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "setAgentWallet"
+      },
+      "failures": [
+        {
+          "condition": "block time is after the deadline",
+          "outcome": "Reverts with \"expired\". The wallet keeps its previous value."
+        }
+      ],
+      "n": 4
+    },
+    {
+      "from": "owner",
+      "to": "identity",
+      "label": "Retry with a fresh signature",
+      "detail": "A fresh signature within the window succeeds and emits MetadataSet for agentWallet. Within that window the same signature could be submitted again, because the typed data has no nonce.",
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "setAgentWallet"
+      },
+      "n": 5
+    }
+  ],
+  "sources": [
+    "src-erc-8004-identity-sol",
+    "src-erc-8004-spec"
+  ]
+}

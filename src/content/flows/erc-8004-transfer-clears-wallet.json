@@ -1,0 +1,98 @@
+{
+  "id": "erc-8004-transfer-clears-wallet",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 alternative path: a transfer clears the agent wallet",
+  "summary": "An agent identity is sold. The transfer clears agentWallet, so a payer that reads the wallet gets the zero address until the new owner binds a wallet with a fresh signature.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "old",
+      "label": "Previous owner",
+      "kind": "human"
+    },
+    {
+      "id": "new",
+      "label": "New owner",
+      "kind": "human"
+    },
+    {
+      "id": "identity",
+      "label": "Identity Registry",
+      "kind": "registry"
+    },
+    {
+      "id": "payer",
+      "label": "Paying client",
+      "kind": "agent"
+    },
+    {
+      "id": "wallet",
+      "label": "New owner wallet",
+      "kind": "wallet"
+    }
+  ],
+  "steps": [
+    {
+      "from": "old",
+      "to": "identity",
+      "label": "transferFrom(old, new, agentId)",
+      "detail": "A standard ERC-721 transfer. The registry hook clears agentWallet as part of the transfer.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).transferFrom(0x0E0E...0E0E, 0x9E99...9E99, 4242)\n// emits Transfer and MetadataSet(agentWallet, empty)",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "On-chain metadata"
+      },
+      "n": 1
+    },
+    {
+      "from": "payer",
+      "to": "identity",
+      "label": "getAgentWallet(agentId)",
+      "detail": "A client that looks up where to pay now gets the zero address. Feedback history stays attached to the agentId, which now belongs to someone else.",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "On-chain metadata"
+      },
+      "failures": [
+        {
+          "condition": "The payer cached the old wallet",
+          "outcome": "It may pay the previous owner; ERC-8004 cannot stop a payment it does not carry."
+        }
+      ],
+      "n": 2
+    },
+    {
+      "from": "new",
+      "to": "wallet",
+      "label": "Sign AgentWalletSet",
+      "detail": "The new owner proves control of a payment wallet with a fresh EIP-712 or ERC-1271 signature.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
+        "section": "setAgentWallet"
+      },
+      "n": 3
+    },
+    {
+      "from": "new",
+      "to": "identity",
+      "label": "setAgentWallet(...)",
+      "detail": "The wallet is set again and MetadataSet is emitted. The new owner should also update agentURI and the file.",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "On-chain metadata"
+      },
+      "n": 4
+    }
+  ],
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-identity-sol"
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "erc-8004-failure-self-feedback",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 failure: self-feedback and the fresh-address loophole",
+  "summary": "The owner tries to rate its own agent and is refused. It then rates from a fresh address it controls, which the registry cannot tell apart from a real client. Only a reader that filters by trusted reviewers ignores it.",
+  "specVersion": "Draft (text of 2026-01-25)",
+  "specVersionDate": "2026-01-25",
+  "actors": [
+    {
+      "id": "owner",
+      "label": "Agent owner",
+      "kind": "human"
+    },
+    {
+      "id": "sock",
+      "label": "Fresh address controlled by the owner",
+      "kind": "wallet"
+    },
+    {
+      "id": "reputation",
+      "label": "Reputation Registry",
+      "kind": "registry"
+    },
+    {
+      "id": "reader",
+      "label": "Reader with a trusted list",
+      "kind": "agent"
+    }
+  ],
+  "steps": [
+    {
+      "from": "owner",
+      "to": "reputation",
+      "label": "giveFeedback(4242, 100, 0, \"starred\", ...)",
+      "detail": "The registry asks the Identity Registry whether the caller is the owner or an approved operator.",
+      "payload": {
+        "format": "solidity",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(4242, 100, 0, \"starred\", \"\", \"\", \"\", bytes32(0))",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Giving Feedback"
+      },
+      "failures": [
+        {
+          "condition": "The caller owns or operates agent 4242",
+          "outcome": "Reverts with \"Self-feedback not allowed\"."
+        }
+      ],
+      "n": 1
+    },
+    {
+      "from": "sock",
+      "to": "reputation",
+      "label": "giveFeedback from a fresh address",
+      "detail": "The same person funds a new address and calls again. Since feedbackAuth was removed, nothing ties feedback to a real interaction, so the call succeeds.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/ReputationRegistryUpgradeable.sol",
+        "section": "giveFeedback"
+      },
+      "n": 2
+    },
+    {
+      "from": "reputation",
+      "to": "reader",
+      "label": "Return NewFeedback",
+      "detail": "The entry is public and looks like any other.",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Giving Feedback"
+      },
+      "n": 3
+    },
+    {
+      "from": "reader",
+      "to": "reputation",
+      "label": "getSummary(4242, trustedClients, \"starred\", \"\")",
+      "detail": "The reader passes only clients it trusts, so the fresh address does not count. This is the only defense the text provides.",
+      "specRef": {
+        "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+        "section": "Security Considerations"
+      },
+      "n": 4
+    }
+  ],
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-reputation-sol",
+    "src-erc-8004-commit-jan07"
+  ]
+}
