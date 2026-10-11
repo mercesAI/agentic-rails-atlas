@@ -5,6 +5,7 @@ import {
   bucketing,
   filterEvents,
   groupByYear,
+  periodCenter,
   position,
   resolveRange,
   weakest,
@@ -80,6 +81,12 @@ describe('timeline model', () => {
     const yearly = buildMarkers(events, 'year');
     expect(yearly.filter((m) => m.lane === 'Policy')).toHaveLength(1);
     expect(yearly.find((m) => m.lane === 'Policy')?.confidence).toBe('unverified');
+  });
+
+  it('anchors markers at the middle of their period', () => {
+    expect(periodCenter('2025-05')).toBe('2025-05-15');
+    expect(periodCenter('2025')).toBe('2025-07-01');
+    expect(buildMarkers(events, 'month').find((m) => m.lane === 'x402')?.date).toBe('2025-05-15');
   });
 
   it('reports the weakest confidence and groups by year', () => {

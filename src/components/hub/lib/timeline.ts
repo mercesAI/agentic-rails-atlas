@@ -155,7 +155,7 @@ export interface Marker {
   lane: string;
   /** YYYY-MM or YYYY. */
   period: string;
-  /** Representative date used for the position (first event in the bucket). */
+  /** Position anchor (the middle of the period). */
   date: string;
   events: HubEvent[];
   /** Lowest confidence in the bucket, so a marker never looks more certain than its weakest event. */
@@ -170,6 +170,11 @@ export function weakest(events: HubEvent[]): Confidence {
   return c;
 }
 
+/** Position anchor for a bucket: mid-month or mid-year, so neighbors sit one full period apart. */
+export function periodCenter(period: string): string {
+  return period.length === 7 ? `${period}-15` : `${period}-07-01`;
+}
+
 /** Groups filtered events into per-lane markers. */
 export function buildMarkers(events: HubEvent[], mode: Bucketing): Marker[] {
   const map = new Map<string, Marker>();
@@ -178,7 +183,7 @@ export function buildMarkers(events: HubEvent[], mode: Bucketing): Marker[] {
     const key = `${e.lane}::${period}`;
     const m = map.get(key);
     if (m) m.events.push(e);
-    else map.set(key, { key, lane: e.lane, period, date: e.date, events: [e], confidence: e.confidence });
+    else map.set(key, { key, lane: e.lane, period, date: periodCenter(period), events: [e], confidence: e.confidence });
   }
   for (const m of map.values()) m.confidence = weakest(m.events);
   return [...map.values()].sort((a, b) => a.date.localeCompare(b.date));

@@ -57,7 +57,7 @@ const next = personas[index + 1];
       <h2 id="seats-h">Each protocol from this seat</h2>
       <p class="hub-muted">Relevance levels: {(['high', 'medium', 'low', 'none'] as const).map((l, i) => <>{i > 0 && '; '}<strong>{RELEVANCE_LABELS[l]}</strong>, {RELEVANCE_HELP[l].toLowerCase()}</>)}.</p>
       {seats.map((s) => (
-        <article class="seat" id={`seat-${s.protocol.slug}`} data-family={s.protocol.family} aria-labelledby={`seat-${s.protocol.slug}-h`}>
+        <article class="seat" data-no-copy-link id={`seat-${s.protocol.slug}`} data-family={s.protocol.family} aria-labelledby={`seat-${s.protocol.slug}-h`}>
           <header class="seat__head">
             <Monogram label={s.protocol.monogram} family={s.protocol.family} size="sm" />
             <h3 id={`seat-${s.protocol.slug}-h`}><a href={`/p/${s.protocol.slug}/#e-personas`}>{s.protocol.name}</a></h3>

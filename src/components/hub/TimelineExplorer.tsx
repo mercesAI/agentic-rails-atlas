@@ -239,7 +239,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
       {view === 'lanes' ? (
         <>
           <div className="tl-lanes" role="region" aria-label="Timeline lanes" tabIndex={0}>
-            <div className="tl-lanes__inner">
+            <div className="tl-lanes__inner" style={{ minWidth: `max(44rem, calc(11rem + ${(range.to - range.from + 1) * (mode === 'month' ? 12 : 1) * 2}rem))` }}>
               <div className="tl-lanes__axis" aria-hidden="true">
                 <span className="tl-lanes__label" />
                 <div className="tl-lanes__track">
