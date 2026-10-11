@@ -18,3 +18,8 @@
 - 2026-10-11, erc-8004: https://docs.polygon.technology/payment-services/agentic-payments/erc8004: HTTP 404; alternative used: agentic-docs.polygon.technology page (200), not cited
 - 2026-10-11, erc-8004: eth_getLogs over 10,000-block ranges on mainnet.base.org and base-rpc.publicnode.com: errors or empty responses; alternative used: eth_estimateGas through cast for gas figures
 - 2026-10-11, erc-8004: https://agentscan.info: counts render client-side, no numbers in HTML; alternative used: 8004scan.io and the CSOAI census for metrics
+- 2026-10-11, visa-tap: https://investor.visa.com/news/news-details/2025/Akamai-and-Visa-Collaborate-to-Build-Trust-in-Agentic-Commerce/default.aspx: curl HTTP 403; alternative used: Akamai press release (WebFetch) and Visa 2025-12-18 release.
+- 2026-10-11, visa-tap: https://www.businesswire.com/news/home/20260703072567/en (eDreams ODIGEO): curl HTTP/2 stream error and WebFetch HTTP 403; alternative used: secondary coverage found by search (marked reported).
+- 2026-10-11, visa-tap: https://merchantcostconsulting.com/?p=8876: curl and WebFetch HTTP 403; alternative used: ATLAS_FOLLOWUP.md Appendix B summary (claim marked reported).
+- 2026-10-11, visa-tap: https://www.mastercard.com/us/en/news-and-trends/stories/2025/agentic-commerce-framework.html: curl HTTP 403 (developer.mastercard.com Agent Pay page renders client-side, no text); alternative used: search excerpts of Mastercard pages (claims marked reported).
+- 2026-10-11, stripe-mpp: https://www.theblock.co/post/394131/tempo-mainnet-goes-live-with-machine-payments-protocol-for-agents: HTTP 403 to curl; alternative used: tempo.xyz/blog/mainnet (primary)
