@@ -258,3 +258,105 @@ A server built with `mppx` 0.9.0 or later can emit an MPP `WWW-Authenticate: Pay
 - **JSON-RPC and MCP.** `draft-payment-transport-mcp-00`: capability advertisement under `capabilities.experimental.payment.methods` in MCP `InitializeResult` (example `protocolVersion` "2025-11-25"), or a `payment.capabilities` notification on WebSocket; errors `-32042` and `-32043`; credential and receipt under `_meta` keys `org.paymentauth/credential` and `org.paymentauth/receipt`, checked at both root and nested `_meta` [src-stripe-mpp-mcp-transport].
 - **Streaming.** For SSE the session receipt goes in the initial headers and a final `payment-receipt` event; chunked responses MAY carry it as a trailer when the client sends `TE: trailers` [src-stripe-mpp-tempo-session].
 - **Discovery (optional).** `GET /openapi.json` with a top-level `x-service-info` (`categories`, `docs.apiReference`, `docs.homepage`, `docs.llms`) and per-operation `x-payment-info` (single offer or `offers[]` with `intent`, `method`, `amount` (nullable for dynamic pricing), `currency`, `description`). Discovery is advisory; the 402 challenge stays authoritative [src-stripe-mpp-discovery].
+
+## Cryptography and standards used
+
+| Standard | Use in MPP | Source |
+| --- | --- | --- |
+| RFC 9110 (HTTP semantics, 402, auth-params) | Challenge syntax and `WWW-Authenticate` | [src-stripe-mpp-core-01] |
+| RFC 4648 base64url without padding; RFC 8259 JSON; RFC 8785 JCS | `request`, `opaque`, credential and receipt encoding; JCS keeps the HMAC input identical across implementations | [src-stripe-mpp-core-01] |
+| HMAC-SHA256 | Recommended stateless challenge binding (implementations may use storage or authenticated encryption instead) | [src-stripe-mpp-core-01] |
+| RFC 9530 Digest Fields | `digest` binds the challenge to the request body | [src-stripe-mpp-core-01] |
+| RFC 9457 Problem Details | Error bodies | [src-stripe-mpp-core-01] |
+| RFC 3339 | `expires`, receipt `timestamp` | [src-stripe-mpp-core-01] |
+| TLS 1.2 (RFC 5246) minimum, TLS 1.3 (RFC 8446) recommended | Transport | [src-stripe-mpp-core-01] |
+| RFC 9111 caching | `no-store` on 402, `private` on receipts | [src-stripe-mpp-core-01] |
+| W3C DID | Optional payer `source` (`did:pkh`, `did:key` examples) | [src-stripe-mpp-core-01] [src-stripe-mpp-tempo-charge] |
+| EIP-712 typed data, secp256k1 ECDSA, 65-byte `r || s || v` | Tempo session vouchers; Tempo charge zero-amount proofs | [src-stripe-mpp-tempo-session] [src-stripe-mpp-tempo-charge] |
+| JWE (RFC 7516), JWK (RFC 7517), JWA (RFC 7518), RSA-OAEP (RFC 8017) | `card` encrypted network token payload | [src-stripe-mpp-card-charge] |
+| EMV Secure Remote Commerce API | `card` payload fields largely follow it; cryptogram types | [src-stripe-mpp-card-charge] |
+| RFC 9421 HTTP Message Signatures (Web Bot Auth, Visa TAP) | Optional request attestation in `mppx`; Ed25519 and RSA-PSS SHA-512 | [src-stripe-mpp-blog-identity] [src-stripe-mpp-mppx-changelog] |
+| OpenAPI 3.x | Discovery document | [src-stripe-mpp-discovery] |
+| JSON-RPC 2.0, MCP | Transport binding | [src-stripe-mpp-mcp-transport] |
+
+## Security model and published attacks or CVEs
+
+- **Threat model.** The core assumes attackers can observe, inject, modify and replay traffic and may run malicious clients or servers [src-stripe-mpp-core-01].
+- **Bearer credentials.** Credentials authorize money movement; servers and intermediaries MUST NOT log them, put them in error messages or analytics, and SHOULD keep them in memory only. Receipts are also treated as sensitive [src-stripe-mpp-core-01].
+- **Replay.** Methods MUST give single-use proofs; challenge ids are single-use; concurrent requests with one credential must yield at most one settlement (atomic operations or locks recommended) [src-stripe-mpp-core-01].
+- **Request integrity.** Binding the `id` to all parameters prevents a client paying something other than what the server asked; `digest` ties the payment to the request body [src-stripe-mpp-core-01].
+- **Malicious servers.** Clients must check amount, recipient, currency and window; `description` can lie [src-stripe-mpp-core-01] [src-stripe-mpp-intent-charge].
+- **Intermediaries.** Proxies and CDNs may not treat 402 like 401; `Payment-Authorization` lacks the shared-cache protection RFC 9111 gives `Authorization`, so responses must carry `private` or `no-store` [src-stripe-mpp-core-01].
+- **Session risk bound.** A Tempo channel caps payer exposure at the deposit; vouchers are monotonic and capped by the deposit; channel ids bind payer, payee, token, salt, signer, contract and chain [src-stripe-mpp-tempo-session].
+- **Discovery spoofing.** Discovery data is not authenticated and must not be used for security decisions [src-stripe-mpp-discovery].
+
+**Published advisories (all confirmed on 2026-10-11).**
+
+| Id | CVE | Package | Affected / fixed | Severity | Published | Summary | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GHSA-8x4m-qw58-3pcx | none | npm `mppx` | < 0.4.8 / 0.4.8 | critical | repo 2026-03-26, database 2026-03-29 | Multiple `tempo/charge` and `tempo/session` bypasses: hash replay across modes and routes, free pull-mode charges, fee-payer manipulation, voucher signature bypass, channel piggybacking | [src-stripe-mpp-ghsa-other] |
+| GHSA-mv9j-8jvg-j8mr | CVE-2026-34209 | npm `mppx` | < 0.4.11 / 0.4.11 | high (NVD 7.5) | repo 2026-03-26, database 2026-03-29, NVD 2026-03-31 | Session cooperative close compared with `<` instead of `<=`, so a close voucher equal to the settled amount closed or griefed a channel for free | [src-stripe-mpp-ghsa-34209] [src-stripe-mpp-nvd] |
+| GHSA-8mhj-rffc-rcvw | CVE-2026-34210 | npm `mppx` | < 0.4.11 / 0.4.11 | medium (NVD scores 6.0 and 8.1 from two scorers) | repo 2026-03-26, database 2026-03-29, NVD 2026-03-31 | `stripe/charge` ignored Stripe's `Idempotent-Replayed` header, so one SPT credential could be replayed against new challenges | [src-stripe-mpp-ghsa-34210] [src-stripe-mpp-nvd] |
+| GHSA-fxc9-7j2w-vx54 | none | crates.io `mpp` (tempoxyz/mpp-rs) | < 0.8.0 / 0.8.0 | critical | 2026-03-29 | Free and replayed `tempo/charge`, free and griefed sessions, fee-payer manipulation, replayed `stripe/charge` | [src-stripe-mpp-ghsa-rs] |
+| GHSA-727h-3vm5-qwq6 | CVE-2026-63627 | npm `mppx` | listed < 0.8.1 / 0.8.2 | medium | repo 2026-07-01, database 2026-09-22 | Fee-payer gas draining by calldata padding (policy capped gas limit and fee but not calldata length) | [src-stripe-mpp-ghsa-other] |
+| GHSA-vc9j-9wph-qghj | CVE-2026-63628 | npm `mppx` | see advisory / 0.8.2 | medium | repo 2026-07-01 | Fee-payer gas draining with access lists | [src-stripe-mpp-ghsa-other] |
+
+The seed's "2026-03-31 two CVEs published" is the NVD publication date; the GitHub advisories and the fix release 0.4.11 are dated 2026-03-26 [src-stripe-mpp-nvd] [src-stripe-mpp-npm-mppx]. The `mppx` CHANGELOG also records later hardening without advisories: cross-route replay fixes (scope-bound challenge metadata, `opaque`-pinned verification), session concurrency and close-race hardening, a Tempo charge replay-marker collision fix (0.13.x), and route-bound x402 credentials required by default (0.13.0) [src-stripe-mpp-mppx-changelog].
+
+- **Formal analysis.** arXiv:2609.00060 models MPP alongside x402, ACP and AP2 in Tamarin and reports 40 previously undocumented formal-consistency findings across the four protocols (not broken out per protocol in the abstract) [src-stripe-mpp-arxiv-2609-00060].
+
+## Controls (native and gaps)
+
+| Control id | Support | Mechanism | Source |
+| --- | --- | --- | --- |
+| `agent-identity-verification` | partial | Core payment is pseudonymous; optional `source` DID; `mppx` adds RFC 9421 request attestation for Web Bot Auth and Visa TAP (SDK feature, not in the core spec); `card` allows optional TAP headers | [src-stripe-mpp-core-01] [src-stripe-mpp-blog-identity] [src-stripe-mpp-card-charge] |
+| `agent-registration-kya` | none | Core forbids requiring user accounts for payment; KYC is left to methods (Stripe accounts on both sides for `stripe`) | [src-stripe-mpp-core-01] [src-stripe-mpp-stripe-charge] [src-stripe-mpp-governance] |
+| `user-consent-capture` | partial | Browser wallets SHOULD require explicit confirmation; SPT creation may prompt 3DS or biometrics; otherwise external | [src-stripe-mpp-core-01] [src-stripe-mpp-stripe-charge] |
+| `spending-caps` | partial | Session deposit caps loss; SPT `usage_limits.max_amount`; Tempo subscription access keys with limits; `mppx` fee-payer policies | [src-stripe-mpp-tempo-session] [src-stripe-mpp-stripe-charge] [src-stripe-mpp-tempo-subscription] |
+| `merchant-payee-scoping` | native | `recipient`, `realm` and HMAC binding; SPT scoped to seller `networkId`; v2 descriptor payee must match challenge | [src-stripe-mpp-core-01] [src-stripe-mpp-stripe-charge] [src-stripe-mpp-tempo-session] |
+| `time-windows-expiry` | partial | Challenge `expires`; `subscriptionExpires`; SPT `expires_at`; but session channels and vouchers never expire | [src-stripe-mpp-core-01] [src-stripe-mpp-intent-subscription] [src-stripe-mpp-tempo-session] |
+| `revocation` | partial | Subscription cancellation (method-specific); forced channel close; no core revocation message | [src-stripe-mpp-intent-subscription] [src-stripe-mpp-tempo-session] |
+| `step-up-authentication` | external | Method-specific (Stripe may prompt 3DS during SPT creation; card cryptograms) | [src-stripe-mpp-stripe-charge] [src-stripe-mpp-card-charge] |
+| `replay-protection` | native | Single-use challenge ids and proofs; Idempotency-Key; channel and EIP-712 domain binding | [src-stripe-mpp-core-01] [src-stripe-mpp-tempo-session] |
+| `receipts-evidence` | native | `Payment-Receipt` with `reference`; SSE final receipt event; on-chain tx hashes | [src-stripe-mpp-core-01] [src-stripe-mpp-tempo-session] |
+| `dispute-support` | external | Method-dependent: card chargebacks apply to `card` and `stripe`; Stripe stablecoin payments have no disputes; on-chain charges final | [src-stripe-mpp-intent-charge] [src-stripe-mpp-stripe-stablecoin] |
+| `reputation` | none | No reputation layer; discovery mentions future on-chain anchoring compatible with ERC-8004 | [src-stripe-mpp-discovery] |
+| `monitoring-signals` | partial | Public explorer data (MPPscan, Tempo explorer); Stripe Dashboard for Stripe-settled payments; servers SHOULD rate-limit | [src-stripe-mpp-mppscan] [src-stripe-mpp-stripe-blog] [src-stripe-mpp-core-01] |
+| `kill-switch` | none | No protocol-level stop; a payer can stop signing vouchers or force-close; Stripe can disable a merchant account (external) | [src-stripe-mpp-tempo-session] |
+
+Gaps worth showing: no user-to-agent delegation or mandate object (AP2 fills that role); no protocol identity of the agent (identity is an SDK add-on); no dispute flow on stablecoin rails; channels without expiry leave liabilities open [src-stripe-mpp-core-01] [src-stripe-mpp-tempo-session].
+
+## Observability
+
+- **Public.** Tempo settlement is on a public chain (explorer linked from the Tempo connection-details page); MPPscan (Merit Systems) indexes servers, agents, transactions and volume and exposes a tRPC endpoint `/api/trpc/stats.protocolStats` with `timeframeDays` 0 (all), 1, 7, 15 or 30 [src-stripe-mpp-tempo-connection] [src-stripe-mpp-mppscan]. The mpp.dev payments directory is public JSON at `https://mpp.dev/api/services` [src-stripe-mpp-directory-api].
+- **Discovery endpoints.** Protocol-level: `GET /openapi.json` with `x-service-info` and `x-payment-info`; no `.well-known` path is defined by the MPP specs [src-stripe-mpp-discovery]. The mpp.dev site itself serves `/.well-known/api-catalog` and `/.well-known/mcp.json` (site features, not protocol requirements) [src-stripe-mpp-docs-repo].
+- **Events.** Tempo TIP-20 `TransferWithMemo` logs (used by `mppx` to verify subscription settlement), escrow `open`, `settle`, `topUp`, `close`, `requestClose`, `withdraw` calls; SSE `payment-receipt` event [src-stripe-mpp-mppx-changelog] [src-stripe-mpp-tempo-session].
+- **Private.** Stripe-settled MPP payments appear in the merchant's Stripe API and Dashboard like other payments; card authorizations are visible only to the parties [src-stripe-mpp-stripe-blog].
+
+## Compliance touchpoints
+
+- **PCI DSS.** The `stripe` method keeps raw card data away from client and server, reducing PCI scope; the `card` method encrypts the network token so neither client nor server parses it [src-stripe-mpp-stripe-charge] [src-stripe-mpp-card-charge].
+- **Token compliance on Tempo.** TIP-20 tokens can reference TIP-403 policy registry allow and block lists; T6 receive policies redirect blocked transfers to `ReceivePolicyGuard` [src-stripe-mpp-tempo-tip20].
+- **Stripe merchant stack.** Stripe says MPP payments reuse its tax calculation, fraud protection, reporting and refunds; stablecoin deposits are off-ramped into the Stripe balance [src-stripe-mpp-stripe-blog] [src-stripe-mpp-stripe-docs].
+- **Privacy.** Core forbids requiring accounts for payment and asks methods to support pseudonymous options [src-stripe-mpp-core-01]. Card credentials can carry billing address, cardholder name and PAR [src-stripe-mpp-card-charge].
+- No regulator statement specific to MPP was found.
+
+## Ecosystem and SDKs
+
+| Package | Registry | Version (2026-10-11) | Maintainer | Source |
+| --- | --- | --- | --- | --- |
+| `mppx` | npm | 0.13.4 (2026-10-08) | wevm; MIT | [src-stripe-mpp-npm-mppx] [src-stripe-mpp-mppx-repo] |
+| `pympp` | PyPI | 0.11.0 | tempoxyz; MIT OR Apache-2.0 | [src-stripe-mpp-sdk-registries] |
+| `mpp` | crates.io | 0.15.0 | tempoxyz/mpp-rs | [src-stripe-mpp-sdk-registries] |
+| `github.com/tempoxyz/mpp-go` | Go modules | v0.2.0 (2026-07-01) | tempoxyz | [src-stripe-mpp-sdk-registries] |
+| `mpp-rb` | RubyGems | 0.1.6 | stripe/mpp-rb | [src-stripe-mpp-sdk-registries] |
+| `mpp-card` | npm | 0.1.8 | Visa (jbrans-visa); proprietary license | [src-stripe-mpp-sdk-registries] [src-stripe-mpp-mpp-card-pkg] |
+| `@solana/mpp`, `@stellar/mpp`, `@monad-crypto/mpp` | npm | 0.7.0, 0.7.1, 0.0.3 | rail teams | [src-stripe-mpp-sdk-registries] |
+
+- Community SDKs listed on mpp.dev: Elixir `mpp` (ZenHive), Go `mppx` (cp0x), Swift `mpp-swift` [src-stripe-mpp-sdk-index].
+- Payments directory: 129 services on 2026-10-11 (126 accept `tempo`, 10 `stripe`, 1 `evm`), up from "more than 100" at launch [src-stripe-mpp-directory-api] [src-stripe-mpp-tempo-mainnet].
+- Named users at launch (Stripe): Browserbase, PostalForm, Prospect Butcher Co., Stripe Climate, Parallel Web Systems (quote) [src-stripe-mpp-stripe-blog]. Tempo named Alchemy, Dune Analytics, Merit Systems and Parallel Web Systems in the directory [src-stripe-mpp-tempo-mainnet].
+- Cloudflare's Agents docs describe MPP and use `mppx` in their guides [src-stripe-mpp-cloudflare].
+- Stripe at Sessions (2026-04-29): MPP payments via SPTs now include cards, Klarna and Affirm on the Payment Intents API; streaming payments announced as Metronome plus Tempo (the recap does not say "over MPP") [src-stripe-mpp-stripe-sessions].
+- Tempo Wallet "MPP Credits" let users fund agents by card [src-stripe-mpp-tempo-credits].
+- Stripe labels its MPP docs "Frontier" and uses API version `2026-07-29.preview` [src-stripe-mpp-stripe-docs].
