@@ -14,3 +14,7 @@
 - 2026-10-11, ucp: https://searchengineland.com/google-opens-native-ai-checkout-to-eligible-shopify-merchants-490407: HTTP 403; alternative used: ppc.land 2026-09-23 (reported)
 - 2026-10-11, openai-acp: https://openai.com/index/buy-it-in-chatgpt/ and https://openai.com/index/powering-product-discovery-in-chatgpt/: HTTP 403 to curl and WebFetch; alternative used: Wayback Machine snapshots 20261007012440 and 20260929220135 (text read from the archived HTML).
 - 2026-10-11, ucp: https://fidoalliance.org/google-donates-agent-payments-protocol-to-fido-alliance/: HTTP 403; alternative used: Google blog 2026-04-28 post
+- 2026-10-11, erc-8004: https://www.fireblocks.com/blog/agentic-payment-protocols-compared: HTTP 403 to curl; alternative used: none needed (cross-cutting resource left out of the ERC-8004 list)
+- 2026-10-11, erc-8004: https://docs.polygon.technology/payment-services/agentic-payments/erc8004: HTTP 404; alternative used: agentic-docs.polygon.technology page (200), not cited
+- 2026-10-11, erc-8004: eth_getLogs over 10,000-block ranges on mainnet.base.org and base-rpc.publicnode.com: errors or empty responses; alternative used: eth_estimateGas through cast for gas figures
+- 2026-10-11, erc-8004: https://agentscan.info: counts render client-side, no numbers in HTML; alternative used: 8004scan.io and the CSOAI census for metrics
