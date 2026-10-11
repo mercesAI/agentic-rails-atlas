@@ -1,0 +1,22 @@
+flowchart TB
+  TAP["Visa TAP: agent identity on each request"]
+  VIC["Visa Intelligent Commerce: tokens, passkeys, instructions"]
+  MPP["Stripe MPP card method (authored by Visa)"]
+  X402["x402 (browsingIOU answers 402, different format)"]
+  ICC["Intelligent Commerce Connect (pilot)"]
+  ACP["OpenAI ACP"]
+  UCP["UCP (own RFC 9421 signing)"]
+  MC["Mastercard Agent Pay (tag Agent-pay-auth, own directory)"]
+  WBA["Web Bot Auth draft (orbit)"]
+  CDN["CDNs: Cloudflare, Akamai"]
+  TAP -- "payment data from" --> VIC
+  MPP -- "may add TAP headers" --> TAP
+  TAP -. "402 handled by browsingIOU" .-> X402
+  ICC -- "accepts" --> TAP
+  ICC -- "accepts" --> MPP
+  ICC -- "accepts" --> ACP
+  ICC -- "accepts" --> UCP
+  CDN -- "verify" --> TAP
+  CDN -- "verify" --> MC
+  TAP -. "aligned, not conformant" .-> WBA
+  UCP -. "optional profile" .-> WBA

@@ -1,0 +1,76 @@
+classDiagram
+  class SignatureInput {
+    components @authority @path
+    integer created
+    integer expires
+    string keyid
+    string alg
+    string nonce
+    string tag
+  }
+  class agenticConsumer {
+    string nonce
+    JWT idToken
+    contextualData contextualData
+    string kid
+    string alg
+    string signature
+  }
+  class contextualData {
+    string countryCode
+    string zip
+    string ipAddress
+    object deviceData
+  }
+  class IdToken {
+    string iss
+    string sub
+    array aud
+    number exp
+    number iat
+    string email
+    string phone_number
+    string email_mask
+    string phone_number_mask
+  }
+  class agenticPaymentContainer {
+    string nonce
+    string kid
+    string alg
+    string signature
+    object paymentCredentialsHash
+    cardMetadata cardMetadata
+    encrypted payload
+    browsingIOU browsingIOU
+  }
+  class cardMetadata {
+    string lastFour
+    string paymentAccountReference
+    string shortDescription
+  }
+  class browsingIOU {
+    invoiceId
+    amount
+    cardAcceptorId
+    acquirerId
+    uri
+    sequenceCounter
+    paymentService
+    kid alg signature
+  }
+  class JWK {
+    string kty
+    string kid
+    string use
+    string alg
+    string n
+    string e
+  }
+  SignatureInput "1" -- "0..1" agenticConsumer : same nonce and key
+  SignatureInput "1" -- "0..1" agenticPaymentContainer : same nonce and key
+  agenticConsumer *-- contextualData
+  agenticConsumer *-- IdToken
+  agenticPaymentContainer *-- cardMetadata
+  agenticPaymentContainer *-- browsingIOU
+  JWK ..> SignatureInput : verifies keyid
+  JWK ..> IdToken : verifies kid

@@ -1,0 +1,10 @@
+{
+  "id": "visa-tap-cdn-decision-tree",
+  "protocol": "visa-tap",
+  "type": "flowchart",
+  "title": "CDN decision tree for a TAP request",
+  "caption": "The order of checks from the Visa specification and Cloudflare's 2025-10-24 post. Every failed check after the tag check blocks; a request without a TAP tag falls back to the site's normal bot policy.",
+  "alt": "Decision tree. If the signature headers are missing, or the tag is neither agent-browser-auth nor agent-payer-auth, the request is not a TAP agent and gets normal bot policy. Otherwise the CDN blocks when a minimum field is missing, when the window is wrong (created must be past, expires future, at most 8 minutes apart), when the nonce was seen in the last 8 minutes, when the key for keyid cannot be found, or when the signature does not verify. If all pass, a browsing tag is allowed as a trusted agent browsing, and a paying tag is allowed as a trusted agent paying, with the merchant checking the body objects.",
+  "sourceOfTruth": { "url": "https://blog.cloudflare.com/secure-agentic-commerce/", "label": "Cloudflare, Securing agentic commerce (2025-10-24), and the TAP specification" },
+  "sources": ["src-visa-tap-cf-blog", "src-visa-tap-spec"]
+}

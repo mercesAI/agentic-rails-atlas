@@ -1,0 +1,18 @@
+flowchart TD
+  A["Request arrives at the CDN"] --> B{"Signature-Input and Signature present?"}
+  B -- no --> U["Not a TAP agent: apply normal bot policy"]
+  B -- yes --> C{"Tag agent-browser-auth or agent-payer-auth?"}
+  C -- no --> U
+  C -- yes --> D{"All minimum fields present?"}
+  D -- no --> X["Block"]
+  D -- yes --> E{"created past, expires future, at most 8 min apart?"}
+  E -- no --> X
+  E -- yes --> F{"Nonce seen in last 8 min?"}
+  F -- yes --> X
+  F -- "no, or no record kept" --> G{"Key for keyid in cache or key store?"}
+  G -- no --> X
+  G -- yes --> H{"Signature valid over rebuilt base?"}
+  H -- no --> X
+  H -- yes --> I{"Which tag?"}
+  I -- browse --> J["Allow as trusted agent browsing"]
+  I -- pay --> K["Allow as trusted agent paying; merchant checks body objects"]

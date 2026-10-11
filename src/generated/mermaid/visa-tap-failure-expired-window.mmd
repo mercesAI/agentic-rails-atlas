@@ -1,0 +1,18 @@
+sequenceDiagram
+  accTitle: Visa TAP failure: validity window too long or expired
+  accDescr: Sequence diagram: Visa TAP failure: validity window too long or expired. 3 participants: AI agent, Site Protection Provider (CDN), and Merchant. 3 steps, 2 crossing a trust boundary, 2 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Site Protection Provider (CDN): Signed GET with a 60-minute window. This step crosses a trust boundary. Step 2: Site Protection Provider (CDN) to Site Protection Provider (CDN): Check created and expires. If Interval over 8 minutes: Block. If created in the future or expires in the past: Block. Step 3: Site Protection Provider (CDN) to AI agent: Block. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as AI agent
+  participant p_cdn as Site Protection Provider (CDN)
+  participant p_merchant as Merchant
+  p_agent->>p_cdn: Signed GET with a 60-minute window
+  Note over p_agent,p_cdn: Crosses a trust boundary
+  alt Expected path
+    p_cdn->>p_cdn: Check created and expires
+  else Interval over 8 minutes
+    Note over p_cdn: Block
+  else created in the future or expires in the past
+    Note over p_cdn: Block
+  end
+  p_cdn->>p_agent: Block
+  Note over p_cdn,p_agent: Crosses a trust boundary

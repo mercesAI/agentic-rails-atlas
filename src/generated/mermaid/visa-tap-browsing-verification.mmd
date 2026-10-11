@@ -1,0 +1,50 @@
+sequenceDiagram
+  accTitle: Visa TAP: browsing request verified at the CDN
+  accDescr: Sequence diagram: Visa TAP: browsing request verified at the CDN. 5 participants: AI agent, Checkout Enabler, Site Protection Provider (CDN), Visa key store, and Merchant. 9 steps, 4 crossing a trust boundary, 7 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Checkout Enabler: Signed GET through a Checkout Enabler. This step crosses a trust boundary. Step 2: Checkout Enabler to Site Protection Provider (CDN): Pass signatures and query parameters through. This step crosses a trust boundary. If Headers stripped or rewritten: Verification fails or the request looks unsigned. Step 3: Site Protection Provider (CDN) to Site Protection Provider (CDN): Headers present. If Missing: Treat as an unsigned bot. Step 4: Site Protection Provider (CDN) to Visa key store: Fetch key by keyid and cache it. This step crosses a trust boundary. If keyid not in the directory: Block. Step 5: Site Protection Provider (CDN) to Site Protection Provider (CDN): Time window. If Outside the window: Block. Step 6: Site Protection Provider (CDN) to Site Protection Provider (CDN): Nonce not seen recently. If Nonce seen: Block as replay. Step 7: Site Protection Provider (CDN) to Site Protection Provider (CDN): Tag is agent-browser-auth. If Other tag: Block or handle as non-TAP traffic. Step 8: Site Protection Provider (CDN) to Site Protection Provider (CDN): Rebuild signature base and verify Ed25519. If Signature invalid: Block. Step 9: Site Protection Provider (CDN) to Merchant: Forward, marked as a verified agent. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as AI agent
+  participant p_enabler as Checkout Enabler
+  participant p_cdn as Site Protection Provider (CDN)
+  participant p_keystore as Visa key store
+  participant p_merchant as Merchant
+  p_agent->>p_enabler: Signed GET through a Checkout Enabler
+  Note over p_agent,p_enabler: Crosses a trust boundary
+  alt Expected path
+    p_enabler->>p_cdn: Pass signatures and query parameters through
+    Note over p_enabler,p_cdn: Crosses a trust boundary
+  else Headers stripped or rewritten
+    Note over p_enabler,p_cdn: Verification fails or the request looks unsigned
+  end
+  alt Expected path
+    p_cdn->>p_cdn: Headers present
+  else Missing
+    Note over p_cdn: Treat as an unsigned bot
+  end
+  alt Expected path
+    p_cdn->>p_keystore: Fetch key by keyid and cache it
+    Note over p_cdn,p_keystore: Crosses a trust boundary
+  else keyid not in the directory
+    Note over p_cdn,p_keystore: Block
+  end
+  alt Expected path
+    p_cdn->>p_cdn: Time window
+  else Outside the window
+    Note over p_cdn: Block
+  end
+  alt Expected path
+    p_cdn-->>p_cdn: Nonce not seen recently
+  else Nonce seen
+    Note over p_cdn: Block as replay
+  end
+  alt Expected path
+    p_cdn->>p_cdn: Tag is agent-browser-auth
+  else Other tag
+    Note over p_cdn: Block or handle as non-TAP traffic
+  end
+  alt Expected path
+    p_cdn-->>p_cdn: Rebuild signature base and verify Ed25519
+  else Signature invalid
+    Note over p_cdn: Block
+  end
+  p_cdn->>p_merchant: Forward, marked as a verified agent
+  Note over p_cdn,p_merchant: Crosses a trust boundary

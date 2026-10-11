@@ -1,0 +1,22 @@
+flowchart LR
+  subgraph IN["Request"]
+    H["Host: shop.example"]
+    P["GET /example-product"]
+    SI["Signature-Input params: created, keyid, alg, expires, nonce, tag"]
+  end
+  subgraph BASE["Signature base (RFC 9421)"]
+    L1["line 1: @authority = shop.example"]
+    L2["line 2: @path = /example-product"]
+    L3["last line: @signature-params = component list plus params"]
+  end
+  subgraph OUT["Result"]
+    SG["Signature header value"]
+    V["Verifier rebuilds the same base and checks with the public key"]
+  end
+  H --> L1
+  P --> L2
+  SI --> L3
+  L1 --> L2 --> L3
+  L3 -- "sign with agent key (Ed25519 in examples)" --> SG
+  SG --> V
+  NB["Not covered by the minimum: method, query, body"] -.-> BASE

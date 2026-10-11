@@ -1,0 +1,30 @@
+sequenceDiagram
+  accTitle: Visa TAP alternative path: paid content with HTTP 402 and a browsingIOU
+  accDescr: Sequence diagram: Visa TAP alternative path: paid content with HTTP 402 and a browsingIOU. 3 participants: AI agent, Merchant, and Acquirer and Visa network. 6 steps, 5 crossing a trust boundary, 3 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Merchant: Signed GET for a paid resource. This step crosses a trust boundary. Step 2: Merchant to AI agent: 402 with invoiceId, amount and CAID. This step crosses a trust boundary. If Agent cannot parse a merchant-specific 402: No IOU access denied. Step 3: AI agent to Merchant: Retry with agenticPaymentContainer.browsingIOU. This step crosses a trust boundary. Step 4: Merchant to Merchant: Match IOU to the 402 and verify. If Mismatch or bad signature: Deny access. Step 5: Merchant to AI agent: 200 with the resource. This step crosses a trust boundary. Step 6: Merchant to Acquirer and Visa network: Settlement (not specified). This step crosses a trust boundary. If Funds never arrive: No TAP remedy is specified.
+  autonumber
+  participant p_agent as AI agent
+  participant p_merchant as Merchant
+  participant p_acquirer as Acquirer and Visa network
+  p_agent->>p_merchant: Signed GET for a paid resource
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_merchant-->>p_agent: 402 with invoiceId, amount and CAID
+    Note over p_merchant,p_agent: Crosses a trust boundary
+  else Agent cannot parse a merchant-specific 402
+    Note over p_merchant,p_agent: No IOU#59; access denied
+  end
+  p_agent->>p_merchant: Retry with agenticPaymentContainer.browsingIOU
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_merchant: Match IOU to the 402 and verify
+  else Mismatch or bad signature
+    Note over p_merchant: Deny access
+  end
+  p_merchant-->>p_agent: 200 with the resource
+  Note over p_merchant,p_agent: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_acquirer: Settlement (not specified)
+    Note over p_merchant,p_acquirer: Crosses a trust boundary
+  else Funds never arrive
+    Note over p_merchant,p_acquirer: No TAP remedy is specified
+  end

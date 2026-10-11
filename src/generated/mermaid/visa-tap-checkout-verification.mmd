@@ -1,0 +1,41 @@
+sequenceDiagram
+  accTitle: Visa TAP: checkout request and body object verification at the merchant
+  accDescr: Sequence diagram: Visa TAP: checkout request and body object verification at the merchant. 4 participants: AI agent, Merchant, Visa key store, and Acquirer and Visa network. 8 steps, 3 crossing a trust boundary, 6 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Merchant: POST checkout with agent-payer-auth and body objects. This step crosses a trust boundary. Step 2: Merchant to Merchant: Verify the header signature. If Any check fails: Block the request. Step 3: Merchant to Merchant: Consumer object: fields and nonce. If Missing field or nonce mismatch: Content may be inaccurate. Step 4: Merchant to Visa key store: Locate keys for kid and the ID Token. This step crosses a trust boundary. Step 5: Merchant to Merchant: Verify consumer object and ID Token. If Verification fails: Merchant may still use the data at its discretion. Step 6: Merchant to Merchant: Payment container: fields, nonce, key, signature. If Missing field, nonce mismatch or bad signature: Should not be used for payment. If Key not found: Content may be inaccurate. Step 7: Merchant to Merchant: Process by type. If Hash mismatch: Decline the transaction. Step 8: Merchant to Acquirer and Visa network: Authorize as a card payment. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as AI agent
+  participant p_merchant as Merchant
+  participant p_keystore as Visa key store
+  participant p_acquirer as Acquirer and Visa network
+  p_agent->>p_merchant: POST checkout with agent-payer-auth and body objects
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_merchant: Verify the header signature
+  else Any check fails
+    Note over p_merchant: Block the request
+  end
+  alt Expected path
+    p_merchant-->>p_merchant: Consumer object: fields and nonce
+  else Missing field or nonce mismatch
+    Note over p_merchant: Content may be inaccurate
+  end
+  p_merchant->>p_keystore: Locate keys for kid and the ID Token
+  Note over p_merchant,p_keystore: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_merchant: Verify consumer object and ID Token
+  else Verification fails
+    Note over p_merchant: Merchant may still use the data at its discretion
+  end
+  alt Expected path
+    p_merchant-->>p_merchant: Payment container: fields, nonce, key, signature
+  else Missing field, nonce mismatch or bad signature
+    Note over p_merchant: Should not be used for payment
+  else Key not found
+    Note over p_merchant: Content may be inaccurate
+  end
+  alt Expected path
+    p_merchant->>p_merchant: Process by type
+  else Hash mismatch
+    Note over p_merchant: Decline the transaction
+  end
+  p_merchant->>p_acquirer: Authorize as a card payment
+  Note over p_merchant,p_acquirer: Crosses a trust boundary

@@ -1,0 +1,18 @@
+sequenceDiagram
+  accTitle: Visa TAP failure: request without a TAP tag
+  accDescr: Sequence diagram: Visa TAP failure: request without a TAP tag. 3 participants: AI agent, Site Protection Provider (CDN), and Merchant. 4 steps, 3 crossing a trust boundary, 1 failure branch. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Site Protection Provider (CDN): GET with no signature, or tag web-bot-auth. This step crosses a trust boundary. Step 2: Site Protection Provider (CDN) to Site Protection Provider (CDN): Look for a TAP tag. If No TAP tag: Not signed by a trusted agent. Step 3: Site Protection Provider (CDN) to Merchant: Apply bot policy. This step crosses a trust boundary. Step 4: Merchant to AI agent: 403 or challenge. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as AI agent
+  participant p_cdn as Site Protection Provider (CDN)
+  participant p_merchant as Merchant
+  p_agent->>p_cdn: GET with no signature, or tag web-bot-auth
+  Note over p_agent,p_cdn: Crosses a trust boundary
+  alt Expected path
+    p_cdn->>p_cdn: Look for a TAP tag
+  else No TAP tag
+    Note over p_cdn: Not signed by a trusted agent
+  end
+  p_cdn->>p_merchant: Apply bot policy
+  Note over p_cdn,p_merchant: Crosses a trust boundary
+  p_merchant-->>p_agent: 403 or challenge
+  Note over p_merchant,p_agent: Crosses a trust boundary

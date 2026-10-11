@@ -1,0 +1,56 @@
+sequenceDiagram
+  accTitle: Visa TAP: browse a product, then check out with signed objects
+  accDescr: Sequence diagram: Visa TAP: browse a product, then check out with signed objects. 5 participants: AI agent, Site Protection Provider (CDN), Visa key store, Merchant, and Acquirer and Visa network. 11 steps, 8 crossing a trust boundary, 8 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Site Protection Provider (CDN): GET product page, signed agent-browser-auth. This step crosses a trust boundary. If A Checkout Enabler strips the signature headers: The request arrives unsigned and is treated as an unknown bot. Step 2: Site Protection Provider (CDN) to Visa key store: Fetch the key for keyid (if not cached). This step crosses a trust boundary. If Key not found or expired: Block the request. Step 3: Site Protection Provider (CDN) to Site Protection Provider (CDN): Check tag, fields, window, nonce, signature. If No TAP tag: Not a trusted agent block or use other means. If Missing field, bad window, reused nonce or bad signature: Block the request. Step 4: Site Protection Provider (CDN) to Merchant: Forward as a verified agent request. This step crosses a trust boundary. Step 5: Merchant to AI agent: 200 product page. This step crosses a trust boundary. Step 6: AI agent to Site Protection Provider (CDN): POST checkout, signed agent-payer-auth, with body objects. This step crosses a trust boundary. If Body altered in transit: The header signature still verifies only the object signatures can catch it. Step 7: Site Protection Provider (CDN) to Merchant: Verify header signature, forward. This step crosses a trust boundary. Step 8: Merchant to Merchant: Verify agenticConsumer and agenticPaymentContainer. If Consumer object fails: Content may be inaccurate the merchant may still use it. If Payment container fails: Should not be used for payment. Step 9: Merchant to Merchant: Decrypt payload and map the ID Token. Step 10: Merchant to Acquirer and Visa network: Authorize the card payment. This step crosses a trust boundary. If Issuer declines: Ordinary card decline TAP has no role. Step 11: Merchant to AI agent: Order confirmation. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as AI agent
+  participant p_cdn as Site Protection Provider (CDN)
+  participant p_keystore as Visa key store
+  participant p_merchant as Merchant
+  participant p_acquirer as Acquirer and Visa network
+  alt Expected path
+    p_agent->>p_cdn: GET product page, signed agent-browser-auth
+    Note over p_agent,p_cdn: Crosses a trust boundary
+  else A Checkout Enabler strips the signature headers
+    Note over p_agent,p_cdn: The request arrives unsigned and is treated as an unknown bot
+  end
+  alt Expected path
+    p_cdn->>p_keystore: Fetch the key for keyid (if not cached)
+    Note over p_cdn,p_keystore: Crosses a trust boundary
+  else Key not found or expired
+    Note over p_cdn,p_keystore: Block the request
+  end
+  alt Expected path
+    p_cdn->>p_cdn: Check tag, fields, window, nonce, signature
+  else No TAP tag
+    Note over p_cdn: Not a trusted agent#59; block or use other means
+  else Missing field, bad window, reused nonce or bad signature
+    Note over p_cdn: Block the request
+  end
+  p_cdn->>p_merchant: Forward as a verified agent request
+  Note over p_cdn,p_merchant: Crosses a trust boundary
+  p_merchant-->>p_agent: 200 product page
+  Note over p_merchant,p_agent: Crosses a trust boundary
+  alt Expected path
+    p_agent->>p_cdn: POST checkout, signed agent-payer-auth, with body objects
+    Note over p_agent,p_cdn: Crosses a trust boundary
+  else Body altered in transit
+    Note over p_agent,p_cdn: The header signature still verifies#59; only the object signatures can catch it
+  end
+  p_cdn->>p_merchant: Verify header signature, forward
+  Note over p_cdn,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_merchant: Verify agenticConsumer and agenticPaymentContainer
+  else Consumer object fails
+    Note over p_merchant: Content may be inaccurate#59; the merchant may still use it
+  else Payment container fails
+    Note over p_merchant: Should not be used for payment
+  end
+  p_merchant-->>p_merchant: Decrypt payload and map the ID Token
+  alt Expected path
+    p_merchant->>p_acquirer: Authorize the card payment
+    Note over p_merchant,p_acquirer: Crosses a trust boundary
+  else Issuer declines
+    Note over p_merchant,p_acquirer: Ordinary card decline#59; TAP has no role
+  end
+  p_merchant->>p_agent: Order confirmation
+  Note over p_merchant,p_agent: Crosses a trust boundary

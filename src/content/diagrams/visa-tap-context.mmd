@@ -1,0 +1,33 @@
+flowchart LR
+  subgraph AZ["Agent provider zone"]
+    AG["AI agent"]
+    AK["Agent private key"]
+  end
+  subgraph VZ["Visa zone"]
+    ON["VIC onboarding (not public)"]
+    KS["Key store mcp.visa.com/.well-known/jwks"]
+    IDT["ID Token signer"]
+    VIC["VIC tokens, passkeys, instructions"]
+  end
+  subgraph PZ["Path to the merchant"]
+    CE["Checkout Enabler (pass through)"]
+    SPP["Site Protection Provider (CDN)"]
+  end
+  subgraph MZ["Merchant zone"]
+    M["Merchant site and backend"]
+    MK["Merchant private key"]
+  end
+  subgraph NZ["Card network"]
+    ACQ["Acquirer and Visa network"]
+  end
+  ON -- "registers key" --> KS
+  AK -- "sign headers and body objects" --> AG
+  AG -- "1 signed request" --> CE
+  CE --> SPP
+  SPP -- "2 fetch key by keyid" --> KS
+  SPP -- "3 verified request" --> M
+  M -. "verify objects and ID Token" .-> KS
+  IDT -. "ID Token in agenticConsumer" .-> AG
+  VIC -. "payment credentials" .-> AG
+  MK -. "decrypt payload" .-> M
+  M -- "4 authorize" --> ACQ

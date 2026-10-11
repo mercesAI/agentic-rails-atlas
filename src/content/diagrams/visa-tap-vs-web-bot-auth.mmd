@@ -1,0 +1,26 @@
+flowchart LR
+  subgraph TAP["Visa TAP (2025-10-14, Visa terms)"]
+    T1["tag: agent-browser-auth or agent-payer-auth"]
+    T2["covered: @authority and @path"]
+    T3["Signature-Agent: not required"]
+    T4["keyid: opaque key id"]
+    T5["nonce and alg: required"]
+    T6["window: at most 8 minutes"]
+    T7["keys: mcp.visa.com/.well-known/jwks"]
+  end
+  subgraph WBA["Web Bot Auth WG draft -00 (2026-09-01, IETF)"]
+    W1["tag: web-bot-auth"]
+    W2["covered: @authority or @target-uri, plus Signature-Agent"]
+    W3["Signature-Agent: required and signed"]
+    W4["keyid: JWK SHA-256 thumbprint"]
+    W5["nonce: not required by the draft"]
+    W6["expiry: 24 hours or less recommended"]
+    W7["keys: /.well-known/http-message-signatures-directory"]
+  end
+  T1 -. differs .- W1
+  T2 -. differs .- W2
+  T3 -. differs .- W3
+  T4 -. differs .- W4
+  T5 -. differs .- W5
+  T6 -. differs .- W6
+  T7 -. differs .- W7

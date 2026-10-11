@@ -1,0 +1,45 @@
+stateDiagram-v2
+  accTitle: Visa TAP: one request through verification (verifier-side state)
+  accDescr: State diagram: Visa TAP: one request through verification (verifier-side state). 12 states: Request received, TAP tag found, Minimum fields present, Inside the window, Nonce not seen, Key resolved, Trusted agent, browsing, Trusted agent, paying, Body objects checked, Served, Not a trusted agent, and Blocked. Starts in Request received. Ends in Served, Not a trusted agent, and Blocked. 17 transitions. From Request received to TAP tag found when Signature-Input has a TAP tag. From Request received to Not a trusted agent when No TAP tag. From TAP tag found to Minimum fields present when All minimum fields present. From TAP tag found to Blocked when A field is missing. From Minimum fields present to Inside the window when Timestamps valid. From Minimum fields present to Blocked when Window over 8 minutes or outside now. From Inside the window to Nonce not seen when Nonce unseen, or no record kept. From Inside the window to Blocked when Nonce already recorded. From Nonce not seen to Key resolved when Key for keyid found (GET https://mcp.visa.com/.well-known/jwks). From Nonce not seen to Blocked when Key missing or expired (GET https://mcp.visa.com/.well-known/jwks). From Key resolved to Trusted agent, browsing when Signature valid, tag agent-browser-auth. From Key resolved to Trusted agent, paying when Signature valid, tag agent-payer-auth. From Key resolved to Blocked when Signature invalid. From Trusted agent, browsing to Served when Merchant serves the page. From Trusted agent, paying to Body objects checked when Nonce, kid and signature of each body object checked. From Body objects checked to Served when Payment data processed. From Body objects checked to Blocked when Payment container invalid or hash mismatch.
+  state "Request received" as s_received
+  state "TAP tag found" as s_tagged
+  state "Minimum fields present" as s_fields_ok
+  state "Inside the window" as s_in_window
+  state "Nonce not seen" as s_nonce_fresh
+  state "Key resolved" as s_key_resolved
+  state "Trusted agent, browsing" as s_verified_browse
+  state "Trusted agent, paying" as s_verified_pay
+  state "Body objects checked" as s_objects_checked
+  state "Served" as s_served
+  state "Not a trusted agent" as s_untrusted
+  state "Blocked" as s_blocked
+  [*] --> s_received
+  s_received --> s_tagged : Signature-Input has a TAP tag
+  s_received --> s_untrusted : No TAP tag
+  s_tagged --> s_fields_ok : All minimum fields present
+  s_tagged --> s_blocked : A field is missing
+  s_fields_ok --> s_in_window : Timestamps valid
+  s_fields_ok --> s_blocked : Window over 8 minutes or outside now
+  s_in_window --> s_nonce_fresh : Nonce unseen, or no record kept
+  s_in_window --> s_blocked : Nonce already recorded
+  s_nonce_fresh --> s_key_resolved : Key for keyid found
+  s_nonce_fresh --> s_blocked : Key missing or expired
+  s_key_resolved --> s_verified_browse : Signature valid, tag agent-browser-auth
+  s_key_resolved --> s_verified_pay : Signature valid, tag agent-payer-auth
+  s_key_resolved --> s_blocked : Signature invalid
+  s_verified_browse --> s_served : Merchant serves the page
+  s_verified_pay --> s_objects_checked : Nonce, kid and signature of each body object checked
+  s_objects_checked --> s_served : Payment data processed
+  s_objects_checked --> s_blocked : Payment container invalid or hash mismatch
+  s_served --> [*]
+  s_untrusted --> [*]
+  s_blocked --> [*]
+  note right of s_received : At the merchant or its Site Protection Provider.
+  note right of s_tagged : agent-browser-auth or agent-payer-auth.
+  note right of s_fields_ok : @authority, @path, created, expires, keyid, alg, nonce, tag.
+  note right of s_in_window : created past, expires future, at most 8 minutes apart.
+  note right of s_nonce_fresh : Only if the verifier keeps nonces of the last 8 minutes.
+  note right of s_key_resolved : From cache or the key store.
+  note right of s_verified_pay : Body objects may follow.
+  note right of s_objects_checked : agenticConsumer and agenticPaymentContainer.
+  note right of s_untrusted : Merchant may block or use other means.
