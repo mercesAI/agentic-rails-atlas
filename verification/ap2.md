@@ -4,7 +4,25 @@ Verifier: independent verifier agent. Date: 2026-10-11. Scope per `docs/briefs/V
 
 Spec snapshot used: `research/vendor/AP2` at e1ea56d (main). `git diff --stat v0.2.0 HEAD` touches only CHANGELOG.md, CONTRIBUTING.md, README.md and uv.lock, so `code/sdk/schemas/ap2/*.json` and `docs/ap2/*.md` are identical to tag v0.2.0 (b4587ac). Rendered page: `dist/p/ap2/index.html` (built 2026-10-11 14:22, after the last `index.mdx` change at 13:57; not rebuilt).
 
-Status: in progress. Sections are filled as each check completes.
+Status: complete.
+
+## Summary
+
+| Check | Pass | Fail | Unreachable |
+| --- | --- | --- | --- |
+| 1. Claims (72 referenced + 40 sampled of 208) | 110 | 2 | 0 |
+| 1. Rule checks (non-primary only, missing asOf) | 208 | 0 | 0 |
+| 2. Identifiers (66 FieldTable rows, 95 flow-payload ids, 68 text ids, playground) | 225 | 4 | 0 |
+| 2. Payload schema validation (ajv) | 16 | 0 | 0 |
+| 3. Dates, versions, numbers | 29 | 2 | 0 |
+| 4. Do not get wrong | 4 | 0 | 0 |
+| 5. Diagrams and flows | 13 | 0 | 0 |
+| 6. Specified vs deployed, stewardship | 7 | 0 | 0 |
+| 7. Style gates | 3 | 2 | 0 |
+| 8. Coverage | 1 | 0 | 0 |
+| Follow-up Section 2 and errata rows touching AP2 | 11 | 0 | 0 |
+
+The two check 3 failures are the same fact as claim clm-ap2-030 (pull-request count), shown in two more places.
 
 ## Check 1: claims against sources
 
@@ -309,3 +327,20 @@ Items that do not touch AP2 were checked only for leakage into AP2 files (grep f
 | 2.3.1, 2.3.5 to 2.3.7 | n/a for AP2 | | |
 | R8 Agent Factory podcast | pass | resources.json:286-291; research/vendor/AP2/README.md:17-19; claim clm-ap2-168 | |
 | R40 VI names only on main | pass | index.mdx:758 ("Those names exist only on Verifiable Intent's main branch since 2026-04-20; at its tag v0.1.0 they were different"); claim clm-ap2-170 | Confirmed: VI tag v0.1.0 (1dc3d41) uses `payment.amount`, `payment.allowed_payee`, `mandate.checkout.allowed_merchant` and `mandate.payment.open` without `.1`. |
+
+## Required fixes (prioritized)
+
+1. **Pull-request count (claim, fact, metric).** PR 246 ("fix: remove uvlock") was opened 2026-04-29T16:38Z and merged 16:51Z; it is commit e1ea56d. "63 pull requests ... none merged" is false.
+   - `src/content/protocols/ap2/claims.json` clm-ap2-030: change to "Between the last commit on 2026-04-29 and 2026-10-11, 44 issues and 62 pull requests were opened on the AP2 repository, and none of those pull requests was merged." (or keep 63 and add "apart from PR 246, the last commit itself").
+   - `src/content/protocols/ap2/facts.json:17` changedRecently 2026-04-29: "62 community pull requests opened since then, none merged".
+   - `src/content/protocols/ap2/ecosystem.json` metric `ap2-prs-since-v02`: value "62 opened, 0 merged", definition "Pull requests opened after commit e1ea56d (2026-04-29T16:51Z) to 2026-10-11".
+   - `src/content/protocols/ap2/index.mdx:700`: "44 issues and 62 pull requests, none merged". Re-count issues with the same cut-off (the search counted 44 from 2026-04-29 00:00Z).
+2. **Samples claim.** `claims.json` clm-ap2-105 says the Python and Go samples both cover card and x402 in both modes. Go has only `scenarios/a2a/human-present/cards`. Change to "The AP2 samples run the roles as A2A agents: the Python samples cover card and x402 payments in human-present and human-not-present modes, and the Go samples cover a human-present card payment." (used by keyFacts Transports and faq.json "Is AP2 the same as A2A?").
+3. **Wrapper keys in flow payloads** (low). `src/content/flows/ap2-human-present.json` step 5 (`checkout_mandate_content`, `payment_mandate_content`) and `ap2-human-not-present.json` step 2 (`open_checkout_mandate_content`, `open_payment_mandate_content`) present invented JSON keys next to real fields. Add a comment line "# The outer keys are labels for this page, not AP2 fields" or split each into two labeled payloads.
+4. **Acronyms** (low). `index.mdx:130`: expand on first use, for example "AP2 (Agent Payments Protocol) answers one question ..." and "a commerce protocol such as the Universal Commerce Protocol (UCP)". Expand JWT and JWS on first use.
+5. **Spelling** (low). `facts.json:20`: "catalogued" -> "cataloged".
+6. **Optional clarity items.** Add "no step-up authentication (v0.1 had 3DS2 and OTP challenges)" to the 2026-04-28 bullet of "What changed in 2025 and 2026" (index.mdx:721) to mirror follow-up 2.1.10; footnote in `ap2-constraint-evaluation` that mapping a violated constraint to `unresolved_constraint` is the site's reading; fill `specRef.section` for ap2-human-present steps 15 and 16; use `disclosures` consistently in ap2-human-present step 7; cite `open_payment_mandate.json` (not `payment_mandate.json`) for open-mandate expiry in `states/ap2-mandate-lifecycle.json`.
+
+## Blocked or unreachable sources
+
+None. All fetched on 2026-10-11: cloud.google.com launch post, blog.google FIDO and shopping-cart posts, fidoalliance.org 2026-04-28 and 2025-04-29 releases (curl with a browser User-Agent returned 200), ap2-protocol.org, datatracker (draft-stone-vcap-ap2-binding, draft-gco-oauth-delegate-sd-jwt, plus the JSON API), eips.ethereum.org ERC-8226, PyPI and npm `ap2`, export.arxiv.org (2601.22569, 2602.06345, 2608.23858, 2609.11757), and the GitHub API (AP2 repository, tags, releases, commits, issues 268, 345, 346, 374, PRs 121, 246, 305; partners.md history; UCP tags and commits; a2a-x402 commits; Verifiable Intent tag v0.1.0). `src-ap2-register-ucp` (non-primary) was not in the sample and was not re-read.
