@@ -145,3 +145,32 @@ Totals: 126 checked, 123 pass, 2 fail, 1 unreachable.
 ### asOf rule (literal)
 
 The brief fails a claim that carries a number or date without `asOf`. All such dates checked above are correct (fixed events or spec constants such as the 8-minute window). Claims with an explicit date or count and no `asOf`: see the list in "Required fixes" (item 6). Treated as a rule-level finding, not counted as a content failure, consistent with `verification/erc-8004.md`.
+
+## Check 2: field names, headers, enums, endpoints
+
+TAP publishes no JSON Schema, OpenAPI file or test vectors (confirmed: none on the spec page; none in `research/vendor/visa-trusted-agent-protocol`; the sample implements neither body object), so schema validation with ajv is not applicable. Every identifier was grepped in the Visa specification page fetched 2026-10-11 (the only normative TAP text) and, for non-TAP identifiers, in the source that defines it.
+
+| Identifier group | Count | Verdict | Evidence | Note |
+|---|---|---|---|---|
+| Covered components and parameters: `@authority`, `@path`, `created`, `expires`, `keyid`, `alg`, `nonce`, `tag` | 8 | pass | spec "Required Message Signature Fields" table | exact spelling |
+| Tags `agent-browser-auth`, `agent-payer-auth` | 2 | pass | spec table row `tag`; Verification Steps | |
+| Headers `Signature-Input`, `Signature` | 2 | pass | spec field table; RFC 9421 | |
+| `agenticConsumer`: `nonce`, `idToken`, `contextualData`, `kid`, `alg`, `signature` | 7 | pass | spec Consumer Recognition table and JSON example | spec says "at least the following 5 fields" and then lists 6; the page's "six" follows the list (correct reading) |
+| `contextualData`: `countryCode`, `zip`, `ipAddress`, `deviceData` | 4 | pass | spec "Contextual Data" list | 16-character `zip` matches |
+| ID Token header `alg`, `kid`, `typ` (`JWT+ext.id_token`); claims `iss`, `sub`, `aud`, `exp`, `iat`, `jti`, `auth_time`, `amr`, `phone_number`, `phone_number_verified`, `email`, `email_verified`, `phone_number_mask`, `email_mask` | 18 | pass | spec ID Token tables | cardinalities in the page match (1, 1..n, 0..1, 0..n) |
+| `agenticPaymentContainer`: `nonce`, `kid`, `alg`, `signature`, `paymentCredentialsHash` / `credentialHash`, `cardMetadata`, `payload`, `browsingIOU` | 9 | pass | spec Payment table, JSON example and processing sections | the page correctly reports the `paymentCredentialsHash` / `credentialHash` and `keyId` / `keyid` / `IdToken` inconsistencies |
+| `cardMetadata`: `lastFour`, `paymentAccountReference`, `shortDescription`, `contentType`, `mimeType`, `width`, `height` | 7 | pass | spec Card Metadata list | |
+| `payload`: `paymentToken`, `expirationMonth`, `expirationYear`, `cardholderName`, `dynamicData`, `consumerEmailAddress`, `consumerName`, `consumerMobileNumber` | 8 | pass | spec Payment Object list | |
+| `browsingIOU`: `invoiceId`, `amount`, `cardAcceptorId`, `acquirerId`, `uri`, `sequenceCounter`, `paymentService`, `kid`, `alg`, `signature` | 10 | pass | spec Browsing IOU list | |
+| Key retrieval `GET /keys`, `keyID`; JWK `kty`, `kid`, `use`, `alg`, `n`, `e` | 8 | pass (minor) | spec Public Key Retrieval tables | FieldTable marks `kty`, `kid`, `use`, `alg` as `required: true`; the spec states no requiredness for JWK members (and the live key omits `alg` and `use`). Suggest "not stated" |
+| Key store URL `https://mcp.visa.com/.well-known/jwks`; JWKS members `kid`, `kty`, `x5c` | 4 | pass | spec; live JWKS fetched 2026-10-11 | |
+| VIC endpoints `/vacp/v1/cards`, `/vacp/v1/instructions`, `/vacp/v1/instructions/{instructionId}`, `/cancel`, `/credentials`, `/confirmations` | 6 | pass | `research/vendor/visa-mcp/packages/api-client/src/clients/vic-client.ts` lines 155-226 (repo now `visa/ai`) | |
+| Web Bot Auth: `Signature-Agent`, `web-bot-auth`, `/.well-known/http-message-signatures-directory`, JWK thumbprint `keyid` | 4 | pass | draft-ietf-webbotauth-httpsig-protocol-00 s5.2, s5.2.1, s8.1 | |
+| Others: `Content-Digest` (RFC 9530), `@method`, `@query` (RFC 9421), `cf.bot_management.signed_agent` (Cloudflare docs), `Agent-pay-auth` (Mastercard Level 1 guide), `rsa-pss-sha256` (`tap-agent/agent_app.py` line 64), `X-Payment-Required`, `X-Payment-Session-ID` (`merchant-backend/app/routes/cart.py` 617-618) | 9 | pass | as listed | |
+| Flow payloads (all 8 TAP flows): HTTP headers, JSON keys, parameters | all | pass | `src/content/flows/visa-tap-*.json` | values are labeled placeholders; `/reviews/123`, `shop.example` are illustrative paths, not identifiers |
+
+Identifiers checked: 106. Wrong: 0.
+
+Notes (no identifier error, but precision):
+- The spec's "Validate the signature" step describes the base string as covering "the authority, path, signature agent, timestamps, key identifier, nonce, and tag". The page and `facts.json` say TAP has "no Signature-Agent". That is right for the required minimum, but "does not require `Signature-Agent`" is the exact statement. Suggested wording in Required fixes.
+- `src/content/flows/visa-tap-browse-and-checkout.json` step 4 cites the Cloudflare blog with `section: "Verification Steps"`; the post has no such heading (its list follows "Cloudflare will run the following checks").
