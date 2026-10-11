@@ -119,8 +119,534 @@ keyFacts:
     claimIds: [clm-mastercard-agent-pay-183, clm-mastercard-agent-pay-194, clm-mastercard-agent-pay-191, clm-mastercard-agent-pay-198, clm-mastercard-agent-pay-200]
 ---
 
-This page is being written.
+<Mode eli5>
+
+Imagine you give a helper robot permission to buy movie tickets for you. The shop does not know the robot, and robots that sneak around shops are often up to no good. So the robot first goes to the card company's office, shows who built it, passes a test, and gets a name badge. The card company keeps a list of every robot with a badge.
+
+When you say yes, the card company gives the robot a special stand-in card. It is not your real card. It only works for the shops, the amounts and the days you allowed, and some of these cards work only once. If the robot loses it, a thief gets very little.
+
+At the shop door the robot shows its badge, and the door guard checks it against the card company's list. Then the robot pays with the stand-in card at the normal till, just like a person. The bank that gave you your real card still makes the final yes or no.
+
+There is also an optional signed note, a bit like a permission slip you sign, that says exactly what you allowed: which shops, how much in total, and until when. The robot carries the slip, and the shop and the card company can both read the parts meant for them and check that nobody changed them.
+
+That is Mastercard Agent Pay. The badge is a signature on the robot's web requests, the stand-in card is an agentic token, and the permission slip is called Verifiable Intent. Most of the purchases so far have been careful tests with a few banks, not everyday shopping.
+
+</Mode>
+
+Mastercard Agent Pay answers a card network's question: when software buys something, which agent is it, who allowed it, and within which limits? Agent Pay is a proprietary Mastercard program, not an open protocol and not Google's AP2.<Cite ids="clm-mastercard-agent-pay-004 clm-mastercard-agent-pay-006" /> Only registered agents can transact: each agent passes a security review, joins a trusted agent list, and registers a public key.<Cite ids="clm-mastercard-agent-pay-072 clm-mastercard-agent-pay-073 clm-mastercard-agent-pay-075" /> The consumer authorizes the agent, and the network issues an agentic token built on Mastercard tokenization, which may be single-use, merchant-specific or time-limited.<Cite ids="clm-mastercard-agent-pay-002 clm-mastercard-agent-pay-007 clm-mastercard-agent-pay-076" /> At the merchant, the agent signs its web requests with HTTP Message Signatures and the tag `Agent-pay-auth`, and the edge or the merchant checks the signature against a Mastercard key directory.<Cite ids="clm-mastercard-agent-pay-080 clm-mastercard-agent-pay-081 clm-mastercard-agent-pay-087" /> The agent then pays with the token through the existing checkout and card rails, and the issuer still decides.<Cite ids="clm-mastercard-agent-pay-078 clm-mastercard-agent-pay-163" /> Verifiable Intent, a separate open specification, adds signed evidence of what the user approved.<Cite ids="clm-mastercard-agent-pay-009 clm-mastercard-agent-pay-127" /> What Agent Pay does not give you yet: a public specification, a key directory URL that resolves, agent-specific dispute rules, or any volume data.<Cite ids="clm-mastercard-agent-pay-005 clm-mastercard-agent-pay-085 clm-mastercard-agent-pay-207 clm-mastercard-agent-pay-210" />
+
+### Problem and design goals
+
+Mastercard announced Agent Pay on 2025-04-29 as its Agentic Payments Program, introducing Mastercard Agentic Tokens.<Cite ids="clm-mastercard-agent-pay-001 clm-mastercard-agent-pay-002" /> The launch release ties those tokens to tokenization Mastercard already runs for contactless payments, card-on-file and Mastercard Payment Passkeys.<Cite ids="clm-mastercard-agent-pay-003" /> It sets three goals. Agents must be registered and verified before they pay for anyone, and every party in the chain must be able to recognize an agent transaction. There must also be a process to clarify agent transactions a cardholder does not recognize.<Cite ids="clm-mastercard-agent-pay-020 clm-mastercard-agent-pay-021 clm-mastercard-agent-pay-022" />
+
+The problem is familiar to anyone who runs card fraud. An agent typing a card number into a web form looks like a bot, and a bot with a card number looks like fraud. Agent Pay replaces the card number with a token that only a registered agent can obtain, so the network can mark the transaction as agentic and the merchant never handles the real card.<Cite ids="clm-mastercard-agent-pay-077 clm-mastercard-agent-pay-079" /> Mastercard says agents may not even use a card the consumer already stored at the merchant, because the network could not then see that an agent was involved.<Cite ids="clm-mastercard-agent-pay-077" />
+
+Two things to keep apart from the start. The word "agentic token" means different things at Mastercard and at Visa: they are separate products on separate networks.<Cite ids="clm-mastercard-agent-pay-008" /> And Mastercard's pages describe the tokens as built on Mastercard tokenization; none of the pages read for this atlas name MDES (Mastercard Digital Enablement Service), so this page does not either.<Cite ids="clm-mastercard-agent-pay-007" />
+
+### Actors and roles
+
+The program has seven roles, all described in Mastercard's merchant-facing developer guides rather than in a specification.<Cite ids="clm-mastercard-agent-pay-004" /> The consumer authenticates with the agent platform, authorizes purchases and sets limits; regional releases name Mastercard Payment Passkeys for that step.<Cite ids="clm-mastercard-agent-pay-106" /> The agent platform registers its agent and key, passes certification, requests tokens and signs its web requests.<Cite ids="clm-mastercard-agent-pay-072 clm-mastercard-agent-pay-075" /> Mastercard registers and certifies agents, keeps the trusted agent lists, issues and detokenizes tokens, and since 2026-09-30 tests a probability score for agent-initiated transactions in the US.<Cite ids="clm-mastercard-agent-pay-073 clm-mastercard-agent-pay-068" />
+
+On the selling side, merchants register through their acquirer or PSP (payment service provider), not with Mastercard directly.<Cite ids="clm-mastercard-agent-pay-074" /> They accept tokens in existing forms or through APIs, and they can verify agent signatures in their own backend or leave that to a CDN (content delivery network).<Cite ids="clm-mastercard-agent-pay-078 clm-mastercard-agent-pay-241" /> Cloudflare describes doing exactly that at the edge for both Agent Pay and Visa's Trusted Agent Protocol.<Cite ids="clm-mastercard-agent-pay-087 clm-mastercard-agent-pay-188" /> The issuer keeps the final authorization decision.<Cite ids="clm-mastercard-agent-pay-163" /> Since 2026-09-30, Skyfire is named as a Know Your Agent partner that helps recognize trusted agents.<Cite ids="clm-mastercard-agent-pay-069" />
+
+Verifiable Intent defines its own roles. An issuer signs the first credential (a bank, or Mastercard acting for the bank), and a credential provider hosts the user's wallet; the user, the agent, the merchant and the payment network as verifier complete the set.<Cite ids="clm-mastercard-agent-pay-165 clm-mastercard-agent-pay-127" /> The network checks the chain before authorization, but the issuer still decides.<Cite ids="clm-mastercard-agent-pay-163" />
+
+### Core objects
+
+Agent Pay's objects come in two kinds, and the difference matters. The program objects below are named in Mastercard's developer guides, which publish field names but no schema files, no types and no required flags; the guides refer readers to the Agent Pay Acceptance Framework, which is not public.<Cite ids="clm-mastercard-agent-pay-005" /> Verifiable Intent objects, by contrast, come from an open specification with normative field tables.<Cite ids="clm-mastercard-agent-pay-127 clm-mastercard-agent-pay-139" />
+
+The first program object is the signature on the agent's HTTP request. Signature-Input carries `keyid`, `alg`, `created`, `expires`, `nonce` and `tag`.<Cite ids="clm-mastercard-agent-pay-080" /> Mastercard's guide gives the Mastercard tag as `Agent-pay-auth`, while its testing glossary writes `agent-pay-auth` in lower case; the letter case is unresolved.<Cite ids="clm-mastercard-agent-pay-081 clm-mastercard-agent-pay-082" /> The same guide says Visa uses `agent-browser-auth` and `agent-payer-auth`, and generic agents such as ChatGPT use `web-bot-auth`.<Cite ids="clm-mastercard-agent-pay-083" />
+
+The second is the token itself. At Levels 1 and 2 it looks like a card number to the merchant.<Cite ids="clm-mastercard-agent-pay-078" /> For guest checkouts with a simple form, Mastercard points integrators to Mastercard Virtual Card Tokens, which come with a one-time DTVC for the security code field.<Cite ids="clm-mastercard-agent-pay-101 clm-mastercard-agent-pay-102" /> A DTVC is a security code issued with a Virtual Card Token, not an agentic token; Mastercard's pages expand it both as Dynamic Token Validation Code and as Dynamic Token Verification Code.<Cite ids="clm-mastercard-agent-pay-105 clm-mastercard-agent-pay-104" /> At Level 3, the Mastercard payload contains a DSRP (Digital Secure Remote Payment) cryptogram and card metadata.<Cite ids="clm-mastercard-agent-pay-099" />
+
+Level 2 adds two signed objects in the request body. The Agent User Identity object carries `mastercardIdToken`, a Mastercard-issued JWT (JSON Web Token) that identifies the consumer and is compatible with OpenID Connect ID Tokens.<Cite ids="clm-mastercard-agent-pay-090 clm-mastercard-agent-pay-091" /> The Payment Data object carries `paymentData`, a hash of the tokenized payment data typed into the form, signed with the same key and nonce as the HTTP signature.<Cite ids="clm-mastercard-agent-pay-092 clm-mastercard-agent-pay-093" /> Level 3 adds the Intent API: the agent registers the consumer's intent and receives an `intentId` with tokenized credentials.<Cite ids="clm-mastercard-agent-pay-094 clm-mastercard-agent-pay-095" />
+
+Verifiable Intent is a chain of SD-JWT (Selective Disclosure for JWTs) credentials.<Cite ids="clm-mastercard-agent-pay-127 clm-mastercard-agent-pay-162" /> L1 is signed by the issuer and binds the user's key; L2 is signed by the user and holds mandates; in Autonomous mode, L3a and L3b are signed by the agent.<Cite ids="clm-mastercard-agent-pay-129 clm-mastercard-agent-pay-130 clm-mastercard-agent-pay-131 clm-mastercard-agent-pay-132" /> Each layer binds the key that signs the next through the RFC 7800 `cnf` claim.<Cite ids="clm-mastercard-agent-pay-134" />
+
+<Mode spec>
+
+**Field tables.** Program objects follow Mastercard's developer guides as read on 2026-10-11; these guides are unversioned and publish no schema, so "Required" means only that the guide lists the field. Verifiable Intent tables follow `spec/credential-format.md` and `spec/constraints.md` on `main` at commit 356c296 (2026-04-20), labeled 0.1. At tag v0.1.0 several names were different (see Versioning). Descriptions are paraphrased.
+
+<FieldTable caption="Signature-Input parameters for Agent Pay requests (no public schema)" specVersion="Agent Pay developer guides, unversioned, read 2026-10-11" fields={[
+  {
+    "name": "keyid",
+    "type": "string",
+    "required": true,
+    "description": "Identifies the agent public key in the Mastercard key directory.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+  },
+  {
+    "name": "alg",
+    "type": "string",
+    "required": true,
+    "description": "Signature algorithm; examples ed25519 and ecdsa-p256-sha256.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+  },
+  {
+    "name": "created",
+    "type": "integer",
+    "required": true,
+    "description": "Signature creation time.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+  },
+  {
+    "name": "expires",
+    "type": "integer",
+    "required": true,
+    "description": "Signature expiry; verifiers reject outside the window.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+  },
+  {
+    "name": "nonce",
+    "type": "string",
+    "required": true,
+    "description": "Replay protection; also binds the body objects to the signature.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+  },
+  {
+    "name": "tag",
+    "type": "string",
+    "required": true,
+    "description": "Interaction type. Mastercard: Agent-pay-auth (glossary spelling agent-pay-auth). Visa: agent-browser-auth, agent-payer-auth.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+  }
+]} />
+
+<FieldTable caption="Agent User Identity object (Level 2 request body, no public schema)" specVersion="Agent Pay developer guides, unversioned, read 2026-10-11" fields={[
+  {
+    "name": "mastercardIdToken",
+    "type": "string (JWT)",
+    "required": false,
+    "description": "Mastercard-issued token identifying the consumer; OpenID Connect ID Token compatible. Required status not stated.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "signature",
+    "type": "string",
+    "required": false,
+    "description": "Binds the identity to the HTTP message signature. Required status not stated.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "kid",
+    "type": "string",
+    "required": false,
+    "description": "Matches the message signature key. Required status not stated.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "nonce",
+    "type": "string",
+    "required": false,
+    "description": "Same nonce as the message signature. Required status not stated.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "alg",
+    "type": "string",
+    "required": false,
+    "description": "For example PS256 or ES256. Required status not stated.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  }
+]} />
+
+<FieldTable caption="Payment Data object (Level 2 and 3 request body, no public schema)" specVersion="Agent Pay developer guides, unversioned, read 2026-10-11" fields={[
+  {
+    "name": "paymentData",
+    "type": "not stated",
+    "required": false,
+    "description": "Form fill: hash of the tokenized data typed into the form. Level 3: hash of the credentials submitted.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "signature",
+    "type": "string",
+    "required": false,
+    "description": "Made with the same private key as the HTTP message signature.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "kid",
+    "type": "string",
+    "required": false,
+    "description": "Matches the message signature keyid.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "nonce",
+    "type": "string",
+    "required": false,
+    "description": "Matches the message signature nonce.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  },
+  {
+    "name": "alg",
+    "type": "string",
+    "required": false,
+    "description": "For example PS256 or ES256.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/22/index.md"
+  }
+]} />
+
+<FieldTable caption="Intent API objects, key fields named in the Level 3 guide (no public schema)" specVersion="Agent Pay developer guides, unversioned, read 2026-10-11" fields={[
+  {
+    "name": "intentId",
+    "type": "string",
+    "required": false,
+    "description": "Mastercard-generated intent identifier.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  },
+  {
+    "name": "intentSummary",
+    "type": "string",
+    "required": false,
+    "description": "Agent-generated description of the intent.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  },
+  {
+    "name": "intentStatus",
+    "type": "string",
+    "required": false,
+    "description": "Dynamically updated; validation requires ACTIVE. Other values not published.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  },
+  {
+    "name": "digitalAccountCredentials",
+    "type": "object",
+    "required": false,
+    "description": "Tokenized credentials returned with the intent.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  },
+  {
+    "name": "orders[].orderExecutionType",
+    "type": "enum",
+    "required": false,
+    "description": "IMMEDIATE or DEFERRED.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  },
+  {
+    "name": "orders[].orderExpiry",
+    "type": "integer",
+    "required": false,
+    "description": "UTC epoch seconds.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  },
+  {
+    "name": "orders[].orderTotalAmount",
+    "type": "object",
+    "required": false,
+    "description": "Merchants reject a checkout whose total exceeds it.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  },
+  {
+    "name": "orders[].merchants[].srcDpaId",
+    "type": "string",
+    "required": false,
+    "description": "Mastercard-generated merchant identifier; must match the merchant.",
+    "specRef": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+  }
+]} />
+
+<FieldTable caption="VI L1 credential (issuer SD-JWT)" specVersion="Verifiable Intent 0.1 (main, 356c296)" fields={[
+  {
+    "name": "header alg / typ / kid",
+    "type": "string",
+    "required": true,
+    "description": "ES256; sd+jwt; issuer key id in its JWKS.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "iss",
+    "type": "string",
+    "required": true,
+    "description": "Issuer URI.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "sub",
+    "type": "string",
+    "required": true,
+    "description": "Opaque stable user id; always visible.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "iat, exp",
+    "type": "integer",
+    "required": true,
+    "description": "exp at most one year after iat.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "vct",
+    "type": "string",
+    "required": true,
+    "description": "Mastercard profile: https://credentials.mastercard.com/card.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "cnf.jwk",
+    "type": "object",
+    "required": true,
+    "description": "User public key (RFC 7800) that signs L2.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "pan_last_four, scheme",
+    "type": "string",
+    "required": true,
+    "description": "Required by the Mastercard profile; always visible.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "email",
+    "type": "string",
+    "required": false,
+    "description": "Selectively disclosable.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  }
+]} />
+
+<FieldTable caption="VI L2 credential (user KB-SD-JWT)" specVersion="Verifiable Intent 0.1 (main, 356c296)" fields={[
+  {
+    "name": "header typ",
+    "type": "string",
+    "required": true,
+    "description": "kb-sd-jwt (Immediate) or kb-sd-jwt+kb (Autonomous); alg ES256; kid optional.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "nonce",
+    "type": "string",
+    "required": true,
+    "description": "Random nonce.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "aud",
+    "type": "string",
+    "required": true,
+    "description": "The agent, typically the agent platform URL.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "iat, exp",
+    "type": "integer",
+    "required": true,
+    "description": "Immediate 15 minutes; Autonomous 24 hours to 30 days.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "sd_hash",
+    "type": "string",
+    "required": true,
+    "description": "B64U(SHA-256) of the serialized L1.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "delegate_payload",
+    "type": "array",
+    "required": true,
+    "description": "References to the mandate disclosures.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "iss",
+    "type": "string",
+    "required": false,
+    "description": "Signer of L2 (wallet or user agent).",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  }
+]} />
+
+<FieldTable caption="VI mandate types (vct registry on main)" specVersion="Verifiable Intent 0.1 (main, 356c296)" fields={[
+  {
+    "name": "mandate.checkout.1",
+    "type": "mandate",
+    "required": true,
+    "description": "Final checkout: checkout_jwt and checkout_hash; in L3b may add line_items. No cnf, no constraints.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "mandate.payment.1",
+    "type": "mandate",
+    "required": true,
+    "description": "Final payment: payment_instrument, payment_amount (currency, integer minor units), payee, transaction_id.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "mandate.checkout.open.1",
+    "type": "mandate",
+    "required": false,
+    "description": "Autonomous: cnf.jwk with kid for the agent, at least one constraint.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  },
+  {
+    "name": "mandate.payment.open.1",
+    "type": "mandate",
+    "required": false,
+    "description": "Autonomous: cnf, payment_instrument, constraints including mandate.payment.reference, optional risk_data.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
+  }
+]} />
+
+<FieldTable caption="VI constraint types (eight registered on main)" specVersion="Verifiable Intent 0.1 (main, 356c296)" fields={[
+  {
+    "name": "mandate.checkout.allowed_merchants",
+    "type": "constraint",
+    "required": false,
+    "description": "allowed list of merchants; checked on the checkout side.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  },
+  {
+    "name": "mandate.checkout.line_items",
+    "type": "constraint",
+    "required": false,
+    "description": "items with acceptable_items and quantity; match_mode minimum or exact.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  },
+  {
+    "name": "mandate.payment.allowed_payees",
+    "type": "constraint",
+    "required": false,
+    "description": "allowed list of payees; exact matching by the network.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  },
+  {
+    "name": "mandate.payment.amount_range",
+    "type": "constraint",
+    "required": false,
+    "description": "currency, optional min and max in minor units, per transaction.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  },
+  {
+    "name": "mandate.payment.budget",
+    "type": "constraint",
+    "required": false,
+    "description": "currency and max; cumulative cap tracked by the network.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  },
+  {
+    "name": "mandate.payment.recurrence",
+    "type": "constraint",
+    "required": false,
+    "description": "Merchant-managed subscription setup; ISO 20022 frequency codes.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  },
+  {
+    "name": "mandate.payment.agent_recurrence",
+    "type": "constraint",
+    "required": false,
+    "description": "Agent-managed repeats; needs start_date, end_date, amount_range and budget.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  },
+  {
+    "name": "mandate.payment.reference",
+    "type": "constraint",
+    "required": true,
+    "description": "conditional_transaction_id; mandatory in every Autonomous payment mandate.",
+    "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md"
+  }
+]} />
+
+Illustrative example, Verifiable Intent 0.1 on `main` (356c296), an L3a payment mandate disclosure. Values are made up.
+
+```json
+{
+  "vct": "mandate.payment.1",
+  "payment_instrument": { "type": "mastercard.srcDigitalCard", "id": "<token-uuid>" },
+  "payment_amount": { "currency": "USD", "amount": 3800 },
+  "payee": { "name": "Example Cinemas", "website": "https://cinema.example.com" },
+  "transaction_id": "<B64U(SHA-256(checkout_jwt))>"
+}
+```
+
+</Mode>
+
+### Message flow step by step
+
+The main flow on this page is a Level 1 purchase with edge verification, because it is the path Mastercard calls no-code for merchants.<Cite ids="clm-mastercard-agent-pay-036" /> Before it starts, the agent developer has registered a key and been certified, and the consumer has authorized the agent.<Cite ids="clm-mastercard-agent-pay-072 clm-mastercard-agent-pay-075" />
+
+1. The agent requests a merchant page and signs the request with RFC 9421 HTTP Message Signatures. Signature-Input lists the covered components, in Mastercard's example `@authority` and `@path`, plus `keyid`, `created`, `expires`, `nonce`, `alg` and the tag.<Cite ids="clm-mastercard-agent-pay-089 clm-mastercard-agent-pay-227 clm-mastercard-agent-pay-080" />
+2. The CDN or the merchant backend fetches the public key for `keyid` from the directory Mastercard hosts.<Cite ids="clm-mastercard-agent-pay-086 clm-mastercard-agent-pay-241" /> Cloudflare names no Mastercard directory URL, and the only host in Mastercard's example, `agentpay-key-directory.mastercard.com`, did not resolve on 2026-10-11.<Cite ids="clm-mastercard-agent-pay-086 clm-mastercard-agent-pay-084 clm-mastercard-agent-pay-085" />
+3. The verifier checks that both headers are present, that `created` and `expires` bracket the current time, that the nonce is unused and the tag is valid, then rebuilds the signature base and verifies the Ed25519 signature.<Cite ids="clm-mastercard-agent-pay-088" /> The guide also lists `ecdsa-p256-sha256` as an example algorithm.<Cite ids="clm-mastercard-agent-pay-228" />
+4. The agent types the token into the normal card form. To the merchant it looks like any card number, and PCI scope does not change.<Cite ids="clm-mastercard-agent-pay-078 clm-mastercard-agent-pay-079" />
+5. The merchant's processor sends the authorization. The network detokenizes and routes to the issuer.<Cite ids="clm-mastercard-agent-pay-078" /> Stripe, which carries these tokens, says the network maps them to the latest funding PAN (primary account number) and adds agent information to the authorization message.<Cite ids="clm-mastercard-agent-pay-047" />
+6. The issuer approves or declines. Standard chargeback rights apply afterwards.<Cite ids="clm-mastercard-agent-pay-209" />
+
+Mastercard's decision table for step 3 is short: a request without Signature-Input and a scheme tag goes to the ordinary bot policy, and a missing field or a key not found in the directory means block.<Cite ids="clm-mastercard-agent-pay-243" /> One oddity is worth knowing before you copy code: the Level 1 guide's sample verifier accepts only the two Visa tags, not the Mastercard tag.<Cite ids="clm-mastercard-agent-pay-215" />
+
+The DTVC path differs only in step 4. After user validation and consent, the integrator gets a Virtual Card Token, its expiry and a fresh DTVC, and the agent types all three into the form. Mastercard validates the DTVC during authorization and tells the issuer whether it did so.<Cite ids="clm-mastercard-agent-pay-102 clm-mastercard-agent-pay-103" /> Level 3 replaces the form with a merchant API: the agent registers intent, sends the `intentId` and credentials, and the merchant checks that `intentStatus` is `ACTIVE`, that the total does not exceed `orderTotalAmount` and that `srcDpaId` matches.<Cite ids="clm-mastercard-agent-pay-094 clm-mastercard-agent-pay-098" /> Mastercard itself calls intent exchange between agent and merchant future facing.<Cite ids="clm-mastercard-agent-pay-100" />
+
+In Verifiable Intent's Autonomous mode, the user signs L2 with open mandates that carry constraints and the agent's key, and leaves.<Cite ids="clm-mastercard-agent-pay-131 clm-mastercard-agent-pay-135" /> Later the agent signs L3a for the network and L3b for the merchant, and L3a's `transaction_id` must equal L3b's `checkout_hash`.<Cite ids="clm-mastercard-agent-pay-133 clm-mastercard-agent-pay-150" /> The network checks the payment constraints, allows one L3 pair per mandate pair and tracks cumulative spend.<Cite ids="clm-mastercard-agent-pay-164" />
+
+### Lifecycle and states
+
+Mastercard publishes no state model for agentic tokens. The guides describe a sequence (agent registered, certified, consumer authorized, token provisioned, token used, authorized or declined) and token limits by merchant, amount or time window.<Cite ids="clm-mastercard-agent-pay-072 clm-mastercard-agent-pay-073 clm-mastercard-agent-pay-076" /> The state machine on this page uses descriptive labels for that sequence and marks expiry as inferred; there is no public revocation API, suspend state or lifecycle endpoint for agentic tokens.<Cite ids="clm-mastercard-agent-pay-109 clm-mastercard-agent-pay-168" />
+
+The Intent API has more structure. `orderExecutionType` is `IMMEDIATE` or `DEFERRED`, `orderExpiry` is in UTC epoch seconds, and validation needs `intentStatus` `ACTIVE`.<Cite ids="clm-mastercard-agent-pay-096 clm-mastercard-agent-pay-094" /> Other status values are not published.<Cite ids="clm-mastercard-agent-pay-005" />
+
+Verifiable Intent defines lifetimes per layer: L1 about one year, L2 Immediate 15 minutes, L2 Autonomous 24 hours to 30 days and never beyond L1, L3 five minutes recommended and one hour at most.<Cite ids="clm-mastercard-agent-pay-129 clm-mastercard-agent-pay-130 clm-mastercard-agent-pay-131 clm-mastercard-agent-pay-132" /> For Autonomous mandates the network must keep state, because budgets and occurrence counts cannot be enforced by cryptography alone.<Cite ids="clm-mastercard-agent-pay-173 clm-mastercard-agent-pay-154" /> The spec says networks must hold that state but defines no API for it.<Cite ids="clm-mastercard-agent-pay-164" />
+
+### Security and trust model (summary)
+
+Mastercard's security claims rest on five things. Only registered and certified agents transact, agents never see card numbers, and tokens are scoped. Agent requests are signed with a nonce and a short window, and consumers authenticate with passkeys in the live pilots.<Cite ids="clm-mastercard-agent-pay-072 clm-mastercard-agent-pay-076 clm-mastercard-agent-pay-088 clm-mastercard-agent-pay-106" /> Section H covers the threats in detail.
+
+The weak points are the parts that are not public. The key directory location is unknown, the full Acceptance Framework is unpublished, and Mastercard's 2026-09-30 probability score for AI-initiated transactions implies that agent involvement is not always marked reliably in authorization traffic.<Cite ids="clm-mastercard-agent-pay-085 clm-mastercard-agent-pay-005 clm-mastercard-agent-pay-214" /> The Level 1 and DTVC paths also keep agents filling human checkout forms, so merchants still see agent traffic as page scraping with a signature attached.<Cite ids="clm-mastercard-agent-pay-213" />
+
+Verifiable Intent has a written threat model covering replay, cross-merchant replay, constraint stripping, checkout and payment mismatch, algorithm confusion, clock skew, disclosure withholding, type confusion and split-agent attacks.<Cite ids="clm-mastercard-agent-pay-172" /> It is also candid about gaps: no revocation protocol in 0.1, an always-visible `sub` that links a user's transactions for a year, and reference keys suitable only for testing.<Cite ids="clm-mastercard-agent-pay-168 clm-mastercard-agent-pay-170 clm-mastercard-agent-pay-171" /> An open issue reports that L2 lists each mandate digest twice, which RFC 9901 says verifiers must reject.<Cite ids="clm-mastercard-agent-pay-178 clm-mastercard-agent-pay-179 clm-mastercard-agent-pay-231" /> No CVE or published attack specific to Agent Pay was found.<Cite ids="clm-mastercard-agent-pay-220" />
+
+### Versioning and governance
+
+Agent Pay has no version numbers, no public changelog and no governance body; Mastercard changes the program alone.<Cite ids="clm-mastercard-agent-pay-004" /> Its history is a sequence of announcements, regional rollouts and sub-brands. The developer documentation went live on Mastercard Developers on 2025-10-16 "for early preview".<Cite ids="clm-mastercard-agent-pay-029" /> The current Agent Pay page could not be read: its markdown source returns 404 and the HTML is a JavaScript shell.<Cite ids="clm-mastercard-agent-pay-217" />
+
+| Date | Event | Status as stated | Source |
+|---|---|---|---|
+| 2025-04-29 | Launch with Microsoft, IBM, Braintree and Checkout.com | announced | <Cite ids="clm-mastercard-agent-pay-001 clm-mastercard-agent-pay-017 clm-mastercard-agent-pay-018 clm-mastercard-agent-pay-019" /> |
+| 2025-09-10 | US plan: all cardholders by the holiday season, Citi and U.S. Bank first | announced | <Cite ids="clm-mastercard-agent-pay-023 clm-mastercard-agent-pay-024" /> |
+| 2025-10 | Acceptance Framework launched (exact day not published) | launched | <Cite ids="clm-mastercard-agent-pay-030" /> |
+| 2025-10-30 | CEO: first agentic transaction on the network that quarter | reported | <Cite ids="clm-mastercard-agent-pay-034" /> |
+| 2025-12-03 | Latin America and the Caribbean from 2026 | announced | <Cite ids="clm-mastercard-agent-pay-037" /> |
+| 2026-01-28 | Australia's first authenticated agentic transactions (CBA, Westpac) | controlled trials | <Cite ids="clm-mastercard-agent-pay-040 clm-mastercard-agent-pay-042" /> |
+| 2026-03-02 | Santander: Europe's first live end-to-end agent payment | pilot, not a commercial rollout | <Cite ids="clm-mastercard-agent-pay-043 clm-mastercard-agent-pay-044" /> |
+| 2026-03-17 | Korea's first live authenticated agentic transaction | first transaction | <Cite ids="clm-mastercard-agent-pay-052" /> |
+| 2026-03-24 | 17 Latin American issuers and processors | controlled environments | <Cite ids="clm-mastercard-agent-pay-054 clm-mastercard-agent-pay-055" /> |
+| 2026-06-02 | All European issuers enabled at network level; 36 banks | network enablement; controlled transactions | <Cite ids="clm-mastercard-agent-pay-058 clm-mastercard-agent-pay-059" /> |
+| 2026-06-10 | Agent Pay for Machines (AP4M) | launched, no availability dates | <Cite ids="clm-mastercard-agent-pay-061 clm-mastercard-agent-pay-066" /> |
+| 2026-09-30 | Trust Framework; probability score in US testing | testing | <Cite ids="clm-mastercard-agent-pay-067 clm-mastercard-agent-pay-068" /> |
+
+Read the status column carefully: the named transactions are pilots or first transactions, and Mastercard publishes no volume or value figures.<Cite ids="clm-mastercard-agent-pay-211 clm-mastercard-agent-pay-210" /> The US plan to enable all issuers by November 2025 is not confirmed complete by any later primary source found.<Cite ids="clm-mastercard-agent-pay-035" /> No white paper for the Trust Framework was found.<Cite ids="clm-mastercard-agent-pay-071" />
+
+Verifiable Intent is the only versioned artifact, and its version history needs care. The CHANGELOG dates 0.1.0 to 2026-02-19, the spec documents say 0.1-draft dated 2026-02-18, and the tag `v0.1.0` points to the initial commit of 2026-03-05.<Cite ids="clm-mastercard-agent-pay-115 clm-mastercard-agent-pay-116 clm-mastercard-agent-pay-117" /> Pull request 23, merged on 2026-04-20, renamed constraint keys (for example `payment.amount` became `mandate.payment.amount_range`), added `.1` suffixes to mandate types and moved `cnf.kid` to `cnf.jwk.kid`, all without a new version number.<Cite ids="clm-mastercard-agent-pay-118 clm-mastercard-agent-pay-119 clm-mastercard-agent-pay-121" /> Field names on this page follow `main`; code written against tag v0.1.0 uses the older names.<Cite ids="clm-mastercard-agent-pay-120 clm-mastercard-agent-pay-121" /> The repository has had no commits since 2026-04-20.<Cite ids="clm-mastercard-agent-pay-123" /> Mastercard contributed VI to the FIDO Alliance on 2026-04-28, where it goes to the existing Payments Technical Working Group.<Cite ids="clm-mastercard-agent-pay-014 clm-mastercard-agent-pay-015 clm-mastercard-agent-pay-016" />
+
+### Extensibility
+
+The program offers few public extension points. The documented ones are the three integration levels, the two body objects at Level 2, and the Intent API at Level 3.<Cite ids="clm-mastercard-agent-pay-078 clm-mastercard-agent-pay-090 clm-mastercard-agent-pay-094" /> Sub-brands extend the program's reach rather than its wire format: Agent Pay for Machines adds credentialing, permissioning, transacting and settlement across cards, accounts and stablecoins, and the Trust Framework groups identity, intent, controls, execution and intelligence.<Cite ids="clm-mastercard-agent-pay-062 clm-mastercard-agent-pay-067" />
+
+Verifiable Intent is built to be extended. It has a registry of eight constraint types, a STRICT and a PERMISSIVE validation mode, and an optional `agent_attestation` claim with no scheme defined yet.<Cite ids="clm-mastercard-agent-pay-152 clm-mastercard-agent-pay-159 clm-mastercard-agent-pay-182" /> Verifiers must still reject open mandates that contain unknown constraint types, whatever the mode.<Cite ids="clm-mastercard-agent-pay-160" /> The CHANGELOG still says five constraint types while the spec registers eight.<Cite ids="clm-mastercard-agent-pay-122" />
+
+### How it composes with the other seven
+
+Agent Pay touches the other protocols mostly through Verifiable Intent and through partners. On `main`, VI uses the same four mandate `vct` values as AP2 v0.2, with aligned constraint meanings but different key prefixes: AP2 writes `payment.amount_range`, VI writes `mandate.payment.amount_range`.<Cite ids="clm-mastercard-agent-pay-183 clm-mastercard-agent-pay-184" /> VI says its credentials can ride in UCP's AP2 mandate extension; UCP renamed that extension to `dev.ucp.common.payment.ap2_mandate` in v2026-08-25.<Cite ids="clm-mastercard-agent-pay-194 clm-mastercard-agent-pay-195" /> Stripe's Shared Payment Tokens (SPTs) carry Mastercard agentic network tokens, so an ACP checkout processed by Stripe can use an Agent Pay token.<Cite ids="clm-mastercard-agent-pay-046 clm-mastercard-agent-pay-191" /> Visa TAP uses the same edge pattern with different tags and a different directory.<Cite ids="clm-mastercard-agent-pay-188 clm-mastercard-agent-pay-189" /> Section P has the details.
+
+### Limitations and open issues
+
+- The Acceptance Framework, the token lifecycle and the Intent API schema are not public, so independent implementers cannot build against them.<Cite ids="clm-mastercard-agent-pay-005" />
+- The key directory location is unknown, and the tag's letter case differs between two Mastercard pages.<Cite ids="clm-mastercard-agent-pay-085 clm-mastercard-agent-pay-081 clm-mastercard-agent-pay-082" />
+- No agent-specific dispute reason codes, liability shift or interchange categories have been published.<Cite ids="clm-mastercard-agent-pay-207" />
+- Verifiable Intent has no revocation protocol, an unresolved duplicate-digest conflict with RFC 9901, and no commits since 2026-04-20.<Cite ids="clm-mastercard-agent-pay-168 clm-mastercard-agent-pay-178 clm-mastercard-agent-pay-123" />
+- Mastercard says VI is being embedded in the payment flow, but no public document shows a VI chain checked in a live authorization.<Cite ids="clm-mastercard-agent-pay-056 clm-mastercard-agent-pay-051" />
+- Networks and EMVCo are still developing 3DS support and decoupled authentication for agentic flows, per Mastercard's own guide.<Cite ids="clm-mastercard-agent-pay-221" />
+
+### What changed in 2025 and 2026
+
+The 2025 work set the program up: the launch in April, the US plan in September, the Acceptance Framework in October, the PayPal wallet integration on 2025-10-27, and the first agentic transaction reported on the Q3 earnings call.<Cite ids="clm-mastercard-agent-pay-001 clm-mastercard-agent-pay-023 clm-mastercard-agent-pay-030 clm-mastercard-agent-pay-032 clm-mastercard-agent-pay-034" /> 2026 brought regional pilots, Stripe SPT support on 2026-03-03, Verifiable Intent on 2026-03-05 and its FIDO contribution on 2026-04-28.<Cite ids="clm-mastercard-agent-pay-046 clm-mastercard-agent-pay-048 clm-mastercard-agent-pay-014" /> Mastercard then enabled all European issuers on 2026-06-02, launched Agent Pay for Machines on 2026-06-10 with 32 named participants, and named the Trust Framework on 2026-09-30.<Cite ids="clm-mastercard-agent-pay-058 clm-mastercard-agent-pay-061 clm-mastercard-agent-pay-064 clm-mastercard-agent-pay-067" /> EMVCo's draft agentic payments framework of 2026-09-01 names VI as an existing cryptographic solution its Intent Services would complement.<Cite ids="clm-mastercard-agent-pay-203 clm-mastercard-agent-pay-204" />
 
 ## Compare and compose
 
-The written comparison is being written.
+Agent Pay is not AP2, and the difference is structural. AP2 is Google's open protocol for mandates between agents, merchants and credential providers; Agent Pay is a card network deciding which agents may hold its tokens.<Cite ids="clm-mastercard-agent-pay-006" /> The two meet through Verifiable Intent: on `main` it uses the same four mandate types as AP2 v0.2 (`mandate.checkout.open.1`, `mandate.checkout.1`, `mandate.payment.open.1`, `mandate.payment.1`) and aligned constraint semantics with a `mandate.` prefix on each key.<Cite ids="clm-mastercard-agent-pay-183 clm-mastercard-agent-pay-184" /> A 2026-04 VI commit is titled field alignment per AP2 schema updates, and both specifications now sit in FIDO's Payments Technical Working Group.<Cite ids="clm-mastercard-agent-pay-185 clm-mastercard-agent-pay-015" /> No public source documents VI running inside a live AP2 flow.<Cite ids="clm-mastercard-agent-pay-187" />
+
+Visa TAP is the closest neighbor. Cloudflare describes both programs as Web Bot Auth with a tag in Signature-Input, a mandatory nonce and a directory hosted by each network.<Cite ids="clm-mastercard-agent-pay-188 clm-mastercard-agent-pay-189" /> The tags differ (`Agent-pay-auth` for Mastercard, `agent-browser-auth` and `agent-payer-auth` for Visa), and so do the tokens: "agentic token" names a Mastercard Agent Pay product on one side and a Visa Intelligent Commerce product on the other.<Cite ids="clm-mastercard-agent-pay-081 clm-mastercard-agent-pay-083 clm-mastercard-agent-pay-008" /> A CDN can verify both with the same code path and two directories.<Cite ids="clm-mastercard-agent-pay-086" />
+
+For checkout protocols, Agent Pay is a credential, not a competitor. Under ACP, a Mastercard agentic network token can travel inside a Stripe SPT; the ACP schema itself mentions Mastercard only as a card brand and 3DS directory server value.<Cite ids="clm-mastercard-agent-pay-191 clm-mastercard-agent-pay-190" /> VI proposes ACP extensions as a carrier but defines none.<Cite ids="clm-mastercard-agent-pay-242" /> Mastercard endorses UCP, and VI maps into UCP's AP2 mandate extension, but no Agent Pay integration with UCP is documented.<Cite ids="clm-mastercard-agent-pay-193 clm-mastercard-agent-pay-194 clm-mastercard-agent-pay-196" />
+
+The machine-payment links are thinner. In Mastercard's AP4M release, Tempo says it is working with Mastercard on Machine Payments Protocol compatibility; Mastercard's own text makes no MPP claim.<Cite ids="clm-mastercard-agent-pay-198 clm-mastercard-agent-pay-197" /> Mastercard is a premier member of the x402 Foundation, and Coinbase's AP4M quote names x402, but no Agent Pay technical document mentions x402.<Cite ids="clm-mastercard-agent-pay-200 clm-mastercard-agent-pay-201" /> No documented relation links Agent Pay to ERC-8004.<Cite ids="clm-mastercard-agent-pay-202" />
