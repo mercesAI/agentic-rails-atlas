@@ -1,0 +1,40 @@
+{
+  "protocol": "visa-tap",
+  "snippets": [
+    {
+      "title": "Sign requests with a TAP attestation (agent)",
+      "sdk": "mppx (mppx/attestation/tap)",
+      "version": "0.13.4",
+      "language": "typescript",
+      "side": "client",
+      "code": "import * as Tap from 'mppx/attestation/tap'\nimport { Mppx, tempo } from 'mppx/client'\nimport type { Account } from 'viem'\n\ndeclare const account: Account\ndeclare const agentPrivateKey: CryptoKey\n\nconst client = Mppx.create({\n  attestation: {\n    tap: Tap.Client.signer({\n      intent: 'payment',\n      key: agentPrivateKey,\n      keyId: 'agent-provider-key-1',\n    }),\n  },\n  methods: [tempo({ account })],\n  polyfill: false,\n})\n\nconst response = await client.fetch('https://merchant.example/checkout')",
+      "docsUrl": "https://mpp.dev/advanced/identity",
+      "note": "From the MPP identity docs (MIT). Intent payment maps to the tag agent-payer-auth and browse to agent-browser-auth; the signer uses an 8-minute lifetime by default. Visa publishes no TAP SDK of its own; the visa/trusted-agent-protocol sample is under Visa's Product Terms and is not reproduced here.",
+      "sources": [
+        "src-mpp-identity",
+        "src-mppx-tap"
+      ]
+    },
+    {
+      "title": "Verify TAP attestations on a server",
+      "sdk": "mppx (mppx/attestation/tap)",
+      "version": "0.13.4",
+      "language": "typescript",
+      "side": "server",
+      "code": "import * as Tap from 'mppx/attestation/tap'\nimport { Mppx, Store, tempo } from 'mppx/server'\n\ndeclare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>\n\nconst payment = Mppx.create({\n  attestation: {\n    tap: Tap.Server.verifier({\n      keyResolver({ keyId }) {\n        return trustedAgentKeys.get(keyId)\n      },\n      nonceStore: Store.memory(),\n    }),\n  },\n  methods: [tempo.charge()],\n})\n\nexport const handler = payment.charge({ amount: '12.50' })",
+      "docsUrl": "https://mpp.dev/advanced/identity",
+      "note": "From the MPP identity docs. The verifier checks signature, authority and path, lifetime, tag and nonce. Resolve keyId only from agent providers you trust; Store.memory() fits a single process only.",
+      "sources": [
+        "src-mpp-identity",
+        "src-mppx-tap"
+      ]
+    }
+  ],
+  "labs": [
+    {
+      "title": "RFC 9421 TAP signature builder and verifier (playground)",
+      "path": "/p/visa-tap/#o-playground",
+      "status": "planned"
+    }
+  ]
+}

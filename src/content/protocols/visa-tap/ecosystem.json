@@ -1,0 +1,254 @@
+{
+  "protocol": "visa-tap",
+  "stewards": [
+    {
+      "name": "Visa",
+      "role": "Writes the specification and Product Terms, onboards agents, hosts the key store and signs the ID Token.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-terms"
+      ]
+    },
+    {
+      "name": "Cloudflare",
+      "role": "Co-developed TAP with Visa and verifies TAP signatures at the edge.",
+      "sources": [
+        "src-visa-tap-pr",
+        "src-visa-tap-cf-blog"
+      ]
+    }
+  ],
+  "implementers": [
+    {
+      "name": "Cloudflare",
+      "role": "Edge verification; planned Agents SDK support and managed rules (announced 2025-10-24).",
+      "status": "live",
+      "sources": [
+        "src-visa-tap-cf-blog",
+        "src-visa-eu-live"
+      ]
+    },
+    {
+      "name": "Akamai",
+      "role": "TAP support across Akamai Cloud, announced 2025-12-17.",
+      "status": "announced",
+      "sources": [
+        "src-akamai-pr",
+        "src-visa-dec18"
+      ]
+    },
+    {
+      "name": "lastminute.com, Frasers, Cleverbridge, BrickDepot",
+      "role": "Merchants in Visa's live European agent transactions (2026-07-02).",
+      "status": "live",
+      "sources": [
+        "src-visa-eu-live"
+      ]
+    },
+    {
+      "name": "eDreams ODIGEO (eDreams, Opodo, GO Voyages, Travellink)",
+      "role": "Said it uses TAP and the Agentic Directory to recognize verified agents (2026-07-03, secondary report).",
+      "status": "announced",
+      "sources": [
+        "src-edreams-pymnts"
+      ]
+    },
+    {
+      "name": "Worldpay",
+      "role": "Acquirer that announced collaboration with Visa and Cloudflare on TAP at launch.",
+      "status": "announced",
+      "sources": [
+        "src-worldpay-collab"
+      ]
+    },
+    {
+      "name": "Launch feedback partners",
+      "role": "Adyen, Ant International, Checkout.com, Coinbase, CyberSource, Elavon, Fiserv, Microsoft, Nuvei, Shopify, Stripe and Worldpay gave feedback; not a list of deployments.",
+      "status": "unknown",
+      "sources": [
+        "src-visa-tap-pr"
+      ]
+    },
+    {
+      "name": "Visa Intelligent Commerce Connect",
+      "role": "Visa on-ramp that accepts agent payments initiated through TAP, MPP, ACP and UCP.",
+      "status": "pilot",
+      "sources": [
+        "src-visa-icc"
+      ]
+    },
+    {
+      "name": "mppx (Tempo, wevm)",
+      "role": "MPP SDK with a TAP attestation signer and verifier.",
+      "status": "live",
+      "sources": [
+        "src-mppx-tap",
+        "src-mpp-identity"
+      ]
+    }
+  ],
+  "sdks": [
+    {
+      "registry": "npm",
+      "name": "mppx",
+      "version": "0.13.4",
+      "url": "https://www.npmjs.com/package/mppx",
+      "note": "MIT; mppx/attestation/tap signs and verifies TAP attestations. Not a Visa package."
+    },
+    {
+      "registry": "npm",
+      "name": "mpp-card",
+      "version": "0.1.8",
+      "url": "https://www.npmjs.com/package/mpp-card",
+      "note": "Visa's MPP card SDK under Visa's own terms."
+    },
+    {
+      "registry": "other",
+      "name": "visa/trusted-agent-protocol (sample code)",
+      "url": "https://github.com/visa/trusted-agent-protocol",
+      "note": "Python and Node.js sample, no published package; last commit 2025-10-28."
+    },
+    {
+      "registry": "other",
+      "name": "visa/ai workspace packages (@visa/api-client, @visa/mcp-client, @visa/token-manager)",
+      "url": "https://github.com/visa/ai",
+      "note": "VIC clients, not published on npm as of 2026-10-11."
+    }
+  ],
+  "metrics": [
+    {
+      "id": "visa-tap-gh-stars",
+      "metric": "GitHub stars, visa/trusted-agent-protocol",
+      "value": 212,
+      "unit": "stars",
+      "asOf": "2026-10-11",
+      "definition": "Stars on the sample repository.",
+      "sources": [
+        "src-visa-tap-gh-meta"
+      ],
+      "caveat": "Interest, not usage; 45 forks."
+    },
+    {
+      "id": "visa-tap-named-merchants",
+      "metric": "Merchants named as live with TAP",
+      "value": 4,
+      "unit": "merchants",
+      "asOf": "2026-07-02",
+      "definition": "Merchants Visa named in its live European agent transactions.",
+      "sources": [
+        "src-visa-eu-live"
+      ],
+      "caveat": "No total count of verifying merchants is published."
+    },
+    {
+      "id": "visa-eu-issuers-live",
+      "metric": "European issuers with live agent purchases",
+      "value": 31,
+      "unit": "issuers",
+      "asOf": "2026-07-02",
+      "definition": "Issuers named in Visa's release; the text says over 30.",
+      "sources": [
+        "src-visa-eu-live"
+      ],
+      "caveat": "VIC program metric, not TAP traffic."
+    },
+    {
+      "id": "visa-agent-transactions-dec",
+      "metric": "Agent-initiated transactions completed with partners",
+      "value": "hundreds",
+      "unit": "transactions",
+      "asOf": "2025-12-18",
+      "definition": "Visa's own description of completed agent transactions.",
+      "sources": [
+        "src-visa-dec18"
+      ],
+      "caveat": "Self-reported VIC figure; named transactions are pilots or first transactions."
+    },
+    {
+      "id": "visa-vic-partners",
+      "metric": "Partners working with Visa on agentic commerce",
+      "value": "more than 100",
+      "unit": "partners",
+      "asOf": "2025-12-18",
+      "definition": "Visa said over 30 build in the VIC sandbox and over 20 agents and enablers integrate directly.",
+      "sources": [
+        "src-visa-dec18"
+      ],
+      "caveat": "Self-reported; not TAP-specific."
+    },
+    {
+      "id": "visa-malicious-bot-tx",
+      "metric": "Rise in malicious bot-initiated transactions",
+      "value": "25 percent (US 40 percent)",
+      "unit": "change over six months",
+      "asOf": "2025-11-20",
+      "definition": "Visa internal data on bot-initiated transactions.",
+      "sources": [
+        "src-visa-threats"
+      ],
+      "caveat": "Problem context, not TAP adoption."
+    },
+    {
+      "id": "adobe-ai-retail-traffic",
+      "metric": "AI-driven traffic to US retail sites",
+      "value": "over 4,700 percent",
+      "unit": "change in a year",
+      "asOf": "2025-10-14",
+      "definition": "Adobe Data Insights figure for August 2025, cited in Visa launch release of 2025-10-14.",
+      "sources": [
+        "src-visa-tap-pr"
+      ],
+      "caveat": "Adobe figure quoted by Visa; month-level date only."
+    }
+  ],
+  "costs": [
+    {
+      "item": "TAP license fee",
+      "value": "None stated in the Product Terms",
+      "whoPays": "Nobody (no fee published)",
+      "asOf": "2025-10-10",
+      "confidence": "verified",
+      "caveat": "Terms are revocable and can change with a Visa update.",
+      "sources": [
+        "src-visa-tap-terms"
+      ]
+    },
+    {
+      "item": "Visa Intelligent Commerce",
+      "value": "Free in sandbox; production fees on request from Visa",
+      "whoPays": "Agent platforms and enablers (terms not public)",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "No public production price.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-nevermined-vic"
+      ]
+    },
+    {
+      "item": "Agent-specific interchange, token fee or liability rule",
+      "value": "Not published",
+      "whoPays": "Card economics unchanged: merchant pays its usual acquiring fees",
+      "asOf": "2026-10-11",
+      "confidence": "reported",
+      "caveat": "Evidence of absence from Visa's pages and two secondary reviews; treat agent purchases as ordinary tokenized card-not-present payments until Visa publishes otherwise.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-nevermined-vic",
+        "src-mcc-2026",
+        "src-worldpay-liability"
+      ]
+    },
+    {
+      "item": "Edge verification",
+      "value": "Cloudflare's signed-agent field needs an Enterprise plan with Bot Management; no TAP-specific price",
+      "whoPays": "Merchant (CDN customer)",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Plan pricing is not public.",
+      "sources": [
+        "src-cf-signed-agent-field"
+      ]
+    }
+  ]
+}
