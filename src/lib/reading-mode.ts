@@ -2,8 +2,11 @@
  * Reading mode: eli5, practitioner, spec or ste. Stored in `atlas:reading-mode`
  * and applied as data-reading-mode on <html>; tokens.css does the switching.
  */
-import { READING_MODES, type ReadingMode } from './schemas';
+import type { ReadingMode } from './schemas';
 import { getItem, setItem } from './storage';
+
+/** Mirrors READING_MODES in schemas.ts; kept local so client bundles never pull in zod. */
+export const READING_MODES = ['eli5', 'practitioner', 'spec', 'ste'] as const satisfies readonly ReadingMode[];
 
 export const READING_MODE_KEY = 'atlas:reading-mode';
 export const DEFAULT_READING_MODE: ReadingMode = 'practitioner';

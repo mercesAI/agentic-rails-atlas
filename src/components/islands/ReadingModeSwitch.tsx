@@ -1,6 +1,6 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
-import { READING_MODES, type ReadingMode } from '../../lib/schemas';
-import { READING_MODE_LABELS, readReadingMode, saveReadingMode } from '../../lib/reading-mode';
+import type { ReadingMode } from '../../lib/schemas';
+import { READING_MODES, READING_MODE_LABELS, readReadingMode, saveReadingMode } from '../../lib/reading-mode';
 
 const HINTS: Record<ReadingMode, string> = {
   eli5: 'Plain explanation for newcomers',

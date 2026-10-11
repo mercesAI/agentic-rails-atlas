@@ -10,6 +10,7 @@ export interface SearchItem {
   kind: string;
   text?: string;
   context?: string;
+  keywords?: string[];
 }
 
 type Raw = Record<string, unknown>;
@@ -17,11 +18,13 @@ type Raw = Record<string, unknown>;
 const str = (v: unknown): string | undefined => (typeof v === 'string' && v.trim() ? v : undefined);
 
 export function normalizeSearchIndex(input: unknown): SearchItem[] {
-  const list: unknown[] = Array.isArray(input)
-    ? input
-    : input && typeof input === 'object' && Array.isArray((input as Raw).items)
-      ? ((input as Raw).items as unknown[])
-      : [];
+  let list: unknown[] = [];
+  if (Array.isArray(input)) list = input;
+  else if (input && typeof input === 'object') {
+    const obj = input as Raw;
+    if (Array.isArray(obj.entries)) list = obj.entries;
+    else if (Array.isArray(obj.items)) list = obj.items;
+  }
   const out: SearchItem[] = [];
   for (const entry of list) {
     if (!entry || typeof entry !== 'object') continue;
@@ -35,6 +38,7 @@ export function normalizeSearchIndex(input: unknown): SearchItem[] {
       kind: str(r.kind) ?? str(r.type) ?? 'page',
       text: str(r.text) ?? str(r.summary) ?? str(r.description) ?? str(r.plain),
       context: str(r.context) ?? str(r.protocol) ?? str(r.section) ?? str(r.page),
+      keywords: Array.isArray(r.keywords) ? r.keywords.filter((k): k is string => typeof k === 'string') : undefined,
     });
   }
   return out;

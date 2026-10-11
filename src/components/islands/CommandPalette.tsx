@@ -54,6 +54,7 @@ export default function CommandPalette() {
           { name: 'title', weight: 3 },
           { name: 'text', weight: 1 },
           { name: 'context', weight: 0.5 },
+          { name: 'keywords', weight: 1 },
         ],
         threshold: 0.35,
         ignoreLocation: true,
