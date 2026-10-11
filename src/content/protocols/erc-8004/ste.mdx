@@ -1,0 +1,100 @@
+---
+protocol: erc-8004
+title: ERC-8004 in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+ERC-8004 is a draft standard for Ethereum and other EVM chains. It gives an AI agent an identity on a public chain. It also keeps a public record of feedback about the agent. It is not a final standard. It does not move money.
+
+ERC-8004 has three registries. The Identity Registry gives each agent a token with an agentId. The token points to a registration file. This file lists the name of the agent, its services and its trust models. The Reputation Registry keeps a score and two tags for each item of feedback.
+
+The Validation Registry is in the specification. It is not officially deployed on a chain.
+
+The owner of the token controls the agent. The owner can change the address of the registration file. The owner can also set the agentWallet address. The agent gets payments at this address. To change the address, the new wallet must sign a message.
+
+Any address can give feedback, but the owner and the operators cannot. The registry does not prevent fake reviewers. Thus, a reader must select the reviewers that it trusts.
+
+The registry keeps only the value, the decimals, the tags and the revoked flag on the chain. The details and the proofOfPayment object stay in an off-chain file.
+
+</SteDescription>
+
+<SteProcedure title="Register an agent (agent developer)">
+
+1. Write the registration file. Use the fields of the specification.
+2. Put the file on IPFS or on an HTTPS server.
+3. Call `register` on the Identity Registry with the address of the file.
+4. Read the agentId from the `Registered` event.
+5. Add the agentId and the agentRegistry value to the `registrations` list in the file.
+6. If the address of the file changes, call `setAgentURI`.
+7. If the agent must get payments at a different address, do the wallet procedure.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT PUT PERSONAL DATA IN A REGISTRATION FILE OR IN A FEEDBACK FILE. YOU CANNOT DELETE A POINTER OR A HASH FROM THE CHAIN.
+</SteCaution>
+
+<SteProcedure title="Set the payment wallet of an agent (agent owner)">
+
+1. Get the agentId, the address of the new wallet and your owner address.
+2. Set a deadline that is less than 5 minutes after the current time.
+3. Sign the `AgentWalletSet` message with the key of the new wallet.
+4. Call `setAgentWallet` with the agentId, the wallet, the deadline and the signature.
+5. Make sure that the `MetadataSet` event shows the new wallet.
+6. After a transfer of the token, do this procedure again.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SEND A PAYMENT TO AN agentWallet ADDRESS THAT YOU READ BEFORE A TRANSFER OF THE TOKEN. THE TRANSFER CLEARS THE WALLET.
+</SteCaution>
+
+<SteProcedure title="Give feedback after a payment (client agent)">
+
+1. Pay the agent with x402 or with a different payment method.
+2. Keep the transaction hash of the payment.
+3. Write the feedback file. Put the value, the decimals and the proofOfPayment object in the file.
+4. Put the file on IPFS.
+5. Call `giveFeedback` with the value, the decimals, the tags, the file address and the file hash.
+
+</SteProcedure>
+
+<SteProcedure title="Read the reputation of an agent (controls builder)">
+
+1. Get the list of reviewers with `getClients`.
+2. Select only the reviewers that you trust.
+3. Call `getSummary` with the agentId and this list.
+4. If you need a better score, read all feedback and the off-chain files.
+5. Make sure that each proofOfPayment agrees with a real transaction on the chain.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT USE THE NUMBER OF REGISTERED AGENTS AS A MEASURE OF QUALITY. MOST REGISTERED AGENTS DO NOT HAVE A LIVE ENDPOINT.
+</SteCaution>
+
+<SteNote>
+The Validation Registry is in the specification only. The contracts README does not list an address for it on a chain.
+</SteNote>
+
+<SteNote>
+One externally owned account can upgrade the registry contracts on Ethereum and on Base. This was true on 2026-10-11.
+</SteNote>
+
+<SteTerms>
+
+- **agentId**: The number of the token that identifies an agent in one registry.
+- **agentRegistry**: A text value with the chain family, the chain number and the registry address.
+- **agentURI**: The address of the registration file of an agent.
+- **registration file**: A JSON file that gives the name, the services and the trust models of an agent.
+- **agentWallet**: The address where the agent gets payments.
+- **feedback**: A value and tags that a client writes about an agent.
+- **proofOfPayment**: An object in the feedback file that identifies a payment transaction.
+- **operator**: An address that the owner approves to manage the agent.
+- **Sybil attack**: An attack where one person uses many addresses to look like many reviewers.
+- **register (TV)**: To make a new agent token in the Identity Registry.
+- **revoke (TV)**: To mark your own feedback as not valid.
+
+</SteTerms>
