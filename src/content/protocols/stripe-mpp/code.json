@@ -1,0 +1,59 @@
+{
+  "protocol": "stripe-mpp",
+  "snippets": [
+    {
+      "title": "Charge per request (server)",
+      "sdk": "mppx",
+      "version": "0.13.4",
+      "language": "typescript",
+      "side": "server",
+      "code": "import { Mppx, tempo } from 'mppx/server'\n\nconst mppx = Mppx.create({\n  methods: [\n    tempo({\n      recipient: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',\n    }),\n  ],\n  secretKey: process.env.MPP_SECRET_KEY!,\n})\n\nexport async function handler(request: Request) {\n  const response = await mppx.charge({ amount: '1' })(request)\n\n  if (response.status === 402) return response.challenge\n\n  return response.withReceipt(Response.json({ data: '...' }))\n}",
+      "docsUrl": "https://mpp.dev/sdk/typescript",
+      "note": "From the README quick start. secretKey is the challenge-binding secret; the README asks for at least 32 bytes. Keep it out of source control.",
+      "sources": [
+        "src-stripe-mpp-mppx-repo"
+      ]
+    },
+    {
+      "title": "Pay automatically with fetch (client)",
+      "sdk": "mppx",
+      "version": "0.13.4",
+      "language": "typescript",
+      "side": "client",
+      "code": "import { privateKeyToAccount } from 'viem/accounts'\nimport { Mppx, tempo } from 'mppx/client'\n\nMppx.create({\n  methods: [tempo({ account: privateKeyToAccount('0x...') })],\n})\n\n// Global fetch now handles 402 automatically\nconst res = await fetch('https://mpp.dev/api/ping/paid')",
+      "docsUrl": "https://mpp.dev/sdk/typescript",
+      "note": "From the README quick start. Never put a real key in code; the atlas uses ephemeral keys on fake chains only.",
+      "sources": [
+        "src-stripe-mpp-mppx-repo"
+      ]
+    },
+    {
+      "title": "Metered session route in a payments proxy (server)",
+      "sdk": "mppx",
+      "version": "0.13.4",
+      "language": "typescript",
+      "side": "server",
+      "code": "import { openai, Proxy } from 'mppx/proxy'\nimport { Mppx, tempo } from 'mppx/server'\n\nconst mppx = Mppx.create({\n  methods: [tempo()],\n  secretKey: process.env.MPP_SECRET_KEY!,\n})\n\nconst proxy = Proxy.create({\n  services: [\n    openai({\n      apiKey: 'sk-...',\n      routes: {\n        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),\n        'POST /v1/completions': mppx.tempo.session({\n          amount: '0.0001',\n          unitType: 'token',\n        }),\n        'GET /v1/models': true,\n      },\n    }),\n  ],\n})",
+      "docsUrl": "https://github.com/wevm/mppx/tree/d8d800f101ba1568f0d737e12574c0ae8f6b6e93/README.md",
+      "note": "Shortened from the README payments proxy example: one route charges per call, one meters per token through a Tempo session.",
+      "sources": [
+        "src-stripe-mpp-mppx-repo"
+      ]
+    },
+    {
+      "title": "CLI: pay, choose protocol, close sessions",
+      "sdk": "mppx CLI",
+      "version": "0.13.4",
+      "language": "bash",
+      "side": "cli",
+      "code": "# create account - stored in keychain, autofunded on testnet\nmppx account create\n\n# make request - automatic payment handling\nmppx example.com\n\n# pay an x402 offer on a server that advertises both protocols\nmppx example.com --protocol x402\n\n# inspect and close retained sessions\nmppx sessions list\nmppx sessions close --all --yes",
+      "docsUrl": "https://github.com/wevm/mppx/tree/d8d800f101ba1568f0d737e12574c0ae8f6b6e93/README.md",
+      "note": "From the README CLI section. Session channels are kept until you close them, which matters because channels never expire.",
+      "sources": [
+        "src-stripe-mpp-mppx-repo",
+        "src-stripe-mpp-tempo-session"
+      ]
+    }
+  ],
+  "labs": []
+}

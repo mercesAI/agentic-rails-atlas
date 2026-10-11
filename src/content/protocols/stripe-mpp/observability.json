@@ -1,0 +1,144 @@
+{
+  "protocol": "stripe-mpp",
+  "score": 3,
+  "scoreReasons": [
+    "Tempo settlement is public on chain and a transaction hash comes back in every Tempo receipt.",
+    "MPPscan indexes servers, agents, transactions and volume, and its stats endpoint is public.",
+    "The mpp.dev services directory is public JSON.",
+    "Challenges, credentials and receipts travel only between client and server; Stripe and card payments are visible only to the parties.",
+    "The specs define no .well-known path and discovery documents are optional and unauthenticated."
+  ],
+  "public": [
+    {
+      "what": "Tempo charge and session settlements",
+      "where": "Tempo mainnet (chain 4217) and its explorer",
+      "how": "TIP-20 transfers and escrow calls (open, settle, topUp, close, requestClose, withdraw); receipt reference is the transaction hash or channelId.",
+      "sources": [
+        "src-stripe-mpp-tempo-connection",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "what": "MPP activity statistics",
+      "where": "https://www.mppscan.com, tRPC endpoint /api/trpc/stats.protocolStats",
+      "how": "timeframeDays 0 (all time), 1, 7, 15 or 30; the homepage shows 7 days by default.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ]
+    },
+    {
+      "what": "Services directory",
+      "where": "https://mpp.dev/api/services",
+      "how": "Public JSON listing 129 services and their methods on 2026-10-11.",
+      "sources": [
+        "src-stripe-mpp-directory-api"
+      ]
+    },
+    {
+      "what": "Service discovery documents",
+      "where": "GET /openapi.json on each server",
+      "how": "Top-level x-service-info and per-operation x-payment-info (intent, method, amount, currency).",
+      "sources": [
+        "src-stripe-mpp-discovery"
+      ]
+    },
+    {
+      "what": "Subscription settlement logs",
+      "where": "Tempo chain",
+      "how": "TIP-20 TransferWithMemo logs, which mppx reads to verify subscription settlement.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog"
+      ]
+    },
+    {
+      "what": "Spec and SDK activity",
+      "where": "GitHub tempoxyz/mpp-specs and wevm/mppx; IETF Datatracker",
+      "how": "Commits, pull requests, advisories and draft revisions.",
+      "sources": [
+        "src-stripe-mpp-gh-specs-commits",
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ietf-current"
+      ]
+    }
+  ],
+  "private": [
+    {
+      "what": "WWW-Authenticate, Authorization and Payment-Receipt contents",
+      "why": "Bilateral between client and server over TLS; credentials must never be logged."
+    },
+    {
+      "what": "Stripe-settled MPP payments",
+      "why": "Appear in the seller's Stripe API and Dashboard only."
+    },
+    {
+      "what": "Card authorizations through the card method",
+      "why": "Visible only to the enablers, network and issuer; the token is encrypted end to end."
+    },
+    {
+      "what": "Session vouchers before settlement",
+      "why": "Off-chain; only the newest settled amount reaches the chain."
+    },
+    {
+      "what": "Subscription state and cancellation",
+      "why": "Held by the server; the specs define no public subscription registry."
+    }
+  ],
+  "indexerCaptures": [
+    {
+      "signal": "Tempo charge payments",
+      "from": "TIP-20 Transfer and TransferWithMemo events to known MPP recipients",
+      "identifiers": [
+        "transaction hash",
+        "payer address",
+        "recipient address",
+        "memo"
+      ],
+      "sources": [
+        "src-stripe-mpp-tempo-charge",
+        "src-stripe-mpp-mppscan"
+      ]
+    },
+    {
+      "signal": "Session channels",
+      "from": "Escrow or precompile calls open, topUp, settle, close, requestClose, withdraw",
+      "identifiers": [
+        "channelId",
+        "payer",
+        "payee",
+        "deposit",
+        "settled amount"
+      ],
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "signal": "Service catalog",
+      "from": "mpp.dev/api/services and /openapi.json crawls",
+      "identifiers": [
+        "service URL",
+        "methods",
+        "intents",
+        "prices"
+      ],
+      "sources": [
+        "src-stripe-mpp-directory-api",
+        "src-stripe-mpp-discovery"
+      ]
+    },
+    {
+      "signal": "Aggregate volume",
+      "from": "MPPscan stats endpoint",
+      "identifiers": [
+        "transactions",
+        "volume USD",
+        "unique senders",
+        "unique recipients"
+      ],
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ]
+    }
+  ]
+}

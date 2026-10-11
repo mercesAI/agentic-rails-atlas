@@ -1,0 +1,374 @@
+{
+  "protocol": "stripe-mpp",
+  "stewards": [
+    {
+      "name": "Tempo Labs",
+      "role": "Co-author of the core (three of five authors) and of most intent, transport and Tempo method drafts; runs mpp.dev.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-specs-repo"
+      ]
+    },
+    {
+      "name": "Stripe",
+      "role": "Co-author of the core (two authors) and of the stripe methods; settles MPP payments in its platform.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-blog"
+      ]
+    },
+    {
+      "name": "Rail authors",
+      "role": "Visa (card), Lightspark (lightning), Circle (usdc), Coinbase, MegaETH Labs and Monad Foundation (evm charge), OKG (evm session), Solana Foundation, Stellar Development Foundation, Hedera, Near One and Ripple maintain their methods.",
+      "sources": [
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-lightning",
+        "src-stripe-mpp-usdc",
+        "src-stripe-mpp-evm",
+        "src-stripe-mpp-governance"
+      ]
+    }
+  ],
+  "implementers": [
+    {
+      "name": "Stripe (MPP acceptance with deposit addresses and SPTs)",
+      "role": "Accepts MPP payments in stablecoins and cards, Klarna and Affirm through SPTs; docs labeled Frontier.",
+      "status": "beta",
+      "sources": [
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-stripe-sessions"
+      ]
+    },
+    {
+      "name": "Tempo mainnet",
+      "role": "Default settlement chain; mainnet since 2026-03-18.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-tempo-mainnet",
+        "src-stripe-mpp-tempo-connection"
+      ]
+    },
+    {
+      "name": "Visa (mpp-card SDK)",
+      "role": "Card method author and design partner for cards.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-visa-card",
+        "src-stripe-mpp-sdk-registries"
+      ]
+    },
+    {
+      "name": "Lightspark",
+      "role": "Lightning method author.",
+      "status": "announced",
+      "sources": [
+        "src-stripe-mpp-tempo-mainnet",
+        "src-stripe-mpp-lightning"
+      ]
+    },
+    {
+      "name": "Cloudflare Agents SDK",
+      "role": "Documents MPP and uses mppx in guides.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-cloudflare"
+      ]
+    },
+    {
+      "name": "Browserbase, PostalForm, Prospect Butcher Co., Stripe Climate, Parallel Web Systems",
+      "role": "Named by Stripe at launch as MPP users.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-stripe-blog"
+      ]
+    },
+    {
+      "name": "Alchemy, Dune Analytics, Merit Systems",
+      "role": "Named by Tempo in the launch directory.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-tempo-mainnet"
+      ]
+    },
+    {
+      "name": "Merit Systems (MPPscan)",
+      "role": "Runs the MPP explorer and co-authored the discovery draft.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-discovery"
+      ]
+    },
+    {
+      "name": "Tempo Wallet MPP Credits",
+      "role": "Lets users fund agents by card.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-tempo-credits"
+      ]
+    }
+  ],
+  "sdks": [
+    {
+      "registry": "npm",
+      "name": "mppx",
+      "version": "0.13.4",
+      "url": "https://www.npmjs.com/package/mppx",
+      "note": "TypeScript SDK by wevm, MIT; server, client, CLI, proxy; serves x402 too since 0.9.0."
+    },
+    {
+      "registry": "pypi",
+      "name": "pympp",
+      "version": "0.11.0",
+      "url": "https://pypi.org/project/pympp/",
+      "note": "Python SDK by tempoxyz."
+    },
+    {
+      "registry": "crates",
+      "name": "mpp",
+      "version": "0.15.0",
+      "url": "https://crates.io/crates/mpp",
+      "note": "Rust SDK (tempoxyz/mpp-rs)."
+    },
+    {
+      "registry": "go",
+      "name": "github.com/tempoxyz/mpp-go",
+      "version": "v0.2.0",
+      "url": "https://pkg.go.dev/github.com/tempoxyz/mpp-go",
+      "note": "Go SDK."
+    },
+    {
+      "registry": "rubygems",
+      "name": "mpp-rb",
+      "version": "0.1.6",
+      "url": "https://rubygems.org/gems/mpp-rb",
+      "note": "Ruby SDK in stripe/mpp-rb."
+    },
+    {
+      "registry": "npm",
+      "name": "mpp-card",
+      "version": "0.1.8",
+      "url": "https://www.npmjs.com/package/mpp-card",
+      "note": "Visa card method SDK; proprietary license; no TAP signing code."
+    },
+    {
+      "registry": "npm",
+      "name": "@solana/mpp",
+      "version": "0.7.0",
+      "url": "https://www.npmjs.com/package/@solana/mpp",
+      "note": "Solana method."
+    },
+    {
+      "registry": "npm",
+      "name": "@stellar/mpp",
+      "version": "0.7.1",
+      "url": "https://www.npmjs.com/package/@stellar/mpp",
+      "note": "Stellar method."
+    }
+  ],
+  "metrics": [
+    {
+      "id": "stripe-mpp-mppscan-tx-all",
+      "metric": "MPPscan transactions, all time",
+      "value": 4072426,
+      "unit": "transactions",
+      "asOf": "2026-10-11",
+      "definition": "MPPscan's count of MPP payments, mostly on Tempo.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ],
+      "caveat": "Indexer's own definition; includes test and self-dealing traffic it cannot filter. A June 2026 article shows the same live figure, so it is not a June value.",
+      "disputed": false
+    },
+    {
+      "id": "stripe-mpp-mppscan-vol-all",
+      "metric": "MPPscan volume, all time",
+      "value": 435476,
+      "unit": "USD",
+      "asOf": "2026-10-11",
+      "definition": "Sum of indexed payment values.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ],
+      "caveat": "About 0.11 USD per transaction on average."
+    },
+    {
+      "id": "stripe-mpp-mppscan-senders",
+      "metric": "MPPscan unique senders and recipients, all time",
+      "value": "224,244 / 6,101",
+      "unit": "addresses",
+      "asOf": "2026-10-11",
+      "definition": "Distinct sending and receiving addresses.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ],
+      "caveat": "Addresses, not agents or businesses."
+    },
+    {
+      "id": "stripe-mpp-mppscan-30d",
+      "metric": "MPPscan last 30 days",
+      "value": "998,771 transactions; 8,774 USD",
+      "unit": "transactions and USD",
+      "asOf": "2026-10-11",
+      "definition": "Rolling 30-day window.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ],
+      "caveat": "Under one cent per transaction, which points to many tiny or test payments."
+    },
+    {
+      "id": "stripe-mpp-mppscan-7d",
+      "metric": "MPPscan last 7 days (homepage default)",
+      "value": "126,902 transactions; 1,484 USD",
+      "unit": "transactions and USD",
+      "asOf": "2026-10-11",
+      "definition": "Rolling 7-day window shown by default on the homepage.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ],
+      "caveat": "Do not read the homepage numbers as all-time totals."
+    },
+    {
+      "id": "stripe-mpp-directory",
+      "metric": "mpp.dev directory services",
+      "value": 129,
+      "unit": "services",
+      "asOf": "2026-10-11",
+      "definition": "Listings in mpp.dev/api/services; 126 accept tempo, 10 stripe, 1 evm.",
+      "sources": [
+        "src-stripe-mpp-directory-api"
+      ],
+      "caveat": "A listing, not usage."
+    },
+    {
+      "id": "stripe-mpp-directory-launch",
+      "metric": "Directory size at launch",
+      "value": "more than 100",
+      "unit": "services",
+      "asOf": "2026-03-18",
+      "definition": "Tempo's launch statement.",
+      "sources": [
+        "src-stripe-mpp-tempo-mainnet"
+      ],
+      "caveat": "Self-reported."
+    },
+    {
+      "id": "stripe-mpp-visa-artemis",
+      "metric": "Visa and Artemis MPP measurement",
+      "value": "about 25,000 USD over about 115,000 transfers",
+      "unit": "USD and transfers",
+      "asOf": "2026-04-21",
+      "definition": "Cumulative to 2026-04-21 as reported.",
+      "sources": [
+        "src-stripe-mpp-forkast-visa"
+      ],
+      "caveat": "Secondary report (Forkast, 2026-07-20); about 0.22 USD each.",
+      "disputed": false
+    },
+    {
+      "id": "stripe-mpp-gh-stars",
+      "metric": "GitHub stars",
+      "value": "mpp-specs 95; mppx 186",
+      "unit": "stars",
+      "asOf": "2026-10-11",
+      "definition": "Stars on the two main repositories.",
+      "sources": [
+        "src-stripe-mpp-gh-specs-commits",
+        "src-stripe-mpp-mppx-repo"
+      ],
+      "caveat": "Interest, not usage."
+    }
+  ],
+  "costs": [
+    {
+      "item": "Protocol fee",
+      "value": "None defined in any MPP spec; costs come from the rail",
+      "whoPays": "Not applicable",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Rail and processor fees still apply.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "item": "Tempo network fee",
+      "value": "Paid in USD TIP-20 stablecoins through the Fee AMM; a 50,000-gas transfer costs at most about 0.0006 USD, with a quiet-period floor near 0.00003 USD",
+      "whoPays": "Client by default; server when feePayer is true for charge, open and topUp; server always for settle and close",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Depends on Tempo base fee parameters; fees go to the proposing validator.",
+      "sources": [
+        "src-stripe-mpp-tempo-fees",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "item": "Session v2 gas versus v1",
+      "value": "Open on an existing reserve balance 72.1 percent less gas (294,425 versus 1,055,229); settle to a new payee balance 79.4 percent more (559,871)",
+      "whoPays": "Whoever pays the operation's fee",
+      "asOf": "2026-06-17",
+      "confidence": "verified",
+      "caveat": "Up to 72 percent is the best case for one operation, not an average.",
+      "sources": [
+        "src-stripe-mpp-blog-sessions"
+      ]
+    },
+    {
+      "item": "Stripe hostedFeePayer",
+      "value": "Stripe pays customers' Tempo network fees",
+      "whoPays": "Stripe",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Needs mppx 0.9.2 or later, live mode and a Tempo deposit address on the same account; not with Connect.",
+      "sources": [
+        "src-stripe-mpp-stripe-docs"
+      ]
+    },
+    {
+      "item": "Stripe MPP minimums",
+      "value": "0.50 USD for SPT card payments; 0.01 USDC for stablecoin payments",
+      "whoPays": "Payer (minimum charge size)",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Minimums, not fees.",
+      "sources": [
+        "src-stripe-mpp-stripe-docs"
+      ]
+    },
+    {
+      "item": "Stripe stablecoin payment fee",
+      "value": "1.5 percent per transaction, reported at launch of stablecoin payments",
+      "whoPays": "Merchant",
+      "asOf": "2025-12-10",
+      "confidence": "reported",
+      "caveat": "The current Stripe docs page states no percentage; whether it applies to MPP charges is unverified.",
+      "sources": [
+        "src-stripe-mpp-yahoo-fee",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    },
+    {
+      "item": "Shared Payment Token fee",
+      "value": "Not published; SPT docs labeled Public preview",
+      "whoPays": "Unknown",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Absence of a public schedule, not a zero fee.",
+      "sources": [
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "item": "Card method",
+      "value": "Card economics unchanged (interchange and acquirer fees); no MPP-specific card pricing published",
+      "whoPays": "Merchant",
+      "asOf": "2026-10-11",
+      "confidence": "reported",
+      "caveat": "Inferred from Visa's announcement; no price list.",
+      "sources": [
+        "src-stripe-mpp-visa-card"
+      ]
+    }
+  ]
+}
