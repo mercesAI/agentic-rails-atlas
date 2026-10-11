@@ -1,0 +1,275 @@
+{
+  "protocol": "mastercard-agent-pay",
+  "summary": "Agent Pay is control-heavy by design: the network decides which agents may hold tokens, and the tokens carry merchant, amount and time limits. The gaps are in what happens after something goes wrong: no public revocation path, no agent-wide kill switch and no agent-specific dispute rules.",
+  "native": [
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "agent-identity-verification",
+      "support": "native",
+      "note": "Registered agents sign requests with RFC 9421 and the tag Agent-pay-auth; verifiers check against the Mastercard key directory at the CDN or merchant.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-cloudflare-blog"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "agent-registration-kya",
+      "support": "native",
+      "note": "Registration, security review, certification and trusted agent lists; Skyfire named as Know Your Agent partner on 2026-09-30.",
+      "sources": [
+        "src-mcap-dev-rails",
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "user-consent-capture",
+      "support": "native",
+      "note": "Consumer authorizes the agent and sets limits; passkeys in regional pilots; Verifiable Intent L2 signed by the user key.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-latam-2026",
+        "src-mcap-vi-spec"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "Tokens limited by merchant, amount or time window; Verifiable Intent amount_range and budget constraints.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "Merchant-specific tokens; Verifiable Intent allowed_merchants and allowed_payees; Intent API srcDpaId check.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints",
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "Time-limited tokens, signature created and expires, orderExpiry, Verifiable Intent layer lifetimes (L3 at most one hour).",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-level3",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "revocation",
+      "support": "partial",
+      "note": "No public revocation API for agents or tokens; Verifiable Intent 0.1 has no revocation protocol, only JWKS key removal and expiry.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-llms"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "step-up-authentication",
+      "support": "partial",
+      "note": "Passkeys at consent; deferred orders escalated to the consumer; 3DS for agentic flows still in development at networks and EMVCo.",
+      "sources": [
+        "src-mcap-latam-2026",
+        "src-mcap-dev-level3",
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Mandatory nonce and short window on signatures; single-use tokens and one-time DTVC; Verifiable Intent nonce, aud and one L3 pair per mandate pair.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-mvct",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "Verifiable Intent chain gives dispute evidence; intent records kept as chargeback evidence; no receipt object in the program.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Standard chargeback rights; no agent-specific reason codes or liability shift; Verifiable Intent leaves dispute choreography out of scope.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-launch-2025",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "reputation",
+      "support": "none",
+      "note": "No public agent reputation score; the probability score rates transactions, not agents.",
+      "sources": [
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "monitoring-signals",
+      "support": "native",
+      "note": "Agent transactions recognizable to issuers; probability score in US testing from 2026-09-30; Verifiable Intent risk_data at consent.",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-trust-2026",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Issuers keep card-level blocks and declines; no documented control to disable one agent across the network.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-rails"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "title": "No public revocation",
+      "description": "Neither the program nor Verifiable Intent 0.1 documents how to revoke an agent, a token or a mandate before expiry.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-llms"
+      ]
+    },
+    {
+      "title": "No agent-wide kill switch",
+      "description": "Issuers can block a card, but no documented control disables one agent across all its tokens.",
+      "sources": [
+        "src-mcap-dev-rails"
+      ]
+    },
+    {
+      "title": "Stateful limits without an API",
+      "description": "Budgets and recurrence need the network to track spend per mandate pair; the spec defines no API for that state.",
+      "sources": [
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "title": "Dispute rules unpublished",
+      "description": "No agent-specific reason codes or liability shift as of 2026-10-11.",
+      "sources": [
+        "src-mcap-nevermined-review",
+        "src-mcap-dev-level1"
+      ]
+    }
+  ],
+  "controlPoints": [
+    {
+      "point": "before-authorization",
+      "what": "Agent registration and token scoping",
+      "how": "Certify agents and set merchant, amount and time limits when the token is provisioned.",
+      "sources": [
+        "src-mcap-dev-rails",
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "point": "at-signing",
+      "what": "User mandate",
+      "how": "The user signs Verifiable Intent L2 with constraints; a policy engine can review constraints before the user signs.",
+      "sources": [
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "point": "at-edge",
+      "what": "Agent request verification",
+      "how": "Verify RFC 9421 signatures, nonce and window at the CDN or merchant; block unknown keys.",
+      "sources": [
+        "src-mcap-cloudflare-blog",
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "point": "at-settlement",
+      "what": "Network checks at authorization",
+      "how": "Token limits, DTVC validation, Verifiable Intent constraints and cumulative budget at the network; issuer final decision.",
+      "sources": [
+        "src-mcap-dev-mvct-pay",
+        "src-mcap-vi-spec"
+      ]
+    },
+    {
+      "point": "after-the-fact",
+      "what": "Disputes and monitoring",
+      "how": "Chargebacks under standard rules, intent records and Verifiable Intent chains as evidence, probability score for monitoring.",
+      "sources": [
+        "src-mcap-dev-level3",
+        "src-mcap-trust-2026"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "item": "Verify agent signatures and block unknown keys",
+      "why": "Mastercard's decision table blocks missing fields and unknown keys.",
+      "sources": [
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "item": "Keep a nonce cache for the signature window",
+      "why": "Stops replay of signed requests.",
+      "sources": [
+        "src-mcap-cloudflare-blog"
+      ]
+    },
+    {
+      "item": "Set the shortest token and mandate lifetimes that work",
+      "why": "Expiry is the main revocation tool today.",
+      "sources": [
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "item": "Check intent totals and srcDpaId at Level 3",
+      "why": "Mastercard says to reject totals above orderTotalAmount or a different merchant id.",
+      "sources": [
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "item": "Store intent records and Verifiable Intent chains",
+      "why": "They are the evidence in a dispute.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "item": "Do not let agents use cards on file",
+      "why": "The network cannot then recognize the payment as agentic.",
+      "sources": [
+        "src-mcap-dev-level1"
+      ]
+    }
+  ]
+}

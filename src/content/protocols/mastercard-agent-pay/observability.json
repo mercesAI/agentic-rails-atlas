@@ -1,0 +1,106 @@
+{
+  "protocol": "mastercard-agent-pay",
+  "score": 1,
+  "scoreReasons": [
+    "Nothing is on a public ledger: tokens, authorizations and agent flags stay inside card network and issuer systems.",
+    "No event names, webhooks or public endpoints for Agent Pay are published.",
+    "Mastercard publishes partner names and milestones but no transaction counts or values.",
+    "The only public, inspectable artifact is the Verifiable Intent repository, which earns the single point."
+  ],
+  "public": [
+    {
+      "what": "Program milestones and partner lists",
+      "where": "Mastercard newsroom and Investor Relations PDFs",
+      "how": "Read releases; they name banks and partners, never volumes.",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-latam-2026",
+        "src-mcap-ap4m-2026"
+      ]
+    },
+    {
+      "what": "Verifiable Intent repository activity",
+      "where": "GitHub API /repos/agent-intent/verifiable-intent",
+      "how": "Stars, forks, issues and commits; 97 stars and no commits since 2026-04-20 as of 2026-10-11.",
+      "sources": [
+        "src-mcap-vi-gh-repo",
+        "src-mcap-vi-issues"
+      ]
+    },
+    {
+      "what": "Developer documentation index",
+      "where": "https://developer.mastercard.com/llms.txt and the Checkout Solutions release history",
+      "how": "Check for new Agent Pay services and documentation releases.",
+      "sources": [
+        "src-mcap-dev-llms",
+        "src-mcap-dev-release-history"
+      ]
+    },
+    {
+      "what": "Key directory location",
+      "where": "/.well-known/http-message-signatures-directory on the Signature-Agent host",
+      "how": "Mastercard points verifiers to this path; the only Mastercard host in the docs, agentpay-key-directory.mastercard.com, did not resolve on 2026-10-11, so the live location is unknown.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-cloudflare-blog"
+      ]
+    },
+    {
+      "what": "Documentation tool downloads",
+      "where": "npm registry for @mastercard/developers-mcp and @mastercard/developers-agent-toolkit",
+      "how": "Download counts show interest in the documentation tools only, not in payments.",
+      "sources": [
+        "src-mcap-npm-mcp",
+        "src-mcap-npm-toolkit"
+      ]
+    }
+  ],
+  "private": [
+    {
+      "what": "Agent registry and trusted lists",
+      "why": "Held by Mastercard; not published."
+    },
+    {
+      "what": "Agentic token issuance counts",
+      "why": "Network data; Mastercard publishes no volume figures."
+    },
+    {
+      "what": "Agent indicators in authorization messages",
+      "why": "No public data element name; visible only to network, acquirer and issuer."
+    },
+    {
+      "what": "Probability scores",
+      "why": "In US testing since 2026-09-30; fields and ranges not published."
+    },
+    {
+      "what": "Intent API records and dispute data",
+      "why": "Held by Mastercard, merchants and issuers."
+    }
+  ],
+  "indexerCaptures": [
+    {
+      "signal": "Verifiable Intent repository commits, issues and tags",
+      "from": "GitHub API",
+      "identifiers": [
+        "agent-intent/verifiable-intent",
+        "tag v0.1.0",
+        "commit 356c296"
+      ],
+      "sources": [
+        "src-mcap-vi-gh-repo"
+      ]
+    },
+    {
+      "signal": "Regional rollout announcements",
+      "from": "Mastercard newsroom",
+      "identifiers": [
+        "release date",
+        "named issuers and processors"
+      ],
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-latam-2026"
+      ]
+    }
+  ]
+}

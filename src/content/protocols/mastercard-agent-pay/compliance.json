@@ -1,0 +1,178 @@
+{
+  "protocol": "mastercard-agent-pay",
+  "notLegalAdvice": true,
+  "summary": "Agent Pay runs on card rails, so card law and network rules apply: Regulation Z and E in the US, PSD2 consent and SCA in the EU, the UK Payment Services Regulations, and Mastercard's own rules. No regulator or network has published agent-specific liability rules as of 2026-10-11, and issuers and acquirers keep existing card liability until that changes.",
+  "rows": [
+    {
+      "jurisdiction": "US",
+      "topic": "liability",
+      "text": "Regulation Z caps cardholder liability for unauthorized credit card use; whether an agent acting outside its limits has apparent authority is an open question.",
+      "sources": [
+        "src-policy-regz-1026-12"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "liability",
+      "text": "Regulation E excludes transfers by someone the consumer gave the access device to, until the consumer revokes that authority; a consumer who authorizes an agent on a debit card may carry losses until notice.",
+      "sources": [
+        "src-policy-rege-1005-2"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "liability",
+      "text": "Senator Warner asked Treasury on 2026-06-02 to examine how current law allocates liability when agents err; no rule followed yet.",
+      "sources": [
+        "src-policy-warner-letter"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "data-protection",
+      "text": "California CCPA rules on automated decisionmaking technology apply from 2026-01-01 and may cover agent platforms that make purchase decisions.",
+      "sources": [
+        "src-policy-cppa-admt"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "sca",
+      "text": "The RTS on SCA require dynamic linking of amount and payee for remote payments. Verifiable Intent presents its constraints and checkout_hash as a cryptographic form of dynamic linking but says it does not replace SCA.",
+      "sources": [
+        "src-policy-eu-rts-sca",
+        "src-mcap-vi-rationale"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "liability",
+      "text": "PSD2 ties authorization to payer consent; applying that to a standing agent mandate, such as a Verifiable Intent Autonomous mandate, is untested.",
+      "sources": [
+        "src-policy-eu-psd2"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "ai-rules",
+      "text": "AI Act Article 50 transparency applies from 2026-08-02: people must be told when they interact with an AI system, which reaches agent platforms selling to consumers.",
+      "sources": [
+        "src-policy-eu-ai-act",
+        "src-policy-eu-ai-omnibus"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "data-protection",
+      "text": "GDPR applies to the consumer data in mastercardIdToken and Verifiable Intent claims; Verifiable Intent keeps sub and pan_last_four always visible.",
+      "sources": [
+        "src-policy-eu-gdpr",
+        "src-mcap-vi-security"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "UK",
+      "topic": "liability",
+      "text": "The Payment Services Regulations 2017 treat a transaction as authorized only with payer consent (regulation 67) and cap payer liability at GBP 35 with exceptions (regulation 77).",
+      "sources": [
+        "src-policy-uk-psrs-67",
+        "src-policy-uk-psrs-77"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "UK",
+      "topic": "sca",
+      "text": "HM Treasury consulted from 2026-07-14 to 2026-10-06 on how authentication, consent and liability should adapt for agentic payments; no response yet.",
+      "sources": [
+        "src-policy-hmt-mpsr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "UK",
+      "topic": "ai-rules",
+      "text": "The FCA said on 2026-03-25 it will consider with HM Treasury whether regulation must change for agentic payments.",
+      "sources": [
+        "src-policy-fca-payments-priorities"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "CA",
+      "topic": "liability",
+      "text": "No agent-specific payment liability rule was found in Canada; the Retail Payment Activities Act applies to payment service providers since 2025-09-08.",
+      "sources": [
+        "src-policy-boc-rpaa",
+        "src-policy-ca-rpaa"
+      ],
+      "confidence": "unverified"
+    },
+    {
+      "jurisdiction": "CA",
+      "topic": "data-protection",
+      "text": "PIPEDA governs the personal information agent platforms and merchants collect in Canada.",
+      "sources": [
+        "src-policy-ca-pipeda"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "SG",
+      "topic": "ai-rules",
+      "text": "MAS Guidelines on AI Risk Management (issued 2026-10-07, effective 2027-10-07) name agentic AI systems and apply to issuers in Singapore.",
+      "sources": [
+        "src-policy-mas-ai-guidelines",
+        "src-policy-mas-ai-release"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "SG",
+      "topic": "liability",
+      "text": "The MAS E-Payments User Protection Guidelines set liability for unauthorized e-payments; agent purchases are not addressed specifically.",
+      "sources": [
+        "src-policy-mas-eupg"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "liability",
+      "text": "Mastercard says standard chargeback rights apply to agentic transactions; no agent-specific reason codes or liability shift were published as of 2026-10-11.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-nevermined-review",
+        "src-worldpay-liability"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "sca",
+      "text": "EMVCo's draft agentic framework (2026-09-01) proposes Intent Services that would complement Verifiable Intent and lists Know Your Agent and agent transaction indicators as possible future work.",
+      "sources": [
+        "src-mcap-emvco-news",
+        "src-mcap-emvco-hub"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "data-protection",
+      "text": "Mastercard says merchants accepting agent tokens keep their PCI scope unchanged, because they receive tokens, not card numbers.",
+      "sources": [
+        "src-mcap-dev-level1"
+      ],
+      "confidence": "verified"
+    }
+  ]
+}

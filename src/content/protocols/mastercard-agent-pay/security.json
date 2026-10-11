@@ -1,0 +1,289 @@
+{
+  "protocol": "mastercard-agent-pay",
+  "summary": "Agent Pay's defenses are network controls: only registered and certified agents get tokens, tokens replace card numbers and carry limits, agent requests are signed with a nonce and a short window, and consumers authenticate with passkeys in the live pilots. Much of the program is not public, so the threats below rest on Mastercard's guides, Cloudflare's description and the open Verifiable Intent threat model. No CVE or published attack specific to Agent Pay was found as of 2026-10-11.",
+  "threats": [
+    {
+      "id": "mcap-t01",
+      "stride": "S",
+      "title": "Agent impersonation with a stolen signing key",
+      "description": "An attacker who steals a registered agent's private key can sign requests that verify against the Mastercard key directory.",
+      "preconditions": [
+        "Key stored without hardware protection",
+        "No fast delisting"
+      ],
+      "impact": "Merchants treat the attacker as a trusted agent; any token the attacker also holds can be used.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Keep agent keys in hardware; ask Mastercard how to rotate and delist keys, which is not documented publicly.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-cloudflare-blog"
+      ]
+    },
+    {
+      "id": "mcap-t02",
+      "stride": "S",
+      "title": "Unregistered bot claiming to be an agent",
+      "description": "A scraper adds a Signature-Input header with an Agent Pay tag but its keyid is not in the directory.",
+      "preconditions": [
+        "Verifier skips the directory lookup"
+      ],
+      "impact": "Bot traffic passes as agent traffic.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Mastercard's decision table says to block when the key is not found. The Level 1 sample verifier accepts only Visa tags, so do not copy it as is.",
+      "sources": [
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "id": "mcap-t03",
+      "stride": "T",
+      "title": "Request replay at the edge",
+      "description": "An attacker resends a captured signed request.",
+      "preconditions": [
+        "Verifier does not track nonces",
+        "Long created to expires window"
+      ],
+      "impact": "Duplicate actions on the merchant site.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Reject reused nonces and requests outside the window; Cloudflare lists both checks.",
+      "sources": [
+        "src-mcap-cloudflare-blog",
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "id": "mcap-t04",
+      "stride": "T",
+      "title": "Checkout and payment mismatch",
+      "description": "An agent or intermediary pairs a payment credential with a different checkout than the one the user approved.",
+      "preconditions": [
+        "Verifiable Intent in use",
+        "Verifier skips the hash binding check"
+      ],
+      "impact": "User pays for a basket it did not approve.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Verify that L3a transaction_id equals L3b checkout_hash and recompute checkout_hash from checkout_jwt.",
+      "sources": [
+        "src-mcap-vi-format",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "id": "mcap-t05",
+      "stride": "T",
+      "title": "Constraint stripping",
+      "description": "An agent removes a constraint from an open mandate before presenting it.",
+      "preconditions": [
+        "Verifiable Intent in use"
+      ],
+      "impact": "Agent spends outside the user limits.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "The L2 signature covers every constraint; verify it and reject open mandates with unknown constraint types.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-vi-constraints"
+      ]
+    },
+    {
+      "id": "mcap-t06",
+      "stride": "E",
+      "title": "Split-agent attack",
+      "description": "Two different agent keys are bound into the checkout and payment mandates of one pair, so one agent can complete what the other started.",
+      "preconditions": [
+        "Verifiable Intent Autonomous mode"
+      ],
+      "impact": "Delegation escapes the intended agent.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Require identical cnf.jwk in both mandates of the pair.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "id": "mcap-t07",
+      "stride": "E",
+      "title": "Budget overrun across merchants",
+      "description": "An agent spends under the per-transaction limit at several merchants until the total exceeds the budget.",
+      "preconditions": [
+        "Network does not keep cumulative state"
+      ],
+      "impact": "Total spend above what the user approved.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "The spec says this cannot be enforced cryptographically; the network must track spend per mandate pair, and no API for that state is defined.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-vi-constraints"
+      ]
+    },
+    {
+      "id": "mcap-t08",
+      "stride": "R",
+      "title": "Disputed agent purchase without evidence",
+      "description": "A consumer says the agent bought something they did not want, within the token limits.",
+      "preconditions": [
+        "No Verifiable Intent chain kept",
+        "No agent-specific reason code"
+      ],
+      "impact": "Dispute outcome depends on general chargeback rules; liability is unclear.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Keep intent records and signatures; Verifiable Intent provides evidence but assigns no liability.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-level1",
+        "src-mcap-nevermined-review"
+      ]
+    },
+    {
+      "id": "mcap-t09",
+      "stride": "I",
+      "title": "Transaction linkability through always-visible claims",
+      "description": "The sub claim and last four PAN digits in L1 are always visible to verifiers.",
+      "preconditions": [
+        "Verifiable Intent in use across merchants"
+      ],
+      "impact": "Merchants and networks can link a user's purchases for the life of L1, about a year.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Use short-lived L1 credentials where possible; this is a stated limitation of the spec.",
+      "sources": [
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "id": "mcap-t10",
+      "stride": "D",
+      "title": "Unreachable key directory",
+      "description": "Verifiers cannot reach the Mastercard key directory.",
+      "preconditions": [
+        "Directory outage or unknown location"
+      ],
+      "impact": "Edge verification fails closed (agents blocked) or open (bots admitted).",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "The only host in the docs does not resolve; agree on the location with Mastercard and cache keys with a short lifetime.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-cloudflare-blog"
+      ]
+    },
+    {
+      "id": "mcap-t11",
+      "stride": "S",
+      "title": "Card-on-file bypass",
+      "description": "An agent pays with a card the consumer already stored at the merchant instead of an agentic token.",
+      "preconditions": [
+        "Merchant allows card on file for the session"
+      ],
+      "impact": "The network cannot see the payment as agentic, so agent controls and flags do not apply.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Mastercard forbids it for certified agents; merchants cannot detect it from the payment alone.",
+      "sources": [
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "id": "mcap-t12",
+      "stride": "T",
+      "title": "Duplicate digests rejected by standard libraries",
+      "description": "The Verifiable Intent L2 format lists each mandate digest twice, which RFC 9901 says verifiers must reject.",
+      "preconditions": [
+        "Verifier uses a strict SD-JWT library"
+      ],
+      "impact": "Valid credentials fail, or implementers weaken checks to accept them.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Track issue 29; do not disable duplicate-digest checks globally.",
+      "sources": [
+        "src-mcap-vi-issue29",
+        "src-mcap-rfc9901",
+        "src-mcap-vi-format"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "mcap-s1",
+      "title": "Stolen agent key used at a merchant",
+      "preconditions": [
+        "Agent key stored in software",
+        "Attacker also obtains a token"
+      ],
+      "steps": [
+        "Attacker signs requests with the stolen key and the Agent Pay tag",
+        "The edge verifies against the directory and admits the requests",
+        "Attacker types the token into the card form",
+        "The authorization succeeds within the token limits"
+      ],
+      "impact": "Fraud bounded by the token limits; no public delisting procedure.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-rails"
+      ]
+    },
+    {
+      "id": "mcap-s2",
+      "title": "Budget spread across merchants",
+      "preconditions": [
+        "Verifiable Intent Autonomous mandate with amount_range and budget",
+        "Network without cumulative tracking"
+      ],
+      "steps": [
+        "Agent buys at merchant A under amount_range",
+        "Agent buys at merchant B under amount_range",
+        "Total exceeds budget max"
+      ],
+      "impact": "Spend above the user budget unless the network keeps state.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-vi-constraints"
+      ]
+    }
+  ],
+  "research": [
+    {
+      "title": "Issuer-Sovereign Agentic Payments",
+      "date": "2026-09-23",
+      "finding": "Closest academic work: argues for issuer control over agent payments; does not analyze Agent Pay itself.",
+      "publicationId": "pub-sharma-2026-issuer",
+      "sources": [
+        "src-mcap-arxiv-issuer"
+      ]
+    },
+    {
+      "title": "A Formal Analysis of Agent Payment Protocols",
+      "date": "2026-08-30",
+      "finding": "Models x402, MPP, ACP and AP2 in Tamarin; Agent Pay and Verifiable Intent are not modeled.",
+      "publicationId": "pub-jiang-2026-formal",
+      "sources": [
+        "src-mcap-arxiv-formal"
+      ]
+    },
+    {
+      "title": "Verifiable Intent issue 29: duplicate digests in L2",
+      "date": "2026-07-17",
+      "finding": "Reports that the L2 format conflicts with RFC 9901 and that a common SD-JWT library rejects every L2 credential; open with no maintainer response as of 2026-10-11.",
+      "sources": [
+        "src-mcap-vi-issue29",
+        "src-mcap-rfc9901"
+      ]
+    },
+    {
+      "title": "The EMV Standard: Break, Fix, Verify",
+      "date": "2021-05-01",
+      "finding": "Foundation: formal analysis of the EMV card protocol whose tokens and cryptograms Agent Pay relies on.",
+      "publicationId": "pub-basin-2021-emv",
+      "sources": [
+        "src-mcap-doi-emvbfv"
+      ]
+    },
+    {
+      "title": "Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication",
+      "date": "2010-01-01",
+      "finding": "Foundation: an earlier network-run authentication layer and how liability design shaped its weaknesses.",
+      "publicationId": "pub-murdoch-2010-3dsecure",
+      "sources": [
+        "src-mcap-doi-3ds"
+      ]
+    }
+  ],
+  "cves": [],
+  "trustBoundaryDiagram": "mastercard-agent-pay-context"
+}
