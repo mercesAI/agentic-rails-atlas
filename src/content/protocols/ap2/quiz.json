@@ -1,0 +1,158 @@
+{
+  "protocol": "ap2",
+  "questions": [
+    {
+      "id": "ap2-q1",
+      "question": "Which mandate types exist in AP2 v0.2?",
+      "options": [
+        "Intent, Cart and Payment",
+        "Checkout and Payment, each open or closed",
+        "Cart and Payment only",
+        "Intent and Checkout"
+      ],
+      "answer": 1,
+      "explanation": "v0.2 removed Intent and Cart; only Checkout and Payment Mandates remain, each closed or open.",
+      "claimIds": [
+        "clm-ap2-031"
+      ]
+    },
+    {
+      "id": "ap2-q2",
+      "question": "What is the vct of a closed Payment Mandate?",
+      "options": [
+        "mandate.payment",
+        "mandate.payment.1",
+        "ap2.mandates.PaymentMandate",
+        "mandate.payment.open.1"
+      ],
+      "answer": 1,
+      "explanation": "The schema constant is mandate.payment.1; ap2.mandates.PaymentMandate was the v0.1 data key.",
+      "claimIds": [
+        "clm-ap2-059",
+        "clm-ap2-033"
+      ]
+    },
+    {
+      "id": "ap2-q3",
+      "question": "What does transaction_id in a closed Payment Mandate contain?",
+      "options": [
+        "A random UUID from the processor",
+        "The hash of checkout_jwt",
+        "The network token",
+        "The agent key"
+      ],
+      "answer": 1,
+      "explanation": "It is the base64url hash of checkout_jwt, which binds the payment to one checkout.",
+      "claimIds": [
+        "clm-ap2-060"
+      ]
+    },
+    {
+      "id": "ap2-q4",
+      "question": "Which fields does an open Payment Mandate require?",
+      "options": [
+        "vct, constraints and cnf",
+        "vct and payee",
+        "transaction_id and payee",
+        "checkout_jwt and cnf"
+      ],
+      "answer": 0,
+      "explanation": "The schema requires vct, constraints and cnf, and the constraints must include payment.reference.",
+      "claimIds": [
+        "clm-ap2-064"
+      ]
+    },
+    {
+      "id": "ap2-q5",
+      "question": "What must a verifier do with a constraint type it does not recognize?",
+      "options": [
+        "Ignore it",
+        "Treat it as failing",
+        "Ask the agent",
+        "Accept it if the signature verifies"
+      ],
+      "answer": 1,
+      "explanation": "Unknown constraints must be treated as failing evaluation.",
+      "claimIds": [
+        "clm-ap2-074"
+      ]
+    },
+    {
+      "id": "ap2-q6",
+      "question": "Which role must be non-agentic?",
+      "options": [
+        "Shopping Agent",
+        "Merchant",
+        "Trusted Surface",
+        "Credential Provider"
+      ],
+      "answer": 2,
+      "explanation": "The Trusted Surface must be non-agentic; the others may be agentic.",
+      "claimIds": [
+        "clm-ap2-041",
+        "clm-ap2-043"
+      ]
+    },
+    {
+      "id": "ap2-q7",
+      "question": "What binds an agent-signed closed mandate to its open parent?",
+      "options": [
+        "checkout_hash",
+        "sd_hash",
+        "payment_id",
+        "order_id"
+      ],
+      "answer": 1,
+      "explanation": "sd_hash in the key-binding JWT binds the closed mandate to the open mandate.",
+      "claimIds": [
+        "clm-ap2-092"
+      ]
+    },
+    {
+      "id": "ap2-q8",
+      "question": "Which error codes are terminal?",
+      "options": [
+        "unresolved_constraint and mandates_not_supported",
+        "invalid_credential and invalid_mandate",
+        "All four",
+        "None"
+      ],
+      "answer": 1,
+      "explanation": "invalid_credential and invalid_mandate are terminal; the other two may signal a fallback.",
+      "claimIds": [
+        "clm-ap2-083"
+      ]
+    },
+    {
+      "id": "ap2-q9",
+      "question": "Where did AP2 governance move in 2026?",
+      "options": [
+        "The Linux Foundation",
+        "The FIDO Alliance",
+        "The IETF",
+        "W3C"
+      ],
+      "answer": 1,
+      "explanation": "Google donated AP2 to the FIDO Alliance on 2026-04-28.",
+      "claimIds": [
+        "clm-ap2-012",
+        "clm-ap2-022"
+      ]
+    },
+    {
+      "id": "ap2-q10",
+      "question": "How are amounts expressed in payment_amount?",
+      "options": [
+        "Decimal strings",
+        "Integers in ISO 4217 minor units",
+        "Floating point dollars",
+        "Wei"
+      ],
+      "answer": 1,
+      "explanation": "payment_amount holds a currency and an integer amount in minor units, for example 27999 for 279.99 USD.",
+      "claimIds": [
+        "clm-ap2-061"
+      ]
+    }
+  ]
+}

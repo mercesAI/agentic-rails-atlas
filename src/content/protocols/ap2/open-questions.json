@@ -1,0 +1,79 @@
+{
+  "protocol": "ap2",
+  "items": [
+    {
+      "question": "Will FIDO publish AP2 as a standard, and when?",
+      "context": "FIDO gave no deliverable or date, its drafts are member-only, and the GitHub repository has not changed since 2026-04-29.",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-gh-commits"
+      ]
+    },
+    {
+      "question": "How does a user withdraw an open mandate before exp?",
+      "context": "v0.2 has no revocation; ERC-8226 shows an on-chain revoke and freeze for comparison.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-erc8226"
+      ]
+    },
+    {
+      "question": "Who keeps state for payment.budget and payment.agent_recurrence?",
+      "context": "Both need history of earlier presentations, and the specification does not assign that role; Verifiable Intent calls such constraints network-enforced.",
+      "sources": [
+        "src-ap2-payment-mandate-doc",
+        "src-ap2-vi-spec"
+      ]
+    },
+    {
+      "question": "How should a2a-x402 embed x402 in AP2 v0.2?",
+      "context": "The documented Embedded Flow targets v0.1 CartMandate and PaymentMandate; no v0.2 mapping exists in either specification.",
+      "sources": [
+        "src-ap2-a2a-x402-v02",
+        "src-ap2-schema-checkout"
+      ]
+    },
+    {
+      "question": "Can the context before signing be protected?",
+      "context": "Research shows valid signatures do not prove intent when listings or tool results steer the agent; proposals bind credential lookups and cart lines to the session.",
+      "sources": [
+        "src-ap2-pub-2608-23858",
+        "src-ap2-pub-2609-11757"
+      ]
+    },
+    {
+      "question": "Will verifiers adopt consume-once semantics?",
+      "context": "Runtime replay across retries is not covered; one paper proposes time-bound nonces and an issue reports that the samples never consume accepted mandates.",
+      "sources": [
+        "src-ap2-pub-2602-06345",
+        "src-ap2-gh-issues-since"
+      ]
+    },
+    {
+      "question": "Which signature rule applies to the Checkout JWT?",
+      "context": "The specification and the security considerations disagree on deterministic signatures; issue 268 is open and deferred to FIDO.",
+      "sources": [
+        "src-ap2-issue-268",
+        "src-ap2-spec-v02",
+        "src-ap2-security"
+      ]
+    },
+    {
+      "question": "Will AP2 and Verifiable Intent converge on one set of key names?",
+      "context": "Same vct values, different constraint prefixes, and Verifiable Intent renamed its keys on main without a version bump.",
+      "sources": [
+        "src-ap2-vi-spec",
+        "src-mcap-vi-pr23",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "question": "Will networks give mandate-backed transactions different liability?",
+      "context": "AP2 leaves liability to the networks, and no network rule specific to agents was found.",
+      "sources": [
+        "src-ap2-faq",
+        "src-reg-worldpay-liability"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "protocol": "ap2",
+  "cards": [
+    {
+      "id": "ap2-f1",
+      "front": "Mandate",
+      "back": "A signed record of what a user authorized an agent to buy or pay.",
+      "claimIds": [
+        "clm-ap2-001"
+      ]
+    },
+    {
+      "id": "ap2-f2",
+      "front": "mandate.checkout.1",
+      "back": "vct of the closed Checkout Mandate: requires vct, checkout_jwt and checkout_hash.",
+      "claimIds": [
+        "clm-ap2-050",
+        "clm-ap2-051"
+      ]
+    },
+    {
+      "id": "ap2-f3",
+      "front": "mandate.payment.1",
+      "back": "vct of the closed Payment Mandate: requires vct, transaction_id, payee, payment_amount and payment_instrument.",
+      "claimIds": [
+        "clm-ap2-058",
+        "clm-ap2-059"
+      ]
+    },
+    {
+      "id": "ap2-f4",
+      "front": "Open mandate",
+      "back": "Constraints plus the agent key in cnf; not yet bound to a transaction.",
+      "claimIds": [
+        "clm-ap2-102",
+        "clm-ap2-065"
+      ]
+    },
+    {
+      "id": "ap2-f5",
+      "front": "checkout_hash",
+      "back": "base64url hash of checkout_jwt, sha-256 unless _sd_alg says otherwise.",
+      "claimIds": [
+        "clm-ap2-053"
+      ]
+    },
+    {
+      "id": "ap2-f6",
+      "front": "sd_hash",
+      "back": "Binds an agent-signed closed mandate to its open parent.",
+      "claimIds": [
+        "clm-ap2-092"
+      ]
+    },
+    {
+      "id": "ap2-f7",
+      "front": "cnf",
+      "back": "RFC 7800 confirmation claim holding the agent public key.",
+      "claimIds": [
+        "clm-ap2-065"
+      ]
+    },
+    {
+      "id": "ap2-f8",
+      "front": "payment.reference",
+      "back": "Required constraint of an open Payment Mandate; carries the digest of the open Checkout Mandate.",
+      "claimIds": [
+        "clm-ap2-064",
+        "clm-ap2-071"
+      ]
+    },
+    {
+      "id": "ap2-f9",
+      "front": "unresolved_constraint",
+      "back": "Unknown or unconfirmable constraint; may signal fallback to a user-approved closed mandate.",
+      "claimIds": [
+        "clm-ap2-082",
+        "clm-ap2-083"
+      ]
+    },
+    {
+      "id": "ap2-f10",
+      "front": "Trusted Surface",
+      "back": "The non-agentic UI where the user approves and signs Mandate Content.",
+      "claimIds": [
+        "clm-ap2-041"
+      ]
+    },
+    {
+      "id": "ap2-f11",
+      "front": "MPP in AP2",
+      "back": "Merchant Payment Processor, a role; not the Machine Payments Protocol.",
+      "claimIds": [
+        "clm-ap2-040"
+      ]
+    },
+    {
+      "id": "ap2-f12",
+      "front": "Receipt reference",
+      "back": "Hash of the closed mandate the receipt binds to, computed like sd_hash.",
+      "claimIds": [
+        "clm-ap2-081"
+      ]
+    },
+    {
+      "id": "ap2-f13",
+      "front": "Revocation in v0.2",
+      "back": "None: an open mandate stays valid until exp.",
+      "claimIds": [
+        "clm-ap2-117"
+      ]
+    },
+    {
+      "id": "ap2-f14",
+      "front": "FIDO donation",
+      "back": "2026-04-28, together with Mastercard's Verifiable Intent.",
+      "claimIds": [
+        "clm-ap2-012",
+        "clm-ap2-014"
+      ]
+    },
+    {
+      "id": "ap2-f15",
+      "front": "UCP extension name",
+      "back": "dev.ucp.common.payment.ap2_mandate since v2026-08-25.",
+      "claimIds": [
+        "clm-ap2-171"
+      ]
+    }
+  ]
+}
