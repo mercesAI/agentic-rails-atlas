@@ -1,0 +1,427 @@
+{
+ "protocol": "ucp",
+ "personas": [
+  {
+   "persona": "merchant-enterprise",
+   "role": "The business: publishes /.well-known/ucp, runs the checkout endpoints, sets status and totals, and stays merchant of record.",
+   "goals": [
+    "Sell through AI Mode, Gemini and other agent surfaces without one integration per platform",
+    "Keep the customer relationship, its PSP and its own terms",
+    "Hand off to its own web checkout whenever policy needs the buyer"
+   ],
+   "pains": [
+    "Two-layer negotiation and full-replacement updates are easy to get subtly wrong",
+    "Attribution gaps when checkout happens on a platform surface",
+    "Reported automatic enrollment of Shopify merchants in Google's native checkout without an explicit opt-in"
+   ],
+   "implements": [
+    "The business profile with capabilities, payment handlers and a keys array",
+    "REST or MCP checkout endpoints with idempotency storage of 24 to 48 hours",
+    "continue_url handoff, confirmation emails and signed order webhooks"
+   ],
+   "mustTrust": [
+    "The platform profile and keys named in UCP-Agent",
+    "The credential provider's handler and the token its PSP receives",
+    "Google to route traffic as documented in its FAQ"
+   ],
+   "questions": [
+    "Which capabilities and extensions should we advertise first?",
+    "Does our PSP process Google tokens?",
+    "When should we return requires_escalation instead of an error?"
+   ],
+   "firstSteps": [
+    "Read the v2026-08-25 overview and the checkout spec at the tag, not on main",
+    "Run the samples REST server and the conformance suite against it",
+    "Publish a minimal profile with checkout and one payment handler"
+   ],
+   "metrics": [
+    "Checkout completion rate by platform",
+    "Escalation rate and continue_url conversion",
+    "Idempotency conflicts (409) and duplicate orders"
+   ],
+   "story": "Dana leads commerce engineering at a home-goods retailer. Her team publishes a profile at /.well-known/ucp with checkout, fulfillment and a Google Pay handler, and keeps its own PSP. The first week, agent orders arrive through AI Mode, and the platform's profile and signature check out on every call. Large furniture orders need a delivery window that their API cannot take, so the checkout returns requires_escalation with a continue_url to the store's own page. Conversion on that path is lower, so she adds a scheduling field to the next release. The merchant-of-record question never comes up: refunds and disputes stay with her team, exactly as before.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-checkout",
+    "src-ucp-google-faq",
+    "src-ucp-google-guide",
+    "src-ucp-ppcland-shopify"
+   ]
+  },
+  {
+   "persona": "ai-platform",
+   "role": "The platform: an agent surface that discovers businesses, negotiates capabilities, fills checkouts and hands the buyer a trusted review screen.",
+   "goals": [
+    "Buy from many stores with one protocol",
+    "Keep the buyer in control of the final purchase",
+    "Pass payment without touching raw card data"
+   ],
+   "pains": [
+    "Every business can advertise a different capability set and version",
+    "Permissionless onboarding means businesses may still block unknown platforms",
+    "Documentation drift between ucp.dev pages and the schemas"
+   ],
+   "implements": [
+    "A platform profile with keys and an order webhook_url",
+    "Namespace authority checks and schema resolution",
+    "Payment handler execution and the trusted checkout UI"
+   ],
+   "mustTrust": [
+    "The business profile and its schema URLs",
+    "Credential providers to issue valid tokens",
+    "Businesses to honor idempotency keys"
+   ],
+   "questions": [
+    "What happens if the complete response is lost?",
+    "Which handlers can we execute on our surface?",
+    "Do we need the AP2 extension to place orders without a human click?"
+   ],
+   "firstSteps": [
+    "Publish a platform profile with an ES256 key",
+    "Implement the intersection and pruning rules against two test profiles",
+    "Wire the trusted review screen and the continue_url handoff"
+   ],
+   "metrics": [
+    "Share of businesses with a compatible intersection",
+    "Time from create to completed",
+    "Escalations per 100 checkouts"
+   ],
+   "story": "Ravi runs the shopping agent of a large assistant app. Each store his agent visits has a slightly different profile: one offers cart and loyalty, another only checkout. His code picks the highest common version, prunes the loyalty extension when checkout is missing, and sends the platform profile in UCP-Agent on every call. One night a store times out on complete. The agent polls Get Checkout, sees complete_in_progress, and waits instead of resending. The order shows up as completed an hour later, with one charge. Ravi adds the case to his test suite and moves on to identity linking.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-checkout",
+    "src-ucp-signatures",
+    "src-ucp-identity-linking"
+   ]
+  },
+  {
+   "persona": "wallet-cp",
+   "role": "The credential provider: writes a payment handler specification and issues opaque tokens to platforms.",
+   "goals": [
+    "Make its wallet a payment option in every agent checkout",
+    "Keep raw credentials inside its own systems",
+    "Bind tokens to a merchant and a session"
+   ],
+   "pains": [
+    "UCP defines the handler format but no concrete handler, so each provider documents its own",
+    "Platforms must execute the handler correctly on many surfaces",
+    "Google surfaces use Google Pay with PAN_ONLY, which limits token types there"
+   ],
+   "implements": [
+    "A handler spec under its own reverse domain, for example com.google.pay",
+    "Token issuance to platforms",
+    "Optional AP2 support for user-signed mandates"
+   ],
+   "mustTrust": [
+    "Platforms to run the handler as written",
+    "Businesses to configure merchant settings correctly",
+    "PSPs to accept its tokens"
+   ],
+   "questions": [
+    "Which credential type do we return: token, PAN or network token?",
+    "How do businesses publish our config?",
+    "Do we support the digital payment credential model of the AP2 extension?"
+   ],
+   "firstSteps": [
+    "Read the payment architecture section of the overview",
+    "Publish a handler spec and schema under your own domain",
+    "Test with the samples and one PSP"
+   ],
+   "metrics": [
+    "Handler adoption by businesses",
+    "Token approval rate at PSPs",
+    "Share of checkouts using the handler"
+   ],
+   "story": "Ana works on a wallet team that wants its button in agent checkouts. She writes a handler spec under the wallet's own domain, because dev.ucp is reserved, and a schema for the business config. Businesses add the handler to their profile with their merchant id. Platforms run the handler, get a token bound to the merchant and session, and pass it in payment.instruments. Ana never sees the checkout itself, and the business never sees the card number. Her open question is AP2: the extension lets a wallet sign mandates with a key bound to a payment credential, but she has not found a deployment that does it yet.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-schema-payment",
+    "src-ucp-ap2-spec",
+    "src-ucp-adyen-docs",
+    "src-ucp-google-faq"
+   ]
+  },
+  {
+   "persona": "psp",
+   "role": "The business's payment service provider: receives the token from the business, authorizes and settles, and may publish its own UCP handler.",
+   "goals": [
+    "Process agent-originated tokens like any other card-not-present payment",
+    "Offer merchants a ready UCP handler",
+    "Support 3DS2 through UCP actions"
+   ],
+   "pains": [
+    "Token formats differ by handler",
+    "No dispute rules specific to agent transactions",
+    "3DS state lives with the PSP, while the challenge surface lives with the platform"
+   ],
+   "implements": [
+    "Token processing for Google and other handlers",
+    "A tokenization handler (Adyen) or a payments handler (Stripe)",
+    "Payment mandate verification if AP2 is used"
+   ],
+   "mustTrust": [
+    "The business to forward tokens unchanged",
+    "The credential provider's token binding",
+    "Platforms to render 3DS challenges correctly"
+   ],
+   "questions": [
+    "Which handler do our merchants advertise?",
+    "How do we map UCP actions to our 3DS flow?",
+    "Who carries the loss when an agent misreads the buyer?"
+   ],
+   "firstSteps": [
+    "Document which UCP handlers you can process",
+    "Publish a handler or tokenization guide",
+    "Map the authentication extension's actions to your 3DS server"
+   ],
+   "metrics": [
+    "Authorization rate for UCP-originated tokens",
+    "3DS challenge completion rate",
+    "Dispute rate on agent orders"
+   ],
+   "story": "Jonas manages agentic payments at a PSP. Merchants ask whether his platform can take tokens from UCP checkouts on Google, and the answer has to be yes, because the merchant's PSP must process Google's tokens. His team also publishes a tokenization handler that returns a token tied to the checkout session and merchant. When v2026-08-25 adds 3DS2 through actions, he maps device data collection and challenge to his existing 3DS server. UCP never carries the EMV messages, so his state machine stays where it was. Disputes still follow card rules, which he finds both reassuring and incomplete.",
+   "sources": [
+    "src-ucp-google-faq",
+    "src-ucp-adyen-docs",
+    "src-ucp-stripe-docs",
+    "src-ucp-payment-auth",
+    "src-ucp-schema-order"
+   ]
+  },
+  {
+   "persona": "consumer",
+   "role": "The buyer: asks an agent to shop, reviews and places the order, and deals with the merchant afterward.",
+   "goals": [
+    "Buy without filling in forms on every site",
+    "See the real seller, price and terms before paying",
+    "Get refunds and support from the store as usual"
+   ],
+   "pains": [
+    "Not always clear who the seller is on an agent surface",
+    "Privacy and upselling concerns raised about agent checkout",
+    "Handoffs to a store web page in the middle of a purchase"
+   ],
+   "implements": [
+    "Nothing; uses the platform's trusted checkout screen"
+   ],
+   "mustTrust": [
+    "The platform to show the business's own checkout and links",
+    "The business as merchant of record",
+    "The wallet that issues the token"
+   ],
+   "questions": [
+    "Who is the seller?",
+    "Can the agent buy without me pressing buy?",
+    "Where do I go for a refund?"
+   ],
+   "firstSteps": [
+    "Check the seller name and the terms link on the review screen",
+    "Use a wallet you already trust",
+    "Keep the order link from the confirmation email"
+   ],
+   "metrics": [
+    "Time to purchase",
+    "Number of handoffs",
+    "Refund and return experience"
+   ],
+   "story": "Maria asks Gemini to find a ceramic vase under $80 and buy it. The agent finds one at a store that supports UCP checkout, fills in her address and shows her a review screen with the store's name, the total and the store's terms. She presses buy and Google Pay supplies the payment. A confirmation email from the store arrives a minute later with an order link. When the vase arrives chipped, she returns it through the store's site, because the store, not Google, sold it to her. She never typed a card number, and the agent never placed the order without her tap.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-google-faq",
+    "src-ucp-glossary",
+    "src-ucp-google-feb2026"
+   ]
+  },
+  {
+   "persona": "agent-dev",
+   "role": "The developer who builds a platform or business integration with the SDKs, samples and conformance tests.",
+   "goals": [
+    "Get a working checkout against the samples in a day",
+    "Validate payloads against the release schemas",
+    "Pass the conformance suite"
+   ],
+   "pains": [
+    "main is a draft and differs from the latest release",
+    "The conformance README still targets 2026-04-08",
+    "Examples spell some names differently from the schemas"
+   ],
+   "implements": [
+    "@ucp-js/sdk or ucp-sdk models pinned to schema 2026-08-25",
+    "RFC 9421 signing with an ES256 key",
+    "Idempotency and lost-response handling"
+   ],
+   "mustTrust": [
+    "The SDK version table",
+    "The schemas at the release tag",
+    "The sample server's behavior"
+   ],
+   "questions": [
+    "Which SDK version matches the release we target?",
+    "Do I sign requests or use OAuth?",
+    "How do I test escalation and 3DS paths?"
+   ],
+   "firstSteps": [
+    "Install @ucp-js/sdk 0.5.x or ucp-sdk 0.5.x",
+    "Run the Python sample server and the happy path client",
+    "Validate a checkout response with the SDK schema"
+   ],
+   "metrics": [
+    "Conformance tests passed",
+    "Schema validation errors",
+    "Time to first completed checkout"
+   ],
+   "story": "Lee is building a UCP integration for a mid-size retailer. He installs ucp-sdk 0.5.0 because its table says it matches schema 2026-08-25, starts the sample server and runs the happy path client, which signs every request with a throwaway ES256 key. Everything works until he reads the spec on main and finds draft capabilities that are not in any release. He pins his schema URLs to the tag. The conformance suite's example config still says 2026-04-08, so he edits it and records the difference in his notes. By Friday his server returns valid checkouts and passes the idempotency tests.",
+   "sources": [
+    "src-ucp-python-sdk-readme",
+    "src-ucp-js-sdk-readme",
+    "src-ucp-samples-client-readme",
+    "src-ucp-conformance",
+    "src-ucp-repo-main"
+   ]
+  }
+ ],
+ "responsibilities": {
+  "columns": [
+   "merchant-enterprise",
+   "ai-platform",
+   "wallet-cp",
+   "psp",
+   "consumer",
+   "agent-dev"
+  ],
+  "rows": [
+   {
+    "step": "Publish /.well-known/ucp with keys",
+    "marks": {
+     "merchant-enterprise": "owns",
+     "ai-platform": "relies-on",
+     "wallet-cp": "",
+     "psp": "",
+     "consumer": "",
+     "agent-dev": "implements"
+    }
+   },
+   {
+    "step": "Advertise UCP-Agent and verify the platform profile",
+    "marks": {
+     "merchant-enterprise": "verifies",
+     "ai-platform": "owns",
+     "wallet-cp": "",
+     "psp": "",
+     "consumer": "",
+     "agent-dev": "implements"
+    }
+   },
+   {
+    "step": "Compute the capability intersection",
+    "marks": {
+     "merchant-enterprise": "owns",
+     "ai-platform": "relies-on",
+     "wallet-cp": "",
+     "psp": "",
+     "consumer": "",
+     "agent-dev": "implements"
+    }
+   },
+   {
+    "step": "Fill the checkout (full-replacement updates)",
+    "marks": {
+     "merchant-enterprise": "verifies",
+     "ai-platform": "owns",
+     "wallet-cp": "",
+     "psp": "",
+     "consumer": "",
+     "agent-dev": "implements"
+    }
+   },
+   {
+    "step": "Review and place the order in a trusted UI",
+    "marks": {
+     "merchant-enterprise": "relies-on",
+     "ai-platform": "implements",
+     "wallet-cp": "",
+     "psp": "",
+     "consumer": "owns",
+     "agent-dev": ""
+    }
+   },
+   {
+    "step": "Escalate with continue_url",
+    "marks": {
+     "merchant-enterprise": "owns",
+     "ai-platform": "implements",
+     "wallet-cp": "",
+     "psp": "",
+     "consumer": "relies-on",
+     "agent-dev": ""
+    }
+   },
+   {
+    "step": "Write the payment handler spec",
+    "marks": {
+     "merchant-enterprise": "",
+     "ai-platform": "relies-on",
+     "wallet-cp": "owns",
+     "psp": "observes",
+     "consumer": "",
+     "agent-dev": ""
+    }
+   },
+   {
+    "step": "Issue the opaque token",
+    "marks": {
+     "merchant-enterprise": "relies-on",
+     "ai-platform": "implements",
+     "wallet-cp": "owns",
+     "psp": "verifies",
+     "consumer": "relies-on",
+     "agent-dev": ""
+    }
+   },
+   {
+    "step": "Authorize and settle the token",
+    "marks": {
+     "merchant-enterprise": "relies-on",
+     "ai-platform": "",
+     "wallet-cp": "relies-on",
+     "psp": "owns",
+     "consumer": "",
+     "agent-dev": ""
+    }
+   },
+   {
+    "step": "Sign the checkout and verify the AP2 mandate",
+    "marks": {
+     "merchant-enterprise": "owns",
+     "ai-platform": "verifies",
+     "wallet-cp": "implements",
+     "psp": "verifies",
+     "consumer": "relies-on",
+     "agent-dev": "implements"
+    }
+   },
+   {
+    "step": "Send signed order webhooks",
+    "marks": {
+     "merchant-enterprise": "owns",
+     "ai-platform": "verifies",
+     "wallet-cp": "",
+     "psp": "",
+     "consumer": "observes",
+     "agent-dev": "implements"
+    }
+   },
+   {
+    "step": "Handle refunds and disputes",
+    "marks": {
+     "merchant-enterprise": "owns",
+     "ai-platform": "observes",
+     "wallet-cp": "",
+     "psp": "implements",
+     "consumer": "relies-on",
+     "agent-dev": ""
+    }
+   }
+  ]
+ }
+}
