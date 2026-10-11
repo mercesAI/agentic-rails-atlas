@@ -1,0 +1,90 @@
+{
+  "id": "visa-tap-failure-untagged-request",
+  "protocol": "visa-tap",
+  "title": "Visa TAP failure: request without a TAP tag",
+  "summary": "A request reaches the verifier without a Signature-Input tagged agent-browser-auth or agent-payer-auth. Under TAP it was not signed by a trusted agent, and the merchant decides whether to block it.",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersionDate": "2025-10-14",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "AI agent",
+      "kind": "agent"
+    },
+    {
+      "id": "cdn",
+      "label": "Site Protection Provider (CDN)",
+      "kind": "cdn"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "cdn",
+      "label": "GET with no signature, or tag web-bot-auth",
+      "detail": "The request has no TAP tag. A Web Bot Auth signature with tag web-bot-auth is not a TAP signature either.",
+      "payload": {
+        "format": "http",
+        "content": "GET /example-product HTTP/1.1\nHost: shop.example",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Verification Steps"
+      }
+    },
+    {
+      "n": 2,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Look for a TAP tag",
+      "detail": "No signature carries agent-browser-auth or agent-payer-auth.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Verification Steps"
+      },
+      "failures": [
+        {
+          "condition": "No TAP tag",
+          "outcome": "Not signed by a trusted agent"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Apply bot policy",
+      "detail": "The merchant may block the request or use other means, such as other bot signals, to decide.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Verification Steps"
+      }
+    },
+    {
+      "n": 4,
+      "from": "merchant",
+      "to": "agent",
+      "label": "403 or challenge",
+      "detail": "A blocked request gets the merchant's usual bot response; TAP defines no error code.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 403 Forbidden",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true
+    }
+  ],
+  "sources": [
+    "src-visa-tap-spec",
+    "src-visa-tap-cf-blog"
+  ]
+}

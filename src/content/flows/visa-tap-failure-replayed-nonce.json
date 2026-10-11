@@ -1,0 +1,98 @@
+{
+  "id": "visa-tap-failure-replayed-nonce",
+  "protocol": "visa-tap",
+  "title": "Visa TAP failure: replayed nonce",
+  "summary": "An attacker who captured a signed request resends it inside its window. A verifier that keeps nonces from the last 8 minutes blocks it; a verifier that keeps none accepts it, because the signature is still valid.",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersionDate": "2025-10-14",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "AI agent",
+      "kind": "agent"
+    },
+    {
+      "id": "cdn",
+      "label": "Site Protection Provider (CDN)",
+      "kind": "cdn"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "cdn",
+      "label": "Original signed request",
+      "detail": "The agent sends a valid signed request.",
+      "payload": {
+        "format": "http",
+        "content": "GET /example-product HTTP/1.1\nHost: shop.example\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-browser-auth\"\nSignature: sig2=:c2lnbmF0dXJlLXBsYWNlaG9sZGVy:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Agent Recognition Signature"
+      }
+    },
+    {
+      "n": 2,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Verified and recorded",
+      "detail": "The CDN verifies it and records the nonce.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Nonce"
+      }
+    },
+    {
+      "n": 3,
+      "from": "agent",
+      "to": "cdn",
+      "label": "Same request replayed within 8 minutes",
+      "detail": "A copy of the same headers arrives again, from the attacker.",
+      "payload": {
+        "format": "http",
+        "content": "GET /example-product HTTP/1.1\nHost: shop.example\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-browser-auth\"\nSignature: sig2=:c2lnbmF0dXJlLXBsYWNlaG9sZGVy:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Nonce"
+      }
+    },
+    {
+      "n": 4,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Nonce lookup",
+      "detail": "The nonce is in the record of the last 8 minutes.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Nonce"
+      },
+      "failures": [
+        {
+          "condition": "Nonce found",
+          "outcome": "Block as replay"
+        },
+        {
+          "condition": "Verifier keeps no nonce record",
+          "outcome": "Replay is accepted; TAP makes the record optional"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "src-visa-tap-spec",
+    "src-visa-tap-cf-blog"
+  ]
+}

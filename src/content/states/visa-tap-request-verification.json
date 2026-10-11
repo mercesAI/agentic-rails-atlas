@@ -1,0 +1,178 @@
+{
+  "id": "visa-tap-request-verification",
+  "protocol": "visa-tap",
+  "title": "Visa TAP: one request through verification (verifier-side state)",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "sources": [
+    "src-visa-tap-spec",
+    "src-visa-tap-cf-blog",
+    "src-visa-tap-jwks"
+  ],
+  "states": [
+    {
+      "id": "received",
+      "label": "Request received",
+      "initial": true,
+      "note": "At the merchant or its Site Protection Provider."
+    },
+    {
+      "id": "tagged",
+      "label": "TAP tag found",
+      "note": "agent-browser-auth or agent-payer-auth."
+    },
+    {
+      "id": "fields-ok",
+      "label": "Minimum fields present",
+      "note": "@authority, @path, created, expires, keyid, alg, nonce, tag."
+    },
+    {
+      "id": "in-window",
+      "label": "Inside the window",
+      "note": "created past, expires future, at most 8 minutes apart."
+    },
+    {
+      "id": "nonce-fresh",
+      "label": "Nonce not seen",
+      "note": "Only if the verifier keeps nonces of the last 8 minutes."
+    },
+    {
+      "id": "key-resolved",
+      "label": "Key resolved",
+      "note": "From cache or the key store."
+    },
+    {
+      "id": "verified-browse",
+      "label": "Trusted agent, browsing"
+    },
+    {
+      "id": "verified-pay",
+      "label": "Trusted agent, paying",
+      "note": "Body objects may follow."
+    },
+    {
+      "id": "objects-checked",
+      "label": "Body objects checked",
+      "note": "agenticConsumer and agenticPaymentContainer."
+    },
+    {
+      "id": "served",
+      "label": "Served",
+      "terminal": true
+    },
+    {
+      "id": "untrusted",
+      "label": "Not a trusted agent",
+      "terminal": true,
+      "note": "Merchant may block or use other means."
+    },
+    {
+      "id": "blocked",
+      "label": "Blocked",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "from": "received",
+      "to": "tagged",
+      "trigger": "Signature-Input has a TAP tag",
+      "specRef": "Verification Steps (TAP spec)"
+    },
+    {
+      "from": "received",
+      "to": "untrusted",
+      "trigger": "No TAP tag",
+      "specRef": "Verification Steps (TAP spec)"
+    },
+    {
+      "from": "tagged",
+      "to": "fields-ok",
+      "trigger": "All minimum fields present",
+      "specRef": "Minimum fields"
+    },
+    {
+      "from": "tagged",
+      "to": "blocked",
+      "trigger": "A field is missing",
+      "specRef": "Minimum fields"
+    },
+    {
+      "from": "fields-ok",
+      "to": "in-window",
+      "trigger": "Timestamps valid",
+      "specRef": "Timestamps"
+    },
+    {
+      "from": "fields-ok",
+      "to": "blocked",
+      "trigger": "Window over 8 minutes or outside now",
+      "specRef": "Timestamps"
+    },
+    {
+      "from": "in-window",
+      "to": "nonce-fresh",
+      "trigger": "Nonce unseen, or no record kept",
+      "specRef": "Nonce"
+    },
+    {
+      "from": "in-window",
+      "to": "blocked",
+      "trigger": "Nonce already recorded",
+      "specRef": "Nonce"
+    },
+    {
+      "from": "nonce-fresh",
+      "to": "key-resolved",
+      "trigger": "Key for keyid found",
+      "apiCall": "GET https://mcp.visa.com/.well-known/jwks",
+      "specRef": "Locate the public key"
+    },
+    {
+      "from": "nonce-fresh",
+      "to": "blocked",
+      "trigger": "Key missing or expired",
+      "apiCall": "GET https://mcp.visa.com/.well-known/jwks",
+      "specRef": "Locate the public key"
+    },
+    {
+      "from": "key-resolved",
+      "to": "verified-browse",
+      "trigger": "Signature valid, tag agent-browser-auth",
+      "specRef": "Validate the signature"
+    },
+    {
+      "from": "key-resolved",
+      "to": "verified-pay",
+      "trigger": "Signature valid, tag agent-payer-auth",
+      "specRef": "Validate the signature"
+    },
+    {
+      "from": "key-resolved",
+      "to": "blocked",
+      "trigger": "Signature invalid",
+      "specRef": "Validate the signature"
+    },
+    {
+      "from": "verified-browse",
+      "to": "served",
+      "trigger": "Merchant serves the page"
+    },
+    {
+      "from": "verified-pay",
+      "to": "objects-checked",
+      "trigger": "Nonce, kid and signature of each body object checked",
+      "specRef": "Consumer Recognition; Payment"
+    },
+    {
+      "from": "objects-checked",
+      "to": "served",
+      "trigger": "Payment data processed"
+    },
+    {
+      "from": "objects-checked",
+      "to": "blocked",
+      "trigger": "Payment container invalid or hash mismatch",
+      "specRef": "Processing of Payment Data"
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "id": "visa-tap-browse-and-checkout",
+  "protocol": "visa-tap",
+  "title": "Visa TAP: browse a product, then check out with signed objects",
+  "summary": "One shopping trip under TAP. The agent signs a browsing request with agent-browser-auth, a CDN verifies it against the Visa key store, and the merchant serves the page. At checkout the agent signs with agent-payer-auth and adds the consumer recognition object and the payment container, both signed with the same key and nonce. The merchant verifies them, decrypts the payment payload and authorizes the payment through its acquirer as an ordinary card payment.",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersionDate": "2025-10-14",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "AI agent",
+      "kind": "agent"
+    },
+    {
+      "id": "cdn",
+      "label": "Site Protection Provider (CDN)",
+      "kind": "cdn"
+    },
+    {
+      "id": "keystore",
+      "label": "Visa key store",
+      "kind": "registry"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "acquirer",
+      "label": "Acquirer and Visa network",
+      "kind": "network"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "cdn",
+      "label": "GET product page, signed agent-browser-auth",
+      "detail": "The agent requests a product detail page. Signature-Input covers @authority and @path and carries created, expires, keyid, alg, nonce and tag. The values here are placeholders.",
+      "payload": {
+        "format": "http",
+        "content": "GET /example-product HTTP/1.1\nHost: shop.example\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-browser-auth\"\nSignature: sig2=:c2lnbmF0dXJlLXBsYWNlaG9sZGVy:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Agent Recognition Signature; Sample Browsing Request"
+      },
+      "failures": [
+        {
+          "condition": "A Checkout Enabler strips the signature headers",
+          "outcome": "The request arrives unsigned and is treated as an unknown bot"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "from": "cdn",
+      "to": "keystore",
+      "label": "Fetch the key for keyid (if not cached)",
+      "detail": "The CDN looks up the public key by keyid in its cache or retrieves the JWKS from Visa's well-known URL.",
+      "payload": {
+        "format": "http",
+        "content": "GET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Public Keys Retrieval Service"
+      },
+      "failures": [
+        {
+          "condition": "Key not found or expired",
+          "outcome": "Block the request"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Check tag, fields, window, nonce, signature",
+      "detail": "The CDN checks the tag, the minimum fields, that created is past, expires is future and the two are at most 8 minutes apart, that the nonce is new (if it keeps a record), and verifies the signature over the rebuilt signature base.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Verification Steps"
+      },
+      "failures": [
+        {
+          "condition": "No TAP tag",
+          "outcome": "Not a trusted agent; block or use other means"
+        },
+        {
+          "condition": "Missing field, bad window, reused nonce or bad signature",
+          "outcome": "Block the request"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Forward as a verified agent request",
+      "detail": "The CDN passes the request to the merchant, marked as a trusted agent that is browsing. The merchant may still limit what the agent can do.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/",
+        "section": "Verification Steps"
+      }
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "agent",
+      "label": "200 product page",
+      "detail": "The merchant answers with product details, availability and final cost, possibly in a simpler agent-specific page.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 200 OK\nContent-Type: text/html",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Participants"
+      }
+    },
+    {
+      "n": 6,
+      "from": "agent",
+      "to": "cdn",
+      "label": "POST checkout, signed agent-payer-auth, with body objects",
+      "detail": "The agent signs the checkout request with the payer tag and puts agenticConsumer and agenticPaymentContainer in the body, signed with the same key and the same nonce. The header signature does not cover the body.",
+      "payload": {
+        "format": "http",
+        "content": "POST /checkout HTTP/1.1\nHost: shop.example\nContent-Type: application/json\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-payer-auth\"\nSignature: sig2=:cGF5ZXItc2lnbmF0dXJlLXBsYWNlaG9sZGVy:\n\n{\n  \"agenticConsumer\": {\n    \"nonce\": \"bm9uY2UtcGxhY2Vob2xkZXI\",\n    \"idToken\": \"eyJ...placeholder\",\n    \"contextualData\": {\n      \"countryCode\": \"US\",\n      \"zip\": \"94105\",\n      \"ipAddress\": \"192.0.2.10\",\n      \"deviceData\": {}\n    },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  },\n  \"agenticPaymentContainer\": {\n    \"nonce\": \"bm9uY2UtcGxhY2Vob2xkZXI\",\n    \"payload\": \"encrypted-to-merchant-key-placeholder\",\n    \"cardMetadata\": {\n      \"lastFour\": \"0000\",\n      \"paymentAccountReference\": \"par-placeholder\",\n      \"shortDescription\": \"Example card\"\n    },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Sample Checkout Request; Consumer Recognition; Payment"
+      },
+      "failures": [
+        {
+          "condition": "Body altered in transit",
+          "outcome": "The header signature still verifies; only the object signatures can catch it"
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Verify header signature, forward",
+      "detail": "The CDN repeats the header checks with the agent-payer-auth tag and forwards the request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/",
+        "section": "Verification Steps"
+      }
+    },
+    {
+      "n": 8,
+      "from": "merchant",
+      "to": "merchant",
+      "label": "Verify agenticConsumer and agenticPaymentContainer",
+      "detail": "For each object the merchant checks required fields, compares the nonce with the header nonce, locates the key for kid and verifies the signature over the other fields in the order received.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Consumer Recognition; Payment"
+      },
+      "failures": [
+        {
+          "condition": "Consumer object fails",
+          "outcome": "Content may be inaccurate; the merchant may still use it"
+        },
+        {
+          "condition": "Payment container fails",
+          "outcome": "Should not be used for payment"
+        }
+      ]
+    },
+    {
+      "n": 9,
+      "from": "merchant",
+      "to": "merchant",
+      "label": "Decrypt payload and map the ID Token",
+      "detail": "The merchant decrypts the payment payload with its private key and may map the obfuscated email or phone in the ID Token to an existing account.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Processing of Payment Data; ID Token"
+      }
+    },
+    {
+      "n": 10,
+      "from": "merchant",
+      "to": "acquirer",
+      "label": "Authorize the card payment",
+      "detail": "The merchant authorizes the token through its acquirer as for any card-not-present payment. TAP specifies nothing in this step.",
+      "crossesTrustBoundary": true,
+      "failures": [
+        {
+          "condition": "Issuer declines",
+          "outcome": "Ordinary card decline; TAP has no role"
+        }
+      ]
+    },
+    {
+      "n": 11,
+      "from": "merchant",
+      "to": "agent",
+      "label": "Order confirmation",
+      "detail": "The merchant returns the checkout result to the agent.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 200 OK",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true
+    }
+  ],
+  "sources": [
+    "src-visa-tap-spec",
+    "src-visa-tap-cf-blog",
+    "src-visa-tap-jwks",
+    "src-visa-vic-dev"
+  ]
+}

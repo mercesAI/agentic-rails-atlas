@@ -1,0 +1,81 @@
+{
+  "id": "visa-tap-failure-expired-window",
+  "protocol": "visa-tap",
+  "title": "Visa TAP failure: validity window too long or expired",
+  "summary": "The signature window is checked before the key and the signature. A window over 8 minutes, a created time in the future or an expires time in the past blocks the request. The specification's own example uses a 3,600-second window and would fail this check.",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersionDate": "2025-10-14",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "AI agent",
+      "kind": "agent"
+    },
+    {
+      "id": "cdn",
+      "label": "Site Protection Provider (CDN)",
+      "kind": "cdn"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "cdn",
+      "label": "Signed GET with a 60-minute window",
+      "detail": "created and expires are 3,600 seconds apart, as in the specification example.",
+      "payload": {
+        "format": "http",
+        "content": "GET /example-product HTTP/1.1\nHost: shop.example\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767229200;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-browser-auth\"\nSignature: sig2=:c2lnbmF0dXJlLXBsYWNlaG9sZGVy:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Timestamps"
+      }
+    },
+    {
+      "n": 2,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Check created and expires",
+      "detail": "expires minus created must be at most 480 seconds; created must be past and expires future.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Timestamps"
+      },
+      "failures": [
+        {
+          "condition": "Interval over 8 minutes",
+          "outcome": "Block"
+        },
+        {
+          "condition": "created in the future or expires in the past",
+          "outcome": "Block"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "cdn",
+      "to": "agent",
+      "label": "Block",
+      "detail": "The request is blocked before any key fetch; the agent must sign a fresh request.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 403 Forbidden",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true
+    }
+  ],
+  "sources": [
+    "src-visa-tap-spec"
+  ]
+}

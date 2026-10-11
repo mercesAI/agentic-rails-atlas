@@ -1,0 +1,145 @@
+{
+  "id": "visa-tap-vic-token-passkey",
+  "protocol": "visa-tap",
+  "title": "Visa Intelligent Commerce link: token, passkey and instruction behind a TAP checkout",
+  "summary": "What happens in VIC around a TAP purchase, using only the endpoint paths in Visa's own API client. The user enrolls a card with step-up verification and a passkey, approves a Payment Instruction with the passkey, the agent retrieves credentials for the purchase, presents them to the merchant in a TAP checkout, and reports the outcome as a confirmation.",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersionDate": "2025-10-14",
+  "actors": [
+    {
+      "id": "user",
+      "label": "Consumer",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "AI agent",
+      "kind": "agent"
+    },
+    {
+      "id": "vic",
+      "label": "Visa Intelligent Commerce",
+      "kind": "network"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "user",
+      "to": "agent",
+      "label": "Ask the agent to add a card",
+      "detail": "The consumer links a Visa card to the agent.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 2,
+      "from": "agent",
+      "to": "vic",
+      "label": "POST /vacp/v1/cards",
+      "detail": "The agent enrolls the card in VIC. VIC provisions an agent-specific token after step-up verification of the cardholder and passkey setup.",
+      "payload": {
+        "format": "http",
+        "content": "POST /vacp/v1/cards",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/visa/ai/blob/1c544e5c1ed45c8c075ca57e9e76e7876e34fd42/packages/api-client/src/clients/vic-client.ts",
+        "section": "VIC API client: enrollCard"
+      },
+      "failures": [
+        {
+          "condition": "Step-up fails",
+          "outcome": "No token is provisioned"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "agent",
+      "to": "vic",
+      "label": "POST /vacp/v1/instructions",
+      "detail": "The agent creates a purchase instruction. The user authenticates it with a passkey.",
+      "payload": {
+        "format": "http",
+        "content": "POST /vacp/v1/instructions",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/visa/ai/blob/1c544e5c1ed45c8c075ca57e9e76e7876e34fd42/packages/api-client/src/clients/vic-client.ts",
+        "section": "VIC API client: initiatePurchaseInstruction"
+      }
+    },
+    {
+      "n": 4,
+      "from": "user",
+      "to": "vic",
+      "label": "Approve with a passkey",
+      "detail": "The consumer approves the Payment Instruction with a Visa Payment Passkey.",
+      "crossesTrustBoundary": true,
+      "failures": [
+        {
+          "condition": "User declines",
+          "outcome": "No credentials can be retrieved"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "agent",
+      "to": "vic",
+      "label": "POST /vacp/v1/instructions/{instructionId}/credentials",
+      "detail": "The agent retrieves payment credentials after VIC validates the request against the instruction.",
+      "payload": {
+        "format": "http",
+        "content": "POST /vacp/v1/instructions/{instructionId}/credentials",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/visa/ai/blob/1c544e5c1ed45c8c075ca57e9e76e7876e34fd42/packages/api-client/src/clients/vic-client.ts",
+        "section": "VIC API client: getTransactionCredentials"
+      }
+    },
+    {
+      "n": 6,
+      "from": "agent",
+      "to": "merchant",
+      "label": "TAP checkout with the payment container",
+      "detail": "The agent signs the checkout with agent-payer-auth and carries the payment data in agenticPaymentContainer.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Payment"
+      }
+    },
+    {
+      "n": 7,
+      "from": "agent",
+      "to": "vic",
+      "label": "POST /vacp/v1/instructions/{instructionId}/confirmations",
+      "detail": "The agent reports the transaction outcome to Visa; VIC signals support dispute resolution.",
+      "payload": {
+        "format": "http",
+        "content": "POST /vacp/v1/instructions/{instructionId}/confirmations",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/visa/ai/blob/1c544e5c1ed45c8c075ca57e9e76e7876e34fd42/packages/api-client/src/clients/vic-client.ts",
+        "section": "VIC API client: sendConfirmations"
+      }
+    }
+  ],
+  "sources": [
+    "src-visa-ai-vic-client",
+    "src-visa-vic-dev",
+    "src-visa-tap-spec"
+  ]
+}

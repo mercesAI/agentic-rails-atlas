@@ -1,0 +1,202 @@
+{
+  "id": "visa-tap-browsing-verification",
+  "protocol": "visa-tap",
+  "title": "Visa TAP: browsing request verified at the CDN",
+  "summary": "The Cloudflare sequence for a browsing request: headers present, key fetched by keyid and cached, time window, nonce uniqueness, tag, signature base rebuilt, Ed25519 verification.",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersionDate": "2025-10-14",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "AI agent",
+      "kind": "agent"
+    },
+    {
+      "id": "enabler",
+      "label": "Checkout Enabler",
+      "kind": "platform"
+    },
+    {
+      "id": "cdn",
+      "label": "Site Protection Provider (CDN)",
+      "kind": "cdn"
+    },
+    {
+      "id": "keystore",
+      "label": "Visa key store",
+      "kind": "registry"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "enabler",
+      "label": "Signed GET through a Checkout Enabler",
+      "detail": "The agent may reach the merchant through a Checkout Enabler.",
+      "payload": {
+        "format": "http",
+        "content": "GET /example-product HTTP/1.1\nHost: shop.example\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-browser-auth\"\nSignature: sig2=:c2lnbmF0dXJlLXBsYWNlaG9sZGVy:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Participants"
+      }
+    },
+    {
+      "n": 2,
+      "from": "enabler",
+      "to": "cdn",
+      "label": "Pass signatures and query parameters through",
+      "detail": "The only TAP expectation of a Checkout Enabler is to pass signatures and query parameters unchanged.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Participants"
+      },
+      "failures": [
+        {
+          "condition": "Headers stripped or rewritten",
+          "outcome": "Verification fails or the request looks unsigned"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Headers present",
+      "detail": "Signature-Input and Signature must both be present.",
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/",
+        "section": "Verification steps (Cloudflare)"
+      },
+      "failures": [
+        {
+          "condition": "Missing",
+          "outcome": "Treat as an unsigned bot"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "cdn",
+      "to": "keystore",
+      "label": "Fetch key by keyid and cache it",
+      "detail": "The CDN fetches the key from the directory and caches it.",
+      "payload": {
+        "format": "http",
+        "content": "GET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Public Keys Retrieval Service"
+      },
+      "failures": [
+        {
+          "condition": "keyid not in the directory",
+          "outcome": "Block"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Time window",
+      "detail": "Now must be between created and expires; TAP also caps the window at 8 minutes.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Timestamps"
+      },
+      "failures": [
+        {
+          "condition": "Outside the window",
+          "outcome": "Block"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Nonce not seen recently",
+      "detail": "The CDN keeps recent nonces and rejects a repeat.",
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Nonce"
+      },
+      "failures": [
+        {
+          "condition": "Nonce seen",
+          "outcome": "Block as replay"
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Tag is agent-browser-auth",
+      "detail": "A browsing request must carry the browsing tag.",
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/",
+        "section": "Verification steps (Cloudflare)"
+      },
+      "failures": [
+        {
+          "condition": "Other tag",
+          "outcome": "Block or handle as non-TAP traffic"
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Rebuild signature base and verify Ed25519",
+      "detail": "The CDN rebuilds the base from the components named in Signature-Input and verifies the signature.",
+      "payload": {
+        "format": "text",
+        "content": "\"@authority\": shop.example\n\"@path\": /example-product\n\"@signature-params\": (\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-browser-auth\"",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "section": "Validate the signature"
+      },
+      "failures": [
+        {
+          "condition": "Signature invalid",
+          "outcome": "Block"
+        }
+      ]
+    },
+    {
+      "n": 9,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Forward, marked as a verified agent",
+      "detail": "The zone owner can act on the result, for example in Cloudflare Bot Management rules.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/",
+        "section": "Verification steps (Cloudflare)"
+      }
+    }
+  ],
+  "sources": [
+    "src-visa-tap-cf-blog",
+    "src-visa-tap-spec",
+    "src-cf-signed-agent-field"
+  ]
+}
