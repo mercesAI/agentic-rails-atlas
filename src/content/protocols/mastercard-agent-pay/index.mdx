@@ -1,0 +1,126 @@
+---
+slug: mastercard-agent-pay
+order: 8
+name: Mastercard Agent Pay
+bubbleLabel: Agent Pay
+monogram: MCAP
+tagline: Agentic tokens for registered agents
+intro: "Mastercard's proprietary program for agent payments. Registered agents get agentic tokens built on Mastercard tokenization and limited by the consumer, and merchants recognize those agents from signed web requests. Verifiable Intent, a separate open specification, adds signed proof of what the user approved. Named transactions so far are pilots or first transactions."
+family: payment-execution
+layerPrimary: payment-credential
+layersSecondary:
+  - identity-trust
+  - intent-authorization
+  - checkout-orders
+rails:
+  - card
+  - multi-rail
+stewards:
+  - Mastercard
+  - "Verifiable Intent: maintained by Mastercard, contributed to the FIDO Alliance on 2026-04-28"
+governance: "Proprietary card-network program. Mastercard alone sets the rules for agent registration, merchant registration and token issuance; there is no public specification, version number or governance body for the program. The Verifiable Intent specification is open (Apache-2.0), maintained by Mastercard and contributed to the FIDO Alliance Payments Technical Working Group."
+license:
+  spec: "Program: proprietary; the Agent Pay Acceptance Framework specification is not public. Verifiable Intent: Apache-2.0"
+  code: "Verifiable Intent Python reference SDK: Apache-2.0. Mastercard Developers Agent Toolkit (a documentation tool): MIT"
+status: pilot
+statusNote: "Mastercard has enabled issuers at network level in several regions (all European issuers by 2026-06-02), but the transactions it names are pilots, controlled trials or first transactions, and it publishes no volume data. The developer documentation went live as an early preview on 2025-10-16."
+firstAnnounced: "2025-04-29"
+latestVersion:
+  label: "No program version numbers. Verifiable Intent 0.1 (tag v0.1.0 on 2026-03-05; breaking renames on main on 2026-04-20 under the same label)"
+  date: "2026-04-20"
+lastVerified: "2026-10-11"
+transports:
+  - "HTTP request headers (Signature-Input and Signature, RFC 9421, tag Agent-pay-auth)"
+  - "Existing checkout card forms (token number, expiry and DTVC typed into card fields)"
+  - "Merchant agentic APIs carrying Agent User Identity, Payment Data and Intent objects (no public wire schema)"
+  - "Card authorization messages through acquirer, network and issuer"
+  - "Verifiable Intent SD-JWT credentials (transport-agnostic by design)"
+buildsOn:
+  - Mastercard tokenization
+  - RFC 9421 HTTP Message Signatures (Web Bot Auth pattern)
+  - Mastercard Payment Passkeys (FIDO)
+  - DSRP cryptogram
+  - JWT (RFC 7519) and OpenID Connect ID Token
+  - SD-JWT (RFC 9901)
+  - RFC 7800 cnf key binding
+  - ES256 (P-256)
+composesWith:
+  - ap2
+  - ucp
+  - openai-acp
+  - stripe-mpp
+  - x402
+personas:
+  - issuer
+  - network
+  - merchant-smb
+  - ai-platform
+  - fraud-risk
+  - consumer
+disambiguation:
+  - "Agent Pay is not AP2. AP2 is Google's open protocol; Agent Pay is a Mastercard card-network program. They meet only through Verifiable Intent, which reuses the AP2 mandate type strings."
+  - "\"Agentic token\" names different products at Mastercard and Visa. Mastercard Agentic Tokens belong to Agent Pay; Visa's agentic network tokens belong to Visa Intelligent Commerce."
+  - "Verifiable Intent is a separate open specification, not the Agent Pay program itself."
+  - "A DTVC is a one-time security code issued with a Mastercard Virtual Card Token, not an agentic token."
+  - "The Mastercard Developers Agent Toolkit is an MCP server for documentation only; it makes no payments."
+mainFlow: mastercard-agent-pay-level1-purchase
+stateMachine: mastercard-agent-pay-token-lifecycle
+diagrams:
+  - mastercard-agent-pay-context
+  - mastercard-agent-pay-data-model
+  - mastercard-agent-pay-enrollment-provisioning
+  - mastercard-agent-pay-acceptance-paths
+  - mastercard-agent-pay-edge-decision
+  - mastercard-agent-pay-dtvc-guest-checkout
+  - mastercard-agent-pay-level3-intent
+  - mastercard-agent-pay-vi-layers
+  - mastercard-agent-pay-vi-immediate
+  - mastercard-agent-pay-vi-autonomous
+  - mastercard-agent-pay-vi-mandate-state
+  - mastercard-agent-pay-stripe-spt
+  - mastercard-agent-pay-failure-unknown-key
+  - mastercard-agent-pay-failure-intent-mismatch
+  - mastercard-agent-pay-failure-vi-budget-exceeded
+  - mastercard-agent-pay-vs-visa-tap
+  - mastercard-agent-pay-composition
+playground:
+  status: coming-next
+  note: "Two simulators are planned. A token lifecycle simulator: register an agent, consent with a passkey, provision an agentic token with merchant, amount and time limits, buy through a signed request checked at the edge, see the authorization, then revoke and watch the next attempt fail. A Verifiable Intent layer builder: build L1, L2 and L3 credentials with ephemeral ES256 keys, see each lifetime, add constraints and check the checkout_hash binding between L3a and L3b. Simulation only, no real cards, tokens or keys."
+keyFacts:
+  - label: Steward
+    value: "Mastercard (proprietary program); Verifiable Intent maintained by Mastercard and contributed to the FIDO Alliance"
+    claimIds: [clm-mastercard-agent-pay-004, clm-mastercard-agent-pay-010, clm-mastercard-agent-pay-014]
+  - label: What it is
+    value: "A card-network program, not an open protocol and not AP2; the Acceptance Framework specification is not public"
+    claimIds: [clm-mastercard-agent-pay-004, clm-mastercard-agent-pay-005, clm-mastercard-agent-pay-006]
+  - label: First announced
+    value: "2025-04-29, as the Agentic Payments Program with Mastercard Agentic Tokens"
+    claimIds: [clm-mastercard-agent-pay-001, clm-mastercard-agent-pay-002]
+  - label: Credential
+    value: "Agentic tokens built on Mastercard tokenization, issued only to registered agents; single-use, merchant-specific or time-limited"
+    claimIds: [clm-mastercard-agent-pay-002, clm-mastercard-agent-pay-072, clm-mastercard-agent-pay-076]
+  - label: Agent identity
+    value: "RFC 9421 signed requests with tag Agent-pay-auth, checked against a Mastercard key directory whose public location is unknown"
+    claimIds: [clm-mastercard-agent-pay-080, clm-mastercard-agent-pay-081, clm-mastercard-agent-pay-085]
+  - label: Intent proof
+    value: "Verifiable Intent: SD-JWT layers L1, L2 and L3 with ES256; label 0.1, no commits since 2026-04-20"
+    claimIds: [clm-mastercard-agent-pay-127, clm-mastercard-agent-pay-161, clm-mastercard-agent-pay-123]
+  - label: Status
+    value: "Pilots or first transactions; network-level enablement in Europe since 2026-06-02; no public volume data"
+    claimIds: [clm-mastercard-agent-pay-211, clm-mastercard-agent-pay-058, clm-mastercard-agent-pay-210]
+  - label: Rails
+    value: "Card rails; Agent Pay for Machines (2026-06-10) adds settlement across cards, accounts and stablecoins"
+    claimIds: [clm-mastercard-agent-pay-062]
+  - label: Costs
+    value: "No agent-specific price, interchange, liability rule or reason code published; card economics unchanged"
+    claimIds: [clm-mastercard-agent-pay-206, clm-mastercard-agent-pay-207, clm-mastercard-agent-pay-209]
+  - label: Composes with
+    value: "AP2 (shared mandate types via VI), UCP (VI in the AP2 extension), ACP (via Stripe SPTs), MPP (Tempo's statement), x402 (premier member)"
+    claimIds: [clm-mastercard-agent-pay-183, clm-mastercard-agent-pay-194, clm-mastercard-agent-pay-191, clm-mastercard-agent-pay-198, clm-mastercard-agent-pay-200]
+---
+
+This page is being written.
+
+## Compare and compose
+
+The written comparison is being written.
