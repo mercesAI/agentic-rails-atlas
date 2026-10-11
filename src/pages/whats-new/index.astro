@@ -1,0 +1,134 @@
+---
+/**
+ * /whats-new/: build-time snapshot of spec repository releases and commits
+ * (src/generated/github/*.json, written by `pnpm data`) plus timeline events
+ * from the last 90 days.
+ */
+import Page from '../../layouts/Page.astro';
+import Cite from '../../components/ui/Cite.astro';
+import ConfidenceBadge from '../../components/ui/ConfidenceBadge.astro';
+import ExternalLink from '../../components/ui/ExternalLink.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import { loadTimeline } from '../../components/hub/lib/build';
+import { KIND_LABELS } from '../../components/hub/lib/timeline';
+import { recentEvents, repoActivity, windowStart, WINDOW_DAYS } from '../../components/hub/lib/whats-new';
+import { dedupe, setPageSources } from '../../lib/citations';
+import { BUILD_DATE } from '../../lib/constants';
+import '../../components/hub/hub.css';
+
+const page = Astro.url.pathname;
+const since = windowStart(BUILD_DATE);
+const snapshots = Object.values(import.meta.glob<{ default: unknown }>('../../generated/github/*.json', { eager: true })).map((m) => m.default);
+const repos = repoActivity(snapshots, since);
+const active = repos.filter((r) => r.recent);
+const quiet = repos.filter((r) => !r.recent);
+const fetched = repos.map((r) => r.fetchedAt).filter(Boolean).sort().at(-1) ?? '';
+
+const timeline = await loadTimeline();
+const { recent, upcoming } = recentEvents(timeline.events, since, BUILD_DATE);
+setPageSources(dedupe([...recent, ...upcoming].flatMap((e) => e.sources.map((s) => s.id))), { page, sources: timeline.sources });
+const laneLabel = new Map(timeline.lanes.map((l) => [l.id, l.label]));
+---
+<Page
+  title="What's new"
+  eyebrow="Changes"
+  lede={`Spec repository activity and timeline events from the last ${WINDOW_DAYS} days: ${since} to ${BUILD_DATE}. This is a snapshot taken when the site was built, not a live feed.`}
+  prose={false}
+>
+  <div class="hub">
+    <section class="hub-section" aria-labelledby="events-h">
+      <h2 id="events-h">Timeline events since {since}</h2>
+      {recent.length === 0 ? (
+        <p class="hub-muted">No dated events in this window.</p>
+      ) : (
+        <ol class="tl-detail__list">
+          {recent.map((e) => (
+            <li class="tl-event" data-family={timeline.lanes.find((l) => l.id === e.lane)?.family}>
+              <div class="tl-event__head">
+                <time datetime={e.date} class="tl-event__date">{e.date}</time>
+                <span class="tl-event__lane">{laneLabel.get(e.lane) ?? e.lane}</span>
+                <span>{KIND_LABELS[e.kind] ?? e.kind}</span>
+                <ConfidenceBadge confidence={e.confidence} />
+              </div>
+              <p class="tl-event__title">{e.title} <Cite ids={e.sources.map((s) => s.id).join(' ')} /></p>
+              {e.detail && <p class="tl-event__detail">{e.detail}</p>}
+            </li>
+          ))}
+        </ol>
+      )}
+      {upcoming.length > 0 && (
+        <>
+          <h3>Dated after the build</h3>
+          <p class="hub-small">Scheduled or effective dates later than {BUILD_DATE}.</p>
+          <ol class="tl-detail__list">
+            {upcoming.map((e) => (
+              <li class="tl-event" data-family={timeline.lanes.find((l) => l.id === e.lane)?.family}>
+                <div class="tl-event__head">
+                  <time datetime={e.date} class="tl-event__date">{e.date}</time>
+                  <span class="tl-event__lane">{laneLabel.get(e.lane) ?? e.lane}</span>
+                  <ConfidenceBadge confidence={e.confidence} />
+                </div>
+                <p class="tl-event__title">{e.title} <Cite ids={e.sources.map((s) => s.id).join(' ')} /></p>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+      <p><a href="/timeline/">Open the full timeline</a></p>
+    </section>
+
+    <section class="hub-section" aria-labelledby="repos-h">
+      <h2 id="repos-h">Spec repositories</h2>
+      <p class="hub-muted">
+        Latest release and latest commit on the default branch for {repos.length} repositories, read from the GitHub API
+        {fetched && <> on <time datetime={fetched}>{fetched}</time></>}. A "new" mark means the date falls on or after {since}.
+      </p>
+      {repos.length === 0 ? (
+        <p class="hub-muted">No repository snapshot is available. Run <code>pnpm data</code> to fetch one.</p>
+      ) : (
+        [{ id: 'active', title: `Active in the last ${WINDOW_DAYS} days`, list: active }, { id: 'quiet', title: `Quiet for ${WINDOW_DAYS} days or more`, list: quiet }]
+          .filter((g) => g.list.length > 0)
+          .map((g) => (
+            <div class="table-wrap wn-repos" role="region" aria-labelledby={`repos-${g.id}`} tabindex="0">
+              <table>
+                <caption id={`repos-${g.id}`}>{g.title} ({g.list.length})</caption>
+                <thead>
+                  <tr><th scope="col">Repository</th><th scope="col">Latest release</th><th scope="col">Latest commit</th></tr>
+                </thead>
+                <tbody>
+                  {g.list.map((r) => (
+                    <tr>
+                      <th scope="row">
+                        <ExternalLink href={r.url}>{r.repo}</ExternalLink>
+                        {r.archived && <span class="hub-small"> (archived)</span>}
+                        {r.description && <div class="hub-small">{r.description}</div>}
+                      </th>
+                      <td>
+                        {r.release ? (
+                          <>
+                            <ExternalLink href={r.release.url}><code>{r.release.tag}</code></ExternalLink>{' '}
+                            <time datetime={r.release.date} class:list={{ 'wn-old': !r.release.recent }}>{r.release.date}</time>
+                            {r.release.recent && <> <span class="wn-mark">new</span></>}
+                          </>
+                        ) : <span class="wn-old">No releases</span>}
+                      </td>
+                      <td>
+                        {r.commit ? (
+                          <>
+                            <code>{r.commit.sha}</code>{' '}
+                            <time datetime={r.commit.date} class:list={{ 'wn-old': !r.commit.recent }}>{r.commit.date}</time>
+                            {r.commit.recent && <> <span class="wn-mark">new</span></>}
+                          </>
+                        ) : <span class="wn-old">Unknown</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))
+      )}
+    </section>
+    <SourceList page={page} />
+  </div>
+</Page>
