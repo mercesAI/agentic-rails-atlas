@@ -23,3 +23,5 @@
 - 2026-10-11, visa-tap: https://merchantcostconsulting.com/?p=8876: curl and WebFetch HTTP 403; alternative used: ATLAS_FOLLOWUP.md Appendix B summary (claim marked reported).
 - 2026-10-11, visa-tap: https://www.mastercard.com/us/en/news-and-trends/stories/2025/agentic-commerce-framework.html: curl HTTP 403 (developer.mastercard.com Agent Pay page renders client-side, no text); alternative used: search excerpts of Mastercard pages (claims marked reported).
 - 2026-10-11, stripe-mpp: https://www.theblock.co/post/394131/tempo-mainnet-goes-live-with-machine-payments-protocol-for-agents: HTTP 403 to curl; alternative used: tempo.xyz/blog/mainnet (primary)
+- 2026-10-11, stripe-mpp: thedefiant.io and fireblocks.com resource pages: HTTP 403 to curl HEAD (bot blocking); alternative used: kept Appendix A entries (opened 2026-10-10) with a note
+- 2026-10-11, stripe-mpp: mastercard.com AP4M press release and businesswire.com copy: HTTP 403 to curl and WebFetch; alternative used: ecommercenews.co.nz, electronicpaymentsinternational.com and thepaypers.com coverage (secondary)
