@@ -56,6 +56,22 @@
     ]
   },
   {
+    "id": "accept-payment",
+    "term": "Accept-Payment",
+    "aliases": [
+      "Accept-Payment header"
+    ],
+    "plain": "A request header in which an MPP client lists the method and intent pairs it supports, with optional q weights. The server's challenge stays authoritative.",
+    "ste": "A header that lists the payment methods and intents that the client can use.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-gh-pr-231"
+    ]
+  },
+  {
     "id": "acp-discovery-document",
     "term": "ACP discovery document",
     "aliases": [
@@ -124,6 +140,67 @@
     "sources": [
       "src-erc-8004-spec",
       "src-erc-8004-identity-sol"
+    ]
+  },
+  {
+    "id": "agent-pay-acceptance-framework",
+    "term": "Agent Pay Acceptance Framework",
+    "aliases": [
+      "Acceptance Framework"
+    ],
+    "plain": "Mastercard's rules and integration paths for merchants accepting agent payments, launched in October 2025. Mastercard's guides refer to it for full details, but its specification is not public.",
+    "ste": "The Mastercard rules for merchants that accept payments from agents. The full text is not public.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-latam-2025",
+      "src-mcap-dev-level3"
+    ]
+  },
+  {
+    "id": "agent-pay-for-machines",
+    "term": "Agent Pay for Machines",
+    "aliases": [
+      "AP4M"
+    ],
+    "plain": "A Mastercard service launched on 2026-06-10 for high-frequency, low-value payments by agents and machines, with credentialing, permissioning, transacting and settlement across cards, accounts and stablecoins. No API or pricing is published.",
+    "ste": "A Mastercard service for many small payments by agents and machines. It can settle on cards, accounts or stablecoins.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-ap4m-2026"
+    ]
+  },
+  {
+    "id": "agent-pay-trust-framework",
+    "term": "Agent Pay Trust Framework",
+    "aliases": [
+      "Trust Framework"
+    ],
+    "plain": "The name Mastercard gave on 2026-09-30 to the identity, intent, controls, execution and intelligence parts of Agent Pay, together with a probability score test in the US. No white paper was found.",
+    "ste": "The name for the five trust parts of Agent Pay: identity, intent, controls, execution and intelligence.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-trust-2026"
+    ]
+  },
+  {
+    "id": "agent-probability-score",
+    "term": "AI agent probability score",
+    "aliases": [
+      "probability score"
+    ],
+    "plain": "A Mastercard signal, in US testing since 2026-09-30, that estimates how likely it is that an AI agent initiated a transaction. Fields and thresholds are not published.",
+    "ste": "A Mastercard value that shows how probable it is that an agent started a payment.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-trust-2026"
     ]
   },
   {
@@ -335,6 +412,22 @@
     ]
   },
   {
+    "id": "autonomous-mode",
+    "term": "Autonomous mode (Verifiable Intent)",
+    "aliases": [
+      "three-layer mode"
+    ],
+    "plain": "The Verifiable Intent mode in which the user signs open mandates with constraints and the agent key, and the agent later signs L3a and L3b.",
+    "ste": "The mode where the user signs limits and the agent signs the final credentials later.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-spec",
+      "src-mcap-vi-format"
+    ]
+  },
+  {
     "id": "batch-settlement",
     "term": "Batch settlement",
     "aliases": [
@@ -382,6 +475,22 @@
     ],
     "sources": [
       "src-x402-ext-builder-code"
+    ]
+  },
+  {
+    "id": "business-network-profile",
+    "term": "Business Network Profile",
+    "aliases": [
+      "networkId",
+      "profile_"
+    ],
+    "plain": "The Stripe merchant identity that the stripe MPP method puts in methodDetails.networkId so an SPT can be scoped to that seller.",
+    "ste": "The Stripe identifier of the seller. The payment token works only for this seller.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-stripe-charge"
     ]
   },
   {
@@ -503,6 +612,39 @@
     ]
   },
   {
+    "id": "challenge-binding",
+    "term": "Challenge binding",
+    "aliases": [
+      "HMAC binding",
+      "challenge id binding"
+    ],
+    "plain": "Tying an MPP challenge id to all its parameters, usually with an HMAC-SHA256 over them, so a client cannot change what it pays for and a server can verify statelessly.",
+    "ste": "The server makes the challenge identifier from the challenge values with a secret key. Thus, nobody can change the values.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "channel-reserve-precompile",
+    "term": "TIP-20 channel reserve",
+    "aliases": [
+      "session v2",
+      "TIP-1034"
+    ],
+    "plain": "The Tempo precompile that holds session deposits in MPP session protocol v2, replacing the v1 escrow contract.",
+    "ste": "The built-in Tempo function that holds the deposit for a session, version 2.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session",
+      "src-stripe-mpp-blog-sessions"
+    ]
+  },
+  {
     "id": "charge",
     "term": "Charge",
     "aliases": [
@@ -614,6 +756,21 @@
     "sources": [
       "src-openai-acp-rfc-checkout",
       "src-ucp-checkout"
+    ]
+  },
+  {
+    "id": "client-enabler",
+    "term": "Client Enabler",
+    "aliases": [
+      "token service provider (card method)"
+    ],
+    "plain": "In the Visa-authored MPP card method, the party that provisions a network token and cryptogram for the client and encrypts them for the server.",
+    "ste": "The party that gets a card token for the client and encrypts it for the server.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-card-charge"
     ]
   },
   {
@@ -758,6 +915,21 @@
     ]
   },
   {
+    "id": "cooperative-close",
+    "term": "Cooperative close",
+    "aliases": [
+      "action close"
+    ],
+    "plain": "Ending an MPP session channel by agreement: the client sends a final voucher and the server closes on chain, capturing only what was spent and refunding the rest.",
+    "ste": "The server closes the channel with the last voucher. The server keeps the used amount and returns the remainder.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session"
+    ]
+  },
+  {
     "id": "covered-components",
     "term": "Covered components",
     "aliases": [
@@ -850,6 +1022,20 @@
     ]
   },
   {
+    "id": "delegate-payload",
+    "term": "delegate_payload",
+    "aliases": [],
+    "plain": "An L2 and L3 claim in Verifiable Intent that lists references to the mandate disclosures, so a verifier can see that mandates exist even when it cannot read them.",
+    "ste": "A claim that shows which mandates are in the credential.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-format",
+      "src-mcap-vi-security"
+    ]
+  },
+  {
     "id": "delegate-sd-jwt",
     "term": "Delegate SD-JWT",
     "aliases": [
@@ -919,6 +1105,21 @@
     "sources": [
       "src-gloss-dc-api",
       "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "dsrp-cryptogram",
+    "term": "DSRP cryptogram",
+    "aliases": [
+      "Digital Secure Remote Payment"
+    ],
+    "plain": "A one-time cryptogram for remote token payments. Mastercard says the Level 3 Agent Pay payload contains a DSRP cryptogram and card metadata.",
+    "ste": "A cryptographic value for one remote payment with a token.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level3"
     ]
   },
   {
@@ -1155,6 +1356,23 @@
     ]
   },
   {
+    "id": "fee-payer",
+    "term": "Fee payer",
+    "aliases": [
+      "feePayer",
+      "hostedFeePayer"
+    ],
+    "plain": "The party that pays network fees for a transaction. In MPP Tempo methods the server can co-sign as fee payer; Stripe's hostedFeePayer makes Stripe pay.",
+    "ste": "The party that pays the network fee for a transaction.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-charge",
+      "src-stripe-mpp-stripe-docs"
+    ]
+  },
+  {
     "id": "feed-api",
     "term": "Feed API",
     "aliases": [
@@ -1249,6 +1467,22 @@
     "sources": [
       "src-stripe-mpp-tempo-consensus",
       "src-x402-scheme-exact-lnbtc"
+    ]
+  },
+  {
+    "id": "forced-close",
+    "term": "Forced close",
+    "aliases": [
+      "requestClose",
+      "withdraw"
+    ],
+    "plain": "Ending an MPP session channel without the server: the client calls requestClose, waits a grace period of at least 15 minutes, then withdraws what is left.",
+    "ste": "The client closes the channel without the server. The client waits 15 minutes or more, then takes back the money.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session"
     ]
   },
   {
@@ -1389,6 +1623,22 @@
     ]
   },
   {
+    "id": "immediate-mode",
+    "term": "Immediate mode (Verifiable Intent)",
+    "aliases": [
+      "two-layer mode"
+    ],
+    "plain": "The Verifiable Intent mode in which the user signs final checkout and payment values in L2 and no L3 is created.",
+    "ste": "The mode where the user signs the final values. The agent does not sign credentials.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-spec",
+      "src-mcap-vi-format"
+    ]
+  },
+  {
     "id": "instant-checkout",
     "term": "Instant Checkout",
     "aliases": [
@@ -1415,6 +1665,21 @@
     ],
     "sources": [
       "src-visa-icc"
+    ]
+  },
+  {
+    "id": "intent-api",
+    "term": "Intent API (Mastercard)",
+    "aliases": [
+      "Mastercard Intent API"
+    ],
+    "plain": "A Mastercard API that registers an agent-captured purchase intent and returns an intentId with tokenized credentials, which the merchant validates at checkout. Field names are published; the schema is not.",
+    "ste": "A Mastercard API that keeps the purchase intent of the consumer. It gives an intent identifier and a token.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level3"
     ]
   },
   {
@@ -1461,6 +1726,22 @@
     ],
     "sources": [
       "src-openai-acp-rfc-intent-traces"
+    ]
+  },
+  {
+    "id": "jcs",
+    "term": "JCS",
+    "aliases": [
+      "JSON Canonicalization Scheme",
+      "RFC 8785"
+    ],
+    "plain": "A rule set (RFC 8785) that serializes JSON the same way everywhere. MPP encodes the request parameter with it so binding inputs match across implementations.",
+    "ste": "A standard that writes JSON data in one fixed form.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
     ]
   },
   {
@@ -1651,6 +1932,21 @@
     ]
   },
   {
+    "id": "mastercard-id-token",
+    "term": "mastercardIdToken",
+    "aliases": [
+      "Agent User Identity"
+    ],
+    "plain": "A Mastercard-issued JWT identifying the consumer, carried in the Level 2 Agent User Identity object; compatible with OpenID Connect ID Tokens.",
+    "ste": "A token from Mastercard that identifies the consumer. The agent sends it in the request body.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level2"
+    ]
+  },
+  {
     "id": "mcp",
     "term": "MCP",
     "aliases": [
@@ -1789,6 +2085,21 @@
     "sources": [
       "src-openai-acp-schema-checkout-20260417",
       "src-ucp-schema-payment"
+    ]
+  },
+  {
+    "id": "mppscan",
+    "term": "MPPscan",
+    "aliases": [
+      "MPP explorer"
+    ],
+    "plain": "A public explorer by Merit Systems that indexes MPP servers, agents, transactions and volume, mostly on Tempo.",
+    "ste": "A public web site that shows MPP payments and servers.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-mppscan"
     ]
   },
   {
@@ -2015,6 +2326,23 @@
     ]
   },
   {
+    "id": "payment-authorization",
+    "term": "Payment-Authorization",
+    "aliases": [
+      "Payment-Authorization header",
+      "header parameter"
+    ],
+    "plain": "An HTTP request header that carries an MPP credential when the challenge asked for it, so the Authorization header can keep a bearer token.",
+    "ste": "A header that holds the payment credential. The server asks for it when Authorization holds a different token.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-gh-pr-328"
+    ]
+  },
+  {
     "id": "payment-channel",
     "term": "Payment channel",
     "aliases": [
@@ -2150,6 +2478,23 @@
     "sources": [
       "src-ap2-schema-payment",
       "src-ap2-payment-mandate-doc"
+    ]
+  },
+  {
+    "id": "payment-method-mpp",
+    "term": "Payment method (MPP)",
+    "aliases": [
+      "method id",
+      "MPP method"
+    ],
+    "plain": "A rail-specific MPP specification, named by a lowercase id such as tempo, stripe or card, that defines the request and payload fields and how to verify and settle.",
+    "ste": "A specification for one payment rail. It tells the client how to pay and the server how to verify.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-specs-repo"
     ]
   },
   {
@@ -2608,6 +2953,21 @@
     ]
   },
   {
+    "id": "server-enabler",
+    "term": "Server Enabler",
+    "aliases": [
+      "acquirer (card method)"
+    ],
+    "plain": "In the MPP card method, the PSP or acquirer that decrypts the token for the merchant server and requests authorization from the card network.",
+    "ste": "The payment provider that decrypts the card token and asks the card network for approval.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-card-charge"
+    ]
+  },
+  {
     "id": "session",
     "term": "Session",
     "aliases": [
@@ -2775,6 +3135,34 @@
     ]
   },
   {
+    "id": "split-agent-attack",
+    "term": "Split-agent attack",
+    "aliases": [],
+    "plain": "An attack in which the checkout and payment mandates of one Verifiable Intent pair bind different agent keys; prevented by requiring an identical cnf.jwk in both.",
+    "ste": "An attack where two mandates in one pair have different agent keys.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-security"
+    ]
+  },
+  {
+    "id": "srcdpaid",
+    "term": "srcDpaId",
+    "aliases": [
+      "DPA identifier"
+    ],
+    "plain": "A Mastercard-generated merchant identifier used in Intent API orders; merchants reject a checkout when it does not match their own.",
+    "ste": "An identifier that Mastercard gives to a merchant. The merchant compares it with the identifier in the intent.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level3"
+    ]
+  },
+  {
     "id": "stablecoin",
     "term": "Stablecoin",
     "aliases": [
@@ -2919,6 +3307,22 @@
     ]
   },
   {
+    "id": "tempo-access-key",
+    "term": "Access key (Tempo)",
+    "aliases": [
+      "accessKey",
+      "keyAuthorization"
+    ],
+    "plain": "A Tempo key authorization with limits that the payer signs once so a server can collect recurring MPP subscription charges.",
+    "ste": "A key with limits that the payer approves. The server uses it to collect each subscription payment.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-subscription"
+    ]
+  },
+  {
     "id": "tip-20",
     "term": "TIP-20",
     "aliases": [
@@ -2948,6 +3352,21 @@
     "sources": [
       "src-ucp-overview",
       "src-ucp-schema-profile"
+    ]
+  },
+  {
+    "id": "trusted-agent-list",
+    "term": "Trusted agent list",
+    "aliases": [
+      "trusted agent lists"
+    ],
+    "plain": "The network-maintained list of agents that passed Mastercard's security review and certification; merchants rely on it through signature verification.",
+    "ste": "The list of agents that passed the Mastercard examination.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-rails"
     ]
   },
   {
@@ -3218,6 +3637,23 @@
       "src-mcap-vi-spec",
       "src-mcap-vi-format",
       "src-mcap-vi-changelog"
+    ]
+  },
+  {
+    "id": "virtual-card-token",
+    "term": "Mastercard Virtual Card Token",
+    "aliases": [
+      "MVCT",
+      "virtual card token"
+    ],
+    "plain": "A Mastercard token for web guest checkouts that comes with an expiry date and a one-time DTVC, so an agent can type all three into a normal card form.",
+    "ste": "A Mastercard token that an agent can put in a usual card form. It comes with a code for one use.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-mvct",
+      "src-mcap-dev-mvct-pay"
     ]
   },
   {

@@ -63,6 +63,69 @@
     ]
   },
   {
+    "from": "mastercard-agent-pay",
+    "to": "ap2",
+    "type": "complements",
+    "note": "Agent Pay is not AP2. Through Verifiable Intent it uses the same four mandate vct values as AP2 v0.2 on main, with aligned constraint semantics and a mandate. key prefix; both were contributed to FIDO on 2026-04-28. No live VI use inside AP2 is documented.",
+    "sources": [
+      "src-mcap-vi-format",
+      "src-mcap-ap2-schema-open-payment",
+      "src-mcap-fido-pr"
+    ]
+  },
+  {
+    "from": "mastercard-agent-pay",
+    "to": "openai-acp",
+    "type": "compatible-with",
+    "note": "Indirect: Stripe Shared Payment Tokens can carry Mastercard agentic network tokens, so an ACP checkout processed by Stripe can use one. ACP itself names Mastercard only as a card brand.",
+    "sources": [
+      "src-mcap-stripe-spt-2026",
+      "src-mcap-acp-schema"
+    ]
+  },
+  {
+    "from": "mastercard-agent-pay",
+    "to": "stripe-mpp",
+    "type": "complements",
+    "note": "Tempo, quoted in Mastercard's AP4M release, says it is working with Mastercard on Machine Payments Protocol compatibility; Mastercard makes no MPP claim itself and maintains no MPP payment method.",
+    "sources": [
+      "src-mcap-ap4m-2026",
+      "src-mcap-mpp-governance"
+    ]
+  },
+  {
+    "from": "mastercard-agent-pay",
+    "to": "ucp",
+    "type": "compatible-with",
+    "note": "Verifiable Intent says its credentials can travel in UCP's AP2 mandate extension (now dev.ucp.common.payment.ap2_mandate). Mastercard endorses UCP; no Agent Pay integration is documented.",
+    "sources": [
+      "src-mcap-vi-landscape",
+      "src-mcap-ucp-schema-ap2",
+      "src-mcap-ucp-endorsers"
+    ]
+  },
+  {
+    "from": "mastercard-agent-pay",
+    "to": "visa-tap",
+    "type": "competes-with",
+    "note": "Same edge pattern (RFC 9421 signature with a tag and nonce, network-hosted key directory), different tag and directory; both networks issue their own agentic tokens, which mean different products.",
+    "sources": [
+      "src-mcap-cloudflare-blog",
+      "src-mcap-dev-level1",
+      "src-mcap-stripe-spt-2026"
+    ]
+  },
+  {
+    "from": "mastercard-agent-pay",
+    "to": "x402",
+    "type": "complements",
+    "note": "Mastercard is a premier member of the x402 Foundation, and Coinbase's AP4M quote names x402; no Agent Pay technical document mentions x402.",
+    "sources": [
+      "src-mcap-x402-lf-july",
+      "src-mcap-ap4m-2026"
+    ]
+  },
+  {
     "from": "openai-acp",
     "to": "ap2",
     "type": "complements",
@@ -109,6 +172,70 @@
     "note": "No documented protocol link. Stripe says it might use Visa Intelligent Commerce tokens under SPT card payments, so Visa agent tokens can sit under an ACP payment.",
     "sources": [
       "src-fee-stripe-spt-docs"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "ap2",
+    "type": "complements",
+    "note": "Complementary in principle (AP2 carries user authorization evidence, MPP settles payment) but no specification binds them and neither repository mentions the other. In AP2, MPP means Merchant Payment Processor.",
+    "sources": [
+      "src-stripe-mpp-ap2-glossary",
+      "src-stripe-mpp-ucp-repo"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "mastercard-agent-pay",
+    "type": "compatible-with",
+    "note": "Tempo's statement only: in Mastercard's 2026-06-10 AP4M release Tempo says it is working with Mastercard on MPP compatibility. Mastercard makes no MPP claim and has no MPP method spec.",
+    "sources": [
+      "src-mcap-ap4m-2026",
+      "src-stripe-mpp-specs-repo"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "openai-acp",
+    "type": "complements",
+    "note": "No protocol cross-reference; the shared component is Stripe Shared Payment Tokens, which the stripe method carries and Stripe also uses for agentic checkout.",
+    "sources": [
+      "src-stripe-mpp-stripe-charge",
+      "src-stripe-mpp-stripe-blog",
+      "src-stripe-mpp-ucp-repo"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "visa-tap",
+    "type": "embeds",
+    "note": "The Visa-authored card method lets a client add TAP signature headers (in the spec since 2026-03-18); Visa says the card spec and SDK are built on VIC and TAP; mppx adds TAP request attestation.",
+    "sources": [
+      "src-stripe-mpp-card-charge",
+      "src-stripe-mpp-card-history",
+      "src-stripe-mpp-visa-card",
+      "src-stripe-mpp-blog-identity"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "x402",
+    "type": "compatible-with",
+    "note": "MPP maps x402 headers onto Payment authentication and x402 exact onto charge; upto and batch-settlement are comparable to sessions. mppx 0.9.0 and later serves both on one route; the mppx client prefers the Payment challenge.",
+    "sources": [
+      "src-stripe-mpp-vs-x402",
+      "src-stripe-mpp-mppx-changelog",
+      "src-stripe-mpp-cloudflare"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "x402",
+    "type": "competes-with",
+    "note": "Both are HTTP 402 payment protocols; MPP's comparison page, written by its authors, recommends MPP by default. Stripe co-authors MPP and sits on the x402 TSC.",
+    "sources": [
+      "src-stripe-mpp-vs-x402",
+      "src-stripe-mpp-x402-tsc"
     ]
   },
   {

@@ -631,6 +631,173 @@
       "source": "src/content/flows/openai-acp-product-feed-push.json"
     },
     {
+      "id": "stripe-mpp-card-charge",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP charge with the card method (Visa-authored, encrypted network token)",
+      "description": "Sequence diagram: MPP charge with the card method (Visa-authored, encrypted network token). 5 participants: Client (agent), Client Enabler, Merchant server, Server Enabler (PSP or acquirer), and Card network. 7 steps, 7 crossing a trust boundary, 1 failure branch. Based on stripe-mpp draft-card-charge-00 (2026-09-09). Step 1: Merchant server to Client (agent): 402 with method=\"card\". This step crosses a trust boundary. Step 2: Client (agent) to Client Enabler: Ask for a token for this challenge. This step crosses a trust boundary. Step 3: Client Enabler to Client (agent): Encrypted payload. This step crosses a trust boundary. Step 4: Client (agent) to Merchant server: Retry with Authorization: Payment. This step crosses a trust boundary. Step 5: Merchant server to Server Enabler (PSP or acquirer): Forward encryptedPayload. This step crosses a trust boundary. Step 6: Server Enabler (PSP or acquirer) to Card network: Authorize. This step crosses a trust boundary. If Decline: Server should issue a fresh 402. Step 7: Merchant server to Client (agent): 200 with Payment-Receipt. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Merchant server to Client (agent): 402 with method=\"card\". This step crosses a trust boundary.",
+        "Step 2: Client (agent) to Client Enabler: Ask for a token for this challenge. This step crosses a trust boundary.",
+        "Step 3: Client Enabler to Client (agent): Encrypted payload. This step crosses a trust boundary.",
+        "Step 4: Client (agent) to Merchant server: Retry with Authorization: Payment. This step crosses a trust boundary.",
+        "Step 5: Merchant server to Server Enabler (PSP or acquirer): Forward encryptedPayload. This step crosses a trust boundary.",
+        "Step 6: Server Enabler (PSP or acquirer) to Card network: Authorize. This step crosses a trust boundary. If Decline: Server should issue a fresh 402.",
+        "Step 7: Merchant server to Client (agent): 200 with Payment-Receipt. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/stripe-mpp-card-charge.json"
+    },
+    {
+      "id": "stripe-mpp-charge",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP one-time charge over HTTP (tempo method, charge intent)",
+      "description": "Sequence diagram: MPP one-time charge over HTTP (tempo method, charge intent). 3 participants: Client (agent), Resource server, and Tempo testnet (Moderato). 8 steps, 6 crossing a trust boundary, 10 failure branches. Based on stripe-mpp draft-httpauth-payment-01 with draft-payment-intent-charge-00 and draft-tempo-charge-00 (2026-09-09). Step 1: Client (agent) to Resource server: GET /v1/forecast (optional Accept-Payment). This step crosses a trust boundary. Step 2: Resource server to Client (agent): 402 with WWW-Authenticate: Payment. This step crosses a trust boundary. If Credential needs ordinary authentication too: Server answers 401 first and issues the Payment challenge only after authentication. Step 3: Client (agent) to Client (agent): Decode request and check terms. If Challenge already expired: Client must not pay; it requests a new challenge. If Amount or recipient differ from policy: Client stops; nothing is signed. Step 4: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary. If Credential sent in a field the challenge did not select: Server must not accept it. Step 5: Resource server to Resource server: Verify binding, expiry and proof. If Bad base64url or JSON: 402, fresh challenge, malformed-credential. If Unknown or used id: 402, fresh challenge, invalid-challenge. If Expired: 402, fresh challenge, payment-expired. If Proof invalid: 402, fresh challenge, verification-failed. Step 6: Resource server to Tempo testnet (Moderato): Co-sign fee and broadcast. This step crosses a trust boundary. If Transaction reverts or is not included: 402 with a fresh challenge; no receipt. Step 7: Tempo testnet (Moderato) to Resource server: Transfer confirmed. This step crosses a trust boundary. Step 8: Resource server to Client (agent): 200 OK with Payment-Receipt. This step crosses a trust boundary. If Payment valid but policy denies access: 403 with no new challenge.",
+      "lines": [
+        "Step 1: Client (agent) to Resource server: GET /v1/forecast (optional Accept-Payment). This step crosses a trust boundary.",
+        "Step 2: Resource server to Client (agent): 402 with WWW-Authenticate: Payment. This step crosses a trust boundary. If Credential needs ordinary authentication too: Server answers 401 first and issues the Payment challenge only after authentication.",
+        "Step 3: Client (agent) to Client (agent): Decode request and check terms. If Challenge already expired: Client must not pay; it requests a new challenge. If Amount or recipient differ from policy: Client stops; nothing is signed.",
+        "Step 4: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary. If Credential sent in a field the challenge did not select: Server must not accept it.",
+        "Step 5: Resource server to Resource server: Verify binding, expiry and proof. If Bad base64url or JSON: 402, fresh challenge, malformed-credential. If Unknown or used id: 402, fresh challenge, invalid-challenge. If Expired: 402, fresh challenge, payment-expired. If Proof invalid: 402, fresh challenge, verification-failed.",
+        "Step 6: Resource server to Tempo testnet (Moderato): Co-sign fee and broadcast. This step crosses a trust boundary. If Transaction reverts or is not included: 402 with a fresh challenge; no receipt.",
+        "Step 7: Tempo testnet (Moderato) to Resource server: Transfer confirmed. This step crosses a trust boundary.",
+        "Step 8: Resource server to Client (agent): 200 OK with Payment-Receipt. This step crosses a trust boundary. If Payment valid but policy denies access: 403 with no new challenge."
+      ],
+      "source": "src/content/flows/stripe-mpp-charge.json"
+    },
+    {
+      "id": "stripe-mpp-failure-expired-challenge",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP failure: the client pays an expired challenge",
+      "description": "Sequence diagram: MPP failure: the client pays an expired challenge. 2 participants: Client (agent) and Resource server. 6 steps, 4 crossing a trust boundary. Based on stripe-mpp draft-httpauth-payment-01 (2026-09-09). Step 1: Client (agent) to Resource server: GET /v1/forecast. This step crosses a trust boundary. Step 2: Resource server to Client (agent): 402 with challenge. This step crosses a trust boundary. Step 3: Client (agent) to Client (agent): Sign after expires. Step 4: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary. Step 5: Resource server to Resource server: Check expiry. Step 6: Resource server to Client (agent): 402, fresh challenge, payment-expired. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Client (agent) to Resource server: GET /v1/forecast. This step crosses a trust boundary.",
+        "Step 2: Resource server to Client (agent): 402 with challenge. This step crosses a trust boundary.",
+        "Step 3: Client (agent) to Client (agent): Sign after expires.",
+        "Step 4: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary.",
+        "Step 5: Resource server to Resource server: Check expiry.",
+        "Step 6: Resource server to Client (agent): 402, fresh challenge, payment-expired. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/stripe-mpp-failure-expired-challenge.json"
+    },
+    {
+      "id": "stripe-mpp-failure-policy-denied",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP alternative path: paid, but policy denies access (403)",
+      "description": "Sequence diagram: MPP alternative path: paid, but policy denies access (403). 2 participants: Client (agent) and Resource server. 3 steps, 2 crossing a trust boundary, 1 failure branch. Based on stripe-mpp draft-httpauth-payment-01 (2026-09-09). Step 1: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary. Step 2: Resource server to Resource server: Verify payment, then apply policy. Step 3: Resource server to Client (agent): 403 Forbidden, no challenge. This step crosses a trust boundary. If Rate limited: Server may send Retry-After.",
+      "lines": [
+        "Step 1: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary.",
+        "Step 2: Resource server to Resource server: Verify payment, then apply policy.",
+        "Step 3: Resource server to Client (agent): 403 Forbidden, no challenge. This step crosses a trust boundary. If Rate limited: Server may send Retry-After."
+      ],
+      "source": "src/content/flows/stripe-mpp-failure-policy-denied.json"
+    },
+    {
+      "id": "stripe-mpp-failure-reused-challenge",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP failure: a used credential is sent again (replay)",
+      "description": "Sequence diagram: MPP failure: a used credential is sent again (replay). 2 participants: Client (agent) and Resource server. 6 steps, 5 crossing a trust boundary. Based on stripe-mpp draft-httpauth-payment-01 (2026-09-09). Step 1: Client (agent) to Resource server: GET /v1/forecast. This step crosses a trust boundary. Step 2: Resource server to Client (agent): 402 with challenge. This step crosses a trust boundary. Step 3: Client (agent) to Resource server: First retry pays. This step crosses a trust boundary. Step 4: Client (agent) to Resource server: Same credential again. This step crosses a trust boundary. Step 5: Resource server to Resource server: Look up the id. Step 6: Resource server to Client (agent): 402, fresh challenge, invalid-challenge. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Client (agent) to Resource server: GET /v1/forecast. This step crosses a trust boundary.",
+        "Step 2: Resource server to Client (agent): 402 with challenge. This step crosses a trust boundary.",
+        "Step 3: Client (agent) to Resource server: First retry pays. This step crosses a trust boundary.",
+        "Step 4: Client (agent) to Resource server: Same credential again. This step crosses a trust boundary.",
+        "Step 5: Resource server to Resource server: Look up the id.",
+        "Step 6: Resource server to Client (agent): 402, fresh challenge, invalid-challenge. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/stripe-mpp-failure-reused-challenge.json"
+    },
+    {
+      "id": "stripe-mpp-mcp-tool-call",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP over MCP: a paid tool call",
+      "description": "Sequence diagram: MPP over MCP: a paid tool call. 2 participants: MCP client (agent) and MCP server. 4 steps, 4 crossing a trust boundary, 3 failure branches. Based on stripe-mpp draft-payment-transport-mcp-00 (2026-09-09). Step 1: MCP client (agent) to MCP server: tools/call premium-analysis. This step crosses a trust boundary. Step 2: MCP server to MCP client (agent): error -32042 Payment Required. This step crosses a trust boundary. Step 3: MCP client (agent) to MCP server: Retry with _meta org.paymentauth/credential. This step crosses a trust boundary. If Verification fails: error -32043 with a fresh challenge and a failure object. If Malformed credential: error -32602. If Processor failure: error -32603. Step 4: MCP server to MCP client (agent): Result with _meta org.paymentauth/receipt. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: MCP client (agent) to MCP server: tools/call premium-analysis. This step crosses a trust boundary.",
+        "Step 2: MCP server to MCP client (agent): error -32042 Payment Required. This step crosses a trust boundary.",
+        "Step 3: MCP client (agent) to MCP server: Retry with _meta org.paymentauth/credential. This step crosses a trust boundary. If Verification fails: error -32043 with a fresh challenge and a failure object. If Malformed credential: error -32602. If Processor failure: error -32603.",
+        "Step 4: MCP server to MCP client (agent): Result with _meta org.paymentauth/receipt. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/stripe-mpp-mcp-tool-call.json"
+    },
+    {
+      "id": "stripe-mpp-session-channel",
+      "kind": "state",
+      "protocol": "stripe-mpp",
+      "title": "Tempo session channel lifecycle (cooperative and forced close)",
+      "description": "State diagram: Tempo session channel lifecycle (cooperative and forced close). 6 states: Session challenge issued, Channel open, Streaming with vouchers, Close requested (grace period), Closed and finalized, and Rejected. Starts in Session challenge issued. Ends in Closed and finalized and Rejected. 11 transitions. From Session challenge issued to Channel open when Client sends action open with a signed deposit transaction (open(payee, token, deposit, salt, authorizedSigner)). From Session challenge issued to Rejected when Open transaction or voucher signature invalid (HTTP 402 session/invalid-signature). From Channel open to Streaming with vouchers when Client sends rising vouchers to the same URI (Authorization: Payment action voucher (HEAD allowed)). From Streaming with vouchers to Streaming with vouchers when Server claims the newest voucher (settle(channelId, cumulativeAmount, signature)). From Streaming with vouchers to Streaming with vouchers when Deposit runs low (action topUp; topUp(channelId, additionalDeposit)). From Streaming with vouchers to Closed and finalized when Cooperative close: client sends action close; server captures max(spent, settled) (close(channelId, cumulativeAmount, signature)). From Streaming with vouchers to Close requested (grace period) when Server stops answering; client starts a forced close (requestClose(channelId)). From Close requested (grace period) to Streaming with vouchers when Client tops up, which cancels the close request (topUp (emits CloseRequestCancelled)). From Close requested (grace period) to Closed and finalized when Server closes during the grace period (close(channelId, cumulativeAmount, signature)). From Close requested (grace period) to Closed and finalized when Grace period over (wait 16 minutes); client withdraws the rest (withdraw(channelId)). From Streaming with vouchers to Rejected when Voucher above deposit, below minVoucherDelta or from the wrong signer (HTTP 402 session/amount-exceeds-deposit, session/delta-too-small, session/signer-mismatch).",
+      "lines": [
+        "From Session challenge issued to Channel open when Client sends action open with a signed deposit transaction (open(payee, token, deposit, salt, authorizedSigner)).",
+        "From Session challenge issued to Rejected when Open transaction or voucher signature invalid (HTTP 402 session/invalid-signature).",
+        "From Channel open to Streaming with vouchers when Client sends rising vouchers to the same URI (Authorization: Payment action voucher (HEAD allowed)).",
+        "From Streaming with vouchers to Streaming with vouchers when Server claims the newest voucher (settle(channelId, cumulativeAmount, signature)).",
+        "From Streaming with vouchers to Streaming with vouchers when Deposit runs low (action topUp; topUp(channelId, additionalDeposit)).",
+        "From Streaming with vouchers to Closed and finalized when Cooperative close: client sends action close; server captures max(spent, settled) (close(channelId, cumulativeAmount, signature)).",
+        "From Streaming with vouchers to Close requested (grace period) when Server stops answering; client starts a forced close (requestClose(channelId)).",
+        "From Close requested (grace period) to Streaming with vouchers when Client tops up, which cancels the close request (topUp (emits CloseRequestCancelled)).",
+        "From Close requested (grace period) to Closed and finalized when Server closes during the grace period (close(channelId, cumulativeAmount, signature)).",
+        "From Close requested (grace period) to Closed and finalized when Grace period over (wait 16 minutes); client withdraws the rest (withdraw(channelId)).",
+        "From Streaming with vouchers to Rejected when Voucher above deposit, below minVoucherDelta or from the wrong signer (HTTP 402 session/amount-exceeds-deposit, session/delta-too-small, session/signer-mismatch)."
+      ],
+      "source": "src/content/states/stripe-mpp-session-channel.json"
+    },
+    {
+      "id": "stripe-mpp-stripe-spt-charge",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP charge with the stripe method (Shared Payment Token)",
+      "description": "Sequence diagram: MPP charge with the stripe method (Shared Payment Token). 4 participants: Client (agent), Stripe (client account), Seller server, and Stripe (seller account). 6 steps, 6 crossing a trust boundary, 2 failure branches. Based on stripe-mpp draft-stripe-charge-00 (2026-09-09). Step 1: Seller server to Client (agent): 402 with method=\"stripe\". This step crosses a trust boundary. Step 2: Client (agent) to Stripe (client account): Create a Shared Payment Token. This step crosses a trust boundary. Step 3: Client (agent) to Seller server: Retry with credential payload {spt}. This step crosses a trust boundary. Step 4: Seller server to Stripe (seller account): Create PaymentIntent (confirm true). This step crosses a trust boundary. If Stripe answers with Idempotent-Replayed for a new challenge: Treat as replay; mppx before 0.4.11 missed this (CVE-2026-34210). Step 5: Stripe (seller account) to Seller server: PaymentIntent status. This step crosses a trust boundary. If Any other status: 402 with a fresh challenge. Step 6: Seller server to Client (agent): 200 with Payment-Receipt. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Seller server to Client (agent): 402 with method=\"stripe\". This step crosses a trust boundary.",
+        "Step 2: Client (agent) to Stripe (client account): Create a Shared Payment Token. This step crosses a trust boundary.",
+        "Step 3: Client (agent) to Seller server: Retry with credential payload {spt}. This step crosses a trust boundary.",
+        "Step 4: Seller server to Stripe (seller account): Create PaymentIntent (confirm true). This step crosses a trust boundary. If Stripe answers with Idempotent-Replayed for a new challenge: Treat as replay; mppx before 0.4.11 missed this (CVE-2026-34210).",
+        "Step 5: Stripe (seller account) to Seller server: PaymentIntent status. This step crosses a trust boundary. If Any other status: 402 with a fresh challenge.",
+        "Step 6: Seller server to Client (agent): 200 with Payment-Receipt. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/stripe-mpp-stripe-spt-charge.json"
+    },
+    {
+      "id": "stripe-mpp-subscription-renewal",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP subscription: activation and one renewal per period",
+      "description": "Sequence diagram: MPP subscription: activation and one renewal per period. 3 participants: Client (agent), Resource server, and Payment network (Tempo or Stripe). 6 steps, 6 crossing a trust boundary, 2 failure branches. Based on stripe-mpp draft-payment-intent-subscription-00 with draft-tempo-subscription-00 (2026-07-29). Step 1: Resource server to Client (agent): 402 with intent=\"subscription\". This step crosses a trust boundary. Step 2: Client (agent) to Resource server: Credential with the grant. This step crosses a trust boundary. Step 3: Resource server to Payment network (Tempo or Stripe): Collect the first period. This step crosses a trust boundary. Step 4: Resource server to Client (agent): 200 with subscriptionId in the receipt. This step crosses a trust boundary. Step 5: Resource server to Payment network (Tempo or Stripe): Next period: one renewal. This step crosses a trust boundary. If Renewal fails: 402 with a fresh challenge. If Cancelled or expired: 402 with a fresh challenge; no further renewals. Step 6: Resource server to Client (agent): Serve the period. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Resource server to Client (agent): 402 with intent=\"subscription\". This step crosses a trust boundary.",
+        "Step 2: Client (agent) to Resource server: Credential with the grant. This step crosses a trust boundary.",
+        "Step 3: Resource server to Payment network (Tempo or Stripe): Collect the first period. This step crosses a trust boundary.",
+        "Step 4: Resource server to Client (agent): 200 with subscriptionId in the receipt. This step crosses a trust boundary.",
+        "Step 5: Resource server to Payment network (Tempo or Stripe): Next period: one renewal. This step crosses a trust boundary. If Renewal fails: 402 with a fresh challenge. If Cancelled or expired: 402 with a fresh challenge; no further renewals.",
+        "Step 6: Resource server to Client (agent): Serve the period. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/stripe-mpp-subscription-renewal.json"
+    },
+    {
+      "id": "stripe-mpp-tempo-session",
+      "kind": "flow",
+      "protocol": "stripe-mpp",
+      "title": "MPP metered session on Tempo (open, vouchers, top-up, cooperative close)",
+      "description": "Sequence diagram: MPP metered session on Tempo (open, vouchers, top-up, cooperative close). 3 participants: Client (agent), Resource server, and Tempo escrow (precompile in v2). 10 steps, 10 crossing a trust boundary, 4 failure branches. Based on stripe-mpp draft-tempo-session-00 (v2 text merged 2026-06-25) (2026-06-25). Step 1: Resource server to Client (agent): 402 with intent=\"session\". This step crosses a trust boundary. Step 2: Client (agent) to Resource server: action open. This step crosses a trust boundary. Step 3: Resource server to Tempo escrow (precompile in v2): Broadcast open. This step crosses a trust boundary. Step 4: Resource server to Client (agent): 200, stream begins, receipt. This step crosses a trust boundary. Step 5: Client (agent) to Resource server: action voucher (HEAD allowed). This step crosses a trust boundary. If Voucher above deposit: session/amount-exceeds-deposit. If Increase below minVoucherDelta: session/delta-too-small. If Wrong signer: session/signer-mismatch. Step 6: Client (agent) to Tempo escrow (precompile in v2): action topUp when low. This step crosses a trust boundary. Step 7: Resource server to Tempo escrow (precompile in v2): settle (optional, any time). This step crosses a trust boundary. Step 8: Client (agent) to Resource server: action close. This step crosses a trust boundary. Step 9: Resource server to Tempo escrow (precompile in v2): close. This step crosses a trust boundary. If Server unresponsive: Forced close: requestClose, grace period of at least 15 minutes, withdraw. Step 10: Resource server to Client (agent): Final receipt with txHash. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Resource server to Client (agent): 402 with intent=\"session\". This step crosses a trust boundary.",
+        "Step 2: Client (agent) to Resource server: action open. This step crosses a trust boundary.",
+        "Step 3: Resource server to Tempo escrow (precompile in v2): Broadcast open. This step crosses a trust boundary.",
+        "Step 4: Resource server to Client (agent): 200, stream begins, receipt. This step crosses a trust boundary.",
+        "Step 5: Client (agent) to Resource server: action voucher (HEAD allowed). This step crosses a trust boundary. If Voucher above deposit: session/amount-exceeds-deposit. If Increase below minVoucherDelta: session/delta-too-small. If Wrong signer: session/signer-mismatch.",
+        "Step 6: Client (agent) to Tempo escrow (precompile in v2): action topUp when low. This step crosses a trust boundary.",
+        "Step 7: Resource server to Tempo escrow (precompile in v2): settle (optional, any time). This step crosses a trust boundary.",
+        "Step 8: Client (agent) to Resource server: action close. This step crosses a trust boundary.",
+        "Step 9: Resource server to Tempo escrow (precompile in v2): close. This step crosses a trust boundary. If Server unresponsive: Forced close: requestClose, grace period of at least 15 minutes, withdraw.",
+        "Step 10: Resource server to Client (agent): Final receipt with txHash. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/stripe-mpp-tempo-session.json"
+    },
+    {
       "id": "ucp-3ds-authentication-actions",
       "kind": "flow",
       "protocol": "ucp",

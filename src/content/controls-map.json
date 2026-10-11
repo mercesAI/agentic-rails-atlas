@@ -767,6 +767,149 @@
       ]
     },
     {
+      "protocol": "stripe-mpp",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The core payment is pseudonymous with an optional DID source; mppx adds RFC 9421 request attestation for Web Bot Auth and Visa TAP, and the card method allows optional TAP headers.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-card-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "agent-registration-kya",
+      "support": "none",
+      "note": "The core forbids requiring accounts for payment; any know-your-customer step belongs to a method (the stripe method needs Stripe accounts on both sides).",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "user-consent-capture",
+      "support": "partial",
+      "note": "Browser wallets should show the origin and ask for explicit confirmation; SPT creation may prompt 3DS or biometrics. No user mandate object.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "spending-caps",
+      "support": "partial",
+      "note": "Caps come from the rail: the session deposit, SPT usage limits, Tempo access key limits. The core has none.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "recipient and realm are bound into the challenge id; SPTs are scoped to the seller networkId; v2 session descriptors must match the payee.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "time-windows-expiry",
+      "support": "partial",
+      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at, but session channels and vouchers never expire.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "revocation",
+      "support": "partial",
+      "note": "No core revocation message; subscriptions cancel by method-specific means and a payer can force-close a channel.",
+      "sources": [
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "step-up-authentication",
+      "support": "external",
+      "note": "Method-specific: Stripe may prompt 3DS while creating an SPT; card methods carry network cryptograms.",
+      "sources": [
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Single-use challenge ids and proofs, Idempotency-Key, digest binding, and channel and EIP-712 domain binding in sessions.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "Payment-Receipt with a method reference on every paid response; session receipts add spent and acceptedCumulative, plus a final SSE event.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "dispute-support",
+      "support": "external",
+      "note": "Depends on the rail: card and stripe routes keep chargebacks; Stripe stablecoin payments have no disputes; on-chain charges are final.",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "reputation",
+      "support": "none",
+      "note": "No reputation layer; the discovery draft only mentions future on-chain anchoring compatible with ERC-8004.",
+      "sources": [
+        "src-stripe-mpp-discovery"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Public explorer data (MPPscan, Tempo chain) and the Stripe Dashboard for Stripe-settled payments; servers should rate-limit.",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "kill-switch",
+      "support": "none",
+      "note": "No protocol stop; a payer stops signing or force-closes, and an operator revokes keys at the wallet or disables a Stripe account.",
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
       "protocol": "ap2",
       "control": "agent-identity-verification",
       "support": "partial",
@@ -898,6 +1041,152 @@
       "note": "Credential Providers, networks or processors may reject overlapping mandates or invalidate tokens; card networks keep their own controls.",
       "sources": [
         "src-ap2-security"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "agent-identity-verification",
+      "support": "native",
+      "note": "Registered agents sign requests with RFC 9421 and the tag Agent-pay-auth; verifiers check against the Mastercard key directory at the CDN or merchant.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-cloudflare-blog"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "agent-registration-kya",
+      "support": "native",
+      "note": "Registration, security review, certification and trusted agent lists; Skyfire named as Know Your Agent partner on 2026-09-30.",
+      "sources": [
+        "src-mcap-dev-rails",
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "user-consent-capture",
+      "support": "native",
+      "note": "Consumer authorizes the agent and sets limits; passkeys in regional pilots; Verifiable Intent L2 signed by the user key.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-latam-2026",
+        "src-mcap-vi-spec"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "Tokens limited by merchant, amount or time window; Verifiable Intent amount_range and budget constraints.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "Merchant-specific tokens; Verifiable Intent allowed_merchants and allowed_payees; Intent API srcDpaId check.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints",
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "Time-limited tokens, signature created and expires, orderExpiry, Verifiable Intent layer lifetimes (L3 at most one hour).",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-level3",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "revocation",
+      "support": "partial",
+      "note": "No public revocation API for agents or tokens; Verifiable Intent 0.1 has no revocation protocol, only JWKS key removal and expiry.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-llms"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "step-up-authentication",
+      "support": "partial",
+      "note": "Passkeys at consent; deferred orders escalated to the consumer; 3DS for agentic flows still in development at networks and EMVCo.",
+      "sources": [
+        "src-mcap-latam-2026",
+        "src-mcap-dev-level3",
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Mandatory nonce and short window on signatures; single-use tokens and one-time DTVC; Verifiable Intent nonce, aud and one L3 pair per mandate pair.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-mvct",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "Verifiable Intent chain gives dispute evidence; intent records kept as chargeback evidence; no receipt object in the program.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Standard chargeback rights; no agent-specific reason codes or liability shift; Verifiable Intent leaves dispute choreography out of scope.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-launch-2025",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "reputation",
+      "support": "none",
+      "note": "No public agent reputation score; the probability score rates transactions, not agents.",
+      "sources": [
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "monitoring-signals",
+      "support": "native",
+      "note": "Agent transactions recognizable to issuers; probability score in US testing from 2026-09-30; Verifiable Intent risk_data at consent.",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-trust-2026",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Issuers keep card-level blocks and declines; no documented control to disable one agent across the network.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-rails"
       ]
     }
   ],

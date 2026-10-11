@@ -2007,6 +2007,397 @@
       "confidence": "verified"
     },
     {
+      "protocol": "stripe-mpp",
+      "dimension": "primary-job",
+      "value": "Pay-per-request, metered and recurring payments as an HTTP authentication scheme",
+      "detail": "402 challenge, credential and receipt; methods settle on their own rails.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-specs-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "layers-covered",
+      "value": "Payment credential and settlement rails; optional discovery",
+      "detail": "No identity, mandate or checkout layer; disputes depend on the rail.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-discovery"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "stewards",
+      "value": "Tempo Labs and Stripe",
+      "detail": "Rails maintain their own methods (Visa, Lightspark, Circle and others).",
+      "sources": [
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-governance"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "governance-model",
+      "value": "Core as an individual IETF draft; methods by rails; no foundation",
+      "detail": "No working group, charter or steering committee.",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-governance"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "license-spec-and-code",
+      "value": "Specs CC0 1.0; tooling Apache-2.0 or MIT; mppx MIT",
+      "detail": "IETF submissions fall under IETF Trust terms.",
+      "sources": [
+        "src-stripe-mpp-specs-license",
+        "src-stripe-mpp-mppx-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "first-announced",
+      "value": "2026-03-18",
+      "detail": "With Tempo mainnet; spec repository created 2026-01-05.",
+      "sources": [
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-gh-specs-commits"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "latest-version-and-date",
+      "value": "draft-httpauth-payment-01 (2026-09-09); mppx 0.13.4 (2026-10-08)",
+      "detail": "Old name draft-ryan-httpauth-payment expired 2026-09-18.",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "maturity",
+      "value": "Live deployments on a draft spec",
+      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier; no IANA registrations.",
+      "sources": [
+        "src-stripe-mpp-tempo-mainnet",
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-iana"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "transports",
+      "value": "HTTP authentication headers; JSON-RPC and MCP; SSE receipts",
+      "detail": "MCP error -32042 and _meta credential and receipt.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-mcp-transport"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "settlement-rails",
+      "value": "Tempo and other chains, Stripe SPTs, card networks, Lightning",
+      "detail": "11 method ids in the spec repo; mpp.dev documents two more.",
+      "sources": [
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-docs-methods"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "agent-identity-model",
+      "value": "None in the core; optional request attestation in mppx",
+      "detail": "Optional DID source; Web Bot Auth and TAP profiles; TAP headers optional in the card method.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "user-authorization-model",
+      "value": "The client's payment proof per request, or a rail grant",
+      "detail": "Session deposit, SPT limits or Tempo access key; no user mandate object.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Both",
+      "detail": "Built for unattended clients; browser wallets should ask a human to confirm; SPT creation may prompt 3DS.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "merchant-of-record",
+      "value": "The resource server",
+      "detail": "With the stripe method the seller's Stripe account receives the PaymentIntent.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "credential-type",
+      "value": "Bearer Payment credential wrapping a method proof",
+      "detail": "Signed Tempo transaction, SPT id, JWE network token, Lightning preimage or EIP-712 voucher.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-charge",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "cryptography",
+      "value": "HMAC-SHA256 binding, JCS, RFC 9530 digest, EIP-712 secp256k1, JWE RSA-OAEP",
+      "detail": "TLS 1.2 or later required.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "replay-protection",
+      "value": "Single-use challenge ids and single-use method proofs",
+      "detail": "Idempotency-Key, digest binding, channel and domain binding.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "native-spending-controls",
+      "value": "None in the core; caps come from rails",
+      "detail": "Session deposit, SPT usage limits, Tempo access keys.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "revocation",
+      "value": "No core revocation; method-specific cancellation; forced channel close",
+      "sources": [
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "refunds-and-disputes",
+      "value": "Depend on the method",
+      "detail": "Card routes keep chargebacks; Stripe stablecoin payments have no disputes; session close refunds the unspent deposit.",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin",
+        "src-stripe-mpp-tempo-session"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "privacy-exposure",
+      "value": "Chain settlements public; credentials private between client and server",
+      "detail": "Card credentials may carry billing address and name; core forbids requiring accounts.",
+      "sources": [
+        "src-stripe-mpp-tempo-connection",
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "discovery-mechanism",
+      "value": "Optional /openapi.json with x-service-info and x-payment-info",
+      "detail": "No .well-known path; mpp.dev directory and MPPscan.",
+      "sources": [
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Permissionless for chain methods; accounts for the stripe method",
+      "detail": "Rails add methods without approval.",
+      "sources": [
+        "src-stripe-mpp-governance",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "decentralization",
+      "value": "Open spec, concentrated authorship",
+      "detail": "Five core authors from two companies; Tempo validators are permissioned; 126 of 129 listings accept Tempo.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-consensus",
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "observability-score",
+      "value": "3 of 5",
+      "detail": "Public chain settlement and MPPscan; credentials, Stripe and card payments private.",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-tempo-connection"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; rail fees",
+      "detail": "Tempo gas at most about 0.0006 USD per 50,000-gas transfer, paid by the client unless the server sponsors; Stripe minimums 0.50 USD (cards) and 0.01 USDC; Stripe stablecoin fee reported, not confirmed for MPP; SPT pricing not published (as of 2026-10-11).",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-fees",
+        "src-stripe-mpp-stripe-docs",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "who-pays",
+      "value": "Client pays gas unless the server sponsors; card economics unchanged",
+      "detail": "Server always pays settle and close; Stripe can pay Tempo fees with hostedFeePayer.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "builds-on-standards",
+      "value": "HTTP 402 auth (RFC 9110), JCS, RFC 9530, RFC 9457, HMAC, EIP-712, JWE, DID",
+      "detail": "Plus OpenAPI and JSON-RPC for extensions.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "composes-with",
+      "value": "x402, Stripe SPT (ACP), Visa TAP and VIC, Mastercard AP4M (Tempo's statement)",
+      "detail": "AP2 complementary with no cross-reference; no UCP or ERC-8004 link.",
+      "sources": [
+        "src-stripe-mpp-vs-x402",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-visa-card",
+        "src-mcap-ap4m-2026",
+        "src-stripe-mpp-ucp-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "mppx 0.13.4 (TypeScript), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
+      "detail": "Community SDKs in Elixir, Go and Swift.",
+      "sources": [
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-sdk-registries",
+        "src-stripe-mpp-sdk-index"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "adoption-evidence",
+      "value": "Live but small and mostly Tempo",
+      "detail": "MPPscan: 4,072,426 transactions and 435,476 USD all time, 8,774 USD in the last 30 days (2026-10-11); 129 directory services.",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "published-security-research",
+      "value": "Yes: one formal analysis and six SDK advisories",
+      "detail": "Tamarin model in arXiv:2609.00060; CVE-2026-34209, CVE-2026-34210, CVE-2026-63627, CVE-2026-63628 and two critical GHSAs.",
+      "sources": [
+        "src-stripe-mpp-arxiv-2609-00060",
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-rs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "regulatory-touchpoints",
+      "value": "Card law for card methods; stablecoin, AML and sanctions rules for chain methods",
+      "detail": "No KYC or sanctions layer in the core.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-policy-genius-act",
+        "src-policy-regz-1026-12"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "biggest-open-question",
+      "value": "Will it become a real standard with a neutral home, and is the traffic real commerce?",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-mppscan"
+      ],
+      "confidence": "verified"
+    },
+    {
       "protocol": "ap2",
       "dimension": "primary-job",
       "value": "Signed mandates that prove what a user authorized an agent to buy",
@@ -2376,6 +2767,363 @@
         "src-ap2-faq"
       ],
       "confidence": "unverified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "primary-job",
+      "value": "Let registered agents pay with scoped card tokens",
+      "detail": "Network registers agents, issues agentic tokens and lets merchants recognize agent requests.",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-dev-rails"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "layers-covered",
+      "value": "Payment credential, identity and trust, intent",
+      "detail": "Tokens, agent registration and signatures, Verifiable Intent for intent.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "stewards",
+      "value": "Mastercard",
+      "detail": "Verifiable Intent maintained by Mastercard and contributed to FIDO.",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-fido-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "governance-model",
+      "value": "Proprietary network program",
+      "detail": "No public spec, version or governance body; VI is open at FIDO.",
+      "sources": [
+        "src-mcap-dev-level3",
+        "src-mcap-fido-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "license-spec-and-code",
+      "value": "Program proprietary; VI Apache-2.0",
+      "detail": "Acceptance Framework spec not public.",
+      "sources": [
+        "src-mcap-vi-readme",
+        "src-mcap-dev-level3"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "first-announced",
+      "value": "2025-04-29",
+      "sources": [
+        "src-mcap-launch-2025"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "latest-version-and-date",
+      "value": "Unversioned; VI 0.1 (main 2026-04-20)",
+      "detail": "Latest program addition: Trust Framework, 2026-09-30.",
+      "sources": [
+        "src-mcap-vi-pr23",
+        "src-mcap-trust-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "maturity",
+      "value": "Pilots or first transactions",
+      "detail": "Network-level enablement in Europe since 2026-06-02; named transactions controlled.",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-santander-2026",
+        "src-mcap-latam-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "transports",
+      "value": "HTTP signatures, card forms, merchant APIs, card authorization",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-level3"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "settlement-rails",
+      "value": "Card rails; AP4M adds accounts and stablecoins",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-ap4m-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "agent-identity-model",
+      "value": "Registered, certified agents; RFC 9421 with tag Agent-pay-auth",
+      "detail": "Key directory location not public.",
+      "sources": [
+        "src-mcap-dev-rails",
+        "src-mcap-dev-level1"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "user-authorization-model",
+      "value": "Consumer consent with passkeys; optional VI user-signed L2",
+      "sources": [
+        "src-mcap-latam-2026",
+        "src-mcap-vi-format"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Both",
+      "detail": "VI Immediate (user present) and Autonomous (agent delegated) modes.",
+      "sources": [
+        "src-mcap-vi-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "merchant-of-record",
+      "value": "Merchant stays merchant of record",
+      "detail": "Normal card acceptance through the merchant acquirer.",
+      "sources": [
+        "src-mcap-dev-level1"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "credential-type",
+      "value": "Agentic network token (plus Virtual Card Token with DTVC)",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-dev-mvct"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "cryptography",
+      "value": "Ed25519 or ECDSA P-256 request signatures; ES256 SD-JWT for VI; DSRP cryptogram",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-spec",
+        "src-mcap-dev-level3"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "replay-protection",
+      "value": "Nonce and window on signatures; single-use tokens and DTVC",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-mvct"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "native-spending-controls",
+      "value": "Token limits by merchant, amount, time; VI amount_range and budget",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "revocation",
+      "value": "Not documented",
+      "detail": "No public revocation API; VI 0.1 has no revocation protocol.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-llms"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "refunds-and-disputes",
+      "value": "Standard chargebacks; no agent reason codes",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-nevermined-review"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "privacy-exposure",
+      "value": "Agents see tokens, not card numbers; VI sub always visible",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-security"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "discovery-mechanism",
+      "value": "None for merchants; key directory for agent keys",
+      "sources": [
+        "src-mcap-cloudflare-blog"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Registration required (agents and merchants)",
+      "sources": [
+        "src-mcap-dev-rails"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "decentralization",
+      "value": "Centralized in Mastercard",
+      "sources": [
+        "src-mcap-dev-rails"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "detail": "Nothing public beyond releases and the VI repository.",
+      "sources": [
+        "src-mcap-vi-gh-repo",
+        "src-mcap-trust-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "fees-and-who-pays-them",
+      "value": "Not published; card economics unchanged",
+      "detail": "No price table, interchange category, token fee or liability rule published.",
+      "sources": [
+        "src-mcap-nevermined-review",
+        "src-mcap-mcc-fees"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "who-pays",
+      "value": "Card economics unchanged",
+      "detail": "Merchant pays its usual card acceptance fees.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-nevermined-review"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "builds-on-standards",
+      "value": "Network tokenization, RFC 9421, FIDO passkeys, SD-JWT, RFC 7800",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-rfc9421",
+        "src-mcap-vi-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "composes-with",
+      "value": "AP2 and UCP via VI, ACP via Stripe SPT, MPP (Tempo statement), x402 (member)",
+      "sources": [
+        "src-mcap-vi-landscape",
+        "src-mcap-stripe-spt-2026",
+        "src-mcap-ap4m-2026",
+        "src-mcap-x402-lf-july"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "VI Python reference SDK; no Agent Pay SDK",
+      "detail": "The Agent Toolkit is documentation only.",
+      "sources": [
+        "src-mcap-vi-pyproject",
+        "src-mcap-dev-llms",
+        "src-mcap-toolkit-api"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "adoption-evidence",
+      "value": "Named pilots; no volume data",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-trust-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "published-security-research",
+      "value": "None specific; VI threat model and issue 29",
+      "sources": [
+        "src-mcap-arxiv-issuer",
+        "src-mcap-vi-security",
+        "src-mcap-vi-issue29"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "regulatory-touchpoints",
+      "value": "Regulation Z and E, PSD2 SCA, UK PSRs, network rules, EMVCo",
+      "sources": [
+        "src-policy-regz-1026-12",
+        "src-policy-eu-rts-sca",
+        "src-mcap-emvco-news"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "biggest-open-question",
+      "value": "Liability for agent purchases within limits",
+      "sources": [
+        "src-mcap-nevermined-review",
+        "src-mcap-vi-issue15"
+      ],
+      "confidence": "reported"
     }
   ],
   "radar": [
@@ -2680,6 +3428,67 @@
       ]
     },
     {
+      "protocol": "stripe-mpp",
+      "axis": "openness",
+      "value": 4,
+      "justification": "CC0 specs, permissionless methods and open SDKs, but no neutral governance body.",
+      "sources": [
+        "src-stripe-mpp-specs-license",
+        "src-stripe-mpp-governance"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "decentralization",
+      "value": 2,
+      "justification": "Authorship from two companies, a permissioned Tempo validator set, and nearly all listed services on Tempo.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-consensus",
+        "src-stripe-mpp-directory-api"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "maturity",
+      "value": 3,
+      "justification": "Live since 2026-03-18 with several SDKs, but the core is an individual draft and Stripe's integration is labeled Frontier.",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-stripe-docs"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Millions of indexed transactions but under one cent each recently, and few non-Tempo listings.",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-directory-api"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "human-not-present",
+      "value": 4,
+      "justification": "Designed for unattended clients with deposit-capped sessions and access-key subscriptions; no user mandate object.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-tempo-subscription"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "Chargebacks only on card routes; none on stablecoin routes.",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    },
+    {
       "protocol": "ap2",
       "axis": "openness",
       "value": 4,
@@ -2737,6 +3546,66 @@
       "justification": "Defined dispute verification over mandates and receipts; retention and adjudication left out.",
       "sources": [
         "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "openness",
+      "value": 1,
+      "justification": "Proprietary program with an unpublished Acceptance Framework; only Verifiable Intent is open.",
+      "sources": [
+        "src-mcap-dev-level3",
+        "src-mcap-vi-readme"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "decentralization",
+      "value": 0,
+      "justification": "Mastercard alone registers agents, runs the directory and issues tokens.",
+      "sources": [
+        "src-mcap-dev-rails"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Network enablement in several regions but named transactions are pilots; developer docs an early preview.",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-dev-release-history"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Many named banks and partners, no volume data.",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-latam-2026",
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "human-not-present",
+      "value": 3,
+      "justification": "Tokens with limits and VI Autonomous mandates support delegation; VI not shown in live authorizations.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "Card chargeback rights apply; no agent-specific codes; VI evidence without liability rules.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-security"
       ]
     }
   ]
