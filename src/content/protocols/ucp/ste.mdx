@@ -1,0 +1,91 @@
+---
+protocol: ucp
+title: UCP in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+UCP is the Universal Commerce Protocol. It is an open protocol for checkout, carts and orders. An agent uses UCP to buy from a business. Google started UCP in 2026 with Shopify and other companies.
+
+UCP has four main roles. The platform is the agent or app that acts for the buyer. The business sells the goods and is the merchant of record. The credential provider is a wallet that gives a payment token. The payment service provider (PSP) of the business charges the token.
+
+Each business publishes a profile at the path /.well-known/ucp. The profile shows the versions, the transports, the capabilities and the payment handlers of the business. The profile also contains the public keys of the business. The platform also has a profile, and it sends the address of that profile in the UCP-Agent header.
+
+The business compares the two profiles. It keeps only the capabilities that both sides support. It uses the highest version that both sides support. It removes an extension when the parent capability is not available.
+
+The business is the merchant of record. Google is not the merchant of record. Universal Cart is a Google product that uses UCP. It is not the protocol. AP2 is an optional extension inside UCP. It is not the same protocol as UCP.
+
+</SteDescription>
+
+<SteProcedure title="Buy an item through UCP (platform)">
+
+1. Get the business profile from /.well-known/ucp.
+2. Make sure that the profile uses HTTPS and has no redirect.
+3. Select the highest version that you and the business support.
+4. Send a create checkout request. Put the address of your profile in the UCP-Agent header.
+5. Add an Idempotency-Key header and a Request-Id header to the request.
+6. Read the status and the messages in the response.
+7. If a message has the severity recoverable, correct the data. Send the full checkout again.
+8. If the status is requires_escalation, open the continue_url for the buyer.
+9. When the status is ready_for_complete, show the checkout to the buyer in a trusted screen.
+10. Get a payment token from the credential provider of the selected payment handler.
+11. Send the complete checkout request with one payment instrument.
+12. Keep the order identifier and the permalink_url from the response.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SEND A NEW COMPLETE CHECKOUT REQUEST WITH A NEW IDEMPOTENCY KEY IF THE FIRST RESPONSE DID NOT ARRIVE. THE BUSINESS CAN THEN CHARGE THE BUYER TWO TIMES.
+</SteCaution>
+
+<SteNote>
+If the response to a complete checkout request does not arrive, get the checkout first. Send the same request again with the same key only if the status is still not clear.
+</SteNote>
+
+<SteProcedure title="Accept UCP checkouts (business)">
+
+1. Publish your profile at /.well-known/ucp with Cache-Control public and a max-age of 60 seconds or more.
+2. Put your public keys for signatures in the top-level keys array.
+3. When a request arrives, get the platform profile from the address in the UCP-Agent header.
+4. Make sure that the address does not point to a special-use IP address.
+5. Verify the signature of the request with a key from the platform profile.
+6. Calculate the capabilities that both profiles support.
+7. Put the version and the active capabilities in the ucp field of each response.
+8. If you need data that your API cannot collect, set the status to requires_escalation and send a continue_url.
+9. Send the payment token to your PSP.
+10. After the order is complete, send a confirmation email to the buyer.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT KEEP A COMPROMISED KEY IN THE KEYS ARRAY OF YOUR PROFILE. THE KEY STAYS VALID UNTIL YOU REMOVE IT.
+</SteCaution>
+
+<SteCaution>
+DO NOT SEND THE PAYMENT CREDENTIAL BACK TO THE PLATFORM IN A RESPONSE. CREDENTIALS MUST GO ONLY FROM THE PLATFORM TO THE BUSINESS.
+</SteCaution>
+
+<SteCaution>
+DO NOT ACCEPT AN ORDER WEBHOOK THAT HAS NO VALID SIGNATURE FROM THE BUSINESS OF THAT ORDER. AN ATTACKER CAN SEND FALSE ORDER EVENTS.
+</SteCaution>
+
+<SteNote>
+UCP does not set a limit for the amount that an agent pays. The credential provider, the AP2 mandate or the rules of the platform must apply the limits.
+</SteNote>
+
+<SteTerms>
+
+- **Platform (TN)**: The agent, app or website that acts for the buyer.
+- **Business (TN)**: The seller. It is the merchant of record for the order.
+- **Business profile (TN)**: The JSON document at /.well-known/ucp that shows what the business supports.
+- **Capability (TN)**: A named function, for example checkout or cart, with a JSON schema.
+- **Extension (TN)**: A capability that adds fields to a parent capability.
+- **Payment handler (TN)**: A specification from a credential provider that tells the platform how to get a token.
+- **Credential provider (TN)**: A wallet or similar entity that holds the payment credentials of the buyer.
+- **continue_url (TN)**: The address of the web checkout of the business. The buyer uses it to finish the order.
+- **Security lock (TN)**: The state of a session after the business and the platform agree to use AP2 mandates.
+- **Negotiate (TV)**: To find the capabilities and the version that two profiles both support.
+- **Escalate (TV)**: To move the checkout from the agent to the buyer.
+
+</SteTerms>
