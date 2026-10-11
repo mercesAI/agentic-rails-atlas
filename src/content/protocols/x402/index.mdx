@@ -1,0 +1,116 @@
+---
+slug: x402
+order: 2
+name: x402
+bubbleLabel: x402
+monogram: x402
+tagline: Machine payments
+intro: "An open protocol that turns HTTP 402 Payment Required into a working pay-per-request flow. The server quotes a price, the client signs a payment, and a facilitator verifies and settles it, most often in USDC. Originated at Coinbase and governed since 2026 by the x402 Foundation, a Linux Foundation project."
+family: payment-execution
+layerPrimary: settlement-rails
+layersSecondary:
+  - payment-credential
+  - discovery
+  - post-purchase-disputes
+rails:
+  - crypto
+  - multi-rail
+stewards:
+  - x402 Foundation (x402 a Series of LF Projects, LLC)
+  - "Technical Steering Committee: Coinbase, Cloudflare, Stripe"
+governance: "Linux Foundation project under a technical charter adopted 2026-03-31; a Technical Steering Committee of participating organizations decides by majority, with a 75 percent supermajority for Core Principles changes. Originated at Coinbase Developer Platform."
+license:
+  spec: "Apache-2.0 (repository license; no separate docs license found)"
+  code: Apache-2.0
+status: live
+statusNote: "Protocol V2 has been live since 2025-12-11. The upto, batch-settlement, auth-capture and Lightning bindings are newer, and SDK coverage differs by language."
+firstAnnounced: 2025-05-06
+latestVersion:
+  label: "Spec v2.0 (x402Version 2); SDK @x402/core 2.28.0 on 2026-09-29"
+  date: 2025-12-09
+lastVerified: 2026-10-11
+transports:
+  - "HTTP (PAYMENT-REQUIRED, PAYMENT-SIGNATURE, PAYMENT-RESPONSE headers)"
+  - "MCP (_meta x402/payment and x402/payment-response)"
+  - "A2A (x402.payment.* task metadata)"
+buildsOn:
+  - HTTP 402
+  - EIP-712
+  - EIP-3009
+  - Uniswap Permit2
+  - ERC-7710
+  - CAIP-2
+  - CAIP-122
+  - RFC 9421
+  - BOLT11 (Lightning binding)
+composesWith:
+  - ap2
+  - erc-8004
+  - stripe-mpp
+  - visa-tap
+personas:
+  - api-seller
+  - agent-dev
+  - facilitator
+  - autonomous-agent
+  - compliance
+  - controls-builder
+disambiguation:
+  - "x402 is the HTTP 402 protocol originated at Coinbase and now run by the x402 Foundation."
+  - "L402 is an earlier HTTP 402 payment design on Lightning by Lightning Labs; bLIP-0026 makes macaroons optional."
+  - "A402 is an academic proposal (arXiv:2603.01179) that binds payment to service execution."
+  - "x402r is a third-party refund and arbitration protocol built on top of x402."
+mainFlow: x402-v2-exact-authorization
+stateMachine: x402-payment-lifecycle
+diagrams:
+  - x402-context
+  - x402-data-model
+  - x402-v1-v2-headers
+  - x402-payment-flows
+  - x402-scheme-family
+  - x402-transport-placement
+  - x402-failure-expired-valid-before
+  - x402-failure-wrong-payto
+  - x402-failure-replayed-nonce
+  - x402-failure-insufficient-balance
+  - x402-failure-facilitator-down
+  - x402-upfront-lightning
+  - x402-escrow-auth-capture
+  - x402-composition
+  - x402-attack-surface
+playground:
+  status: coming-next
+  note: "A 402 handshake simulator: a V1 and V2 toggle, a base64 header encoder and decoder, scheme and payment-flow switchers, a verify and settle timeline, failure injection (expired validBefore, wrong payTo, replayed nonce, insufficient balance, facilitator down), an EIP-712 preview of transferWithAuthorization signed with an ephemeral key on a fake chain, and a spend-cap demo. Simulation only, no real funds."
+keyFacts:
+  - label: Steward
+    value: "x402 Foundation (x402 a Series of LF Projects, LLC); originated at Coinbase Developer Platform"
+    claimIds: [clm-x402-003, clm-x402-012, clm-x402-226]
+  - label: Governance
+    value: "Technical Steering Committee: Coinbase (Erik Reppel), Cloudflare (Rohin Lohe), Stripe (Steve Kaliski); majority vote, 75 percent supermajority for Core Principles"
+    claimIds: [clm-x402-013, clm-x402-014, clm-x402-016]
+  - label: License
+    value: "Apache-2.0; contributions need GPG-signed commits, not a DCO sign-off"
+    claimIds: [clm-x402-026, clm-x402-027, clm-x402-028]
+  - label: First announced
+    value: "2025-05-06 (whitepaper and npm launch)"
+    claimIds: [clm-x402-004, clm-x402-005]
+  - label: Latest version
+    value: "Spec v2.0 dated 2025-12-09, launched 2025-12-11; SDK @x402/core 2.28.0 on 2026-09-29"
+    claimIds: [clm-x402-032, clm-x402-034, clm-x402-037]
+  - label: Status
+    value: "Live (V2); foundation operational since 2026-07-14 with 40 members"
+    claimIds: [clm-x402-031, clm-x402-022]
+  - label: Transports
+    value: "HTTP headers, MCP _meta, A2A task metadata; facilitator API is always HTTP"
+    claimIds: [clm-x402-093, clm-x402-116, clm-x402-117, clm-x402-119]
+  - label: Rails
+    value: "Crypto first (EVM, Solana, Lightning and more, CAIP-2 ids); fiat codes and a credit-backed Cloudflare network in the spec"
+    claimIds: [clm-x402-123, clm-x402-055, clm-x402-168]
+  - label: Builds on
+    value: "HTTP 402, EIP-712, EIP-3009, Permit2, ERC-7710, CAIP-2, CAIP-122, RFC 9421"
+    claimIds: [clm-x402-121, clm-x402-122, clm-x402-124, clm-x402-048]
+  - label: Composes with
+    value: "AP2 (a2a-x402), ERC-8004 (x402Support, proofOfPayment), Stripe MPP (exact maps to charge), Visa TAP (browsingIOU)"
+    claimIds: [clm-x402-210, clm-x402-219, clm-x402-213, clm-x402-242]
+---
+
