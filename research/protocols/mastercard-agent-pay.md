@@ -531,7 +531,6 @@ Types use `ResourceType` in `src/lib/schemas.ts`. URL status from `curl -sSIL` o
 | Agent Pay for Machines (AP4M) | https://www.theblock.co/post/404288 | The Block | 2026-06-10 | analysis | community | Stablecoin extension; HTTP 403 to curl | no |
 | Mastercard, Google Introduce Verifiable Intent | https://fintechnews.sg/127287/ai/mastercard-google-verifiable-intent/ | Fintech News Singapore | 2026-03-06 | analysis | community | Launch summary | no |
 | Mastercard Agent Pay Explained | https://eco.com/support/en/articles/14845483-mastercard-agent-pay-explained | Eco | 2026-09-07 | tutorial | community | Tokenization, pilots; says MDES, which Mastercard pages read do not | no |
-| Securing agentic commerce (cross-cutting) | https://blog.cloudflare.com/secure-agentic-commerce/ | Cloudflare | 2025-10-24 | tutorial | partner | Same post, listed in Appendix A cross-cutting | no |
 | A Formal Analysis of Agent Payment Protocols | https://arxiv.org/abs/2609.00060 | arXiv (Jiang et al.) | 2026-08-30 | analysis | academic | Does not model Agent Pay; context | no |
 
 ## Publications
@@ -551,11 +550,86 @@ No paper names Agent Pay or Verifiable Intent (search of arXiv titles on 2026-10
 | DOI 10.1007/978-3-030-84252-9_5 (ePrint 2020/756) | Provable Security Analysis of FIDO2 | Barbosa, Boldyreva, Chen, Warinschi | CRYPTO 2021, LNCS | Passkeys used for Agent Pay consent | doi.org CSL JSON; eprint.iacr.org HTTP 200 |
 | DOI 10.2307/3087474 | Cooperation among Competitors: Some Economics of Payment Card Associations | Rochet, Tirole | RAND Journal of Economics, 2002 | Card network economics (interchange) | Crossref API and doi.org CSL JSON |
 
-Correction to the seed: the Rochet and Tirole DOI is 10.2307/3087474 (10.2307/3087478 resolves to a different paper) [src-mcap-doi-rochet].
+Note: the Rochet and Tirole DOI is 10.2307/3087474 (10.2307/3087478 resolves to a different paper) [src-mcap-doi-rochet].
 
 ## Seed audit
 
+| Seed fact (ATLAS_PROMPT 5.8 or ATLAS_FOLLOWUP) | Verdict | Source | Note |
+| --- | --- | --- | --- |
+| Announced 2025-04-29 as the Agentic Payments Program with Mastercard Agentic Tokens | confirmed | src-mcap-launch-2025 | |
+| Sub-brand: Agent Pay Acceptance Framework (October 2025) | confirmed (month only) | src-mcap-latam-2025 | Day not confirmed; see Conflicts on 2025-10-14 |
+| Sub-brand: Agent Pay for Machines (AP4M, June 2026) | confirmed | src-mcap-ap4m-2026 | 2026-06-10 |
+| Sub-brand: Agent Pay Trust Framework (September 2026) | confirmed | src-mcap-trust-2026 | 2026-09-30; no white paper found |
+| Sub-brand: DTVC | confirmed, with naming conflict | src-mcap-dev-mvct, src-mcap-dev-mvct-tests | "Dynamic Token Validation Code" and "Dynamic Token Verification Code" both used by Mastercard |
+| Proprietary program | confirmed | src-mcap-launch-2025, src-mcap-dev-level3 | Full Acceptance Framework spec not public |
+| Public developer docs page is still a placeholder [verify] | unconfirmed | src-mcap-dev-release-history, src-mcap-dev-llms | Preliminary docs went live 2025-10-16 for early preview; current page unreadable (404 markdown, JavaScript shell) |
+| Launch partners Microsoft, IBM, Braintree, Checkout.com | confirmed | src-mcap-launch-2025 | |
+| VI co-developed with Google, Apache-2.0, at github.com/agent-intent/verifiable-intent | confirmed | src-mcap-fido-pr, src-mcap-vi-readme, src-mcap-vi-gh-repo | README says "Maintained by Mastercard" |
+| VI v0.1.0 dated 2026-02-19 | confirmed, with nuance | src-mcap-vi-changelog, src-mcap-vi-tag | CHANGELOG date; the git tag is on a 2026-03-05 commit |
+| VI announced 2026-03-05 | confirmed | src-mcap-pymnts-vi, src-mcap-vi-gh-repo | Mastercard story blocked; PYMNTS and repo creation date agree |
+| VI contributed to FIDO 2026-04-28 | confirmed | src-mcap-fido-pr | |
+| Agentic token built on Mastercard tokenization (MDES) | corrected | src-mcap-launch-2025 | Say "built on Mastercard tokenization"; no Mastercard page read names MDES (follow-up 2.2) |
+| Issued only to registered agents | confirmed | src-mcap-dev-rails, src-mcap-latam-2025 | |
+| Tied to a specific authorized agent interaction, bounded by user limits, programmable controls | partially confirmed | src-mcap-dev-level1, src-mcap-latam-2025 | Tokens "may be single-use, merchant-specific, or time-limited"; consumer "permissions and limits" |
+| DTVC is an agentic token formatted for standard card fields | corrected | src-mcap-dev-mvct, src-mcap-dev-mvct-pay | DTVC is a one-time security code issued with a Mastercard Virtual Card Token, used for guest checkout forms |
+| KYA: registration, security review, certification, trusted lists | confirmed | src-mcap-dev-rails | |
+| Merchants register through acquirer or PSP | confirmed | src-mcap-dev-rails | |
+| Skyfire named KYA partner, September 2026 | confirmed | src-mcap-trust-2026 | 2026-09-30; Skyfire was already an AP4M participant on 2026-06-10 |
+| No-code path (Web Bot Auth at the CDN plus tokens in forms) | confirmed | src-mcap-dev-level1, src-mcap-q3-transcript | "no-code approach" quoted on the Q3 2025 call |
+| Deeper path (agent recognition, purchase intent, tokens, consumer identity) | confirmed | src-mcap-dev-level2, src-mcap-dev-level3 | Agent User Identity object, Intent API |
+| Identity travels as a browse or pay `tag` in `Signature-Input` | corrected | src-mcap-dev-level1, src-mcap-cloudflare-blog | Mastercard's guide gives one Mastercard tag, `Agent-pay-auth`; browse and pay tags are Visa's |
+| Verified against a Mastercard-hosted key directory [verify URL] | confirmed (directory), URL unknown | src-mcap-cloudflare-blog, src-mcap-dev-level1 | The only host shown, `agentpay-key-directory.mastercard.com`, does not resolve |
+| US probability score test from September 2026 | confirmed | src-mcap-trust-2026 | |
+| VI layer lifetimes (L1 about 1 year; L2 Immediate about 15 minutes; L2 Autonomous 24 hours to 30 days; L3a and L3b about 5 minutes) | confirmed | src-mcap-vi-format | L3 maximum 1 hour |
+| L3a and L3b linked by `checkout_hash` | confirmed, refined | src-mcap-vi-format | L3a `transaction_id` must equal L3b `checkout_hash` |
+| Constraints mirror AP2 v0.2 with `mandate.payment.amount_range` and others | corrected | src-mcap-vi-constraints, src-mcap-ap2-schema-open-payment | Aligned semantics, different prefixes (2.3.3); VI strings valid on `main` only, not at tag v0.1.0 |
+| ES256 signatures | confirmed | src-mcap-vi-spec | |
+| 2025-09-10 US enablement plan, Citi and U.S. Bank first | confirmed | src-mcap-sep-2025 | |
+| 2025-09-30 Agent Pay for ChatGPT Instant Checkout | unconfirmed | none read | mastercard.com story blocked; Instant Checkout was later discontinued (March 2026, per Mastercard's guide) |
+| 2025-10-14 Acceptance Framework with Cloudflare | corrected | src-mcap-latam-2025, src-mcap-cloudflare-blog | "October 2025"; Cloudflare's post is dated 2025-10-24 |
+| 2025-10-27 PayPal integration | confirmed | src-mcap-paypal-2025 | PayPal pilots the Acceptance Framework |
+| 2025-10-30 first agentic transaction on the network reported | confirmed (reported) | src-mcap-q3-transcript, src-mcap-pymnts-q3 | Earnings call statement; PayOS claimed a first live payment on 2025-10-01 |
+| 2025-12-03 Latin America and Caribbean launch | confirmed | src-mcap-latam-2025 | |
+| 2026-01-28 Australia's first authenticated transactions (CBA, Westpac) | confirmed | src-mcap-australia-2026 | |
+| 2026-03-02 Santander Europe first live end-to-end payment | confirmed | src-mcap-santander-2026 | Pilot, not a commercial rollout |
+| 2026-03-17 Korea | confirmed | src-mcap-korea-2026 | |
+| 2026-03-24 17 Latin American issuers and processors live | confirmed | src-mcap-latam-2026 | Controlled environments |
+| 2026-06-02 all European issuers enabled at network level | confirmed | src-mcap-europe-2026 | |
+| 2026-06-10 AP4M with 32 partners incl. Coinbase, Stripe, Tempo, Polygon, Solana Foundation | confirmed | src-mcap-ap4m-2026 | 32 includes Mastercard Merchant Cloud |
+| 2026-09-30 Trust Framework and probability score | confirmed | src-mcap-trust-2026 | |
+| Issuers Citi, U.S. Bank, Santander, CBA, Westpac | confirmed | src-mcap-sep-2025, src-mcap-santander-2026, src-mcap-australia-2026 | |
+| Platforms Microsoft, IBM, OpenAI, Google | partially confirmed | src-mcap-launch-2025, src-mcap-sep-2025, src-mcap-pymnts-q3 | OpenAI only through PYMNTS earnings coverage (reported) |
+| Payments partners PayPal, Braintree, Checkout.com, Stripe, PayOS, Basis Theory, Cloudflare, Skyfire | confirmed | src-mcap-paypal-2025, src-mcap-launch-2025, src-mcap-stripe-spt-2026, src-mcap-ap4m-2026, src-mcap-trust-2026 | |
+| Payments partner Firmly.AI | unconfirmed | none | Not named in any source read |
+| VI supporters Adyen, Basis Theory, Checkout.com, Getnet, Fiserv, IBM, Worldpay | partially confirmed | src-mcap-pymnts-vi, src-mcap-dev-rails | Lists differ by source (see Conflicts) |
+| Mastercard Agent Toolkit is an MCP server for documentation only | confirmed | src-mcap-toolkit-readme, src-mcap-toolkit-api | |
+| Mostly controlled pilots; no public volume data | confirmed | src-mcap-latam-2026, src-mcap-santander-2026 | |
+| Web Bot Auth like Visa TAP, different directory | confirmed | src-mcap-cloudflare-blog | |
+| VI maps into UCP's AP2 extension | confirmed, with rename | src-mcap-vi-landscape, src-mcap-ucp-schema-ap2 | VI names `dev.ucp.shopping.ap2_mandate`, now `dev.ucp.common.payment.ap2_mandate` |
+| Usable under ACP via Stripe SPTs | confirmed (indirect) | src-mcap-stripe-spt-2026 | |
+| AP4M cites MPP compatibility (follow-up 2.1.2) | corrected | src-mcap-ap4m-2026 | Tempo's quote inside Mastercard's release: "Tempo lists AP4M as MPP-compatible" is close; exact form: Tempo is working with Mastercard on MPP compatibility |
+| Mastercard is a premier x402 Foundation member | confirmed | src-mcap-x402-lf-july, src-mcap-x402-cdp-foundation | |
+| EMVCo draft agentic framework (2026-09-01) cites VI | confirmed | src-mcap-emvco-news | |
+| No agent-specific dispute reason codes or liability shift | confirmed (absence) | src-mcap-nevermined-review, src-mcap-dev-level1 | |
+| VI leaves out dispute resolution and key provisioning | confirmed | src-mcap-vi-readme, src-mcap-vi-security | |
+| FIDO working groups (follow-up 2.1.11) | confirmed | src-mcap-fido-pr, src-mcap-fido-pwg-2025 | Payments WG launched 2025-04-29; only the Agentic Authentication TWG was new on 2026-04-28 |
+| Scenario 3 pairing of Google Pay handler with a Mastercard agentic token (follow-up 2.2) | confirmed as unpublished | src-mcap-ucp-schema-ap2 | No source documents which network token flows inside |
+| AP2 vs VI key names (follow-up 2.3.3) | confirmed | src-mcap-vi-constraints, src-mcap-ap2-schema-open-payment | |
+| Relations and compare cell agree on MPP (follow-up 2.3.6) | applied | src-mcap-ap4m-2026 | |
+| Appendix B: Nevermined review 2026-08-28 | confirmed | src-mcap-nevermined-review | Vendor and AP4M participant |
+| Appendix B: Merchant Cost Consulting 2026-05-01 | unconfirmed today (blocked) | src-mcap-mcc-fees | Kept as reported from Appendix B |
+| Appendix A: 11 Mastercard resources | 8 reachable, 3 HTTP 403 to curl | see Resources | FIDO podcast page, Mastercard VI story, The Block |
+| Publication 2609.27452 | confirmed | src-mcap-arxiv-issuer | |
+| Foundation papers (Chip and PIN, Chip and Skim, EMV Break Fix Verify, Card Brand Mixup, EMV relay, 3-D Secure, FIDO2, Rochet and Tirole) | confirmed | see Publications | |
+
 ## Blocked sources
+
+Logged in `research/blocked.md` on 2026-10-11:
+- www.mastercard.com (product page, stories, press pages) and investor.mastercard.com: HTTP 403 to curl and WebFetch. Used Investor Relations PDFs on s25.q4cdn.com and newsroom.mastercard.com copies.
+- www.businesswire.com: HTTP/2 stream error. Used the Investor Relations PDFs.
+- developer.mastercard.com Agent Pay use-case page: markdown 404, HTML is a JavaScript shell.
+- agentpay-key-directory.mastercard.com: NXDOMAIN.
+- merchantcostconsulting.com, theblock.co, fireblocks.com, digitalcommerce360.com, the fidoalliance.org podcast page: HTTP 403 to curl.
 
 ## Conflicts
 
