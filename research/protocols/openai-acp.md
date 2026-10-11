@@ -473,7 +473,7 @@ There is no official ACP SDK from OpenAI or Stripe. Reference implementations ar
 | OpenAI (ChatGPT checkout, Shopify merchants) | 4% of ChatGPT checkout sales, on top of Shopify fees; Google AI Mode, Gemini and Microsoft Copilot checkouts with no additional fee "for now" | 2026-01-21 | [src-pymnts-4pct] | secondary: PYMNTS relaying The Information, citing a Shopify spokesperson; not published by OpenAI; whether it applies after the March 2026 change is unknown |
 | ACP protocol | No protocol fee; Apache-2.0; no fee to join the TSC or a DWG | 2026-03-10 | [src-openai-acp-license] [src-openai-acp-governance] | primary |
 | Stripe SPT | No SPT price found on the Stripe pages read; agent features are labeled "Private preview" with a waitlist | accessed 2026-10-11 | [src-stripe-agentic-commerce] [src-stripe-spt] | absence of evidence; Appendix B also lists no pricing |
-| Merchant PSP | Normal processing fees of the merchant's own PSP apply because the merchant charges the payment | 2025-09-29 | [src-openai-commerce-docs] | primary statement of model; no figures |
+| Merchant PSP | Normal processing fees of the merchant's own PSP apply because the merchant charges the payment | accessed 2026-10-11 | [src-openai-commerce-docs] | primary statement of model; no figures |
 | Stripe MPP (context) | SPT card payments through MPP have a 0.50 USD minimum | accessed 2026-10-11 | [src-stripe-mpp-docs] | MPP, not ACP |
 
 ## Metrics with dates and caveats
@@ -492,7 +492,36 @@ There is no official ACP SDK from OpenAI or Stripe. Reference implementations ar
 
 ## Relations to the other seven protocols
 
+- **ERC-8004 (Trustless Agents).** No documented relation. ACP has no on-chain identity, registry or reputation component (no such terms in the repository at 7fdd78d) [src-openai-acp-rfcs-dir]. Name collision to flag: ERC-8183 "Agentic Commerce" (Draft, created 2026-02-25, authors including Virtuals contributors) calls itself the "Agentic Commerce Protocol" and references ERC-8004 for reputation; it is an on-chain job escrow standard unrelated to OpenAI and Stripe's ACP [src-erc-8183].
+- **x402.** No documented relation in the ACP repository. Stripe's docs place them side by side but separate: selling through agents uses "UCP or ACP", while machine payments use "MPP or x402" [src-stripe-agentic-commerce].
+- **Visa TAP (Trusted Agent Protocol).** No documented relation in the ACP spec; ACP authenticates agents with bearer tokens and optional detached signatures, not TAP's HTTP Message Signatures. Indirect link through payments only: Stripe says it may use tokens from network programs such as Visa's Intelligent Commerce program under SPT card payments [src-stripe-spt] [src-openai-acp-rfc-checkout].
+- **UCP (Universal Commerce Protocol).** No bridge or mapping is specified in either repository. Convergent design: five checkout status names are identical (`incomplete`, `requires_escalation`, `complete_in_progress`, `completed`, `canceled`; UCP has `ready_for_complete` where ACP has `ready_for_payment`), both use reverse-DNS names for payment handlers and extensions (`dev.acp.*` versus `dev.ucp.*` and `com.google.pay`), and both publish a well-known discovery document (`/.well-known/acp.json` versus `/.well-known/ucp`) [src-openai-acp-schema-checkout-20260417] [src-ucp-checkout-schema] [src-ucp-reference-discovery]. Stripe supports both for sellers and says it is a UCP Tech Council member [src-stripe-agentic-commerce] [src-stripe-ucp-page]. Microsoft announced Copilot Checkout with ACP in January 2026, and its later merchant page requires a UCP-compliant feed [src-ms-copilot-checkout] [src-ms-agentic-commerce].
+- **Stripe MPP (Machine Payments Protocol).** No protocol-level link, but a shared primitive: Stripe's MPP integration accepts cards through Shared Payment Tokens, the same Stripe token family used as the first ACP Delegated Payment implementation [src-stripe-mpp-docs] [src-openai-commerce-docs].
+- **AP2 (Agent Payments Protocol).** No documented relation. ACP has no mandates or verifiable credentials, so it carries no signed proof of user intent beyond the scoped token and the agent's own UI confirmation [src-openai-acp-rfcs-dir] [src-openai-buy-it]. The Verifiable Intent project positions itself as a layer that could ride on ACP's extension mechanism; that is a proposal, not an adopted ACP extension [src-vi-protocols].
+- **Mastercard Agent Pay.** No documented relation in the ACP spec. Stripe says it may use tokens issued through Mastercard's Agent Pay program under SPT card payments, so Agent Pay tokens can sit underneath an ACP payment that uses Stripe [src-stripe-spt].
+- **MCP (Orbit).** ACP defines an official MCP binding with five tools since 2026-04-17 [src-openai-acp-mcp-binding]. OpenAI's ChatGPT payment sheet also uses MCP, but through a different tool (`complete_checkout`) defined in the Apps SDK, not the ACP binding's `complete_checkout_session` [src-openai-apps-monetization].
+
 ## Criticisms and open questions
+
+- **Bilateral trust.** Every agent and merchant pair must exchange bearer credentials; request signing is only RECOMMENDED for checkout and its algorithm is agreed out of band. There is no agent identity layer [src-openai-acp-rfc-checkout].
+- **No user-intent proof.** Nothing in ACP lets a merchant or issuer verify that a user authorized a specific purchase; the Allowance limits what a token can do, not why [src-openai-acp-schema-delegate-payment-20260417] [src-vi-protocols].
+- **Founders' veto and appointment power.** OpenAI and Stripe appoint and remove TSC members and keep a block-only veto on SEPs; no foundation exists yet [src-openai-acp-governance].
+- **Doc and schema drift.** Examples include: RFC and OpenAPI examples still send `items[{id, quantity}]` although the JSON Schema requires `line_items` of `Item` without `quantity` (2026-01-30 onward); RFC lists only five statuses and `Link` types `terms_of_use|privacy_policy|return_policy`; RFC version labels lag; the checkout OpenAPI describes `Signature` as an HMAC for webhooks; the MCP binding keeps `request_not_idempotent` and an optional idempotency key after 2026-04-17 made the header mandatory and removed that error type; Delegate Payment's RFC says signing MUST in one section and RECOMMENDED in another; the 2026-01-30 changelog deprecates a nonexistent `2026-01-22` (see Conflicts) [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-checkout-20260417] [src-openai-acp-mcp-binding] [src-openai-acp-rfc-delegate-payment] [src-openai-acp-changelog-20260130].
+- **Mutable releases.** Dated snapshots are edited after release (2026-01-30 schema six times; 2026-04-17 twice) [src-openai-acp-gh-commits].
+- **Undefined states.** Six of eleven checkout statuses have no semantics in any RFC [src-openai-acp-rfc-checkout].
+- **Flagship product scaled back.** OpenAI said on 2026-03-24 that the first Instant Checkout did not offer enough flexibility and moved merchants to their own checkout; ACP's role in ChatGPT shifted toward product feeds and discovery [src-openai-product-discovery].
+- **Implementation divergence.** OpenAI's docs differ from the ACP spec on feed paths (`/product_feeds` versus `/feeds`), webhook event names (`order_created` versus `order_create`), the completion status code (201 versus 200), the idempotency conflict status (409 versus 422) and TLS (1.2 or later versus 1.3) [src-openai-commerce-docs] [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-feed-20260417].
+- **Activity.** No commit since 2026-07-18 at the time of writing [src-openai-acp-gh-commits].
+- **Open questions.** Does any surface other than ChatGPT and Copilot run ACP checkout in production? Will the founders move ACP to a foundation, as x402 did with the Linux Foundation? Will ACP and UCP converge formally? Will the Feed API paths in OpenAI's product match the spec?
+
+### Disambiguation ("Do not get wrong")
+
+- Not IBM's **Agent Communication Protocol** (BeeAI), which merged into A2A under the Linux Foundation, announced 2025-08-29; its Python SDK is `acp-sdk` [src-ibm-acp-a2a] [src-ibm-acp-research] [src-pypi-acp-sdk]. Papers on "MCP, ACP, A2A, ANP" usually mean IBM's protocol [src-arxiv-2505-02279].
+- Not **Virtuals' Agent Commerce Protocol**; the SoK arXiv 2604.15367 lists an "Agent Commerce Protocol (ACP)" next to ERC-8183, which points to the Virtuals line, not this ACP [src-arxiv-2604-15367] [src-erc-8183].
+- Not the **Agent Client Protocol** (editor-to-coding-agent protocol) (unverified here; no primary source read).
+- OpenAI is **not the merchant of record** [src-openai-commerce-docs].
+- The **SPT is Stripe's product**, compatible with ACP Delegate Payment, not part of the ACP spec [src-openai-commerce-docs] [src-stripe-spt].
+- **Instant Checkout in its 2025 form was scaled back** in March 2026 [src-openai-product-discovery] [src-retailsystems-pivot].
 
 ## Resources
 
