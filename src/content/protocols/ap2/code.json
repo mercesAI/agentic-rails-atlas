@@ -1,0 +1,48 @@
+{
+  "protocol": "ap2",
+  "snippets": [
+    {
+      "title": "Issue an open Payment Mandate (user or agent provider side)",
+      "sdk": "ap2 Python SDK (in repository)",
+      "version": "0.1 at commit e1ea56d (v0.2 schemas)",
+      "language": "python",
+      "side": "client",
+      "code": "from ap2.sdk.mandate import MandateClient\nfrom ap2.sdk.generated.open_payment_mandate import (\n    AllowedPayees, AmountRange, OpenPaymentMandate,\n)\nfrom ap2.sdk.generated.types.merchant import Merchant\n\nclient = MandateClient()\n\nopen_token = client.create(\n    payloads=[OpenPaymentMandate(\n        constraints=[\n            AmountRange(currency=\"USD\", min=0, max=5000),\n            AllowedPayees(allowed=[Merchant(id=\"M-1\", name=\"Cat Store\")]),\n        ],\n        cnf={\"jwk\": agent_pub},\n        iat=now, exp=now + 3600,\n    )],\n    issuer_key=issuer_jwk,\n)",
+      "docsUrl": "https://github.com/google-agentic-commerce/AP2/blob/main/code/sdk/python/ap2/sdk/README.md",
+      "note": "From the SDK README example; issuer_jwk and agent_jwk are freshly generated P-256 keys there. The README example omits the payment.reference constraint that the v0.2 schema requires in open Payment Mandates.",
+      "sources": [
+        "src-ap2-sdk-readme",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "title": "Close the mandate with the agent key (one delegation hop)",
+      "sdk": "ap2 Python SDK (in repository)",
+      "version": "0.1 at commit e1ea56d (v0.2 schemas)",
+      "language": "python",
+      "side": "client",
+      "code": "from ap2.sdk.generated.payment_mandate import PaymentMandate\nfrom ap2.sdk.generated.types.amount import Amount\nfrom ap2.sdk.generated.types.payment_instrument import PaymentInstrument\n\nchain = client.present(\n    holder_key=agent_jwk,\n    mandate_token=open_token,\n    payloads=[PaymentMandate(\n        transaction_id=\"tx_abc\",\n        payee=Merchant(id=\"M-1\", name=\"Cat Store\"),\n        payment_amount=Amount(amount=2500, currency=\"USD\"),\n        payment_instrument=PaymentInstrument(type=\"card\", id=\"stub\", description=\"Demo\"),\n        iat=now, exp=now + 3600,\n    )],\n    nonce=\"tx_abc\",\n    aud=\"merchant\",\n)",
+      "docsUrl": "https://github.com/google-agentic-commerce/AP2/blob/main/code/sdk/python/ap2/sdk/README.md",
+      "note": "In a real flow transaction_id is the base64url hash of the merchant checkout_jwt, not a label.",
+      "sources": [
+        "src-ap2-sdk-readme",
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "title": "Verify the chain and compute the receipt reference (verifier side)",
+      "sdk": "ap2 Python SDK (in repository)",
+      "version": "0.1 at commit e1ea56d (v0.2 schemas)",
+      "language": "python",
+      "side": "server",
+      "code": "from ap2.sdk.payment_mandate_chain import PaymentMandateChain\nfrom ap2.sdk.utils import compute_sha256_b64url\n\npayloads = client.verify(\n    token=chain,\n    key_or_provider=lambda token: issuer_jwk,\n    expected_aud=\"merchant\",\n    expected_nonce=\"tx_abc\",\n)\nparsed = PaymentMandateChain.parse(payloads)\nviolations = parsed.verify(expected_transaction_id=\"tx_abc\")\nassert not violations\n\nreference = compute_sha256_b64url(client.get_closed_mandate_jwt(chain))",
+      "docsUrl": "https://github.com/google-agentic-commerce/AP2/blob/main/code/sdk/python/ap2/sdk/README.md",
+      "note": "The reference value is what a Payment or Checkout Receipt carries.",
+      "sources": [
+        "src-ap2-sdk-readme",
+        "src-ap2-schema-receipts"
+      ]
+    }
+  ],
+  "labs": []
+}

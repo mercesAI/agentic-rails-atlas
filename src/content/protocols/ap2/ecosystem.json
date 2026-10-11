@@ -1,0 +1,233 @@
+{
+  "protocol": "ap2",
+  "stewards": [
+    {
+      "name": "FIDO Alliance",
+      "role": "Develops the specification in its Payments Technical Working Group and Agentic Authentication Technical Working Group since the 2026-04-28 donation; no deliverable published yet.",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-google-fido-blog"
+      ]
+    },
+    {
+      "name": "Google (google-agentic-commerce)",
+      "role": "Created AP2 (announced 2025-09-16); keeps the GitHub samples and SDK.",
+      "sources": [
+        "src-ap2-gcloud-launch",
+        "src-ap2-faq"
+      ]
+    }
+  ],
+  "implementers": [
+    {
+      "name": "Universal Commerce Protocol",
+      "role": "Specifies the AP2 extension dev.ucp.common.payment.ap2_mandate; live use unverified.",
+      "status": "announced",
+      "sources": [
+        "src-ap2-ucp-ext",
+        "src-ap2-faq"
+      ]
+    },
+    {
+      "name": "Google products (Gemini Spark first)",
+      "role": "Google said on 2026-05-19 it would begin bringing AP2 to its products in the coming months.",
+      "status": "announced",
+      "sources": [
+        "src-ucp-google-universal-cart"
+      ]
+    },
+    {
+      "name": "Mastercard Verifiable Intent",
+      "role": "Aligned mandate format co-developed with Google and contributed to FIDO.",
+      "status": "announced",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-vi-spec"
+      ]
+    },
+    {
+      "name": "Suede Agent Studio",
+      "role": "Self-reported merchant-side v0.2 deployment in issue 345; not independently verified.",
+      "status": "unknown",
+      "sources": [
+        "src-ap2-issue-345"
+      ]
+    },
+    {
+      "name": "Launch collaborators (Adyen, American Express, Coinbase, Mastercard, PayPal, Worldpay and others)",
+      "role": "Named in the 2025-09-16 launch post; being named is not deployment.",
+      "status": "announced",
+      "sources": [
+        "src-ap2-gcloud-launch"
+      ]
+    }
+  ],
+  "sdks": [
+    {
+      "registry": "other",
+      "name": "ap2 Python SDK (in repository)",
+      "version": "0.1",
+      "url": "https://github.com/google-agentic-commerce/AP2/tree/main/code/sdk/python/ap2",
+      "note": "Installed from source; not published by Google to PyPI."
+    },
+    {
+      "registry": "go",
+      "name": "github.com/google-agentic-commerce/ap2/samples/go",
+      "url": "https://github.com/google-agentic-commerce/AP2/tree/main/code/samples/go",
+      "note": "Samples module, Go 1.24.0."
+    },
+    {
+      "registry": "other",
+      "name": "x402-a2a (a2a-x402 repository)",
+      "version": "0.1.0",
+      "url": "https://github.com/google-agentic-commerce/a2a-x402",
+      "note": "Not found on PyPI on 2026-10-11."
+    },
+    {
+      "registry": "pypi",
+      "name": "ap2 (third party)",
+      "version": "0.1.1",
+      "url": "https://pypi.org/project/ap2/",
+      "note": "Belongs to an unrelated third party, not Google."
+    }
+  ],
+  "metrics": [
+    {
+      "id": "ap2-launch-orgs",
+      "metric": "Organizations named as collaborators at launch",
+      "value": "more than 60",
+      "unit": "organizations",
+      "asOf": "2025-09-16",
+      "definition": "Google's own count in the launch post.",
+      "sources": [
+        "src-ap2-gcloud-launch"
+      ],
+      "caveat": "Collaboration, not deployment."
+    },
+    {
+      "id": "ap2-partners-launch",
+      "metric": "Entries on the AP2 partners page at launch",
+      "value": 56,
+      "unit": "entries",
+      "asOf": "2025-09-16",
+      "definition": "Lines in docs/partners.md at the launch commit.",
+      "sources": [
+        "src-ap2-partners-launch",
+        "src-ap2-gh-partners-history"
+      ],
+      "caveat": "Self-nominated list."
+    },
+    {
+      "id": "ap2-partners-final",
+      "metric": "Entries on the AP2 partners page at its last edit",
+      "value": 125,
+      "unit": "entries",
+      "asOf": "2026-02-09",
+      "definition": "Lines in docs/partners.md before v0.2 removed the page.",
+      "sources": [
+        "src-ap2-partners-final",
+        "src-ap2-gh-partners-history"
+      ],
+      "caveat": "Page removed in v0.2; endorsement, not deployment."
+    },
+    {
+      "id": "ap2-gh-stars",
+      "metric": "GitHub stars, google-agentic-commerce/AP2",
+      "value": 3216,
+      "unit": "stars",
+      "asOf": "2026-10-11",
+      "definition": "Stars on the repository.",
+      "sources": [
+        "src-ap2-gh-repo"
+      ],
+      "caveat": "Interest, not usage."
+    },
+    {
+      "id": "ap2-gh-forks",
+      "metric": "GitHub forks",
+      "value": 510,
+      "unit": "forks",
+      "asOf": "2026-10-11",
+      "definition": "Forks of the repository.",
+      "sources": [
+        "src-ap2-gh-repo"
+      ]
+    },
+    {
+      "id": "ap2-prs-since-v02",
+      "metric": "Pull requests opened after v0.2, merged",
+      "value": "63 opened, 0 merged",
+      "unit": "pull requests",
+      "asOf": "2026-10-11",
+      "definition": "Pull requests opened from 2026-04-29 to 2026-10-11.",
+      "sources": [
+        "src-ap2-gh-issues-since"
+      ],
+      "caveat": "Specification work moved to FIDO."
+    },
+    {
+      "id": "ap2-commits-since",
+      "metric": "Commits on main since 2026-04-29",
+      "value": 0,
+      "unit": "commits",
+      "asOf": "2026-10-11",
+      "definition": "GitHub commits API on main.",
+      "sources": [
+        "src-ap2-gh-commits"
+      ]
+    },
+    {
+      "id": "ap2-production",
+      "metric": "Verified production deployments",
+      "value": "none found",
+      "unit": "deployments",
+      "asOf": "2026-10-11",
+      "definition": "Primary sources showing live use of AP2 mandates.",
+      "sources": [
+        "src-ap2-faq",
+        "src-ap2-pub-2608-23858",
+        "src-ap2-issue-345"
+      ],
+      "caveat": "One unverified self-report (issue 345).",
+      "disputed": true,
+      "disputeSources": [
+        "src-ap2-issue-345"
+      ]
+    }
+  ],
+  "costs": [
+    {
+      "item": "Protocol fee",
+      "value": "None defined",
+      "whoPays": "Nobody: costs are those of the underlying rail (card, bank transfer or x402)",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "AP2 carries authorization evidence and prices nothing; rail fees still apply.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "item": "Google fee for AP2 inside UCP",
+      "value": "Not published; Google reportedly does not plan to take a cut of UCP transactions",
+      "whoPays": "Not applicable",
+      "asOf": "2026-01-12",
+      "confidence": "reported",
+      "caveat": "Secondary reporting about UCP, not an AP2 fee.",
+      "sources": [
+        "src-ap2-register-ucp"
+      ]
+    },
+    {
+      "item": "Second signing key type for merchants",
+      "value": "Operational cost, no figure",
+      "whoPays": "Merchant",
+      "asOf": "2026-05-26",
+      "confidence": "verified",
+      "caveat": "Issue 268 calls the ECDSA rule a composition cost for merchants that already sign with Ed25519.",
+      "sources": [
+        "src-ap2-issue-268"
+      ]
+    }
+  ]
+}
