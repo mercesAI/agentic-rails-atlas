@@ -649,7 +649,7 @@ All logged in `research/conflicts.md`. In each case the JSON Schema or OpenAPI f
 2. **Complete status code.** OpenAPI: 200. OpenAI's production checklist: "HTTP 201 Created".
 3. **Idempotency conflict status.** Spec (RFC-AC 6.4): 422 `idempotency_conflict`, 409 `idempotency_in_flight`. OpenAI checklist: `idempotency_conflict` with HTTP 409.
 4. **TLS version.** RFC-AC section 7: TLS 1.3 MUST. OpenAI: TLS 1.2 or later.
-5. **Webhook event names.** Spec: `order_create`, `order_update`. OpenAI checklist: `order_created`, `order_updated`; OpenAI FAQ: `ORDER_UPDATE`. (The OpenAPI uses `order_created` and `order_updated` only as example keys.)
+5. **Webhook event names.** Spec: `order_create`, `order_update`. OpenAI checklist: `order_created`, `order_updated`; OpenAI FAQ: `ORDER_UPDATE`. (The 2026-04-17 webhook OpenAPI uses `order_created` only as an example key.)
 6. **Feed paths.** Spec: `/feeds`, `/feeds/{id}`, `/feeds/{id}/products`. OpenAI: `/product_feeds`, `/product_feeds/{id}`, `/product_feeds/{id}/products`, plus promotions (deferred in the spec).
 7. **Delegate Payment signing.** RFC-DP 2.2: client MUST sign and include `Timestamp`; RFC-DP header list: RECOMMENDED; OpenAPI: `Signature` and `Timestamp` `required: false`.
 8. **Order status after release.** The 2026-04-17 changelog lists `[created, confirmed, manual_review, processing, shipped, delivered, canceled]`; the 2026-04-17 schema now defines `completed` instead of `delivered` because PR #232 (2026-05-01) edited the released snapshot.
