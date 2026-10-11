@@ -1,0 +1,234 @@
+[
+  {
+    "id": "shopping-agent",
+    "term": "Shopping Agent",
+    "aliases": [
+      "SA"
+    ],
+    "plain": "The AP2 role that finds products, builds the checkout and presents mandates. The specification expects it to be agentic and treats it as a potential attacker.",
+    "ste": "The agent that buys for the user and presents mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-spec-v02"
+    ]
+  },
+  {
+    "id": "checkout-jwt",
+    "term": "checkout_jwt",
+    "aliases": [
+      "Checkout JWT"
+    ],
+    "plain": "The merchant-signed JSON Web Token of the checkout that a Checkout Mandate carries. Its hash binds every mandate and receipt to one purchase.",
+    "ste": "The checkout that the merchant signs. Its hash links the mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-checkout"
+    ]
+  },
+  {
+    "id": "checkout-hash",
+    "term": "checkout_hash",
+    "aliases": [],
+    "plain": "Base64url hash of checkout_jwt inside the closed Checkout Mandate; SHA-256 unless the SD-JWT names another algorithm.",
+    "ste": "The hash of the signed checkout in the Checkout Mandate.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-checkout"
+    ]
+  },
+  {
+    "id": "ap2-transaction-id",
+    "term": "transaction_id (AP2)",
+    "aliases": [],
+    "plain": "Field of the closed Payment Mandate holding the hash of checkout_jwt, the same value as checkout_hash, so the payment binds to one checkout.",
+    "ste": "The hash of the signed checkout in the Payment Mandate.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-payment"
+    ]
+  },
+  {
+    "id": "sd-hash",
+    "term": "sd_hash",
+    "aliases": [],
+    "plain": "Hash in a key-binding JWT over the SD-JWT it extends. In AP2 it binds an agent-signed closed mandate to its user-signed open parent.",
+    "ste": "A hash that links the closed mandate to the open mandate.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization",
+      "src-ap2-rfc9901"
+    ]
+  },
+  {
+    "id": "delegate-sd-jwt",
+    "term": "Delegate SD-JWT",
+    "aliases": [
+      "dSD-JWT"
+    ],
+    "plain": "An individual IETF draft for chaining SD-JWTs through key binding, which AP2 uses to chain open and closed mandates.",
+    "ste": "A draft standard that links one signed token to the next.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-delegate-sd-jwt"
+    ]
+  },
+  {
+    "id": "vct",
+    "term": "vct",
+    "aliases": [
+      "Verifiable Credential Type"
+    ],
+    "plain": "SD-JWT VC claim naming the credential type. AP2 uses it for the mandate type and schema version, for example mandate.payment.1.",
+    "ste": "The claim that gives the mandate type and version.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-payment"
+    ]
+  },
+  {
+    "id": "human-present",
+    "term": "Human present",
+    "aliases": [
+      "direct mode"
+    ],
+    "plain": "AP2 mode in which the user approves the exact closed Checkout and Payment Mandates on a Trusted Surface.",
+    "ste": "The mode where the user approves the exact purchase.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-flows"
+    ]
+  },
+  {
+    "id": "human-not-present",
+    "term": "Human not present",
+    "aliases": [
+      "autonomous mode"
+    ],
+    "plain": "AP2 mode in which the user signs open mandates with constraints and the agent later signs closed mandates with its own key.",
+    "ste": "The mode where the agent buys inside limits that the user set.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-flows"
+    ]
+  },
+  {
+    "id": "unresolved-constraint",
+    "term": "unresolved_constraint",
+    "aliases": [],
+    "plain": "AP2 error returned when a mandate holds an unknown constraint or conformance cannot be confirmed; it may signal a fallback to user approval.",
+    "ste": "An error that tells the agent to get the approval of the user.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "trusted-agent-provider",
+    "term": "Trusted Agent Provider",
+    "aliases": [],
+    "plain": "AP2 delegation model in which the agent provider signs mandates with a key the agent cannot use without the Trusted Surface. Not Visa TAP.",
+    "ste": "A model where the provider of the agent signs the mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "user-credential-model",
+    "term": "User Credential model",
+    "aliases": [],
+    "plain": "AP2 delegation model in which a credential issued to the user signs mandates, typically through OpenID4VP, and verifiers trust the issuer.",
+    "ste": "A model where a credential of the user signs the mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "mandate-receipt",
+    "term": "Mandate receipt",
+    "aliases": [
+      "Payment Receipt",
+      "Checkout Receipt"
+    ],
+    "plain": "Verifier-signed JWT returned after a mandate is presented, with a status and a reference that is the hash of the closed mandate.",
+    "ste": "A signed answer that tells if the mandate was accepted.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-receipts",
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "pisp",
+    "term": "PISP",
+    "aliases": [
+      "Payment Initiation Service Provider"
+    ],
+    "plain": "A European open-banking provider that starts payments from a bank account. AP2 can name or restrict PISPs in Payment Mandates.",
+    "ste": "A provider that starts a payment from a bank account.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-types"
+    ]
+  },
+  {
+    "id": "intent-mandate",
+    "term": "Intent Mandate (v0.1)",
+    "aliases": [
+      "IntentMandate"
+    ],
+    "plain": "AP2 v0.1 object that described a purchase in natural language with merchants, SKUs and expiry. Removed in v0.2.",
+    "ste": "An old AP2 mandate that v0.2 removed.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-mandate-py-v01"
+    ]
+  },
+  {
+    "id": "cart-mandate",
+    "term": "Cart Mandate (v0.1)",
+    "aliases": [
+      "CartMandate"
+    ],
+    "plain": "AP2 v0.1 object holding merchant-signed cart contents with a W3C PaymentRequest. Removed in v0.2, though a2a-x402 still embeds it.",
+    "ste": "An old AP2 cart mandate that v0.2 removed.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-mandate-py-v01",
+      "src-ap2-a2a-x402-v02"
+    ]
+  }
+]

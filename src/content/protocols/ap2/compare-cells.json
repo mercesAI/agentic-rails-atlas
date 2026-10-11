@@ -1,0 +1,573 @@
+{
+  "cells": [
+    {
+      "protocol": "ap2",
+      "dimension": "primary-job",
+      "value": "Signed mandates that prove what a user authorized an agent to buy",
+      "sources": [
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified",
+      "detail": "Checkout and Payment Mandates, closed or open, verified by merchant, credential provider and processor."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "layers-covered",
+      "value": "Intent and authorization; payment credential scoping; dispute evidence",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-implementation"
+      ],
+      "confidence": "verified",
+      "detail": "No rail, no checkout messages, no identity registry."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "stewards",
+      "value": "FIDO Alliance working groups; Google for samples and SDK",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-faq"
+      ],
+      "confidence": "verified",
+      "detail": "Donated 2026-04-28."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "governance-model",
+      "value": "Industry alliance working groups (FIDO)",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-fido-pwg-2025"
+      ],
+      "confidence": "verified",
+      "detail": "Payments Technical Working Group chaired by Mastercard and Visa; no public deliverable yet."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "license-spec-and-code",
+      "value": "Apache-2.0",
+      "sources": [
+        "src-ap2-repo"
+      ],
+      "confidence": "verified",
+      "detail": "Repository license covers docs, schemas and code."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "first-announced",
+      "value": "2025-09-16",
+      "sources": [
+        "src-ap2-gcloud-launch"
+      ],
+      "confidence": "verified",
+      "detail": "Google Cloud launch post."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "latest-version-and-date",
+      "value": "v0.2.0 (2026-04-28)",
+      "sources": [
+        "src-ap2-gh-releases",
+        "src-ap2-gh-commits"
+      ],
+      "confidence": "verified",
+      "detail": "main idle since 2026-04-29."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "maturity",
+      "value": "Draft specification with samples",
+      "sources": [
+        "src-ap2-faq",
+        "src-ap2-pub-2608-23858"
+      ],
+      "confidence": "unverified",
+      "detail": "No verified production use."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "transports",
+      "value": "Transport-agnostic inside a commerce protocol",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-ucp-ext",
+        "src-ap2-repo"
+      ],
+      "confidence": "verified",
+      "detail": "UCP extension; A2A in samples; OpenID4VP and the Digital Credentials API for delegation."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "settlement-rails",
+      "value": "None of its own (rail-agnostic)",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-schema-types"
+      ],
+      "confidence": "verified",
+      "detail": "Cards, bank transfers, PISPs and x402 via a2a-x402."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "agent-identity-model",
+      "value": "Proof of possession of the agent key in cnf",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-implementation"
+      ],
+      "confidence": "verified",
+      "detail": "Agent identification left to the commerce protocol."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "user-authorization-model",
+      "value": "User-signed mandates (SD-JWT VC) on a non-agentic Trusted Surface",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified",
+      "detail": "User Credential or Trusted Agent Provider delegation."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Both",
+      "sources": [
+        "src-ap2-flows"
+      ],
+      "confidence": "verified",
+      "detail": "Closed mandates for human present; open mandates with constraints for human not present."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "merchant-of-record",
+      "value": "Unchanged: the merchant",
+      "sources": [
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified",
+      "detail": "AP2 adds no intermediary that takes over the sale."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "credential-type",
+      "value": "Payment token scoped by a verified Payment Mandate",
+      "sources": [
+        "src-ap2-flows"
+      ],
+      "confidence": "verified",
+      "detail": "Issued by the Credential Provider, possibly with the network."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "cryptography",
+      "value": "SD-JWT VC with ES256, Delegate SD-JWT chains, SHA-256 hash bindings",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-schema-types"
+      ],
+      "confidence": "verified",
+      "detail": "JWK type fixes EC P-256."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "replay-protection",
+      "value": "checkout_hash, transaction_id, sd_hash and cnf; one presentation at a time",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-pub-2602-06345"
+      ],
+      "confidence": "verified",
+      "detail": "No consume-once rule for verifiers."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "native-spending-controls",
+      "value": "Yes: payment.amount_range and payment.budget",
+      "sources": [
+        "src-ap2-schema-open-payment",
+        "src-ap2-schema-open-checkout"
+      ],
+      "confidence": "verified",
+      "detail": "Plus payee, merchant, instrument, PISP, line item, date and recurrence constraints."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "revocation",
+      "value": "None; expiry only",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified",
+      "detail": "The spec recommends the shortest exp."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "refunds-and-disputes",
+      "value": "Dispute verification steps; no refunds",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-faq"
+      ],
+      "confidence": "verified",
+      "detail": "Retention, retrieval and adjudication out of scope; liability with networks."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "privacy-exposure",
+      "value": "Low by design: mandatory selective disclosure of constraints",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-schema-payment"
+      ],
+      "confidence": "verified",
+      "detail": "risk_data travels to verifiers."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "discovery-mechanism",
+      "value": "None of its own; UCP /.well-known/ucp lists the extension",
+      "sources": [
+        "src-ap2-ucp-ext"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Open specification; verifiers choose which issuers or agent providers to trust",
+      "sources": [
+        "src-ap2-agent-authorization"
+      ],
+      "confidence": "verified",
+      "detail": "No registration step defined."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "decentralization",
+      "value": "Bilateral trust between parties; governed by an alliance",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-fido-pr"
+      ],
+      "confidence": "verified",
+      "detail": "No central operator in the protocol."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-ucp-ext"
+      ],
+      "confidence": "verified",
+      "detail": "Everything except UCP profiles and GitHub activity is private."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee",
+      "sources": [
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified",
+      "detail": "Costs are those of the underlying rail."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "who-pays",
+      "value": "Card or rail economics unchanged",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-issue-268"
+      ],
+      "confidence": "verified",
+      "detail": "AP2 adds no fee; merchants may carry a second signing key type."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "builds-on-standards",
+      "value": "SD-JWT (RFC 9901), SD-JWT VC, Delegate SD-JWT draft, RFC 7800, OpenID4VP, Digital Credentials API",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-delegate-sd-jwt"
+      ],
+      "confidence": "verified",
+      "detail": "VC 2.0 and DIDs only as the wider family."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "composes-with",
+      "value": "UCP (extension), x402 (a2a-x402, v0.1 target), Mastercard Verifiable Intent",
+      "sources": [
+        "src-ap2-ucp-ext",
+        "src-ap2-a2a-x402-v02",
+        "src-ap2-vi-spec",
+        "src-ap2-repo"
+      ],
+      "confidence": "verified",
+      "detail": "No documented link with TAP, ACP, MPP or ERC-8004."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "Python SDK and samples in Python, Go and Android",
+      "sources": [
+        "src-ap2-repo",
+        "src-ap2-gh-issues-since"
+      ],
+      "confidence": "verified",
+      "detail": "SDK not on PyPI; TypeScript SDK PR closed unmerged."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "adoption-evidence",
+      "value": "Unverified anywhere, including inside UCP",
+      "sources": [
+        "src-ap2-faq",
+        "src-ap2-issue-345",
+        "src-ap2-gh-repo"
+      ],
+      "confidence": "unverified",
+      "detail": "One self-reported deployment (issue 345); 3,216 GitHub stars on 2026-10-11."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "published-security-research",
+      "value": "Yes: several 2026 papers; no CVE",
+      "sources": [
+        "src-ap2-pub-2608-23858",
+        "src-ap2-pub-2601-22569",
+        "src-ap2-pub-2602-06345",
+        "src-ap2-gh-advisories"
+      ],
+      "confidence": "verified",
+      "detail": "48 threats (2608.23858), prompt injection, replay, formal analysis."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "regulatory-touchpoints",
+      "value": "Consent and unauthorized-transaction rules; SCA",
+      "sources": [
+        "src-policy-rege-1005-2",
+        "src-policy-eu-psd2",
+        "src-ap2-glossary"
+      ],
+      "confidence": "verified",
+      "detail": "Regulation E and Z, PSD2 and UK PSRs; no compliance claim in the spec."
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "biggest-open-question",
+      "value": "Will FIDO publish it and will anyone deploy it?",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-faq"
+      ],
+      "confidence": "unverified",
+      "detail": "No FIDO deliverable and no verified production use as of 2026-10-11."
+    }
+  ],
+  "radar": [
+    {
+      "protocol": "ap2",
+      "axis": "openness",
+      "value": 4,
+      "justification": "Apache-2.0 specification and schemas in public; specification work now in FIDO, whose drafts are member-only.",
+      "sources": [
+        "src-ap2-repo",
+        "src-ap2-fido-pr"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "decentralization",
+      "value": 3,
+      "justification": "No central operator; each verifier chooses whom to trust; governance by an industry alliance.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-fido-pr"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "v0.2 specification with schemas and samples; spec contradictions open and no public FIDO draft.",
+      "sources": [
+        "src-ap2-gh-releases",
+        "src-ap2-issue-268"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "adoption-evidence",
+      "value": 1,
+      "justification": "Named collaborators and a UCP extension, but no verified production use.",
+      "sources": [
+        "src-ap2-gcloud-launch",
+        "src-ap2-faq",
+        "src-ap2-issue-345"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "human-not-present",
+      "value": 5,
+      "justification": "Open mandates with constraints and agent keys were designed for this case.",
+      "sources": [
+        "src-ap2-flows",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "dispute-support",
+      "value": 3,
+      "justification": "Defined dispute verification over mandates and receipts; retention and adjudication left out.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    }
+  ],
+  "controlsCells": [
+    {
+      "protocol": "ap2",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The agent proves possession of the key in cnf; who the agent is belongs to the commerce protocol layer.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-implementation"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "agent-registration-kya",
+      "support": "none",
+      "note": "No registry or know-your-agent step; under the Trusted Agent Provider model verifiers keep their own list of trusted providers.",
+      "sources": [
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "user-consent-capture",
+      "support": "native",
+      "note": "A non-agentic Trusted Surface shows the Mandate Content and authenticates the user before signing.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-flows"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "payment.amount_range per payment and payment.budget across recurring uses.",
+      "sources": [
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "checkout.allowed_merchants, checkout.line_items, payment.allowed_payees, payment.allowed_pisps and payment.allowed_payment_instruments.",
+      "sources": [
+        "src-ap2-schema-open-checkout",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "iat and exp on every mandate, payment.execution_date windows and payment.agent_recurrence frequency.",
+      "sources": [
+        "src-ap2-schema-open-payment",
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "revocation",
+      "support": "none",
+      "note": "No mandate revocation in v0.2; only short exp and agent-side mandate management.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "v0.2 specifies no step-up; a failed check falls back through unresolved_constraint to a user-approved closed mandate. v0.1 had 3DS2 and OTP challenges.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-spec-v01"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "checkout_hash, transaction_id, sd_hash, cnf and the one-presentation-at-a-time rule; consume-once tracking is left to verifiers.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-spec-v02",
+        "src-ap2-pub-2602-06345"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "Signed Payment and Checkout Receipts whose reference is the hash of the closed mandate.",
+      "sources": [
+        "src-ap2-schema-receipts"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Dispute verification steps are defined; retention, retrieval and adjudication are out of scope.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "reputation",
+      "support": "none",
+      "note": "Not addressed.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "risk_data from the Trusted Surface; no event or telemetry format.",
+      "sources": [
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Credential Providers, networks or processors may reject overlapping mandates or invalidate tokens; card networks keep their own controls.",
+      "sources": [
+        "src-ap2-security"
+      ]
+    }
+  ]
+}

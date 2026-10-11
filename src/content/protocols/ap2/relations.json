@@ -1,0 +1,34 @@
+[
+  {
+    "from": "ap2",
+    "to": "ucp",
+    "type": "embeds",
+    "note": "UCP embeds AP2 through the extension dev.ucp.common.payment.ap2_mandate (renamed in v2026-08-25): merchant signature in ap2.merchant_authorization, Checkout Mandate in ap2.checkout_mandate, Payment Mandate in the credential token. Live use unverified.",
+    "sources": [
+      "src-ap2-ucp-ext",
+      "src-ucp-schema-ap2",
+      "src-ap2-faq"
+    ]
+  },
+  {
+    "from": "ap2",
+    "to": "x402",
+    "type": "compatible-with",
+    "note": "The a2a-x402 Embedded Flow nests x402 inside AP2 mandates, but it targets the v0.1 CartMandate and PaymentMandate; AP2 v0.2 has no Cart mandate. The AP2 repository ships x402 samples.",
+    "sources": [
+      "src-ap2-a2a-x402-v02",
+      "src-ap2-repo"
+    ]
+  },
+  {
+    "from": "ap2",
+    "to": "mastercard-agent-pay",
+    "type": "compatible-with",
+    "note": "Verifiable Intent shares AP2 v0.2 vct values with aligned constraint semantics and different key prefixes (payment.amount_range versus mandate.payment.amount_range); both were contributed to FIDO on 2026-04-28.",
+    "sources": [
+      "src-ap2-vi-spec",
+      "src-ap2-schema-open-payment",
+      "src-ap2-fido-pr"
+    ]
+  }
+]
