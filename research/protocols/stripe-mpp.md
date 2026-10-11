@@ -397,8 +397,75 @@ Dispute on the seed figure: the seed says MPPScan figures "cited by Merit System
 
 - **x402.** Competing and interoperable HTTP 402 designs. Header mapping: x402 `PAYMENT-REQUIRED` to `WWW-Authenticate: Payment`, `PAYMENT-SIGNATURE` to `Authorization: Payment` (or `Payment-Authorization`), `PAYMENT-RESPONSE` to `Payment-Receipt`. x402 `exact` maps to MPP `charge`; x402 `upto` and EVM `batch-settlement` are the comparable usage-based mechanisms to MPP `session`. `mppx` can serve both on one route and its x402 headers are implemented in `src/x402/Header.ts`; Cloudflare calls MPP backwards compatible with x402. Stripe sits on both: it co-authors MPP and is an x402 Foundation TSC member (see the x402 dossier, clm-x402-213 and clm-x402-214). The discovery draft cites x402scan's OpenAPI-first approach and `/.well-known/x402` as prior art, and both explorers are run by Merit Systems [src-stripe-mpp-vs-x402] [src-stripe-mpp-mppx-changelog] [src-stripe-mpp-cloudflare] [src-stripe-mpp-discovery].
 - **Visa TAP.** Two links. (1) Visa's `card` method spec says a client may add Trusted Agent Protocol signature headers; this wording has been in the file since the 2026-03-18 public commit. (2) Visa's 2026-03-18 announcement says the card spec and SDK are built on Visa Intelligent Commerce and TAP. Separately, `mppx` added TAP and Web Bot Auth request-attestation profiles (merged 2026-08-04, blog 2026-08-12). The `mpp-card` 0.1.8 package contains no TAP signing code [src-stripe-mpp-card-history] [src-stripe-mpp-visa-card] [src-stripe-mpp-blog-identity] [src-stripe-mpp-mpp-card-pkg].
-- **OpenAI ACP.** No protocol cross-reference. Shared component: Stripe Shared Payment Tokens, which the `stripe` MPP method carries in `payload.spt` and which Stripe also uses for agentic checkout; Stripe presents MPP, ACP and x402 support side by side in its agentic commerce offering [src-stripe-mpp-stripe-charge] [src-stripe-mpp-stripe-blog].
-- **Google UCP.** No documented relation: the cloned UCP repositories contain no reference to MPP, paymentauth or `mppx` [src-stripe-mpp-specs-repo].
+- **OpenAI ACP.** No protocol cross-reference in the cloned ACP repository [src-stripe-mpp-ucp-repo]. Shared component: Stripe Shared Payment Tokens, which the `stripe` MPP method carries in `payload.spt` and which Stripe also uses for agentic checkout; Stripe presents MPP, ACP and x402 support side by side in its agentic commerce offering [src-stripe-mpp-stripe-charge] [src-stripe-mpp-stripe-blog].
+- **Google UCP.** No documented relation: the cloned UCP repositories contain no reference to MPP, paymentauth or `mppx` [src-stripe-mpp-ucp-repo].
 - **AP2.** No cross-reference in either direction; the cloned AP2 repository never mentions the Machine Payments Protocol. Inside AP2 documents "MPP" means Merchant Payment Processor, a role that builds the authorization message. Conceptually complementary (AP2 carries user authorization evidence, MPP negotiates and settles payment), but no spec defines a binding [src-stripe-mpp-ap2-glossary].
 - **ERC-8004.** No integration. The discovery draft compares itself with ERC-8004 and says it is off-chain but "compatible with future on-chain anchoring" [src-stripe-mpp-discovery].
 - **Mastercard Agent Pay.** Tempo and Stripe are in the initial partner group of Mastercard Agent Pay for Machines (AP4M, announced 2026-06-10), per secondary coverage; none of the articles read mentions MPP compatibility, and no Tempo or Mastercard page confirming MPP compatibility could be opened (correction 2.1.2: the claim is dropped). Other links: Tempo's mainnet post lists Mastercard among Tempo's partners; mpp.dev governance names Mastercard as an example of a rail that would maintain its own method, but no Mastercard method spec exists; the Visa `card` method accepts `"mastercard"` as a `network` value [src-stripe-mpp-ap4m-coverage] [src-stripe-mpp-tempo-mainnet] [src-stripe-mpp-governance] [src-stripe-mpp-card-charge].
+
+## Criticisms and open questions
+
+- **Authorship concentration.** All five core authors are from Tempo Labs (three) and Stripe (two); the charge, subscription, discovery (with Merit Systems) and MCP drafts are Tempo-led; there is no working group, charter or neutral steering body [src-stripe-mpp-core-01] [src-stripe-mpp-intent-charge] [src-stripe-mpp-discovery].
+- **"Standards track" framing.** mpp.dev says the core is "submitted to the IETF standards track"; the Datatracker shows an individual submission with no stream or intended status, and the first name expired before renewal under a new name [src-stripe-mpp-governance] [src-stripe-mpp-ietf-ryan] [src-stripe-mpp-ietf-current].
+- **Session is not a standardized intent.** The 2026-06-17 blog says sessions "are now a formal MPP intent", linking PR #280; that PR closed unmerged on 2026-09-28, and `specs/intents/` still has only `charge` and `subscription`. Session lives in six method specs (tempo, evm, solana, hedera, lightning, xrpl) and its IANA entries list per-method registrations [src-stripe-mpp-blog-sessions] [src-stripe-mpp-gh-pr-280] [src-stripe-mpp-specs-contributing].
+- **Spec inconsistencies.** Tempo charge says `chainId` defaults to 42431 (the Moderato testnet ID), Tempo session defaults to 4217 (mainnet), and Tempo subscription says "42431 (Tempo mainnet)", which mislabels the testnet ID [src-stripe-mpp-tempo-charge] [src-stripe-mpp-tempo-session] [src-stripe-mpp-tempo-subscription] [src-stripe-mpp-tempo-connection]. Tempo subscription allows only `day` and `week` although the intent allows `month` [src-stripe-mpp-tempo-subscription] [src-stripe-mpp-intent-subscription].
+- **Channels never expire.** Open channels and unsettled vouchers persist until closed; servers are only advised to close idle channels [src-stripe-mpp-tempo-session].
+- **Bearer credentials.** A leaked credential before use is spendable by whoever presents it first; the spec relies on TLS and non-logging [src-stripe-mpp-core-01].
+- **Public settlement.** Tempo and other chain methods expose payer and payee addresses and amounts on public ledgers [src-stripe-mpp-tempo-connection] [src-stripe-mpp-mppscan].
+- **Disputes depend on the rail.** Card routes keep chargebacks; stablecoin routes do not [src-stripe-mpp-intent-charge] [src-stripe-mpp-stripe-stablecoin].
+- **Security track record.** Two critical multi-bug advisories (TypeScript and Rust) within two weeks of launch, then two CVEs, then fee-payer gas-draining CVEs in July [src-stripe-mpp-ghsa-other] [src-stripe-mpp-ghsa-rs].
+- **Usage quality.** Average payment value fell below one cent over the last 30 days; directory listings are overwhelmingly Tempo-only (126 of 129) [src-stripe-mpp-mppscan] [src-stripe-mpp-directory-api].
+- **IANA not yet done.** Headers and registries are requests in a draft [src-stripe-mpp-iana].
+- **Vendor comparison.** The x402 comparison page is written by MPP's authors and recommends MPP "by default" [src-stripe-mpp-vs-x402].
+- **Open question.** Whether Stripe's reported 1.5 percent stablecoin fee applies to MPP stablecoin charges settled via deposit addresses [src-stripe-mpp-yahoo-fee] [src-stripe-mpp-stripe-docs].
+
+## Resources
+
+| Title | URL | Publisher | Date | Type | Badge | Note | Start here |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| mpp.dev | https://mpp.dev | Tempo and Stripe | 2026 | docs | official | Protocol docs, SDKs, directory | yes |
+| paymentauth.org | https://paymentauth.org | Tempo and Stripe | 2026 | spec | official | Rendered core, intents, methods, extensions | yes |
+| draft-httpauth-payment (Datatracker) | https://datatracker.ietf.org/doc/draft-httpauth-payment/ | IETF | 2026-09-09 | spec | official | Core draft -01, individual submission | yes |
+| tempoxyz/mpp-specs | https://github.com/tempoxyz/mpp-specs | Tempo and Stripe | 2026 | repo | official | Spec source, CC0 | no |
+| wevm/mppx | https://github.com/wevm/mppx | wevm | 2026 | repo | official | TypeScript SDK and CHANGELOG | no |
+| MPP vs x402 | https://mpp.dev/mpp-vs-x402 | Tempo and Stripe | 2026 | analysis | official | Header mapping; vendor view | no |
+| Stripe docs: MPP | https://docs.stripe.com/payments/machine/mpp | Stripe | 2026 | docs | official | Minimums, `hostedFeePayer` | no |
+| Introducing MPP | https://stripe.com/blog/machine-payments-protocol | Stripe | 2026-03-18 | announcement | official | Launch post | no |
+| Tempo Mainnet is live | https://tempo.xyz/blog/mainnet | Tempo | 2026-03-18 | announcement | official | Launch, directory, partners | no |
+| Visa card spec and SDK for MPP | https://corporate.visa.com/en/sites/visa-perspectives/innovation/visa-card-specification-sdk-for-machine-payments-protocol.html | Visa | 2026-03-18 | announcement | official | `card` method, VIC, TAP | no |
+| Cloudflare Agents: MPP | https://developers.cloudflare.com/agents/agentic-payments/mpp/ | Cloudflare | 2026-08-05 | docs | official | Agents SDK guides | no |
+| An improved sessions experience | https://mpp.dev/blog/sessions-improved | Tempo | 2026-06-17 | engineering | official | Session v2 gas table | no |
+| Expanding identity support in mppx | https://mpp.dev/blog/mppx-identity-support | Tempo | 2026-08-12 | engineering | official | TAP and Web Bot Auth | no |
+| MPPscan | https://www.mppscan.com | Merit Systems | 2026 | dataset | community | Explorer | no |
+| Tempo docs: Fees | https://tempo.xyz/developers/docs/protocol/fees | Tempo | 2026 | docs | official | Stablecoin gas | no |
+| Tempo Mainnet: The Race to Agentic Commerce | https://www.bankless.com/podcast/tempo-mainnet-the-race-to-agentic-commerce | Bankless | 2026-03-19 | podcast | community | MPP vs x402, sessions, IETF | no |
+| Simon Taylor on Where Agentic Spend is Going | https://www.lithic.com/blog/simon-taylor-on-where-agentic-spend-is-going | Fintech Layer Cake (Lithic) | 2026 | podcast | community | Cards vs stablecoins | no |
+| MPP with Foundry and Tempo | https://www.quicknode.com/guides/agentic-payments/mpp-with-foundry-and-tempo | QuickNode | 2026-08 | tutorial | community | Pay-per-request RPC | no |
+| Building on Privy with Tempo's MPP | https://privy.io/blog/building-on-privy-with-tempo-machine-payments-protocol | Privy | 2026-03-18 | tutorial | community | Wallet pattern | no |
+| Tempo Mainnet is live: MPP on Alchemy | https://www.alchemy.com/blog/tempo-mainnet-alchemy | Alchemy | 2026-03-18 | engineering | community | Buying APIs via MPP | no |
+| Tempo MPP: OAuth for Money | https://blockeden.xyz/blog/2026/03/27/tempo-machine-payments-protocol-stripe-paradigm-ai-agent-micropayments/ | BlockEden | 2026-03-27 | long-form | community | Caps, micropayments | no |
+| Tempo releases AI payments protocol | https://fortune.com/2026/03/18/stripe-tempo-paradigm-mpp-ai-payments-protocol/ | Fortune | 2026-03-18 | long-form | community | Launch context | no |
+| Tempo Goes Live, Unveils MPP | https://thedefiant.io/tempo-launches-mainnet-unveils-machine-payments-protocol-with-stripe | The Defiant | 2026-03-18 | newsletter | community | Crypto-native view; 403 to curl on 2026-10-11 | no |
+| Why Stripe's MPP signals a turning point for micropayments | https://www.forrester.com/blogs/why-stripes-machine-payments-protocol-signals-a-turning-point-for-micropayments/ | Forrester | 2026 | analysis | community | Analyst view | no |
+| Stripe and Paradigm launch Tempo alongside MPP | https://www.ledgerinsights.com/stripe-paradigm-launch-tempo-blockchain-alongside-machine-payments-standard/ | Ledger Insights | 2026-03 | newsletter | community | Launch coverage | no |
+| Machine payments and the protocols behind agentic commerce | https://stripe.com/sessions/2026/machine-payments-and-the | Stripe Sessions 2026 | 2026-04 | talk | official | Session page | no |
+| Agentic Payment Protocols Compared | https://www.fireblocks.com/blog/agentic-payment-protocols-compared | Fireblocks | 2026-08-27 | long-form | community | x402, AP2, MPP, ACP layers; 403 to curl on 2026-10-11 | no |
+| A Formal Analysis of Agent Payment Protocols | https://arxiv.org/abs/2609.00060 | arXiv (Jiang et al.) | 2026-08-30 | paper | academic | Tamarin models incl. MPP | no |
+| awesome-agentic-payments | https://github.com/bitrefill/awesome-agentic-payments | Bitrefill | 2026 | repo | community | Curated list | no |
+
+## Publications
+
+| Id | Title | Date | Relevance | Verified via |
+| --- | --- | --- | --- | --- |
+| arXiv:2609.00060 | A Formal Analysis of Agent Payment Protocols (Ke Jiang et al.) | 2026-08-30 | Direct: Tamarin model of MPP | export.arxiv.org [src-stripe-mpp-arxiv-2609-00060] |
+| arXiv:2604.15367 | SoK: Security of Autonomous LLM Agents in Agentic Commerce (Qian'ang Mao et al.) | 2026-04-15 | Direct: names MPP in the protocol set | export.arxiv.org [src-stripe-mpp-arxiv-2604-15367] |
+| arXiv:2604.03733 | SoK: Blockchain Agent-to-Agent Payments (Yuanzhe Zhang et al.) | 2026-04-04 | Context; abstract does not name MPP | [src-stripe-mpp-arxiv-other] |
+| arXiv:2603.01179 | A402: Binding Cryptocurrency Payments to Service Execution for Agentic Commerce (Yue Li et al.) | 2026-03-01 | Context (402 payments); abstract does not name MPP | [src-stripe-mpp-arxiv-other] |
+| arXiv:2605.30998 | Free-Riding the Agentic Web: A Systematic Security Analysis of x402 Payments (Shengchen Ling et al.) | 2026-05-29 | Context (x402 attacks comparable to MPP charge) | [src-stripe-mpp-arxiv-other] |
+| arXiv:2606.24783 | Paying to Know: Micro-Transaction Markets for Verified Product Information in Agentic E-Commerce (Ventirozos, Shardlow) | 2026-06-23 | Context; abstract does not name MPP | [src-stripe-mpp-arxiv-other] |
+| arXiv:1702.05812 | Sprites and State Channels: Payment Networks that Go Faster than Lightning (Miller et al.) | 2017-02-19 | Foundation for payment channels | [src-stripe-mpp-arxiv-other] |
+| DOI 10.1007/3-540-62494-5_6 | PayWord and MicroMint: Two simple micropayment schemes (Rivest, Shamir) | 1997 (LNCS; workshop 1996) | Foundation: cumulative hash-chain payments | [src-stripe-mpp-doi-foundations] |
+| DOI 10.1007/3-540-63594-7_87 | Electronic lottery tickets as micropayments (Rivest) | 1997 | Foundation | [src-stripe-mpp-doi-foundations] |
+| DOI 10.1145/2810103.2813713 | Micropayments for Decentralized Currencies (Pass, shelat) | 2015-10-12 | Foundation | [src-stripe-mpp-doi-foundations] |
+| DOI 10.1007/978-3-540-45126-6_6 | The Case Against Micropayments (Odlyzko) | 2003 | Critique | [src-stripe-mpp-doi-foundations] |
+| (no DOI) | Poon and Dryja, The Bitcoin Lightning Network (white paper) | 2016 | Foundation for Lightning method | not re-verified (PDF reachable) |
