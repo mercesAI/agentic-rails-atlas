@@ -1,0 +1,573 @@
+{
+ "cells": [
+  {
+   "protocol": "ucp",
+   "dimension": "primary-job",
+   "value": "Agent checkout, carts and orders with capability negotiation",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-checkout"
+   ],
+   "confidence": "verified",
+   "detail": "Discovery at /.well-known/ucp, negotiation, then checkout over REST, MCP, A2A or embedded."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "layers-covered",
+   "value": "Discovery, checkout and orders, payment credential handoff, identity linking; mandates only through the AP2 extension",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-ap2-spec"
+   ],
+   "confidence": "verified",
+   "detail": "No settlement rail of its own."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "stewards",
+   "value": "UCP Governing Council; Google and Shopify permanent, Stripe elected",
+   "sources": [
+    "src-ucp-governance",
+    "src-ucp-maintainers"
+   ],
+   "confidence": "verified",
+   "detail": "Google is custodian of ucp.dev."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "governance-model",
+   "value": "Council-owned, no foundation; Google proxy for open seats until December 2028",
+   "sources": [
+    "src-ucp-governance"
+   ],
+   "confidence": "verified",
+   "detail": "Domain Tech Councils of 16 decide by majority."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "license-spec-and-code",
+   "value": "Apache-2.0 (UCP Authors)",
+   "sources": [
+    "src-ucp-gh-repo",
+    "src-ucp-governance"
+   ],
+   "confidence": "verified",
+   "detail": "Contributors sign the Google CLA."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "first-announced",
+   "value": "2026-01-11",
+   "sources": [
+    "src-ucp-google-nrf",
+    "src-ucp-google-dev-blog"
+   ],
+   "confidence": "verified",
+   "detail": "Launched at NRF."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "latest-version-and-date",
+   "value": "v2026-08-25 (2026-08-25)",
+   "sources": [
+    "src-ucp-gh-releases",
+    "src-ucp-js-sdk-readme"
+   ],
+   "confidence": "verified",
+   "detail": "main carries drafts; SDKs 0.5.x match it."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "maturity",
+   "value": "Live on Google AI Mode and Gemini (US) since 2026-02-11",
+   "sources": [
+    "src-ucp-google-feb2026",
+    "src-ucp-gh-releases"
+   ],
+   "confidence": "verified",
+   "detail": "Four dated releases; AP2 extension live use unverified."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "transports",
+   "value": "REST, MCP, A2A, embedded",
+   "sources": [
+    "src-ucp-overview"
+   ],
+   "confidence": "verified",
+   "detail": "OpenAPI, OpenRPC and Agent Card descriptions."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "settlement-rails",
+   "value": "Rail-agnostic handlers; cards via the merchant's PSP in practice",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-schema-payment",
+    "src-ucp-google-faq"
+   ],
+   "confidence": "verified",
+   "detail": "Credential types token, PAN, network token."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "agent-identity-model",
+   "value": "Domain-based platform profile plus JWK keys; RFC 9421, OAuth, API key or mTLS",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-signatures"
+   ],
+   "confidence": "verified",
+   "detail": "Authenticated principal must be bound to the profile in UCP-Agent."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "user-authorization-model",
+   "value": "Buyer places the order in a trusted UI; optional AP2 checkout mandate",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec",
+    "src-ucp-identity-linking"
+   ],
+   "confidence": "verified",
+   "detail": "Identity linking with OAuth 2.0 for signed-in actions."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "human-present-and-human-not-present-support",
+   "value": "Human present by default; human not present only with AP2 (specified, unverified live)",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec",
+    "src-ucp-google-universal-cart"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "merchant-of-record",
+   "value": "The business",
+   "sources": [
+    "src-ucp-glossary",
+    "src-ucp-google-faq",
+    "src-ucp-microsoft-page"
+   ],
+   "confidence": "verified",
+   "detail": "Google and Microsoft are not merchant of record."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "credential-type",
+   "value": "Opaque handler token, PAN or network token",
+   "sources": [
+    "src-ucp-schema-payment",
+    "src-ucp-google-faq"
+   ],
+   "confidence": "verified",
+   "detail": "Google surfaces: Google Pay PAN_ONLY."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "cryptography",
+   "value": "RFC 9421 with Content-Digest; ES256 baseline; JWS and SD-JWT in the AP2 extension",
+   "sources": [
+    "src-ucp-signatures",
+    "src-ucp-ap2-spec"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "replay-protection",
+   "value": "Signed Idempotency-Key, 24 to 48 hour storage, 409 on mismatch",
+   "sources": [
+    "src-ucp-signatures"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "native-spending-controls",
+   "value": "None in UCP",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-schema-checkout"
+   ],
+   "confidence": "verified",
+   "detail": "Caps come from AP2 mandates, the wallet or the platform."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "revocation",
+   "value": "Key removal from the profile; RFC 7009 token revocation for identity linking",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-identity-linking"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "refunds-and-disputes",
+   "value": "Order adjustments record refunds, returns and disputes; handling stays with merchant and PSP",
+   "sources": [
+    "src-ucp-schema-order"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "privacy-exposure",
+   "value": "Platform sees buyer data, signals and order history; credentials are opaque",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-eweek-warren"
+   ],
+   "confidence": "verified",
+   "detail": "Privacy and upselling concerns raised in a senator's letter (reported)."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "discovery-mechanism",
+   "value": "/.well-known/ucp business profile",
+   "sources": [
+    "src-ucp-overview"
+   ],
+   "confidence": "verified",
+   "detail": "No public registry of businesses."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "permissionless-or-registration-required",
+   "value": "Permissionless; businesses may keep allowlists",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-google-guide"
+   ],
+   "confidence": "verified",
+   "detail": "Google surfaces need Merchant Center onboarding."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "decentralization",
+   "value": "Federated by domain, governance concentrated at Google",
+   "sources": [
+    "src-ucp-governance",
+    "src-ucp-overview"
+   ],
+   "confidence": "verified",
+   "detail": "Google holds proxy votes and the domain."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "observability-score",
+   "value": "2 of 5",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-site"
+   ],
+   "confidence": "verified",
+   "detail": "Public profiles and governance; transactions private."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "fees-and-who-pays-them",
+   "value": "No protocol fee; Google says no cut (reported); merchant pays its PSP",
+   "sources": [
+    "src-ucp-register",
+    "src-ucp-google-faq",
+    "src-ucp-pymnts-fees"
+   ],
+   "confidence": "reported",
+   "detail": "Google, Microsoft checkouts reported with no additional fee for now."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "who-pays",
+   "value": "Merchant pays PSP only",
+   "sources": [
+    "src-ucp-google-faq",
+    "src-ucp-register"
+   ],
+   "confidence": "reported"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "builds-on-standards",
+   "value": "RFC 9421, 9530, 8941, 7517, OAuth 2.0 family, JSON Schema, OpenAPI, OpenRPC, MCP, A2A",
+   "sources": [
+    "src-ucp-signatures",
+    "src-ucp-overview",
+    "src-ucp-identity-linking"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "composes-with",
+   "value": "AP2 (extension); MCP and A2A (transports); network tokens via credential type",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-overview",
+    "src-ucp-schema-payment"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "reference-implementations-and-sdks",
+   "value": "ucp-sdk (PyPI), @ucp-js/sdk (npm), ucp-schema (crates), samples, conformance",
+   "sources": [
+    "src-ucp-pypi",
+    "src-ucp-npm",
+    "src-ucp-crates",
+    "src-ucp-samples"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "adoption-evidence",
+   "value": "Live Google checkout (Etsy, Wayfair); 21 co-developers, 51 endorsers; no merchant counts",
+   "sources": [
+    "src-ucp-google-feb2026",
+    "src-ucp-site"
+   ],
+   "confidence": "verified",
+   "detail": "AP2 inside UCP: unverified."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "published-security-research",
+   "value": "Two arXiv papers name UCP (2602.06345, 2606.05043); no CVE or advisory",
+   "sources": [
+    "src-ucp-arxiv-260206345",
+    "src-ucp-arxiv-260605043",
+    "src-ucp-gh-advisories"
+   ],
+   "confidence": "verified"
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "regulatory-touchpoints",
+   "value": "Card law (Reg Z, Reg E, PSD2 SCA), GDPR, AI Act Article 50",
+   "sources": [
+    "src-policy-regz-1026-12",
+    "src-policy-eu-rts-sca",
+    "src-policy-eu-ai-act"
+   ],
+   "confidence": "verified",
+   "detail": "Merchant's PSP handles SCA and disputes."
+  },
+  {
+   "protocol": "ucp",
+   "dimension": "biggest-open-question",
+   "value": "Will checkout spread beyond Google surfaces and will AP2 mandates go live?",
+   "sources": [
+    "src-ucp-microsoft-page",
+    "src-ucp-google-universal-cart"
+   ],
+   "confidence": "verified"
+  }
+ ],
+ "radar": [
+  {
+   "protocol": "ucp",
+   "axis": "openness",
+   "value": 4,
+   "justification": "Apache-2.0 spec and SDKs, public repository and Discussions; governance favors Google.",
+   "sources": [
+    "src-ucp-gh-repo",
+    "src-ucp-governance"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "axis": "decentralization",
+   "value": 2,
+   "justification": "Any domain can publish a profile, but Google holds proxy votes until December 2028 and the domain, and one platform dominates live use.",
+   "sources": [
+    "src-ucp-governance",
+    "src-ucp-google-feb2026"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "axis": "maturity",
+   "value": 3,
+   "justification": "Four dated releases and a live Google deployment; frequent breaking changes and drafts on main.",
+   "sources": [
+    "src-ucp-gh-releases",
+    "src-ucp-release-20260825"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "axis": "adoption-evidence",
+   "value": 3,
+   "justification": "Live US checkout on Google surfaces and many endorsers, but no merchant or volume figures.",
+   "sources": [
+    "src-ucp-google-feb2026",
+    "src-ucp-site"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "axis": "human-not-present",
+   "value": 1,
+   "justification": "Buyer places the order in a trusted UI unless the AP2 extension is active, and AP2 live use is unverified.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "axis": "dispute-support",
+   "value": 2,
+   "justification": "Order adjustments record disputes and refunds; resolution stays with merchant and card rules.",
+   "sources": [
+    "src-ucp-schema-order"
+   ]
+  }
+ ],
+ "controlsCells": [
+  {
+   "protocol": "ucp",
+   "control": "agent-identity-verification",
+   "support": "native",
+   "note": "Platform profile URL in UCP-Agent with RFC 9421 signatures against its keys, or API key, OAuth or mTLS bound to that profile.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "agent-registration-kya",
+   "support": "partial",
+   "note": "Permissionless by design; businesses should keep a registry of pre-approved platforms. No know-your-agent registry.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "user-consent-capture",
+   "support": "partial",
+   "note": "Buyer places the order in a trusted UI unless AP2 is active; buyer_consent map; AP2 checkout_mandate as signed consent.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec",
+    "src-ucp-release-20260825"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "spending-caps",
+   "support": "external",
+   "note": "No cap field; limits live in AP2 mandates, the credential provider or the platform.",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-schema-checkout"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "merchant-payee-scoping",
+   "support": "partial",
+   "note": "Tokens are handler-specific and some (Adyen) are bound to session and merchant; AP2 mandates bind the merchant-signed checkout.",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-adyen-docs"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "time-windows-expiry",
+   "support": "native",
+   "note": "Checkout expires_at defaults to 6 hours; mandate_expired in the AP2 extension.",
+   "sources": [
+    "src-ucp-schema-checkout",
+    "src-ucp-schema-ap2"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "revocation",
+   "support": "native",
+   "note": "Remove keys from the profile; RFC 7009 token revocation required for identity linking; OpenID RISC recommended.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-identity-linking"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "step-up-authentication",
+   "support": "partial",
+   "note": "requires_escalation handoff through continue_url; 3DS2 device data collection and challenge actions in the optional authentication extension.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-payment-auth"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "replay-protection",
+   "support": "native",
+   "note": "Signed Idempotency-Key with 128-bit entropy, 24 to 48 hour storage and 409 on mismatch; Web Bot Auth shape adds nonce.",
+   "sources": [
+    "src-ucp-signatures"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "receipts-evidence",
+   "support": "partial",
+   "note": "Order with permalink_url and a required confirmation email; AP2 mandates kept as JCS-canonical evidence.",
+   "sources": [
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "dispute-support",
+   "support": "partial",
+   "note": "Order adjustments can record disputes, refunds and returns; dispute handling stays with the business and PSP.",
+   "sources": [
+    "src-ucp-schema-order"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "reputation",
+   "support": "none",
+   "note": "No reputation mechanism for platforms or businesses.",
+   "sources": [
+    "src-ucp-overview"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "monitoring-signals",
+   "support": "native",
+   "note": "signals such as dev.ucp.buyer_ip and dev.ucp.user_agent, plus signed order webhooks.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-order"
+   ]
+  },
+  {
+   "protocol": "ucp",
+   "control": "kill-switch",
+   "support": "partial",
+   "note": "Businesses can refuse platforms, answer 503 or cancel sessions; no protocol-level global stop.",
+   "sources": [
+    "src-ucp-overview",
+    "src-ucp-google-faq"
+   ]
+  }
+ ]
+}

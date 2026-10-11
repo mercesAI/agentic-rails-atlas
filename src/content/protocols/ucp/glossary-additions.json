@@ -1,0 +1,223 @@
+[
+ {
+  "id": "business-profile",
+  "term": "Business profile",
+  "aliases": [
+   "UCP profile",
+   "/.well-known/ucp"
+  ],
+  "plain": "The public JSON document a UCP business serves at /.well-known/ucp. It lists the protocol version, services and transports, capabilities, payment handlers and the business's public signing keys.",
+  "ste": "The JSON document at /.well-known/ucp. It shows the versions, transports, capabilities, payment handlers and public keys of a business.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-overview",
+   "src-ucp-schema-profile"
+  ]
+ },
+ {
+  "id": "platform-profile",
+  "term": "Platform profile",
+  "aliases": [
+   "agent profile"
+  ],
+  "plain": "The profile a UCP platform publishes at a URL of its choice and names in the UCP-Agent header; it lists the platform's capabilities, keys and settings such as an order webhook URL.",
+  "ste": "The JSON document of the platform. The platform sends its address in the UCP-Agent header.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-overview"
+  ]
+ },
+ {
+  "id": "ucp-agent-header",
+  "term": "UCP-Agent header",
+  "aliases": [
+   "UCP-Agent"
+  ],
+  "plain": "The HTTP request header in which a UCP platform names its profile URL, in RFC 8941 dictionary syntax (profile=\"...\"). Over MCP the same value goes in meta ucp-agent.",
+  "ste": "An HTTP header. It contains the address of the platform profile.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-overview"
+  ]
+ },
+ {
+  "id": "capability-intersection",
+  "term": "Capability intersection",
+  "aliases": [
+   "capability negotiation"
+  ],
+  "plain": "The UCP negotiation step in which the business keeps only capabilities both profiles list, picks the highest version both support, and prunes extensions whose parent capability is gone.",
+  "ste": "The set of capabilities that the business and the platform both support, at the highest common version.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-overview"
+  ]
+ },
+ {
+  "id": "namespace-authority-binding",
+  "term": "Namespace authority binding",
+  "aliases": [
+   "authority binding"
+  ],
+  "plain": "The UCP rule that a capability's schema URL host must match its reverse-DNS name. It proves who published a schema, not that the publisher is trustworthy.",
+  "ste": "A rule. The host of the schema address must agree with the name of the capability.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-overview"
+  ]
+ },
+ {
+  "id": "payment-handler",
+  "term": "Payment handler",
+  "aliases": [
+   "handler"
+  ],
+  "plain": "In UCP, a specification written by a credential provider (for example com.google.pay) that a business configures and a platform executes to obtain an opaque payment token.",
+  "ste": "A specification from a credential provider. The platform uses it to get a payment token.",
+  "protocols": [
+   "ucp",
+   "openai-acp"
+  ],
+  "sources": [
+   "src-ucp-overview"
+  ]
+ },
+ {
+  "id": "credential-provider",
+  "term": "Credential provider",
+  "aliases": [
+   "CP",
+   "payment credential provider"
+  ],
+  "plain": "A trusted party, such as a digital wallet, that manages a user's payment and identity credentials and issues tokens to a platform.",
+  "ste": "A wallet or similar party that keeps the payment credentials of the buyer and gives tokens.",
+  "protocols": [
+   "ucp",
+   "ap2"
+  ],
+  "sources": [
+   "src-ucp-glossary"
+  ]
+ },
+ {
+  "id": "continue-url",
+  "term": "Continue URL",
+  "aliases": [
+   "continue_url"
+  ],
+  "plain": "An absolute HTTPS URL a business returns so the buyer can finish a checkout on the business's own interface; required in UCP when status is requires_escalation.",
+  "ste": "The address of the web checkout of the business. The buyer uses it to finish the order.",
+  "protocols": [
+   "ucp",
+   "openai-acp"
+  ],
+  "sources": [
+   "src-ucp-checkout"
+  ]
+ },
+ {
+  "id": "escalation",
+  "term": "Escalation",
+  "aliases": [
+   "requires_escalation"
+  ],
+  "plain": "In UCP, the checkout status that hands the purchase from the agent to the buyer because the business needs input its API cannot collect or a policy needs the buyer to review the order.",
+  "ste": "A checkout status. The agent must give the checkout to the buyer through the continue_url.",
+  "protocols": [
+   "ucp",
+   "openai-acp"
+  ],
+  "sources": [
+   "src-ucp-checkout"
+  ]
+ },
+ {
+  "id": "identity-linking",
+  "term": "Identity linking",
+  "aliases": [
+   "dev.ucp.common.identity_linking"
+  ],
+  "plain": "The UCP capability that links a buyer's account at a business to a platform with OAuth 2.0 authorization code and PKCE S256, using scopes derived from capabilities.",
+  "ste": "A capability that connects the account of the buyer at a business to the platform with OAuth 2.0.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-identity-linking"
+  ]
+ },
+ {
+  "id": "security-locked-session",
+  "term": "Security-locked session",
+  "aliases": [
+   "security lock"
+  ],
+  "plain": "A UCP checkout session in which the AP2 extension was negotiated, so the business must sign every checkout and neither side may fall back to an unprotected checkout.",
+  "ste": "A session that uses AP2 mandates. The session cannot change back to a checkout without mandates.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-ap2-spec"
+  ]
+ },
+ {
+  "id": "merchant-authorization",
+  "term": "Merchant authorization",
+  "aliases": [
+   "ap2.merchant_authorization"
+  ],
+  "plain": "The business's detached JWS signature over a JCS-canonical UCP checkout, sent in every checkout response when the AP2 extension is active.",
+  "ste": "The signature of the business on the checkout. The platform must verify it before it shows the checkout.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-ap2-spec",
+   "src-ucp-schema-ap2"
+  ]
+ },
+ {
+  "id": "transport-binding",
+  "term": "Transport binding",
+  "aliases": [
+   "UCP service binding"
+  ],
+  "plain": "A UCP service entry that pairs a transport (rest, mcp, a2a or embedded) with an endpoint and a machine-readable description such as OpenAPI or OpenRPC.",
+  "ste": "An entry in the profile. It connects a transport to an endpoint.",
+  "protocols": [
+   "ucp"
+  ],
+  "sources": [
+   "src-ucp-overview",
+   "src-ucp-schema-profile"
+  ]
+ },
+ {
+  "id": "checkout-session",
+  "term": "Checkout session",
+  "aliases": [
+   "checkout"
+  ],
+  "plain": "The UCP resource a platform creates and updates until it can be completed; it has an id, line items, totals, required legal links, a status and an expiry.",
+  "ste": "The checkout resource. The platform makes it, changes it and completes it.",
+  "protocols": [
+   "ucp",
+   "openai-acp"
+  ],
+  "sources": [
+   "src-ucp-schema-checkout",
+   "src-ucp-checkout"
+  ]
+ }
+]
