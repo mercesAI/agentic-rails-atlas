@@ -486,3 +486,145 @@ Since 2026-04-29 outside contributors have filed issues against the Python SDK a
 12. **Governance in transition.** Normative work moved to FIDO, but no FIDO draft is public; the GitHub repo receives issues and PRs that nobody merges [src-ap2-fido-pr] [src-ap2-gh-issues-since].
 13. **Reference dating error.** AP2 cites SD-JWT (RFC 9901) as "February 2025"; the RFC Editor dates RFC 9901 to November 2025 [src-ap2-agent-authorization] [src-ap2-rfc9901].
 14. **Normative dependence on an individual draft.** Mandate chaining relies on Delegate SD-JWT, an individual draft with no working-group adoption found [src-ap2-delegate-sd-jwt].
+
+## Resources (20 or more)
+
+URLs re-checked with `curl -sSIL` on 2026-10-11; status shown in the note when not 200.
+
+| Title | URL | Publisher | Date | Type | Badge | Note | Start here |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| AP2 documentation site | https://ap2-protocol.org/ | Google (google-agentic-commerce) | 2026-04-28 (v0.2) | docs | official | Overview, spec, glossary, FAQ, samples; FIDO pointer | yes |
+| AP2 repository | https://github.com/google-agentic-commerce/AP2 | Google | 2025-09-16 (v0.1.0), 2026-04-28 (v0.2.0) | repo | official | Spec in `docs/ap2/`, schemas, Python SDK, samples | yes |
+| AP2 v0.2 specification | https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/specification.md | Google | 2026-04-28 | spec | official | Roles, modes, verification, dispute | yes |
+| Agent Authorization | https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/agent_authorization.md | Google | 2026-04-28 | spec | official | Open and closed mandates, OpenID4VP delegation, errors | yes |
+| Flow Examples | https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/flows.md | Google | 2026-04-28 | spec | official | Human Present and Human Not Present step lists | no |
+| AP2 JSON Schemas | https://github.com/google-agentic-commerce/AP2/tree/main/code/sdk/schemas/ap2 | Google | 2026-04-28 | spec | official | Source for every field table | no |
+| AP2 v0.1.0 specification | https://github.com/google-agentic-commerce/AP2/blob/v0.1.0/docs/specification.md | Google | 2025-09-16 | spec | official | Intent, Cart and Payment mandates; 3DS2 challenges | no |
+| Powering AI commerce with the new Agent Payments Protocol (AP2) | https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol | Google Cloud Blog | 2025-09-16 | announcement | official | Launch post, partner list, a2a-x402 | yes |
+| We're donating Agent Payments Protocol to the FIDO Alliance | https://blog.google/products-and-platforms/platforms/google-pay/agent-payments-protocol-fido-alliance/ | Google | 2026-04-28 | announcement | official | Donation and v0.2 release | no |
+| FIDO Alliance to Develop Standards for Trusted AI Agent Interactions | https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/ | FIDO Alliance | 2026-04-28 | announcement | official | Working groups and chairs; curl 403, read via WebFetch | no |
+| FIDO Alliance Launches Payments Working Group | https://fidoalliance.org/fido-alliance-launches-payments-working-group | FIDO Alliance | 2025-04-29 | announcement | official | Shows the Payments group predates the donation | no |
+| UCP AP2 Mandates Extension | https://ucp.dev/latest/specification/payment/extensions/ap2-mandates/ | Universal Commerce Protocol | 2026-08-25 | spec | partner | How UCP carries AP2 mandates | no |
+| a2a-x402 | https://github.com/google-agentic-commerce/a2a-x402 | Google Agentic Commerce | 2025-09-16 | repo | official | AP2's crypto path (Appendix A); embeds v0.1 mandates | no |
+| Verifiable Intent specification | https://github.com/agent-intent/verifiable-intent/blob/main/spec/README.md | Mastercard and Google | 2026-02-19 (0.1.0) | spec | partner | Same `vct` values, `mandate.`-prefixed constraint keys | no |
+| Delegate SD-JWT (individual draft) | https://github.com/GarethCOliver/gco-delegate-sd-jwt | Gareth Oliver | 2026-03-04 created | spec | community | Chaining mechanism AP2 depends on; IETF `draft-gco-oauth-delegate-sd-jwt-00` | no |
+| RFC 9901 Selective Disclosure for JSON Web Tokens | https://www.rfc-editor.org/rfc/rfc9901 | IETF | 2025-11 | standard | official | SD-JWT base format | no |
+| OpenID for Verifiable Presentations 1.0 | https://openid.net/specs/openid-4-verifiable-presentations-1_0.html | OpenID Foundation | 2025 | standard | official | `transaction_data` used for delegation (AP2 links an older URL that now returns 404) | no |
+| Digital Credentials API | https://www.w3.org/TR/digital-credentials/ | W3C | ongoing | standard | official | Recommended delegation channel | no |
+| How the Agent Payments Protocol (AP2) lets AI shop for you, securely | https://youtu.be/jSHj0z9Gi24 | Google for Developers (YouTube) | 2025 | video | official | Short intro video linked from the README | yes |
+| Agent payments, can you do my shopping? (The Agent Factory, episode 8) | https://youtu.be/T1MtWnEYXM0 | Google Cloud Tech (YouTube) | 2025-09 | video | official | Video podcast episode on AP2; answers the follow-up's "no podcast found" gap | no |
+| Issue 268: Checkout JWT algorithm constraint | https://github.com/google-agentic-commerce/AP2/issues/268 | GitHub (igrigorik) | 2026-05-26 | other | community | Open spec bug, author response | no |
+| draft-stone-vcap-ap2-binding-01 | https://datatracker.ietf.org/doc/draft-stone-vcap-ap2-binding/ | IETF Datatracker (B. Stone) | 2026-09-04 | spec | community | Third-party individual draft; no IETF standing | no |
+| ERC-8226: Regulated Agent Mandate | https://eips.ethereum.org/EIPS/eip-8226 | Ethereum Improvement Proposals | 2026-04-12 | standard | community | On-chain analogue of a mandate (Draft) | no |
+| Google's AP2: The New Way AI Agents Pay for You | https://www.analyticsvidhya.com/blog/2025/09/agent-payments-protocol-ap2/ | Analytics Vidhya | 2025-09-25 | tutorial | community | Appendix A; v0.1 mandates and sample run | no |
+| AP2: Technical Guide & Implementation | https://medium.com/@visrow/google-agent-payments-protocol-ap2-technical-guide-implementation-73ee772fe349 | Vishal Mysore | 2025-09-18 | tutorial | community | Appendix A; Java v0.1 flow; HEAD returned 403 (bot block) on 2026-10-11 | no |
+| Google's new Agent Payments Protocol (RTZ #848) | https://michaelparekh.substack.com/p/ai-googles-new-ai-agent-payments | Michael Parekh | 2025-09-18 | newsletter | community | Appendix A; strategic framing | no |
+| Should banks fear Google's Fintech comeback? | https://lex.substack.com/p/analysis-should-banks-fear-googles | Fintech Blueprint | 2025 | newsletter | community | Appendix A | no |
+| AP2 and the Race to Build Agent Infrastructure | https://yewjin.substack.com/p/agent-payments-protocol-ap2-and-the | Yew Jin | 2025-09 | newsletter | community | Appendix A; AP2 with ERC-8004 layers | no |
+| Google AP2: Solving Trust in Agent Payments | https://blog.pebblous.ai/blog/google-ap2-agent-payment-protocol-2025/en/ | Pebblous | 2025-2026 | long-form | community | Appendix A | no |
+| Agentic commerce and the battleground for payments infrastructure | https://bankunderground.co.uk/2026/05/21/agentic-commerce-and-the-battleground-for-new-payments-infrastructure/ | Bank Underground (Bank of England staff blog) | 2026-05-21 | long-form | community | Cross-cutting, Appendix A | no |
+| Agentic Payment Protocols Compared | https://www.fireblocks.com/blog/agentic-payment-protocols-compared | Fireblocks | 2026-08-27 | long-form | community | Cross-cutting, Appendix A; HEAD 403 on 2026-10-11 | no |
+| AP2 vs ACP vs x402 | https://blindpay.com/resources/more/agent-payment-protocols-compared | BlindPay | 2026-09-02 | long-form | community | Cross-cutting, Appendix A | no |
+| Beyond the Mandate: A Systematic Security Analysis of AP2 | https://arxiv.org/abs/2608.23858 | arXiv | 2026-08-24 | paper | academic | 48 threats, 8 High | no |
+
+Note: all v0.1-era tutorials describe Intent and Cart mandates that v0.2 removed; writers should label them "v0.1".
+
+## Publications (verified IDs)
+
+Checked against `https://export.arxiv.org/api/query` and `https://doi.org` content negotiation on 2026-10-11. All 14 seed items resolved; titles below are as registered.
+
+| ID | Title (verified) | Authors | First version or date | Relevance |
+| --- | --- | --- | --- | --- |
+| arXiv:2608.23858 | Beyond the Mandate: A Systematic Security Analysis of the Agent Payments Protocol (AP2) | Avital Aviv, Parth A. Gandh, Ron Bitton, Asaf Shabtai | 2026-08-24 | Direct: AP2 v0.2 MAESTRO threat model, 48 threats, 8 reach the High band (AIVSS) in at least one of five architectures; built its own testbed because no complete public deployment existed |
+| arXiv:2602.06345 | Zero-Trust Runtime Verification for Agentic Payment Protocols: Mitigating Replay and Context-Binding Failures in AP2 | Qianlong Lan, Anuj Kaul, Shaun Jones, Stephanie Westrum | 2026-02-06 | Direct: replay and context-redirect gaps; consume-once nonces, about 3.8 ms at up to 10,000 TPS in simulation |
+| arXiv:2601.22569 | Whispers of Wealth: Red-Teaming Google's Agent Payments Protocol via Prompt Injection | Tanusree Debi, Wentian Zhu, Pranjol Sen Gupta | 2026-01-30 | Direct: Branded Whisper and Vault Whisper attacks on an AP2 agent (Gemini 2.5 Flash, ADK); DOI 10.1109/IMNS67862.2026.11655291 (IMNS 2026) |
+| arXiv:2609.00060 | A Formal Analysis of Agent Payment Protocols | Ke Jiang, Mohan Yu, Yuan Chang, Mohit Kumar Jangid et al. | 2026-08-30 | Direct: Tamarin models of x402, MPP, ACP and AP2; 86 cases, 40 new findings, 18 principles |
+| arXiv:2604.15367 | SoK: Security of Autonomous LLM Agents in Agentic Commerce | Qian'ang Mao, Jiaxin Wang, Ya Liu, Li Zhu et al. | 2026-04-15 | Context: 12 cross-layer attack vectors across ERC-8004, AP2, x402, ACP, MPP and others |
+| arXiv:2603.24775 | AIP: Agent Identity Protocol for Verifiable Delegation Across MCP and A2A | Sunil Prakash | 2026-03-25 | Related delegation design |
+| arXiv:2509.25974 | OpenID Connect for Agents (OIDC-A) 1.0: A Standard Extension for LLM-Based Agent Identity and Authorization | Subramanya Nagabhushanaradhya | 2025-09-30 | Related identity standard proposal |
+| arXiv:2510.25819 | Identity Management for Agentic AI: The new frontier of authorization, authentication, and security for an AI agent world | Tobin South, Subramanya Nagabhushanaradhya, Ayesha Dissanayaka, Sarah Cecchetti et al. | 2025-10-29 | OpenID Foundation white paper context |
+| arXiv:2501.09674 | Authenticated Delegation and Authorized AI Agents | Tobin South, Samuele Marro, Thomas Hardjono, Robert Mahari et al. | 2025-01-16 | Delegation credentials, precursor ideas |
+| arXiv:2609.15803 | Delegating Authorization to Misaligned Agents: Coalitional Alignment and Safe Control | Natalie Collina, Surbhi Goel, Aaron Roth, Sikata Bela Sengupta | 2026-09-14 | Theory of approving agent actions |
+| DOI 10.14722/ndss.2014.23212 | Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud | Arnar Birgisson, Joe Gibbs Politz, Úlfar Erlingsson, Ankur Taly, Michael Vrable, Mark Lentczner | 2014 (NDSS) | Ancestor of attenuated, caveat-based delegation (compare open-mandate constraints) |
+| arXiv:2501.07913 | Governing AI Agents | Noam Kolt | 2025-01-14 | Legal and governance context |
+| arXiv:2508.08544 | AI Agents and the Law | Mark O. Riedl, Deven R. Desai | 2025-08-12 | Legal context (agency, liability) |
+| DOI 10.1017/err.2026.10103 | AI Agents in Payments: Applications, Risks and Regulations | David Restrepo Amariles, Damien Charlotin, Liyun He-Guelton | 2026-05-19 (European Journal of Risk Regulation) | Regulatory context |
+
+## Seed audit
+
+| Seed fact (ATLAS_PROMPT 5.7 or ATLAS_FOLLOWUP Section 2) | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| Bubble: signed mandates prove what a user authorized an agent to buy | confirmed | src-ap2-spec-v02 | |
+| Bubble: v0.2 uses Checkout and Payment Mandates, each closed or open | confirmed | src-ap2-schema-checkout, src-ap2-schema-open-payment | |
+| Bubble: donated to FIDO in April 2026 and embedded in UCP | confirmed (embedding specified) | src-ap2-google-fido-blog, src-ap2-ucp-ext | Live UCP use unverified (2.1.9) |
+| Announced 2025-09-16 with more than 60 organizations | confirmed | src-ap2-gcloud-launch | |
+| Tags `v0.1.0` (2025-09-16) and `v0.2.0` (2026-04-28); Apache-2.0 | confirmed | src-ap2-gh-releases, src-ap2-repo | |
+| Donated with Mastercard's Verifiable Intent on 2026-04-28 | confirmed | src-ap2-fido-pr | VI is "co-developed with Google" |
+| FIDO formed an Agentic Authentication TWG (CVS Health, Google, OpenAI chairs) and a Payments WG (Mastercard, Visa) | corrected | src-ap2-fido-pr, src-ap2-fido-pwg-2025 | Only the Agentic Authentication TWG was new; the Payments WG launched 2025-04-29 (2.1.11). Vice-chairs: Amazon, Google, Okta |
+| No FIDO deliverable has been published yet [verify] | confirmed (absence) | src-ap2-fido-pr, src-ap2-site | As of 2026-10-11; based on searched pages only |
+| Repository idle since 2026-04-29 | confirmed for `main` | src-ap2-gh-commits, src-ap2-gh-issues-since | 107 community issues and PRs since, none merged |
+| v0.1 roles | confirmed | src-ap2-spec-v01 | Named "User Agent (UA) or Shopping Agent (SA)", "Credentials Provider", "Remote or Merchant Endpoint" |
+| v0.1 IntentMandate fields (natural language, merchants, SKUs, refundability, expiry, cart-confirmation flag) | confirmed | src-ap2-mandate-py-v01 | Exact names in Core objects |
+| v0.1 CartMandate with W3C PaymentRequest plus merchant JWT carrying `cart_hash` | confirmed | src-ap2-mandate-py-v01 | Field `merchant_authorization` |
+| v0.1 PaymentMandate user authorization is an SD-JWT-VC presentation with key binding and mandate hashes | confirmed | src-ap2-mandate-py-v01 | Field `user_authorization`; "for example" in the docstring |
+| v0.2 roles; Trusted Surface non-agentic; validation in deterministic code | confirmed | src-ap2-spec-v02 | |
+| Type identifiers `mandate.checkout.1`, `mandate.checkout.open.1`, `mandate.payment.1`, `mandate.payment.open.1` | confirmed | src-ap2-schema-checkout, src-ap2-schema-open-checkout, src-ap2-schema-payment, src-ap2-schema-open-payment | Schema descriptions omit the `.1` suffix |
+| Closed Checkout Mandate carries `checkout_jwt` and `checkout_hash` | confirmed | src-ap2-schema-checkout | Plus `vct` (required), `iat`, `exp` |
+| Closed Payment Mandate fields | corrected | src-ap2-schema-payment | Full list: `vct`, `transaction_id`, `payee`, `pisp`, `payment_amount`, `payment_instrument`, `execution_date`, `risk_data`, `iat`, `exp`; required: `vct`, `transaction_id`, `payee`, `payment_amount`, `payment_instrument` (2.3.4) |
+| Open mandates add `constraints` and `cnf` | confirmed | src-ap2-schema-open-checkout, src-ap2-schema-open-payment | Both required; open checkout must contain `checkout.line_items`, open payment must contain `payment.reference` |
+| Ten constraint keys | confirmed | src-ap2-schema-open-checkout, src-ap2-schema-open-payment | Exact strings as listed |
+| Unrecognized constraint must cause failure | confirmed | src-ap2-agent-authorization | |
+| SD-JWT VCs chained with Delegate SD-JWT draft; ES256 in examples | confirmed | src-ap2-agent-authorization, src-ap2-delegate-sd-jwt | Draft posted to IETF 2026-04-22 |
+| Two delegation models (OpenID4VP `delegate`, DC API, EMVCo DPC example; or Trusted Agent Provider key the agent cannot reach) | confirmed | src-ap2-agent-authorization | |
+| Human-present flow steps | confirmed | src-ap2-flows | |
+| Human-not-present flow; `sd_hash`; no new mandate without a rejection receipt | confirmed | src-ap2-flows, src-ap2-spec-v02 | |
+| Receipts and four error codes | confirmed | src-ap2-schema-receipts, src-ap2-agent-authorization | |
+| a2a-x402 v0.2 standalone or embedded in AP2 mandates, statuses `payment-required` to `payment-completed` | confirmed with correction | src-ap2-a2a-x402-v02 | Embedding targets AP2 v0.1 `CartMandate` and `PaymentMandate` (2.3.2) |
+| UCP embeds AP2 mandates | confirmed (specified) | src-ap2-ucp-ext | |
+| 2025-09-16 launch with x402 extension (Coinbase, Ethereum Foundation, MetaMask) | confirmed | src-ap2-gcloud-launch | |
+| 2025-10-30 new partners Tether, Solana, OKX | confirmed | src-ap2-gh-partners-history | Commit b43b072 (#103) |
+| 2026-01-11 UCP launches with an AP2 extension | confirmed | src-ap2-ucp-ext, src-ap2-ucp-releases | UCP initial commit 2026-01-11 contains `docs/specification/ap2-mandates.md`; release `v2026-01-11` was published 2026-01-23 |
+| 2026-04-28 v0.2 and FIDO donation | confirmed | src-ap2-gh-releases, src-ap2-google-fido-blog | |
+| 2026-08-25 UCP references AP2 v0.2 | confirmed | src-ap2-ucp-ext | Commit 0b9d7c40, release v2026-08-25 |
+| 2026-09-04 `draft-stone-vcap-ap2-binding-01` [verify] | confirmed | src-ap2-dt-vcap | Individual Informational draft; abstract uses v0.1 mandate names |
+| Launch partners named; Visa absent | confirmed | src-ap2-gcloud-launch, src-ap2-partners-launch | |
+| Old partners file had 125 entries before v0.2 removed it | confirmed | src-ap2-partners-final | 125 at 61f5de4 (2026-02-09) |
+| Samples in Python, Go and Android | confirmed | src-ap2-repo | |
+| Production use outside UCP is unverified | corrected | src-ap2-faq, src-ap2-pub-2608-23858, src-ap2-issue-345 | Unverified anywhere, including UCP (2.1.9); one self-report |
+| VI "aligned field names" | corrected | src-ap2-vi-spec, src-ap2-schema-open-payment | Same `vct` values; aligned semantics, different constraint key prefixes (2.3.3) |
+| Samples run over A2A | confirmed | src-ap2-repo | |
+| AP2 repo does not reference ACP, SPTs, TAP or MPP | confirmed | src-ap2-repo | grep on e1ea56d |
+| Threat model treats every LLM and agent as a potential attacker | confirmed | src-ap2-security | |
+| No mandate revocation defined | confirmed | src-ap2-implementation | |
+| v0.2 leaves step-up and liability to the networks | corrected | src-ap2-agent-authorization, src-ap2-spec-v01 | v0.2 specifies no step-up; `unresolved_constraint` fallback; only liability left to networks; v0.1 had 3DS2 and OTP (2.1.10) |
+| 48 threats, 8 high (2608.23858); prompt injection (2601.22569); replay and context binding (2602.06345) | confirmed | src-ap2-pub-2608-23858, src-ap2-pub-2601-22569, src-ap2-pub-2602-06345 | |
+| Issue 268 signature determinism inconsistency | confirmed | src-ap2-issue-268 | Open; author agreed |
+| 2.2: v0.2 "relies on W3C VC 2.0 and DIDs" | corrected | src-ap2-agent-authorization | SD-JWT VC, OpenID4VP, DC API; VC 2.0 and DIDs are wider family only |
+| 2.2 Scenario 3: AP2 mandate step in Gemini | per spec; live use unverified | src-ap2-ucp-ext | |
+| 3.4: ERC-8226 as on-chain analogue | confirmed | src-ap2-erc8226 | Draft, created 2026-04-12, Brickken; no AP2 reference |
+| Do not get wrong: no Intent or Cart in v0.2; not a rail; not A2A; FIDO governance | confirmed | src-ap2-schema-payment, src-ap2-spec-v02, src-ap2-fido-pr | |
+
+## Blocked sources
+
+- `https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/`: curl HTTP 403; read with WebFetch instead (logged in `research/blocked.md`).
+- Medium (Vishal Mysore tutorial) and Fireblocks blog returned 403 to `curl -I`; kept from Appendix A without re-reading.
+- `https://deepwiki.com/google-agentic-commerce/AP2` returned 429; not used.
+
+## Conflicts
+
+Also appended to `research/conflicts.md`:
+
+1. Step-up: normative docs (none) versus Executive Summary (3DS2 mention).
+2. FIDO "Payments Working Group" (2025) versus "Payments Technical Working Group" (2026).
+3. Checkout JWT signature rule: `specification.md` versus `security_and_privacy_considerations.md` (issue #268).
+4. Mandate Receipt `result` versus schema `status` (issue #374).
+5. `mandate.payment.reference` (security doc) versus `payment.reference` (schema).
+6. `payment.amount_range` integer minor units versus decimal examples; `payment.budget` unit undefined.
+7. "Ant International" (launch post) versus "Ant Group" (launch partners file).
+8. RFC 9901 date: "February 2025" in AP2 versus November 2025 at the RFC Editor.
+
+## Least certain
+
+1. Whether FIDO's 2026 "Payments Technical Working Group" is the same body as the 2025 "Payments Working Group" under a new name (both co-chaired by Visa and Mastercard; no source states it).
+2. That no FIDO deliverable on AP2 exists: FIDO working drafts are member-only, so absence is based on public pages only.
+3. That no production deployment of AP2 mandates exists: the only evidence is absence in primary sources, a 2026-08 paper's statement, and one unverified self-report (issue #345).
