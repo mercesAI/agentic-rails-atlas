@@ -174,3 +174,36 @@ Identifiers checked: 106. Wrong: 0.
 Notes (no identifier error, but precision):
 - The spec's "Validate the signature" step describes the base string as covering "the authority, path, signature agent, timestamps, key identifier, nonce, and tag". The page and `facts.json` say TAP has "no Signature-Agent". That is right for the required minimum, but "does not require `Signature-Agent`" is the exact statement. Suggested wording in Required fixes.
 - `src/content/flows/visa-tap-browse-and-checkout.json` step 4 cites the Cloudflare blog with `section: "Verification Steps"`; the post has no such heading (its list follows "Cloudflare will run the following checks").
+
+## Check 3: dates, versions and numbers
+
+| Item | Value on page | Verdict | Evidence |
+|---|---|---|---|
+| frontmatter `firstAnnounced` | 2025-10-14 | pass | Visa PR, businesswire id 20251014974512 |
+| frontmatter `latestVersion` | unversioned, date 2025-10-14, sample last changed 2025-10-28 | pass | spec has no version; `gh api .../tags` and `/releases` both empty; last commit 16d59bd 2025-10-28 |
+| timeline 2025-04-30 VIC | | pass | businesswire 20250430580204 |
+| timeline 2025-09-04 MCP server and toolkit pilot | | pass | Visa perspectives page dated "09/04/2025" (US format, same as 03/18/2026 on the MPP page) |
+| timeline 2025-10-10 terms dated, repo created | | pass | terms "October 10, 2025"; `created_at` 2025-10-10T02:05:59Z |
+| timeline 2025-10-14 launch | | pass | PR |
+| timeline 2025-10-24 Cloudflare checks | | pass | `article:published_time` 2025-10-24 |
+| timeline 2025-10-28 last merge | | pass | gh api commits |
+| timeline 2025-12-17 Akamai | | pass | Akamai release (WebFetch; curl 403): December 17, 2025 |
+| timeline 2025-12-18 hundreds of transactions | | pass | businesswire 20251218812271 |
+| timeline 2026-03-18 MPP card spec and SDK | | pass | Visa post dated 03/18/2026; draft init commit committed 2026-03-18 |
+| timeline 2026-04-08 ICC pilot | | pass | businesswire 20260408772335 |
+| timeline 2026-06-10 Agentic Directory, Agent Score | | pass | businesswire 20260610464331 |
+| timeline 2026-07-02 31 issuers | | pass | "Paris, 2 July 2026"; 31 issuers counted |
+| timeline 2026-07-03 eDreams ODIGEO | | pass | PYMNTS "Friday (July 3) press release" (reported) |
+| timeline 2026-07-15 PR #21 | | pass | gh api pulls |
+| timeline 2026-08-12 mppx attestation | | pass | blog `publishedAt: "2026-08-12"` |
+| timeline 2026-09-01 WBA draft -00 | | pass | draft dated 1 September 2026; datatracker shows only -00 |
+| `changedRecently` (8 entries: 04-29, 06-10, 07-01, 07-02, 07-03, 07-15, 08-12, 09-01) | | pass | as above; 2026-04-29 businesswire 20260429232971; 2026-07-01 Cloudflare verified bots page |
+| metric GitHub stars 212 (45 forks), asOf 2026-10-11 | | pass | gh api 2026-10-11: 212 stars, 45 forks |
+| metric 4 named merchants | | pass | EU release |
+| metric 31 issuers | | pass | EU release list |
+| metric "hundreds" of agent transactions | | pass | dec18 release; note: the release itself says "hundreds of controlled, real-world agent-initiated transactions" (see R52 below) |
+| metric "more than 100" partners | | pass | dec18 release |
+| metric 25 percent (US 40 percent) | | pass | Visa threats page |
+| metric over 4,700 percent | | pass | PR, Adobe August 2025 |
+
+Dates wrong: 0. Coverage gap (not an error): `timeline.json` omits three ATLAS_PROMPT 5.3 key dates that the page states elsewhere: 2026-03-17 Agentic Ready Europe (21 issuers, verified), 2026-04-29 Agentic Ready global (in `changedRecently`), 2026-07-01 Cloudflare signed agents into verified bots (in `changedRecently`).
