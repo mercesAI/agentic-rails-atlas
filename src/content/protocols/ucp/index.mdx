@@ -1,0 +1,122 @@
+---
+slug: ucp
+order: 5
+name: UCP
+bubbleLabel: UCP
+monogram: UCP
+tagline: Agent checkout and orders
+intro: "The Universal Commerce Protocol lets any agent read a store's published profile, agree on the capabilities both sides support, and run checkout, cart and orders over REST, MCP, A2A or an embedded UI. The store stays merchant of record and payments arrive as opaque tokens. Google launched it with Shopify and others in 2026, and it powers checkout in AI Mode and Gemini."
+family: checkout-orders
+layerPrimary: checkout-orders
+layersSecondary:
+  - discovery
+  - payment-credential
+  - identity-trust
+  - intent-authorization
+  - post-purchase-disputes
+rails:
+  - rail-agnostic
+  - card
+stewards:
+  - "UCP Governing Council (Google and Shopify permanent seats, Stripe elected, 2 open)"
+  - "Google (custodian of the ucp.dev domain and proxy for open seats)"
+governance: "No foundation. GOVERNANCE.md makes a 5-seat Governing Council the owner of all UCP assets: Google and Shopify hold permanent seats, Stripe joined 2026-04-28, 2 seats are open, and Google holds the proxy vote for open seats until December 2028. Domain Tech Councils (Shopping, Food, Lodging, Payments) of 16 members decide by majority."
+license:
+  spec: "Apache-2.0 (copyright UCP Authors)"
+  code: Apache-2.0
+status: live
+statusNote: "Specified in dated releases (latest v2026-08-25; main is a draft). Live checkout on Google AI Mode and Gemini in the US since 2026-02-11. Microsoft says its Merchant Center will support UCP (future tense). Live use of the AP2 extension is unverified."
+firstAnnounced: "2026-01-11"
+latestVersion:
+  label: "v2026-08-25 (dated release; SDKs @ucp-js/sdk 0.5.1 and ucp-sdk 0.5.0)"
+  date: "2026-08-25"
+lastVerified: "2026-10-11"
+transports:
+  - "REST (OpenAPI 3.1, UCP-Agent header)"
+  - "MCP (OpenRPC, streamable HTTP, meta ucp-agent)"
+  - "A2A (Agent Card, DataPart keys a2a.ucp.*)"
+  - "Embedded (OpenRPC JSON-RPC messages ec.* in a host frame)"
+buildsOn:
+  - RFC 9421 HTTP Message Signatures
+  - RFC 9530 Content-Digest
+  - RFC 8941 Structured Fields
+  - RFC 7517 JWK Set
+  - OAuth 2.0 (RFC 8414, RFC 9728, RFC 7009, RFC 8693, RFC 7523, PKCE)
+  - JSON Schema 2020-12
+  - OpenAPI 3.1 and OpenRPC
+  - MCP and A2A
+  - Standard Webhooks
+  - EMV 3DS (through actions)
+  - Web Bot Auth draft (optional interop)
+composesWith:
+  - ap2
+  - mastercard-agent-pay
+personas:
+  - merchant-enterprise
+  - ai-platform
+  - wallet-cp
+  - psp
+  - consumer
+  - agent-dev
+disambiguation:
+  - "UCP is the Universal Commerce Protocol, an open protocol. Universal Cart is a Google shopping product (announced 2026-05-19) that uses UCP for checkout."
+  - "Google is not the merchant of record in a UCP checkout. The business is, on Google surfaces and in the spec."
+  - "AP2 (Agent Payments Protocol) is an optional extension inside UCP, dev.ucp.common.payment.ap2_mandate, not another name for UCP."
+  - "UCP is not OpenAI's ACP (Agentic Commerce Protocol). Both cover agent checkout, and no bridge between them is specified."
+mainFlow: ucp-rest-checkout
+stateMachine: ucp-checkout-lifecycle
+diagrams:
+  - ucp-context
+  - ucp-data-model
+  - ucp-discovery-negotiation
+  - ucp-capability-namespace
+  - ucp-transport-bindings
+  - ucp-checkout-escalation
+  - ucp-failure-capabilities-incompatible
+  - ucp-failure-lost-complete-response
+  - ucp-3ds-authentication-actions
+  - ucp-ap2-mandate-checkout
+  - ucp-ap2-lock
+  - ucp-identity-linking
+  - ucp-composition
+playground:
+  status: coming-next
+  note: "A profile negotiation simulator: edit a business profile and a platform profile, then see the chosen version, the negotiated capability set and the pruned extensions. It adds a checkout state machine with escalation and continue_url, payment-handler selection, and a transport switcher that shows one operation as REST, MCP and A2A messages. Simulation only, no real funds, no real stores."
+keyFacts:
+  - label: Steward
+    value: "UCP Governing Council; Google and Shopify hold permanent seats, Stripe an elected one; Google is custodian of ucp.dev"
+    claimIds: [clm-ucp-007, clm-ucp-009, clm-ucp-011]
+  - label: Governance
+    value: "No foundation; Google holds proxy votes for open council seats until December 2028; Shopping, Food, Lodging and Payments tech councils of 16"
+    claimIds: [clm-ucp-010, clm-ucp-008, clm-ucp-018]
+  - label: License
+    value: "Apache-2.0, copyright UCP Authors; contributors sign the Google CLA"
+    claimIds: [clm-ucp-001, clm-ucp-021]
+  - label: First announced
+    value: "2026-01-11 at NRF, co-developed with Shopify, Etsy, Wayfair, Target and Walmart"
+    claimIds: [clm-ucp-003, clm-ucp-004]
+  - label: Latest version
+    value: "v2026-08-25 (fourth dated release); main carries drafts such as dev.ucp.lodging.booking"
+    claimIds: [clm-ucp-024, clm-ucp-047]
+  - label: Status
+    value: "Live on Google AI Mode and Gemini in the US since 2026-02-11; no merchant counts published"
+    claimIds: [clm-ucp-174, clm-ucp-186]
+  - label: Transports
+    value: "REST, MCP, A2A and embedded, each described by OpenAPI, OpenRPC or an Agent Card"
+    claimIds: [clm-ucp-060, clm-ucp-128]
+  - label: Rails
+    value: "Rail-agnostic payment handlers; credential types token, PAN and network token; Google surfaces use Google Pay PAN_ONLY"
+    claimIds: [clm-ucp-051, clm-ucp-075, clm-ucp-192]
+  - label: Builds on
+    value: "RFC 9421 signatures with Content-Digest, RFC 8941 header, JWK Sets, OAuth 2.0 with PKCE, JSON Schema, OpenAPI and OpenRPC"
+    claimIds: [clm-ucp-133, clm-ucp-089, clm-ucp-058, clm-ucp-116]
+  - label: Composes with
+    value: "AP2 as an optional extension; MCP and A2A as transports; network tokens through the network_token credential type"
+    claimIds: [clm-ucp-193, clm-ucp-206, clm-ucp-203]
+---
+
+Draft in progress.
+
+## Compare and compose
+
+Draft in progress.

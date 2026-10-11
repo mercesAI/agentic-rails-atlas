@@ -1,0 +1,25 @@
+{
+  "protocol": "ucp",
+  "tldr": "UCP lets an agent discover what a store supports, agree on capabilities and run checkout, cart and orders over REST, MCP, A2A or embedded UI. The store stays merchant of record; payments use tokenized credentials.",
+  "whyItExists": "Every agent surface that wants to buy from every store faces an N by N integration problem: each retailer has its own cart, checkout and payment APIs, and each agent platform has its own way to call them. UCP gives both sides one published profile and one set of capability schemas, so a platform can read a store's profile at /.well-known/ucp, agree on the features both support, and drive checkout without a custom integration. The store keeps the customer relationship, its own payment provider and its liability as merchant of record, and the platform passes it an opaque payment token that a wallet or credential provider issued.",
+  "whatItIsNot": [
+    { "text": "Not Google's Universal Cart. Universal Cart is a Google shopping product announced on 2026-05-19 that uses UCP for checkout; UCP is the open protocol underneath.", "claimIds": ["clm-ucp-005"] },
+    { "text": "Not a way for Google to become the seller. The business is the merchant of record and keeps financial liability and the order; Google is not the merchant of record.", "claimIds": ["clm-ucp-006", "clm-ucp-163"] },
+    { "text": "Not the same thing as AP2. AP2 is an optional extension used inside UCP (dev.ucp.common.payment.ap2_mandate); UCP says where the AP2 signatures go, AP2 defines the mandate formats, and live use of AP2 mandates in UCP is unverified.", "claimIds": ["clm-ucp-193", "clm-ucp-030", "clm-ucp-197"] },
+    { "text": "Not a payment network or processor. The business's own payment service provider authorizes and settles; UCP carries an opaque credential from platform to business, one way only.", "claimIds": ["clm-ucp-050", "clm-ucp-104", "clm-ucp-105"] },
+    { "text": "Not a foundation project. A Governing Council owns the assets, Google and Shopify hold permanent seats, and Google keeps proxy votes for open seats until December 2028 and custody of ucp.dev.", "claimIds": ["clm-ucp-010", "clm-ucp-007", "clm-ucp-008", "clm-ucp-009"] },
+    { "text": "Not bridged to OpenAI's ACP. Both cover agent checkout with the merchant as merchant of record, but no mapping between the two is specified.", "claimIds": ["clm-ucp-201"] },
+    { "text": "Not an on-chain identity scheme. A platform is identified by its profile URL, its domain and the keys it publishes, not by a registry or a wallet address.", "claimIds": ["clm-ucp-205", "clm-ucp-054"] }
+  ],
+  "changedRecently": [
+    { "date": "2026-04-24", "text": "The Shopping Tech Council grew to 16 seats with new members from Amazon, Meta, Microsoft, Stripe and Salesforce.", "claimIds": ["clm-ucp-013"] },
+    { "date": "2026-04-28", "text": "Stripe took a Governing Council seat, two more elected seats were added, and Google donated AP2 to the FIDO Alliance the same day.", "claimIds": ["clm-ucp-012", "clm-ucp-195"] },
+    { "date": "2026-05-19", "text": "Google announced Universal Cart, a shopping product that uses UCP for checkout, and said AP2 would come to Google products in the coming months.", "claimIds": ["clm-ucp-005", "clm-ucp-196"] },
+    { "date": "2026-05-20", "text": "Google said UCP checkout would reach Canada and Australia in the coming months, then the UK, and come to Shopping ads and YouTube Direct Offers.", "claimIds": ["clm-ucp-177", "clm-ucp-178"] },
+    { "date": "2026-08-25", "text": "Release v2026-08-25 added actions, 3DS2 through actions, split payments, Web Bot Auth interop and the keys[] array, and renamed the AP2 extension to dev.ucp.common.payment.ap2_mandate.", "claimIds": ["clm-ucp-043", "clm-ucp-042", "clm-ucp-044", "clm-ucp-030"] },
+    { "date": "2026-09-02", "text": "A Payments Tech Council formed with Adyen, Ant International, Coinbase, Global Payments, Google, PayPal, Shopify and Stripe, after Food (2026-07-16) and Lodging (2026-08-11) councils.", "claimIds": ["clm-ucp-017", "clm-ucp-015", "clm-ucp-016"] },
+    { "date": "2026-09-08", "text": "UCP had a session at the W3C and GS1 workshop on e-commerce for humans and AI agents.", "claimIds": ["clm-ucp-215"] },
+    { "date": "2026-09-22", "text": "Secondary reports say Google began enrolling eligible US Shopify merchants in native checkout automatically, with an opt-out (reported, no primary source).", "claimIds": ["clm-ucp-184"] },
+    { "date": "2026-09-25", "text": "A draft lodging booking capability merged on main; it is not in any release.", "claimIds": ["clm-ucp-022"] }
+  ]
+}
