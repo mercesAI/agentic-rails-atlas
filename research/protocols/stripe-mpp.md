@@ -170,3 +170,91 @@ The seed's method list is confirmed, with two additions documented on mpp.dev bu
 ### Registered headers
 
 `Accept-Payment`, `Payment-Authorization` and `Payment-Receipt` are requested as permanent header fields; the "Payment" scheme in the HTTP Authentication Scheme Registry; two new registries "HTTP Payment Methods" and "HTTP Payment Intents", both Specification Required [src-stripe-mpp-core-01]. These are requests inside a draft, not completed IANA registrations. Tempo v2 sessions also use `Payment-Session-Snapshot` and `Payment-Session` response headers [src-stripe-mpp-tempo-session].
+
+IANA check (2026-10-11): neither the "Payment" scheme nor the three header fields appear in the IANA HTTP Authentication Scheme or HTTP Field Name registries [src-stripe-mpp-iana].
+
+## Message flows step by step
+
+### Flow 1: one-time charge (happy path)
+
+1. Client sends `GET /resource` (optionally with `Accept-Payment: tempo/charge, stripe/charge;q=0.5`) [src-stripe-mpp-core-01].
+2. Server answers `402 Payment Required`, `Cache-Control: no-store`, one or more `WWW-Authenticate: Payment id=..., realm=..., method=..., intent="charge", expires=..., request=...` challenges, and optionally an `application/problem+json` body of type `payment-required` [src-stripe-mpp-core-01].
+3. Client decodes `request`, checks amount, currency, recipient and expiry, and fulfills payment in the method's own way: signs a Tempo transaction, pays a BOLT11 invoice, mints an SPT, or obtains an encrypted card token [src-stripe-mpp-intent-charge].
+4. Client retries the same request with `Authorization: Payment <base64url credential>` (or `Payment-Authorization` if the challenge carried `header="Payment-Authorization"`) and an `Idempotency-Key` for non-idempotent methods [src-stripe-mpp-core-01].
+5. Server verifies: challenge `id` outstanding and bound, not expired, proof valid, amount and recipient match, digest matches the body when `digest` was set [src-stripe-mpp-intent-charge] [src-stripe-mpp-core-01].
+6. Server settles (immediate, deferred, or processor settlement) and answers `200 OK` with `Payment-Receipt` and `Cache-Control: private` [src-stripe-mpp-intent-charge] [src-stripe-mpp-core-01].
+
+### Flow 2: charge failures
+
+| Condition | Response | Source |
+| --- | --- | --- |
+| Malformed credential | 402, fresh challenge, `malformed-credential` | [src-stripe-mpp-core-01] |
+| Unknown or reused `id` | 402, fresh challenge, `invalid-challenge` | [src-stripe-mpp-core-01] |
+| Expired challenge | 402, fresh challenge, `payment-expired` | [src-stripe-mpp-core-01] |
+| Proof invalid | 402, fresh challenge, `verification-failed` | [src-stripe-mpp-core-01] |
+| Paid, but policy denies | 403, no challenge | [src-stripe-mpp-core-01] |
+| Several Payment credentials in one request | SHOULD be rejected with 400 | [src-stripe-mpp-core-01] |
+| Authentication failure unrelated to payment | 401 (servers check authentication before issuing 402) | [src-stripe-mpp-core-01] |
+| Rate limiting | `Retry-After` header | [src-stripe-mpp-core-01] |
+| Partial delivery before verification | Forbidden: the charge intent treats any streamed byte, tool call or started job before successful verification as an implementation defect | [src-stripe-mpp-intent-charge] |
+
+### Flow 3: Stripe SPT charge
+
+1. 402 challenge with `method="stripe"`, `request` carrying `amount`, `currency`, `methodDetails.networkId` and `methodDetails.paymentMethodTypes` [src-stripe-mpp-stripe-charge].
+2. Client collects a payment method (may trigger 3DS or biometrics) and creates an SPT with usage limits (`currency`, `max_amount`, `expires_at`) scoped to the seller's profile [src-stripe-mpp-stripe-charge].
+3. Client retries with credential `payload` `{ "spt": "spt_..." }` [src-stripe-mpp-stripe-charge].
+4. Server validates challenge id and expiry before touching the SPT (order fixed by PR #210, 2026-03-30), then creates a PaymentIntent with `confirm: true`, `shared_payment_granted_token`, `metadata.challenge_id`, and the idempotency key `<challenge.id>_<spt>`; Connect parameters come from server configuration, never from the challenge [src-stripe-mpp-stripe-charge] [src-stripe-mpp-gh-specs-commits].
+5. Only a PaymentIntent with `status` `succeeded` yields `200` and a receipt whose `reference` is the PaymentIntent id; otherwise 402 with a new challenge [src-stripe-mpp-stripe-charge].
+
+### Flow 4: Visa card charge
+
+1. 402 challenge with `method="card"`, `acceptedNetworks`, `merchantName` and the server's RSA encryption key (`encryptionJwk`, or `jwksUri` plus `kid` on the realm's origin) [src-stripe-mpp-card-charge].
+2. Client sends the card identifier and full challenge context to its Client Enabler (illustrative `POST /v1/payment-tokens`) [src-stripe-mpp-card-charge].
+3. Client Enabler provisions a network token and cryptogram (for example through Visa Intelligent Commerce), encrypts them as a JWE for the server key, and returns the credential payload [src-stripe-mpp-card-charge] [src-stripe-mpp-docs-card].
+4. Client retries with `Authorization: Payment`; the spec says the client may add Trusted Agent Protocol signature headers for extra identity assurance [src-stripe-mpp-card-charge].
+5. Server forwards `encryptedPayload` to its Server Enabler, which decrypts and requests authorization from the network; on approval the server returns 200 with a receipt containing `challengeId` and the authorization `reference`; on decline it SHOULD issue a fresh 402 [src-stripe-mpp-card-charge].
+
+### Flow 5: Tempo session (metered streaming)
+
+1. Client requests a metered resource; server returns 402 with `intent="session"`, `amount` as price per unit, optional `unitType` and `suggestedDeposit`, and `methodDetails.escrowContract` [src-stripe-mpp-tempo-session].
+2. Client opens a channel on-chain (deposit into escrow) and sends `action: "open"` with the signed transaction, `channelId`, initial `cumulativeAmount` (usually `"0"`) and a voucher signature; the server broadcasts and verifies [src-stripe-mpp-tempo-session].
+3. While consuming, the client sends `action: "voucher"` credentials to the same resource URI (HEAD allowed for voucher-only updates) with rising `cumulativeAmount`; vouchers are off-chain and cost no fees [src-stripe-mpp-tempo-session].
+4. `action: "topUp"` adds funds when the deposit runs low [src-stripe-mpp-tempo-session].
+5. Server may `settle()` at any time (periodically, by threshold, or on close); a receipt is returned on every paid request and, for SSE, also as a final `payment-receipt` event [src-stripe-mpp-tempo-session].
+6. Cooperative close: client sends `action: "close"`; server captures `max(spent, settledOnChain)` (v2), never more than delivered service, and refunds the rest [src-stripe-mpp-tempo-session].
+7. Forced close: client calls `requestClose(channelId)`; a grace period of at least 15 minutes starts; the server can still settle or close; after it, the client calls `withdraw(channelId)`. The spec advises waiting at least 16 minutes [src-stripe-mpp-tempo-session].
+
+Failures: 400 malformed payload; 402 invalid signature or signer mismatch; 410 channel finalized or not found; problem types listed under Core objects [src-stripe-mpp-tempo-session].
+
+### Flow 6: subscription
+
+1. 402 with `intent="subscription"`, `amount`, `currency`, `periodUnit`, `periodCount` [src-stripe-mpp-intent-subscription].
+2. Client signs a subscription grant (Tempo: an access key authorization; Stripe: a PaymentMethod id) [src-stripe-mpp-tempo-subscription] [src-stripe-mpp-stripe-subscription].
+3. Server verifies, collects the first period's charge, stores durable state, and returns 200 with a receipt carrying `subscriptionId` [src-stripe-mpp-intent-subscription].
+4. Each later period the server may collect one renewal before or atomically with delivery; missed periods never accumulate extra authority; `subscriptionId` alone does not authorize use [src-stripe-mpp-intent-subscription].
+5. Expiry, cancellation, failed renewal or an invalid credential all lead to 402 with a fresh challenge [src-stripe-mpp-intent-subscription].
+
+### Flow 7: MCP tool call
+
+1. Client calls a paid tool; server returns JSON-RPC error `-32042` "Payment Required" with `error.data.httpStatus` 402, `challenges` (with `request` as a JSON object) and an optional `problem` [src-stripe-mpp-mcp-transport].
+2. Client retries the call with `params._meta["org.paymentauth/credential"]` [src-stripe-mpp-mcp-transport].
+3. Server returns the result with `_meta["org.paymentauth/receipt"]`; a failed verification returns `-32043` with a fresh challenge and a `failure` object; malformed credentials use `-32602` and processor failures `-32603` [src-stripe-mpp-mcp-transport].
+
+### Flow 8: x402 interop in `mppx`
+
+A server built with `mppx` 0.9.0 or later can emit an MPP `WWW-Authenticate: Payment` challenge and an x402 `PAYMENT-REQUIRED` header on the same EVM route, accept either an MPP credential or an x402 `PAYMENT-SIGNATURE`, and answer with the matching receipt header (`Payment-Receipt` or `PAYMENT-RESPONSE`) [src-stripe-mpp-vs-x402] [src-stripe-mpp-mppx-changelog]. The `mppx` client prefers Payment-auth challenges over x402 challenges when both are offered (0.8.7) [src-stripe-mpp-mppx-changelog].
+
+## State machines
+
+- **Challenge.** issued, then consumed (single use), expired, or replaced by a fresh challenge after a failure. A consumed or unknown `id` returns `invalid-challenge` [src-stripe-mpp-core-01].
+- **Tempo channel.** open (deposit) to streaming (vouchers, optional settle and topUp) to either cooperative close (payee `close()` with final voucher) or forced close (`requestClose()`, grace period of at least 15 minutes, `withdraw()`), then closed and finalized. Channels have no expiry and vouchers have no `validUntil`; servers SHOULD close channels idle for extended periods such as 30 or more days [src-stripe-mpp-tempo-session].
+- **Session protocol v1 versus v2.** v1 uses the `TempoStreamChannel` escrow contract (EIP-712 domain name "Tempo Stream Channel", `uint128` amounts); v2 uses the TIP-20 channel reserve precompile (TIP-1034; domain name "TIP20 Channel Reserve", `uint96` amounts, descriptor with `operator` and `expiringNonceHash`). A client must answer with the version the challenge names [src-stripe-mpp-tempo-session] [src-stripe-mpp-blog-sessions].
+- **Subscription.** pending activation, active (one charge per billing period), then cancelled, expired, or lapsed after failed renewal; all end states lead to a new 402 challenge [src-stripe-mpp-intent-subscription].
+- **Stripe PaymentIntent.** Only `succeeded` produces a receipt; any other status returns a new 402 [src-stripe-mpp-stripe-charge].
+
+## Transports
+
+- **HTTP.** The core transport; TLS 1.2 or later required, TLS 1.3 recommended; challenges, credentials and receipts are never sent over plain HTTP [src-stripe-mpp-core-01].
+- **JSON-RPC and MCP.** `draft-payment-transport-mcp-00`: capability advertisement under `capabilities.experimental.payment.methods` in MCP `InitializeResult` (example `protocolVersion` "2025-11-25"), or a `payment.capabilities` notification on WebSocket; errors `-32042` and `-32043`; credential and receipt under `_meta` keys `org.paymentauth/credential` and `org.paymentauth/receipt`, checked at both root and nested `_meta` [src-stripe-mpp-mcp-transport].
+- **Streaming.** For SSE the session receipt goes in the initial headers and a final `payment-receipt` event; chunked responses MAY carry it as a trailer when the client sends `TE: trailers` [src-stripe-mpp-tempo-session].
+- **Discovery (optional).** `GET /openapi.json` with a top-level `x-service-info` (`categories`, `docs.apiReference`, `docs.homepage`, `docs.llms`) and per-operation `x-payment-info` (single offer or `offers[]` with `intent`, `method`, `amount` (nullable for dynamic pricing), `currency`, `description`). Discovery is advisory; the 402 challenge stays authoritative [src-stripe-mpp-discovery].
