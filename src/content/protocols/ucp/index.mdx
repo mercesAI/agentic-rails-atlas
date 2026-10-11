@@ -115,8 +115,259 @@ keyFacts:
     claimIds: [clm-ucp-193, clm-ucp-206, clm-ucp-203]
 ---
 
-Draft in progress.
+<Mode eli5>
+
+Think of a big shopping mall where every shop speaks a different language. A personal shopper who wants to buy for you would need to learn every language first. UCP gives each shop a sign on its front door that lists, in one shared language, what it can do: take orders, hold a basket, ship, give discounts. Your shopper reads the sign, says which of those things it understands too, and the two of them use only the overlap.
+
+The shopper fills in the order form for you, but before anything is bought, it shows you the finished form on a screen you trust and you press the buy button yourself. If the shop needs something the shopper cannot give, like a signature for an expensive item, the shop hands back a link to its own counter so you can finish there.
+
+To pay, the shopper does not carry your card. It asks your wallet for a sealed envelope that only the shop's bank can open, and passes that envelope to the shop. The shop stays the seller: it owns the sale, the receipt and any refund, and it uses its usual bank. The mall that built the signs does not become the seller and does not touch the money.
+
+Some shops and shoppers can also agree to sign the order form with special seals, so that later nobody can claim the form was changed. That is an optional add-on, not the main system.
+
+</Mode>
+
+UCP answers one question: how can any agent buy from any store without a custom integration for each pair? A business publishes a profile at `/.well-known/ucp` that lists its transports, the capabilities it supports (checkout, cart, catalog, orders) and the payment handlers it accepts.<Cite ids="clm-ucp-054 clm-ucp-055 clm-ucp-060" /> The agent's platform names its own profile in a `UCP-Agent` header on every request, and the business keeps only the capabilities both sides list, at the highest version both support.<Cite ids="clm-ucp-088 clm-ucp-090" /> Checkout is a resource the platform creates and fills; when everything is present, the buyer places the order in a trusted interface unless the AP2 extension is active.<Cite ids="clm-ucp-096 clm-ucp-097" /> Payment arrives as an opaque token that the platform obtained from a wallet, and it flows one way, to the business, which charges it through its own payment service provider (PSP).<Cite ids="clm-ucp-104 clm-ucp-105" /> The business stays merchant of record; Google, which launched UCP, is not.<Cite ids="clm-ucp-006" /> What UCP does not give you: spending caps, reputation, or any statement that a platform is trustworthy beyond who it is.<Cite ids="clm-ucp-151 clm-ucp-152 clm-ucp-092" /> Two names cause most confusion. UCP is not Google's Universal Cart product, and AP2 (Agent Payments Protocol) is an optional extension inside UCP, not the same protocol.<Cite ids="clm-ucp-005 clm-ucp-193" />
+
+### Problem and design goals
+
+The Universal Commerce Protocol is an open commerce protocol published by the Universal-Commerce-Protocol organization on GitHub under Apache-2.0.<Cite ids="clm-ucp-001" /> Google introduced it on 2026-01-11 at the NRF (National Retail Federation) retail conference, co-developed with Shopify, Etsy, Wayfair, Target and Walmart and, in Google's words, endorsed by more than 20 partners.<Cite ids="clm-ucp-003 clm-ucp-004" /> The problem it targets is integration count: without a shared protocol, every agent surface needs its own connector to every store, and every store needs its own connector to every agent.
+
+Four design choices follow. First, discovery is a static document, so a platform can learn what a business supports before it sends a single order.<Cite ids="clm-ucp-054 clm-ucp-155" /> Second, features are named capabilities with JSON schemas, and negotiation is a set intersection, so a store can add or drop a feature without breaking clients that do not use it.<Cite ids="clm-ucp-063 clm-ucp-090" /> Third, the same capability runs over REST (an HTTP API described by OpenAPI), MCP (Model Context Protocol), A2A (the Agent2Agent protocol) or an embedded checkout frame.<Cite ids="clm-ucp-060 clm-ucp-128" /> Fourth, payment is delegated to handlers written by credential providers, so UCP never defines a card network or a wallet of its own.<Cite ids="clm-ucp-051 clm-ucp-052" />
+
+The business keeps commercial control. It is the merchant of record, holds financial liability and owns the order.<Cite ids="clm-ucp-006" /> It sets the checkout status and the totals, and it decides when a human has to take over.<Cite ids="clm-ucp-098" /> At launch, UCP integrations powered checkout in AI Mode in Google Search and in the Gemini apps.<Cite ids="clm-ucp-218" />
+
+### Actors and roles
+
+The glossary defines a platform as the consumer-facing surface, such as an AI agent, app or website, acting for the user.<Cite ids="clm-ucp-048" /> The business sells the goods and is the merchant of record.<Cite ids="clm-ucp-006" /> A credential provider is a trusted entity, such as a digital wallet, that manages the user's payment and identity credentials.<Cite ids="clm-ucp-049" /> A PSP processes payments, authorizations and settlements for the business.<Cite ids="clm-ucp-050" /> The buyer is the person who reviews and places the order.<Cite ids="clm-ucp-097" />
+
+Payment handlers are the role newcomers misread. A handler is a specification, not a company: Google Pay publishes `com.google.pay` and Shop Pay publishes `dev.shopify.shop_pay`.<Cite ids="clm-ucp-051" /> The credential provider writes the handler, the business configures it with its own merchant settings, and the platform executes it to obtain a token.<Cite ids="clm-ucp-053" /> UCP defines the declaration format but, as of v2026-08-25, ships no concrete handler of its own.<Cite ids="clm-ucp-052" /> A generic tokenization API with `POST /tokenize` and `POST /detokenize` is published as a building block for handler authors.<Cite ids="clm-ucp-220" />
+
+On Google surfaces the platform is Google. Its UCP requests carry a `UCP-Agent` header and a `User-Agent` that starts with `Google/UCP`, and its health checks identify as `Google-UCP-Prober/1.0`.<Cite ids="clm-ucp-157 clm-ucp-158" /> Merchants do not need Google Pay on their own site, but their PSP must be able to process Google's tokens.<Cite ids="clm-ucp-189" /> On Microsoft's side, Copilot Checkout requires a Microsoft Merchant Center account and a UCP-compliant feed, while Microsoft's page says Merchant Center will support UCP, in the future tense.<Cite ids="clm-ucp-180 clm-ucp-181" />
+
+### Core objects
+
+Everything starts with the profile. A profile has a `ucp` object whose `version`, `services` and `payment_handlers` members are required, even when the registries are empty; `capabilities` is optional.<Cite ids="clm-ucp-055 clm-ucp-056" /> Business profiles may add `supported_versions`, which maps older releases to version-specific profiles.<Cite ids="clm-ucp-057" /> Signing keys sit outside the `ucp` object in a top-level `keys` array that is a JWK (JSON Web Key) Set, and private key members are forbidden.<Cite ids="clm-ucp-058 clm-ucp-059" /> Each service, capability and handler entry carries a required `version` plus optional `spec`, `schema`, `id` and `config`, and an extension names its parent in `extends`.<Cite ids="clm-ucp-061 clm-ucp-062" />
+
+The checkout is the working object. It requires `ucp`, `id`, `line_items`, `status`, `currency`, `totals` and `links`. The links array is described as mandatory for legal compliance.<Cite ids="clm-ucp-069 clm-ucp-072" /> `expires_at` defaults to 6 hours after creation.<Cite ids="clm-ucp-071" /> `payment` is optional on create and update but required on complete.<Cite ids="clm-ucp-073" /> A payment instrument needs an `id`, a `handler_id` and a `type`, and carries the credential.<Cite ids="clm-ucp-074" /> Credentials come in three types: a handler-specific token, a `pan` credential and a `network_token` credential with a cryptogram.<Cite ids="clm-ucp-075 clm-ucp-076" /> Every response also carries `ucp.status`, either `success` or `error`, which tells the reader what kind of body follows.<Cite ids="clm-ucp-235" />
+
+Orders and carts round out the shopping service. An order requires `id`, `checkout_id`, `permalink_url`, `line_items`, `fulfillment`, `currency` and `totals`, plus the `ucp` envelope.<Cite ids="clm-ucp-078" /> Its `adjustments` record refunds, returns, credits, price adjustments, disputes and cancellations, each `pending`, `completed` or `failed`.<Cite ids="clm-ucp-079" /> A cart requires `ucp`, `id`, `line_items`, `currency` and `totals`, and a checkout can be created from it with `cart_id`.<Cite ids="clm-ucp-082" />
+
+<Mode spec>
+
+**Field tables.** Spec version 2026-08-25, read from the JSON Schemas at tag v2026-08-25 (commit cd78fb3). `main` is a draft and differs. Descriptions are paraphrased.
+
+<FieldTable caption="Profile document (/.well-known/ucp for businesses)" specVersion="2026-08-25" fields={[
+  { "name": "ucp.version", "type": "string (YYYY-MM-DD)", "required": true, "description": "Core release this profile follows.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/ucp.json" },
+  { "name": "ucp.services", "type": "object of binding arrays", "required": true, "description": "Keyed by service name such as dev.ucp.shopping; each binding has transport (rest, mcp, a2a, embedded) and an optional endpoint. May be empty.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/service.json" },
+  { "name": "ucp.capabilities", "type": "object of entry arrays", "required": false, "description": "Capabilities and extensions, keyed by reverse-domain name.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/capability.json" },
+  { "name": "ucp.payment_handlers", "type": "object of handler arrays", "required": true, "description": "Handler instances with id, version, available_instruments and config. May be empty.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/payment_handler.json" },
+  { "name": "ucp.supported_versions", "type": "object", "required": false, "description": "Business profiles only: older version mapped to a leaf profile URI. Leaf profiles must not contain it.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/ucp.json" },
+  { "name": "ucp.map_order", "type": "object", "required": false, "description": "Preferred key order for services, capabilities and handlers (new in this release).", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/ucp.json" },
+  { "name": "keys", "type": "array of public JWK", "required": false, "description": "Top level, outside ucp. The only canonical signing key field since this release (replaced signing_keys). Private members such as d are forbidden.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/profile.json" }
+]} />
+
+<FieldTable caption="Checkout (dev.ucp.shopping.checkout)" specVersion="2026-08-25" fields={[
+  { "name": "id", "type": "string", "required": true, "description": "Checkout session id; set by the business.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "line_items", "type": "array", "required": true, "description": "Items; required on create and update, omitted on complete.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "status", "type": "enum", "required": true, "description": "incomplete, requires_escalation, ready_for_complete, complete_in_progress, completed, canceled.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "currency", "type": "string (ISO 4217)", "required": true, "description": "Set by the business.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "totals", "type": "array", "required": true, "description": "Typed amounts such as subtotal, tax and total, in minor units.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "links", "type": "array", "required": true, "description": "Terms, privacy and similar links; described as mandatory for legal compliance.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "messages", "type": "array", "required": false, "description": "Errors, warnings and info with type, code, severity, content and an optional path.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "actions", "type": "object", "required": false, "description": "Outstanding extension-defined actions, such as a 3DS challenge (new in this release).", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "signals", "type": "object", "required": false, "description": "Platform-observed values such as dev.ucp.buyer_ip and dev.ucp.user_agent; never buyer-asserted.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "expires_at", "type": "string (RFC 3339)", "required": false, "description": "Defaults to 6 hours after creation.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "continue_url", "type": "string (absolute HTTPS)", "required": false, "description": "Handoff URL; must be present when status is requires_escalation.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "payment", "type": "object", "required": false, "description": "instruments[]; required on complete.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" },
+  { "name": "order", "type": "object", "required": false, "description": "id, label and permalink_url once completed.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/shopping/checkout.json" }
+]} />
+
+<FieldTable caption="Payment instrument and credentials (common/types)" specVersion="2026-08-25" fields={[
+  { "name": "id", "type": "string", "required": true, "description": "Instrument instance id.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/types/payment_instrument.json" },
+  { "name": "handler_id", "type": "string", "required": true, "description": "The id of the handler instance that produced the credential.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/types/payment_instrument.json" },
+  { "name": "type", "type": "string", "required": true, "description": "Instrument category, for example card.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/types/payment_instrument.json" },
+  { "name": "credential", "type": "object", "required": false, "description": "Opaque credential, discriminated by type: token (type, token), pan (number, expiry_month, expiry_year), network_token (number, cryptogram, optional eci_value, token_requestor_id).", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/types/payment_instrument.json" },
+  { "name": "display", "type": "object", "required": false, "description": "Display-safe data for the buyer.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/types/payment_instrument.json" },
+  { "name": "card_number_type", "type": "enum (deprecated)", "required": false, "description": "On the older card credential: fpan, network_token or dpan. Deprecated now that PAN and network token are separate types.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/types/payment_instrument.json" }
+]} />
+
+<FieldTable caption="AP2 extension fields (dev.ucp.common.payment.ap2_mandate)" specVersion="2026-08-25" fields={[
+  { "name": "ap2.merchant_authorization", "type": "string (header..signature)", "required": false, "description": "Response only. JWS with detached content over the checkout without ap2, canonicalized with JCS; header carries alg and kid.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/payment_ap2_mandate.json" },
+  { "name": "ap2.checkout_mandate", "type": "string (SD-JWT with key binding)", "required": true, "description": "Required on complete, omitted on create and update. Contains the full checkout, including the business signature.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas/common/payment_ap2_mandate.json" },
+  { "name": "payment.instruments[*].credential.token", "type": "string", "required": false, "description": "Carries the AP2 payment mandate as a composite token.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md" }
+]} />
+
+</Mode>
+
+### Message flow step by step
+
+The main sequence in section C plays the default path: REST transport, a Google Pay style handler, and a buyer who places the order in a trusted interface.<Cite ids="clm-ucp-122 clm-ucp-097" />
+
+1. The platform may fetch `/.well-known/ucp` first and should cache it. Profiles must be served over HTTPS, without redirects, with `Cache-Control` public and a max-age of at least 60 seconds.<Cite ids="clm-ucp-095" />
+2. The platform picks a version, then checks for each capability that the schema URL host matches its reverse-DNS name, and rejects any that fail.<Cite ids="clm-ucp-092 clm-ucp-093" />
+3. It sends `POST /checkout-sessions` with `UCP-Agent: profile="..."` in RFC 8941 dictionary syntax; over MCP the same URL goes in `meta["ucp-agent"].profile`.<Cite ids="clm-ucp-088 clm-ucp-089" /> `UCP-Agent` and `Request-Id` are required, and `Idempotency-Key` is required on state-changing calls.<Cite ids="clm-ucp-130" />
+4. The business fetches the platform profile, computes the intersection and returns the checkout with a `ucp` envelope that names the version and active capabilities.<Cite ids="clm-ucp-090 clm-ucp-091" />
+5. The platform sends the whole resource again with `PUT /checkout-sessions/{id}`; update is a full replacement, not a patch.<Cite ids="clm-ucp-096" />
+6. When nothing is missing the status becomes `ready_for_complete`, and the buyer reviews and places the order in a trusted, deterministic UI (user interface).<Cite ids="clm-ucp-070 clm-ucp-097" />
+7. The platform runs the handler with the credential provider, and the business plays no part in that exchange.<Cite ids="clm-ucp-104" /> Handlers advertise `available_instruments`, and the list resolved in the checkout response is authoritative.<Cite ids="clm-ucp-221" />
+8. `POST /checkout-sessions/{id}/complete` carries exactly one instrument, unless split payments was negotiated.<Cite ids="clm-ucp-106" /> The response is `completed` with an order, or `complete_in_progress` with no order yet.<Cite ids="clm-ucp-100" />
+9. A completed checkout is immutable and the business must email a confirmation.<Cite ids="clm-ucp-102" /> Order events then arrive at the platform's `webhook_url` as full snapshots with Standard Webhooks headers.<Cite ids="clm-ucp-081 clm-ucp-114" />
+
+Failures have defined shapes. Discovery and version problems are transport errors: `invalid_profile_url` (400), `profile_unreachable` (424), `profile_malformed` and `version_unsupported` (both 422).<Cite ids="clm-ucp-094" /> An empty intersection is a business outcome instead: HTTP 200 with `capabilities_incompatible`.<Cite ids="clm-ucp-094" /> Signature problems return 401 or 400 with codes such as `signature_invalid` and `digest_mismatch`.<Cite ids="clm-ucp-229" /> Reusing an idempotency key with a different body returns 409.<Cite ids="clm-ucp-132" /> The awkward case is a lost complete response. The platform polls Get Checkout with bounded backoff and may resend only the identical request under the same key, which is why section C plays it as its own failure flow.<Cite ids="clm-ucp-230" />
+
+<Mode spec>
+
+<FieldTable caption="HTTP headers on the REST binding" specVersion="2026-08-25" fields={[
+  { "name": "UCP-Agent", "type": "request header (RFC 8941 dictionary)", "required": true, "description": "profile=\"<platform profile URL>\" on every request.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/services/shopping/rest.openapi.json" },
+  { "name": "Request-Id", "type": "request header", "required": true, "description": "Request correlation id.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/services/shopping/rest.openapi.json" },
+  { "name": "Idempotency-Key", "type": "request header", "required": true, "description": "On state-changing calls; at least 128 bits of entropy; stored 24 hours minimum, 48 recommended; 409 on reuse with a different payload.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/signatures.md" },
+  { "name": "Signature-Input, Signature", "type": "request, response and webhook headers", "required": false, "description": "RFC 9421 signature when signatures are the chosen authentication; required on webhooks.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/signatures.md" },
+  { "name": "Content-Digest", "type": "header", "required": false, "description": "RFC 9530 sha-256 over the raw body bytes; proxies must not re-serialize JSON.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/signatures.md" },
+  { "name": "Signature-Agent", "type": "request header", "required": false, "description": "Only on Web Bot Auth shaped signatures, with tag web-bot-auth and required created and expires.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/signatures.md" },
+  { "name": "Authorization, X-API-Key", "type": "request headers", "required": false, "description": "OAuth bearer token or API key, the alternatives to signatures and mTLS.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/services/shopping/rest.openapi.json" },
+  { "name": "Webhook-Id, Webhook-Timestamp", "type": "webhook headers", "required": true, "description": "Standard Webhooks headers on order events.", "specRef": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/order/index.md" }
+]} />
+
+**Operations on REST and MCP.** REST paths are appended to the service `endpoint`; MCP tools are described in OpenRPC.
+
+| Operation | REST | MCP tool |
+| --- | --- | --- |
+| Create, get, update checkout | `POST /checkout-sessions`, `GET` and `PUT /checkout-sessions/{id}` | `create_checkout`, `get_checkout`, `update_checkout` |
+| Complete, cancel checkout | `POST /checkout-sessions/{id}/complete`, `POST /checkout-sessions/{id}/cancel` | `complete_checkout`, `cancel_checkout` |
+| Cart | `POST /carts`, `GET` and `PUT /carts/{id}`, `POST /carts/{id}/cancel` | `create_cart`, `get_cart`, `update_cart`, `cancel_cart` |
+| Catalog | `POST /catalog/search`, `POST /catalog/lookup`, `POST /catalog/product` | `search_catalog`, `lookup_catalog`, `get_product` |
+| Order | `GET /orders/{id}` | `get_order` |
+| Locations | `POST /locations/search`, `POST /locations/lookup` | `search_locations`, `lookup_locations` |
+
+**Negotiation errors.** `invalid_profile_url` (REST 400, MCP -32001), `profile_unreachable` (424), `profile_malformed` (422), `version_unsupported` (422), `capabilities_incompatible` (200 with a UCP response). **Signature errors.** `signature_missing`, `signature_invalid`, `key_not_found` (401, MCP -32000); `digest_mismatch`, `algorithm_unsupported` (400, MCP -32600). **Protocol errors.** 401, 403, 409, 429, 500, 503, with `Retry-After` or `error.data.retry_after` on 429 and 503.
+
+Illustrative example, spec version 2026-08-25: the create request of the main flow, signed with RFC 9421. The digest and signature are not real.
+
+```http
+POST /ucp/v1/checkout-sessions HTTP/1.1
+Host: shop.example
+UCP-Agent: profile="https://agent.example/profiles/shopping-agent.json"
+Idempotency-Key: 9f1c2d7e-4b8a-4c51-a0e2-6d3f8b7c1e55
+Request-Id: req_01
+Content-Type: application/json
+Content-Digest: sha-256=:X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=:
+Signature-Input: sig1=("@method" "@authority" "@path" "ucp-agent" "idempotency-key" "content-digest" "content-type");keyid="agent_2026"
+Signature: sig1=:MEUCIQ...:
+
+{"line_items": [{"item": {"id": "item_123"}, "quantity": 2}]}
+```
+
+</Mode>
+
+### Lifecycle and states
+
+The business owns the `status` field. A new checkout is usually `incomplete`, with messages that say what is missing.<Cite ids="clm-ucp-070" /> Every message has a severity: `recoverable` means the platform can fix it with an update, `requires_buyer_input` and `requires_buyer_review` lead to `requires_escalation`, and `unrecoverable` means there is nothing left to act on.<Cite ids="clm-ucp-227" /> The two escalation severities mean different things. Buyer input means the business needs data its API cannot collect; buyer review means the checkout is complete but a policy, such as a high-value order, needs the buyer to approve it.<Cite ids="clm-ucp-228" />
+
+Escalation is where UCP admits that not everything fits an API. With `requires_escalation`, the business must provide `continue_url` and at least one message with an escalation severity.<Cite ids="clm-ucp-098" /> `continue_url` must be an absolute HTTPS URL, and the platform must open it for the buyer.<Cite ids="clm-ucp-099" /> The business should also send it for other open statuses and leave it out once the session is `completed` or `canceled`.<Cite ids="clm-ucp-234" />
+
+Completion can be synchronous or not. `complete_in_progress` means the business accepted the request and is still working, and during that time the platform must not start a new update or complete.<Cite ids="clm-ucp-100 clm-ucp-101" /> Since v2026-08-25, an outstanding action, for example a 3DS2 (EMV 3-D Secure) challenge, can sit in this state. Once the action finishes, the platform must confirm the result with Get Checkout, because the action's own completion signal is not authoritative.<Cite ids="clm-ucp-107 clm-ucp-231" /> `completed` is terminal and immutable. Any session that is not completed or already canceled can be canceled, and an expired session ends as `canceled`.<Cite ids="clm-ucp-102 clm-ucp-103" />
+
+<Mode spec>
+
+| Status | Meaning | Next |
+| --- | --- | --- |
+| `incomplete` | Data missing, recoverable error or action outstanding | `ready_for_complete`, `requires_escalation`, `canceled` |
+| `requires_escalation` | Buyer input or review needed; `continue_url` required | `incomplete` (after update), `completed` (via `continue_url`), `canceled` |
+| `ready_for_complete` | All data present, no action outstanding | `completed`, `complete_in_progress`, `incomplete`, `canceled` |
+| `complete_in_progress` | Complete accepted; no `order` yet; no new update or complete | `completed`, `incomplete`, `canceled` |
+| `completed` | Order placed; immutable | terminal |
+| `canceled` | Canceled, invalid or expired | terminal |
+
+**Message severities** (checkout spec, Error Handling): `recoverable`, `requires_buyer_input`, `requires_buyer_review`, `unrecoverable`. **Action types** in the authentication extension: `dev.ucp.common.payment.device_data_collection`, `dev.ucp.common.payment.three_ds_challenge`. **Order adjustment status:** `pending`, `completed`, `failed`.
+
+</Mode>
+
+### Security and trust model (summary)
+
+<Mode eli5>
+
+The shop checks who your shopper is by asking for a signed note and comparing it with keys the shopper published on its own website. That proves who is talking, not that the shopper is good. Nothing in UCP stops a shopper from spending too much; that is up to your wallet and the shopper's own rules.
+
+</Mode>
+
+Identity in UCP is domain-based. The platform is whoever controls the profile URL in `UCP-Agent` and the keys listed there.<Cite ids="clm-ucp-054 clm-ucp-058" /> Requests, responses and webhooks can be signed with RFC 9421 HTTP Message Signatures, with an RFC 9530 `Content-Digest` binding the body.<Cite ids="clm-ucp-133" /> Every implementation must be able to verify ES256; ES384 and EdDSA are optional, so ES256 is a baseline, not the only algorithm.<Cite ids="clm-ucp-134" /> API keys, OAuth 2.0 and mTLS (mutual TLS) are allowed too, and with those the verifier must confirm that the authenticated principal may act for the profile it names.<Cite ids="clm-ucp-142 clm-ucp-143" />
+
+Replay protection lives at the business, through a signed `Idempotency-Key`, not through signature timestamps.<Cite ids="clm-ucp-136" /> Keys need at least 128 bits of entropy and must be kept at least 24 hours, 48 recommended.<Cite ids="clm-ucp-137" /> Webhooks must be signed, and a platform must reject an order event whose signer does not match the order's business.<Cite ids="clm-ucp-115" /> A compromised key stays usable until it is removed from the profile's `keys` array.<Cite ids="clm-ucp-147" />
+
+Onboarding is permissionless: any platform with a discoverable profile can call any business without registering first.<Cite ids="clm-ucp-144" /> The spec therefore asks businesses to keep a list of pre-approved platforms, to bound the cost of discovering unknown ones, and to refuse profile URLs that resolve to special-use addresses such as 169.254.169.254.<Cite ids="clm-ucp-145 clm-ucp-146" /> Namespace authority binding proves where a schema came from but not that its author is honest, and it does not consult the Public Suffix List.<Cite ids="clm-ucp-092 clm-ucp-148" />
+
+Card data stays out of most hands. Credentials flow one way and are opaque, and the checkout spec says a business does not need to become PCI DSS (Payment Card Industry Data Security Standard) compliant to accept cards through the checkout capability.<Cite ids="clm-ucp-105 clm-ucp-149" /> The buyer is the last check: without AP2, the order is placed by a human in a trusted UI.<Cite ids="clm-ucp-097" /> With AP2 negotiated, the session is security locked and neither side may fall back to an unprotected checkout.<Cite ids="clm-ucp-109" /> No GitHub security advisory and no CVE (Common Vulnerabilities and Exposures) entry naming UCP existed on 2026-10-11.<Cite ids="clm-ucp-150" /> Section H has the threat table and section I the controls.
+
+### Versioning and governance
+
+Versions are dates. Each release is a `YYYY-MM-DD` identifier, and git tags add a `v` prefix.<Cite ids="clm-ucp-023" /> Four releases exist: v2026-01-11, v2026-01-23, v2026-04-08 and v2026-08-25, the latest as of 2026-10-11.<Cite ids="clm-ucp-024" /> ucp.dev serves `latest` and `draft` documentation, and `latest` points to 2026-08-25.<Cite ids="clm-ucp-028" /> The `main` branch is ahead of the release with drafts such as `dev.ucp.common.ask` and `dev.ucp.lodging.booking`, so read field names at the tag, not on `main`.<Cite ids="clm-ucp-047" /> Businesses must not advertise a non-date version such as draft in public discovery.<Cite ids="clm-ucp-037" />
+
+One detail is often misreported. The v2026-08-25 release notes speak of independent capability versioning, but the normative spec ties every `dev.ucp.*` capability to the release date.<Cite ids="clm-ucp-034 clm-ucp-032" /> Only third-party extensions under their own namespaces version independently and declare what they need with `requires`.<Cite ids="clm-ucp-033" /> Published releases can also receive backward-compatible backports, so two parties can hold different copies of the same version.<Cite ids="clm-ucp-035" /> Breaking pull requests carry an exclamation mark and are announced in GitHub Discussions 2 weeks before merge.<Cite ids="clm-ucp-036" />
+
+Governance has no foundation. A Governing Council owns all UCP assets, and Google is custodian of the ucp.dev domain.<Cite ids="clm-ucp-010 clm-ucp-009" /> The council has 5 seats: permanent ones for Google and Shopify, and 3 elected.<Cite ids="clm-ucp-007" /> Google holds the proxy vote for all open seats until December 2028.<Cite ids="clm-ucp-008" /> As of 2026-10-11 the roster lists Amit Handa (Google), Ilya Grigorik (Shopify), Twum Djin (Stripe) and 2 open seats; Stripe joined on 2026-04-28.<Cite ids="clm-ucp-011 clm-ucp-012" /> Domain Tech Councils of 16 members, elected by the council every 6 months, decide by majority.<Cite ids="clm-ucp-018" /> Shopping expanded on 2026-04-24 with Amazon, Meta, Microsoft, Stripe and Salesforce, and Food, Lodging and Payments councils followed on 2026-07-16, 2026-08-11 and 2026-09-02.<Cite ids="clm-ucp-013 clm-ucp-015 clm-ucp-016 clm-ucp-017" /> Google holds 6 of 10 permanent Food seats and 6 of 12 permanent Lodging seats.<Cite ids="clm-ucp-019" /> Every change needs a maintainer's approval, and contributors sign the Google CLA (contributor license agreement).<Cite ids="clm-ucp-021" />
+
+### Extensibility
+
+Names carry the extension model. A capability is named reverse domain, then service, then capability, as in `dev.ucp.shopping.checkout`.<Cite ids="clm-ucp-063" /> The `dev.ucp` namespace is reserved for the UCP governing body, and vendors must use their own domain.<Cite ids="clm-ucp-064" /> Released shopping capabilities are checkout, cart, catalog search and lookup, order and permalink.<Cite ids="clm-ucp-065" /> Fulfillment, discount and buyer consent extend checkout, and loyalty is a common extension.<Cite ids="clm-ucp-066" /> Common capabilities cover identity linking and location search and lookup.<Cite ids="clm-ucp-068" /> Payment extensions live under `dev.ucp.common.payment`: `ap2_mandate`, `authentication`, `split_payments` and `terms`.<Cite ids="clm-ucp-067" />
+
+Identity linking deserves a closer look because it is how a platform acts for a signed-in buyer. It uses the OAuth 2.0 authorization code flow with PKCE (Proof Key for Code Exchange) S256, and plain PKCE is forbidden.<Cite ids="clm-ucp-116" /> The platform finds the authorization server through RFC 9728 and RFC 8414 metadata, and falls back to OpenID discovery only on 404.<Cite ids="clm-ucp-118" /> Scopes derive from capabilities, such as `dev.ucp.shopping.order:read`.<Cite ids="clm-ucp-120" /> Three access levels exist: public, agent-authenticated and user-authenticated.<Cite ids="clm-ucp-117" /> Since v2026-08-25 an accelerated IdP (identity provider) flow can chain a trusted IdP identity to a new business with RFC 8693 token exchange and an RFC 7523 bearer grant.<Cite ids="clm-ucp-119" /> Businesses must support RFC 7009 token revocation.<Cite ids="clm-ucp-121" />
+
+Transports are the third axis. Over A2A, checkout data travels in `DataPart` objects keyed `a2a.ucp.checkout`, `a2a.ucp.checkout.payment` and `a2a.ucp.checkout.signals`.<Cite ids="clm-ucp-113" /> The embedded protocol uses JSON-RPC messages such as `ec.ready`, `ec.start`, `ec.complete` and `ec.payment.credential_request`.<Cite ids="clm-ucp-131" /> MCP runs over streamable HTTP so that the same RFC 9421 signatures apply, and the glossary says capabilities map one to one to MCP tools.<Cite ids="clm-ucp-127 clm-ucp-217" />
+
+<Mode spec>
+
+<FieldTable caption="Capability namespace at v2026-08-25 (drafts on main marked)" specVersion="2026-08-25" fields={[
+  { "name": "dev.ucp.shopping.checkout", "type": "capability", "required": false, "description": "Checkout sessions; released since v2026-01-11." },
+  { "name": "dev.ucp.shopping.cart", "type": "capability", "required": false, "description": "Carts; first released in v2026-04-08." },
+  { "name": "dev.ucp.shopping.catalog.search, .catalog.lookup", "type": "capabilities", "required": false, "description": "Product search and lookup; first released in v2026-04-08." },
+  { "name": "dev.ucp.shopping.order, .permalink", "type": "capabilities", "required": false, "description": "Orders since v2026-01-11; permalink new in v2026-08-25." },
+  { "name": "dev.ucp.shopping.fulfillment, .discount, .buyer_consent", "type": "extensions", "required": false, "description": "Extend checkout (fulfillment and discount also cart); buyer_consent became a reverse-DNS map in v2026-08-25." },
+  { "name": "dev.ucp.common.identity_linking", "type": "capability", "required": false, "description": "OAuth 2.0 account linking with capability-derived scopes." },
+  { "name": "dev.ucp.common.location.search, .location.lookup", "type": "capabilities", "required": false, "description": "Store and pickup locations; new in v2026-08-25." },
+  { "name": "dev.ucp.common.loyalty", "type": "extension", "required": false, "description": "Loyalty programs." },
+  { "name": "dev.ucp.common.payment.ap2_mandate", "type": "extension of checkout", "required": false, "description": "AP2 mandates. Named dev.ucp.shopping.ap2_mandate from v2026-01-11 to v2026-04-08." },
+  { "name": "dev.ucp.common.payment.authentication, .split_payments, .terms", "type": "extensions", "required": false, "description": "3DS2 through actions, more than one instrument, payment terms; new in v2026-08-25." },
+  { "name": "dev.ucp.common.ask, dev.ucp.lodging.booking", "type": "draft capabilities", "required": false, "description": "On main only, in no release." }
+]} />
+
+</Mode>
+
+### How it composes with the other seven
+
+UCP is a checkout and order layer that leaves payment authorization to whatever the handler and the PSP do, so it pairs with protocols that carry stronger payment evidence.<Cite ids="clm-ucp-104 clm-ucp-052" /> AP2 is the documented example: UCP says where the AP2 signatures go, and AP2 defines the mandate formats.<Cite ids="clm-ucp-193" /> The extension existed from the first release as `dev.ucp.shopping.ap2_mandate` and was renamed `dev.ucp.common.payment.ap2_mandate` in v2026-08-25.<Cite ids="clm-ucp-029 clm-ucp-030" /> Live use of AP2 mandates inside UCP is unverified as of 2026-10-11.<Cite ids="clm-ucp-197" /> MCP and A2A are transports, not rival commerce protocols.<Cite ids="clm-ucp-206" /> The `network_token` credential type can carry card network tokens in general, but no Mastercard Agent Pay integration is documented.<Cite ids="clm-ucp-203" /> UCP and Visa TAP (Trusted Agent Protocol) both sign with RFC 9421, without a bridge.<Cite ids="clm-ucp-200" /> No mapping to OpenAI's ACP (Agentic Commerce Protocol), to Stripe's MPP (Machine Payments Protocol), to x402 or to ERC-8004 is specified.<Cite ids="clm-ucp-201 clm-ucp-202 clm-ucp-198 clm-ucp-205" /> The section "Compare and compose" below goes further.
+
+### Limitations and open issues
+
+- **Google's structural weight.** Google holds a permanent council seat, the proxy for open seats until December 2028 and the ucp.dev domain, and critics point to exactly that.<Cite ids="clm-ucp-209" />
+- **No adoption numbers.** Neither Google nor the project publishes merchant counts or volumes; Google said in February that hundreds of companies had shown interest.<Cite ids="clm-ucp-186 clm-ucp-187" />
+- **Two-layer negotiation.** A platform first selects one version profile, then the business intersects capabilities by exact version, which is easy to get subtly wrong.<Cite ids="clm-ucp-212" />
+- **Documentation drift.** The ucp.dev "UCP and AP2" page still describes a `checkoutSignature` and a hashed checkout mandate, unlike the schema.<Cite ids="clm-ucp-210" /> The release notes spell the AP2 extension `ap2_mandates`, and the REST binding examples spell the Shop Pay handler `com.shopify.shop_pay`.<Cite ids="clm-ucp-031 clm-ucp-223" />
+- **Conformance lag.** The conformance suite's example configuration still targets 2026-04-08.<Cite ids="clm-ucp-170" />
+- **Privacy and upselling.** Senator Elizabeth Warren raised data-sharing and upselling concerns in a letter dated 2026-02-03 (reported), and the roadmap lists cross-sell and upsell modules as a priority.<Cite ids="clm-ucp-165 clm-ucp-208" />
+- **Attribution.** The `attribution` field carries campaign parameters such as `gclid` but no attribution model.<Cite ids="clm-ucp-211" />
+- **Merchant consent.** Secondary reports say eligible US Shopify merchants were enrolled in Google's native checkout automatically around 2026-09-22, with an opt-out; no primary source was found.<Cite ids="clm-ucp-184" />
+- **No spending limits or reputation.** Caps sit in AP2 mandates or with the credential provider, and the spec has no reputation mechanism.<Cite ids="clm-ucp-151 clm-ucp-152" />
+
+### What changed in 2025 and 2026
+
+- 2025-12-31: the ucp repository was created on GitHub.<Cite ids="clm-ucp-002" />
+- 2026-01-11: launch at NRF and release v2026-01-11; v2026-01-23 followed twelve days later.<Cite ids="clm-ucp-003 clm-ucp-024" />
+- 2026-02-11: UCP checkout began rolling out to US shoppers for Etsy and Wayfair in AI Mode and Gemini.<Cite ids="clm-ucp-174" />
+- 2026-02-17 and 2026-03-13: request signing and signals merged; carts (2026-01-26) and catalog (2026-03-08) also landed in v2026-04-08.<Cite ids="clm-ucp-038 clm-ucp-039 clm-ucp-040" />
+- 2026-03-19: a Google update on carts, catalog and loyalty or identity linking (reported only).<Cite ids="clm-ucp-176" />
+- 2026-04-24 and 2026-04-28: Shopping council expansion; Stripe on the Governing Council; AP2 donated to FIDO.<Cite ids="clm-ucp-013 clm-ucp-012 clm-ucp-195" />
+- 2026-05-19 and 2026-05-20: Universal Cart, AP2 plans for Gemini Spark, and expansion plans for Canada, Australia and the UK.<Cite ids="clm-ucp-005 clm-ucp-196 clm-ucp-177" />
+- 2026-07-03: Web Bot Auth interop merged.<Cite ids="clm-ucp-042" />
+- 2026-08-25: release v2026-08-25 with actions, 3DS2, split payments, `keys`, and the AP2 rename.<Cite ids="clm-ucp-043 clm-ucp-044 clm-ucp-030" />
+- 2026-09-02: the Payments Tech Council formed.<Cite ids="clm-ucp-017" />
+- 2026-09-08: a UCP session at the W3C and GS1 workshop.<Cite ids="clm-ucp-215" />
+- 2026-09-25: the draft lodging booking capability merged on `main`.<Cite ids="clm-ucp-022" />
 
 ## Compare and compose
 
-Draft in progress.
+OpenAI's ACP is the closest sibling: both specify agent checkout sessions in which the merchant stays merchant of record. No bridge or mapping between them is specified, and no source supports the idea that they are converging.<Cite ids="clm-ucp-201 clm-ucp-163" /> The overlap is in people more than in wire formats. Stripe co-develops ACP and holds UCP Governing Council and Tech Council seats.<Cite ids="clm-ucp-201" /> The economics differ as reported: a 4% ChatGPT checkout fee for Shopify merchants, against no additional fee "for now" on Google and Microsoft surfaces.<Cite ids="clm-ucp-191" /> Pick UCP when you need discovery and negotiation across many agent surfaces from one profile; compare the two in the matrix before you commit.
+
+AP2 sits inside UCP, not beside it. When both sides negotiate `dev.ucp.common.payment.ap2_mandate`, the business signs every checkout, the platform returns an SD-JWT (Selective Disclosure JSON Web Token) checkout mandate that wraps that signature, and the payment mandate rides in the credential token.<Cite ids="clm-ucp-110 clm-ucp-112 clm-ucp-085" /> Google's FAQ calls AP2 a specialized payment layer within UCP, and Google said on 2026-05-19 that AP2 would come to its products starting with Gemini Spark.<Cite ids="clm-ucp-194 clm-ucp-196" /> Until a source shows mandates in production, treat this as specified, not deployed.<Cite ids="clm-ucp-197" />
+
+The card protocols meet UCP at the credential and at the signature. UCP's `network_token` type can carry a network token with its cryptogram, yet Google's AI surfaces use Google Pay with `PAN_ONLY`, and which network's agentic token flows inside a handler is not published.<Cite ids="clm-ucp-076 clm-ucp-192 clm-ucp-204" /> Visa TAP and UCP both use RFC 9421, and UCP's optional Web Bot Auth shape follows the same direction TAP aligns with. Visa and Mastercard are listed endorsers, but no bridge is documented.<Cite ids="clm-ucp-200 clm-ucp-138 clm-ucp-207" /> x402, Stripe MPP and ERC-8004 have no documented link. Coinbase's seat on the Payments Tech Council is governance overlap, not a technical one.<Cite ids="clm-ucp-198 clm-ucp-202 clm-ucp-205 clm-ucp-199" />
