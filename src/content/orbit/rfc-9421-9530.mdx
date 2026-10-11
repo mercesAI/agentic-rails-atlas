@@ -1,0 +1,64 @@
+---
+slug: rfc-9421-9530
+name: RFC 9421 HTTP Message Signatures and RFC 9530 Digest Fields
+category: agent-identity
+starred: true
+oneLiner: Two IETF Proposed Standards from February 2024; RFC 9421 signs chosen parts of an HTTP message, and RFC 9530 carries a digest of the message content so a signature can cover the body.
+steward: IETF HTTP working group (HTTPBIS); RFC 9421 by A. Backman and J. Richer (editors) with M. Sporny; RFC 9530 by R. Polli and L. Pardue
+status: Published RFCs (Proposed Standard)
+latestVersion:
+  label: RFC 9421 and RFC 9530 (both published 2024-02-14)
+  date: "2024-02-14"
+relations:
+  - to: visa-tap
+    type: complements
+    note: TAP signs agent requests with RFC 9421 (Signature-Input and Signature over @authority and @path, with a nonce and a tag); it does not use RFC 9530.
+  - to: ucp
+    type: complements
+    note: UCP signs requests, responses and webhooks with RFC 9421 and binds the body with a sha-256 Content-Digest from RFC 9530.
+  - to: mastercard-agent-pay
+    type: complements
+    note: Agent Pay agents sign requests with RFC 9421; no RFC 9530 use was found.
+  - to: stripe-mpp
+    type: complements
+    note: The MPP core specification uses an RFC 9530 content digest to bind a challenge to the request body; RFC 9421 appears only as an optional mppx SDK feature.
+  - to: x402
+    type: compatible-with
+    note: RFC 9421 appears only in the Cloudflare cloudflare:402 scheme and a signatures extension, not in the core schemes.
+sources:
+  - src-rfc9421
+  - src-rfc9530
+  - src-orbit-rfc9421-info
+  - src-orbit-rfc9530-info
+  - src-orbit-rfc-publish-events-api
+  - src-visa-tap-spec
+  - src-ucp-signatures
+  - src-mcap-rfc9421
+  - src-mcap-dev-level1
+  - src-stripe-mpp-core-01
+  - src-stripe-mpp-blog-identity
+  - src-x402-scheme-batch-cf
+  - src-openai-acp-rfcs-dir
+  - src-wba-draft
+lastVerified: "2026-10-11"
+---
+
+## What they are
+
+RFC 9421 defines how a sender signs selected components of an HTTP message and how a receiver checks the result. The signature travels in two fields, `Signature-Input` (what was covered and with which parameters) and `Signature` (the value), and a receiver can ask for one with `Accept-Signature`. Covered components can be ordinary header fields or derived components such as `@method`, `@authority`, `@path`, `@query` and `@target-uri`. Signature parameters include `created`, `expires`, `nonce`, `alg`, `keyid` and `tag`, and IANA registries list the algorithms, among them `ed25519`, `ecdsa-p256-sha256` and `rsa-pss-sha512`. <Cite ids="src-rfc9421" />
+
+RFC 9530 defines `Content-Digest` (a digest of the message content) and `Repr-Digest` (a digest of the representation), plus `Want-Content-Digest` and `Want-Repr-Digest` to ask for them. Only `sha-256` and `sha-512` are active hash algorithms; older ones such as `md5` and `sha` are deprecated. It obsoletes RFC 3230. <Cite ids="src-rfc9530" /> The two fit together: RFC 9421 does not sign the body directly, so a signer covers a `Content-Digest` field when the body must be protected, which is exactly what the IETF Web Bot Auth draft asks agents to do. <Cite ids="src-rfc9421 src-wba-draft" />
+
+## Status
+
+Both are Proposed Standards from the IETF HTTP working group, and both info pages give February 2024 as the publication date; the datatracker records the publication day as 2024-02-14 for each. <Cite ids="src-orbit-rfc9421-info src-orbit-rfc9530-info src-orbit-rfc-publish-events-api" /> RFC 9421 lists A. Backman and J. Richer as editors with M. Sporny; RFC 9530 is by R. Polli and L. Pardue. <Cite ids="src-orbit-rfc9421-info src-orbit-rfc9530-info" />
+
+## How they relate to the eight
+
+RFC 9421 is the shared base of the agent-recognition layer. [Visa TAP](/p/visa-tap/) signs requests with `Signature-Input` and `Signature` over `@authority` and `@path`, with `created`, `expires`, `keyid`, `alg`, `nonce` and `tag`, and does not use RFC 9530. <Cite ids="src-visa-tap-spec" /> [Mastercard Agent Pay](/p/mastercard-agent-pay/) signs with RFC 9421, with Ed25519 in its examples. <Cite ids="src-mcap-rfc9421 src-mcap-dev-level1" /> [UCP](/p/ucp/) uses both RFCs: RFC 9421 for requests, responses and webhooks, and a `sha-256` `Content-Digest` over the raw body bytes. <Cite ids="src-ucp-signatures" />
+
+[MPP](/p/stripe-mpp/) uses RFC 9530 in its core specification, where a content digest binds the payment challenge to the request body for POST, PUT and PATCH; RFC 9421 appears only as optional attestation in the `mppx` SDK. <Cite ids="src-stripe-mpp-core-01 src-stripe-mpp-blog-identity" /> In [x402](/p/x402/), RFC 9421 shows up only in Cloudflare's `cloudflare:402` scheme. <Cite ids="src-x402-scheme-batch-cf" /> The [ACP](/p/openai-acp/) specification does not use RFC 9421. <Cite ids="src-openai-acp-rfcs-dir" /> No use was found in AP2 or ERC-8004.
+
+## Status history
+
+- 2024-02-14: RFC 9421 and RFC 9530 published. <Cite ids="src-orbit-rfc-publish-events-api" />

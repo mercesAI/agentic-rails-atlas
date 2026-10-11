@@ -1,0 +1,81 @@
+---
+slug: web-bot-auth
+name: IETF Web Bot Auth
+category: agent-identity
+starred: true
+oneLiner: An IETF working group that standardizes how bots, crawlers and AI agents prove who they are to websites by signing HTTP requests with RFC 9421 HTTP Message Signatures.
+steward: IETF Web Bot Auth (webbotauth) working group, Web and Internet Transport area; chairs David Schinazi and Rifaat Shekh-Yusef
+status: Working group draft (-00); charter milestones not yet met
+latestVersion:
+  label: draft-ietf-webbotauth-httpsig-protocol-00 (current revision on 2026-10-11)
+  date: "2026-09-01"
+relations:
+  - to: visa-tap
+    type: complements
+    note: TAP (launched 2025-10-14) signs with RFC 9421 and is aligned with the Web Bot Auth direction, but it does not conform to the working group draft (different tags, no Signature-Agent, mandatory nonce, own key directory).
+  - to: mastercard-agent-pay
+    type: complements
+    note: Mastercard's guide uses the same signed-request pattern with its own tag, Agent-pay-auth, and a Mastercard key directory; Cloudflare verifies both networks at the edge.
+  - to: ucp
+    type: compatible-with
+    note: Since v2026-08-25 UCP has an optional Web Bot Auth profile (Signature-Agent, tag web-bot-auth, JWK thumbprint keyid) on top of its own RFC 9421 signing.
+  - to: x402
+    type: compatible-with
+    note: Only the Cloudflare cloudflare:402 batch-settlement scheme signs requests with the web-bot-auth tag and a key directory; the core x402 schemes do not.
+  - to: stripe-mpp
+    type: compatible-with
+    note: The mppx SDK offers optional RFC 9421 request attestation for Web Bot Auth and Visa TAP; the MPP core specification does not require it.
+sources:
+  - src-orbit-wba-wg-about
+  - src-orbit-wba-wg-history
+  - src-orbit-wba-wg-drafts-api
+  - src-orbit-wba-ietf123-minutes
+  - src-wba-draft
+  - src-orbit-wba-indiv-protocol
+  - src-orbit-wba-architecture-draft
+  - src-orbit-wba-directory-draft
+  - src-orbit-wba-httpsig-directory-draft
+  - src-orbit-wba-registry-draft
+  - src-orbit-wba-related-drafts-api
+  - src-orbit-cf-blog-web-bot-auth
+  - src-visa-tap-spec
+  - src-visa-tap-pr
+  - src-visa-tap-cf-blog
+  - src-mcap-dev-level1
+  - src-mcap-cloudflare-blog
+  - src-ucp-signatures
+  - src-ucp-release-20260825
+  - src-x402-scheme-batch-cf
+  - src-stripe-mpp-blog-identity
+  - src-ap2-issue-268
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+Web Bot Auth is an IETF working group, acronym `webbotauth`, in the Web and Internet Transport area. Its charter covers cryptographic authentication of automated HTTP clients such as search crawlers, web archivers, AI training crawlers and AI agents that fetch or act on content for end users. Authenticating the end user, HTTP APIs, agent-to-agent interfaces and reputation tracking are out of scope, so payment authorization stays with the payment protocols. <Cite ids="src-orbit-wba-wg-about" />
+
+The working group's one adopted document, `draft-ietf-webbotauth-httpsig-protocol`, profiles RFC 9421 for bots. A signed request must cover `@authority` or `@target-uri`, must carry `created`, `expires`, `keyid` and `tag`, and the tag must be `web-bot-auth`. The `keyid` is a base64url JWK SHA-256 thumbprint, and the draft recommends an expiry of no more than 24 hours. Every signed request carries a `Signature-Agent` header that points to where the agent's keys can be found, by default a key directory at `/.well-known/http-message-signatures-directory`. The draft adds no nonce rule beyond RFC 9421, and an agent that needs the body covered must send and sign `Content-Digest`. <Cite ids="src-wba-draft" />
+
+## Status
+
+The group was created in BOF state on 2025-06-15, met at IETF 123 on 2025-07-21, and had its charter approved on 2025-10-23. <Cite ids="src-orbit-wba-wg-history src-orbit-wba-ietf123-minutes src-orbit-wba-wg-about" /> The working group draft `-00` was posted on 2026-09-01 by T. Meunier (Cloudflare) and S. Major (Google), and it is still the current revision on 2026-10-11; it expires on 2027-03-05. <Cite ids="src-wba-draft src-orbit-wba-wg-drafts-api" /> The charter milestones (two standards-track documents due 2026-04-30 and a best-practice document due 2026-08-31) had not been met on 2026-10-11. <Cite ids="src-orbit-wba-wg-about src-orbit-wba-wg-drafts-api" />
+
+The draft has a line of individual predecessors. The architecture and key directory drafts started on 2025-04-15, and Cloudflare announced the approach on its blog the same season, on 2025-05-15. <Cite ids="src-orbit-wba-architecture-draft src-orbit-wba-directory-draft src-orbit-cf-blog-web-bot-auth" /> In 2026 the work was folded into `draft-meunier-webbotauth-httpsig-protocol` (`-00` on 2026-06-26, `-02` on 2026-08-18), which the working group draft replaced. <Cite ids="src-orbit-wba-indiv-protocol src-orbit-wba-httpsig-directory-draft" /> Other individual drafts around the group, such as a registry and signature agent card draft, are not adopted. <Cite ids="src-orbit-wba-registry-draft src-orbit-wba-related-drafts-api" />
+
+## How it relates to the eight
+
+[Visa TAP](/p/visa-tap/) launched on 2025-10-14, almost eleven months before the working group draft, so the draft is not its basis. <Cite ids="src-visa-tap-pr src-wba-draft" /> TAP uses RFC 9421 HTTP Message Signatures and says it is aligned with the Web Bot Auth direction, but it does not conform to the working group draft: it uses its own tags (`agent-browser-auth` and `agent-payer-auth`), has no `Signature-Agent`, makes the nonce mandatory and serves keys from Visa's own key directory. <Cite ids="src-visa-tap-spec src-wba-draft" /> [Mastercard Agent Pay](/p/mastercard-agent-pay/) follows the same pattern with the tag `Agent-pay-auth` and a Mastercard key directory, and Cloudflare describes both networks as building on Web Bot Auth with an added tag and a required nonce. <Cite ids="src-mcap-dev-level1 src-visa-tap-cf-blog src-mcap-cloudflare-blog" />
+
+[UCP](/p/ucp/) added an optional Web Bot Auth profile in v2026-08-25 on top of its own RFC 9421 signing, which puts it closer to the draft than TAP. <Cite ids="src-ucp-signatures src-ucp-release-20260825" /> In [x402](/p/x402/) only Cloudflare's `cloudflare:402` batch-settlement scheme signs requests with the `web-bot-auth` tag. <Cite ids="src-x402-scheme-batch-cf" /> The `mppx` SDK for [MPP](/p/stripe-mpp/) offers optional request attestation for Web Bot Auth and TAP. <Cite ids="src-stripe-mpp-blog-identity" /> An [AP2](/p/ap2/) issue discusses composing AP2 with Web Bot Auth, but AP2 does not adopt it. <Cite ids="src-ap2-issue-268" /> No relation was found for ACP or ERC-8004.
+
+## Status history
+
+- 2025-04-15: first individual drafts for the architecture and the key directory. <Cite ids="src-orbit-wba-architecture-draft src-orbit-wba-directory-draft" />
+- 2025-05-15: Cloudflare announces Web Bot Auth on its blog. <Cite ids="src-orbit-cf-blog-web-bot-auth" />
+- 2025-06-15: working group created in BOF state. <Cite ids="src-orbit-wba-wg-history" />
+- 2025-07-21: session at IETF 123. <Cite ids="src-orbit-wba-ietf123-minutes" />
+- 2025-10-14: Visa launches TAP, which signs with RFC 9421 but predates the working group draft. <Cite ids="src-visa-tap-pr" />
+- 2025-10-23: charter approved, group active. <Cite ids="src-orbit-wba-wg-history" />
+- 2026-06-26: `draft-meunier-webbotauth-httpsig-protocol-00` posted. <Cite ids="src-orbit-wba-indiv-protocol" />
+- 2026-09-01: working group draft `draft-ietf-webbotauth-httpsig-protocol-00` posted. <Cite ids="src-wba-draft" />

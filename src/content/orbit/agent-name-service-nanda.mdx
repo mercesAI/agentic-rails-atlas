@@ -1,0 +1,33 @@
+---
+slug: agent-name-service-nanda
+name: Agent Name Service and the MIT NANDA Index
+category: agent-identity
+starred: false
+oneLiner: Two proposals for finding and checking AI agents by name; ANS anchors an agent to a DNS domain with certificates and a transparency log, and NANDA maps agent identifiers to signed AgentFacts metadata.
+steward: ANS, individual IETF drafts by authors from GoDaddy, OWASP, DistributedApps.ai and Cisco; NANDA, an MIT Media Lab research project
+status: Individual draft (ANSv2); research project with open-source code (NANDA)
+latestVersion:
+  label: draft-narajala-courtney-ansv2-01
+  date: "2026-04-13"
+relations:
+  - to: x402
+    type: lineage
+    note: The NANDA nanda-payments repository implements x402-NP, an experimental variant of the x402 HTTP 402 pattern that pays in NANDA Points; ANS references none of the eight.
+sources:
+  - src-orbit-ans-v2-draft
+  - src-gloss-ans-draft
+  - src-orbit-ans-arxiv-2505-10609
+  - src-orbit-ans-protocol-registry-draft
+  - src-gloss-nanda-mit
+  - src-orbit-nanda-arxiv-2507-14263
+  - src-orbit-nanda-arxiv-2508-03101
+  - src-orbit-nanda-gh-projnanda
+  - src-orbit-nanda-agentfacts-format
+  - src-orbit-nanda-index-v2
+  - src-orbit-nanda-payments-x402np
+lastVerified: "2026-10-11"
+---
+
+The Agent Name Service started as `draft-narajala-ans-00` on 2025-05-16, with a matching arXiv paper (2505.10609) a day earlier. <Cite ids="src-gloss-ans-draft src-orbit-ans-arxiv-2505-10609" /> Its successor `draft-narajala-courtney-ansv2` had revisions `-00` and `-01` posted on 2026-04-13 as an Independent Submission aimed at Informational status. It anchors an agent to a DNS domain: a Registration Authority checks domain ownership over ACME, issues certificates that bind a versioned name of the form `ans://v{version}.{agentHost}`, and seals lifecycle events into an append-only transparency log, with Bronze, Silver and Gold assurance tiers. It references MCP and A2A agent cards but none of the eight protocols. <Cite ids="src-orbit-ans-v2-draft" /> A separate draft from 2026-07-25 proposes an IANA registry for ANS protocol identifiers. <Cite ids="src-orbit-ans-protocol-registry-draft" />
+
+NANDA (Networked AI Agents in Decentralized Architecture) is an MIT Media Lab project. <Cite ids="src-gloss-nanda-mit" /> Its paper on the NANDA Index and verified AgentFacts appeared on arXiv on 2025-07-18, followed by an enterprise paper on 2025-08-05. <Cite ids="src-orbit-nanda-arxiv-2507-14263 src-orbit-nanda-arxiv-2508-03101" /> AgentFacts is a JSON Schema for an agent's identity, provider, endpoints, capabilities and certification, and the NANDA Index v2 maps `urn:air:` identifiers to an AI catalog, an A2A Agent Card or another card, without hosting agents. <Cite ids="src-orbit-nanda-gh-projnanda src-orbit-nanda-agentfacts-format src-orbit-nanda-index-v2" /> The project's `nanda-payments` repository implements "x402-NP", which reuses the [x402](/p/x402/) HTTP 402 pattern with NANDA Points instead of crypto. <Cite ids="src-orbit-nanda-payments-x402np" />

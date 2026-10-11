@@ -1,0 +1,26 @@
+---
+slug: cloudflare-verified-bots
+name: Cloudflare Verified Bots and signed agents
+category: agent-identity
+starred: false
+oneLiner: Cloudflare's program for bots and agents that identify themselves honestly; since 2026-07-01 agents that sign requests with Web Bot Auth are Verified bots labeled Direct or Intermediary.
+steward: Cloudflare (company)
+status: Live
+relations:
+  - to: visa-tap
+    type: complements
+    note: Cloudflare verifies TAP signatures at its edge (key lookup, time window, nonce, tag, signature).
+  - to: mastercard-agent-pay
+    type: complements
+    note: Cloudflare verifies Agent Pay signatures at its edge with the same checks.
+sources:
+  - src-cf-verified-bots
+  - src-cf-signed-agent-field
+  - src-orbit-cf-blog-signed-agents
+  - src-orbit-cf-botbase-changelog
+  - src-visa-tap-cf-blog
+  - src-mcap-cloudflare-blog
+lastVerified: "2026-10-11"
+---
+
+Cloudflare introduced signed agents on 2025-08-28 as an extension of its Verified bots program, for agents that sign their HTTP requests with Web Bot Auth and follow a signed agent policy. <Cite ids="src-orbit-cf-blog-signed-agents" /> Its Verified bots documentation (last updated 2026-10-08) says signed agents are now Verified: as of 2026-07-01 a bot record carries a "Direct versus Intermediary access" field, where Direct means one narrow operator and Intermediary means an agentic service that many end users can operate. The `cf.bot_management.signed_agent` rules field now matches a Verified bot labeled Intermediary and needs an Enterprise plan with Bot Management. <Cite ids="src-cf-verified-bots src-cf-signed-agent-field" /> The 2026-07-01 changelog entry launched BotBase but does not mention the merge, so the docs page is the only source for it. <Cite ids="src-orbit-cf-botbase-changelog" /> Cloudflare checks [Visa TAP](/p/visa-tap/) and [Mastercard Agent Pay](/p/mastercard-agent-pay/) signatures at its edge. <Cite ids="src-visa-tap-cf-blog src-mcap-cloudflare-blog" />
