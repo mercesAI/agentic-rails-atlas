@@ -1,0 +1,30 @@
+flowchart LR
+  CO["Consumer"]
+  subgraph AZ["Agent side"]
+    AG["Registered agent platform"]
+  end
+  subgraph MZ["Merchant zone"]
+    ED["CDN or edge verifier"]
+    CK["Existing checkout form"]
+  end
+  subgraph MC["Mastercard"]
+    KD["Key directory (location not public)"]
+    TS["Token service: Virtual Card Token plus DTVC"]
+    NW["Network authorization"]
+  end
+  subgraph CR["Card rails"]
+    AQ["Acquirer or PSP"]
+    IS["Issuer"]
+  end
+  CO -. "L2 mandate (Verifiable Intent, specified; live use not shown publicly)" .-> AG
+  AG -- "1 RFC 9421 signature, tag Agent-pay-auth" --> ED
+  ED -. "key by keyid" .-> KD
+  ED -- "2 verified request" --> CK
+  AG -- "3 token request after user consent" --> TS
+  TS -- "4 token, expiry, one-time DTVC" --> AG
+  AG -- "5 token and DTVC typed into card fields" --> CK
+  AG -. "6 L3b checkout mandate, checkout_hash (per spec)" .-> CK
+  CK -- "7 authorization" --> AQ
+  AQ -- "8 detokenize, validate DTVC" --> NW
+  AG -. "L3a payment mandate, transaction_id equals checkout_hash (per spec; transport not defined)" .-> NW
+  NW -- "9 DTVC result and assurance" --> IS

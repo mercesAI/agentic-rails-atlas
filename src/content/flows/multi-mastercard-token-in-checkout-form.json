@@ -1,0 +1,295 @@
+{
+  "id": "multi-mastercard-token-in-checkout-form",
+  "protocol": "multi",
+  "title": "A Mastercard agentic token in an existing checkout form: a signed agent at the edge, a DTVC in card fields, Verifiable Intent L3a and L3b",
+  "summary": "A registered agent signs its requests with RFC 9421 and Mastercard's single tag Agent-pay-auth, and the merchant's CDN verifies them against a Mastercard key directory whose public location is unknown. At checkout the agent gets a Mastercard Virtual Card Token with a one-time DTVC and types them into the merchant's standard card fields. Verifiable Intent L3a (payment, for the network) and L3b (checkout, for the merchant) are linked by checkout_hash; that layer is specified, and its live use is not shown publicly.",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11); Verifiable Intent 0.1 (main at 356c296)",
+  "specVersionDate": "2026-04-20",
+  "actors": [
+    {
+      "id": "user",
+      "label": "Consumer",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent platform (registered agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "cdn",
+      "label": "CDN or merchant edge",
+      "kind": "cdn"
+    },
+    {
+      "id": "directory",
+      "label": "Mastercard key directory (location not public)",
+      "kind": "registry"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant checkout",
+      "kind": "merchant"
+    },
+    {
+      "id": "acquirer",
+      "label": "Acquirer or PSP",
+      "kind": "psp"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network and token service",
+      "kind": "network"
+    },
+    {
+      "id": "issuer",
+      "label": "Issuer",
+      "kind": "issuer"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "user",
+      "to": "agent",
+      "label": "Delegate the purchase: sign Verifiable Intent L2 (specified; live use not shown publicly)",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The consumer holds an L1 credential signed by the issuer, a bank or Mastercard on its behalf. To let the agent finish the purchase, the consumer signs an L2 Autonomous mandate pair (typ kb-sd-jwt+kb) that binds the agent's key in cnf.jwk and carries constraints such as allowed merchants and an amount range. This layer is specified in Verifiable Intent 0.1; live use is not shown publicly.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Specified; live use not shown publicly.\n{\n  \"vct\": \"mandate.payment.open.1\",\n  \"cnf\": { \"jwk\": { \"kty\": \"EC\", \"crv\": \"P-256\", \"x\": \"<agent-key-x>\", \"y\": \"<agent-key-y>\", \"kid\": \"agent-key-1\" } },\n  \"payment_instrument\": { \"type\": \"mastercard.srcDigitalCard\", \"id\": \"<token-uuid>\" },\n  \"constraints\": [\n    { \"type\": \"mandate.payment.amount_range\", \"currency\": \"USD\", \"max\": 20000 },\n    { \"type\": \"mandate.payment.reference\", \"conditional_transaction_id\": \"<B64U(SHA-256(checkout_disclosure))>\" }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "4.5"
+      },
+      "controlPoint": "At signing: a policy engine can review the constraints before the consumer signs L2.",
+      "observable": "Private: credentials pass between the consumer's device and the agent."
+    },
+    {
+      "n": 2,
+      "from": "agent",
+      "to": "cdn",
+      "label": "GET product page, RFC 9421 signature with tag Agent-pay-auth",
+      "protocol": "mastercard-agent-pay",
+      "detail": "Only registered agents can transact on the network. The agent signs each request in the Web Bot Auth style: Signature-Input carries keyid, alg, created, expires, nonce and Mastercard's single tag, written Agent-pay-auth in the Level 1 guide and agent-pay-auth in the testing glossary. The guide's example also sends Signature-Agent pointing at agentpay-key-directory.mastercard.com, a host that did not resolve on 2026-10-11.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-11. Placeholder values.\nGET /product/42 HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agentpay-key-directory.mastercard.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"<key-thumbprint>\";alg=\"ed25519\";nonce=\"<random-nonce>\";tag=\"Agent-pay-auth\"\nSignature: sig1=:<signature>:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
+        "section": "Understanding the Signature Headers"
+      },
+      "controlPoint": "At signing: the agent platform signs only for merchants inside the L2 allowed-merchant constraint.",
+      "observable": "Private: signature headers reach only the edge, the merchant and intermediaries on the path."
+    },
+    {
+      "n": 3,
+      "from": "cdn",
+      "to": "directory",
+      "label": "Fetch the agent key by keyid (directory location unknown)",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The verifier looks up the key in the directory Mastercard hosts for its registered agents. Cloudflare names no Mastercard directory URL, and the only host in Mastercard's guide did not resolve, so where a verifier outside Mastercard's partners fetches keys is not publicly known.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/",
+        "section": "Verification steps"
+      },
+      "observable": "Not observable: no public Mastercard key directory could be found on 2026-10-11.",
+      "failures": [
+        {
+          "condition": "Key not found in the directory",
+          "outcome": "Mastercard's Level 1 decision table blocks the request."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Verify window, nonce, tag and signature, then forward",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The edge checks that created and expires bracket the current time, that the nonce is new, that the tag is valid, rebuilds the signature base and verifies the signature. Merchants can verify in their own backend or let a CDN do it. Mastercard's own sample verification code accepts only the two Visa tag values, so a verifier copied from it would reject this request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      },
+      "controlPoint": "At the edge: accept Agent-pay-auth in either case, keep a nonce record, block unknown keys.",
+      "observable": "Private to the zone owner, for example through the CDN's bot management fields.",
+      "failures": [
+        {
+          "condition": "No Signature-Input or no scheme tag",
+          "outcome": "Sent to the merchant's non-agent bot policy."
+        },
+        {
+          "condition": "A required field is missing",
+          "outcome": "Blocked."
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "agent",
+      "label": "Checkout page with standard card fields (and a checkout_jwt, per spec)",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The merchant serves its ordinary guest checkout form. For Verifiable Intent the agent also needs a checkout_jwt from the merchant; its schema, signing and verification are implementation-defined in 0.1, and how a plain web form returns one is not documented.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "6.3"
+      }
+    },
+    {
+      "n": 6,
+      "from": "agent",
+      "to": "network",
+      "label": "Request a Virtual Card Token checkout for the merchant domain",
+      "protocol": "mastercard-agent-pay",
+      "detail": "Mastercard directs Agent Pay integrators to Mastercard Virtual Card Tokens for web guest checkouts with a simple form. The integrator asks Mastercard for a checkout for the merchant's web domain. A one-time DTVC may be requested only after user validation and consent.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
+      },
+      "controlPoint": "Before authorization: user validation and consent; token limits such as single use, one merchant or a time window are set here.",
+      "observable": "Private: bilateral between the agent platform and Mastercard."
+    },
+    {
+      "n": 7,
+      "from": "network",
+      "to": "agent",
+      "label": "Return the token, its expiry and a one-time DTVC",
+      "protocol": "mastercard-agent-pay",
+      "detail": "Mastercard returns the virtual card token, its expiry date and a newly generated one-time DTVC. The DTVC is a security code issued with the token, not an agentic token itself; Mastercard expands it both as Dynamic Token Validation Code and as Dynamic Token Verification Code.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
+      }
+    },
+    {
+      "n": 8,
+      "from": "agent",
+      "to": "agent",
+      "label": "Sign L3a and L3b linked by checkout_hash (specified; live use not shown publicly)",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The agent signs two terminal layers with the key bound in L2. L3b holds mandate.checkout.1 with checkout_jwt and checkout_hash for the merchant; L3a holds mandate.payment.1 for the network. checkout_hash is the base64url SHA-256 of the checkout_jwt string, and L3a transaction_id must equal L3b checkout_hash. Recommended lifetime 5 minutes, at most one hour.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Specified; live use not shown publicly.\n// L3b disclosed mandate (aud: the merchant)\n{ \"vct\": \"mandate.checkout.1\", \"checkout_jwt\": \"<merchant checkout_jwt>\", \"checkout_hash\": \"<B64U(SHA-256(checkout_jwt))>\" }\n// L3a disclosed mandate (aud: the payment network)\n{\n  \"vct\": \"mandate.payment.1\",\n  \"payment_instrument\": { \"type\": \"mastercard.srcDigitalCard\", \"id\": \"<token-uuid>\" },\n  \"payment_amount\": { \"currency\": \"USD\", \"amount\": 12999 },\n  \"payee\": { \"name\": \"Example Shop\", \"website\": \"https://shop.example.com\" },\n  \"transaction_id\": \"<same value as checkout_hash>\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "5"
+      },
+      "controlPoint": "At signing: the agent's own policy refuses to sign an L3 pair outside the L2 constraints."
+    },
+    {
+      "n": 9,
+      "from": "agent",
+      "to": "cdn",
+      "label": "POST the card form: token, expiry and DTVC in standard fields",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The agent signs the checkout request with Agent-pay-auth and types the token into the card number field, its expiry into the expiry field and the DTVC into the security code field. The token looks like a card number to the merchant, so PCI scope does not change. The edge verifies the signature again before forwarding.",
+      "payload": {
+        "format": "text",
+        "content": "Illustrative example. Field names are the merchant's own; values are placeholders.\ncard number    <virtual card token, 16 digits>\nexpiry         <token expiry>\nsecurity code  <one-time DTVC>",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
+      },
+      "controlPoint": "At the edge: verify the checkout path as well as product paths.",
+      "observable": "Private: a normal form post."
+    },
+    {
+      "n": 10,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Present L1, L2 and L3b to the merchant (specified; transport not defined)",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The merchant verifies L1 with the issuer's JWKS, L2 with the key in L1 cnf.jwk, L3b with the agent key from L2 by kid, and recomputes checkout_hash from the checkout_jwt it issued. Verifiable Intent leaves transport out of scope, so how a form-based checkout receives L3b is not defined.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/README.md"
+      },
+      "controlPoint": "At the edge (merchant side): reject when checkout_hash does not match or a checkout constraint such as allowed merchants fails.",
+      "failures": [
+        {
+          "condition": "checkout_hash differs from the merchant's own checkout_jwt hash",
+          "outcome": "Checkout-payment mismatch; the merchant rejects the order."
+        }
+      ]
+    },
+    {
+      "n": 11,
+      "from": "merchant",
+      "to": "acquirer",
+      "label": "Submit the authorization",
+      "detail": "The merchant processes the payment through its usual acquirer or PSP, as for any card-not-present payment.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 12,
+      "from": "acquirer",
+      "to": "network",
+      "label": "Authorization: detokenize, validate the DTVC, check L3a (per spec)",
+      "protocol": "mastercard-agent-pay",
+      "detail": "Mastercard processes the token and validates the DTVC at authorization. Per Verifiable Intent, the network validates the credential chain as a pre-authorization step, checks that L3a transaction_id equals the L3b checkout_hash, enforces one L3 pair per L2 pair and tracks cumulative spend. How L3a reaches the network alongside a form-entered token is not documented.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
+      },
+      "controlPoint": "At settlement: token limits, DTVC validation, Verifiable Intent constraints and cumulative budget at the network.",
+      "failures": [
+        {
+          "condition": "The DTVC fails or was already used",
+          "outcome": "The issuer is told the DTVC result and can decline."
+        },
+        {
+          "condition": "The amount exceeds the L2 amount_range or budget",
+          "outcome": "Per spec the network rejects the chain; no published response code."
+        }
+      ]
+    },
+    {
+      "n": 13,
+      "from": "network",
+      "to": "issuer",
+      "label": "Route with the DTVC result and assurance data",
+      "protocol": "mastercard-agent-pay",
+      "detail": "The authorization request tells the issuer whether DTVC validation was performed. The issuer makes the final approve or decline decision.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
+      },
+      "observable": "Private: authorization messages."
+    },
+    {
+      "n": 14,
+      "from": "issuer",
+      "to": "merchant",
+      "label": "Approve or decline, then disputes under standard rules",
+      "detail": "The response returns through network and acquirer. Standard chargeback rights apply afterwards; the Verifiable Intent chain is evidence but assigns no liability.",
+      "crossesTrustBoundary": true,
+      "controlPoint": "After the fact: chargebacks under standard rules, with intent records and Verifiable Intent chains as evidence."
+    }
+  ],
+  "sources": [
+    "src-mcap-dev-level1",
+    "src-mcap-dev-testing",
+    "src-mcap-cloudflare-blog",
+    "src-mcap-dev-mvct",
+    "src-mcap-dev-mvct-pay",
+    "src-mcap-vi-spec",
+    "src-mcap-vi-format",
+    "src-mcap-vi-security"
+  ]
+}

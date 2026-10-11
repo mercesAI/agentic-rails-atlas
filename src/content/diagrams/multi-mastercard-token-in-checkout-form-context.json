@@ -1,0 +1,10 @@
+{
+  "id": "multi-mastercard-token-in-checkout-form-context",
+  "protocol": "multi",
+  "type": "composition",
+  "title": "A Mastercard agentic token in an existing checkout form: actors and protocol boundaries",
+  "caption": "Solid lines are documented in Mastercard's developer guides: an RFC 9421 agent signature with the tag Agent-pay-auth verified at the edge, and a Virtual Card Token with a one-time DTVC typed into standard card fields and validated by the network. Dashed lines are specified in Verifiable Intent 0.1 with live use not shown publicly: the consumer's L2 mandate and the L3a and L3b layers linked by checkout_hash. The Mastercard key directory's public location is unknown.",
+  "alt": "Flowchart. A dashed line from the consumer to the registered agent platform marks the Verifiable Intent L2 mandate as specified with live use not shown publicly. The agent sends RFC 9421 signed requests with the tag Agent-pay-auth to the merchant's CDN, which fetches the key by keyid from a Mastercard key directory whose location is not public, then forwards verified requests to the existing checkout form. The agent requests a token from Mastercard's token service after user consent and receives a virtual card token, its expiry and a one-time DTVC, which it types into the card fields. A dashed line carries the L3b checkout mandate with checkout_hash to the checkout. The checkout sends the authorization to the acquirer, which goes to Mastercard's network to detokenize and validate the DTVC. A dashed line carries the L3a payment mandate, whose transaction_id equals checkout_hash, to the network, with transport not defined. The network sends the DTVC result and assurance data to the issuer.",
+  "sourceOfTruth": { "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md", "label": "Mastercard Virtual Card Tokens guide and Agent Pay Level 1 guide (read 2026-10-11), with Verifiable Intent 0.1" },
+  "sources": ["src-mcap-dev-level1", "src-mcap-cloudflare-blog", "src-mcap-dev-mvct", "src-mcap-dev-mvct-pay", "src-mcap-vi-spec", "src-mcap-vi-format"]
+}

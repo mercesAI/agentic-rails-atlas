@@ -1,0 +1,86 @@
+---
+slug: mastercard-token-in-checkout-form
+order: 7
+title: A Mastercard agentic token in an existing checkout form
+summary: A registered agent signs its requests with RFC 9421 and Mastercard's single tag Agent-pay-auth, verified at the edge against a key directory whose public location is unknown. At checkout it types a Mastercard Virtual Card Token and a one-time DTVC into the merchant's standard card fields. Verifiable Intent L3a and L3b, linked by checkout_hash, are specified; live use is not shown publicly.
+protocols:
+  - mastercard-agent-pay
+flow: multi-mastercard-token-in-checkout-form
+personas:
+  - consumer
+  - agent-dev
+  - merchant-smb
+  - cdn-security
+  - network
+  - issuer
+  - controls-builder
+lastVerified: "2026-10-11"
+---
+
+## The situation
+
+A consumer asks an agent to buy one item from a small merchant that has changed nothing for agents: it has an ordinary guest checkout form and a CDN in front of its site. The consumer approves the purchase up front and lets the agent finish it.
+
+Three pieces meet here, and they are not equally deployed. Agent Pay is a proprietary Mastercard program with no public specification or version of its own.<Cite ids="clm-mastercard-agent-pay-004" /> Mastercard says all its issuers in Europe are enabled at a network level, yet most transactions it has named ran in controlled environments or pilots.<Cite ids="clm-mastercard-agent-pay-058 clm-mastercard-agent-pay-211" /> Verifiable Intent is a Draft at v0.1.<Cite ids="clm-mastercard-agent-pay-233" /> Mastercard said on 2026-03-24 that it is embedding Verifiable Intent into the payment flow.<Cite ids="clm-mastercard-agent-pay-056" /> No public source shows it in a live purchase, so its steps below are marked "specified; live use not shown publicly".
+
+## Actors
+
+- **Consumer**, who holds an L1 credential and signs the L2 mandate.
+- **Agent platform**, registered and certified; only registered agents can transact through the network.<Cite ids="clm-mastercard-agent-pay-072 clm-mastercard-agent-pay-073" />
+- **CDN or edge**, which verifies agent signatures; merchants can also do this in their own backend.<Cite ids="clm-mastercard-agent-pay-241" />
+- **Mastercard key directory**, hosted by Mastercard for its registered agents.<Cite ids="clm-mastercard-agent-pay-189" />
+- **Merchant**, registered through its acquirer or PSP.<Cite ids="clm-mastercard-agent-pay-074" />
+- **Mastercard network and token service, acquirer and issuer.**
+
+## Step by step
+
+1. **Delegate (Verifiable Intent, specified; live use not shown publicly).** Verifiable Intent chains SD-JWT credentials from credential provider to user to agent.<Cite ids="clm-mastercard-agent-pay-127" /> In Autonomous mode the consumer signs L2 mandates that bind the agent's key, with a lifetime of 24 hours to 30 days.<Cite ids="clm-mastercard-agent-pay-131 clm-mastercard-agent-pay-135" />
+2. **Sign the request (Agent Pay).** Mastercard documents `keyid`, `alg`, `created`, `expires`, `nonce` and `tag` in `Signature-Input`.<Cite ids="clm-mastercard-agent-pay-080" /> Its Level 1 guide gives one tag, `Agent-pay-auth`, while the testing glossary writes it in lower case.<Cite ids="clm-mastercard-agent-pay-081 clm-mastercard-agent-pay-082" /> Cloudflare says Agent Pay uses Web Bot Auth as its agent authentication layer.<Cite ids="clm-mastercard-agent-pay-087" />
+3. **Fetch the key (Agent Pay).** The guide's example sends `Signature-Agent` pointing at `agentpay-key-directory.mastercard.com`.<Cite ids="clm-mastercard-agent-pay-084" /> That host did not resolve on 2026-10-11, and Cloudflare names no Mastercard directory URL.<Cite ids="clm-mastercard-agent-pay-085 clm-mastercard-agent-pay-086" /> The directory's public location is unknown.
+4. **Verify and forward (Agent Pay).** The edge checks the window, nonce, tag and signature.<Cite ids="clm-mastercard-agent-pay-088" /> Mastercard's own sample verification code accepts only the two Visa tag values, so a verifier copied from it would reject this agent.<Cite ids="clm-mastercard-agent-pay-215" />
+5. **Checkout page.** The merchant serves its ordinary form. Verifiable Intent needs a `checkout_jwt`, whose schema and signing are implementation-defined in v0.1.<Cite ids="clm-mastercard-agent-pay-177" />
+6. **Request a token (Agent Pay).** Mastercard directs integrators to Virtual Card Tokens for web guest checkouts with a simple form.<Cite ids="clm-mastercard-agent-pay-101" /> A one-time DTVC may be requested after user validation and consent.<Cite ids="clm-mastercard-agent-pay-102" />
+7. **Receive token and DTVC (Agent Pay).** A DTVC is a one-time security code issued with a virtual card token, not an agentic token itself.<Cite ids="clm-mastercard-agent-pay-105" /> Mastercard expands it both as Dynamic Token Validation Code and as Dynamic Token Verification Code.<Cite ids="clm-mastercard-agent-pay-104" />
+8. **Sign L3a and L3b (Verifiable Intent, specified; live use not shown publicly).** L3a carries the final payment mandate to the network and L3b the final checkout mandate to the merchant.<Cite ids="clm-mastercard-agent-pay-133" /> `checkout_hash` is the base64url SHA-256 of `checkout_jwt`, and L3a `transaction_id` must equal L3b `checkout_hash`.<Cite ids="clm-mastercard-agent-pay-149 clm-mastercard-agent-pay-150" /> Both expire after 5 minutes by recommendation and one hour at most.<Cite ids="clm-mastercard-agent-pay-132" />
+9. **Fill the form (Agent Pay).** The agent types the token into the standard card fields, where it looks like a card number.<Cite ids="clm-mastercard-agent-pay-078" /> The merchant's PCI scope stays unchanged.<Cite ids="clm-mastercard-agent-pay-079" />
+10. **Merchant checks L3b (Verifiable Intent, specified; live use not shown publicly).** The merchant recomputes `checkout_hash`. Transport is out of scope for Verifiable Intent, so how a form-based checkout receives L3b is not defined.<Cite ids="clm-mastercard-agent-pay-167" />
+11. **Authorize (card rails).** The merchant submits through its usual acquirer.
+12. **Network checks (Agent Pay; Verifiable Intent per spec).** Mastercard validates the DTVC at authorization.<Cite ids="clm-mastercard-agent-pay-103" /> Per spec the network validates the chain before authorization and enforces one L3 pair per L2 pair.<Cite ids="clm-mastercard-agent-pay-163 clm-mastercard-agent-pay-164" />
+13. **Issuer decides.** The issuer is told whether DTVC validation was performed and makes the final decision.<Cite ids="clm-mastercard-agent-pay-103 clm-mastercard-agent-pay-163" />
+14. **After the sale.** Standard chargeback rights and dispute processes apply.<Cite ids="clm-mastercard-agent-pay-209" />
+
+## Which protocol does what
+
+| Steps | Protocol | Object or message | Spec version |
+|---|---|---|---|
+| 2 to 4, 9 | Agent Pay (edge) | `Signature-Input` with `tag="Agent-pay-auth"` | developer guides, unversioned, read 2026-10-11 |
+| 6, 7, 12, 13 | Agent Pay (tokens) | Virtual Card Token, expiry, one-time DTVC | developer guides, unversioned, read 2026-10-11 |
+| 1, 8, 10, 12 | Verifiable Intent | L2, `mandate.checkout.1` (L3b), `mandate.payment.1` (L3a) | 0.1 Draft, main at 356c296 (2026-04-20) |
+| 11, 14 | Card rails | authorization, chargebacks | outside both |
+
+Verifiable Intent's main branch has had no commits since 2026-04-20.<Cite ids="clm-mastercard-agent-pay-123" />
+
+## Where controls apply
+
+- **Before authorization.** Mastercard says agentic tokens may be single-use, merchant-specific or time-limited.<Cite ids="clm-mastercard-agent-pay-076" /> Agents may not use a card already on file at the merchant, because the network could not see the purchase as agentic.<Cite ids="clm-mastercard-agent-pay-077" />
+- **At signing.** A controls layer can review L2 constraints before the consumer signs. Verifiable Intent registers eight constraint types, among them allowed merchants, amount range and budget.<Cite ids="clm-mastercard-agent-pay-152" />
+- **At the edge.** Mastercard's decision table sends requests without a scheme tag to the non-agent bot policy and blocks unknown keys.<Cite ids="clm-mastercard-agent-pay-243" /> With no public directory, only partners that Mastercard supplies with keys can verify.
+- **At settlement.** Budget enforcement cannot be done cryptographically and needs stateful tracking by the network.<Cite ids="clm-mastercard-agent-pay-173" /> Networks and EMVCo are still developing 3DS support for agentic flows.<Cite ids="clm-mastercard-agent-pay-221" />
+- **After the fact.** Verifiable Intent gives evidence for disputes but assigns no liability.<Cite ids="clm-mastercard-agent-pay-174" /> It defines no revocation protocol beyond short lifetimes and key removal.<Cite ids="clm-mastercard-agent-pay-168" />
+
+## What is observable from outside
+
+Program milestones appear in Mastercard releases, and the Verifiable Intent repository is public.<Cite ids="clm-mastercard-agent-pay-124" /> Everything per transaction is private: signature headers, tokens, DTVCs, mandates and authorization messages. No public Agent Pay SDK, API reference or sandbox was found.<Cite ids="clm-mastercard-agent-pay-109" /> Mastercard has published no Agent Pay volume or value figures.<Cite ids="clm-mastercard-agent-pay-210" /> It began US testing of a score for the likelihood that an AI agent started a transaction, which implies agent involvement is not always marked reliably.<Cite ids="clm-mastercard-agent-pay-068 clm-mastercard-agent-pay-214" />
+
+## What can go wrong
+
+- **Unknown key.** The edge blocks the request.<Cite ids="clm-mastercard-agent-pay-243" /> Because the directory location is not public, a merchant's own verifier may have no key to check at all.
+- **Wrong tag spelling or Visa-only code.** A verifier that matches case exactly or copies the sample code rejects a valid agent.<Cite ids="clm-mastercard-agent-pay-082 clm-mastercard-agent-pay-215" />
+- **Checkout and payment disagree.** Checkout-payment mismatch is in the threat model; the `transaction_id` and `checkout_hash` link exists to catch it.<Cite ids="clm-mastercard-agent-pay-172" />
+- **Library rejects L2.** An open issue reports that L2 lists each digest twice, which RFC 9901 says verifiers must reject (reported).<Cite ids="clm-mastercard-agent-pay-178" />
+- **Who bears the loss.** No agent-specific liability rule or chargeback reason code for Agent Pay was published.<Cite ids="clm-mastercard-agent-pay-207" /> Standard chargeback rules apply.<Cite ids="clm-mastercard-agent-pay-209" />
+
+## Variants
+
+- **Immediate mode.** With the consumer present at the end, L2 Immediate carries the final mandates, about 15 minutes long, and no L3 is needed.<Cite ids="clm-mastercard-agent-pay-128 clm-mastercard-agent-pay-130" />
+- **Agentic token instead of a virtual card token.** At Levels 1 and 2 an agentic token goes into the same card fields.<Cite ids="clm-mastercard-agent-pay-078" /> For form-fill checkouts a signed Payment Data object can hold a hash of the tokenized payment data for the merchant to compare.<Cite ids="clm-mastercard-agent-pay-093" />
