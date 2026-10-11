@@ -57,7 +57,7 @@ Rule checks across all 208 claims:
 | clm-ap2-027 | pass | gh api releases: v0.2.0 published 2026-04-28T12:40Z; tag v0.2.0 -> b4587ac "feat: Release Ap2 v0.2 (#233)" |  |
 | clm-ap2-028 | pass | gh api commits: e1ea56d 2026-04-29T16:51Z is the head of main |  |
 | clm-ap2-029 | pass | gh api commits: no commit after e1ea56d |  |
-| clm-ap2-030 | fail | gh search: 44 issues and 63 PRs created >=2026-04-29, but PR 246 (created 2026-04-29T16:38Z) was merged 2026-04-29T16:51Z | PR 246 was opened and merged on 2026-04-29, so "none of the pull requests was merged" is false for the window as stated. Say "62 pull requests opened after the last merge (PR 246, 2026-04-29); none merged" or start the window after e1ea56d. |
+| clm-ap2-030 | fail | gh search: 44 issues and 63 PRs created >=2026-04-29, but PR 246 (created 2026-04-29T16:38Z) was merged 2026-04-29T16:51Z | PR 246 was opened and merged on 2026-04-29, so "none of the pull requests was merged" is false for the window as stated. After e1ea56d: 43 issues and 58 PRs, none merged. |
 | clm-ap2-031 | pass | research/vendor/AP2/code/sdk/schemas/ap2/ (only checkout/payment mandate schemas); docs/ap2/specification.md |  |
 | clm-ap2-032 | pass | git show v0.1.0:src/ap2/types/mandate.py classes IntentMandate, CartMandate, PaymentMandate |  |
 | clm-ap2-033 | pass | v0.1.0 mandate.py:27-29 *_DATA_KEY constants |  |
@@ -241,7 +241,7 @@ Result: 31 items checked, 29 pass, 2 fail (the same pull-request count in two pl
 | timeline 2026-09-10 arXiv:2609.11757 | pass | export.arxiv.org published 2026-09-10 | |
 | timeline 2026-10-03 TypeScript SDK PR closed | pass | PR 305 closed 2026-10-03T09:44Z, not merged | |
 | changedRecently 2026-04-22, 04-28, 05-19, 05-27, 08-24, 08-25, 09-04 (7 rows) | pass | as above; issue 268 comment 2026-05-27T10:32Z | |
-| changedRecently 2026-04-29 "63 community pull requests opened since then, none merged" | **fail** | gh search: PR 246 created 2026-04-29T16:38Z, merged 16:51Z (it is commit e1ea56d) | 62 PRs were opened after e1ea56d, none merged; or keep 63 and say "one merged (PR 246, the last commit)". |
+| changedRecently 2026-04-29 "63 community pull requests opened since then, none merged" | **fail** | gh search: PR 246 created 2026-04-29T16:38Z, merged 16:51Z (it is commit e1ea56d) | 58 PRs (and 43 issues) were opened after e1ea56d, none merged; or keep 63 and say "one merged (PR 246, the last commit)". |
 | ecosystem.metrics ap2-launch-orgs "more than 60" | pass | launch post | |
 | ecosystem.metrics ap2-partners-launch 56 | pass | partners.md at e66fc0b: 56 list entries | |
 | ecosystem.metrics ap2-partners-final 125 | pass | partners.md at 61f5de4 (2026-02-09): 125 list entries | |
@@ -330,11 +330,11 @@ Items that do not touch AP2 were checked only for leakage into AP2 files (grep f
 
 ## Required fixes (prioritized)
 
-1. **Pull-request count (claim, fact, metric).** PR 246 ("fix: remove uvlock") was opened 2026-04-29T16:38Z and merged 16:51Z; it is commit e1ea56d. "63 pull requests ... none merged" is false.
-   - `src/content/protocols/ap2/claims.json` clm-ap2-030: change to "Between the last commit on 2026-04-29 and 2026-10-11, 44 issues and 62 pull requests were opened on the AP2 repository, and none of those pull requests was merged." (or keep 63 and add "apart from PR 246, the last commit itself").
-   - `src/content/protocols/ap2/facts.json:17` changedRecently 2026-04-29: "62 community pull requests opened since then, none merged".
-   - `src/content/protocols/ap2/ecosystem.json` metric `ap2-prs-since-v02`: value "62 opened, 0 merged", definition "Pull requests opened after commit e1ea56d (2026-04-29T16:51Z) to 2026-10-11".
-   - `src/content/protocols/ap2/index.mdx:700`: "44 issues and 62 pull requests, none merged". Re-count issues with the same cut-off (the search counted 44 from 2026-04-29 00:00Z).
+1. **Pull-request count (claim, fact, metric).** PR 246 ("fix: remove uvlock") was opened 2026-04-29T16:38Z and merged 16:51Z; it is commit e1ea56d. "63 pull requests ... none merged" is false. Recount on 2026-10-11 with a cut-off after e1ea56d (`created:>2026-04-29T16:51:41Z`): 43 issues, 58 pull requests, 0 merged. Either use those numbers or keep the whole-day counts and say one was merged.
+   - `src/content/protocols/ap2/claims.json` clm-ap2-030: "After the last commit (2026-04-29) and up to 2026-10-11, 43 issues and 58 pull requests were opened on the AP2 repository, and none of those pull requests was merged." Alternative: "Between 2026-04-29 and 2026-10-11, 44 issues and 63 pull requests were opened; the only one merged was PR 246, the last commit on 2026-04-29."
+   - `src/content/protocols/ap2/facts.json:17` changedRecently 2026-04-29: "58 community pull requests opened since then, none merged".
+   - `src/content/protocols/ap2/ecosystem.json` metric `ap2-prs-since-v02`: value "58 opened, 0 merged", definition "Pull requests opened after commit e1ea56d (2026-04-29T16:51Z) to 2026-10-11".
+   - `src/content/protocols/ap2/index.mdx:700`: "outside contributors opened 43 issues and 58 pull requests, none merged".
 2. **Samples claim.** `claims.json` clm-ap2-105 says the Python and Go samples both cover card and x402 in both modes. Go has only `scenarios/a2a/human-present/cards`. Change to "The AP2 samples run the roles as A2A agents: the Python samples cover card and x402 payments in human-present and human-not-present modes, and the Go samples cover a human-present card payment." (used by keyFacts Transports and faq.json "Is AP2 the same as A2A?").
 3. **Wrapper keys in flow payloads** (low). `src/content/flows/ap2-human-present.json` step 5 (`checkout_mandate_content`, `payment_mandate_content`) and `ap2-human-not-present.json` step 2 (`open_checkout_mandate_content`, `open_payment_mandate_content`) present invented JSON keys next to real fields. Add a comment line "# The outer keys are labels for this page, not AP2 fields" or split each into two labeled payloads.
 4. **Acronyms** (low). `index.mdx:130`: expand on first use, for example "AP2 (Agent Payments Protocol) answers one question ..." and "a commerce protocol such as the Universal Commerce Protocol (UCP)". Expand JWT and JWS on first use.
