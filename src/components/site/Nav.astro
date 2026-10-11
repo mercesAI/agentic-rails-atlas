@@ -1,0 +1,94 @@
+---
+/**
+ * Site header. Row one: home mark and search. Row two: links, reading mode and theme.
+ * Under 768 px the second row collapses behind a menu button.
+ */
+import { getProtocols } from '../../lib/content';
+import { SITE_NAME } from '../../lib/constants';
+import Monogram from '../ui/Monogram.astro';
+import ThemeToggle from '../islands/ThemeToggle';
+import ReadingModeSwitch from '../islands/ReadingModeSwitch';
+import { PRIMARY_LINKS, MORE_LINKS, isCurrent } from './nav-links';
+
+const protocols = await getProtocols();
+const path = Astro.url.pathname;
+const inProtocols = path.startsWith('/p/');
+const inMore = MORE_LINKS.some((l) => isCurrent(path, l.href));
+---
+<header class="site-header" data-nav>
+  <div class="site-header__bar">
+    <a class="brand" href="/" aria-current={path === '/' ? 'page' : undefined}>
+      <svg class="brand__mark" viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.45" />
+        <circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2.5 2.5" opacity="0.7" />
+        <circle cx="16" cy="16" r="2.6" fill="currentColor" />
+        <circle cx="27.2" cy="9.5" r="1.8" fill="currentColor" />
+      </svg>
+      <span class="brand__name">{SITE_NAME}</span>
+    </a>
+    <div class="site-header__tools">
+      <button type="button" class="search-btn" data-open-palette aria-keyshortcuts="/ Control+K Meta+K">
+        <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        <span class="search-btn__label">Search</span>
+        <kbd class="search-btn__kbd" aria-hidden="true">/</kbd>
+      </button>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-controls="site-nav-panel" data-menu-toggle>
+        <span class="menu-btn__bars" aria-hidden="true"></span>
+        <span>Menu</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="site-nav-panel" class="site-header__panel" data-menu-panel>
+    <nav aria-label="Main" class="site-nav">
+      <ul class="site-nav__list">
+        <li class="site-nav__home"><a href="/" aria-current={path === '/' ? 'page' : undefined}>Home</a></li>
+        <li class="site-nav__group">
+          <button type="button" class="site-nav__trigger" aria-expanded="false" aria-controls="nav-protocols" data-disclosure data-current={inProtocols ? 'true' : undefined}>
+            Protocols<span class="caret" aria-hidden="true"></span>
+          </button>
+          <div id="nav-protocols" class="site-nav__dropdown" hidden>
+            {protocols.length === 0 ? (
+              <p class="site-nav__empty">Protocol pages are in progress.</p>
+            ) : (
+              <ul class="site-nav__protocols">
+                {protocols.map((p) => (
+                  <li>
+                    <a href={`/p/${p.slug}/`} aria-current={path === `/p/${p.slug}/` ? 'page' : undefined}>
+                      <Monogram label={p.monogram} family={p.family} size="sm" />
+                      <span>{p.name}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+        {PRIMARY_LINKS.map((l) => (
+          <li><a href={l.href} aria-current={isCurrent(path, l.href) ? 'page' : undefined}>{l.label}</a></li>
+        ))}
+        <li class="site-nav__group">
+          <button type="button" class="site-nav__trigger" aria-expanded="false" aria-controls="nav-more" data-disclosure data-current={inMore ? 'true' : undefined}>
+            More<span class="caret" aria-hidden="true"></span>
+          </button>
+          <div id="nav-more" class="site-nav__dropdown site-nav__dropdown--narrow" hidden>
+            <ul>
+              {MORE_LINKS.map((l) => (
+                <li><a href={l.href} aria-current={isCurrent(path, l.href) ? 'page' : undefined}>{l.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </nav>
+    <div class="site-header__controls">
+      <ReadingModeSwitch client:load compact />
+      <ThemeToggle client:load />
+    </div>
+  </div>
+</header>
+
+<script>
+  import { initNav } from '../../lib/client/nav';
+  document.addEventListener('astro:page-load', initNav);
+</script>
