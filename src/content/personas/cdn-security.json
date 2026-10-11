@@ -1,0 +1,43 @@
+{
+  "id": "cdn-security",
+  "name": "CDN or bot-management engineer",
+  "oneLine": "Verifies signatures at the edge and separates good agents from bad bots.",
+  "goals": [
+    "Verify RFC 9421 signatures at the edge in a few milliseconds and pass a trusted-agent verdict to the origin.",
+    "Fetch and cache keys from multiple directories (Visa, Mastercard, Web Bot Auth, UCP JWK sets) with sane rotation.",
+    "Enforce time windows and nonce uniqueness at scale across many points of presence.",
+    "Keep scrapers and credential-stuffing bots out while letting verified shopping agents through.",
+    "Give merchants a simple policy knob: block, allow verified, allow all, with per-path rules.",
+    "Report agent traffic separately from human and bot traffic."
+  ],
+  "pains": [
+    "TAP, Web Bot Auth, UCP and Mastercard use the same signature mechanism with different tags, keyid formats and directory locations.",
+    "The minimum covered components in TAP omit @method, @query and a content digest, so a verified request can still be tampered with.",
+    "Nonce tracking is optional in some specs, and global nonce state across edges is expensive.",
+    "Key directories are controlled by single vendors, and an outage or key rotation breaks verification for everyone.",
+    "A verified agent is not a safe agent. Signatures prove who sent a request, not whether it will abuse the catalog or checkout.",
+    "Sample code in vendor repositories deviates from RFC 9421, and merchants copy it."
+  ],
+  "decisions": [
+    "Which directories to trust and how to handle unknown keyids.",
+    "Whether to require a content digest and more covered components than the spec minimum.",
+    "Nonce storage strategy and replay window.",
+    "How to label and route agent traffic (Direct versus Intermediary, browse versus pay)."
+  ],
+  "vocabulary": [
+    "RFC 9421",
+    "Signature-Input",
+    "Signature",
+    "Signature-Agent",
+    "keyid",
+    "nonce",
+    "created",
+    "expires",
+    "tag",
+    "signature base",
+    "JWKS",
+    "Web Bot Auth",
+    "verified bot",
+    "Content-Digest"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "merchant-enterprise",
+  "name": "Enterprise commerce architect",
+  "oneLine": "Wants control, merchant-of-record status, customer data and predictable integration cost.",
+  "goals": [
+    "Expose one commerce API (ACP, UCP, or both) that every agent surface can use, backed by the existing order management system.",
+    "Stay merchant of record: own the order, the tax calculation, the customer relationship and the first-party data.",
+    "Verify agent identity at the edge (TAP, Web Bot Auth) before the agent reaches catalog or checkout endpoints.",
+    "Accept agent-initiated payments through the existing PSP with the same tokenization and 3DS flows.",
+    "Keep a signed record of what the agent and the user authorized, for use in disputes.",
+    "Budget the integration once instead of chasing a new protocol every quarter."
+  ],
+  "pains": [
+    "ACP, UCP, TAP and MPP each define their own headers, signing rules and discovery files, and vendors keep renaming fields.",
+    "Spec and schema drift (for example the ACP item quantity field) breaks integrations between dated versions.",
+    "Platform checkout can bypass merchant analytics pixels and loyalty logic, and the merchant loses the customer record.",
+    "RFC 9421 signing is required in several places but with different covered components and algorithms (Ed25519 in TAP samples, ES256 in UCP).",
+    "No liability shift exists for agent transactions, so a disputed agent order costs the merchant the same as any fraud case.",
+    "TAP terms are revocable and require full conformance within six months of any Visa change."
+  ],
+  "decisions": [
+    "Which protocols to implement natively and which to reach through the PSP or a commerce platform.",
+    "Which agents to admit: only those verified by a key directory, only registered agents on a trusted list, or all signed traffic.",
+    "Where to enforce purchase limits and escalation: in the merchant API, in the PSP, or at the CDN.",
+    "Whether to require an AP2 mandate or Verifiable Intent before accepting an agent order.",
+    "How long to retain signatures, mandates and intent traces for dispute evidence."
+  ],
+  "vocabulary": [
+    "merchant of record",
+    "checkout session",
+    "idempotency key",
+    "RFC 9421",
+    "Signature-Input",
+    "Content-Digest",
+    "well-known",
+    "capability",
+    "payment handler",
+    "network token",
+    "3DS2",
+    "webhook",
+    "order management",
+    "intent_trace"
+  ]
+}

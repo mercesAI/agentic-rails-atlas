@@ -1,0 +1,44 @@
+{
+  "id": "psp",
+  "name": "PSP or acquirer product lead",
+  "oneLine": "Tokens, routing, risk, fees, and support for many protocols at once.",
+  "goals": [
+    "Offer merchants one integration that accepts agent orders from ACP, UCP, TAP and MPP.",
+    "Issue and vault scoped payment tokens (SPTs, vault tokens, network agentic tokens) with usage limits.",
+    "Route agent transactions through the right network token (VIC or Agent Pay) and pass agent indicators in the authorization message.",
+    "Keep fraud and dispute rates flat as agent volume grows.",
+    "Price agent transactions without new interchange surprises.",
+    "Host Delegate Payment and similar endpoints so merchants never touch raw card data."
+  ],
+  "pains": [
+    "The protocol count keeps growing and each one has dated versions, so the integration surface is never finished.",
+    "Agent indicators are not reliably present in authorization messages, so issuers cannot distinguish agent traffic and decline rates are unpredictable.",
+    "SPTs and vault tokens are products, not standards, and competitors run their own, so merchants ask for all of them.",
+    "No network rule yet shifts liability for agent purchases, so the acquirer absorbs disputes.",
+    "Stablecoin rails (x402, MPP on Tempo) bypass the acquirer entirely for small payments.",
+    "Idempotency and replay rules differ by protocol (Idempotency-Key, challenge id, nonce), and bugs here create duplicate charges."
+  ],
+  "decisions": [
+    "Which protocols to support in the agentic commerce product and which to leave to partners.",
+    "Token scope defaults: amount, currency, expiry, single-use or reusable.",
+    "Risk thresholds for agent-initiated transactions and when to require 3DS2.",
+    "Whether to run an x402 or MPP facilitator alongside card processing.",
+    "How to report agent orders to merchants and issuers."
+  ],
+  "vocabulary": [
+    "Shared Payment Token",
+    "vault token",
+    "network token",
+    "authorization",
+    "routing",
+    "interchange",
+    "3DS2",
+    "Delegate Payment",
+    "idempotency",
+    "dispute",
+    "settlement",
+    "acquirer",
+    "agent indicator",
+    "PCI DSS"
+  ]
+}

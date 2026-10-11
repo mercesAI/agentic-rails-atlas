@@ -1,0 +1,44 @@
+{
+  "id": "api-seller",
+  "name": "API, data or compute seller",
+  "oneLine": "Wants per-request or metered payment with no accounts and low fees.",
+  "goals": [
+    "Charge per request or per unit of usage with no sign-up, API key or invoice.",
+    "Get paid before or at the moment the response is served, with no chargeback exposure.",
+    "Serve humans and agents from one endpoint: 402 for payers, 200 for everyone who paid.",
+    "Keep fees low enough that sub-cent prices still make sense.",
+    "Be discoverable by agents through a bazaar, a directory or an OpenAPI extension.",
+    "Support metered sessions for streaming or long tasks without one settlement per chunk."
+  ],
+  "pains": [
+    "Facilitator fees and chain fees set a floor under the smallest viable price.",
+    "x402 and MPP both serve the pay-per-call case, and clients speak one or the other, so the seller supports both or loses traffic.",
+    "Reported transaction counts are inflated by leaderboard farming and memecoin activity, so real demand is hard to read.",
+    "A payment that settles after the resource was served can fail, and the seller has already given the data away.",
+    "Compliance is unclear: receiving stablecoins from unknown wallets raises sanctions screening and tax questions the seller cannot answer alone.",
+    "Clients retry with replayed or expired signatures, and each verify call to the facilitator costs time."
+  ],
+  "decisions": [
+    "Which protocols and rails to accept, and in which order to list them in accepts[].",
+    "Which payment flow to use: authorization (verify, serve, settle), upfront, or escrow.",
+    "Which facilitator to use, and whether to run one.",
+    "Price per request versus a session or subscription, and the deposit size for sessions.",
+    "Whether to require identity (Web Bot Auth, an ERC-8004 agentId) in addition to payment."
+  ],
+  "vocabulary": [
+    "402",
+    "accepts",
+    "payTo",
+    "facilitator",
+    "settle",
+    "upto",
+    "session",
+    "voucher",
+    "metered",
+    "Payment-Receipt",
+    "bazaar",
+    "USDC",
+    "gas",
+    "fee floor"
+  ]
+}

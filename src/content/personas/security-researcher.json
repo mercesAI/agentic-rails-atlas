@@ -1,0 +1,41 @@
+{
+  "id": "security-researcher",
+  "name": "Security researcher or red teamer",
+  "oneLine": "Breaks protocols and implementations, writes advisories.",
+  "goals": [
+    "Find flaws in the payment and identity protocols before attackers use them at scale.",
+    "Test real facilitators, SDKs and merchant endpoints against the safety rules each spec implies.",
+    "Model prompt injection as a payment attack: steer an agent to a different payee, amount or merchant inside its mandate.",
+    "Publish reproducible advisories with CVE identifiers and coordinated disclosure.",
+    "Build threat models that treat the LLM, the agent runtime and every intermediary as potentially hostile."
+  ],
+  "pains": [
+    "Specs are young and change monthly, so a finding against one dated version may not apply to the next, or may quietly reappear.",
+    "Proprietary terms (TAP, Agent Pay) restrict modification and sometimes testing, and reference code is read-only.",
+    "Facilitators and relays are centralized production systems, so testing them for replay or atomicity flaws needs careful scope.",
+    "Bearer credentials in MPP and ACP leak through logs and proxies, and vendors treat that as the integrator's problem.",
+    "Vendor sample code deviates from the standards it claims (RFC 9421 base construction, the 8-minute window), and that code ships into merchants.",
+    "Disclosure contacts for foundations and consortia are unclear, and some have no security policy."
+  ],
+  "decisions": [
+    "Which protocol or implementation to target next, and which attack classes to prioritize (replay, atomicity, signature coverage, injection).",
+    "Disclosure timeline and whether to publish a proof of concept.",
+    "Whether to request a CVE or rely on a GHSA or vendor advisory."
+  ],
+  "vocabulary": [
+    "replay",
+    "nonce",
+    "signature coverage",
+    "atomicity",
+    "prompt injection",
+    "bearer token",
+    "CVE",
+    "GHSA",
+    "threat model",
+    "proof of concept",
+    "coordinated disclosure",
+    "free-riding",
+    "voucher bypass",
+    "requestHash squatting"
+  ]
+}

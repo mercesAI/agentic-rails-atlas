@@ -1,0 +1,43 @@
+{
+  "id": "issuer",
+  "name": "Card issuer risk and product lead",
+  "oneLine": "Authorization decisions, fraud, disputes, Regulation E exposure.",
+  "goals": [
+    "Approve legitimate agent purchases at the same rate as cardholder-present purchases.",
+    "See in the authorization message that an agent initiated the transaction, and which agent.",
+    "Bind each agentic token to a cardholder consent event and a set of limits the issuer can enforce.",
+    "Keep Regulation E and Regulation Z losses within model, even when the cardholder shared credentials with an agent.",
+    "Give cardholders a way to see and revoke agent permissions from the banking app.",
+    "Join network programs (Agentic Ready, Agent Pay enablement) without re-engineering the authorization host."
+  ],
+  "pains": [
+    "Agent indicators arrive inconsistently, so the network is testing a probability score instead of a flag.",
+    "Under 12 CFR 1005.2(m), a transfer by an agent the consumer furnished credentials to is not unauthorized until notice, so the issuer and the cardholder argue over who takes the loss.",
+    "No agent-specific dispute reason codes or liability shift exist, so an agent error is a regular dispute with weak evidence.",
+    "Open mandates and autonomous intent credentials can run for weeks, and the issuer has no hook to pause them.",
+    "Step-up authentication is left to the networks in AP2 v0.2, and each network's passkey and token scheme differs.",
+    "Visa's and Mastercard's agentic tokens are different products with different data fields."
+  ],
+  "decisions": [
+    "Whether to enroll in network agent programs and which controls to require on agentic tokens.",
+    "Authorization strategy for agent-initiated transactions: approve, step up, or decline by segment.",
+    "How to treat disputes on agent purchases under Regulation E and Regulation Z.",
+    "What cardholder-facing controls to ship: per-agent limits, merchant lists, revoke."
+  ],
+  "vocabulary": [
+    "authorization",
+    "decline",
+    "chargeback",
+    "Regulation E",
+    "Regulation Z",
+    "agentic token",
+    "MDES",
+    "step-up",
+    "passkey",
+    "reason code",
+    "liability",
+    "cardholder",
+    "probability score",
+    "consent"
+  ]
+}

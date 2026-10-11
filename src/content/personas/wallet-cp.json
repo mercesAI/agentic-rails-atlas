@@ -1,0 +1,43 @@
+{
+  "id": "wallet-cp",
+  "name": "Wallet or credential provider",
+  "oneLine": "Holds credentials, captures consent, issues tokens (Google Pay, PayPal, Coinbase).",
+  "goals": [
+    "Be the place where the user grants, sees and revokes agent spending permissions.",
+    "Capture consent on a trusted, non-agentic surface and bind it to a mandate the agent cannot alter.",
+    "Issue a payment credential (a token, an SPT, an agentic token) that is scoped to the mandate and verifiable downstream.",
+    "Author a payment handler spec that merchants and platforms adopt (com.google.pay, dev.shopify.shop_pay).",
+    "Hold a key the agent cannot reach, so the provider signs on the user's behalf for autonomous flows.",
+    "Support both card and stablecoin credentials for the same user and agent."
+  ],
+  "pains": [
+    "AP2 defines no mandate revocation, so a user who changes their mind has no protocol-level path.",
+    "Delegation models differ: a user credential with OpenID4VP transaction_data, or a provider key. The Digital Credentials API is not available everywhere.",
+    "Credential data flows one way in UCP, so the provider learns little about what happened after issuance.",
+    "Every surface and merchant wants a different credential type (token, PAN, network token), and some still want raw PAN.",
+    "Verifiable Intent, AP2 and SPT allowances overlap, and the provider must map one consent to several formats.",
+    "If the agent and the wallet belong to the same company, regulators ask whether the consent surface is truly independent."
+  ],
+  "decisions": [
+    "Which mandate format to issue and verify (AP2 v0.2, Verifiable Intent, proprietary).",
+    "Default limits for autonomous permissions: lifetime, budget, allowed payees.",
+    "Whether to present the user's own credential or sign with a provider key.",
+    "Which networks' agentic tokens to support and how to display them to the user."
+  ],
+  "vocabulary": [
+    "mandate",
+    "SD-JWT",
+    "key binding",
+    "cnf",
+    "Trusted Surface",
+    "credential provider",
+    "payment handler",
+    "passkey",
+    "OpenID4VP",
+    "Digital Credentials API",
+    "allowance",
+    "revoke",
+    "consent",
+    "network token"
+  ]
+}

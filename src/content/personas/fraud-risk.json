@@ -1,0 +1,42 @@
+{
+  "id": "fraud-risk",
+  "name": "Fraud and risk analyst",
+  "oneLine": "Signals, scores, chargebacks, agent abuse patterns.",
+  "goals": [
+    "Tell agent-initiated transactions apart from human and bot traffic in the data the model sees.",
+    "Build features from agent identity, mandate constraints and payment tokens that predict disputes.",
+    "Catch new abuse patterns: agent farms, prompt-injected purchases, mandate stretching, replayed credentials.",
+    "Keep approval rates high for legitimate agents while dispute rates stay flat.",
+    "Feed risk signals back into the protocol fields that carry them (ACP risk signals, AP2 risk_data, Agent Score)."
+  ],
+  "pains": [
+    "Agent indicators are missing or unreliable in authorization data, and the networks are testing probability scores instead.",
+    "Agents that fill card forms with token-shaped values look like card testing in rules built for humans.",
+    "Velocity rules break: one agent legitimately makes hundreds of small payments per minute on x402 or MPP.",
+    "Sybil reputations on ERC-8004 and farmed x402 volume make external trust signals noisy.",
+    "No agent-specific dispute reason codes exist, so chargeback labels do not tell the analyst what went wrong.",
+    "A compromised agent can run within its mandate and still cause harm, so limit checks alone are not enough."
+  ],
+  "decisions": [
+    "Which agent-related features enter the risk model and how to weight unverified ones.",
+    "Rule changes for agent traffic: velocity, device, geolocation and merchant-category exceptions.",
+    "Review and step-up thresholds for agent-initiated orders.",
+    "Which external trust signals (registries, scores, trusted lists) are allowed into decisions."
+  ],
+  "vocabulary": [
+    "risk score",
+    "signal",
+    "velocity",
+    "chargeback",
+    "friendly fraud",
+    "card testing",
+    "agent indicator",
+    "device data",
+    "step-up",
+    "false positive",
+    "approval rate",
+    "reason code",
+    "risk_data",
+    "Sybil"
+  ]
+}

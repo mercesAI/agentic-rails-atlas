@@ -1,0 +1,43 @@
+{
+  "id": "autonomous-agent",
+  "name": "The agent as an economic actor",
+  "oneLine": "Discovers, pays, proves and gets rated; the machine persona.",
+  "goals": [
+    "Discover a service, read its price and payment requirements, and pay within one request cycle.",
+    "Hold a stable identity (an agentId, a signing key, a registration) that counterparties can look up before accepting a request.",
+    "Stay inside the budget, payee list and expiry of the mandate it was given, and halt when a constraint fails.",
+    "Produce receipts and proofs (transaction hashes, a Payment-Receipt, signed mandates) for every payment so its principal and auditors can verify them.",
+    "Accumulate feedback that raises its probability of being selected for the next task.",
+    "Pay other agents for subtasks using the same protocols it accepts payments through."
+  ],
+  "pains": [
+    "Services speak x402 V1, x402 V2 or MPP, and a wrong guess costs a round trip or a failed payment.",
+    "A payment can settle and the service can still fail or return unusable output. The exact scheme has no refund path, and most flows have no evaluator.",
+    "Edge verification requires a key in a vendor directory the agent may not be listed in, so verified-only merchants return 403 or a block page.",
+    "Feedback is written by counterparties and cannot be contested beyond appendResponse, while Sybil reviewers dilute honest scores.",
+    "Mandates from different providers (AP2, Verifiable Intent, an SPT allowance) carry the same constraints in different shapes, and an unrecognized constraint must cause a hard failure.",
+    "Prompt injection in a merchant page or a tool result can redirect the agent's payment, and the agent has no independent check on its own instructions."
+  ],
+  "decisions": [
+    "Which service to buy from when several quote a price, given cost, reputation and proof of past payment.",
+    "Whether to pay upfront, by authorization, or by opening a session, based on the expected task length.",
+    "When to stop and request a new mandate instead of continuing within an expiring or exhausted one.",
+    "Which identity to present (agentId, Web Bot Auth key, registered agent credential) for a given counterparty."
+  ],
+  "vocabulary": [
+    "agentId",
+    "agentWallet",
+    "402",
+    "PaymentPayload",
+    "mandate",
+    "constraint",
+    "cnf",
+    "receipt",
+    "txHash",
+    "feedback",
+    "services",
+    "A2A",
+    "MCP",
+    "session voucher"
+  ]
+}

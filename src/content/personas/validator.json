@@ -1,0 +1,41 @@
+{
+  "id": "validator",
+  "name": "Validator, auditor or attestor",
+  "oneLine": "Re-execution, zkML or TEE attestation, reputation services.",
+  "goals": [
+    "Produce an independent score for an agent's work that others can read on chain.",
+    "Verify that an agent's claimed output came from the claimed model and inputs, by re-execution, a zkML proof or a TEE quote.",
+    "Build a reputation service that filters Sybil feedback and weights reviews by proof of payment.",
+    "Attest to agent identity and behavior in a format that merchants, facilitators and controls platforms can consume.",
+    "Get paid for validation work through the same rails the agents use."
+  ],
+  "pains": [
+    "The ERC-8004 Validation Registry is specified but not officially deployed, so validation lives in community registries with no shared address.",
+    "LLM outputs are not deterministic, so re-execution does not reproduce results and cannot prove misbehavior.",
+    "zkML is slow and expensive for real models, and TEE attestation depends on hardware vendors and quote verification.",
+    "Most feedback on chain comes from coordinated Sybil reviewers, so aggregate scores are not usable without heavy filtering.",
+    "requestHash squatting and mutable registration files weaken the link between a validation and the agent it describes."
+  ],
+  "decisions": [
+    "Which validation method to offer: re-execution, zkML, TEE attestation, or statistical sampling.",
+    "Which trusted-client lists and proof-of-payment rules to apply when computing a summary.",
+    "Whether to write results to an on-chain registry, an off-chain API, or both.",
+    "What soft and hard finality mean for a validation response, and when to update it."
+  ],
+  "vocabulary": [
+    "validationRequest",
+    "validationResponse",
+    "requestHash",
+    "re-execution",
+    "zkML",
+    "TEE attestation",
+    "getSummary",
+    "trusted clients",
+    "Sybil",
+    "proofOfPayment",
+    "feedback",
+    "tag",
+    "finality",
+    "supportedTrust"
+  ]
+}

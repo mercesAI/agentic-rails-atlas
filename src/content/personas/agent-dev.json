@@ -1,0 +1,44 @@
+{
+  "id": "agent-dev",
+  "name": "Agent developer",
+  "oneLine": "Builds shopping or API-consuming agents; wants clear SDKs, errors and test modes.",
+  "goals": [
+    "Pay for an API or a tool call inside the agent loop with one SDK call, over HTTP, MCP or A2A.",
+    "Handle a 402 response, sign the payment and retry without hand-coding each scheme or header format.",
+    "Keep a wallet or spend cap for the agent that bounds the worst case when a prompt goes wrong.",
+    "Run a full checkout against a merchant in a test mode with fake money and a predictable set of error codes.",
+    "Register the agent once (an ERC-8004 agentId, a Visa or Mastercard agent registration, a Web Bot Auth key) and reuse that identity across merchants.",
+    "Get machine-readable errors with a resolution hint instead of a free-text message."
+  ],
+  "pains": [
+    "x402 V1 and V2 use different header names, body shapes and network identifiers, and both are live in the wild.",
+    "Every merchant and surface pair needs its own bearer-token onboarding under ACP, so one agent needs many secrets.",
+    "Facilitators and merchants return different errors for the same failure (expired validBefore, wrong payTo, insufficient balance), and sandboxes rarely let you inject those failures.",
+    "Payment and service delivery are not atomic. The payment can settle and the resource call can still fail.",
+    "AP2 mandates, Verifiable Intent and SPT allowances all express spending constraints, but each has its own schema, signing algorithm and lifetime.",
+    "Most ERC-8004 registrations are placeholders, so a lookup proves little about whether a counterparty agent works."
+  ],
+  "decisions": [
+    "Which protocol stack to support first (x402 or MPP for pay-per-call, ACP or UCP for checkout, AP2 for user authorization) and which rail (USDC on Base, Tempo, cards via SPT, Lightning).",
+    "Where the agent's keys live: an in-process wallet, a hosted agentic wallet, or a delegation from the user's wallet under ERC-7715 or ERC-7710.",
+    "What spend controls to hard-code in the agent versus leave to the facilitator or the issuer.",
+    "Which facilitator to trust for verify and settle, and what to do when it is down.",
+    "How much of the payment trail to log and expose to the user."
+  ],
+  "vocabulary": [
+    "SDK",
+    "402",
+    "PAYMENT-REQUIRED",
+    "PAYMENT-SIGNATURE",
+    "facilitator",
+    "scheme",
+    "exact",
+    "upto",
+    "mandate",
+    "idempotency key",
+    "Shared Payment Token",
+    "_meta",
+    "spend cap",
+    "sandbox"
+  ]
+}

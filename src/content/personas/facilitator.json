@@ -1,0 +1,44 @@
+{
+  "id": "facilitator",
+  "name": "Payment facilitator or relay operator",
+  "oneLine": "Verifies and settles, pays gas, screens sanctions.",
+  "goals": [
+    "Verify signed payment payloads fast enough that a 402 retry adds milliseconds, not seconds.",
+    "Settle on chain reliably, pay the gas, and return a transaction hash the server can log.",
+    "Support many schemes and networks (exact, upto, batch-settlement, auth-capture across CAIP-2 networks) behind one /verify and /settle API.",
+    "Screen payers and payees against sanctions lists without blocking honest traffic.",
+    "Earn a predictable fee per settlement or per unit of volume.",
+    "Publish accurate /supported data and revenue feedback so agents and indexers can rely on it."
+  ],
+  "pains": [
+    "Research found every tested facilitator broke at least one safety rule, and fixing those rules while keeping latency low is hard.",
+    "Clients replay nonces and present expired validBefore windows, and each bad payload still costs a verify.",
+    "Gas price spikes make small settlements unprofitable, and batching changes the trust model.",
+    "The facilitator is a central party in a protocol that is supposed to be open, so centralization criticism lands here.",
+    "Sanctions and AML obligations are unclear for a party that never holds funds but does move them.",
+    "Leaderboard farming and manufactured volume route through facilitators and distort their metrics."
+  ],
+  "decisions": [
+    "Which schemes, networks and assets to support, and the maximum amount per settlement.",
+    "Fee model: free tier, per-transaction, or basis points.",
+    "Sanctions screening provider and what to do on a hit.",
+    "Whether to offer payment flows beyond authorization (upfront, escrow) and refund paths.",
+    "What to publish about settled volume and how to filter farmed activity."
+  ],
+  "vocabulary": [
+    "verify",
+    "settle",
+    "/supported",
+    "gas",
+    "nonce",
+    "validBefore",
+    "EIP-3009",
+    "transferWithAuthorization",
+    "Permit2",
+    "CAIP-2",
+    "batch-settlement",
+    "auth-capture",
+    "sanctions screening",
+    "fee payer"
+  ]
+}

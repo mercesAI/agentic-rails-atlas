@@ -1,0 +1,44 @@
+{
+  "id": "controls-builder",
+  "name": "Agent controls platform builder (the owner)",
+  "oneLine": "0xVitalii, founder of merces.ai, builds the controls platform for agentic transactions: a Risk Check, a registry of real agents, monitoring and policy enforcement across protocols.",
+  "goals": [
+    "Build a registry of real agents at merces.ai, verified against on-chain identity (ERC-8004), payment history (x402, MPP) and card-network registrations, that separates working agents from placeholders.",
+    "Run a Risk Check on an agent before a counterparty pays it, calls its tool or grants it a mandate.",
+    "Monitor agent transactions across ERC-8004, x402, MCP paid tools, stablecoin settlement, ERC-3643, ACP, TAP, MPP, Agent Pay, AP2 and UCP from one place.",
+    "Enforce policy (spend caps, allowed payees, allowed merchants, pause and revoke) as an independent layer where the protocol has no native hook.",
+    "Give merchants, facilitators and wallets a trust signal they can read in one API call.",
+    "Keep every claim about an agent sourced and dated so the registry can be audited."
+  ],
+  "pains": [
+    "Most ERC-8004 registrations are placeholders and most feedback is Sybil, so the raw registries cannot be used as a trust source without heavy filtering.",
+    "Each protocol exposes a different slice of the transaction: x402 shows settlement on chain, ACP and UCP are private REST calls, TAP leaves only edge logs, and AP2 mandates sit inside credentials.",
+    "No protocol defines mandate revocation or an emergency pause, so the controls layer has to act through facilitators, wallets or merchants instead of the protocol itself.",
+    "Agents spread across 30 chains and several card programs, and their identifiers (agentId, keyid, agent registration) do not map to each other.",
+    "Metrics from explorers and leaderboards are inflated, and telling real demand from farming is unsolved.",
+    "Vendor specs change monthly, so monitors break when field names change (endpoints to services, score to value)."
+  ],
+  "decisions": [
+    "Which signals go into the Risk Check and how to weight on-chain feedback, payment history, registrations and attestations.",
+    "Where to insert controls: a facilitator plug-in, a wallet policy, a merchant middleware, or an edge verifier.",
+    "Which protocols get first-class data coverage, and in what order.",
+    "How to score an agent when evidence is thin, and how to show uncertainty.",
+    "What to publish openly and what to keep as the platform's own data."
+  ],
+  "vocabulary": [
+    "registry",
+    "Risk Check",
+    "agentId",
+    "monitoring",
+    "policy",
+    "spend cap",
+    "allowed payees",
+    "revoke",
+    "attestation",
+    "indexer",
+    "subgraph",
+    "trusted clients",
+    "ONCHAINID",
+    "controls layer"
+  ]
+}
