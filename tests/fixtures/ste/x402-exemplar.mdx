@@ -1,0 +1,20 @@
+---
+protocol: x402
+title: x402 in Simplified Technical English
+---
+
+<SteProcedure title="Pay for a resource with x402 (client)">
+
+1. Send the request to the server.
+2. If the server sends status 402, read the PAYMENT-REQUIRED header.
+3. Decode the header. Find the payment option that your wallet supports.
+4. Make sure that the amount and the payTo address are correct.
+5. Sign the payment with your key.
+6. Send the request again. Put the signed payment in the PAYMENT-SIGNATURE header.
+7. Read the PAYMENT-RESPONSE header. Keep the transaction identifier.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SIGN A PAYMENT IF THE payTo ADDRESS IS NOT THE ADDRESS THAT YOU EXPECT. YOU CANNOT REVERSE AN EXACT SETTLEMENT.
+</SteCaution>
