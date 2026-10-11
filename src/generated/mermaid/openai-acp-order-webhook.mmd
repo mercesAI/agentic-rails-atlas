@@ -1,0 +1,19 @@
+sequenceDiagram
+  accTitle: ACP order webhook signing and verification
+  accDescr: Sequence diagram: ACP order webhook signing and verification. 2 participants: Merchant API and Agent (AI surface). 4 steps, 1 crossing a trust boundary, 3 failure branches. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Merchant API to Merchant API: Sign the raw body. Step 2: Merchant API to Agent (AI surface): POST /agentic_checkout/webhooks/order_events. This step crosses a trust boundary. If Header missing or malformed: 401. If Timestamp outside 300 seconds: 401 (replay). If Signature mismatch: 401. Step 3: Agent (AI surface) to Agent (AI surface): Verify, then process. Step 4: Agent (AI surface) to Merchant API: 2xx acknowledgment.
+  autonumber
+  participant p_merchant as Merchant API
+  participant p_agent as Agent (AI surface)
+  p_merchant->>p_merchant: Sign the raw body
+  alt Expected path
+    p_merchant->>p_agent: POST /agentic_checkout/webhooks/order_events
+    Note over p_merchant,p_agent: Crosses a trust boundary
+  else Header missing or malformed
+    Note over p_merchant,p_agent: 401
+  else Timestamp outside 300 seconds
+    Note over p_merchant,p_agent: 401 (replay)
+  else Signature mismatch
+    Note over p_merchant,p_agent: 401
+  end
+  p_agent->>p_agent: Verify, then process
+  p_agent->>p_merchant: 2xx acknowledgment

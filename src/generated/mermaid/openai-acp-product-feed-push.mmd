@@ -1,0 +1,16 @@
+sequenceDiagram
+  accTitle: ACP product feed push (Feed API, 2026-04-17)
+  accDescr: Sequence diagram: ACP product feed push (Feed API, 2026-04-17). 2 participants: Merchant API and Agent (AI surface). 4 steps, 2 crossing a trust boundary, 1 failure branch. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Merchant API to Agent (AI surface): POST /feeds. This step crosses a trust boundary. Step 2: Merchant API to Agent (AI surface): PATCH /feeds/ id /products. This step crosses a trust boundary. If Invalid product: 4xx fix and resend. Step 3: Agent (AI surface) to Merchant API: GET /feeds/ id /products (optional). Step 4: Merchant API to Agent (AI surface): Full file replacement (alternative).
+  autonumber
+  participant p_merchant as Merchant API
+  participant p_agent as Agent (AI surface)
+  p_merchant->>p_agent: POST /feeds
+  Note over p_merchant,p_agent: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_agent: PATCH /feeds/#123;id#125;/products
+    Note over p_merchant,p_agent: Crosses a trust boundary
+  else Invalid product
+    Note over p_merchant,p_agent: 4xx#59; fix and resend
+  end
+  p_agent-->>p_merchant: GET /feeds/#123;id#125;/products (optional)
+  p_merchant->>p_agent: Full file replacement (alternative)

@@ -1,0 +1,61 @@
+sequenceDiagram
+  accTitle: ACP checkout, happy path (REST, delegated card token)
+  accDescr: Sequence diagram: ACP checkout, happy path (REST, delegated card token). 5 participants: Buyer, Agent (AI surface), Merchant API, PSP or vault, and Merchant PSP. 13 steps, 7 crossing a trust boundary, 10 failure branches. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Agent (AI surface) to Merchant API: GET /.well-known/acp.json. This step crosses a trust boundary. If Document missing (404): Agent falls back to an out-of-band configuration discovery is optional. Step 2: Buyer to Agent (AI surface): Ask to buy an item. Step 3: Agent (AI surface) to Merchant API: POST /checkout_sessions. This step crosses a trust boundary. If Missing Idempotency-Key: 400 idempotency_key_required. If Unsupported API-Version: 400 with supported_versions. If Unknown item: 400 invalid_request with a param path. Step 4: Merchant API to Agent (AI surface): 201 session (not_ready_for_payment). Step 5: Agent (AI surface) to Merchant API: POST /checkout_sessions/ id (update). This step crosses a trust boundary. If Item out of stock: 200 with a MessageError code out_of_stock status stays not_ready_for_payment. Step 6: Merchant API to Agent (AI surface): 200 session (ready_for_payment). Step 7: Agent (AI surface) to Buyer: Show total, buyer confirms. Step 8: Agent (AI surface) to PSP or vault: POST /agentic_commerce/delegate_payment. This step crosses a trust boundary. If Card rejected: 400 invalid_card. If Too many requests: 429 rate_limit_exceeded. Step 9: PSP or vault to Agent (AI surface): 201 vault token. Step 10: Agent (AI surface) to Merchant API: POST /checkout_sessions/ id /complete. This step crosses a trust boundary. If Payment declined: Session returns a MessageError payment_declined. If Session needs 3DS: 4XX requires_3ds see the 3DS flow. Step 11: Merchant API to Merchant PSP: Charge the token. This step crosses a trust boundary. Step 12: Merchant API to Agent (AI surface): 200 completed + order. Step 13: Merchant API to Agent (AI surface): Webhook order_create. This step crosses a trust boundary. If Bad or stale signature: Agent answers 401.
+  autonumber
+  participant p_buyer as Buyer
+  participant p_agent as Agent (AI surface)
+  participant p_merchant as Merchant API
+  participant p_psp as PSP or vault
+  participant p_mpsp as Merchant PSP
+  alt Expected path
+    p_agent->>p_merchant: GET /.well-known/acp.json
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Document missing (404)
+    Note over p_agent,p_merchant: Agent falls back to an out-of-band configuration#59; discovery is optional.
+  end
+  p_buyer->>p_agent: Ask to buy an item
+  alt Expected path
+    p_agent->>p_merchant: POST /checkout_sessions
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Missing Idempotency-Key
+    Note over p_agent,p_merchant: 400 idempotency_key_required
+  else Unsupported API-Version
+    Note over p_agent,p_merchant: 400 with supported_versions
+  else Unknown item
+    Note over p_agent,p_merchant: 400 invalid_request with a param path
+  end
+  p_merchant-->>p_agent: 201 session (not_ready_for_payment)
+  alt Expected path
+    p_agent->>p_merchant: POST /checkout_sessions/#123;id#125; (update)
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Item out of stock
+    Note over p_agent,p_merchant: 200 with a MessageError code out_of_stock#59; status stays not_ready_for_payment
+  end
+  p_merchant-->>p_agent: 200 session (ready_for_payment)
+  p_agent->>p_buyer: Show total, buyer confirms
+  alt Expected path
+    p_agent->>p_psp: POST /agentic_commerce/delegate_payment
+    Note over p_agent,p_psp: Crosses a trust boundary
+  else Card rejected
+    Note over p_agent,p_psp: 400 invalid_card
+  else Too many requests
+    Note over p_agent,p_psp: 429 rate_limit_exceeded
+  end
+  p_psp-->>p_agent: 201 vault token
+  alt Expected path
+    p_agent->>p_merchant: POST /checkout_sessions/#123;id#125;/complete
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Payment declined
+    Note over p_agent,p_merchant: Session returns a MessageError payment_declined
+  else Session needs 3DS
+    Note over p_agent,p_merchant: 4XX requires_3ds#59; see the 3DS flow
+  end
+  p_merchant->>p_mpsp: Charge the token
+  Note over p_merchant,p_mpsp: Crosses a trust boundary
+  p_merchant-->>p_agent: 200 completed + order
+  alt Expected path
+    p_merchant->>p_agent: Webhook order_create
+    Note over p_merchant,p_agent: Crosses a trust boundary
+  else Bad or stale signature
+    Note over p_merchant,p_agent: Agent answers 401
+  end

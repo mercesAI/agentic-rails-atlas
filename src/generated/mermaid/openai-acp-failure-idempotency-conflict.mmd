@@ -1,0 +1,18 @@
+sequenceDiagram
+  accTitle: ACP failure: idempotency key reused or still in flight
+  accDescr: Sequence diagram: ACP failure: idempotency key reused or still in flight. 2 participants: Agent (AI surface) and Merchant API. 5 steps, 3 crossing a trust boundary, 1 failure branch. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Agent (AI surface) to Merchant API: POST /checkout_sessions (key idem_001). This step crosses a trust boundary. Step 2: Agent (AI surface) to Merchant API: Retry, same key, same body. This step crosses a trust boundary. If Agent retries at once in a loop: More 409 answers respect Retry-After. Step 3: Merchant API to Agent (AI surface): Replay with Idempotent-Replayed: true. Step 4: Agent (AI surface) to Merchant API: Same key, changed body. This step crosses a trust boundary. Step 5: Merchant API to Agent (AI surface): 422 idempotency_conflict.
+  autonumber
+  participant p_agent as Agent (AI surface)
+  participant p_merchant as Merchant API
+  p_agent->>p_merchant: POST /checkout_sessions (key idem_001)
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_agent->>p_merchant: Retry, same key, same body
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Agent retries at once in a loop
+    Note over p_agent,p_merchant: More 409 answers#59; respect Retry-After
+  end
+  p_merchant-->>p_agent: Replay with Idempotent-Replayed: true
+  p_agent->>p_merchant: Same key, changed body
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  p_merchant-->>p_agent: 422 idempotency_conflict

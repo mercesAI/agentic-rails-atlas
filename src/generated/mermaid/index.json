@@ -1,6 +1,761 @@
 {
   "diagrams": [
     {
+      "id": "ap2-dispute-verification",
+      "kind": "flow",
+      "protocol": "ap2",
+      "title": "AP2 alternative path: verifying mandates and receipts in a dispute",
+      "description": "Sequence diagram: AP2 alternative path: verifying mandates and receipts in a dispute. 3 participants: Merchant, Credential Provider, and Dispute verifier. 7 steps, 2 crossing a trust boundary, 1 failure branch. Based on ap2 v0.2 (2026-04-28). Step 1: Merchant to Dispute verifier: Checkout Mandate and Checkout Receipt. This step crosses a trust boundary. Step 2: Credential Provider to Dispute verifier: Payment Mandate and Payment Receipt. This step crosses a trust boundary. Step 3: Dispute verifier to Dispute verifier: Verify the Checkout Mandate under the Merchant rules. If The mandate does not verify: It cannot serve as evidence of what the user approved. Step 4: Dispute verifier to Dispute verifier: Recompute the hash of the included checkout_jwt. Step 5: Dispute verifier to Dispute verifier: Match the Checkout Receipt reference. Step 6: Dispute verifier to Dispute verifier: Verify the Payment Mandate with checkout_hash. Step 7: Dispute verifier to Dispute verifier: Match the Payment Receipt reference.",
+      "lines": [
+        "Step 1: Merchant to Dispute verifier: Checkout Mandate and Checkout Receipt. This step crosses a trust boundary.",
+        "Step 2: Credential Provider to Dispute verifier: Payment Mandate and Payment Receipt. This step crosses a trust boundary.",
+        "Step 3: Dispute verifier to Dispute verifier: Verify the Checkout Mandate under the Merchant rules. If The mandate does not verify: It cannot serve as evidence of what the user approved.",
+        "Step 4: Dispute verifier to Dispute verifier: Recompute the hash of the included checkout_jwt.",
+        "Step 5: Dispute verifier to Dispute verifier: Match the Checkout Receipt reference.",
+        "Step 6: Dispute verifier to Dispute verifier: Verify the Payment Mandate with checkout_hash.",
+        "Step 7: Dispute verifier to Dispute verifier: Match the Payment Receipt reference."
+      ],
+      "source": "src/content/flows/ap2-dispute-verification.json"
+    },
+    {
+      "id": "ap2-failure-invalid-credential",
+      "kind": "flow",
+      "protocol": "ap2",
+      "title": "AP2 failure: invalid_credential on a broken mandate chain",
+      "description": "Sequence diagram: AP2 failure: invalid_credential on a broken mandate chain. 2 participants: Shopping Agent and Credential Provider. 4 steps, 2 crossing a trust boundary, 1 failure branch. Based on ap2 v0.2 (2026-04-28). Step 1: Shopping Agent to Credential Provider: Present open and closed Payment Mandates. This step crosses a trust boundary. Step 2: Credential Provider to Credential Provider: Verify the chain under Delegate SD-JWT. If The chain verifies but the closed mandate changes a value the open mandate fixed, such as the payee: invalid_mandate: the mandate does not approve this action; terminal. Step 3: Credential Provider to Shopping Agent: Payment Receipt: status Error, invalid_credential. This step crosses a trust boundary. Step 4: Shopping Agent to Shopping Agent: Record the rejection.",
+      "lines": [
+        "Step 1: Shopping Agent to Credential Provider: Present open and closed Payment Mandates. This step crosses a trust boundary.",
+        "Step 2: Credential Provider to Credential Provider: Verify the chain under Delegate SD-JWT. If The chain verifies but the closed mandate changes a value the open mandate fixed, such as the payee: invalid_mandate: the mandate does not approve this action; terminal.",
+        "Step 3: Credential Provider to Shopping Agent: Payment Receipt: status Error, invalid_credential. This step crosses a trust boundary.",
+        "Step 4: Shopping Agent to Shopping Agent: Record the rejection."
+      ],
+      "source": "src/content/flows/ap2-failure-invalid-credential.json"
+    },
+    {
+      "id": "ap2-failure-mandates-not-supported",
+      "kind": "flow",
+      "protocol": "ap2",
+      "title": "AP2 failure: mandates_not_supported and fallback to a non-agentic flow",
+      "description": "Sequence diagram: AP2 failure: mandates_not_supported and fallback to a non-agentic flow. 3 participants: User, Shopping Agent, and Merchant. 3 steps, 2 crossing a trust boundary. Based on ap2 v0.2 (2026-04-28). Step 1: Shopping Agent to Merchant: Present a Checkout Mandate. This step crosses a trust boundary. Step 2: Merchant to Shopping Agent: Checkout Receipt: status Error, mandates_not_supported. This step crosses a trust boundary. Step 3: Shopping Agent to User: Hand the checkout to the user.",
+      "lines": [
+        "Step 1: Shopping Agent to Merchant: Present a Checkout Mandate. This step crosses a trust boundary.",
+        "Step 2: Merchant to Shopping Agent: Checkout Receipt: status Error, mandates_not_supported. This step crosses a trust boundary.",
+        "Step 3: Shopping Agent to User: Hand the checkout to the user."
+      ],
+      "source": "src/content/flows/ap2-failure-mandates-not-supported.json"
+    },
+    {
+      "id": "ap2-failure-unresolved-constraint",
+      "kind": "flow",
+      "protocol": "ap2",
+      "title": "AP2 failure: unresolved_constraint and fallback to human present",
+      "description": "Sequence diagram: AP2 failure: unresolved_constraint and fallback to human present. 4 participants: User, Shopping Agent, Trusted Surface, and Merchant. 7 steps, 5 crossing a trust boundary, 1 failure branch. Based on ap2 v0.2 (2026-04-28). Step 1: Shopping Agent to Merchant: Token plus open and closed Checkout Mandates. This step crosses a trust boundary. Step 2: Merchant to Merchant: Evaluate every constraint. Step 3: Merchant to Shopping Agent: Checkout Receipt: status Error, unresolved_constraint. This step crosses a trust boundary. Step 4: Shopping Agent to Trusted Surface: Fall back: request approval of closed Mandate Content. This step crosses a trust boundary. Step 5: Trusted Surface to User: Show the exact checkout; authenticate. If The user declines: The purchase stops; the open mandate remains bounded by its exp. Step 6: Trusted Surface to Shopping Agent: User-signed closed mandates. This step crosses a trust boundary. Step 7: Shopping Agent to Merchant: Present the user-signed closed Checkout Mandate. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Shopping Agent to Merchant: Token plus open and closed Checkout Mandates. This step crosses a trust boundary.",
+        "Step 2: Merchant to Merchant: Evaluate every constraint.",
+        "Step 3: Merchant to Shopping Agent: Checkout Receipt: status Error, unresolved_constraint. This step crosses a trust boundary.",
+        "Step 4: Shopping Agent to Trusted Surface: Fall back: request approval of closed Mandate Content. This step crosses a trust boundary.",
+        "Step 5: Trusted Surface to User: Show the exact checkout; authenticate. If The user declines: The purchase stops; the open mandate remains bounded by its exp.",
+        "Step 6: Trusted Surface to Shopping Agent: User-signed closed mandates. This step crosses a trust boundary.",
+        "Step 7: Shopping Agent to Merchant: Present the user-signed closed Checkout Mandate. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ap2-failure-unresolved-constraint.json"
+    },
+    {
+      "id": "ap2-human-not-present",
+      "kind": "flow",
+      "protocol": "ap2",
+      "title": "AP2 v0.2 human not present: the agent closes user-signed open mandates",
+      "description": "Sequence diagram: AP2 v0.2 human not present: the agent closes user-signed open mandates. 6 participants: User, Shopping Agent, Trusted Surface, Merchant, Credential Provider, and Merchant Payment Processor. 16 steps, 10 crossing a trust boundary, 4 failure branches. Based on ap2 v0.2 (2026-04-28). Step 1: User to Shopping Agent: Set a shopping task. Step 2: Shopping Agent to Trusted Surface: Request approval of open Mandate Content. This step crosses a trust boundary. If A constraint type the verifier will not know is included: Every verifier must fail it later with unresolved_constraint. Step 3: Trusted Surface to User: Show the constraints; authenticate and get consent. Step 4: Trusted Surface to Trusted Surface: Sign open mandates with user_sk. Step 5: Trusted Surface to Shopping Agent: Return the open mandates; the user leaves. This step crosses a trust boundary. Step 6: Shopping Agent to Merchant: Build a cart autonomously. This step crosses a trust boundary. Step 7: Merchant to Shopping Agent: Signed checkout (checkout_jwt); mandate required. This step crosses a trust boundary. Step 8: Shopping Agent to Shopping Agent: Select open mandates that fit. Step 9: Shopping Agent to Shopping Agent: Sign closed mandates with agent_sk. Step 10: Shopping Agent to Credential Provider: Present open and closed Payment Mandates. This step crosses a trust boundary. If The amount is outside payment.amount_range or the payee is not allowed: Payment Receipt with status Error. The error the specification gives for a closed mandate that cannot be shown to meet the constraints is unresolved_constraint. If The closed mandate is not signed by the key in cnf, or sd_hash does not match: invalid_credential; terminal. Step 11: Credential Provider to Shopping Agent: Payment token. This step crosses a trust boundary. Step 12: Shopping Agent to Merchant: Token plus open and closed Checkout Mandates. This step crosses a trust boundary. If A line item cannot be matched, or the merchant is not in checkout.allowed_merchants: Checkout Receipt with error unresolved_constraint; the agent may bring the user back to approve a closed mandate. Step 13: Merchant to Merchant Payment Processor: Initiate payment with the token and both hashes. This step crosses a trust boundary. Step 14: Merchant Payment Processor to Shopping Agent: Payment Receipt. This step crosses a trust boundary. Step 15: Merchant to Shopping Agent: Checkout Receipt. This step crosses a trust boundary. Step 16: Shopping Agent to Shopping Agent: Store the tuple and narrow the open mandate.",
+      "lines": [
+        "Step 1: User to Shopping Agent: Set a shopping task.",
+        "Step 2: Shopping Agent to Trusted Surface: Request approval of open Mandate Content. This step crosses a trust boundary. If A constraint type the verifier will not know is included: Every verifier must fail it later with unresolved_constraint.",
+        "Step 3: Trusted Surface to User: Show the constraints; authenticate and get consent.",
+        "Step 4: Trusted Surface to Trusted Surface: Sign open mandates with user_sk.",
+        "Step 5: Trusted Surface to Shopping Agent: Return the open mandates; the user leaves. This step crosses a trust boundary.",
+        "Step 6: Shopping Agent to Merchant: Build a cart autonomously. This step crosses a trust boundary.",
+        "Step 7: Merchant to Shopping Agent: Signed checkout (checkout_jwt); mandate required. This step crosses a trust boundary.",
+        "Step 8: Shopping Agent to Shopping Agent: Select open mandates that fit.",
+        "Step 9: Shopping Agent to Shopping Agent: Sign closed mandates with agent_sk.",
+        "Step 10: Shopping Agent to Credential Provider: Present open and closed Payment Mandates. This step crosses a trust boundary. If The amount is outside payment.amount_range or the payee is not allowed: Payment Receipt with status Error. The error the specification gives for a closed mandate that cannot be shown to meet the constraints is unresolved_constraint. If The closed mandate is not signed by the key in cnf, or sd_hash does not match: invalid_credential; terminal.",
+        "Step 11: Credential Provider to Shopping Agent: Payment token. This step crosses a trust boundary.",
+        "Step 12: Shopping Agent to Merchant: Token plus open and closed Checkout Mandates. This step crosses a trust boundary. If A line item cannot be matched, or the merchant is not in checkout.allowed_merchants: Checkout Receipt with error unresolved_constraint; the agent may bring the user back to approve a closed mandate.",
+        "Step 13: Merchant to Merchant Payment Processor: Initiate payment with the token and both hashes. This step crosses a trust boundary.",
+        "Step 14: Merchant Payment Processor to Shopping Agent: Payment Receipt. This step crosses a trust boundary.",
+        "Step 15: Merchant to Shopping Agent: Checkout Receipt. This step crosses a trust boundary.",
+        "Step 16: Shopping Agent to Shopping Agent: Store the tuple and narrow the open mandate."
+      ],
+      "source": "src/content/flows/ap2-human-not-present.json"
+    },
+    {
+      "id": "ap2-human-present",
+      "kind": "flow",
+      "protocol": "ap2",
+      "title": "AP2 v0.2 human present: the user signs closed mandates on a Trusted Surface",
+      "description": "Sequence diagram: AP2 v0.2 human present: the user signs closed mandates on a Trusted Surface. 7 participants: User, Shopping Agent, Trusted Surface, Merchant, Credential Provider, Network, and Merchant Payment Processor. 16 steps, 12 crossing a trust boundary, 8 failure branches. Based on ap2 v0.2 (2026-04-28). Step 1: User to Shopping Agent: Start shopping. Step 2: Shopping Agent to Merchant: Build a cart over the commerce protocol. This step crosses a trust boundary. If The merchant does not accept mandates for this action: It can answer mandates_not_supported, a signal to fall back to a non-agentic flow. Step 3: Merchant to Shopping Agent: Signed checkout (checkout_jwt); mandate required. This step crosses a trust boundary. If The cart changes after this point: The merchant will reject any mandate whose checkout_hash does not match its latest checkout_jwt. Step 4: Shopping Agent to Credential Provider: Fetch instrument options. This step crosses a trust boundary. Step 5: Shopping Agent to Trusted Surface: Request approval of Checkout and Payment Mandate Content. This step crosses a trust boundary. Step 6: Trusted Surface to User: Show the content; authenticate and get consent. If The user declines: No mandate is signed and nothing is presented. Step 7: Trusted Surface to Trusted Surface: Sign closed mandates with user_sk. Step 8: Trusted Surface to Shopping Agent: Return the signed mandates. This step crosses a trust boundary. Step 9: Shopping Agent to Credential Provider: Present the closed Payment Mandate. This step crosses a trust boundary. If The signature or chain does not verify: Payment Receipt with status Error and error invalid_credential; terminal. If The mandate does not approve this payment: Payment Receipt with error invalid_mandate; terminal. Step 10: Credential Provider to Network: Share the mandate, get a scoped credential (optional). This step crosses a trust boundary. Step 11: Credential Provider to Shopping Agent: Payment token. This step crosses a trust boundary. Step 12: Shopping Agent to Merchant: Token plus closed Checkout Mandate. This step crosses a trust boundary. If The hash of the merchant's checkout_jwt does not equal checkout_hash: The merchant returns a Checkout Receipt JWT with status Error. If A verification step fails for any other reason: The merchant must return a Checkout Receipt JWT carrying the error. Step 13: Merchant to Merchant Payment Processor: Initiate payment with the token and the checkout_jwt hash. This step crosses a trust boundary. Step 14: Merchant Payment Processor to Merchant Payment Processor: Verify the Payment Mandate inside the token. If transaction_id does not match the checkout_jwt hash: The payment is refused and a Payment Receipt with status Error goes back. Step 15: Merchant Payment Processor to Shopping Agent: Payment Receipt (also to the Credential Provider and Network). This step crosses a trust boundary. Step 16: Merchant to Shopping Agent: Checkout Receipt. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: User to Shopping Agent: Start shopping.",
+        "Step 2: Shopping Agent to Merchant: Build a cart over the commerce protocol. This step crosses a trust boundary. If The merchant does not accept mandates for this action: It can answer mandates_not_supported, a signal to fall back to a non-agentic flow.",
+        "Step 3: Merchant to Shopping Agent: Signed checkout (checkout_jwt); mandate required. This step crosses a trust boundary. If The cart changes after this point: The merchant will reject any mandate whose checkout_hash does not match its latest checkout_jwt.",
+        "Step 4: Shopping Agent to Credential Provider: Fetch instrument options. This step crosses a trust boundary.",
+        "Step 5: Shopping Agent to Trusted Surface: Request approval of Checkout and Payment Mandate Content. This step crosses a trust boundary.",
+        "Step 6: Trusted Surface to User: Show the content; authenticate and get consent. If The user declines: No mandate is signed and nothing is presented.",
+        "Step 7: Trusted Surface to Trusted Surface: Sign closed mandates with user_sk.",
+        "Step 8: Trusted Surface to Shopping Agent: Return the signed mandates. This step crosses a trust boundary.",
+        "Step 9: Shopping Agent to Credential Provider: Present the closed Payment Mandate. This step crosses a trust boundary. If The signature or chain does not verify: Payment Receipt with status Error and error invalid_credential; terminal. If The mandate does not approve this payment: Payment Receipt with error invalid_mandate; terminal.",
+        "Step 10: Credential Provider to Network: Share the mandate, get a scoped credential (optional). This step crosses a trust boundary.",
+        "Step 11: Credential Provider to Shopping Agent: Payment token. This step crosses a trust boundary.",
+        "Step 12: Shopping Agent to Merchant: Token plus closed Checkout Mandate. This step crosses a trust boundary. If The hash of the merchant's checkout_jwt does not equal checkout_hash: The merchant returns a Checkout Receipt JWT with status Error. If A verification step fails for any other reason: The merchant must return a Checkout Receipt JWT carrying the error.",
+        "Step 13: Merchant to Merchant Payment Processor: Initiate payment with the token and the checkout_jwt hash. This step crosses a trust boundary.",
+        "Step 14: Merchant Payment Processor to Merchant Payment Processor: Verify the Payment Mandate inside the token. If transaction_id does not match the checkout_jwt hash: The payment is refused and a Payment Receipt with status Error goes back.",
+        "Step 15: Merchant Payment Processor to Shopping Agent: Payment Receipt (also to the Credential Provider and Network). This step crosses a trust boundary.",
+        "Step 16: Merchant to Shopping Agent: Checkout Receipt. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ap2-human-present.json"
+    },
+    {
+      "id": "ap2-mandate-lifecycle",
+      "kind": "state",
+      "protocol": "ap2",
+      "title": "AP2 v0.2 mandate lifecycle (open and closed mandates, presentation and receipts)",
+      "description": "State diagram: AP2 v0.2 mandate lifecycle (open and closed mandates, presentation and receipts). 10 states: Mandate Content drafted, Open mandate signed, Closed mandate signed, Presented to a verifier, Accepted (receipt status Success), Rejected, fallback possible, Rejected, terminal, Open mandate narrowed or used up, Purchase evidence stored, and Expired. Starts in Mandate Content drafted. Ends in Rejected, terminal, Purchase evidence stored, and Expired. 14 transitions. From Mandate Content drafted to Open mandate signed when User approves constraints on the Trusted Surface (Trusted Surface signs with user_sk (or OpenID4VP transaction_data type delegate)). From Mandate Content drafted to Closed mandate signed when User approves the exact checkout on the Trusted Surface (Trusted Surface signs mandate.checkout.1 and mandate.payment.1 with user_sk). From Open mandate signed to Closed mandate signed when Agent finds a checkout that fits the constraints (Agent signs a key-binding JWT with the key in cnf (sd_hash over the open mandate)). From Closed mandate signed to Presented to a verifier when Agent presents the mandate chain (Payment Mandate to the Credential Provider; Checkout Mandate with the token to the Merchant). From Presented to a verifier to Accepted (receipt status Success) when Verifier checks chain, bindings and constraints (Receipt JWT with status Success). From Presented to a verifier to Rejected, fallback possible when Constraint cannot be confirmed, unknown constraint, or mandates not used (Receipt JWT with status Error, error unresolved_constraint or mandates_not_supported). From Presented to a verifier to Rejected, terminal when Signature or chain fails, or the mandate does not approve the action (Receipt JWT with status Error, error invalid_credential or invalid_mandate). From Rejected, fallback possible to Mandate Content drafted when Fallback: user brought back to approve a closed mandate (New request to the Trusted Surface). From Rejected, fallback possible to Open mandate signed when Agent may try a different closed mandate from the same open mandate (Error receipt held by the agent). From Accepted (receipt status Success) to Open mandate narrowed or used up when Success receipt for an agent-signed mandate (Agent stores open, closed and receipt tuple). From Accepted (receipt status Success) to Purchase evidence stored when Both receipts returned (Payment Receipt from the processor, Checkout Receipt from the Merchant). From Open mandate narrowed or used up to Closed mandate signed when Budget or recurrence still allows another purchase (payment.budget and payment.agent_recurrence evaluated against earlier presentations). From Open mandate signed to Expired when exp reached before use (exp (Unix epoch) on the mandate). From Open mandate narrowed or used up to Expired when exp reached (exp (Unix epoch) on the mandate).",
+      "lines": [
+        "From Mandate Content drafted to Open mandate signed when User approves constraints on the Trusted Surface (Trusted Surface signs with user_sk (or OpenID4VP transaction_data type delegate)).",
+        "From Mandate Content drafted to Closed mandate signed when User approves the exact checkout on the Trusted Surface (Trusted Surface signs mandate.checkout.1 and mandate.payment.1 with user_sk).",
+        "From Open mandate signed to Closed mandate signed when Agent finds a checkout that fits the constraints (Agent signs a key-binding JWT with the key in cnf (sd_hash over the open mandate)).",
+        "From Closed mandate signed to Presented to a verifier when Agent presents the mandate chain (Payment Mandate to the Credential Provider; Checkout Mandate with the token to the Merchant).",
+        "From Presented to a verifier to Accepted (receipt status Success) when Verifier checks chain, bindings and constraints (Receipt JWT with status Success).",
+        "From Presented to a verifier to Rejected, fallback possible when Constraint cannot be confirmed, unknown constraint, or mandates not used (Receipt JWT with status Error, error unresolved_constraint or mandates_not_supported).",
+        "From Presented to a verifier to Rejected, terminal when Signature or chain fails, or the mandate does not approve the action (Receipt JWT with status Error, error invalid_credential or invalid_mandate).",
+        "From Rejected, fallback possible to Mandate Content drafted when Fallback: user brought back to approve a closed mandate (New request to the Trusted Surface).",
+        "From Rejected, fallback possible to Open mandate signed when Agent may try a different closed mandate from the same open mandate (Error receipt held by the agent).",
+        "From Accepted (receipt status Success) to Open mandate narrowed or used up when Success receipt for an agent-signed mandate (Agent stores open, closed and receipt tuple).",
+        "From Accepted (receipt status Success) to Purchase evidence stored when Both receipts returned (Payment Receipt from the processor, Checkout Receipt from the Merchant).",
+        "From Open mandate narrowed or used up to Closed mandate signed when Budget or recurrence still allows another purchase (payment.budget and payment.agent_recurrence evaluated against earlier presentations).",
+        "From Open mandate signed to Expired when exp reached before use (exp (Unix epoch) on the mandate).",
+        "From Open mandate narrowed or used up to Expired when exp reached (exp (Unix epoch) on the mandate)."
+      ],
+      "source": "src/content/states/ap2-mandate-lifecycle.json"
+    },
+    {
+      "id": "ap2-openid4vp-delegation",
+      "kind": "flow",
+      "protocol": "ap2",
+      "title": "AP2 alternative path: User Credential delegation with OpenID4VP and the Digital Credentials API",
+      "description": "Sequence diagram: AP2 alternative path: User Credential delegation with OpenID4VP and the Digital Credentials API. 4 participants: Shopping Agent, Browser or OS (Digital Credentials API), Wallet (Trusted Surface), and User. 5 steps, 4 crossing a trust boundary, 1 failure branch. Based on ap2 v0.2 (2026-04-28). Step 1: Shopping Agent to Browser or OS (Digital Credentials API): OpenID4VP request with a delegate entry in transaction_data. This step crosses a trust boundary. Step 2: Browser or OS (Digital Credentials API) to Wallet (Trusted Surface): Route the request to the user's wallet. This step crosses a trust boundary. Step 3: Wallet (Trusted Surface) to User: Show the purchase; authenticate. If No credential matches the DCQL query: No response is returned; the agent cannot obtain a user-signed mandate this way. Step 4: Wallet (Trusted Surface) to Browser or OS (Digital Credentials API): Authorization response: vp_token with key binding over delegate_payload. This step crosses a trust boundary. Step 5: Browser or OS (Digital Credentials API) to Shopping Agent: Return the response to the agent. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Shopping Agent to Browser or OS (Digital Credentials API): OpenID4VP request with a delegate entry in transaction_data. This step crosses a trust boundary.",
+        "Step 2: Browser or OS (Digital Credentials API) to Wallet (Trusted Surface): Route the request to the user's wallet. This step crosses a trust boundary.",
+        "Step 3: Wallet (Trusted Surface) to User: Show the purchase; authenticate. If No credential matches the DCQL query: No response is returned; the agent cannot obtain a user-signed mandate this way.",
+        "Step 4: Wallet (Trusted Surface) to Browser or OS (Digital Credentials API): Authorization response: vp_token with key binding over delegate_payload. This step crosses a trust boundary.",
+        "Step 5: Browser or OS (Digital Credentials API) to Shopping Agent: Return the response to the agent. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ap2-openid4vp-delegation.json"
+    },
+    {
+      "id": "erc-8004-failure-self-feedback",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 failure: self-feedback and the fresh-address loophole",
+      "description": "Sequence diagram: ERC-8004 failure: self-feedback and the fresh-address loophole. 4 participants: Agent owner, Fresh address controlled by the owner, Reputation Registry, and Reader with a trusted list. 4 steps, 2 crossing a trust boundary, 1 failure branch. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner to Reputation Registry: giveFeedback(4242, 100, 0, \"starred\", ...). This step crosses a trust boundary. If The caller owns or operates agent 4242: Reverts with \"Self-feedback not allowed\". Step 2: Fresh address controlled by the owner to Reputation Registry: giveFeedback from a fresh address. This step crosses a trust boundary. Step 3: Reputation Registry to Reader with a trusted list: Return NewFeedback. Step 4: Reader with a trusted list to Reputation Registry: getSummary(4242, trustedClients, \"starred\", \"\").",
+      "lines": [
+        "Step 1: Agent owner to Reputation Registry: giveFeedback(4242, 100, 0, \"starred\", ...). This step crosses a trust boundary. If The caller owns or operates agent 4242: Reverts with \"Self-feedback not allowed\".",
+        "Step 2: Fresh address controlled by the owner to Reputation Registry: giveFeedback from a fresh address. This step crosses a trust boundary.",
+        "Step 3: Reputation Registry to Reader with a trusted list: Return NewFeedback.",
+        "Step 4: Reader with a trusted list to Reputation Registry: getSummary(4242, trustedClients, \"starred\", \"\")."
+      ],
+      "source": "src/content/flows/erc-8004-failure-self-feedback.json"
+    },
+    {
+      "id": "erc-8004-failure-wallet-deadline",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 failure: wallet binding with a bad deadline",
+      "description": "Sequence diagram: ERC-8004 failure: wallet binding with a bad deadline. 3 participants: Agent owner, New agent wallet, and Identity Registry. 5 steps, 4 crossing a trust boundary, 2 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner to New agent wallet: Request AgentWalletSet with a 30-minute deadline. This step crosses a trust boundary. Step 2: Agent owner to Identity Registry: setAgentWallet(...). This step crosses a trust boundary. If deadline is more than 5 minutes after the block time: Reverts with \"deadline too far\". No state changes. Step 3: Agent owner to New agent wallet: Request a new signature with a 4-minute deadline. This step crosses a trust boundary. Step 4: Agent owner to Identity Registry: Submit after 6 minutes. This step crosses a trust boundary. If block time is after the deadline: Reverts with \"expired\". The wallet keeps its previous value. Step 5: Agent owner to Identity Registry: Retry with a fresh signature.",
+      "lines": [
+        "Step 1: Agent owner to New agent wallet: Request AgentWalletSet with a 30-minute deadline. This step crosses a trust boundary.",
+        "Step 2: Agent owner to Identity Registry: setAgentWallet(...). This step crosses a trust boundary. If deadline is more than 5 minutes after the block time: Reverts with \"deadline too far\". No state changes.",
+        "Step 3: Agent owner to New agent wallet: Request a new signature with a 4-minute deadline. This step crosses a trust boundary.",
+        "Step 4: Agent owner to Identity Registry: Submit after 6 minutes. This step crosses a trust boundary. If block time is after the deadline: Reverts with \"expired\". The wallet keeps its previous value.",
+        "Step 5: Agent owner to Identity Registry: Retry with a fresh signature."
+      ],
+      "source": "src/content/flows/erc-8004-failure-wallet-deadline.json"
+    },
+    {
+      "id": "erc-8004-feedback-after-x402",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 feedback with proof of payment after an x402 payment",
+      "description": "Sequence diagram: ERC-8004 feedback with proof of payment after an x402 payment. 6 participants: Client agent, Seller agent (x402 server), x402 facilitator, IPFS or HTTPS host, Reputation Registry, and Indexer or reader. 8 steps, 5 crossing a trust boundary, 5 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Client agent to Seller agent (x402 server): Pay for a call with x402. This step crosses a trust boundary. Step 2: Seller agent (x402 server) to x402 facilitator: Verify and settle. This step crosses a trust boundary. Step 3: Seller agent (x402 server) to Client agent: Return 200 with PAYMENT-RESPONSE. Step 4: Client agent to IPFS or HTTPS host: Upload feedback file with proofOfPayment. This step crosses a trust boundary. Step 5: Client agent to Client agent: Compute feedbackHash. Step 6: Client agent to Reputation Registry: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash). This step crosses a trust boundary. If The caller is the owner or an operator of the agent: Reverts with \"Self-feedback not allowed\". If valueDecimals is above 18: Reverts with \"too many decimals\". If The agentId does not exist: Reverts with ERC721NonexistentToken. Step 7: Reputation Registry to Indexer or reader: Return NewFeedback event. Step 8: Indexer or reader to IPFS or HTTPS host: Fetch the file and check the proof. This step crosses a trust boundary. If The file is gone or its hash does not match: The on-chain value still counts in getSummary; only off-chain scoring can discount it. If The txHash does not exist or pays someone else: Nothing on-chain flags it; the reader must reject it.",
+      "lines": [
+        "Step 1: Client agent to Seller agent (x402 server): Pay for a call with x402. This step crosses a trust boundary.",
+        "Step 2: Seller agent (x402 server) to x402 facilitator: Verify and settle. This step crosses a trust boundary.",
+        "Step 3: Seller agent (x402 server) to Client agent: Return 200 with PAYMENT-RESPONSE.",
+        "Step 4: Client agent to IPFS or HTTPS host: Upload feedback file with proofOfPayment. This step crosses a trust boundary.",
+        "Step 5: Client agent to Client agent: Compute feedbackHash.",
+        "Step 6: Client agent to Reputation Registry: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash). This step crosses a trust boundary. If The caller is the owner or an operator of the agent: Reverts with \"Self-feedback not allowed\". If valueDecimals is above 18: Reverts with \"too many decimals\". If The agentId does not exist: Reverts with ERC721NonexistentToken.",
+        "Step 7: Reputation Registry to Indexer or reader: Return NewFeedback event.",
+        "Step 8: Indexer or reader to IPFS or HTTPS host: Fetch the file and check the proof. This step crosses a trust boundary. If The file is gone or its hash does not match: The on-chain value still counts in getSummary; only off-chain scoring can discount it. If The txHash does not exist or pays someone else: Nothing on-chain flags it; the reader must reject it."
+      ],
+      "source": "src/content/flows/erc-8004-feedback-after-x402.json"
+    },
+    {
+      "id": "erc-8004-identity-lifecycle",
+      "kind": "state",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 agent identity lifecycle (Identity Registry)",
+      "description": "State diagram: ERC-8004 agent identity lifecycle (Identity Registry). 6 states: Not registered, Registered, no URI, Registered with URI, wallet = owner, Wallet verified, Wallet cleared, and Declared inactive (off-chain only). Starts in Not registered. 12 transitions. From Not registered to Registered, no URI when Mint without a URI (register()). From Not registered to Registered with URI, wallet = owner when Mint with a URI (register(agentURI) or register(agentURI, metadata)). From Registered, no URI to Registered with URI, wallet = owner when Owner or operator sets the URI (setAgentURI(agentId, newURI)). From Registered with URI, wallet = owner to Registered with URI, wallet = owner when File moved or edited (setAgentURI(agentId, newURI)). From Registered with URI, wallet = owner to Wallet verified when New wallet signs AgentWalletSet within 5 minutes (setAgentWallet(agentId, newWallet, deadline, signature)). From Wallet verified to Wallet cleared when Owner or operator clears the wallet (unsetAgentWallet(agentId)). From Registered with URI, wallet = owner to Wallet cleared when Token transferred to a new owner (ERC-721 transferFrom or safeTransferFrom). From Wallet verified to Wallet cleared when Token transferred to a new owner (ERC-721 transferFrom or safeTransferFrom). From Wallet cleared to Wallet verified when Current owner binds a wallet again (setAgentWallet(agentId, newWallet, deadline, signature)). From Registered with URI, wallet = owner to Declared inactive (off-chain only) when Owner publishes a file with active false (setAgentURI(agentId, newURI) or an HTTPS file edit). From Wallet verified to Declared inactive (off-chain only) when Owner publishes a file with active false (setAgentURI(agentId, newURI) or an HTTPS file edit). From Declared inactive (off-chain only) to Registered with URI, wallet = owner when Owner publishes a file with active true (setAgentURI(agentId, newURI)).",
+      "lines": [
+        "From Not registered to Registered, no URI when Mint without a URI (register()).",
+        "From Not registered to Registered with URI, wallet = owner when Mint with a URI (register(agentURI) or register(agentURI, metadata)).",
+        "From Registered, no URI to Registered with URI, wallet = owner when Owner or operator sets the URI (setAgentURI(agentId, newURI)).",
+        "From Registered with URI, wallet = owner to Registered with URI, wallet = owner when File moved or edited (setAgentURI(agentId, newURI)).",
+        "From Registered with URI, wallet = owner to Wallet verified when New wallet signs AgentWalletSet within 5 minutes (setAgentWallet(agentId, newWallet, deadline, signature)).",
+        "From Wallet verified to Wallet cleared when Owner or operator clears the wallet (unsetAgentWallet(agentId)).",
+        "From Registered with URI, wallet = owner to Wallet cleared when Token transferred to a new owner (ERC-721 transferFrom or safeTransferFrom).",
+        "From Wallet verified to Wallet cleared when Token transferred to a new owner (ERC-721 transferFrom or safeTransferFrom).",
+        "From Wallet cleared to Wallet verified when Current owner binds a wallet again (setAgentWallet(agentId, newWallet, deadline, signature)).",
+        "From Registered with URI, wallet = owner to Declared inactive (off-chain only) when Owner publishes a file with active false (setAgentURI(agentId, newURI) or an HTTPS file edit).",
+        "From Wallet verified to Declared inactive (off-chain only) when Owner publishes a file with active false (setAgentURI(agentId, newURI) or an HTTPS file edit).",
+        "From Declared inactive (off-chain only) to Registered with URI, wallet = owner when Owner publishes a file with active true (setAgentURI(agentId, newURI))."
+      ],
+      "source": "src/content/states/erc-8004-identity-lifecycle.json"
+    },
+    {
+      "id": "erc-8004-read-reputation",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 reading reputation with a trusted reviewer list",
+      "description": "Sequence diagram: ERC-8004 reading reputation with a trusted reviewer list. 3 participants: Reader (client agent or app), Reputation Registry, and Feedback file hosts. 6 steps, 1 crossing a trust boundary, 2 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Reader (client agent or app) to Reputation Registry: getSummary(agentId, [], \"\", \"\"). If clientAddresses is empty: Reverts with \"clientAddresses required\". Step 2: Reader (client agent or app) to Reputation Registry: getClients(agentId). Step 3: Reader (client agent or app) to Reputation Registry: getSummary(agentId, trustedClients, \"starred\", \"\"). Step 4: Reputation Registry to Reader (client agent or app): Return count, summaryValue, summaryValueDecimals. Step 5: Reader (client agent or app) to Reputation Registry: readAllFeedback(agentId, trustedClients, tag1, tag2, false). If The agent has very many entries: The loop grows with every entry; large reads can hit RPC gas limits, so indexers read events instead. Step 6: Reader (client agent or app) to Feedback file hosts: Fetch feedback files. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Reader (client agent or app) to Reputation Registry: getSummary(agentId, [], \"\", \"\"). If clientAddresses is empty: Reverts with \"clientAddresses required\".",
+        "Step 2: Reader (client agent or app) to Reputation Registry: getClients(agentId).",
+        "Step 3: Reader (client agent or app) to Reputation Registry: getSummary(agentId, trustedClients, \"starred\", \"\").",
+        "Step 4: Reputation Registry to Reader (client agent or app): Return count, summaryValue, summaryValueDecimals.",
+        "Step 5: Reader (client agent or app) to Reputation Registry: readAllFeedback(agentId, trustedClients, tag1, tag2, false). If The agent has very many entries: The loop grows with every entry; large reads can hit RPC gas limits, so indexers read events instead.",
+        "Step 6: Reader (client agent or app) to Feedback file hosts: Fetch feedback files. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/erc-8004-read-reputation.json"
+    },
+    {
+      "id": "erc-8004-register-and-bind-wallet",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 registration and wallet binding",
+      "description": "Sequence diagram: ERC-8004 registration and wallet binding. 5 participants: Agent owner, File host (IPFS or HTTPS), Identity Registry, Service domain, and New agent wallet. 10 steps, 8 crossing a trust boundary, 8 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner to File host (IPFS or HTTPS): Publish registration file. This step crosses a trust boundary. If The file is unreachable or not valid JSON: Nothing fails on-chain; explorers and clients mark the agent as unreachable or invalid. Step 2: Agent owner to Identity Registry: register(agentURI). This step crosses a trust boundary. If The metadata array uses the key agentWallet: Reverts with \"reserved key\". Step 3: Identity Registry to Agent owner: Return events Transfer, MetadataSet, Registered. Step 4: Agent owner to File host (IPFS or HTTPS): Write agentId into registrations. This step crosses a trust boundary. Step 5: Agent owner to Identity Registry: setAgentURI(agentId, newURI). This step crosses a trust boundary. If The caller is neither owner nor operator: Reverts with \"Not authorized\". Step 6: Agent owner to Service domain: Serve /.well-known/agent-registration.json. This step crosses a trust boundary. Step 7: Agent owner to New agent wallet: Ask the new wallet to sign AgentWalletSet. This step crosses a trust boundary. If The wallet is a smart contract wallet: It does not sign with ECDSA; the registry calls its ERC-1271 isValidSignature instead. Step 8: New agent wallet to Agent owner: Return signature. This step crosses a trust boundary. Step 9: Agent owner to Identity Registry: setAgentWallet(agentId, newWallet, deadline, signature). This step crosses a trust boundary. If newWallet is the zero address: Reverts with \"bad wallet\". If The deadline has passed: Reverts with \"expired\". If The deadline is more than 5 minutes ahead: Reverts with \"deadline too far\". If Neither ECDSA nor ERC-1271 validates the signature: Reverts with \"invalid wallet sig\". Step 10: Identity Registry to Agent owner: Return MetadataSet(agentWallet).",
+      "lines": [
+        "Step 1: Agent owner to File host (IPFS or HTTPS): Publish registration file. This step crosses a trust boundary. If The file is unreachable or not valid JSON: Nothing fails on-chain; explorers and clients mark the agent as unreachable or invalid.",
+        "Step 2: Agent owner to Identity Registry: register(agentURI). This step crosses a trust boundary. If The metadata array uses the key agentWallet: Reverts with \"reserved key\".",
+        "Step 3: Identity Registry to Agent owner: Return events Transfer, MetadataSet, Registered.",
+        "Step 4: Agent owner to File host (IPFS or HTTPS): Write agentId into registrations. This step crosses a trust boundary.",
+        "Step 5: Agent owner to Identity Registry: setAgentURI(agentId, newURI). This step crosses a trust boundary. If The caller is neither owner nor operator: Reverts with \"Not authorized\".",
+        "Step 6: Agent owner to Service domain: Serve /.well-known/agent-registration.json. This step crosses a trust boundary.",
+        "Step 7: Agent owner to New agent wallet: Ask the new wallet to sign AgentWalletSet. This step crosses a trust boundary. If The wallet is a smart contract wallet: It does not sign with ECDSA; the registry calls its ERC-1271 isValidSignature instead.",
+        "Step 8: New agent wallet to Agent owner: Return signature. This step crosses a trust boundary.",
+        "Step 9: Agent owner to Identity Registry: setAgentWallet(agentId, newWallet, deadline, signature). This step crosses a trust boundary. If newWallet is the zero address: Reverts with \"bad wallet\". If The deadline has passed: Reverts with \"expired\". If The deadline is more than 5 minutes ahead: Reverts with \"deadline too far\". If Neither ECDSA nor ERC-1271 validates the signature: Reverts with \"invalid wallet sig\".",
+        "Step 10: Identity Registry to Agent owner: Return MetadataSet(agentWallet)."
+      ],
+      "source": "src/content/flows/erc-8004-register-and-bind-wallet.json"
+    },
+    {
+      "id": "erc-8004-revoke-and-respond",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 revoking feedback and appending responses",
+      "description": "Sequence diagram: ERC-8004 revoking feedback and appending responses. 4 participants: Client, Agent owner, Data aggregator, and Reputation Registry. 5 steps, 3 crossing a trust boundary, 3 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Client to Reputation Registry: giveFeedback(4242, 20, 0, \"successRate\", ...). This step crosses a trust boundary. Step 2: Agent owner to Reputation Registry: appendResponse(4242, client, 1, responseURI, responseHash). This step crosses a trust boundary. If responseURI is empty: Reverts with \"Empty URI\". If feedbackIndex is 0 or past the last index: Reverts with \"index must be > 0\" or \"index out of bounds\". Step 3: Data aggregator to Reputation Registry: appendResponse(..., spam tag). This step crosses a trust boundary. Step 4: Client to Reputation Registry: revokeFeedback(4242, 1). If The entry is already revoked: Reverts with \"Already revoked\". Step 5: Reputation Registry to Client: Return FeedbackRevoked.",
+      "lines": [
+        "Step 1: Client to Reputation Registry: giveFeedback(4242, 20, 0, \"successRate\", ...). This step crosses a trust boundary.",
+        "Step 2: Agent owner to Reputation Registry: appendResponse(4242, client, 1, responseURI, responseHash). This step crosses a trust boundary. If responseURI is empty: Reverts with \"Empty URI\". If feedbackIndex is 0 or past the last index: Reverts with \"index must be > 0\" or \"index out of bounds\".",
+        "Step 3: Data aggregator to Reputation Registry: appendResponse(..., spam tag). This step crosses a trust boundary.",
+        "Step 4: Client to Reputation Registry: revokeFeedback(4242, 1). If The entry is already revoked: Reverts with \"Already revoked\".",
+        "Step 5: Reputation Registry to Client: Return FeedbackRevoked."
+      ],
+      "source": "src/content/flows/erc-8004-revoke-and-respond.json"
+    },
+    {
+      "id": "erc-8004-transfer-clears-wallet",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 alternative path: a transfer clears the agent wallet",
+      "description": "Sequence diagram: ERC-8004 alternative path: a transfer clears the agent wallet. 5 participants: Previous owner, New owner, Identity Registry, Paying client, and New owner wallet. 4 steps, 2 crossing a trust boundary, 1 failure branch. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Previous owner to Identity Registry: transferFrom(old, new, agentId). This step crosses a trust boundary. Step 2: Paying client to Identity Registry: getAgentWallet(agentId). If The payer cached the old wallet: It may pay the previous owner; ERC-8004 cannot stop a payment it does not carry. Step 3: New owner to New owner wallet: Sign AgentWalletSet. This step crosses a trust boundary. Step 4: New owner to Identity Registry: setAgentWallet(...).",
+      "lines": [
+        "Step 1: Previous owner to Identity Registry: transferFrom(old, new, agentId). This step crosses a trust boundary.",
+        "Step 2: Paying client to Identity Registry: getAgentWallet(agentId). If The payer cached the old wallet: It may pay the previous owner; ERC-8004 cannot stop a payment it does not carry.",
+        "Step 3: New owner to New owner wallet: Sign AgentWalletSet. This step crosses a trust boundary.",
+        "Step 4: New owner to Identity Registry: setAgentWallet(...)."
+      ],
+      "source": "src/content/flows/erc-8004-transfer-clears-wallet.json"
+    },
+    {
+      "id": "erc-8004-validation-specified",
+      "kind": "flow",
+      "protocol": "erc-8004",
+      "title": "ERC-8004 validation flow (specified, not officially deployed)",
+      "description": "Sequence diagram: ERC-8004 validation flow (specified, not officially deployed). 4 participants: Agent owner or operator, Request data host, Validation Registry (specified, not officially deployed), and Validator contract or service. 5 steps, 4 crossing a trust boundary, 4 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner or operator to Request data host: Store request data. This step crosses a trust boundary. Step 2: Agent owner or operator to Validation Registry (specified, not officially deployed): validationRequest(validatorAddress, agentId, requestURI, requestHash). This step crosses a trust boundary. If The requestHash was used before: Reverts with \"exists\" in the reference code; the first owner to submit a hash occupies it. If validatorAddress is zero: Reverts with \"bad validator\". Step 3: Validator contract or service to Request data host: Fetch and check the work. This step crosses a trust boundary. Step 4: Validator contract or service to Validation Registry (specified, not officially deployed): validationResponse(requestHash, response, responseURI, responseHash, \"soft\"). This step crosses a trust boundary. If The caller is not the named validator: Reverts with \"not validator\". If response is above 100: Reverts with \"resp>100\". Step 5: Validator contract or service to Validation Registry (specified, not officially deployed): validationResponse(requestHash, response, ..., \"hard\").",
+      "lines": [
+        "Step 1: Agent owner or operator to Request data host: Store request data. This step crosses a trust boundary.",
+        "Step 2: Agent owner or operator to Validation Registry (specified, not officially deployed): validationRequest(validatorAddress, agentId, requestURI, requestHash). This step crosses a trust boundary. If The requestHash was used before: Reverts with \"exists\" in the reference code; the first owner to submit a hash occupies it. If validatorAddress is zero: Reverts with \"bad validator\".",
+        "Step 3: Validator contract or service to Request data host: Fetch and check the work. This step crosses a trust boundary.",
+        "Step 4: Validator contract or service to Validation Registry (specified, not officially deployed): validationResponse(requestHash, response, responseURI, responseHash, \"soft\"). This step crosses a trust boundary. If The caller is not the named validator: Reverts with \"not validator\". If response is above 100: Reverts with \"resp>100\".",
+        "Step 5: Validator contract or service to Validation Registry (specified, not officially deployed): validationResponse(requestHash, response, ..., \"hard\")."
+      ],
+      "source": "src/content/flows/erc-8004-validation-specified.json"
+    },
+    {
+      "id": "openai-acp-3ds-authentication",
+      "kind": "flow",
+      "protocol": "openai-acp",
+      "title": "ACP alternative path: 3-D Secure step-up",
+      "description": "Sequence diagram: ACP alternative path: 3-D Secure step-up. 4 participants: Agent (AI surface), Merchant API, Authentication provider, and Buyer. 7 steps, 4 crossing a trust boundary, 2 failure branches. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Merchant API to Agent (AI surface): Session status authentication_required. Step 2: Agent (AI surface) to Merchant API: Complete without authentication_result. This step crosses a trust boundary. Step 3: Merchant API to Agent (AI surface): 4XX requires_3ds. Step 4: Agent (AI surface) to Authentication provider: POST /delegate_authentication. This step crosses a trust boundary. Step 5: Agent (AI surface) to Authentication provider: Fingerprint, then POST .../authenticate. This step crosses a trust boundary. If Challenge required: The buyer completes the issuer challenge. Step 6: Buyer to Authentication provider: Issuer challenge (if any). Step 7: Agent (AI surface) to Merchant API: Complete with authentication_result. This step crosses a trust boundary. If Outcome denied: Merchant declines; session stays open or ends per merchant policy.",
+      "lines": [
+        "Step 1: Merchant API to Agent (AI surface): Session status authentication_required.",
+        "Step 2: Agent (AI surface) to Merchant API: Complete without authentication_result. This step crosses a trust boundary.",
+        "Step 3: Merchant API to Agent (AI surface): 4XX requires_3ds.",
+        "Step 4: Agent (AI surface) to Authentication provider: POST /delegate_authentication. This step crosses a trust boundary.",
+        "Step 5: Agent (AI surface) to Authentication provider: Fingerprint, then POST .../authenticate. This step crosses a trust boundary. If Challenge required: The buyer completes the issuer challenge.",
+        "Step 6: Buyer to Authentication provider: Issuer challenge (if any).",
+        "Step 7: Agent (AI surface) to Merchant API: Complete with authentication_result. This step crosses a trust boundary. If Outcome denied: Merchant declines; session stays open or ends per merchant policy."
+      ],
+      "source": "src/content/flows/openai-acp-3ds-authentication.json"
+    },
+    {
+      "id": "openai-acp-cancel-intent-trace",
+      "kind": "flow",
+      "protocol": "openai-acp",
+      "title": "ACP alternative path: cancel with an intent trace",
+      "description": "Sequence diagram: ACP alternative path: cancel with an intent trace. 3 participants: Buyer, Agent (AI surface), and Merchant API. 3 steps, 1 crossing a trust boundary, 1 failure branch. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Buyer to Agent (AI surface): Decides not to buy. Step 2: Agent (AI surface) to Merchant API: POST /checkout_sessions/{id}/cancel. This step crosses a trust boundary. If Session already completed or canceled: 405. Step 3: Merchant API to Agent (AI surface): 200 status canceled.",
+      "lines": [
+        "Step 1: Buyer to Agent (AI surface): Decides not to buy.",
+        "Step 2: Agent (AI surface) to Merchant API: POST /checkout_sessions/{id}/cancel. This step crosses a trust boundary. If Session already completed or canceled: 405.",
+        "Step 3: Merchant API to Agent (AI surface): 200 status canceled."
+      ],
+      "source": "src/content/flows/openai-acp-cancel-intent-trace.json"
+    },
+    {
+      "id": "openai-acp-checkout-happy-path",
+      "kind": "flow",
+      "protocol": "openai-acp",
+      "title": "ACP checkout, happy path (REST, delegated card token)",
+      "description": "Sequence diagram: ACP checkout, happy path (REST, delegated card token). 5 participants: Buyer, Agent (AI surface), Merchant API, PSP or vault, and Merchant PSP. 13 steps, 7 crossing a trust boundary, 10 failure branches. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Agent (AI surface) to Merchant API: GET /.well-known/acp.json. This step crosses a trust boundary. If Document missing (404): Agent falls back to an out-of-band configuration; discovery is optional. Step 2: Buyer to Agent (AI surface): Ask to buy an item. Step 3: Agent (AI surface) to Merchant API: POST /checkout_sessions. This step crosses a trust boundary. If Missing Idempotency-Key: 400 idempotency_key_required. If Unsupported API-Version: 400 with supported_versions. If Unknown item: 400 invalid_request with a param path. Step 4: Merchant API to Agent (AI surface): 201 session (not_ready_for_payment). Step 5: Agent (AI surface) to Merchant API: POST /checkout_sessions/{id} (update). This step crosses a trust boundary. If Item out of stock: 200 with a MessageError code out_of_stock; status stays not_ready_for_payment. Step 6: Merchant API to Agent (AI surface): 200 session (ready_for_payment). Step 7: Agent (AI surface) to Buyer: Show total, buyer confirms. Step 8: Agent (AI surface) to PSP or vault: POST /agentic_commerce/delegate_payment. This step crosses a trust boundary. If Card rejected: 400 invalid_card. If Too many requests: 429 rate_limit_exceeded. Step 9: PSP or vault to Agent (AI surface): 201 vault token. Step 10: Agent (AI surface) to Merchant API: POST /checkout_sessions/{id}/complete. This step crosses a trust boundary. If Payment declined: Session returns a MessageError payment_declined. If Session needs 3DS: 4XX requires_3ds; see the 3DS flow. Step 11: Merchant API to Merchant PSP: Charge the token. This step crosses a trust boundary. Step 12: Merchant API to Agent (AI surface): 200 completed + order. Step 13: Merchant API to Agent (AI surface): Webhook order_create. This step crosses a trust boundary. If Bad or stale signature: Agent answers 401.",
+      "lines": [
+        "Step 1: Agent (AI surface) to Merchant API: GET /.well-known/acp.json. This step crosses a trust boundary. If Document missing (404): Agent falls back to an out-of-band configuration; discovery is optional.",
+        "Step 2: Buyer to Agent (AI surface): Ask to buy an item.",
+        "Step 3: Agent (AI surface) to Merchant API: POST /checkout_sessions. This step crosses a trust boundary. If Missing Idempotency-Key: 400 idempotency_key_required. If Unsupported API-Version: 400 with supported_versions. If Unknown item: 400 invalid_request with a param path.",
+        "Step 4: Merchant API to Agent (AI surface): 201 session (not_ready_for_payment).",
+        "Step 5: Agent (AI surface) to Merchant API: POST /checkout_sessions/{id} (update). This step crosses a trust boundary. If Item out of stock: 200 with a MessageError code out_of_stock; status stays not_ready_for_payment.",
+        "Step 6: Merchant API to Agent (AI surface): 200 session (ready_for_payment).",
+        "Step 7: Agent (AI surface) to Buyer: Show total, buyer confirms.",
+        "Step 8: Agent (AI surface) to PSP or vault: POST /agentic_commerce/delegate_payment. This step crosses a trust boundary. If Card rejected: 400 invalid_card. If Too many requests: 429 rate_limit_exceeded.",
+        "Step 9: PSP or vault to Agent (AI surface): 201 vault token.",
+        "Step 10: Agent (AI surface) to Merchant API: POST /checkout_sessions/{id}/complete. This step crosses a trust boundary. If Payment declined: Session returns a MessageError payment_declined. If Session needs 3DS: 4XX requires_3ds; see the 3DS flow.",
+        "Step 11: Merchant API to Merchant PSP: Charge the token. This step crosses a trust boundary.",
+        "Step 12: Merchant API to Agent (AI surface): 200 completed + order.",
+        "Step 13: Merchant API to Agent (AI surface): Webhook order_create. This step crosses a trust boundary. If Bad or stale signature: Agent answers 401."
+      ],
+      "source": "src/content/flows/openai-acp-checkout-happy-path.json"
+    },
+    {
+      "id": "openai-acp-checkout-session",
+      "kind": "state",
+      "protocol": "openai-acp",
+      "title": "ACP checkout session status (2026-04-17, 11 values)",
+      "description": "State diagram: ACP checkout session status (2026-04-17, 11 values). 11 states: incomplete, not_ready_for_payment, requires_escalation, authentication_required, ready_for_payment, pending_approval, in_progress, complete_in_progress, completed, canceled, and expired. Starts in not_ready_for_payment. Ends in completed, canceled, and expired. 16 transitions. From not_ready_for_payment to ready_for_payment when Buyer data and fulfillment choice complete (POST /checkout_sessions/{id}). From incomplete to not_ready_for_payment when Required data added (inferred from name) (POST /checkout_sessions/{id}). From ready_for_payment to not_ready_for_payment when Update invalidates the cart, for example out of stock (POST /checkout_sessions/{id}). From ready_for_payment to authentication_required when Merchant requires 3DS (session response). From authentication_required to completed when Complete with authentication_result (POST /checkout_sessions/{id}/complete). From ready_for_payment to requires_escalation when Merchant needs buyer action outside the agent (inferred from name) (session response). From ready_for_payment to pending_approval when Approval required, for example B2B (inferred from name) (POST /checkout_sessions/{id}/complete). From ready_for_payment to complete_in_progress when Complete accepted, payment still processing (inferred from name) (POST /checkout_sessions/{id}/complete). From complete_in_progress to completed when Payment confirmed, order created (inferred) (GET /checkout_sessions/{id}). From ready_for_payment to in_progress when Processing (meaning not detailed) (POST /checkout_sessions/{id}/complete). From in_progress to completed when Order created (POST /checkout_sessions/{id}/complete). From ready_for_payment to completed when Complete succeeds; response carries an order (POST /checkout_sessions/{id}/complete). From not_ready_for_payment to canceled when Agent cancels, optional intent_trace (POST /checkout_sessions/{id}/cancel). From ready_for_payment to canceled when Agent cancels, optional intent_trace (POST /checkout_sessions/{id}/cancel). From ready_for_payment to expired when expires_at passes (inferred from name) (none). From not_ready_for_payment to expired when expires_at passes (inferred from name) (none).",
+      "lines": [
+        "From not_ready_for_payment to ready_for_payment when Buyer data and fulfillment choice complete (POST /checkout_sessions/{id}).",
+        "From incomplete to not_ready_for_payment when Required data added (inferred from name) (POST /checkout_sessions/{id}).",
+        "From ready_for_payment to not_ready_for_payment when Update invalidates the cart, for example out of stock (POST /checkout_sessions/{id}).",
+        "From ready_for_payment to authentication_required when Merchant requires 3DS (session response).",
+        "From authentication_required to completed when Complete with authentication_result (POST /checkout_sessions/{id}/complete).",
+        "From ready_for_payment to requires_escalation when Merchant needs buyer action outside the agent (inferred from name) (session response).",
+        "From ready_for_payment to pending_approval when Approval required, for example B2B (inferred from name) (POST /checkout_sessions/{id}/complete).",
+        "From ready_for_payment to complete_in_progress when Complete accepted, payment still processing (inferred from name) (POST /checkout_sessions/{id}/complete).",
+        "From complete_in_progress to completed when Payment confirmed, order created (inferred) (GET /checkout_sessions/{id}).",
+        "From ready_for_payment to in_progress when Processing (meaning not detailed) (POST /checkout_sessions/{id}/complete).",
+        "From in_progress to completed when Order created (POST /checkout_sessions/{id}/complete).",
+        "From ready_for_payment to completed when Complete succeeds; response carries an order (POST /checkout_sessions/{id}/complete).",
+        "From not_ready_for_payment to canceled when Agent cancels, optional intent_trace (POST /checkout_sessions/{id}/cancel).",
+        "From ready_for_payment to canceled when Agent cancels, optional intent_trace (POST /checkout_sessions/{id}/cancel).",
+        "From ready_for_payment to expired when expires_at passes (inferred from name) (none).",
+        "From not_ready_for_payment to expired when expires_at passes (inferred from name) (none)."
+      ],
+      "source": "src/content/states/openai-acp-checkout-session.json"
+    },
+    {
+      "id": "openai-acp-delegate-payment",
+      "kind": "flow",
+      "protocol": "openai-acp",
+      "title": "ACP Delegate Payment: allowance scoping and enforcement",
+      "description": "Sequence diagram: ACP Delegate Payment: allowance scoping and enforcement. 4 participants: Agent (AI surface), PSP or vault, Merchant API, and Merchant PSP. 5 steps, 3 crossing a trust boundary, 7 failure branches. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Agent (AI surface) to PSP or vault: POST /agentic_commerce/delegate_payment. This step crosses a trust boundary. If Same key, different body: 422 idempotency_conflict. If Same key still running: 409 idempotency_in_flight. If No key: 400 idempotency_key_required. Step 2: PSP or vault to PSP or vault: Store card, bind allowance. Step 3: PSP or vault to Agent (AI surface): 201 { id: vt_... }. Step 4: Agent (AI surface) to Merchant API: Complete with the token. This step crosses a trust boundary. Step 5: Merchant API to Merchant PSP: Charge up to the allowance. This step crosses a trust boundary. If Amount above max_amount: Declined by the PSP; no ACP error code. If After expires_at: Declined by the PSP; no ACP error code. If Different merchant_id or session: Declined by the PSP; no ACP error code. If Second use of a one_time token: Declined by the PSP; no ACP error code.",
+      "lines": [
+        "Step 1: Agent (AI surface) to PSP or vault: POST /agentic_commerce/delegate_payment. This step crosses a trust boundary. If Same key, different body: 422 idempotency_conflict. If Same key still running: 409 idempotency_in_flight. If No key: 400 idempotency_key_required.",
+        "Step 2: PSP or vault to PSP or vault: Store card, bind allowance.",
+        "Step 3: PSP or vault to Agent (AI surface): 201 { id: vt_... }.",
+        "Step 4: Agent (AI surface) to Merchant API: Complete with the token. This step crosses a trust boundary.",
+        "Step 5: Merchant API to Merchant PSP: Charge up to the allowance. This step crosses a trust boundary. If Amount above max_amount: Declined by the PSP; no ACP error code. If After expires_at: Declined by the PSP; no ACP error code. If Different merchant_id or session: Declined by the PSP; no ACP error code. If Second use of a one_time token: Declined by the PSP; no ACP error code."
+      ],
+      "source": "src/content/flows/openai-acp-delegate-payment.json"
+    },
+    {
+      "id": "openai-acp-failure-idempotency-conflict",
+      "kind": "flow",
+      "protocol": "openai-acp",
+      "title": "ACP failure: idempotency key reused or still in flight",
+      "description": "Sequence diagram: ACP failure: idempotency key reused or still in flight. 2 participants: Agent (AI surface) and Merchant API. 5 steps, 3 crossing a trust boundary, 1 failure branch. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Agent (AI surface) to Merchant API: POST /checkout_sessions (key idem_001). This step crosses a trust boundary. Step 2: Agent (AI surface) to Merchant API: Retry, same key, same body. This step crosses a trust boundary. If Agent retries at once in a loop: More 409 answers; respect Retry-After. Step 3: Merchant API to Agent (AI surface): Replay with Idempotent-Replayed: true. Step 4: Agent (AI surface) to Merchant API: Same key, changed body. This step crosses a trust boundary. Step 5: Merchant API to Agent (AI surface): 422 idempotency_conflict.",
+      "lines": [
+        "Step 1: Agent (AI surface) to Merchant API: POST /checkout_sessions (key idem_001). This step crosses a trust boundary.",
+        "Step 2: Agent (AI surface) to Merchant API: Retry, same key, same body. This step crosses a trust boundary. If Agent retries at once in a loop: More 409 answers; respect Retry-After.",
+        "Step 3: Merchant API to Agent (AI surface): Replay with Idempotent-Replayed: true.",
+        "Step 4: Agent (AI surface) to Merchant API: Same key, changed body. This step crosses a trust boundary.",
+        "Step 5: Merchant API to Agent (AI surface): 422 idempotency_conflict."
+      ],
+      "source": "src/content/flows/openai-acp-failure-idempotency-conflict.json"
+    },
+    {
+      "id": "openai-acp-order-webhook",
+      "kind": "flow",
+      "protocol": "openai-acp",
+      "title": "ACP order webhook signing and verification",
+      "description": "Sequence diagram: ACP order webhook signing and verification. 2 participants: Merchant API and Agent (AI surface). 4 steps, 1 crossing a trust boundary, 3 failure branches. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Merchant API to Merchant API: Sign the raw body. Step 2: Merchant API to Agent (AI surface): POST /agentic_checkout/webhooks/order_events. This step crosses a trust boundary. If Header missing or malformed: 401. If Timestamp outside 300 seconds: 401 (replay). If Signature mismatch: 401. Step 3: Agent (AI surface) to Agent (AI surface): Verify, then process. Step 4: Agent (AI surface) to Merchant API: 2xx acknowledgment.",
+      "lines": [
+        "Step 1: Merchant API to Merchant API: Sign the raw body.",
+        "Step 2: Merchant API to Agent (AI surface): POST /agentic_checkout/webhooks/order_events. This step crosses a trust boundary. If Header missing or malformed: 401. If Timestamp outside 300 seconds: 401 (replay). If Signature mismatch: 401.",
+        "Step 3: Agent (AI surface) to Agent (AI surface): Verify, then process.",
+        "Step 4: Agent (AI surface) to Merchant API: 2xx acknowledgment."
+      ],
+      "source": "src/content/flows/openai-acp-order-webhook.json"
+    },
+    {
+      "id": "openai-acp-product-feed-push",
+      "kind": "flow",
+      "protocol": "openai-acp",
+      "title": "ACP product feed push (Feed API, 2026-04-17)",
+      "description": "Sequence diagram: ACP product feed push (Feed API, 2026-04-17). 2 participants: Merchant API and Agent (AI surface). 4 steps, 2 crossing a trust boundary, 1 failure branch. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Merchant API to Agent (AI surface): POST /feeds. This step crosses a trust boundary. Step 2: Merchant API to Agent (AI surface): PATCH /feeds/{id}/products. This step crosses a trust boundary. If Invalid product: 4xx; fix and resend. Step 3: Agent (AI surface) to Merchant API: GET /feeds/{id}/products (optional). Step 4: Merchant API to Agent (AI surface): Full file replacement (alternative).",
+      "lines": [
+        "Step 1: Merchant API to Agent (AI surface): POST /feeds. This step crosses a trust boundary.",
+        "Step 2: Merchant API to Agent (AI surface): PATCH /feeds/{id}/products. This step crosses a trust boundary. If Invalid product: 4xx; fix and resend.",
+        "Step 3: Agent (AI surface) to Merchant API: GET /feeds/{id}/products (optional).",
+        "Step 4: Merchant API to Agent (AI surface): Full file replacement (alternative)."
+      ],
+      "source": "src/content/flows/openai-acp-product-feed-push.json"
+    },
+    {
+      "id": "ucp-3ds-authentication-actions",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "UCP alternative path: 3DS2 step-up through actions (authentication extension)",
+      "description": "Sequence diagram: UCP alternative path: 3DS2 step-up through actions (authentication extension). 4 participants: Buyer, Platform (agent surface), Business (merchant of record), and Business PSP. 6 steps, 6 crossing a trust boundary, 1 failure branch. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST .../complete. This step crosses a trust boundary. Step 2: Business (merchant of record) to Business PSP: Authorize; issuer wants 3DS. This step crosses a trust boundary. Step 3: Business (merchant of record) to Platform (agent surface): complete_in_progress + action. This step crosses a trust boundary. Step 4: Platform (agent surface) to Buyer: Show the challenge surface. This step crosses a trust boundary. Step 5: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_123. This step crosses a trust boundary. If Challenge fails: The business returns incomplete or requires_escalation; the platform must not reprocess the same action id unless its contract allows it. Step 6: Business (merchant of record) to Platform (agent surface): completed with order. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): POST .../complete. This step crosses a trust boundary.",
+        "Step 2: Business (merchant of record) to Business PSP: Authorize; issuer wants 3DS. This step crosses a trust boundary.",
+        "Step 3: Business (merchant of record) to Platform (agent surface): complete_in_progress + action. This step crosses a trust boundary.",
+        "Step 4: Platform (agent surface) to Buyer: Show the challenge surface. This step crosses a trust boundary.",
+        "Step 5: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_123. This step crosses a trust boundary. If Challenge fails: The business returns incomplete or requires_escalation; the platform must not reprocess the same action id unless its contract allows it.",
+        "Step 6: Business (merchant of record) to Platform (agent surface): completed with order. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ucp-3ds-authentication-actions.json"
+    },
+    {
+      "id": "ucp-ap2-mandate-checkout",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "AP2 mandates inside a UCP checkout (spec flow; live use unverified)",
+      "description": "Sequence diagram: AP2 mandates inside a UCP checkout (spec flow; live use unverified). 4 participants: Buyer, Platform (agent surface), Business (merchant of record), and Business PSP. 7 steps, 6 crossing a trust boundary, 4 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions (profile lists AP2, keys). This step crosses a trust boundary. If The platform profile has no usable key: agent_missing_key. Step 2: Business (merchant of record) to Business (merchant of record): Intersection includes AP2: lock the session. Step 3: Business (merchant of record) to Platform (agent surface): Checkout + ap2.merchant_authorization. This step crosses a trust boundary. If Signature missing or invalid: merchant_authorization_missing or merchant_authorization_invalid; the platform must not show the checkout. Step 4: Platform (agent surface) to Buyer: Verify, show, get consent. This step crosses a trust boundary. Step 5: Platform (agent surface) to Business (merchant of record): complete with ap2.checkout_mandate. This step crosses a trust boundary. If No checkout mandate: mandate_required; the business must reject the complete. If Mandate bound to another checkout, expired or badly signed: mandate_scope_mismatch, mandate_expired or mandate_invalid_signature. Step 6: Business (merchant of record) to Business PSP: Verify mandate; pass payment mandate to PSP. This step crosses a trust boundary. Step 7: Business (merchant of record) to Platform (agent surface): completed with order. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions (profile lists AP2, keys). This step crosses a trust boundary. If The platform profile has no usable key: agent_missing_key.",
+        "Step 2: Business (merchant of record) to Business (merchant of record): Intersection includes AP2: lock the session.",
+        "Step 3: Business (merchant of record) to Platform (agent surface): Checkout + ap2.merchant_authorization. This step crosses a trust boundary. If Signature missing or invalid: merchant_authorization_missing or merchant_authorization_invalid; the platform must not show the checkout.",
+        "Step 4: Platform (agent surface) to Buyer: Verify, show, get consent. This step crosses a trust boundary.",
+        "Step 5: Platform (agent surface) to Business (merchant of record): complete with ap2.checkout_mandate. This step crosses a trust boundary. If No checkout mandate: mandate_required; the business must reject the complete. If Mandate bound to another checkout, expired or badly signed: mandate_scope_mismatch, mandate_expired or mandate_invalid_signature.",
+        "Step 6: Business (merchant of record) to Business PSP: Verify mandate; pass payment mandate to PSP. This step crosses a trust boundary.",
+        "Step 7: Business (merchant of record) to Platform (agent surface): completed with order. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ucp-ap2-mandate-checkout.json"
+    },
+    {
+      "id": "ucp-checkout-escalation",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "UCP alternative path: requires_escalation and handoff through continue_url",
+      "description": "Sequence diagram: UCP alternative path: requires_escalation and handoff through continue_url. 3 participants: Buyer, Platform (agent surface), and Business (merchant of record). 6 steps, 5 crossing a trust boundary, 2 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): PUT /checkout-sessions/chk_456. This step crosses a trust boundary. Step 2: Business (merchant of record) to Platform (agent surface): status requires_escalation + continue_url. This step crosses a trust boundary. If continue_url is missing: The business broke a MUST; the platform cannot hand off and should treat the checkout as stuck. Step 3: Platform (agent surface) to Platform (agent surface): Resolve recoverable errors first. Step 4: Platform (agent surface) to Buyer: Open continue_url for the buyer. This step crosses a trust boundary. Step 5: Buyer to Business (merchant of record): Buyer finishes on the business UI. This step crosses a trust boundary. If The buyer abandons: The session expires (default 6 hours) and becomes canceled. Step 6: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_456. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): PUT /checkout-sessions/chk_456. This step crosses a trust boundary.",
+        "Step 2: Business (merchant of record) to Platform (agent surface): status requires_escalation + continue_url. This step crosses a trust boundary. If continue_url is missing: The business broke a MUST; the platform cannot hand off and should treat the checkout as stuck.",
+        "Step 3: Platform (agent surface) to Platform (agent surface): Resolve recoverable errors first.",
+        "Step 4: Platform (agent surface) to Buyer: Open continue_url for the buyer. This step crosses a trust boundary.",
+        "Step 5: Buyer to Business (merchant of record): Buyer finishes on the business UI. This step crosses a trust boundary. If The buyer abandons: The session expires (default 6 hours) and becomes canceled.",
+        "Step 6: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_456. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ucp-checkout-escalation.json"
+    },
+    {
+      "id": "ucp-checkout-lifecycle",
+      "kind": "state",
+      "protocol": "ucp",
+      "title": "UCP checkout session status (v2026-08-25), with the AP2 lock",
+      "description": "State diagram: UCP checkout session status (v2026-08-25), with the AP2 lock. 6 states: incomplete, requires_escalation, ready_for_complete, complete_in_progress, completed, and canceled. Starts in incomplete. Ends in completed and canceled. 13 transitions. From incomplete to ready_for_complete when All information collected, no Action outstanding (PUT /checkout-sessions/{id} (update_checkout)). From incomplete to requires_escalation when Business needs data its API cannot collect, or a policy needs buyer review (POST or PUT /checkout-sessions response). From requires_escalation to incomplete when Issue resolved through an update (PUT /checkout-sessions/{id}). From requires_escalation to completed when Buyer finishes on the business UI through continue_url (continue_url (browser), then GET /checkout-sessions/{id}). From ready_for_complete to completed when Complete Checkout succeeds synchronously (POST /checkout-sessions/{id}/complete (complete_checkout)). From ready_for_complete to complete_in_progress when Complete Checkout accepted for asynchronous processing (POST /checkout-sessions/{id}/complete). From ready_for_complete to incomplete when Complete returns a recoverable change (for example payment_failed or out_of_stock) (POST /checkout-sessions/{id}/complete). From complete_in_progress to completed when Business finishes processing; any Action resolved (GET /checkout-sessions/{id} (get_checkout)). From complete_in_progress to incomplete when Action fails or payment declined with a recoverable error (GET /checkout-sessions/{id}). From incomplete to canceled when Platform cancels, or the session expires (POST /checkout-sessions/{id}/cancel (cancel_checkout)). From requires_escalation to canceled when Platform cancels, or the session expires (POST /checkout-sessions/{id}/cancel). From ready_for_complete to canceled when Platform cancels, or the session expires (POST /checkout-sessions/{id}/cancel). From complete_in_progress to canceled when Session invalid or expired (cancellation race rules apply) (POST /checkout-sessions/{id}/cancel).",
+      "lines": [
+        "From incomplete to ready_for_complete when All information collected, no Action outstanding (PUT /checkout-sessions/{id} (update_checkout)).",
+        "From incomplete to requires_escalation when Business needs data its API cannot collect, or a policy needs buyer review (POST or PUT /checkout-sessions response).",
+        "From requires_escalation to incomplete when Issue resolved through an update (PUT /checkout-sessions/{id}).",
+        "From requires_escalation to completed when Buyer finishes on the business UI through continue_url (continue_url (browser), then GET /checkout-sessions/{id}).",
+        "From ready_for_complete to completed when Complete Checkout succeeds synchronously (POST /checkout-sessions/{id}/complete (complete_checkout)).",
+        "From ready_for_complete to complete_in_progress when Complete Checkout accepted for asynchronous processing (POST /checkout-sessions/{id}/complete).",
+        "From ready_for_complete to incomplete when Complete returns a recoverable change (for example payment_failed or out_of_stock) (POST /checkout-sessions/{id}/complete).",
+        "From complete_in_progress to completed when Business finishes processing; any Action resolved (GET /checkout-sessions/{id} (get_checkout)).",
+        "From complete_in_progress to incomplete when Action fails or payment declined with a recoverable error (GET /checkout-sessions/{id}).",
+        "From incomplete to canceled when Platform cancels, or the session expires (POST /checkout-sessions/{id}/cancel (cancel_checkout)).",
+        "From requires_escalation to canceled when Platform cancels, or the session expires (POST /checkout-sessions/{id}/cancel).",
+        "From ready_for_complete to canceled when Platform cancels, or the session expires (POST /checkout-sessions/{id}/cancel).",
+        "From complete_in_progress to canceled when Session invalid or expired (cancellation race rules apply) (POST /checkout-sessions/{id}/cancel)."
+      ],
+      "source": "src/content/states/ucp-checkout-lifecycle.json"
+    },
+    {
+      "id": "ucp-discovery-negotiation",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "UCP discovery and capability negotiation (two layers)",
+      "description": "Sequence diagram: UCP discovery and capability negotiation (two layers). 2 participants: Platform (agent surface) and Business (merchant of record). 7 steps, 5 crossing a trust boundary, 3 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/ucp. This step crosses a trust boundary. Step 2: Business (merchant of record) to Platform (agent surface): Profile: version, supported_versions, capabilities. This step crosses a trust boundary. Step 3: Platform (agent surface) to Platform (agent surface): Layer 1: select version 2026-08-25. If No version in common: version_unsupported (REST 422) as a transport error, with an optional continue_url. Step 4: Platform (agent surface) to Business (merchant of record): Request with UCP-Agent: profile=\"...\". This step crosses a trust boundary. Step 5: Business (merchant of record) to Platform (agent surface): GET platform profile. This step crosses a trust boundary. If Fetch fails or times out: profile_unreachable (REST 424). If Not valid JSON or violates the schema: profile_malformed (REST 422). Step 6: Business (merchant of record) to Business (merchant of record): Layer 2: intersect and prune. Step 7: Business (merchant of record) to Platform (agent surface): Response ucp envelope: version and active capabilities. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/ucp. This step crosses a trust boundary.",
+        "Step 2: Business (merchant of record) to Platform (agent surface): Profile: version, supported_versions, capabilities. This step crosses a trust boundary.",
+        "Step 3: Platform (agent surface) to Platform (agent surface): Layer 1: select version 2026-08-25. If No version in common: version_unsupported (REST 422) as a transport error, with an optional continue_url.",
+        "Step 4: Platform (agent surface) to Business (merchant of record): Request with UCP-Agent: profile=\"...\". This step crosses a trust boundary.",
+        "Step 5: Business (merchant of record) to Platform (agent surface): GET platform profile. This step crosses a trust boundary. If Fetch fails or times out: profile_unreachable (REST 424). If Not valid JSON or violates the schema: profile_malformed (REST 422).",
+        "Step 6: Business (merchant of record) to Business (merchant of record): Layer 2: intersect and prune.",
+        "Step 7: Business (merchant of record) to Platform (agent surface): Response ucp envelope: version and active capabilities. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ucp-discovery-negotiation.json"
+    },
+    {
+      "id": "ucp-failure-capabilities-incompatible",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "UCP failure: no capability in common",
+      "description": "Sequence diagram: UCP failure: no capability in common. 3 participants: Platform (agent surface), Business (merchant of record), and Buyer. 4 steps, 3 crossing a trust boundary. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST /carts with UCP-Agent. This step crosses a trust boundary. Step 2: Business (merchant of record) to Business (merchant of record): Intersection is empty. Step 3: Business (merchant of record) to Platform (agent surface): 200 OK, ucp.status error, capabilities_incompatible. This step crosses a trust boundary. Step 4: Platform (agent surface) to Buyer: Fall back to continue_url. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): POST /carts with UCP-Agent. This step crosses a trust boundary.",
+        "Step 2: Business (merchant of record) to Business (merchant of record): Intersection is empty.",
+        "Step 3: Business (merchant of record) to Platform (agent surface): 200 OK, ucp.status error, capabilities_incompatible. This step crosses a trust boundary.",
+        "Step 4: Platform (agent surface) to Buyer: Fall back to continue_url. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ucp-failure-capabilities-incompatible.json"
+    },
+    {
+      "id": "ucp-failure-lost-complete-response",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "UCP failure: the Complete Checkout response is lost",
+      "description": "Sequence diagram: UCP failure: the Complete Checkout response is lost. 2 participants: Platform (agent surface) and Business (merchant of record). 5 steps, 5 crossing a trust boundary, 4 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST .../complete (Idempotency-Key K1). This step crosses a trust boundary. Step 2: Business (merchant of record) to Platform (agent surface): Response lost (timeout). This step crosses a trust boundary. Step 3: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_123 with backoff. This step crosses a trust boundary. If Get Checkout shows completed: Stop. The order exists; read order.id. Step 4: Platform (agent surface) to Business (merchant of record): Resend identical request with K1. This step crosses a trust boundary. If The platform changes the body but keeps K1: HTTP 409, idempotency key reused with a different payload. If The platform uses a new key for the retry: Forbidden by the spec; it risks a second order. If The business cannot reach its idempotency store: It fails closed with HTTP 503. Step 5: Business (merchant of record) to Platform (agent surface): Stored result: completed with order. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): POST .../complete (Idempotency-Key K1). This step crosses a trust boundary.",
+        "Step 2: Business (merchant of record) to Platform (agent surface): Response lost (timeout). This step crosses a trust boundary.",
+        "Step 3: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_123 with backoff. This step crosses a trust boundary. If Get Checkout shows completed: Stop. The order exists; read order.id.",
+        "Step 4: Platform (agent surface) to Business (merchant of record): Resend identical request with K1. This step crosses a trust boundary. If The platform changes the body but keeps K1: HTTP 409, idempotency key reused with a different payload. If The platform uses a new key for the retry: Forbidden by the spec; it risks a second order. If The business cannot reach its idempotency store: It fails closed with HTTP 503.",
+        "Step 5: Business (merchant of record) to Platform (agent surface): Stored result: completed with order. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/ucp-failure-lost-complete-response.json"
+    },
+    {
+      "id": "ucp-identity-linking",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "UCP identity linking: OAuth 2.0 authorization code with PKCE",
+      "description": "Sequence diagram: UCP identity linking: OAuth 2.0 authorization code with PKCE. 3 participants: Buyer, Platform (agent surface), and Business (merchant of record). 7 steps, 7 crossing a trust boundary, 3 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/oauth-protected-resource. This step crosses a trust boundary. Step 2: Platform (agent surface) to Business (merchant of record): GET /.well-known/oauth-authorization-server. This step crosses a trust boundary. If Issuer mismatch: The platform must stop; the metadata may be spoofed. Step 3: Platform (agent surface) to Buyer: Redirect to authorize (PKCE S256, capability scopes). This step crosses a trust boundary. Step 4: Buyer to Business (merchant of record): Sign in and consent at the business. This step crosses a trust boundary. Step 5: Business (merchant of record) to Platform (agent surface): Redirect with code and iss. This step crosses a trust boundary. Step 6: Platform (agent surface) to Business (merchant of record): Token request with code_verifier. This step crosses a trust boundary. Step 7: Platform (agent surface) to Business (merchant of record): User-authenticated call, e.g. GET /orders/{id}. This step crosses a trust boundary. If No user token: identity_required (401) with a WWW-Authenticate Bearer challenge. If Token lacks the scope: insufficient_scope (403).",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/oauth-protected-resource. This step crosses a trust boundary.",
+        "Step 2: Platform (agent surface) to Business (merchant of record): GET /.well-known/oauth-authorization-server. This step crosses a trust boundary. If Issuer mismatch: The platform must stop; the metadata may be spoofed.",
+        "Step 3: Platform (agent surface) to Buyer: Redirect to authorize (PKCE S256, capability scopes). This step crosses a trust boundary.",
+        "Step 4: Buyer to Business (merchant of record): Sign in and consent at the business. This step crosses a trust boundary.",
+        "Step 5: Business (merchant of record) to Platform (agent surface): Redirect with code and iss. This step crosses a trust boundary.",
+        "Step 6: Platform (agent surface) to Business (merchant of record): Token request with code_verifier. This step crosses a trust boundary.",
+        "Step 7: Platform (agent surface) to Business (merchant of record): User-authenticated call, e.g. GET /orders/{id}. This step crosses a trust boundary. If No user token: identity_required (401) with a WWW-Authenticate Bearer challenge. If Token lacks the scope: insufficient_scope (403)."
+      ],
+      "source": "src/content/flows/ucp-identity-linking.json"
+    },
+    {
+      "id": "ucp-rest-checkout",
+      "kind": "flow",
+      "protocol": "ucp",
+      "title": "UCP checkout over REST: discovery, negotiation, payment handler, completion and order webhook",
+      "description": "Sequence diagram: UCP checkout over REST: discovery, negotiation, payment handler, completion and order webhook. 5 participants: Buyer, Platform (agent surface), Business (merchant of record), Credential provider (wallet), and Business PSP. 13 steps, 12 crossing a trust boundary, 16 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/ucp. This step crosses a trust boundary. If The profile URL redirects or is not HTTPS: The platform must not use it; there is no profile to negotiate with. Step 2: Business (merchant of record) to Platform (agent surface): 200 business profile (ucp, keys). This step crosses a trust boundary. If The profile advertises a non-date version such as draft: Not allowed in public discovery; the platform should treat it as malformed. Step 3: Platform (agent surface) to Platform (agent surface): Pick a version, check namespace authority. If A capability schema URL is on a host that does not own the namespace: The platform rejects that capability before fetching anything from it. Step 4: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions (UCP-Agent, signed). This step crosses a trust boundary. If Signature or key problem: signature_missing, signature_invalid or key_not_found (401); digest_mismatch or algorithm_unsupported (400). If Profile URL malformed, unreachable or invalid: invalid_profile_url (400), profile_unreachable (424) or profile_malformed (422), with an optional continue_url. Step 5: Business (merchant of record) to Platform (agent surface): GET platform profile, verify key, intersect. This step crosses a trust boundary. If The platform profile URL resolves to a special-use address such as 169.254.169.254: The business must refuse to fetch it (server-side request forgery guard). If The intersection is empty: capabilities_incompatible as a UCP response (HTTP 200) with an optional continue_url; see the failure flow. Step 6: Business (merchant of record) to Platform (agent surface): 201 checkout, status incomplete. This step crosses a trust boundary. If All items are unavailable: ucp.status error with an out_of_stock message and no checkout resource. Step 7: Platform (agent surface) to Business (merchant of record): PUT /checkout-sessions/chk_123 (full replacement). This step crosses a trust boundary. If The business needs data its API cannot collect, or a policy needs buyer review: status requires_escalation with continue_url; see the escalation flow. If Idempotency key reused with a different payload: HTTP 409. Step 8: Platform (agent surface) to Buyer: Show checkout in a trusted UI; buyer places order. This step crosses a trust boundary. If The buyer declines: The platform may call POST /checkout-sessions/chk_123/cancel, or let the session expire. Step 9: Platform (agent surface) to Credential provider (wallet): Run the payment handler, get an opaque token. This step crosses a trust boundary. If The platform cannot run any advertised handler: The platform cannot complete; it can hand off with continue_url. Step 10: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions/chk_123/complete. This step crosses a trust boundary. If More than one instrument without split payments: payment_failed. If The response is lost: Poll Get Checkout, then resend only the identical request with the same Idempotency-Key; see the failure flow. Step 11: Business (merchant of record) to Business PSP: Authorize the token with the PSP (outside UCP). This step crosses a trust boundary. If The issuer asks for 3DS2: With the authentication extension, the business returns an action; see the 3DS flow. Step 12: Business (merchant of record) to Platform (agent surface): 200 completed with order. This step crosses a trust boundary. Step 13: Business (merchant of record) to Platform (agent surface): POST webhook_url: signed order event. This step crosses a trust boundary. If Unsigned webhook or signer does not match the order business: The platform must reject the event; it can reconcile with GET /orders/order_789.",
+      "lines": [
+        "Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/ucp. This step crosses a trust boundary. If The profile URL redirects or is not HTTPS: The platform must not use it; there is no profile to negotiate with.",
+        "Step 2: Business (merchant of record) to Platform (agent surface): 200 business profile (ucp, keys). This step crosses a trust boundary. If The profile advertises a non-date version such as draft: Not allowed in public discovery; the platform should treat it as malformed.",
+        "Step 3: Platform (agent surface) to Platform (agent surface): Pick a version, check namespace authority. If A capability schema URL is on a host that does not own the namespace: The platform rejects that capability before fetching anything from it.",
+        "Step 4: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions (UCP-Agent, signed). This step crosses a trust boundary. If Signature or key problem: signature_missing, signature_invalid or key_not_found (401); digest_mismatch or algorithm_unsupported (400). If Profile URL malformed, unreachable or invalid: invalid_profile_url (400), profile_unreachable (424) or profile_malformed (422), with an optional continue_url.",
+        "Step 5: Business (merchant of record) to Platform (agent surface): GET platform profile, verify key, intersect. This step crosses a trust boundary. If The platform profile URL resolves to a special-use address such as 169.254.169.254: The business must refuse to fetch it (server-side request forgery guard). If The intersection is empty: capabilities_incompatible as a UCP response (HTTP 200) with an optional continue_url; see the failure flow.",
+        "Step 6: Business (merchant of record) to Platform (agent surface): 201 checkout, status incomplete. This step crosses a trust boundary. If All items are unavailable: ucp.status error with an out_of_stock message and no checkout resource.",
+        "Step 7: Platform (agent surface) to Business (merchant of record): PUT /checkout-sessions/chk_123 (full replacement). This step crosses a trust boundary. If The business needs data its API cannot collect, or a policy needs buyer review: status requires_escalation with continue_url; see the escalation flow. If Idempotency key reused with a different payload: HTTP 409.",
+        "Step 8: Platform (agent surface) to Buyer: Show checkout in a trusted UI; buyer places order. This step crosses a trust boundary. If The buyer declines: The platform may call POST /checkout-sessions/chk_123/cancel, or let the session expire.",
+        "Step 9: Platform (agent surface) to Credential provider (wallet): Run the payment handler, get an opaque token. This step crosses a trust boundary. If The platform cannot run any advertised handler: The platform cannot complete; it can hand off with continue_url.",
+        "Step 10: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions/chk_123/complete. This step crosses a trust boundary. If More than one instrument without split payments: payment_failed. If The response is lost: Poll Get Checkout, then resend only the identical request with the same Idempotency-Key; see the failure flow.",
+        "Step 11: Business (merchant of record) to Business PSP: Authorize the token with the PSP (outside UCP). This step crosses a trust boundary. If The issuer asks for 3DS2: With the authentication extension, the business returns an action; see the 3DS flow.",
+        "Step 12: Business (merchant of record) to Platform (agent surface): 200 completed with order. This step crosses a trust boundary.",
+        "Step 13: Business (merchant of record) to Platform (agent surface): POST webhook_url: signed order event. This step crosses a trust boundary. If Unsigned webhook or signer does not match the order business: The platform must reject the event; it can reconcile with GET /orders/order_789."
+      ],
+      "source": "src/content/flows/ucp-rest-checkout.json"
+    },
+    {
+      "id": "visa-tap-browse-and-checkout",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa TAP: browse a product, then check out with signed objects",
+      "description": "Sequence diagram: Visa TAP: browse a product, then check out with signed objects. 5 participants: AI agent, Site Protection Provider (CDN), Visa key store, Merchant, and Acquirer and Visa network. 11 steps, 8 crossing a trust boundary, 8 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Site Protection Provider (CDN): GET product page, signed agent-browser-auth. This step crosses a trust boundary. If A Checkout Enabler strips the signature headers: The request arrives unsigned and is treated as an unknown bot. Step 2: Site Protection Provider (CDN) to Visa key store: Fetch the key for keyid (if not cached). This step crosses a trust boundary. If Key not found or expired: Block the request. Step 3: Site Protection Provider (CDN) to Site Protection Provider (CDN): Check tag, fields, window, nonce, signature. If No TAP tag: Not a trusted agent; block or use other means. If Missing field, bad window, reused nonce or bad signature: Block the request. Step 4: Site Protection Provider (CDN) to Merchant: Forward as a verified agent request. This step crosses a trust boundary. Step 5: Merchant to AI agent: 200 product page. This step crosses a trust boundary. Step 6: AI agent to Site Protection Provider (CDN): POST checkout, signed agent-payer-auth, with body objects. This step crosses a trust boundary. If Body altered in transit: The header signature still verifies; only the object signatures can catch it. Step 7: Site Protection Provider (CDN) to Merchant: Verify header signature, forward. This step crosses a trust boundary. Step 8: Merchant to Merchant: Verify agenticConsumer and agenticPaymentContainer. If Consumer object fails: Content may be inaccurate; the merchant may still use it. If Payment container fails: Should not be used for payment. Step 9: Merchant to Merchant: Decrypt payload and map the ID Token. Step 10: Merchant to Acquirer and Visa network: Authorize the card payment. This step crosses a trust boundary. If Issuer declines: Ordinary card decline; TAP has no role. Step 11: Merchant to AI agent: Order confirmation. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: AI agent to Site Protection Provider (CDN): GET product page, signed agent-browser-auth. This step crosses a trust boundary. If A Checkout Enabler strips the signature headers: The request arrives unsigned and is treated as an unknown bot.",
+        "Step 2: Site Protection Provider (CDN) to Visa key store: Fetch the key for keyid (if not cached). This step crosses a trust boundary. If Key not found or expired: Block the request.",
+        "Step 3: Site Protection Provider (CDN) to Site Protection Provider (CDN): Check tag, fields, window, nonce, signature. If No TAP tag: Not a trusted agent; block or use other means. If Missing field, bad window, reused nonce or bad signature: Block the request.",
+        "Step 4: Site Protection Provider (CDN) to Merchant: Forward as a verified agent request. This step crosses a trust boundary.",
+        "Step 5: Merchant to AI agent: 200 product page. This step crosses a trust boundary.",
+        "Step 6: AI agent to Site Protection Provider (CDN): POST checkout, signed agent-payer-auth, with body objects. This step crosses a trust boundary. If Body altered in transit: The header signature still verifies; only the object signatures can catch it.",
+        "Step 7: Site Protection Provider (CDN) to Merchant: Verify header signature, forward. This step crosses a trust boundary.",
+        "Step 8: Merchant to Merchant: Verify agenticConsumer and agenticPaymentContainer. If Consumer object fails: Content may be inaccurate; the merchant may still use it. If Payment container fails: Should not be used for payment.",
+        "Step 9: Merchant to Merchant: Decrypt payload and map the ID Token.",
+        "Step 10: Merchant to Acquirer and Visa network: Authorize the card payment. This step crosses a trust boundary. If Issuer declines: Ordinary card decline; TAP has no role.",
+        "Step 11: Merchant to AI agent: Order confirmation. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/visa-tap-browse-and-checkout.json"
+    },
+    {
+      "id": "visa-tap-browsing-iou",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa TAP alternative path: paid content with HTTP 402 and a browsingIOU",
+      "description": "Sequence diagram: Visa TAP alternative path: paid content with HTTP 402 and a browsingIOU. 3 participants: AI agent, Merchant, and Acquirer and Visa network. 6 steps, 5 crossing a trust boundary, 3 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Merchant: Signed GET for a paid resource. This step crosses a trust boundary. Step 2: Merchant to AI agent: 402 with invoiceId, amount and CAID. This step crosses a trust boundary. If Agent cannot parse a merchant-specific 402: No IOU; access denied. Step 3: AI agent to Merchant: Retry with agenticPaymentContainer.browsingIOU. This step crosses a trust boundary. Step 4: Merchant to Merchant: Match IOU to the 402 and verify. If Mismatch or bad signature: Deny access. Step 5: Merchant to AI agent: 200 with the resource. This step crosses a trust boundary. Step 6: Merchant to Acquirer and Visa network: Settlement (not specified). This step crosses a trust boundary. If Funds never arrive: No TAP remedy is specified.",
+      "lines": [
+        "Step 1: AI agent to Merchant: Signed GET for a paid resource. This step crosses a trust boundary.",
+        "Step 2: Merchant to AI agent: 402 with invoiceId, amount and CAID. This step crosses a trust boundary. If Agent cannot parse a merchant-specific 402: No IOU; access denied.",
+        "Step 3: AI agent to Merchant: Retry with agenticPaymentContainer.browsingIOU. This step crosses a trust boundary.",
+        "Step 4: Merchant to Merchant: Match IOU to the 402 and verify. If Mismatch or bad signature: Deny access.",
+        "Step 5: Merchant to AI agent: 200 with the resource. This step crosses a trust boundary.",
+        "Step 6: Merchant to Acquirer and Visa network: Settlement (not specified). This step crosses a trust boundary. If Funds never arrive: No TAP remedy is specified."
+      ],
+      "source": "src/content/flows/visa-tap-browsing-iou.json"
+    },
+    {
+      "id": "visa-tap-browsing-verification",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa TAP: browsing request verified at the CDN",
+      "description": "Sequence diagram: Visa TAP: browsing request verified at the CDN. 5 participants: AI agent, Checkout Enabler, Site Protection Provider (CDN), Visa key store, and Merchant. 9 steps, 4 crossing a trust boundary, 7 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Checkout Enabler: Signed GET through a Checkout Enabler. This step crosses a trust boundary. Step 2: Checkout Enabler to Site Protection Provider (CDN): Pass signatures and query parameters through. This step crosses a trust boundary. If Headers stripped or rewritten: Verification fails or the request looks unsigned. Step 3: Site Protection Provider (CDN) to Site Protection Provider (CDN): Headers present. If Missing: Treat as an unsigned bot. Step 4: Site Protection Provider (CDN) to Visa key store: Fetch key by keyid and cache it. This step crosses a trust boundary. If keyid not in the directory: Block. Step 5: Site Protection Provider (CDN) to Site Protection Provider (CDN): Time window. If Outside the window: Block. Step 6: Site Protection Provider (CDN) to Site Protection Provider (CDN): Nonce not seen recently. If Nonce seen: Block as replay. Step 7: Site Protection Provider (CDN) to Site Protection Provider (CDN): Tag is agent-browser-auth. If Other tag: Block or handle as non-TAP traffic. Step 8: Site Protection Provider (CDN) to Site Protection Provider (CDN): Rebuild signature base and verify Ed25519. If Signature invalid: Block. Step 9: Site Protection Provider (CDN) to Merchant: Forward, marked as a verified agent. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: AI agent to Checkout Enabler: Signed GET through a Checkout Enabler. This step crosses a trust boundary.",
+        "Step 2: Checkout Enabler to Site Protection Provider (CDN): Pass signatures and query parameters through. This step crosses a trust boundary. If Headers stripped or rewritten: Verification fails or the request looks unsigned.",
+        "Step 3: Site Protection Provider (CDN) to Site Protection Provider (CDN): Headers present. If Missing: Treat as an unsigned bot.",
+        "Step 4: Site Protection Provider (CDN) to Visa key store: Fetch key by keyid and cache it. This step crosses a trust boundary. If keyid not in the directory: Block.",
+        "Step 5: Site Protection Provider (CDN) to Site Protection Provider (CDN): Time window. If Outside the window: Block.",
+        "Step 6: Site Protection Provider (CDN) to Site Protection Provider (CDN): Nonce not seen recently. If Nonce seen: Block as replay.",
+        "Step 7: Site Protection Provider (CDN) to Site Protection Provider (CDN): Tag is agent-browser-auth. If Other tag: Block or handle as non-TAP traffic.",
+        "Step 8: Site Protection Provider (CDN) to Site Protection Provider (CDN): Rebuild signature base and verify Ed25519. If Signature invalid: Block.",
+        "Step 9: Site Protection Provider (CDN) to Merchant: Forward, marked as a verified agent. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/visa-tap-browsing-verification.json"
+    },
+    {
+      "id": "visa-tap-checkout-verification",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa TAP: checkout request and body object verification at the merchant",
+      "description": "Sequence diagram: Visa TAP: checkout request and body object verification at the merchant. 4 participants: AI agent, Merchant, Visa key store, and Acquirer and Visa network. 8 steps, 3 crossing a trust boundary, 6 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Merchant: POST checkout with agent-payer-auth and body objects. This step crosses a trust boundary. Step 2: Merchant to Merchant: Verify the header signature. If Any check fails: Block the request. Step 3: Merchant to Merchant: Consumer object: fields and nonce. If Missing field or nonce mismatch: Content may be inaccurate. Step 4: Merchant to Visa key store: Locate keys for kid and the ID Token. This step crosses a trust boundary. Step 5: Merchant to Merchant: Verify consumer object and ID Token. If Verification fails: Merchant may still use the data at its discretion. Step 6: Merchant to Merchant: Payment container: fields, nonce, key, signature. If Missing field, nonce mismatch or bad signature: Should not be used for payment. If Key not found: Content may be inaccurate. Step 7: Merchant to Merchant: Process by type. If Hash mismatch: Decline the transaction. Step 8: Merchant to Acquirer and Visa network: Authorize as a card payment. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: AI agent to Merchant: POST checkout with agent-payer-auth and body objects. This step crosses a trust boundary.",
+        "Step 2: Merchant to Merchant: Verify the header signature. If Any check fails: Block the request.",
+        "Step 3: Merchant to Merchant: Consumer object: fields and nonce. If Missing field or nonce mismatch: Content may be inaccurate.",
+        "Step 4: Merchant to Visa key store: Locate keys for kid and the ID Token. This step crosses a trust boundary.",
+        "Step 5: Merchant to Merchant: Verify consumer object and ID Token. If Verification fails: Merchant may still use the data at its discretion.",
+        "Step 6: Merchant to Merchant: Payment container: fields, nonce, key, signature. If Missing field, nonce mismatch or bad signature: Should not be used for payment. If Key not found: Content may be inaccurate.",
+        "Step 7: Merchant to Merchant: Process by type. If Hash mismatch: Decline the transaction.",
+        "Step 8: Merchant to Acquirer and Visa network: Authorize as a card payment. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/visa-tap-checkout-verification.json"
+    },
+    {
+      "id": "visa-tap-failure-expired-window",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa TAP failure: validity window too long or expired",
+      "description": "Sequence diagram: Visa TAP failure: validity window too long or expired. 3 participants: AI agent, Site Protection Provider (CDN), and Merchant. 3 steps, 2 crossing a trust boundary, 2 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Site Protection Provider (CDN): Signed GET with a 60-minute window. This step crosses a trust boundary. Step 2: Site Protection Provider (CDN) to Site Protection Provider (CDN): Check created and expires. If Interval over 8 minutes: Block. If created in the future or expires in the past: Block. Step 3: Site Protection Provider (CDN) to AI agent: Block. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: AI agent to Site Protection Provider (CDN): Signed GET with a 60-minute window. This step crosses a trust boundary.",
+        "Step 2: Site Protection Provider (CDN) to Site Protection Provider (CDN): Check created and expires. If Interval over 8 minutes: Block. If created in the future or expires in the past: Block.",
+        "Step 3: Site Protection Provider (CDN) to AI agent: Block. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/visa-tap-failure-expired-window.json"
+    },
+    {
+      "id": "visa-tap-failure-replayed-nonce",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa TAP failure: replayed nonce",
+      "description": "Sequence diagram: Visa TAP failure: replayed nonce. 3 participants: AI agent, Site Protection Provider (CDN), and Merchant. 4 steps, 3 crossing a trust boundary, 2 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Site Protection Provider (CDN): Original signed request. This step crosses a trust boundary. Step 2: Site Protection Provider (CDN) to Merchant: Verified and recorded. This step crosses a trust boundary. Step 3: AI agent to Site Protection Provider (CDN): Same request replayed within 8 minutes. This step crosses a trust boundary. Step 4: Site Protection Provider (CDN) to Site Protection Provider (CDN): Nonce lookup. If Nonce found: Block as replay. If Verifier keeps no nonce record: Replay is accepted; TAP makes the record optional.",
+      "lines": [
+        "Step 1: AI agent to Site Protection Provider (CDN): Original signed request. This step crosses a trust boundary.",
+        "Step 2: Site Protection Provider (CDN) to Merchant: Verified and recorded. This step crosses a trust boundary.",
+        "Step 3: AI agent to Site Protection Provider (CDN): Same request replayed within 8 minutes. This step crosses a trust boundary.",
+        "Step 4: Site Protection Provider (CDN) to Site Protection Provider (CDN): Nonce lookup. If Nonce found: Block as replay. If Verifier keeps no nonce record: Replay is accepted; TAP makes the record optional."
+      ],
+      "source": "src/content/flows/visa-tap-failure-replayed-nonce.json"
+    },
+    {
+      "id": "visa-tap-failure-untagged-request",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa TAP failure: request without a TAP tag",
+      "description": "Sequence diagram: Visa TAP failure: request without a TAP tag. 3 participants: AI agent, Site Protection Provider (CDN), and Merchant. 4 steps, 3 crossing a trust boundary, 1 failure branch. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: AI agent to Site Protection Provider (CDN): GET with no signature, or tag web-bot-auth. This step crosses a trust boundary. Step 2: Site Protection Provider (CDN) to Site Protection Provider (CDN): Look for a TAP tag. If No TAP tag: Not signed by a trusted agent. Step 3: Site Protection Provider (CDN) to Merchant: Apply bot policy. This step crosses a trust boundary. Step 4: Merchant to AI agent: 403 or challenge. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: AI agent to Site Protection Provider (CDN): GET with no signature, or tag web-bot-auth. This step crosses a trust boundary.",
+        "Step 2: Site Protection Provider (CDN) to Site Protection Provider (CDN): Look for a TAP tag. If No TAP tag: Not signed by a trusted agent.",
+        "Step 3: Site Protection Provider (CDN) to Merchant: Apply bot policy. This step crosses a trust boundary.",
+        "Step 4: Merchant to AI agent: 403 or challenge. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/visa-tap-failure-untagged-request.json"
+    },
+    {
+      "id": "visa-tap-request-verification",
+      "kind": "state",
+      "protocol": "visa-tap",
+      "title": "Visa TAP: one request through verification (verifier-side state)",
+      "description": "State diagram: Visa TAP: one request through verification (verifier-side state). 12 states: Request received, TAP tag found, Minimum fields present, Inside the window, Nonce not seen, Key resolved, Trusted agent, browsing, Trusted agent, paying, Body objects checked, Served, Not a trusted agent, and Blocked. Starts in Request received. Ends in Served, Not a trusted agent, and Blocked. 17 transitions. From Request received to TAP tag found when Signature-Input has a TAP tag. From Request received to Not a trusted agent when No TAP tag. From TAP tag found to Minimum fields present when All minimum fields present. From TAP tag found to Blocked when A field is missing. From Minimum fields present to Inside the window when Timestamps valid. From Minimum fields present to Blocked when Window over 8 minutes or outside now. From Inside the window to Nonce not seen when Nonce unseen, or no record kept. From Inside the window to Blocked when Nonce already recorded. From Nonce not seen to Key resolved when Key for keyid found (GET https://mcp.visa.com/.well-known/jwks). From Nonce not seen to Blocked when Key missing or expired (GET https://mcp.visa.com/.well-known/jwks). From Key resolved to Trusted agent, browsing when Signature valid, tag agent-browser-auth. From Key resolved to Trusted agent, paying when Signature valid, tag agent-payer-auth. From Key resolved to Blocked when Signature invalid. From Trusted agent, browsing to Served when Merchant serves the page. From Trusted agent, paying to Body objects checked when Nonce, kid and signature of each body object checked. From Body objects checked to Served when Payment data processed. From Body objects checked to Blocked when Payment container invalid or hash mismatch.",
+      "lines": [
+        "From Request received to TAP tag found when Signature-Input has a TAP tag.",
+        "From Request received to Not a trusted agent when No TAP tag.",
+        "From TAP tag found to Minimum fields present when All minimum fields present.",
+        "From TAP tag found to Blocked when A field is missing.",
+        "From Minimum fields present to Inside the window when Timestamps valid.",
+        "From Minimum fields present to Blocked when Window over 8 minutes or outside now.",
+        "From Inside the window to Nonce not seen when Nonce unseen, or no record kept.",
+        "From Inside the window to Blocked when Nonce already recorded.",
+        "From Nonce not seen to Key resolved when Key for keyid found (GET https://mcp.visa.com/.well-known/jwks).",
+        "From Nonce not seen to Blocked when Key missing or expired (GET https://mcp.visa.com/.well-known/jwks).",
+        "From Key resolved to Trusted agent, browsing when Signature valid, tag agent-browser-auth.",
+        "From Key resolved to Trusted agent, paying when Signature valid, tag agent-payer-auth.",
+        "From Key resolved to Blocked when Signature invalid.",
+        "From Trusted agent, browsing to Served when Merchant serves the page.",
+        "From Trusted agent, paying to Body objects checked when Nonce, kid and signature of each body object checked.",
+        "From Body objects checked to Served when Payment data processed.",
+        "From Body objects checked to Blocked when Payment container invalid or hash mismatch."
+      ],
+      "source": "src/content/states/visa-tap-request-verification.json"
+    },
+    {
+      "id": "visa-tap-vic-token-passkey",
+      "kind": "flow",
+      "protocol": "visa-tap",
+      "title": "Visa Intelligent Commerce link: token, passkey and instruction behind a TAP checkout",
+      "description": "Sequence diagram: Visa Intelligent Commerce link: token, passkey and instruction behind a TAP checkout. 4 participants: Consumer, AI agent, Visa Intelligent Commerce, and Merchant. 7 steps, 7 crossing a trust boundary, 2 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: Consumer to AI agent: Ask the agent to add a card. This step crosses a trust boundary. Step 2: AI agent to Visa Intelligent Commerce: POST /vacp/v1/cards. This step crosses a trust boundary. If Step-up fails: No token is provisioned. Step 3: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions. This step crosses a trust boundary. Step 4: Consumer to Visa Intelligent Commerce: Approve with a passkey. This step crosses a trust boundary. If User declines: No credentials can be retrieved. Step 5: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/{instructionId}/credentials. This step crosses a trust boundary. Step 6: AI agent to Merchant: TAP checkout with the payment container. This step crosses a trust boundary. Step 7: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/{instructionId}/confirmations. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Consumer to AI agent: Ask the agent to add a card. This step crosses a trust boundary.",
+        "Step 2: AI agent to Visa Intelligent Commerce: POST /vacp/v1/cards. This step crosses a trust boundary. If Step-up fails: No token is provisioned.",
+        "Step 3: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions. This step crosses a trust boundary.",
+        "Step 4: Consumer to Visa Intelligent Commerce: Approve with a passkey. This step crosses a trust boundary. If User declines: No credentials can be retrieved.",
+        "Step 5: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/{instructionId}/credentials. This step crosses a trust boundary.",
+        "Step 6: AI agent to Merchant: TAP checkout with the payment container. This step crosses a trust boundary.",
+        "Step 7: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/{instructionId}/confirmations. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/visa-tap-vic-token-passkey.json"
+    },
+    {
       "id": "x402-escrow-auth-capture",
       "kind": "flow",
       "protocol": "x402",

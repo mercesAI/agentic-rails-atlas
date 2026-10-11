@@ -1,0 +1,15 @@
+sequenceDiagram
+  accTitle: ACP alternative path: cancel with an intent trace
+  accDescr: Sequence diagram: ACP alternative path: cancel with an intent trace. 3 participants: Buyer, Agent (AI surface), and Merchant API. 3 steps, 1 crossing a trust boundary, 1 failure branch. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Buyer to Agent (AI surface): Decides not to buy. Step 2: Agent (AI surface) to Merchant API: POST /checkout_sessions/ id /cancel. This step crosses a trust boundary. If Session already completed or canceled: 405. Step 3: Merchant API to Agent (AI surface): 200 status canceled.
+  autonumber
+  participant p_buyer as Buyer
+  participant p_agent as Agent (AI surface)
+  participant p_merchant as Merchant API
+  p_buyer->>p_agent: Decides not to buy
+  alt Expected path
+    p_agent->>p_merchant: POST /checkout_sessions/#123;id#125;/cancel
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Session already completed or canceled
+    Note over p_agent,p_merchant: 405
+  end
+  p_merchant-->>p_agent: 200 status canceled

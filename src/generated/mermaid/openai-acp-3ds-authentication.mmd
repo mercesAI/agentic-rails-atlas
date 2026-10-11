@@ -1,0 +1,27 @@
+sequenceDiagram
+  accTitle: ACP alternative path: 3-D Secure step-up
+  accDescr: Sequence diagram: ACP alternative path: 3-D Secure step-up. 4 participants: Agent (AI surface), Merchant API, Authentication provider, and Buyer. 7 steps, 4 crossing a trust boundary, 2 failure branches. Based on openai-acp 2026-04-17 (2026-04-17). Step 1: Merchant API to Agent (AI surface): Session status authentication_required. Step 2: Agent (AI surface) to Merchant API: Complete without authentication_result. This step crosses a trust boundary. Step 3: Merchant API to Agent (AI surface): 4XX requires_3ds. Step 4: Agent (AI surface) to Authentication provider: POST /delegate_authentication. This step crosses a trust boundary. Step 5: Agent (AI surface) to Authentication provider: Fingerprint, then POST.../authenticate. This step crosses a trust boundary. If Challenge required: The buyer completes the issuer challenge. Step 6: Buyer to Authentication provider: Issuer challenge (if any). Step 7: Agent (AI surface) to Merchant API: Complete with authentication_result. This step crosses a trust boundary. If Outcome denied: Merchant declines session stays open or ends per merchant policy.
+  autonumber
+  participant p_agent as Agent (AI surface)
+  participant p_merchant as Merchant API
+  participant p_auth as Authentication provider
+  participant p_buyer as Buyer
+  p_merchant->>p_agent: Session status authentication_required
+  p_agent-->>p_merchant: Complete without authentication_result
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  p_merchant->>p_agent: 4XX requires_3ds
+  p_agent->>p_auth: POST /delegate_authentication
+  Note over p_agent,p_auth: Crosses a trust boundary
+  alt Expected path
+    p_agent->>p_auth: Fingerprint, then POST .../authenticate
+    Note over p_agent,p_auth: Crosses a trust boundary
+  else Challenge required
+    Note over p_agent,p_auth: The buyer completes the issuer challenge
+  end
+  p_buyer->>p_auth: Issuer challenge (if any)
+  alt Expected path
+    p_agent->>p_merchant: Complete with authentication_result
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Outcome denied
+    Note over p_agent,p_merchant: Merchant declines#59; session stays open or ends per merchant policy
+  end
