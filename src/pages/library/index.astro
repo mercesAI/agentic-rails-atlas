@@ -1,0 +1,38 @@
+---
+/**
+ * /library/: all resources (every protocol's resources.json) and verified
+ * publications, filterable, searchable and exportable (BibTeX, RIS, CSV).
+ */
+import Page from '../../layouts/Page.astro';
+import LibraryBrowser from '../../components/crosscut/LibraryBrowser';
+import { getPublications } from '../../lib/content';
+import { loadProtocolInfos, safeAll } from '../../components/crosscut/lib/load';
+import { buildLibrary } from '../../components/crosscut/lib/library';
+import { BUILD_DATE } from '../../lib/constants';
+import type { Resource } from '../../lib/schemas';
+import '../../components/crosscut/crosscut.css';
+
+const protocols = await loadProtocolInfos();
+const resources = (await safeAll('resources')).flatMap((e) => e.data.resources as Resource[]);
+const publications = await getPublications();
+const items = buildLibrary(resources, publications);
+const protocolNames: Record<string, string> = Object.fromEntries(protocols.map((p) => [p.slug, p.short]));
+const nRes = items.filter((i) => i.kind === 'resource').length;
+const nPub = items.length - nRes;
+const nGrey = items.filter((i) => i.grey).length;
+const withResources = new Set(resources.flatMap((r) => r.protocols));
+const missing = protocols.filter((p) => !withResources.has(p.slug));
+---
+<Page
+  title="Library"
+  eyebrow="Cross-cutting"
+  lede="Specifications, repositories, documentation, talks and research papers for all eight protocols in one searchable list."
+  prose={false}
+>
+  <p class="cc-intro">
+    {nRes} resources and {nPub} publications ({nGrey} of them grey literature: reports and white papers without peer review, marked with a dashed tag). Every publication was checked against DataCite, Crossref, DOI resolution, arXiv or the publisher page; see the <a href="/methodology/">methodology</a>.
+    {missing.length > 0 && <> Resource lists in progress: {missing.map((p) => p.short).join(', ')}.</>}
+    {' '}Exports include only the entries that match the current filters.
+  </p>
+  <LibraryBrowser client:visible items={items} protocolNames={protocolNames} accessed={BUILD_DATE} />
+</Page>

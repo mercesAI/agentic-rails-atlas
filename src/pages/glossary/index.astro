@@ -1,0 +1,142 @@
+---
+/**
+ * /glossary/: every fully written term (plain and STE definitions, protocols,
+ * sources) with an id anchor that the site-wide term tooltips link to, plus a
+ * protocol filter and a search box (small client script). Stubs from
+ * research/glossary.draft.json are listed separately and not counted.
+ */
+import Page from '../../layouts/Page.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import Cite from '../../components/ui/Cite.astro';
+import { getGlossary } from '../../lib/content';
+import { loadProtocolInfos, registerSources } from '../../components/crosscut/lib/load';
+import { isFullTerm, letterOf, openStubs, searchText, sortTerms, type GlossaryStub } from '../../components/crosscut/lib/glossary';
+import '../../components/crosscut/crosscut.css';
+
+const page = Astro.url.pathname;
+const protocols = await loadProtocolInfos();
+const short = (slug: string) => protocols.find((p) => p.slug === slug)?.short ?? slug;
+const all = await getGlossary();
+const full = sortTerms(all.filter(isFullTerm));
+const DRAFT = import.meta.glob<{ stubs?: GlossaryStub[] }>('/research/glossary.draft.json', { eager: true, import: 'default' });
+const draftStubs = Object.values(DRAFT)[0]?.stubs ?? [];
+const stubs = openStubs(
+  [...draftStubs, ...all.filter((t) => !isFullTerm(t)).map((t) => ({ id: t.id, term: t.term, aliases: t.aliases, protocols: t.protocols }))],
+  full,
+);
+await registerSources(page, full.flatMap((t) => t.sources));
+
+const letters = [...new Set(full.map((t) => letterOf(t.term)))];
+const byLetter = letters.map((l) => ({ l, terms: full.filter((t) => letterOf(t.term) === l) }));
+const usedProtocols = protocols.filter((p) => full.some((t) => t.protocols.includes(p.slug)));
+const letterId = (l: string) => (l === '#' ? 'letter-digits' : `letter-${l.toLowerCase()}`);
+---
+<Page
+  title="Glossary"
+  eyebrow="Cross-cutting"
+  lede="Terms used across the eight protocols, each with a plain definition, an ASD-STE100 definition, the protocols it applies to and its sources."
+  prose={false}
+>
+  <p class="cc-intro">
+    {full.length} fully written terms. {stubs.length > 0 && <>{stubs.length} more are stubs (named, not yet written) and are listed at the end; they do not count toward the total.</>}
+    {' '}Underlined terms on protocol pages link here.
+  </p>
+
+  <div class="cc-filters" role="search" aria-label="Filter glossary">
+    <div class="cc-field">
+      <label for="gl-q">Search terms</label>
+      <input id="gl-q" class="cc-input" type="search" placeholder="For example: mandate, 402" autocomplete="off" />
+    </div>
+    <div class="cc-field">
+      <label for="gl-p">Protocol</label>
+      <select id="gl-p" class="cc-select">
+        <option value="">All protocols</option>
+        {usedProtocols.map((p) => <option value={p.slug}>{p.short}</option>)}
+      </select>
+    </div>
+  </div>
+  <p class="cc-count" id="gl-count" aria-live="polite">Showing {full.length} of {full.length} terms.</p>
+
+  <nav aria-label="Glossary letters">
+    <ul class="cc-letters">
+      {letters.map((l) => <li><a href={`#${letterId(l)}`}>{l}</a></li>)}
+      {stubs.length > 0 && <li><a href="#stubs" style="width:auto;padding:0 0.5rem">Stubs</a></li>}
+    </ul>
+  </nav>
+
+  <div id="gl-terms">
+    {byLetter.map(({ l, terms }) => (
+      <section class="gl-group" aria-labelledby={letterId(l)}>
+        <h2 class="cc-gl-letter" id={letterId(l)}>{l === '#' ? 'Digits and symbols' : l}</h2>
+        <ul class="cc-gl-list">
+          {terms.map((t) => (
+            <li class="cc-gl-term" id={t.id} data-search={searchText(t)} data-protocols={t.protocols.join(' ')}>
+              <h3><a href={`#${t.id}`} style="color:inherit;text-decoration:none">{t.term}</a></h3>
+              {t.aliases.length > 0 && <p class="cc-gl-aliases">Also: {t.aliases.join(', ')}</p>}
+              <dl class="cc-gl-defs">
+                <div><dt>Plain</dt><dd>{t.plain} <Cite ids={t.sources.join(' ')} /></dd></div>
+                <div><dt>STE</dt><dd>{t.ste}</dd></div>
+              </dl>
+              {t.protocols.length > 0 && (
+                <p class="cc-gl-meta">
+                  <span>Protocols:</span>
+                  {t.protocols.map((s) => (protocols.some((p) => p.slug === s && p.hasPage) ? <a class="cc-tag" href={`/p/${s}/`}>{short(s)}</a> : <span class="cc-tag">{short(s)}</span>))}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+    <p id="gl-empty" class="cc-note" hidden>No term matches. Try a shorter search or another protocol.</p>
+  </div>
+
+  {stubs.length > 0 && (
+    <section class="cc-section" aria-labelledby="stubs">
+      <h2 id="stubs">Stubs, not yet written</h2>
+      <p>These terms are named in the seed list but have no sourced definitions yet. They are excluded from the term count and from the tooltips.</p>
+      <ul class="cc-gl-stubs">
+        {stubs.map((s) => (
+          <li id={`stub-${s.id}`}>
+            <strong>{s.term}</strong>
+            <span class="cc-stub">Stub, not yet written</span>
+            {s.protocols.length > 0 && <span class="cc-note">{s.protocols.map(short).join(', ')}</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <SourceList page={page} />
+</Page>
+
+<script>
+  function initGlossaryFilter() {
+    const q = document.getElementById('gl-q') as HTMLInputElement | null;
+    const p = document.getElementById('gl-p') as HTMLSelectElement | null;
+    const count = document.getElementById('gl-count');
+    const empty = document.getElementById('gl-empty');
+    if (!q || !p || !count || q.dataset.bound) return;
+    q.dataset.bound = '1';
+    const items = [...document.querySelectorAll<HTMLElement>('.cc-gl-term')];
+    const groups = [...document.querySelectorAll<HTMLElement>('.gl-group')];
+    const total = items.length;
+    const apply = () => {
+      const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const proto = p.value;
+      let shown = 0;
+      for (const li of items) {
+        const hay = li.dataset.search ?? '';
+        const ok = (!proto || (li.dataset.protocols ?? '').split(' ').includes(proto)) && terms.every((t) => hay.includes(t));
+        li.hidden = !ok;
+        if (ok) shown += 1;
+      }
+      for (const g of groups) g.hidden = !g.querySelector('.cc-gl-term:not([hidden])');
+      count.textContent = `Showing ${shown} of ${total} terms.`;
+      if (empty) empty.hidden = shown > 0;
+    };
+    q.addEventListener('input', apply);
+    p.addEventListener('change', apply);
+  }
+  document.addEventListener('astro:page-load', initGlossaryFilter);
+</script>
