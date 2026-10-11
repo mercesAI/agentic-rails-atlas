@@ -403,3 +403,187 @@ Several of the eight protocols now carry Lightning as a payment method without L
 **Sources.** src-x402-docs-devtools; src-orbit-x402r-sdk; src-x402-arxiv-2603-01179.
 
 ---
+
+## ★ Visa Intelligent Commerce
+
+- **id:** `visa-intelligent-commerce`
+- **Category:** card-wallet-commerce
+- **What it is:** Visa's program and API platform for agent-initiated card payments: tokenized credentials for agents, passkey-confirmed payment instructions, transaction signals back to Visa, and the programs (Agentic Ready, Intelligent Commerce Connect, Agentic Directory, Agent Score) built around them. The Trusted Agent Protocol (TAP) is one component.
+- **Steward:** Visa (company).
+- **Status (as of 2026-10-11):** Mixed. Unveiled 2025-04-30; Visa reported "hundreds" of agent-initiated transactions with partners by 2025-12-18 (controlled, real-world); Agentic Ready live in the UK and Europe, with 31 European issuers named as completing live agent purchases on 2026-07-02; Intelligent Commerce Connect announced as a pilot on 2026-04-08; Agentic Directory and Agent Score announced 2026-06-10 with no public list or endpoint found. The developer page says the platform is free in sandbox and production fees are by contact.
+- **Latest version:** no version numbers; latest dated program event is the 2026-07-02 European issuer phase.
+- **Primary links:**
+  - https://developer.visa.com/capabilities/visa-intelligent-commerce/overview (developer overview)
+  - https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.21361.html (launch, 2025-04-30)
+  - https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22276.html (Intelligent Commerce Connect, 2026-04-08)
+  - https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22491.html (Agentic Directory and Agent Score, 2026-06-10)
+  - https://github.com/visa/ai (VIC MCP and API toolkit, MIT)
+
+**Description.** Visa Intelligent Commerce (VIC) is the commercial layer around Visa's agent protocols. Visa unveiled it on 2025-04-30 under the heading "Find and Buy with AI", pitching AI-ready cards: tokenized Visa credentials that a user can hand to an AI agent without exposing the card number. A user enrolls a card, an agent creates a purchase instruction that the user confirms (Visa Payment Passkeys are the confirmation method Visa names in Europe), and the agent then requests credentials for that instruction. Visa's open-source `visa/ai` toolkit shows the shape of the API: enrollment through `POST /vacp/v1/cards`, then create, update, cancel, credential and confirmation calls under `/vacp/v1/instructions`. The confirmation call reports the outcome back to Visa as a "signal" that Visa says helps resolve disputes.
+
+TAP sits inside VIC. TAP is the signature scheme an agent uses to identify itself to a merchant website; VIC supplies the onboarding of agents, the tokens and the payment instructions that the TAP payment container refers to. The TAP specification says a public key associated with Visa implies the agent takes part in, and complies with, the VIC program requirements, so a merchant that verifies TAP is relying on Visa's agent onboarding, which is not public.
+
+Around the API Visa has announced several programs. Agentic Ready (Europe from 2026-03-17 with 21 named early issuers; global expansion announced 2026-04-29) prepares issuers and merchants to accept agent transactions; on 2026-07-02 Visa said 31 European issuers had completed live agent purchases with merchants such as lastminute.com, and that every Agentic Ready transaction in Europe used Visa Payment Passkeys, supporting Strong Customer Authentication. Intelligent Commerce Connect (pilot, 2026-04-08) is an on-ramp for businesses that accepts agent payments arriving through TAP, MPP, ACP or UCP and can handle orchestration and PCI compliance for enablers. The Agentic Directory (2026-06-10) is described as a list of Visa-verified agents and merchants, and Agent Score rates how ready a merchant site is for agents (it scores sites, not agents); the same release calls the directory an "Agentic Registry" in its subheadline.
+
+Separate what is live from what is announced. Live: the sandbox API, the `visa/ai` toolkit (MIT, last commit 2026-09-30), Agentic Ready transactions in Europe, and partner products such as Crossmint's Agentic Cards API (2026-06-02). Pilot or announced: Intelligent Commerce Connect, the Agentic Directory and Agent Score. No agent-specific liability shift, interchange rate or 3-D Secure rule had been published as of the Visa TAP research on 2026-10-11, and Visa's reference agent (`visa/vic-reference-agent`) carries an evaluation-only license despite being described as open source.
+
+Visa also extends VIC beyond its own protocol: it authored the card payment method for MPP (`draft-card-charge-00`, where TAP headers are optional) and a 2026-03-18 card spec and `mpp-card` SDK built on VIC and TAP, it is a Premier member of the x402 Foundation, it is listed as a UCP endorser, and it is a founding validator of Circle's Arc chain. Mastercard's counterpart program is Agent Pay; both networks use the phrase "agentic token" for different constructs.
+
+**Status history.**
+- 2025-04-30: VIC unveiled ("Find and Buy with AI").
+- 2025-10-14: Trusted Agent Protocol launched as part of VIC, with Cloudflare.
+- 2025-12-18: Visa reports hundreds of agent-initiated transactions with partners.
+- 2026-03-17: Agentic Ready launched in Europe (21 early issuers).
+- 2026-03-18: Visa card spec and SDK for MPP.
+- 2026-04-08: Intelligent Commerce Connect announced (pilot).
+- 2026-04-29: Agentic Ready global expansion.
+- 2026-06-10: Agentic Directory and Agent Score announced.
+- 2026-07-02: 31 European issuers complete live agent purchases.
+
+**Relations to the eight.**
+- visa-tap: same-steward. TAP is VIC's agent identity component; a Visa-associated key implies VIC program participation.
+- stripe-mpp: complements. Visa authored MPP's card method; Intelligent Commerce Connect accepts MPP payments.
+- openai-acp: compatible-with. Intelligent Commerce Connect accepts ACP payments; no wire binding published.
+- ucp: compatible-with. Visa is a listed UCP endorser and Intelligent Commerce Connect accepts UCP.
+- x402: compatible-with. Visa is an x402 Foundation Premier member; the TAP release says Visa is collaborating with Coinbase on x402 interoperability.
+- mastercard-agent-pay: competes-with. Rival network program for agent card payments with its own token and directory.
+- ap2, erc-8004: no documented relation.
+
+**Sources.** src-visa-vic-pr; src-visa-vic-dev; src-visa-ai-repo; src-visa-ai-vic-client; src-visa-vic-ref-agent; src-visa-tap-pr; src-visa-tap-spec; src-visa-dec18; src-visa-ar-eu; src-visa-ar-global; src-visa-icc; src-visa-jun10; src-visa-eu-live; src-visa-mpp-card; src-x402-lf-july; src-orbit-crossmint-launch.
+
+---
+
+## American Express ACE Developer Kit and Agent Purchase Protection
+
+- **id:** `amex-ace`
+- **Category:** card-wallet-commerce
+- **What it is:** American Express's Agentic Commerce Experiences (ACE) Developer Kit, with five services (agent registration, account enablement, intent intelligence, payment credentials and cart context), and Agent Purchase Protection, a commitment to protect eligible Card Members from charges caused by errors of registered AI agents.
+- **Steward:** American Express (company).
+- **Status (as of 2026-10-11):** Announced 2026-04-14. Amex said the protection applies when a Card Member authorizes a registered agent and the agent sends Amex the authenticated purchase intent, with terms and conditions; trade coverage notes the wording is forward-looking. Developer availability details beyond the release were not verified.
+- **Latest version:** announcement (2026-04-14).
+- **Primary links:**
+  - https://www.nasdaq.com/press-release/american-express-debuts-agentic-commerce-experiences-acetm-developer-kit-and (Business Wire release)
+  - https://www.americanexpress.com/en-us/company/agentic-commerce/ (program page)
+
+**Status history.**
+- 2025-09-16: American Express named among AP2 launch collaborators.
+- 2026-04-14: ACE Developer Kit and Agent Purchase Protection announced.
+- 2026-07-14: Premier member at the x402 Foundation's operational launch.
+
+**Relations to the eight.**
+- ap2: compatible-with. Named collaborator at AP2's launch; no Amex AP2 product found.
+- ucp: compatible-with. Listed as a UCP endorser on ucp.dev.
+- x402: compatible-with. Premier member of the x402 Foundation.
+- visa-tap, mastercard-agent-pay: competes-with. Card-network agent program with its own agent registration, parallel to Visa's and Mastercard's.
+- Other two: no documented relation. The release says the kit works with existing and emerging protocols without naming them.
+
+**Sources.** src-orbit-amex-ace-pr; src-orbit-amex-agentic-page; src-ap2-gcloud-launch; src-ucp-site; src-x402-lf-july.
+
+---
+
+## PayPal agentic commerce services (Agent Ready, Store Sync)
+
+- **id:** `paypal-agentic`
+- **Category:** card-wallet-commerce
+- **What it is:** PayPal services that let merchants accept payments from AI assistants with minimal changes (Agent Ready) and expose catalogs, carts and orders to AI shopping platforms (Store Sync).
+- **Steward:** PayPal (company).
+- **Status (as of 2026-10-11):** Live per PayPal developer docs. Announced 2025-10-28; Store Sync was available first, and Agent Ready payments were slated for early 2026 (reported). On 2025-10-28 PayPal also said it "will adopt" ACP and run an ACP server for its merchants; it signed the ACP corporate CLA on 2026-04-16. PayPal is a listed PSP for the ChatGPT payment sheet beta and a launch partner of Microsoft Copilot Checkout (2026-01-08), and it powers Perplexity Instant Buy (see that item).
+- **Latest version:** no versions; docs current on 2026-10-11.
+- **Primary links:**
+  - https://developer.paypal.com/agentic-commerce-services/about.md (developer overview)
+  - https://paypal.ai/ (program site)
+
+**Status history.**
+- 2025-10-28: agentic commerce services announced; PayPal says it will adopt ACP.
+- 2026-01-08: launch partner of Microsoft Copilot Checkout.
+- 2026-04-16: PayPal signs the ACP corporate CLA.
+
+**Relations to the eight.**
+- openai-acp: uses-as-rail. PayPal adopts ACP and runs an ACP server for merchants; CLA signatory.
+- ucp: compatible-with. Listed as a UCP endorser on ucp.dev.
+- ap2: compatible-with. Named among AP2 launch collaborators.
+- Other five: no documented relation.
+
+**Sources.** src-orbit-paypal-docs; src-orbit-paypal-dc360; src-paypal-acp; src-openai-acp-cla-signatories; src-openai-apps-monetization; src-ms-copilot-checkout; src-ucp-site; src-ap2-gcloud-launch.
+
+---
+
+## Stripe Agentic Commerce Suite and Shared Payment Tokens
+
+- **id:** `stripe-acs`
+- **Category:** card-wallet-commerce
+- **What it is:** Stripe's merchant product for selling through AI agents (Agentic Commerce Suite) and its scoped, revocable payment credential that an agent passes to a seller without exposing card details (Shared Payment Token, SPT).
+- **Steward:** Stripe (company).
+- **Status (as of 2026-10-11):** Live. SPTs launched with ACP on 2025-09-29; the Agentic Commerce Suite launched 2025-12-11. SPTs are available to agents, customers and sellers in the US, Canada and listed European countries; Stripe docs show examples with `Stripe-Version 2026-09-30.preview`.
+- **Latest version:** API version `2026-09-30.preview` in SPT examples.
+- **Primary links:**
+  - https://stripe.com/newsroom/news/agentic-commerce-suite (suite launch)
+  - https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens (SPT docs)
+
+**Card data.** An SPT carries `usage_limits` (`currency`, `max_amount`, `expires_at`) and `seller_details`; the seller confirms a PaymentIntent with it. OpenAI describes SPT as the first implementation compatible with ACP's Delegated Payment spec, but SPT itself is not part of the ACP spec. Stripe's MPP integration accepts cards through SPTs, a shared primitive rather than a protocol link.
+
+**Status history.**
+- 2025-09-29: SPT launched with ACP and ChatGPT Instant Checkout.
+- 2025-12-11: Agentic Commerce Suite launched.
+
+**Relations to the eight.**
+- openai-acp: same-steward. Stripe co-develops ACP with OpenAI; SPT is the first Delegated Payment implementation.
+- stripe-mpp: same-steward. Stripe co-authors MPP; MPP card payments on Stripe use SPTs.
+- x402: compatible-with. Stripe's machine payments preview supports x402 on Base (reported 2026-02-11).
+- ucp: compatible-with. Stripe is a UCP co-developer listed on ucp.dev.
+- Other four: no documented relation.
+
+**Sources.** src-stripe-acs-launch; src-stripe-spt; src-stripe-acp-launch; src-openai-commerce-docs; src-stripe-mpp-docs; src-x402-stripe-coverage; src-ucp-site.
+
+---
+
+## Adyen Agentic
+
+- **id:** `adyen-agentic`
+- **Category:** card-wallet-commerce
+- **What it is:** A suite of modular Adyen APIs (Agentic Feed, Agentic Cart, Agentic Payments) that lets enterprise merchants sell through AI platforms without rebuilding checkout for each one.
+- **Steward:** Adyen (company).
+- **Status (as of 2026-10-11):** Limited availability for US enterprise merchants since the 2026-06-16 announcement, with global expansion planned. Adyen's release calls itself an early endorser of UCP and names AP2 and OpenAI's ACP; Adyen publishes UCP integration docs (last modified 2026-10-09). Adyen signed the ACP CLA, and ACP added `adyen` to its authentication provider enum in the 2026-01-16 release.
+- **Latest version:** limited availability (2026-06-16).
+- **Primary links:**
+  - https://www.adyen.com/press-and-media/adyen-agentic (announcement)
+  - https://docs.adyen.com/online-payments/agentic-commerce/agent-platform/agentic-payments-ucp (UCP integration docs)
+
+**Status history.**
+- 2026-01-16: ACP release adds `adyen` as an authentication provider.
+- 2026-06-16: Adyen Agentic announced, US limited availability.
+- 2026-07-14: Premier member at the x402 Foundation's operational launch.
+
+**Relations to the eight.**
+- ucp: uses-as-rail. Adyen documents an Agentic Payments integration with UCP.
+- openai-acp: uses-as-rail. CLA signatory and named authentication provider in the ACP spec.
+- ap2: compatible-with. Named in Adyen's release; AP2 launch collaborator.
+- mastercard-agent-pay: compatible-with. Mastercard is quoted in the Adyen Agentic release about Agent Pay.
+- x402: compatible-with. Premier member of the x402 Foundation.
+- Other three: no documented relation.
+
+**Sources.** src-orbit-adyen-agentic; src-ucp-adyen-docs; src-openai-acp-cla-signatories; src-ap2-gcloud-launch; src-x402-lf-july.
+
+---
+
+## Klarna Agentic Product Protocol
+
+- **id:** `klarna-app`
+- **Category:** card-wallet-commerce
+- **What it is:** An open product-feed specification and API from Klarna that gives AI agents structured, live product, price and availability data.
+- **Steward:** Klarna (company).
+- **Status (as of 2026-10-11):** Live per the 2025-12-15 announcement (specification and API access "available today"). Klarna claims more than 100 million products and 400 million prices across 12 markets (company figures, as of 2025-12-15). Klarna is a listed UCP endorser.
+- **Latest version:** launch (2025-12-15).
+- **Primary links:**
+  - https://www.businesswire.com/news/home/20251215227830/en/Klarna-Launches-Agentic-Product-Protocol-The-Open-Standard-That-Makes-100M-Products-Instantly-Discoverable-by-AI-Agents (announcement)
+
+**Status history.**
+- 2025-12-15: Agentic Product Protocol launched.
+
+**Relations to the eight.**
+- openai-acp, ucp: competes-with. A product-feed format for agents, overlapping with ACP product feeds and UCP catalog capabilities; Klarna is also a UCP endorser.
+- Other six: no documented relation.
+
+**Sources.** src-orbit-klarna-app; src-ucp-site.
+
+---
