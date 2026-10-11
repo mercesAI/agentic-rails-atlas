@@ -25,7 +25,7 @@ import {
   type TaggedDisclosure,
 } from './mandates';
 import { verifyCheckoutChain, verifyPaymentChain, type Chain, type VerifyResult } from './verify';
-import type { BudgetUnit } from './constraints';
+import { evaluateCheckoutConstraints, evaluatePaymentConstraints, type BudgetUnit, type ConstraintResult } from './constraints';
 import {
   VCT,
   type AnyConstraint,
@@ -522,4 +522,34 @@ export function explainSdJwt(serialized: string): { jwt: { header: unknown; payl
       }
     }),
   };
+}
+
+// ------------------------------------------------------------------ live constraint preview
+
+export interface ConstraintPreview {
+  checkout: Checkout;
+  amount: number;
+  checkoutResults: ConstraintResult[];
+  paymentResults: ConstraintResult[];
+}
+
+/**
+ * Evaluate the open-mandate constraints against the current cart without signing anything, with every
+ * element revealed. `payment.reference` needs the signed open Checkout Mandate, so it is checked in the run.
+ */
+export function previewConstraints(cfg: V02Config): ConstraintPreview {
+  const merchant = merchantById(cfg.merchantId) ?? merchantById('merchant_trailhead')!;
+  const instrument = INSTRUMENTS.find((i) => i.id === cfg.instrumentId) ?? INSTRUMENTS[0]!;
+  const checkout = buildCheckout(merchant, cfg.lines, 'preview');
+  const amount = checkoutTotal(checkout);
+  const checkoutResults = evaluateCheckoutConstraints(buildCheckoutConstraints(cfg), checkout);
+  const pending = 'pending-signature';
+  const mandate = { vct: VCT.payment, transaction_id: pending, payee: merchant, payment_amount: { amount, currency: checkout.currency }, payment_instrument: instrument };
+  const paymentResults = evaluatePaymentConstraints(buildPaymentConstraints(cfg, pending), mandate, {
+    now: cfg.now,
+    history: { spentMinor: cfg.budget.spentMinor, occurrences: cfg.recurrence.occurrences, lastPresentedAt: cfg.recurrence.lastPresentedAt },
+    budgetUnit: cfg.budgetUnit,
+    openCheckoutDigest: pending,
+  }).map((r) => (r.type === 'payment.reference' ? { ...r, detail: 'Checked in the signed run: it needs the digest of the signed open Checkout Mandate.' } : r));
+  return { checkout, amount, checkoutResults, paymentResults };
 }

@@ -62,6 +62,7 @@ import {
   explainSdJwt,
   generateKeys,
   peekJwt,
+  previewConstraints,
   runV02,
   TAMPERS,
   UNKNOWN_CONSTRAINT,
@@ -341,6 +342,15 @@ describe('end-to-end v0.2 runs', () => {
     const types = buildPaymentConstraints(cfg, 'd').map((c) => c.type);
     expect(types).toContain('payment.reference');
     expect(types).toContain('com.example.loyalty_tier');
+  });
+
+  it('previews constraints on the cart without signing', () => {
+    const ok = previewConstraints(defaultConfig(NOW));
+    expect(ok.amount).toBe(12900);
+    expect([...ok.checkoutResults, ...ok.paymentResults].every((r) => r.ok)).toBe(true);
+    const bad = previewConstraints({ ...defaultConfig(NOW), merchantId: 'merchant_lumen', lines: [{ sku: 'sku_trail_shoe_red_9', quantity: 1 }] });
+    expect(bad.checkoutResults.find((r) => r.type === 'checkout.allowed_merchants')?.ok).toBe(false);
+    expect(bad.paymentResults.find((r) => r.type === 'payment.allowed_payees')?.ok).toBe(false);
   });
 
   it('human not present happy path passes every check and returns Success receipts', async () => {
