@@ -1858,6 +1858,325 @@
       ],
       "confidence": "verified",
       "topic": "criticism"
+    },
+    {
+      "id": "clm-erc-8004-188",
+      "text": "The 20 mainnets added to the contracts README on 2026-03-06 were Base, Abstract, Arbitrum, Avalanche, BSC, Celo, Gnosis, GOAT Network, Linea, Mantle, MegaETH, Metis, Monad, Optimism, Polygon, Scroll, SKALE Base, Soneium, Taiko and XLayer.",
+      "sources": [
+        "src-erc-8004-readme-history",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified",
+      "topic": "dates",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-189",
+      "text": "The Validation Registry reads are getValidationStatus(requestHash), getSummary(agentId, validatorAddresses, tag) returning count and averageResponse, getAgentValidations(agentId) and getValidatorRequests(validatorAddress).",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-erc-8004-190",
+      "text": "In the reference implementation revokeFeedback reverts with \"index must be > 0\", \"index out of bounds\" or \"Already revoked\", and appendResponse reverts with \"Empty URI\" when responseURI is empty.",
+      "sources": [
+        "src-erc-8004-reputation-sol"
+      ],
+      "confidence": "verified",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-erc-8004-191",
+      "text": "In the reference implementation giveFeedback reverts with \"too many decimals\" when valueDecimals exceeds 18, \"value too large\" beyond the value bound, and ERC721NonexistentToken for an unknown agentId.",
+      "sources": [
+        "src-erc-8004-reputation-sol"
+      ],
+      "confidence": "verified",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-erc-8004-192",
+      "text": "The reference Validation Registry reverts with \"bad validator\", \"exists\", \"Not authorized\", \"unknown\", \"not validator\" or \"resp>100\".",
+      "sources": [
+        "src-erc-8004-validation-sol"
+      ],
+      "confidence": "verified",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-erc-8004-193",
+      "text": "The reference setAgentWallet tries ECDSA recovery first, which also covers EIP-7702 delegated accounts, and then the ERC-1271 isValidSignature check with magic value 0x1626ba7e.",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-erc-8004-194",
+      "text": "The wallet-binding signature carries no nonce, so within its deadline the same signature can be submitted again for the same agentId, wallet and owner.",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-erc-8004-195",
+      "text": "getSummary and readAllFeedback loop over every matching entry in the reference implementation, and the community audit in PR 51 lists unbounded array returns and quadratic gas among its findings.",
+      "sources": [
+        "src-erc-8004-reputation-sol",
+        "src-erc-8004-pr-51"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-erc-8004-196",
+      "text": "The specification describes pluggable trust models tiered by value at risk: reputation from client feedback, stake-secured re-execution, zkML proofs and TEE oracles.",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-erc-8004-197",
+      "text": "The specification argues that MCP and A2A cover agent communication but not agent discovery and trust across organizations, which is the gap ERC-8004 addresses.",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-erc-8004-198",
+      "text": "The specification enables simple filtering by reviewer and by tag on-chain and expects more complex reputation aggregation to happen off-chain.",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-erc-8004-199",
+      "text": "readAllFeedback omits revoked feedback by default, and an empty clientAddresses list returns entries from all clients.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ],
+      "confidence": "verified",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-erc-8004-200",
+      "text": "The contracts' upgrade notes advise operators to use a multisig or timelock in production and to consider transferring ownership to governance.",
+      "sources": [
+        "src-erc-8004-upgradeable-doc"
+      ],
+      "confidence": "verified",
+      "topic": "governance"
+    },
+    {
+      "id": "clm-erc-8004-201",
+      "text": "ERC-8126 was created on 2026-01-15, moved to Review on 2026-04-14 and to Last Call on 2026-05-12 before reaching Final on 2026-06-02.",
+      "sources": [
+        "src-erc-8126",
+        "src-erc-8126-gitlog"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-202",
+      "text": "ERC-3643 defines an Identity Registry (registerIdentity, isVerified), a Trusted Issuers Registry, a Claim Topics Registry and a Compliance contract whose canTransfer check runs on transfers.",
+      "sources": [
+        "src-erc-3643-spec"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-203",
+      "text": "In ONCHAINID a claim id is keccak256 of the issuer and topic, the issuer signs keccak256 of the identity address, topic and data, and third-party claims are checked with IClaimIssuer.isClaimValid.",
+      "sources": [
+        "src-onchainid-identity",
+        "src-onchainid-structs"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-204",
+      "text": "T-REX contracts sit behind proxies that point to an implementation authority (TREXImplementationAuthority), and ONCHAINID identities support proxy deployment through initialize.",
+      "sources": [
+        "src-erc-3643-repo",
+        "src-onchainid-identity"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-205",
+      "text": "GitHub issue 734 (Key Manager) has status WIP and points to LSP6, issue 735 (Claim Holder) has status Discussion, both are closed, and eips.ethereum.org/EIPS/eip-734 returned 404 on 2026-10-11.",
+      "sources": [
+        "src-eip-issue-734",
+        "src-eip-issue-735"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-206",
+      "text": "ERC-8226 requires EIP-165, EIP-712 and EIP-1271, defines IComplianceProvider and IAgentMandate, and assigns token compliance to ERC-7943 or ERC-3643 and agent identity to a registry such as ERC-8004.",
+      "sources": [
+        "src-erc-8226"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-207",
+      "text": "The ERC-3643 text is released under CC0, while its reference implementation is licensed GPL-3.0.",
+      "sources": [
+        "src-erc-3643-spec",
+        "src-erc-3643-repo"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-208",
+      "text": "At Ethereum gas prices of about 0.067 to 0.097 gwei observed on 2026-10-11, 178,504 gas is about 0.000012 to 0.000017 ETH; later feedback from the same client costs less because it skips the client-list insert, and on Layer 2 networks the L1 data fee is extra.",
+      "sources": [
+        "src-erc-8004-gas-probe"
+      ],
+      "confidence": "verified",
+      "topic": "other",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-209",
+      "text": "QuickNode runs an ERC-8004 explorer at erc-8004.quicknode.com with a FAQ that says ERC-8004 has no protocol fee.",
+      "sources": [
+        "src-quicknode-8004-faq"
+      ],
+      "confidence": "verified",
+      "topic": "observability",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-210",
+      "text": "arXiv:2606.26028 reports that after removing Sybil feedback, 15.8% (Ethereum), 77.9% (BSC) and 86.8% (Base) of rated agents had no valid feedback left.",
+      "sources": [
+        "src-pub-2606-26028"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-05-13"
+    },
+    {
+      "id": "clm-erc-8004-211",
+      "text": "The contracts repository was created on 2025-10-08, made upgradeable on 2025-10-14, reached contract version 1.1.0 on 2025-11-12 and version 2.0.0 in January 2026.",
+      "sources": [
+        "src-erc-8004-contracts-history",
+        "src-erc-8004-commit-rm-feedbackauth"
+      ],
+      "confidence": "verified",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-erc-8004-212",
+      "text": "The Review version of 2025-10-08 used a uint8 score from 0 to 100 and bytes32 tags.",
+      "sources": [
+        "src-erc-8004-commit-review"
+      ],
+      "confidence": "verified",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-erc-8004-213",
+      "text": "Issue 99 of the contracts repository (2026-09-14) proposes grounding feedback in verifiable x402 payment proofs as a Sybil defense; it was open on 2026-10-11.",
+      "sources": [
+        "src-erc-8004-issue-99"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-214",
+      "text": "The CSOAI census also recorded 187,513 ids with no endpoint, 13,788 unreachable URIs, 2,205 invalid JSON files and 5,436 unsupported URI schemes, and labels its read state partial.",
+      "sources": [
+        "src-csoai-census"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-09-26"
+    },
+    {
+      "id": "clm-erc-8004-215",
+      "text": "The CSOAI census dataset is licensed CC BY 4.0 and was read with eth_call only.",
+      "sources": [
+        "src-csoai-census"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-09-26"
+    },
+    {
+      "id": "clm-erc-8004-216",
+      "text": "The self-feedback check covers only the owner and approved operators, so a fresh address controlled by the owner can still rate the agent.",
+      "sources": [
+        "src-erc-8004-reputation-sol",
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-erc-8004-217",
+      "text": "The registries never read the registration file, so an unreachable or malformed file does not fail on-chain; explorers and clients must handle it.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "topic": "transports"
+    },
+    {
+      "id": "clm-erc-8004-218",
+      "text": "The 2026-01-25 update also barred the owner and operators from giving feedback, required a non-empty clientAddresses list in getSummary, added getAgentWallet and unsetAgentWallet, and typed metadata values as bytes.",
+      "sources": [
+        "src-erc-8004-commit-jan25"
+      ],
+      "confidence": "verified",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-erc-8004-219",
+      "text": "A commit titled \"mainnet deployment\" landed in the contracts repository on 2026-01-31.",
+      "sources": [
+        "src-erc-8004-commit-mainnet-deploy"
+      ],
+      "confidence": "verified",
+      "topic": "dates"
+    },
+    {
+      "id": "clm-erc-8004-220",
+      "text": "Operators are addresses the owner approves through ERC-721 approve or setApprovalForAll; they can set the URI, metadata and wallet and request validation like the owner.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified",
+      "topic": "actors"
     }
   ]
 }
