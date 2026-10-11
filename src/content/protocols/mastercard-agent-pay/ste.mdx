@@ -1,0 +1,112 @@
+---
+protocol: mastercard-agent-pay
+title: Mastercard Agent Pay in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+Mastercard Agent Pay is a Mastercard program for payments by AI agents. It is not an open protocol. It is not AP2. Mastercard started the program on 2025-04-29.
+
+Only a registered agent can pay with Agent Pay. Mastercard examines each agent before it puts the agent on a list of trusted agents. The agent gives its public key to Mastercard.
+
+The consumer gives permission to the agent. Then Mastercard gives an agentic token to the agent. The token is not the card number. The token can have limits for one merchant, one amount or one time period.
+
+The agent signs each web request with its key. The merchant or the CDN examines the signature with the key from the Mastercard key directory. Then the agent pays with the token. The bank of the consumer makes the last decision.
+
+Verifiable Intent is a different specification. It is open. It gives signed proof of the purchases that the user lets the agent make.
+
+Most of the transactions that Mastercard names are tests or first transactions. Mastercard does not publish the number of transactions.
+
+</SteDescription>
+
+<SteProcedure title="Accept a payment from an Agent Pay agent (merchant)">
+
+1. Register for Agent Pay through your acquirer or your payment service provider.
+2. Find the Signature-Input header and the Signature header in the request.
+3. If the request has no Agent Pay tag, use your usual policy for bots.
+4. If a required parameter is not in the header, stop the request.
+5. Get the public key for the keyid from the Mastercard key directory.
+6. If you cannot find the key, stop the request.
+7. Make sure that the time now is between the created value and the expires value.
+8. Make sure that the nonce is new.
+9. Verify the signature.
+10. Let the agent put the token in your usual card form.
+11. Send the payment to your acquirer as a usual card payment.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT ACCEPT A NONCE THAT YOU RECEIVED BEFORE. AN ATTACKER CAN SEND A COPY OF A SIGNED REQUEST AGAIN.
+</SteCaution>
+
+<SteCaution>
+DO NOT COPY THE SAMPLE VERIFICATION CODE FROM THE LEVEL 1 GUIDE WITHOUT A CHANGE. IT ACCEPTS ONLY THE TWO VISA TAGS.
+</SteCaution>
+
+<SteProcedure title="Get an agentic token for a consumer (agent platform)">
+
+1. Make a key pair for your agent.
+2. Register the public key with Mastercard.
+3. Complete the Mastercard security review and the certification.
+4. Ask the consumer to authenticate. Use a passkey if your region supports it.
+5. Ask the consumer for the merchants, the amount and the time period.
+6. Request an agentic token with these limits.
+7. Keep the token in a safe location.
+8. Sign each request to a merchant with your key and the Agent Pay tag.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT USE A CARD THAT THE CONSUMER KEEPS AT THE MERCHANT. THE NETWORK CANNOT THEN IDENTIFY THE PAYMENT AS A PAYMENT BY AN AGENT.
+</SteCaution>
+
+<SteCaution>
+DO NOT KEEP THE CARD NUMBER OF THE CONSUMER IN YOUR AGENT. CERTIFICATION REQUIRES TOKENS ONLY.
+</SteCaution>
+
+<SteProcedure title="Verify a Verifiable Intent chain in autonomous mode (payment network)">
+
+1. Get the key of the issuer from its JWKS endpoint.
+2. Verify the signature of L1 with the key of the issuer.
+3. Verify the signature of L2 with the user key in L1.
+4. Make sure that the two L2 mandates have the same agent key.
+5. Verify the signature of L3a with the agent key in L2.
+6. Make sure that the transaction_id in L3a is equal to the checkout_hash in L3b.
+7. Make sure that the amount and the payee obey the constraints.
+8. Add the amount to the total for this mandate pair.
+9. If the total is more than the budget, stop the payment.
+10. Send the result to the issuer.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT ACCEPT AN L3 CREDENTIAL THAT HAS A cnf CLAIM. L3 IS THE LAST LEVEL OF DELEGATION.
+</SteCaution>
+
+<SteNote>
+The location of the Mastercard key directory is not public. The host in the Mastercard example did not resolve on 2026-10-11.
+</SteNote>
+
+<SteNote>
+Mastercard writes the tag as Agent-pay-auth on one page and as agent-pay-auth on a different page.
+</SteNote>
+
+<SteNote>
+Verifiable Intent version 0.1 has two sets of field names. The names on the main branch are different from the names at tag v0.1.0.
+</SteNote>
+
+<SteTerms>
+
+- **agentic token**: A Mastercard token for payments by a registered agent. Visa uses the same words for a different product.
+- **DTVC**: A security code for one use that Mastercard gives with a virtual card token.
+- **key directory**: The list of public keys of registered agents. Mastercard keeps this list.
+- **tag**: The parameter in the signature that tells the purpose of the signature.
+- **trusted agent list**: The list of agents that passed the Mastercard certification.
+- **issuer**: The bank that gives the card to the consumer. It makes the last decision for each payment.
+- **Verifiable Intent**: An open specification for signed proof of the purchases that a user lets an agent make.
+- **mandate**: A signed statement of the purchases that a user lets an agent make.
+- **constraint**: A limit in a mandate, for example a maximum amount or a list of merchants.
+- **checkout_hash**: A hash of the checkout that connects the payment credential to the checkout credential.
+
+</SteTerms>
