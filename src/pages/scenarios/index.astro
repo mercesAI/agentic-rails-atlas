@@ -1,0 +1,78 @@
+---
+/**
+ * /scenarios/: one card per scenario in the collection, ordered by `order`,
+ * with protocol chips. Generic: works for any number of scenario entries.
+ */
+import Page from '../../layouts/Page.astro';
+import Chip from '../../components/ui/Chip.astro';
+import { getProtocols, getScenarioEntries } from '../../lib/content';
+import { BUILD_DATE } from '../../lib/constants';
+
+const entries = (await getScenarioEntries()).sort((a, b) => a.data.order - b.data.order);
+const protocols = await getProtocols();
+const bySlug = new Map(protocols.map((p) => [p.slug, p]));
+---
+<Page
+  title="Scenarios"
+  eyebrow="End-to-end walkthroughs"
+  lede="Each scenario follows one purchase or payment across several protocols: who acts, which protocol owns each step, where a control can act, what an outsider can see, and what can go wrong."
+  lastVerified={BUILD_DATE}
+  prose={false}
+>
+  {entries.length === 0 ? (
+    <p>Scenarios are being written.</p>
+  ) : (
+    <ol class="scn-grid">
+      {entries.map((e) => (
+        <li>
+          <article class="scn-card" aria-labelledby={`scn-${e.data.slug}-h`}>
+            <p class="scn-card__n">Scenario {e.data.order}</p>
+            <h2 class="scn-card__title" id={`scn-${e.data.slug}-h`}>
+              <a href={`/scenarios/${e.data.slug}/`}>{e.data.title}</a>
+            </h2>
+            <p class="scn-card__summary">{e.data.summary}</p>
+            <ul class="scn-card__chips" aria-label="Protocols in this scenario">
+              {e.data.protocols.map((slug) => {
+                const p = bySlug.get(slug);
+                return (
+                  <li>
+                    <Chip href={`/p/${slug}/`} family={p?.family}>{p?.name ?? slug}</Chip>
+                  </li>
+                );
+              })}
+            </ul>
+            <p class="scn-card__meta">Verified <time datetime={e.data.lastVerified}>{e.data.lastVerified}</time></p>
+          </article>
+        </li>
+      ))}
+    </ol>
+  )}
+</Page>
+
+<style>
+  .scn-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  }
+  .scn-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg, 12px);
+  }
+  .scn-card__n { margin: 0; font-size: 0.8rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .scn-card__title { margin: 0; font-size: 1.15rem; line-height: 1.3; }
+  .scn-card__title a { color: var(--fg); text-decoration: none; }
+  .scn-card__title a:hover, .scn-card__title a:focus-visible { text-decoration: underline; }
+  .scn-card__summary { margin: 0; color: var(--fg-muted); flex: 1; }
+  .scn-card__chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .scn-card__meta { margin: 0; font-size: 0.8rem; color: var(--fg-muted); }
+</style>

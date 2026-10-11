@@ -1,0 +1,170 @@
+---
+/**
+ * /scenarios/<slug>/: one multi-protocol walkthrough. Generic for every entry
+ * in the scenarios collection. Loads the MDX body, the multi-protocol flow
+ * (ScenarioMeta.flow), the optional context diagram `multi-<slug>-context`,
+ * every protocol claim pool plus the optional scenario claims and sources
+ * files, sets the page citation order before rendering, then renders the
+ * body, a FlowPlayer with a step legend (owning protocol, control point and
+ * observable markers), the generated sequence diagram, the context diagram
+ * and the numbered SourceList.
+ */
+import { render } from 'astro:content';
+import Page from '../../layouts/Page.astro';
+import Cite from '../../components/ui/Cite.astro';
+import Callout from '../../components/ui/Callout.astro';
+import Mode from '../../components/ui/Mode.astro';
+import FieldTable from '../../components/ui/FieldTable.astro';
+import Chip from '../../components/ui/Chip.astro';
+import FlowPlayer from '../../components/islands/FlowPlayer';
+import MermaidDiagram from '../../components/islands/MermaidDiagram.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import { getClaimsMap, getProtocols, getScenarioEntries, getSourcesMap, scanCiteIds } from '../../lib/content';
+import { claimIdsToSourceIds, dedupe, setPageSources } from '../../lib/citations';
+import { describeFlow, describeFlowSteps } from '../../lib/flows/describe';
+import { diagramMetaById, flowById } from '../../components/protocol/lib/load';
+import type { Claim, ClaimsFile, Source } from '../../lib/schemas';
+import '../../components/protocol/protocol.css';
+
+export async function getStaticPaths() {
+  const entries = await getScenarioEntries();
+  return entries.map((e) => ({ params: { slug: e.data.slug }, props: { entry: e } }));
+}
+
+/* Optional per-scenario claims and sources (facts no protocol claims file carries). */
+const SCN_CLAIMS = import.meta.glob<ClaimsFile>('/src/content/scenarios/*.claims.json', { eager: true, import: 'default' });
+const SCN_SOURCES = import.meta.glob<Source[]>('/src/content/scenarios/*.sources.json', { eager: true, import: 'default' });
+
+const { entry } = Astro.props;
+const meta = entry.data;
+const page = Astro.url.pathname;
+
+const [protocols, sourcesMerged, claimsAll] = await Promise.all([getProtocols(), getSourcesMap(), getClaimsMap()]);
+const protocolBySlug = new Map(protocols.map((p) => [p.slug, p]));
+
+const claims = new Map<string, Claim>(claimsAll);
+for (const file of Object.values(SCN_CLAIMS)) for (const c of file?.claims ?? []) claims.set(c.id, c);
+const sources = new Map<string, Source>(sourcesMerged);
+for (const list of Object.values(SCN_SOURCES)) for (const s of list ?? []) if (!sources.has(s.id)) sources.set(s.id, s);
+
+const flow = await flowById(meta.flow).catch(() => null);
+const contextId = `multi-${meta.slug}-context`;
+const contextMeta = await diagramMetaById(contextId).catch(() => null);
+
+const order = dedupe([
+  ...claimIdsToSourceIds(scanCiteIds(entry.body), claims),
+  ...(flow?.sources ?? []),
+  ...(contextMeta?.sources ?? []),
+]).filter((id) => id.startsWith('src-'));
+setPageSources(order, { page, sources, claims });
+const sourceIndex = Object.fromEntries(order.map((id, i) => [id, i + 1]));
+
+const { Content } = await render(entry);
+const components = { Cite, Callout, Mode, FieldTable };
+
+const steps = flow ? [...flow.steps].sort((a, b) => a.n - b.n) : [];
+const actorLabel = new Map((flow?.actors ?? []).map((a) => [a.id, a.label]));
+const stepProtocols = dedupe(steps.map((s) => s.protocol ?? '').filter(Boolean));
+const legendProtocols = dedupe([...meta.protocols, ...stepProtocols]);
+const flowSot = flow?.steps.find((s) => s.specRef)?.specRef;
+const name = (slug: string) => protocolBySlug.get(slug)?.name ?? slug;
+---
+<Page title={meta.title} eyebrow={`Scenario ${meta.order}`} lede={meta.summary} lastVerified={meta.lastVerified} prose={false}>
+  <div class="scn">
+    <ul class="scn__chips" aria-label="Protocols in this scenario">
+      {meta.protocols.map((slug) => (
+        <li><Chip href={`/p/${slug}/`} family={protocolBySlug.get(slug)?.family}>{name(slug)}</Chip></li>
+      ))}
+    </ul>
+
+    <div class="prose">
+      <Content components={components} />
+    </div>
+
+    <section class="scn__flow" aria-labelledby="scn-flow-h">
+      <h2 id="scn-flow-h">Flow player{flow && <>: {flow.title}</>}</h2>
+      {flow ? (
+        <>
+          {flow.summary && <p>{flow.summary}</p>}
+          <p class="scn__version">Spec version: {flow.specVersion} ({flow.specVersionDate}).</p>
+          <FlowPlayer client:visible flow={flow} sourceIndex={sourceIndex} idPrefix={`scn-${meta.slug}`} />
+
+          <h3 id="scn-legend-h">Which protocol owns each step</h3>
+          <ul class="scn__legend-key" aria-label="Protocol key">
+            {legendProtocols.map((slug) => (
+              <li><Chip family={protocolBySlug.get(slug)?.family}>{name(slug)}</Chip></li>
+            ))}
+          </ul>
+          <div class="table-wrap" role="region" aria-labelledby="scn-legend-cap" tabindex="0">
+            <table class="scn__legend">
+              <caption id="scn-legend-cap">Steps, owning protocol, control points and outside visibility</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Step</th>
+                  <th scope="col">From and to</th>
+                  <th scope="col">Protocol</th>
+                  <th scope="col">Control point</th>
+                  <th scope="col">Observable from outside</th>
+                </tr>
+              </thead>
+              <tbody>
+                {steps.map((s) => (
+                  <tr data-boundary={s.crossesTrustBoundary ? 'true' : undefined}>
+                    <th scope="row"><span class="scn__n">{s.n}.</span> {s.label}{s.crossesTrustBoundary && <span class="scn__tb" title="Crosses a trust boundary"> (crosses a trust boundary)</span>}</th>
+                    <td>{actorLabel.get(s.from) ?? s.from} to {actorLabel.get(s.to) ?? s.to}</td>
+                    <td>{s.protocol ? <Chip href={`/p/${s.protocol}/`} family={protocolBySlug.get(s.protocol)?.family}>{name(s.protocol)}</Chip> : <span class="scn__none">Not protocol-specific</span>}</td>
+                    <td>{s.controlPoint ? <><span class="scn__mark scn__mark--control" aria-hidden="true">C</span> {s.controlPoint}</> : <span class="scn__none">None</span>}</td>
+                    <td>{s.observable ? <><span class="scn__mark scn__mark--obs" aria-hidden="true">O</span> {s.observable}</> : <span class="scn__none">Private</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <MermaidDiagram
+            id={flow.id}
+            title={`Sequence diagram: ${flow.title}`}
+            caption={`Generated from the flow definition (spec version ${flow.specVersion}, ${flow.specVersionDate}). The player above uses the same data.`}
+            alt={describeFlow(flow)}
+            altSteps={describeFlowSteps(flow)}
+            sourceOfTruth={flowSot ? { url: flowSot.url, label: flowSot.section ?? 'Specification' } : undefined}
+            generatedFrom={`src/content/flows/${flow.id}.json`}
+            level={3}
+          />
+        </>
+      ) : (
+        <p class="scn__none">The flow <code>{meta.flow}</code> is being written.</p>
+      )}
+    </section>
+
+    {contextMeta && (
+      <section class="scn__context" aria-labelledby="scn-context-h">
+        <h2 id="scn-context-h">Actors and protocol boundaries</h2>
+        <MermaidDiagram id={contextId} generatedFrom={`src/content/diagrams/${contextId}.mmd`} level={3} />
+      </section>
+    )}
+
+    <p><a href="/scenarios/">All scenarios</a></p>
+    <SourceList page={page} />
+  </div>
+</Page>
+
+<style>
+  .scn { display: grid; gap: 1.5rem; min-width: 0; }
+  .scn__chips, .scn__legend-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .scn__version { color: var(--fg-muted); font-size: 0.9rem; }
+  .scn__legend { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .scn__legend th, .scn__legend td { text-align: left; vertical-align: top; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); }
+  .scn__legend thead th { color: var(--fg-muted); font-weight: 600; }
+  .scn__legend tbody th { font-weight: 500; min-width: 12rem; }
+  .scn__legend tr[data-boundary] th { box-shadow: inset 3px 0 0 var(--border-strong); }
+  .scn__n { font-variant-numeric: tabular-nums; color: var(--fg-muted); }
+  .scn__tb { font-size: 0.8rem; color: var(--fg-muted); }
+  .scn__none { color: var(--fg-muted); }
+  .scn__mark {
+    display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; margin-right: 0.2em;
+    font-size: 0.75rem; font-weight: 700; border-radius: 4px; border: 1px solid var(--border-strong); color: var(--fg);
+  }
+  .scn__mark--obs { border-radius: 50%; }
+  .table-wrap { overflow-x: auto; max-width: 100%; }
+</style>
