@@ -7,7 +7,7 @@
  * .mmd source in a <pre> with a "not rendered" note; never fails the build.
  * Named an island for the contract; it ships no JavaScript.
  */
-import { getDiagramMeta } from '../../lib/content';
+import { diagramMetaById } from '../protocol/lib/load';
 
 export interface Props {
   id: string;
@@ -31,7 +31,7 @@ const MMD = {
 };
 
 const p = Astro.props;
-const meta = p.caption && p.alt ? null : await getDiagramMeta(p.id).catch(() => null);
+const meta = p.caption && p.alt ? null : await diagramMetaById(p.id).catch(() => null);
 const title = p.title ?? meta?.title ?? p.id;
 const caption = p.caption ?? meta?.caption;
 const alt = p.alt ?? meta?.alt;

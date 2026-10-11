@@ -36,6 +36,15 @@ import type {
 } from '../../../lib/schemas';
 import { citeIdsIn, splitBodySource } from './split-body';
 
+/*
+ * Typed wrappers: content.ts `getFlow`, `getStateMachine` and `getDiagramMeta`
+ * share one generic helper whose return type is the union of all three
+ * collections (noted in docs/integration-notes/template.md).
+ */
+export const flowById = async (id: string) => ((await getFlow(id)) as Flow | null) ?? null;
+export const machineById = async (id: string) => ((await getStateMachine(id)) as StateMachine | null) ?? null;
+export const diagramMetaById = async (id: string) => ((await getDiagramMeta(id)) as DiagramMeta | null) ?? null;
+
 type MdxModule = { default: (props: Record<string, unknown>) => unknown };
 
 /** Optional `src/content/protocols/<slug>/compare.mdx` (alternative to the marker; see docs/integration-notes/template.md). */
@@ -119,12 +128,12 @@ export async function loadProtocolPage(slug: string, page: string): Promise<Prot
     getPersonas(),
     getRelations(),
   ]);
-  const flow = await safe(() => getFlow(meta.mainFlow), null);
-  const machine = await safe(() => getStateMachine(meta.stateMachine), null);
-  const diagrams = await Promise.all(meta.diagrams.map(async (id) => ({ id, meta: await safe(() => getDiagramMeta(id), null) })));
+  const flow = await safe(() => flowById(meta.mainFlow), null);
+  const machine = await safe(() => machineById(meta.stateMachine), null);
+  const diagrams = await Promise.all(meta.diagrams.map(async (id) => ({ id, meta: await safe(() => diagramMetaById(id), null) })));
   const trustId = sidecars.security?.trustBoundaryDiagram;
   const trustDiagram = trustId
-    ? { id: trustId, meta: await safe(() => getDiagramMeta(trustId), null), inSectionC: meta.diagrams.includes(trustId) }
+    ? { id: trustId, meta: await safe(() => diagramMetaById(trustId), null), inSectionC: meta.diagrams.includes(trustId) }
     : null;
 
   const compare = await safe(async () => (await getCollection('compare'))[0]?.data ?? null, null);
