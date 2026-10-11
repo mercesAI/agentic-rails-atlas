@@ -1,0 +1,43 @@
+---
+/** /learn/: a five-level path with checklists, estimated time, quiz gates and local progress. */
+import Page from '../../layouts/Page.astro';
+import LearnPath from '../../components/hub/LearnPath';
+import { buildLevels } from '../../components/hub/lib/learn';
+import { getGlossary, getProtocols, getScenarioEntries, getSidecar } from '../../lib/content';
+import { FAMILIES, FAMILY_LABELS } from '../../lib/schemas';
+import type { QuizQuestion } from '../../components/protocol/lib/quiz';
+import '../../components/hub/hub.css';
+
+const protocols = await getProtocols();
+const quizzes: Record<string, QuizQuestion[]> = {};
+const openQuestions: { slug: string; count: number; first?: string }[] = [];
+for (const p of protocols) {
+  const quiz = await getSidecar('quiz', p.slug);
+  if (quiz) quizzes[p.slug] = quiz.questions.map(({ id, question, options, answer, explanation }) => ({ id, question, options, answer, explanation }));
+  const oq = await getSidecar('openQuestions', p.slug);
+  if (oq) openQuestions.push({ slug: p.slug, count: oq.items.length, first: oq.items[0]?.question });
+}
+const scenarios = (await getScenarioEntries())
+  .map((e) => e.data)
+  .sort((a, b) => a.order - b.order)
+  .map((s) => ({ slug: s.slug, title: s.title }));
+const glossaryIds = new Set((await getGlossary()).map((t) => t.id));
+const levels = buildLevels({
+  protocols: protocols.map((p) => ({ slug: p.slug, name: p.name, family: p.family })),
+  families: FAMILIES.map((id) => ({ id, label: FAMILY_LABELS[id] })),
+  quizSlugs: new Set(Object.keys(quizzes)),
+  openQuestions,
+  scenarios,
+  glossaryIds,
+});
+---
+<Page
+  title="Learn"
+  eyebrow="Learning path"
+  lede="Five levels, from the HTTP 402 status code to open research questions. Tick items as you go; each protocol stop ends with that protocol's own ten-question self-test."
+  prose={false}
+>
+  <div class="hub">
+    <LearnPath client:load levels={levels} quizzes={quizzes} />
+  </div>
+</Page>
