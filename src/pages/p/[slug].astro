@@ -1,0 +1,44 @@
+---
+/**
+ * Protocol page route: /p/<slug>/. Loads everything for one protocol, sets the
+ * page citation order (footer numbering) before any content renders, then
+ * hands the MDX bodies to layouts/Protocol.astro as slots. Writers import
+ * nothing: Mode, FieldTable, Cite and Callout (and the Ste* blocks in
+ * ste.mdx) are provided here.
+ */
+import Protocol from '../../layouts/Protocol.astro';
+import Mode from '../../components/ui/Mode.astro';
+import FieldTable from '../../components/ui/FieldTable.astro';
+import Cite from '../../components/ui/Cite.astro';
+import Callout from '../../components/ui/Callout.astro';
+import SteDescription from '../../components/ste/SteDescription.astro';
+import SteProcedure from '../../components/ste/SteProcedure.astro';
+import SteCaution from '../../components/ste/SteCaution.astro';
+import SteNote from '../../components/ste/SteNote.astro';
+import SteTerms from '../../components/ste/SteTerms.astro';
+import SteCompare from '../../components/ste/SteCompare.astro';
+import { getProtocols } from '../../lib/content';
+import { setPageSources } from '../../lib/citations';
+import { loadProtocolPage } from '../../components/protocol/lib/load';
+
+export async function getStaticPaths() {
+  const protocols = await getProtocols();
+  return protocols.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const ctx = await loadProtocolPage(slug, Astro.url.pathname);
+if (!ctx) throw new Error(`[p/${slug}] protocol not found`);
+setPageSources(ctx.order, { page: Astro.url.pathname, sources: ctx.sources, claims: ctx.claims });
+
+const mdxComponents = { Mode, FieldTable, Cite, Callout };
+const steComponents = { ...mdxComponents, SteDescription, SteProcedure, SteCaution, SteNote, SteTerms, SteCompare };
+const { Content } = ctx.loaded;
+const SteContent = ctx.steContent;
+const CompareContent = ctx.compareMdx as unknown as typeof Content | null;
+---
+<Protocol ctx={ctx} hasCompare={Boolean(CompareContent)}>
+  <Content slot="body" components={mdxComponents} />
+  {SteContent && <SteContent slot="ste" components={steComponents} />}
+  {CompareContent && <CompareContent slot="compare" components={mdxComponents} />}
+</Protocol>

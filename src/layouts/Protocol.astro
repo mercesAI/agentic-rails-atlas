@@ -1,0 +1,125 @@
+---
+/**
+ * Protocol page layout (ARCHITECTURE.md Section 5), on top of Base.
+ * Header, sticky left TOC with read progress, sections A to T, right rail
+ * (key facts and the sources of the section in view), footer with the
+ * numbered source list, last verified date, content path and "flag an issue".
+ *
+ * Slots:
+ * - body: the rendered index.mdx Content. It is rendered once, to HTML, and
+ *   split at the "## Compare and compose" heading: before goes to section B,
+ *   after goes to section P (see components/protocol/lib/split-body.ts).
+ * - ste: the rendered ste.mdx Content for section D.
+ * - compare: optional compare.mdx Content; when present it replaces the
+ *   marker text in section P.
+ */
+import Base from './Base.astro';
+import '../components/protocol/protocol.css';
+import ProtocolHeader from '../components/protocol/ProtocolHeader.astro';
+import Toc from '../components/protocol/Toc.astro';
+import KeyFactsCard from '../components/protocol/KeyFactsCard.astro';
+import SectionSources from '../components/protocol/SectionSources.astro';
+import SourceList from '../components/protocol/SourceList.astro';
+import FreshnessBadge from '../components/ui/FreshnessBadge.astro';
+import SectionA from '../components/protocol/sections/SectionA.astro';
+import SectionB from '../components/protocol/sections/SectionB.astro';
+import SectionC from '../components/protocol/sections/SectionC.astro';
+import SectionD from '../components/protocol/sections/SectionD.astro';
+import SectionE from '../components/protocol/sections/SectionE.astro';
+import SectionF from '../components/protocol/sections/SectionF.astro';
+import SectionG from '../components/protocol/sections/SectionG.astro';
+import SectionH from '../components/protocol/sections/SectionH.astro';
+import SectionI from '../components/protocol/sections/SectionI.astro';
+import SectionJ from '../components/protocol/sections/SectionJ.astro';
+import SectionK from '../components/protocol/sections/SectionK.astro';
+import SectionL from '../components/protocol/sections/SectionL.astro';
+import SectionM from '../components/protocol/sections/SectionM.astro';
+import SectionN from '../components/protocol/sections/SectionN.astro';
+import SectionO from '../components/protocol/sections/SectionO.astro';
+import SectionP from '../components/protocol/sections/SectionP.astro';
+import SectionQ from '../components/protocol/sections/SectionQ.astro';
+import SectionR from '../components/protocol/sections/SectionR.astro';
+import SectionS from '../components/protocol/sections/SectionS.astro';
+import SectionT from '../components/protocol/sections/SectionT.astro';
+import { splitBodyHtml } from '../components/protocol/lib/split-body';
+import type { ProtocolPageContext } from '../components/protocol/lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+  /** True when a compare.mdx Content is passed in the compare slot. */
+  hasCompare?: boolean;
+}
+const { ctx, hasCompare = false } = Astro.props;
+const { meta } = ctx;
+const bodyHtml = Astro.slots.has('body') ? await Astro.slots.render('body') : '';
+const split = splitBodyHtml(bodyHtml);
+---
+<Base title={meta.name} description={`${meta.name}: ${meta.tagline}`} wide>
+  <div class="proto" data-protocol-page={meta.slug} data-family={meta.family}>
+    <ProtocolHeader meta={meta} />
+    <div class="proto__grid">
+      <aside class="proto__left" aria-label="Contents and progress">
+        <Toc slug={meta.slug} />
+      </aside>
+      <div class="proto__main">
+        <div class="proto__sections">
+          <SectionA ctx={ctx} />
+          <SectionB ctx={ctx} html={split.before} />
+          <SectionC ctx={ctx} />
+          <SectionD ctx={ctx}><slot name="ste" /></SectionD>
+          <SectionE ctx={ctx} />
+          <SectionF ctx={ctx} />
+          <SectionG ctx={ctx} />
+          <SectionH ctx={ctx} />
+          <SectionI ctx={ctx} />
+          <SectionJ ctx={ctx} />
+          <SectionK ctx={ctx} />
+          <SectionL ctx={ctx} />
+          <SectionM ctx={ctx} />
+          <SectionN ctx={ctx} />
+          <SectionO ctx={ctx} />
+          {hasCompare ? (
+            <SectionP ctx={ctx} html=""><slot name="compare" /></SectionP>
+          ) : (
+            <SectionP ctx={ctx} html={split.after} />
+          )}
+          <SectionQ ctx={ctx} />
+          <SectionR ctx={ctx} />
+          <SectionS ctx={ctx} />
+          <SectionT ctx={ctx} />
+        </div>
+        <footer class="proto__footer" aria-label={`${meta.name} page footer`}>
+          <SourceList page={ctx.page} />
+          <div class="proto__footer-meta">
+            <p>Last verified <FreshnessBadge date={meta.lastVerified} /></p>
+            <p>Content files: <code>{ctx.contentPath}</code></p>
+            <p class="no-print">
+              <button type="button" class="btn" data-flag-issue data-name={meta.name}>Flag an issue</button>
+              <span class="proto__footer-hint">Adds a prefilled note to My notes in this browser.</span>
+            </p>
+          </div>
+        </footer>
+      </div>
+      <aside class="proto__right no-print" aria-label="Key facts and section sources">
+        <div class="proto__right-inner">
+          <KeyFactsCard meta={meta} />
+          <SectionSources page={ctx.page} sectionSources={ctx.sectionSources} />
+        </div>
+      </aside>
+    </div>
+    <p id="proto-live" class="sr-only" aria-live="polite"></p>
+  </div>
+</Base>
+
+<script>
+  import { initProtocolReader } from '../components/protocol/lib/reader';
+  let cleanup: (() => void) | undefined;
+  document.addEventListener('astro:page-load', () => {
+    cleanup?.();
+    cleanup = initProtocolReader();
+  });
+  document.addEventListener('astro:before-swap', () => {
+    cleanup?.();
+    cleanup = undefined;
+  });
+</script>
