@@ -1,0 +1,85 @@
+---
+slug: chatgpt-discovery-to-checkout
+order: 6
+title: From ChatGPT discovery to merchant checkout
+summary: A merchant pushes an ACP product feed and a shopper finds the item in ChatGPT, then opens the merchant's ChatGPT app. Most purchases finish on the merchant's own checkout, which is generally available. Select marketplace partners can use the ChatGPT payment sheet, a private beta; only PCI DSS Level 1 merchants that want raw card data implement ACP Delegate Payment with an allowance. Instant Checkout's 2025 form appears as history only.
+protocols:
+  - openai-acp
+flow: multi-chatgpt-discovery-to-checkout
+personas:
+  - consumer
+  - ai-platform
+  - merchant-enterprise
+  - merchant-smb
+  - psp
+  - compliance
+  - controls-builder
+lastVerified: "2026-10-11"
+---
+
+## The situation
+
+A shopper asks ChatGPT for a pair of trail running shoes, finds a pair from a retailer, and buys them. The shopper is present throughout. The retailer is the merchant of record, and its name appears on the card statement.<Cite ids="clm-openai-acp-045" />
+
+What ChatGPT does in this journey changed in 2026. On 2026-03-24 OpenAI expanded ACP to product discovery and let merchants use their own checkout while it focused on discovery.<Cite ids="clm-openai-acp-178 clm-openai-acp-177" /> Today two checkout paths exist for ChatGPT apps, and they differ in status. External checkout on the merchant's site is the recommended path and is generally available.<Cite ids="clm-openai-acp-183" /> Checkout inside the ChatGPT payment sheet is a private beta for select marketplace partners.<Cite ids="clm-openai-acp-184" /> The ACP specification itself is labeled beta, and its core RFCs are Drafts.<Cite ids="clm-openai-acp-002 clm-openai-acp-003" />
+
+## Actors
+
+- **Shopper**, who asks, picks and confirms.
+- **ChatGPT**, the agent surface that shows products and, in the beta, the payment sheet.
+- **Merchant's ChatGPT app**, an MCP server with a widget, built on OpenAI's Apps SDK rather than on ACP.<Cite ids="clm-openai-acp-215" />
+- **Merchant**, which owns the catalog, the website checkout and, for Level 1 merchants, a card vault.
+- **Feed provider**, optional: OpenAI names Salesforce and Stripe as providers that can deliver merchant feeds.<Cite ids="clm-openai-acp-181" />
+- **Merchant PSP**, which charges the payment.
+
+## Step by step
+
+1. **Push the feed (ACP).** In ACP the Feed API is hosted by the agent and called by the merchant.<Cite ids="clm-openai-acp-113" /> A Product needs `id` and `variants`, and each Variant needs `id` and `title`.<Cite ids="clm-openai-acp-085" /> OpenAI's own API uses `/product_feeds` paths and adds promotions.<Cite ids="clm-openai-acp-115" /> OpenAI recommends a full daily file plus API updates during the day.<Cite ids="clm-openai-acp-116" /> Onboarding is limited to approved partners.<Cite ids="clm-openai-acp-117" />
+2. **Ask (no protocol).** The shopper describes the shoes.
+3. **Discover (ACP).** ChatGPT shows products from merchant feeds. OpenAI named Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot and Wayfair as integrated for discovery.<Cite ids="clm-openai-acp-179" /> Shopify data arrives through Shopify Catalog, and buyers complete purchases on the merchant's store.<Cite ids="clm-openai-acp-180" />
+4. **Open the app (Apps SDK).** ChatGPT calls the merchant's MCP server and the widget shows the offer.
+5. **Path A: link out.** The app sends the shopper to the merchant's checkout.<Cite ids="clm-openai-acp-183" />
+6. **Path A: pay on the site (no protocol).** The merchant's normal web checkout runs.
+7. **Path A: authorize (card rails).** The merchant's PSP authorizes as for any web order. Path A ends here.
+8. **Path B: open the sheet (Apps SDK, beta).** The widget calls `requestCheckout`.<Cite ids="clm-openai-acp-185" />
+9. **Path B: confirm.** The shopper picks a saved payment method and buys.
+10. **Path B, Level 1 merchants only: Delegate Payment (ACP).** A merchant with a PCI DSS Level 1 certificate can receive raw card data by implementing the ACP Delegate Payment endpoint, including allowance constraints.<Cite ids="clm-openai-acp-187" /> The request requires `payment_method`, `allowance`, `risk_signals` and `metadata`.<Cite ids="clm-openai-acp-075" /> The allowance requires `reason`, `max_amount`, `currency`, `checkout_session_id`, `merchant_id` and `expires_at`, and the only reason is `one_time`.<Cite ids="clm-openai-acp-076 clm-openai-acp-077" />
+11. **Path B, Level 1: vault token (ACP).** The response is HTTP 201 with an id starting `vt_`.<Cite ids="clm-openai-acp-079" />
+12. **Path B: tool call (Apps SDK).** ChatGPT sends a token for the selected payment method to the merchant's MCP server in a `complete_checkout` tool call.<Cite ids="clm-openai-acp-185" /> No source read says this token is an allowance-scoped delegated token in the general case.<Cite ids="clm-openai-acp-188" />
+13. **Path B: charge.** OpenAI lists Adyen, Checkout.com, Fiserv, PayPal, Stripe and Worldpay as supporting payment sheet processing.<Cite ids="clm-openai-acp-186" />
+
+## Which protocol does what
+
+| Steps | Protocol | Object or message | Spec version |
+|---|---|---|---|
+| 1, 3 | ACP | Feed API, `Product`, `Variant` | 2026-04-17 |
+| 4, 5, 8, 12 | OpenAI Apps SDK (not ACP) | MCP tool calls, `requestCheckout`, `complete_checkout` | monetization guide, read 2026-10-11 |
+| 6, 7, 13 | Merchant checkout and card rails | web checkout, authorization | outside ACP |
+| 10, 11 | ACP | `POST /agentic_commerce/delegate_payment`, `allowance`, `vt_` token | 2026-04-17 |
+
+The latest released ACP version is 2026-04-17.<Cite ids="clm-openai-acp-027" /> The Apps SDK `complete_checkout` tool is not the ACP MCP binding's `complete_checkout_session`.<Cite ids="clm-openai-acp-215" />
+
+## Where controls apply
+
+- **Before authorization.** OpenAI excludes categories such as alcohol, weapons and prescription-only medications from ChatGPT shopping.<Cite ids="clm-openai-acp-154" /> ACP carries no signed proof of user intent beyond scoped tokens and the agent's own confirmation UI.<Cite ids="clm-openai-acp-212" /> In path A the merchant's own checkout holds consent, fraud screening and 3DS.
+- **At signing.** On the Delegate Payment path the allowance caps the amount and binds the token to one merchant and one checkout session.<Cite ids="clm-openai-acp-146 clm-openai-acp-147" /> OpenAI may require a PCI attestation of compliance before enabling production Delegate Payment.<Cite ids="clm-openai-acp-152" />
+- **At the edge.** ACP pairs authenticate with bilateral bearer tokens, and the specification has no agent registry or public key directory.<Cite ids="clm-openai-acp-140" /> OpenAI asks merchants to allowlist its published egress IP ranges.<Cite ids="clm-openai-acp-141" />
+- **At settlement.** The merchant's PSP charges the payment and enforces the allowance when there is one. ACP defines no token status field and no error code for a token used outside its allowance.<Cite ids="clm-openai-acp-239" />
+- **After the fact.** The merchant handles refunds and chargebacks as merchant of record.<Cite ids="clm-openai-acp-046" /> ACP has no revocation endpoint.<Cite ids="clm-openai-acp-148" />
+
+## What is observable from outside
+
+Very little. A seller's discovery document at `/.well-known/acp.json` needs no authentication.<Cite ids="clm-openai-acp-118" /> There is no public explorer, indexer or registry of ACP merchants.<Cite ids="clm-openai-acp-160" /> Feeds, tool calls, tokens and allowances all travel point to point.<Cite ids="src-openai-apps-monetization" /> No official ACP transaction volume, GMV or merchant count has been published.<Cite ids="clm-openai-acp-199" /> Outsiders learn about adoption from announcements, such as OpenAI's list of discovery retailers.<Cite ids="clm-openai-acp-179" />
+
+## What can go wrong
+
+- **Stale or partial feed.** ACP file ingestion replaces the whole product set, so a partial file drops products.<Cite ids="clm-openai-acp-114" /> The shopper sees a wrong price or a missing item until the next feed.
+- **Card data in the wrong place.** OpenAI's docs say the feed and checkout specs carry no cardholder data, while direct Delegate Payment handles it and is likely in PCI scope.<Cite ids="clm-openai-acp-151" /> Implementations must not log full card numbers or CVC values.<Cite ids="clm-openai-acp-153" />
+- **Delegate Payment errors.** The endpoint returns codes such as `invalid_card`, `duplicate_request` and `idempotency_conflict`.<Cite ids="clm-openai-acp-238" />
+- **Who bears the loss.** The merchant is merchant of record and carries refunds and chargebacks.<Cite ids="clm-openai-acp-046" />
+- **Costs.** ACP charges no protocol fee; merchants pay their own PSP.<Cite ids="clm-openai-acp-196" /> OpenAI has not published a fee rate for ChatGPT checkout.<Cite ids="clm-openai-acp-193" /> A report said Shopify merchants would pay OpenAI 4% on ChatGPT checkout sales (reported).<Cite ids="clm-openai-acp-194" />
+
+## Variants
+
+- **History: Instant Checkout in its 2025 form.** OpenAI announced Instant Checkout with ACP on 2025-09-29.<Cite ids="clm-openai-acp-007" /> At launch it supported single-item purchases from US Etsy sellers.<Cite ids="clm-openai-acp-167 clm-openai-acp-168" /> Stripe introduced the Shared Payment Token the same day, the first Delegated Payment Spec-compatible implementation.<Cite ids="clm-openai-acp-008 clm-openai-acp-049" /> That flagship form was scaled back in March 2026.<Cite ids="clm-openai-acp-224" /> Trade press reported an OpenAI spokesperson saying Instant Checkout was moving to apps (reported).<Cite ids="clm-openai-acp-175" /> Do not read it as today's default path.
+- **A full ACP checkout session.** An agent can also run ACP's own checkout: `POST /checkout_sessions` creates a session and complete must return `completed` with an order.<Cite ids="clm-openai-acp-092 clm-openai-acp-095" /> That is the protocol as specified; this scenario follows what ChatGPT documents today.

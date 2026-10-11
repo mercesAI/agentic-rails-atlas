@@ -1,0 +1,192 @@
+{
+  "id": "multi-chatgpt-discovery-to-checkout",
+  "protocol": "multi",
+  "title": "From ChatGPT discovery to merchant checkout: an ACP product feed, a ChatGPT app, then external checkout or the payment sheet beta",
+  "summary": "A merchant pushes its catalog to ChatGPT as an ACP product feed and a shopper finds an item in ChatGPT. The shopper opens the merchant's ChatGPT app. Path A, generally available: the app sends the shopper to the merchant's own checkout. Path B, a private beta for select marketplace partners: the app widget opens the ChatGPT payment sheet and ChatGPT sends a payment-method token to the merchant's MCP server in a complete_checkout tool call. Only a PCI DSS Level 1 merchant that wants raw card data implements the ACP Delegate Payment endpoint, whose request carries an allowance.",
+  "specVersion": "ACP 2026-04-17; OpenAI Apps SDK monetization guide (read 2026-10-11)",
+  "specVersionDate": "2026-04-17",
+  "actors": [
+    { "id": "user", "label": "Shopper", "kind": "human" },
+    { "id": "chatgpt", "label": "ChatGPT (agent surface)", "kind": "platform" },
+    { "id": "app", "label": "Merchant's ChatGPT app (MCP server and widget)", "kind": "server" },
+    { "id": "merchant", "label": "Merchant (site, catalog and vault)", "kind": "merchant" },
+    { "id": "psp", "label": "Merchant PSP and card rails", "kind": "psp" }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "merchant",
+      "to": "chatgpt",
+      "label": "Push the product feed (ACP Feed API)",
+      "protocol": "openai-acp",
+      "detail": "The merchant, or a provider such as Salesforce or Stripe, pushes products to ChatGPT. In ACP the Feed API is hosted by the agent and called by merchants; each Product needs id and variants, each Variant id and title. OpenAI's own feed API uses /product_feeds paths and adds promotions, and onboarding is limited to approved partners. The example uses the ACP specification's path.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, ACP spec version 2026-04-17. OpenAI's production API uses /product_feeds paths.\nPATCH /feeds/feed_us/products HTTP/1.1\nContent-Type: application/json\n\n{\n  \"products\": [\n    {\n      \"id\": \"prod_1\",\n      \"title\": \"Trail running shoe\",\n      \"variants\": [ { \"id\": \"prod_1_m10\", \"title\": \"Men's 10\" } ]\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.feed.yaml",
+        "section": "/feeds/{id}/products"
+      },
+      "controlPoint": "Before authorization: OpenAI's approval of the merchant and its product policy, which excludes categories such as alcohol, weapons and prescription-only medications.",
+      "observable": "Private: feeds go from merchant to OpenAI; the products appear publicly only as ChatGPT results.",
+      "failures": [
+        { "condition": "A feed file replaces the whole set with a partial file", "outcome": "Products missing from the file drop out; the ACP file mode replaces the full product set." }
+      ]
+    },
+    {
+      "n": 2,
+      "from": "user",
+      "to": "chatgpt",
+      "label": "Ask for a product",
+      "detail": "The shopper asks ChatGPT for an item and stays in the conversation. This is a human-present purchase."
+    },
+    {
+      "n": 3,
+      "from": "chatgpt",
+      "to": "user",
+      "label": "Show matching products from feeds",
+      "protocol": "openai-acp",
+      "detail": "ChatGPT shows products drawn from merchant feeds. Since 2026-03-24 OpenAI positions ACP for product discovery and lets merchants use their own checkout.",
+      "observable": "Visible to the shopper only; there is no public index of ACP merchants."
+    },
+    {
+      "n": 4,
+      "from": "chatgpt",
+      "to": "app",
+      "label": "Open the merchant's ChatGPT app (MCP tool call)",
+      "detail": "The shopper picks the merchant's app. ChatGPT calls the merchant's MCP server through the Apps SDK, and the app's widget renders the offer. This is an OpenAI product surface, not part of ACP.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://developers.openai.com/apps-sdk/build/monetization", "section": "Monetization" },
+      "controlPoint": "At the edge: the merchant's MCP server authenticates ChatGPT and applies its own rate limits."
+    },
+    {
+      "n": 5,
+      "from": "app",
+      "to": "user",
+      "label": "Path A (generally available): link to the merchant's own checkout",
+      "detail": "External checkout is the recommended and generally available path for ChatGPT apps: the app links or redirects the shopper to the merchant's site.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://developers.openai.com/apps-sdk/build/monetization", "section": "External checkout" },
+      "observable": "Private: the merchant sees a referral from ChatGPT in its own analytics."
+    },
+    {
+      "n": 6,
+      "from": "user",
+      "to": "merchant",
+      "label": "Path A: pay on the merchant's site",
+      "detail": "The shopper pays in the merchant's normal web checkout. No ACP checkout session and no delegated token are involved; the merchant's usual fraud, 3DS and consent flows apply.",
+      "crossesTrustBoundary": true,
+      "controlPoint": "Before authorization: the merchant's own checkout, fraud screening and 3DS."
+    },
+    {
+      "n": 7,
+      "from": "merchant",
+      "to": "psp",
+      "label": "Path A: authorize through the merchant's PSP",
+      "detail": "An ordinary card-not-present authorization. Path A ends here.",
+      "crossesTrustBoundary": true,
+      "controlPoint": "At settlement: PSP and issuer risk decisions.",
+      "failures": [
+        { "condition": "The issuer declines", "outcome": "An ordinary decline on the merchant's site." }
+      ]
+    },
+    {
+      "n": 8,
+      "from": "app",
+      "to": "chatgpt",
+      "label": "Path B (private beta): widget calls window.openai.requestCheckout",
+      "detail": "For select marketplace partners only, the app's widget asks ChatGPT to open its payment sheet.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://developers.openai.com/apps-sdk/build/monetization", "section": "ChatGPT payment sheet" }
+    },
+    {
+      "n": 9,
+      "from": "user",
+      "to": "chatgpt",
+      "label": "Path B: choose a payment method and buy",
+      "detail": "The shopper reviews the payment sheet and confirms with a saved payment method.",
+      "controlPoint": "Before authorization: the shopper's confirmation in ChatGPT's own UI; ACP itself has no user-signed mandate.",
+      "failures": [
+        { "condition": "The shopper closes the sheet", "outcome": "No token is sent and nothing is charged." }
+      ]
+    },
+    {
+      "n": 10,
+      "from": "chatgpt",
+      "to": "merchant",
+      "label": "Path B, PCI DSS Level 1 merchants only: POST /agentic_commerce/delegate_payment",
+      "protocol": "openai-acp",
+      "detail": "A merchant with a PCI DSS Level 1 certificate that wants raw card data implements the ACP Delegate Payment endpoint. The request requires payment_method, allowance, risk_signals and metadata. The allowance requires reason (only one_time), max_amount, currency, checkout_session_id, merchant_id and expires_at. Other merchants skip steps 10 and 11.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, ACP spec version 2026-04-17. Test card number; no real data.\nPOST /agentic_commerce/delegate_payment HTTP/1.1\nAuthorization: Bearer <api-key>\nAPI-Version: 2026-04-17\nIdempotency-Key: idem_001\nContent-Type: application/json\n\n{\n  \"payment_method\": { \"type\": \"card\", \"card_number_type\": \"fpan\", \"number\": \"4242424242424242\", \"metadata\": {} },\n  \"allowance\": {\n    \"reason\": \"one_time\",\n    \"max_amount\": 12999,\n    \"currency\": \"usd\",\n    \"checkout_session_id\": \"cs_123\",\n    \"merchant_id\": \"merchant_abc\",\n    \"expires_at\": \"2026-10-11T18:00:00Z\"\n  },\n  \"risk_signals\": [],\n  \"metadata\": {}\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_payment.md",
+        "section": "Delegate Payment request"
+      },
+      "controlPoint": "At signing: the vault validates the allowance and risk signals before it issues a token; OpenAI may require a PCI attestation of compliance first.",
+      "observable": "Private: card data and the allowance stay between ChatGPT and the merchant's vault.",
+      "failures": [
+        { "condition": "Card data fails validation", "outcome": "Delegate Payment error invalid_card." },
+        { "condition": "The same Idempotency-Key with a different body", "outcome": "idempotency_conflict." }
+      ]
+    },
+    {
+      "n": 11,
+      "from": "merchant",
+      "to": "chatgpt",
+      "label": "Path B, PCI DSS Level 1: 201 with a vault token id",
+      "protocol": "openai-acp",
+      "detail": "The vault returns an id starting with vt_, a created timestamp and metadata. Only an opaque token goes back to ChatGPT.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, ACP spec version 2026-04-17.\n{ \"id\": \"vt_01EXAMPLE\", \"created\": \"2026-10-11T17:30:00Z\", \"metadata\": {} }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_payment.md",
+        "section": "Response"
+      }
+    },
+    {
+      "n": 12,
+      "from": "chatgpt",
+      "to": "app",
+      "label": "Path B: complete_checkout tool call with a payment-method token",
+      "detail": "ChatGPT sends a token for the selected payment method to the merchant's MCP server in a complete_checkout tool call. This Apps SDK tool is not the ACP MCP binding's complete_checkout_session. The sources do not say that this token is allowance-scoped in the general case.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://developers.openai.com/apps-sdk/build/monetization", "section": "ChatGPT payment sheet" },
+      "controlPoint": "At the edge: the MCP server checks that the tool call matches the offer the widget showed.",
+      "observable": "Private: a tool call between ChatGPT and the merchant's server."
+    },
+    {
+      "n": 13,
+      "from": "app",
+      "to": "psp",
+      "label": "Path B: charge the token through a supported PSP",
+      "detail": "The merchant's PSP charges the token. OpenAI lists Adyen, Checkout.com, Fiserv, PayPal, Stripe and Worldpay as supporting payment sheet processing. The merchant is merchant of record and handles refunds and chargebacks.",
+      "crossesTrustBoundary": true,
+      "controlPoint": "At settlement: PSP and issuer risk decisions; for a delegated vault token, the merchant's PSP enforces the allowance, with a PSP-specific error.",
+      "failures": [
+        { "condition": "A delegated token is used outside its allowance", "outcome": "Should fail, but ACP defines no error code for it; the error is PSP specific." },
+        { "condition": "The issuer declines", "outcome": "An ordinary decline; the app tells the shopper." }
+      ]
+    }
+  ],
+  "sources": [
+    "src-openai-acp-openapi-feed-20260417",
+    "src-openai-acp-schema-feed-20260417",
+    "src-openai-commerce-docs",
+    "src-openai-product-discovery",
+    "src-openai-apps-monetization",
+    "src-openai-acp-rfc-delegate-payment",
+    "src-openai-acp-schema-delegate-payment-20260417"
+  ]
+}

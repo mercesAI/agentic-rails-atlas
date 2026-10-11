@@ -1,0 +1,24 @@
+flowchart LR
+  SH["Shopper"]
+  subgraph OZ["OpenAI"]
+    CG["ChatGPT: discovery and payment sheet"]
+  end
+  subgraph MZ["Merchant zone (merchant of record)"]
+    FD["Catalog (feed source)"]
+    AP["ChatGPT app: MCP server and widget"]
+    WS["Merchant website checkout"]
+    VT["Delegate Payment vault (PCI DSS Level 1 merchants only)"]
+  end
+  subgraph PZ["Payment processing"]
+    PS["Merchant PSP and card rails"]
+  end
+  FD -- "1 product feed (ACP Feed API)" --> CG
+  SH -- "asks; picks a product" --> CG
+  CG -- "2 open app (Apps SDK)" --> AP
+  AP -- "A: external checkout link (generally available)" --> SH
+  SH -- "A: pays on the site" --> WS
+  WS -- "A: authorize" --> PS
+  AP -. "B: requestCheckout (private beta)" .-> CG
+  CG -. "B, Level 1 only: delegate_payment with allowance (ACP)" .-> VT
+  CG -. "B: complete_checkout with payment-method token" .-> AP
+  AP -. "B: charge token" .-> PS
