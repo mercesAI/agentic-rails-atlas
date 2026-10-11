@@ -1,0 +1,241 @@
+---
+/**
+ * /methodology/: sources policy, verification method, claim counts by
+ * confidence, freshness and coverage per protocol, link and citation checks,
+ * known gaps, blocked sources, conflicts, errata and how to refresh. Every
+ * figure is computed at build time from the content and generated reports.
+ */
+import Page from '../../layouts/Page.astro';
+import FreshnessBadge from '../../components/ui/FreshnessBadge.astro';
+import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+import { getGlossary, getPublications, getSourcesMap } from '../../lib/content';
+import { loadClaimsByProtocol, loadCompare, loadControlsMap, loadProtocolInfos } from '../../components/crosscut/lib/load';
+import { isFullTerm, openStubs, type GlossaryStub } from '../../components/crosscut/lib/glossary';
+import { BUILD_DATE } from '../../lib/constants';
+import '../../components/crosscut/crosscut.css';
+
+interface CoverageCheck { id: string; label: string; actual: unknown; expected: unknown; pass: boolean; detail?: string }
+interface CoverageProtocol { slug: string; name: string; status: string; checks: CoverageCheck[]; claims: number; unverifiedClaims: number; reportedClaims: number }
+interface CoverageReport { generatedAt: string; protocols: CoverageProtocol[]; summary?: Record<string, number> }
+interface LinkResult { url: string; host: string; status: number; outcome: 'ok' | 'warn' | 'fail'; reason?: string; refs: string[] }
+interface LinkReport { checkedAt: string; results: LinkResult[] }
+interface CitationResult { id: string; status: string; via?: string; overlap?: number; reason?: string }
+interface CitationReport { checkedAt: string; results: CitationResult[] }
+
+const first = <T,>(g: Record<string, T>): T | undefined => Object.values(g)[0];
+const coverage = first(import.meta.glob<CoverageReport>('/src/generated/coverage.json', { eager: true, import: 'default' }));
+const links = first(import.meta.glob<LinkReport>('/src/generated/link-report.json', { eager: true, import: 'default' }));
+const citations = first(import.meta.glob<CitationReport>('/src/generated/citation-report.json', { eager: true, import: 'default' }));
+const waivers = first(import.meta.glob<{ waivers: { protocol?: string; check?: string; reason: string }[] }>('/coverage-waivers.json', { eager: true, import: 'default' }));
+const draft = first(import.meta.glob<{ stubs?: GlossaryStub[] }>('/research/glossary.draft.json', { eager: true, import: 'default' }));
+const RAW = import.meta.glob<string>(['/research/blocked.md', '/research/conflicts.md', '/ATLAS_ERRATA.md'], { eager: true, query: '?raw', import: 'default' });
+
+const md = await createMarkdownProcessor();
+async function renderMd(path: string): Promise<string | null> {
+  const raw = RAW[path];
+  if (!raw) return null;
+  const body = raw.replace(/^# .*\n/, '').replace(/—/g, ', ');
+  const { code } = await md.render(body);
+  return code
+    .replace(/<(\/?)h3/g, '<$1h4')
+    .replace(/<(\/?)h2/g, '<$1h3')
+    .replace(/<a href="http/g, '<a rel="noopener noreferrer external" href="http');
+}
+const blockedHtml = await renderMd('/research/blocked.md');
+const conflictsHtml = await renderMd('/research/conflicts.md');
+const errataHtml = await renderMd('/ATLAS_ERRATA.md');
+const countItems = (path: string) => (RAW[path]?.match(/^- /gm) ?? []).length;
+
+const protocols = await loadProtocolInfos();
+const claimsBy = await loadClaimsByProtocol();
+const sources = await getSourcesMap();
+const publications = await getPublications();
+const glossary = await getGlossary();
+const fullTerms = glossary.filter(isFullTerm);
+const stubs = openStubs(draft?.stubs ?? [], fullTerms);
+const compare = await loadCompare();
+const controlsMap = await loadControlsMap();
+
+const rows = protocols.map((p) => {
+  const claims = claimsBy.get(p.slug) ?? [];
+  const c = { verified: 0, reported: 0, unverified: 0 };
+  for (const x of claims) c[x.confidence] += 1;
+  const cov = coverage?.protocols.find((x) => x.slug === p.slug);
+  return { p, claims, c, total: claims.length, cov, failing: cov?.checks.filter((k) => !k.pass) ?? [] };
+});
+const totals = rows.reduce((a, r) => ({ v: a.v + r.c.verified, r: a.r + r.c.reported, u: a.u + r.c.unverified, t: a.t + r.total }), { v: 0, r: 0, u: 0, t: 0 });
+const pct = (n: number, d: number) => (d ? Math.round((n / d) * 1000) / 10 : 0);
+const primary = [...sources.values()].filter((s) => s.primary).length;
+
+const linkCounts = { ok: 0, warn: 0, fail: 0 };
+for (const r of links?.results ?? []) linkCounts[r.outcome] += 1;
+const linkIssues = (links?.results ?? []).filter((r) => r.outcome !== 'ok');
+const citeCounts: Record<string, number> = {};
+for (const r of citations?.results ?? []) citeCounts[r.status] = (citeCounts[r.status] ?? 0) + 1;
+const citeIssues = (citations?.results ?? []).filter((r) => r.status !== 'ok');
+const unchecked = publications.filter((p) => !(citations?.results ?? []).some((r) => r.id === p.id));
+
+const compareCovered = new Set(compare.cells.map((c) => c.protocol));
+const controlsCovered = new Set((controlsMap?.cells ?? []).map((c) => c.protocol));
+const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain', missing: 'In progress' };
+---
+<Page
+  title="Methodology"
+  eyebrow="How this atlas is built"
+  lede="How sources are chosen and checked, how much of the atlas is verified, what is still missing and how to refresh it. Every figure on this page is computed from the content at build time."
+  lastVerified={BUILD_DATE}
+>
+  <h2 id="policy">Sources policy</h2>
+  <p>
+    Every factual claim on the site is a record with at least one source and a confidence. A source record names the URL, title, publisher, type, whether it is a primary source, the publication date when the publisher states one, and the date it was read (<code>accessed</code>). Claims are short sentences kept per protocol and cited from the page text; numbers carry an “as of” date.
+  </p>
+  <ul>
+    <li><strong>Verified</strong>: a primary source was read during the build (spec text, schemas, the repository, official documentation or announcement, a standards-body record).</li>
+    <li><strong>Reported</strong>: only reputable secondary sources support it. The claim is shown with a “reported” badge.</li>
+    <li><strong>Unverified</strong>: shown only with a visible badge, or left out.</li>
+  </ul>
+  <p>
+    The order of preference is spec repositories, official documentation, official announcements, standards-body records, then reputable secondary sources. Field names, endpoints, headers and enums come from the cloned specification repositories, never from memory or blog posts. What a spec says is kept apart from what is deployed, and announced, pilot, beta and generally available are kept apart too. When sources disagree, both are kept, the primary one is named and the conflict is logged (see <a href="#conflicts">source conflicts</a>). Spec text is linked, not copied; at most one short quotation per source appears across the site.
+  </p>
+
+  <h2 id="verification">Verification method</h2>
+  <ul>
+    <li>A research pass per protocol builds the source registry and the claim pool from primary sources, then a writer drafts the page from those claims only.</li>
+    <li>An independent reviewer that did not write the page checks claims against sources, field names against the cloned schemas, dates, numbers and diagrams.</li>
+    <li>Scripts check the rest on every build: every claim points to existing sources, every source has an accessed date, the coverage thresholds per protocol, the style rules, the ASD-STE100 limits for the STE sections, every external link, and every publication against DataCite, Crossref, DOI resolution, arXiv or the publisher page.</li>
+  </ul>
+
+  <h2 id="claims">Claims by confidence</h2>
+  <div class="cc-stats">
+    <div class="cc-stat"><div class="cc-stat__n">{totals.t}</div><div class="cc-stat__l">claims</div></div>
+    <div class="cc-stat"><div class="cc-stat__n">{pct(totals.v, totals.t)}%</div><div class="cc-stat__l">verified ({totals.v})</div></div>
+    <div class="cc-stat"><div class="cc-stat__n">{totals.r}</div><div class="cc-stat__l">reported</div></div>
+    <div class="cc-stat"><div class="cc-stat__n">{totals.u}</div><div class="cc-stat__l">unverified</div></div>
+    <div class="cc-stat"><div class="cc-stat__n">{sources.size}</div><div class="cc-stat__l">sources ({primary} primary)</div></div>
+    <div class="cc-stat"><div class="cc-stat__n">{publications.length}</div><div class="cc-stat__l">verified publications</div></div>
+    <div class="cc-stat"><div class="cc-stat__n">{fullTerms.length}</div><div class="cc-stat__l">full glossary terms ({stubs.length} stubs not counted)</div></div>
+  </div>
+  <div class="table-wrap" role="region" aria-labelledby="claims-cap" tabindex="0">
+    <table>
+      <caption id="claims-cap">Claims per protocol by confidence, with freshness and coverage status</caption>
+      <thead>
+        <tr>
+          <th scope="col">Protocol</th>
+          <th scope="col">Verified</th>
+          <th scope="col">Reported</th>
+          <th scope="col">Unverified</th>
+          <th scope="col">Total</th>
+          <th scope="col">Share</th>
+          <th scope="col">Last verified</th>
+          <th scope="col">Coverage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <th scope="row">{r.p.hasPage ? <a href={`/p/${r.p.slug}/`}>{r.p.short}</a> : r.p.short}</th>
+            <td>{r.c.verified}</td>
+            <td>{r.c.reported}</td>
+            <td>{r.c.unverified}</td>
+            <td>{r.total}</td>
+            <td>
+              {r.total > 0 ? (
+                <span class="cc-bar" role="img" aria-label={`${pct(r.c.verified, r.total)}% verified, ${pct(r.c.reported, r.total)}% reported, ${pct(r.c.unverified, r.total)}% unverified`}>
+                  <span class="cc-bar__v" style={`width:${pct(r.c.verified, r.total)}%`}></span>
+                  <span class="cc-bar__r" style={`width:${pct(r.c.reported, r.total)}%`}></span>
+                  <span class="cc-bar__u" style={`width:${pct(r.c.unverified, r.total)}%`}></span>
+                </span>
+              ) : <span class="cc-progress">No claims yet</span>}
+            </td>
+            <td>{r.p.lastVerified ? <FreshnessBadge date={r.p.lastVerified} /> : <span class="cc-progress">In progress</span>}</td>
+            <td>
+              {r.cov ? STATUS_TEXT[r.cov.status] ?? r.cov.status : 'Not checked'}
+              {r.failing.length > 0 && r.cov?.status !== 'missing' && <div class="cc-note">{r.failing.map((k) => k.label).join('; ')}</div>}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="cc-note">
+    Bar: solid for verified, striped for reported, the third segment for unverified. Freshness: a filled dot under 30 days since the last verification, a half dot from 30 to 90 days, a hollow dot over 90 days.
+    {coverage && <> Coverage report generated {coverage.generatedAt}.</>}
+  </p>
+
+  <h2 id="unverified">What is still unverified</h2>
+  <p>
+    {totals.u} claims are unverified and {totals.r} rest on secondary sources only. They appear on the pages with their badge. The unverified ones are listed here in full.
+  </p>
+  {rows.filter((r) => r.c.unverified > 0).map((r) => (
+    <details>
+      <summary>{r.p.short}: {r.c.unverified} unverified</summary>
+      <ul>
+        {r.claims.filter((c) => c.confidence === 'unverified').map((c) => (
+          <li>{c.text} <code>{c.id}</code>{c.asOf && <> (as of {c.asOf})</>}</li>
+        ))}
+      </ul>
+    </details>
+  ))}
+
+  <h2 id="checks">Link and citation checks</h2>
+  {links ? (
+    <p>
+      Link check of {links.checkedAt}: {links.results.length} external URLs, {linkCounts.ok} answered, {linkCounts.warn} warnings (bot blocking or server errors from hosts known to block scripts) and {linkCounts.fail} failures.
+    </p>
+  ) : <p>No link report has been generated yet.</p>}
+  {linkIssues.length > 0 && (
+    <div class="table-wrap" role="region" aria-labelledby="links-cap" tabindex="0">
+      <table>
+        <caption id="links-cap">Links that did not answer cleanly</caption>
+        <thead><tr><th scope="col">Outcome</th><th scope="col">Host</th><th scope="col">Reason</th><th scope="col">Used by</th></tr></thead>
+        <tbody>
+          {linkIssues.map((r) => (
+            <tr><td>{r.outcome === 'fail' ? 'Failure' : 'Warning'}</td><td>{r.host}</td><td>{r.reason ?? `HTTP ${r.status}`}</td><td><code>{r.refs.join(', ')}</code></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+  {citations ? (
+    <p>
+      Citation check of {citations.checkedAt}: {citations.results.length} publications re-verified by title and first author, {Object.entries(citeCounts).map(([k, v]) => `${v} ${k}`).join(', ')}.
+      {unchecked.length > 0 && <> {unchecked.length} publications merged after that run were verified once at research time and wait for the next check.</>}
+    </p>
+  ) : <p>No citation report has been generated yet.</p>}
+  {citeIssues.length > 0 && (
+    <ul>{citeIssues.map((r) => <li><code>{r.id}</code>: {r.status}{r.reason ? `, ${r.reason}` : ''}</li>)}</ul>
+  )}
+
+  <h2 id="gaps">Known gaps</h2>
+  <ul>
+    {rows.filter((r) => !r.p.hasPage || r.cov?.status === 'missing').map((r) => <li>{r.p.short}: the page is in progress.</li>)}
+    {rows.filter((r) => r.p.hasPage && r.cov && r.cov.status === 'fail').map((r) => <li>{r.p.short}: coverage gaps in {r.failing.map((k) => `${k.label.toLowerCase()} (${String(k.actual)}, expected ${String(k.expected)})`).join('; ')}.</li>)}
+    {protocols.filter((p) => !compareCovered.has(p.slug)).length > 0 && <li>Compare matrix columns in progress: {protocols.filter((p) => !compareCovered.has(p.slug)).map((p) => p.short).join(', ')}.</li>}
+    {protocols.filter((p) => !controlsCovered.has(p.slug)).length > 0 && <li>Controls map columns in progress: {protocols.filter((p) => !controlsCovered.has(p.slug)).map((p) => p.short).join(', ')}.</li>}
+    {stubs.length > 0 && <li>{stubs.length} glossary terms are stubs without sourced definitions (<a href="/glossary/#stubs">list</a>).</li>}
+    {(controlsMap?.independentLayerNotes.length ?? 0) === 0 && <li>The controls map has no hand-written notes on the independent controls layer yet; the annotations there are derived from the cells and labeled as derived.</li>}
+    {(waivers?.waivers ?? []).map((w) => <li>Coverage waiver{w.protocol ? ` for ${w.protocol}` : ''}{w.check ? ` (${w.check})` : ''}: {w.reason}</li>)}
+    <li>Radar scores are editorial judgments made from cited sources, not measurements.</li>
+  </ul>
+
+  <h2 id="blocked">Blocked sources</h2>
+  <p>Pages that refused automated reads ({countItems('/research/blocked.md')} entries), with the alternative used for each.</p>
+  {blockedHtml ? <div class="cc-md" set:html={blockedHtml} /> : <p>No blocked sources are logged.</p>}
+
+  <h2 id="conflicts">Source conflicts</h2>
+  <p>{countItems('/research/conflicts.md')} conflicts between sources, with the source treated as primary.</p>
+  {conflictsHtml ? <div class="cc-md" set:html={conflictsHtml} /> : <p>No conflicts are logged.</p>}
+
+  <h2 id="errata">Errata</h2>
+  <p>Corrections to the seed facts this atlas started from, and where the corrected statement now lives.</p>
+  {errataHtml ? <div class="cc-md cc-scroll" set:html={errataHtml} /> : <p>No errata are logged.</p>}
+
+  <h2 id="refresh">How to refresh</h2>
+  <ol>
+    <li>Pull the spec repositories again into <code>research/vendor/</code> and read the changelogs since each protocol's last verified date.</li>
+    <li>Update the affected claims and sources (new <code>accessed</code> dates, new <code>asOf</code> dates on numbers) and the protocol's <code>lastVerified</code> date.</li>
+    <li>Run <code>pnpm data</code> for the GitHub, npm, PyPI and explorer snapshots (fetchers never fail the build).</li>
+    <li>Run <code>pnpm merge</code>, then <code>pnpm verify:sources</code>, <code>pnpm verify:links</code>, <code>pnpm verify:citations</code> and <code>pnpm verify:coverage</code>.</li>
+    <li>Run <code>pnpm lint:style</code>, <code>pnpm lint:ste</code>, <code>pnpm diagrams</code>, <code>pnpm check</code>, <code>pnpm test</code> and <code>pnpm build</code>. This page then shows the new counts.</li>
+  </ol>
+</Page>
