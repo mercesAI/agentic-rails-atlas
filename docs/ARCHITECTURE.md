@@ -207,3 +207,20 @@ All components take typed props from `src/lib/schemas.ts`. Astro components for 
 ## 12. Writing rules for everything under src/content
 
 See ATLAS_PROMPT.md 2.6: no em dashes, no banned phrases, US spelling, sentence case, YYYY-MM-DD, acronyms expanded on first use per page, every number with an "as of" date, every claim cited with `<Cite ids="clm-..." />`.
+
+## 13. Merge pipeline (so eight writers never edit one shared file)
+
+Writers only create files under `src/content/protocols/<slug>/`, `src/content/flows/`, `src/content/states/` and `src/content/diagrams/`. Shared files are assembled by `scripts/merge-content.ts` (run by `pnpm merge`, and first in `pnpm build`), which is idempotent and deterministic:
+
+| Writer output (per protocol) | Merged into | Rule |
+|---|---|---|
+| `protocols/<slug>/sources.json` (Source[]) | `src/content/sources/sources.json` | union by id; conflicting records for the same id: the sidecar wins and a warning is printed; URLs normalized for duplicate detection; `src/generated/source-aliases.json` records id aliases |
+| `protocols/<slug>/compare-cells.json` `{cells: CompareCell[33], radar: [6 axes], controlsCells: ControlCell[14]}` | `src/content/compare.json` (cells, radar) and `src/content/controls-map.json` (cells) | replace the protocol's rows; dimensions and controls lists stay fixed |
+| `protocols/<slug>/publication-tags.json` `[{id, whyItMatters?}]` | `src/content/publications/publications.json` | adds the slug to `protocols` of the publication; `whyItMatters` is appended as "<Protocol name>: ..." when given |
+| `protocols/<slug>/glossary-additions.json` (GlossaryTerm[]) | `src/content/glossary/terms.json` | union by id; existing terms gain the slug in `protocols` |
+| `protocols/<slug>/relations.json` (Relation[]) | `src/content/relations.json` | union by (from, to, type) |
+| `research/policy.json`, `research/market.json`, `research/prehistory.json`, `research/orbit.*.json` timelines | `src/content/timeline-global.json` | lanes Policy, Market, Prehistory, Standards |
+| `research/glossary.draft.json` | `src/content/glossary/terms.json` and `sources.json` | base glossary and its sources |
+| `research/publications.*.json` | `publications.json` | verified entries only |
+
+`merge-content.ts` validates every output with the Zod schemas and fails loudly on a schema error. Nobody edits the merged files by hand.
