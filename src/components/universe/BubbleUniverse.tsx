@@ -317,15 +317,21 @@ function Stage(props: StageProps) {
     if (!zoomable || !vp || !canvas) return;
     const z = zoom<HTMLDivElement, unknown>()
       .scaleExtent([0.25, 3])
-      .on('zoom', (ev: { transform: { toString(): string } }) => {
-        canvas.style.transform = ev.transform.toString();
+      .on('zoom', (ev: { transform: { x: number; y: number; k: number } }) => {
+        const t = ev.transform;
+        // CSS needs units (d3's toString() is SVG syntax).
+        canvas.style.transform = `translate(${t.x}px, ${t.y}px) scale(${t.k})`;
       });
     zoomRef.current = z;
     const sel = select(vp);
     sel.call(z);
-    const fit = vp.clientWidth / canvas.offsetWidth;
-    sel.call(z.transform, zoomIdentity.translate(0, 8).scale(fit));
+    // The dialog opens after this effect runs, so measure on the next frame.
+    const raf = requestAnimationFrame(() => {
+      const fit = (vp.clientWidth || window.innerWidth) / (canvas.offsetWidth || 1000);
+      sel.call(z.transform, zoomIdentity.translate(0, 8).scale(fit));
+    });
     return () => {
+      cancelAnimationFrame(raf);
       sel.on('.zoom', null);
       canvas.style.transform = '';
       zoomRef.current = null;
@@ -340,7 +346,8 @@ function Stage(props: StageProps) {
     const vp = viewportRef.current;
     const canvas = canvasRef.current;
     if (vp && canvas && zoomRef.current) {
-      select(vp).call(zoomRef.current.transform, zoomIdentity.translate(0, 8).scale(vp.clientWidth / canvas.offsetWidth));
+      const fit = (vp.clientWidth || window.innerWidth) / (canvas.offsetWidth || 1000);
+      select(vp).call(zoomRef.current.transform, zoomIdentity.translate(0, 8).scale(fit));
     }
   };
 
@@ -374,17 +381,26 @@ function Stage(props: StageProps) {
           <span className="u-toggle__track" aria-hidden="true"><span className="u-toggle__thumb" /></span>
           Orbit
         </button>
-        <label className="u-persona">
-          <span>Persona</span>
-          <select value={persona} onChange={(e) => props.onPersona(e.target.value)}>
-            <option value="">All personas</option>
-            {personas.map((p) => (
-              <option key={p.id} value={p.id}>
+        <details className="u-persona">
+          <summary>
+            Persona: <span className="u-persona__current">{persona ? personaName : 'All personas'}</span>
+          </summary>
+          <fieldset className="u-persona__panel">
+            <legend className="sr-only">Dim protocols by relevance to a persona</legend>
+            {[{ id: '', name: 'All personas' }, ...personas].map((p) => (
+              <label key={p.id || 'all'} className="u-persona__option">
+                <input
+                  type="radio"
+                  name={`${uid}-persona`}
+                  value={p.id}
+                  checked={persona === p.id}
+                  onChange={() => props.onPersona(p.id)}
+                />
                 {p.name}
-              </option>
+              </label>
             ))}
-          </select>
-        </label>
+          </fieldset>
+        </details>
         {zoomable ? (
           <div className="u-zoom" role="group" aria-label="Zoom">
             <button type="button" className="u-seg__btn" onClick={() => zoomBy(1.3)} aria-label="Zoom in">+</button>
@@ -544,6 +560,7 @@ function Stage(props: StageProps) {
                     className="usat"
                     data-category={o.category}
                     rel={o.external ? 'noopener noreferrer external' : undefined}
+                    aria-label={`${o.name}, ${ORBIT_CATEGORY_LABELS[o.category]}${o.external ? ' (external link)' : ''}`}
                     style={{ left: pct(n.x, W), top: pct(n.y, H) } as CSSProperties}
                   >
                     <span className="usat__dot" aria-hidden="true" />
@@ -554,7 +571,6 @@ function Stage(props: StageProps) {
                       </span>
                       <span className="usat__meta">{ORBIT_CATEGORY_LABELS[o.category]}</span>
                       <span className="usat__one">{o.oneLiner}</span>
-                      {o.external ? <span className="sr-only"> (external link)</span> : null}
                     </span>
                   </a>
                 );

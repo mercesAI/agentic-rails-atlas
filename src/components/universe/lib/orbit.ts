@@ -9,12 +9,13 @@ import { ORBIT_CATEGORIES, type GuideLabel, type LayoutMode, type OrbitCategoryI
 
 export const SATELLITE_R = 7;
 export const ORBIT_BAND_H = 190;
+export const ORBIT_RING_EXTRA = 90;
 
 export interface OrbitLayout {
   nodes: Record<string, PlacedNode>;
   labels: GuideLabel[];
   ring: { cx: number; cy: number; rx: number; ry: number } | null;
-  /** Extra height the band adds under the chart (0 in Constellation). */
+  /** Extra height the ring or the band adds under the chart. */
   extraHeight: number;
 }
 
@@ -38,10 +39,12 @@ export function orbitLayout(
   if (groups.length === 0) return { nodes, labels, ring: null, extraHeight: 0 };
 
   if (mode === 'constellation') {
+    // The ring grows the canvas a little so satellites clear the text under the bubbles.
+    const extra = ORBIT_RING_EXTRA;
     const cx = frame.width / 2;
-    const cy = frame.height / 2;
+    const cy = (frame.height + extra) / 2;
     const rx = frame.width * 0.475;
-    const ry = frame.height * 0.465;
+    const ry = (frame.height + extra) / 2 - 20;
     const total = groups.reduce((n, [, list]) => n + list.length, 0);
     const gapSlots = 2.2;
     const slots = total + gapSlots * groups.length;
@@ -65,7 +68,7 @@ export function orbitLayout(
       });
       a += gapSlots * step;
     }
-    return { nodes, labels, ring: { cx, cy, rx: round(rx), ry: round(ry) }, extraHeight: 0 };
+    return { nodes, labels, ring: { cx, cy, rx: round(rx), ry: round(ry) }, extraHeight: extra };
   }
 
   const top = frame.height + 20;

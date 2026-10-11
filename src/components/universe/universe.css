@@ -20,18 +20,17 @@
   width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; padding: 0.75rem;
   border: 0; background: var(--bg); color: var(--fg);
 }
-.universe__dialog[open] { display: flex; flex-direction: column; gap: 0.5rem; }
+.universe__dialog[open] { display: flex; flex-direction: column; gap: 0.5rem; overflow: auto; }
 .universe__dialog::backdrop { background: var(--bg-overlay); }
 .universe__dialog-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .universe__dialog-title { font-size: 1rem; }
-.universe__dialog .universe__stage { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.universe__dialog .universe__stage { display: flex; flex-direction: column; }
 .universe__dialog .universe__viewport {
-  flex: 1; min-height: 0; overflow: hidden; touch-action: none; cursor: grab;
+  flex: none; height: 64dvh; overflow: hidden; touch-action: none; cursor: grab;
   border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-sunken);
 }
 .universe__dialog .universe__canvas { width: 1000px; transform-origin: 0 0; }
 .universe__dialog .universe__hint { display: none; }
-.universe__dialog .ulegend { max-height: 28vh; overflow: auto; }
 
 /* Toolbar */
 .universe__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; }
@@ -63,11 +62,29 @@
 .u-toggle[aria-pressed='true'] { color: var(--fg); }
 .u-toggle[aria-pressed='true'] .u-toggle__track { background: var(--accent); border-color: var(--accent); }
 .u-toggle[aria-pressed='true'] .u-toggle__thumb { transform: translateX(12px); background: var(--accent-fg); }
-.u-persona { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; color: var(--fg-muted); }
-.u-persona select {
-  font: inherit; font-size: 0.8125rem; color: var(--fg); background: var(--bg-elevated);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 0.3rem 0.5rem; min-height: 32px;
+.u-persona { position: relative; font-size: 0.8125rem; color: var(--fg-muted); }
+.u-persona summary {
+  display: inline-flex; align-items: center; gap: 0.35rem; min-height: 32px; padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border-strong); border-radius: 999px; background: var(--bg-elevated);
+  cursor: pointer; list-style: none;
 }
+.u-persona summary::-webkit-details-marker { display: none; }
+.u-persona summary::after {
+  content: ''; width: 0.4em; height: 0.4em; margin-left: 0.2rem;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px);
+}
+.u-persona[open] summary::after { transform: rotate(-135deg) translateY(-1px); }
+.u-persona summary:hover { color: var(--fg); }
+.u-persona__current { color: var(--fg); }
+.u-persona__panel {
+  position: absolute; z-index: 10; top: calc(100% + 6px); left: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(11rem, 1fr)); gap: 0.15rem 1rem;
+  width: max-content; max-width: min(30rem, 90vw); padding: 0.75rem 0.9rem;
+  background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-2);
+}
+@media (max-width: 639.98px) { .u-persona__panel { grid-template-columns: 1fr; } }
+.u-persona__option { display: flex; align-items: center; gap: 0.45rem; min-height: 26px; color: var(--fg); cursor: pointer; }
+.u-persona__option input { accent-color: var(--accent); margin: 0; }
 .universe__hint { margin-top: 0.6rem; font-size: 0.8125rem; color: var(--fg-subtle); }
 
 /* Canvas */
@@ -158,7 +175,7 @@
 
 /* Satellites */
 .usat {
-  position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; display: grid; place-items: center;
+  position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; display: grid; place-items: center;
   border-radius: 50%; z-index: 3; color: var(--fg); text-decoration: none;
   transition: left var(--dur-slow) var(--ease-out), top var(--dur-slow) var(--ease-out);
 }

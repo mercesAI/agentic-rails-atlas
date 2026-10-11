@@ -106,9 +106,11 @@ describe('orbitLayout', () => {
   it('puts satellites on the outer ellipse in Constellation', () => {
     const o = orbitLayout(items, 'constellation', { width: 1200, height: 720 });
     expect(o.ring).not.toBeNull();
-    expect(o.extraHeight).toBe(0);
+    expect(o.extraHeight).toBeGreaterThan(0);
+    const { cx, cy, rx, ry } = o.ring!;
+    expect(cy + ry).toBeLessThanOrEqual(720 + o.extraHeight);
     for (const n of Object.values(o.nodes)) {
-      const v = ((n.x - 600) / o.ring!.rx) ** 2 + ((n.y - 360) / o.ring!.ry) ** 2;
+      const v = ((n.x - cx) / rx) ** 2 + ((n.y - cy) / ry) ** 2;
       expect(v).toBeCloseTo(1, 2);
     }
     expect(o.labels).toHaveLength(3);
