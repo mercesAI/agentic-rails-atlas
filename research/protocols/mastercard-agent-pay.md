@@ -607,7 +607,7 @@ Note: the Rochet and Tirole DOI is 10.2307/3087474 (10.2307/3087478 resolves to 
 | Web Bot Auth like Visa TAP, different directory | confirmed | src-mcap-cloudflare-blog | |
 | VI maps into UCP's AP2 extension | confirmed, with rename | src-mcap-vi-landscape, src-mcap-ucp-schema-ap2 | VI names `dev.ucp.shopping.ap2_mandate`, now `dev.ucp.common.payment.ap2_mandate` |
 | Usable under ACP via Stripe SPTs | confirmed (indirect) | src-mcap-stripe-spt-2026 | |
-| AP4M cites MPP compatibility (follow-up 2.1.2) | corrected | src-mcap-ap4m-2026 | Tempo's quote inside Mastercard's release: "Tempo lists AP4M as MPP-compatible" is close; exact form: Tempo is working with Mastercard on MPP compatibility |
+| AP4M cites MPP compatibility (follow-up 2.1.2) | corrected | src-mcap-ap4m-2026 | Use: Tempo says it is working with Mastercard on MPP compatibility (Tempo's quote in Mastercard's AP4M release); Mastercard's own text does not claim MPP compatibility, and no Tempo page listing AP4M was found |
 | Mastercard is a premier x402 Foundation member | confirmed | src-mcap-x402-lf-july, src-mcap-x402-cdp-foundation | |
 | EMVCo draft agentic framework (2026-09-01) cites VI | confirmed | src-mcap-emvco-news | |
 | No agent-specific dispute reason codes or liability shift | confirmed (absence) | src-mcap-nevermined-review, src-mcap-dev-level1 | |
@@ -633,4 +633,21 @@ Logged in `research/blocked.md` on 2026-10-11:
 
 ## Conflicts
 
+Also appended to `research/conflicts.md`.
+
+1. **Web Bot Auth tag for Agent Pay.** Cloudflare (2025-10-24) says both TAP and Agent Pay add a tag indicating browsing or purchasing and lists the values `agent-browser-auth` and `agent-payer-auth` [src-mcap-cloudflare-blog]. Mastercard's Level 1 guide says Mastercard uses `Agent-pay-auth` and attributes the browse and pay values to Visa [src-mcap-dev-level1]; Mastercard's testing glossary spells it `agent-pay-auth` [src-mcap-dev-testing]. Primary for Mastercard's value: Mastercard's guide; the exact case is unresolved.
+2. **DTVC expansion.** "Dynamic Token Validation Code" (MVCT overview) versus "Dynamic Token Verification Code" (MVCT test cases); both Mastercard [src-mcap-dev-mvct] [src-mcap-dev-mvct-tests].
+3. **VI version identity.** CHANGELOG `[0.1.0]` is dated 2026-02-19 and spec headers 2026-02-18, but tag `v0.1.0` points to a 2026-03-05 commit; PR #23 (2026-04-20) made breaking renames without a new version; the CHANGELOG still says "Five constraint types" while `spec/constraints.md` registers eight [src-mcap-vi-changelog] [src-mcap-vi-tag] [src-mcap-vi-pr23] [src-mcap-vi-constraints]. The AP2 dossier's statement that VI uses the same `vct` values as AP2 v0.2 holds for `main` (2026-04-20), not for tag `v0.1.0`, whose VCTs had no `.1` suffix [src-mcap-vi-v010-format].
+4. **AP4M and MPP (follow-up 2.1.2).** The seed said Mastercard cites MPP compatibility; the only statement is Tempo's quote in Mastercard's AP4M release [src-mcap-ap4m-2026]. No Tempo web page listing AP4M as MPP-compatible was found.
+5. **Acceptance Framework date.** The seed gives 2025-10-14 with Cloudflare; Mastercard's December 2025 release says "launched in October 2025"; Cloudflare's post is dated 2025-10-24 [src-mcap-latam-2025] [src-mcap-cloudflare-blog]. 2025-10-14 is Visa TAP's launch date in the Visa dossier, which may be the source of the seed date.
+6. **VI supporter lists.** PYMNTS (2026-03-05) lists Google, Fiserv, IBM, Checkout.com, Basis Theory, Getnet; Mastercard's developer guides list Google, IBM, Fiserv, Checkout.com, Worldpay, Adyen [src-mcap-pymnts-vi] [src-mcap-dev-rails] [src-mcap-dev-level1].
+7. **Key directory URL.** The Mastercard guide's example `Signature-Agent: "https://agentpay-key-directory.mastercard.com/"` does not resolve (NXDOMAIN, 2026-10-11) [src-mcap-dev-level1].
+8. **MDES (follow-up 2.2).** Eco's explainer says agentic tokens come from MDES; no Mastercard page read names MDES for Agent Pay ("tokenization" only) [src-mcap-launch-2025].
+9. **First transaction.** PayOS claimed "the world's first live agentic payment using a Mastercard Agentic Token" on 2025-10-01; the CEO said on 2025-10-30 the first agentic transaction took place on the network that quarter; both are consistent with Q3 2025 but neither gives a transaction date [src-mcap-payos-2025] [src-mcap-q3-transcript].
+10. **Duplicate digests in VI L2.** The VI spec's examples list mandate digests in both `_sd` and `delegate_payload`; RFC 9901 requires rejection of repeated digests (issue #29) [src-mcap-vi-format] [src-mcap-rfc9901] [src-mcap-vi-issue29]. RFC 9901 is primary for SD-JWT processing.
+
 ## Least certain
+
+1. **Whether VI runs inside any live Agent Pay authorization.** Mastercard says it is "embedding" VI into the payment flow (2026-03-24) and AP4M credentialing uses VI, but no public document or transaction record shows a VI chain checked by the network in production; the repository has had no commits since 2026-04-20 [src-mcap-latam-2026] [src-mcap-ap4m-2026] [src-mcap-vi-gh-repo].
+2. **Mastercard's exact Web Bot Auth tag and key directory location.** `Agent-pay-auth` versus `agent-pay-auth`, Cloudflare's browse and pay wording, and a directory host that does not resolve [src-mcap-dev-level1] [src-mcap-dev-testing] [src-mcap-cloudflare-blog].
+3. **US rollout completion and the ChatGPT link.** Mastercard planned all US issuers enabled by November 2025 and linked Agent Pay to ChatGPT Instant Checkout in a story that could not be read; no later primary source confirms completion, and Mastercard's own guide says Instant Checkout was discontinued in March 2026 [src-mcap-sep-2025] [src-mcap-q3-transcript] [src-mcap-dev-rails].
