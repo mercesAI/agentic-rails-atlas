@@ -1,0 +1,104 @@
+---
+protocol: x402
+title: x402 in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+x402 is an open protocol for payments in HTTP. A server uses status 402 to tell a client the price of a resource. The client signs a payment and sends the request again. A facilitator verifies the payment and then sends it to the network. Coinbase started x402 in 2025. The x402 Foundation of the Linux Foundation now controls the protocol.
+
+x402 has three roles. The client signs the payment. The resource server sells the resource and sends the payment requirements. The facilitator verifies the payment and starts the settlement on the network. The facilitator does not keep the money of the client.
+
+Version 2 is the current version. It uses three HTTP headers: PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE. Version 1 used a different set of headers.
+
+The exact scheme moves one fixed amount one time. The signature of the client includes the amount and the payTo address. Thus, the facilitator cannot change the amount or the address.
+
+The nonce and the time window stop a replay attack. x402 does not identify the client. x402 does not give a refund for an exact settlement. The protocol does not set a limit for the amount that a client pays. The client software or the wallet must apply the limits.
+
+</SteDescription>
+
+<SteProcedure title="Pay for a resource with x402 (client)">
+
+1. Send the request to the server.
+2. If the server sends status 402, read the PAYMENT-REQUIRED header.
+3. Decode the header. Find the payment option that your wallet supports.
+4. Make sure that the amount and the payTo address are correct.
+5. Sign the payment with your key.
+6. Send the request again. Put the signed payment in the PAYMENT-SIGNATURE header.
+7. Read the PAYMENT-RESPONSE header. Keep the transaction identifier.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SIGN A PAYMENT IF THE payTo ADDRESS IS NOT THE ADDRESS THAT YOU EXPECT. YOU CANNOT REVERSE AN EXACT SETTLEMENT.
+</SteCaution>
+
+<SteCaution>
+DO NOT SET `spendControls` TO `false` FOR AN AGENT THAT OPERATES WITHOUT A HUMAN. THE AGENT CAN THEN PAY ANY AMOUNT IN ANY ASSET.
+</SteCaution>
+
+<SteProcedure title="Accept an x402 payment (server)">
+
+1. Configure each paid route with a price, a network, an asset and a payTo address.
+2. Select a facilitator that supports your scheme and your network.
+3. If a request has no PAYMENT-SIGNATURE header, send status 402.
+4. Put the payment requirements in the PAYMENT-REQUIRED header.
+5. If a request has a PAYMENT-SIGNATURE header, decode the payment payload.
+6. Send the payment payload and your payment requirements to the `/verify` endpoint of the facilitator.
+7. If the facilitator rejects the payment, send status 402 again.
+8. If the payment is valid, run the handler.
+9. Send the same data to the `/settle` endpoint of the facilitator.
+10. Put the settlement result in the PAYMENT-RESPONSE header.
+11. Send the response to the client.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT RUN THE HANDLER BEFORE THE `/verify` STEP OR THE `/settle` STEP IS COMPLETE. AN UNPAID CLIENT CAN GET THE RESOURCE.
+</SteCaution>
+
+<SteProcedure title="Verify and settle a payment (facilitator)">
+
+1. Decode the payment payload and the payment requirements from the request.
+2. Make sure that the scheme and the network agree with the payment requirements.
+3. Get the address of the signer from the EIP-712 signature.
+4. Make sure that the `to` value of the authorization is equal to payTo.
+5. Make sure that the `value` of the authorization is equal to the amount.
+6. Make sure that the time now is after `validAfter` and before `validBefore`.
+7. Read the balance of the payer and the state of the nonce.
+8. If a check fails, send `isValid` as false with the error code.
+9. When the server calls `/settle`, do all of the checks again.
+10. Send the transaction to the network. Keep the transaction identifier.
+11. If you cannot get the receipt, send `settlement_pending` with the transaction identifier.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SEND A SECOND SETTLE REQUEST AFTER A TIMEOUT UNTIL YOU EXAMINE THE NETWORK. THE FIRST SETTLEMENT CAN BE COMPLETE.
+</SteCaution>
+
+<SteNote>
+The public facilitator at x402.org supports only test networks. It does not move real money.
+</SteNote>
+
+<SteNote>
+Public volume numbers for x402 do not agree. Each number has a different date, source and method.
+</SteNote>
+
+<SteTerms>
+
+- **facilitator**: A server that verifies a payment and sends it to the network. It does not keep the money.
+- **resource server**: The HTTP server that sells a resource and sends the payment requirements.
+- **payment requirements**: The list of payment options that the server accepts, with the scheme, network, amount, asset and payTo address.
+- **payment payload**: The signed payment that the client sends in the PAYMENT-SIGNATURE header.
+- **exact scheme**: A scheme that moves one fixed amount one time. It has no refund.
+- **upto scheme**: A scheme where the client signs a maximum amount and the server collects the measured amount.
+- **auth-capture**: A scheme that holds the money first, then collects it. It can return the money.
+- **payment flow**: The order of the verify step, the handler and the settle step.
+- **nonce**: A random value that the token contract accepts one time only.
+- **settlement**: The transfer of money on the network.
+- **verify (TV)**: To make sure that a payment is correct, without a change to the network.
+- **settle (TV)**: To send a payment to the network so that the money moves.
+
+</SteTerms>
