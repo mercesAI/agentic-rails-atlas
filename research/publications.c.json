@@ -14,7 +14,10 @@
       "pub-sun-2024-zkllm",
       "pub-kang-2022-zkdnn",
       "pub-costan-2016-sgx",
-      "pub-conway-2024-opml"
+      "pub-conway-2024-opml",
+      "pub-shang-2026-restaking",
+      "pub-xue-2026-zkmldebloat",
+      "pub-liu-2026-ancestry"
     ],
     "Micropayments and payment channels (x402 and MPP lineage)": [
       "pub-glassman-1995-millicent",
@@ -50,7 +53,12 @@
     "Protocol analyses and recent papers (part c additions)": [
       "pub-christie-2026-strabo",
       "pub-srivastava-2026-timeline",
-      "pub-chang-2025-anp"
+      "pub-chang-2025-anp",
+      "pub-goenka-2026-tessindex",
+      "pub-zhu-2026-constructvalidity",
+      "pub-xu-2026-concurrency",
+      "pub-irshad-2026-vac",
+      "pub-zou-2026-intersage"
     ],
     "Grey literature": [
       "pub-aldasoro-2025-cashmanagement",
@@ -1463,6 +1471,226 @@
       "verifiedAt": "2026-10-11",
       "verifiedVia": "publisher",
       "bibtex": "@misc{visa2026groundup,\n  title = {{Agentic Payments from the Ground Up: What the Onchain Data Tells Us}},\n  author = {{Visa} and {Artemis}},\n  year = {2026},\n  howpublished = {Visa},\n  note = {Research report with Artemis; data as of 2026-04-21},\n  url = {https://www.visa.com/en-us/thought-leadership/innovation/agentic-payments-from-the-ground-up}\n}"
+    },
+    {
+      "id": "pub-shang-2026-restaking",
+      "title": "Repeated-Game Security for Restaking-Based Verifiable Inference",
+      "authors": [
+        "Zhenhang Shang",
+        "Yingzhe Yu",
+        "Kani Chen"
+      ],
+      "year": 2026,
+      "arxiv": "2608.09055",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2608.09055",
+      "themes": [
+        "verifiable-compute",
+        "crypto-economics",
+        "staking"
+      ],
+      "protocols": [
+        "erc-8004"
+      ],
+      "relation": "related",
+      "summary": "Shows that the usual one-round slashing argument for restaking-based verifiable LLM inference overstates security when a provider serves many queries under the same stake, because proportional slashing shrinks future penalties while cheating savings recur. It proposes history-dependent challenges, reputation-weighted slashing and stake vesting, and finds that surveyed deployed parameters admit profitable repeated deviations.",
+      "whyItMatters": "ERC-8004 lists stake-secured re-execution as a validation option; this paper shows how to size stakes and audits so such validators stay honest over many jobs, not only one.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{shang2026restaking,\n  title = {{Repeated-Game Security for Restaking-Based Verifiable Inference}},\n  author = {Zhenhang Shang and Yingzhe Yu and Kani Chen},\n  year = {2026},\n  eprint = {2608.09055},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.GT},\n  url = {https://arxiv.org/abs/2608.09055}\n}"
+    },
+    {
+      "id": "pub-xue-2026-zkmldebloat",
+      "title": "Sound Debloating of Redundant Checks in Zero-Knowledge Machine-Learning Circuits",
+      "authors": [
+        "Zhantong Xue",
+        "Pingchuan Ma",
+        "Zhaoyu Wang",
+        "Yuguang Zhou",
+        "Huaijin Wang",
+        "Shuai Wang"
+      ],
+      "year": 2026,
+      "arxiv": "2609.10149",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2609.10149",
+      "themes": [
+        "verifiable-compute",
+        "zero-knowledge",
+        "soundness"
+      ],
+      "protocols": [
+        "erc-8004"
+      ],
+      "relation": "related",
+      "summary": "Builds a tool that removes redundant checks from zero-knowledge machine learning circuits only when the rest of the circuit still provably enforces them, so the smaller circuit cannot accept forged proofs. On circuits from ezkl and zkml with up to 25.3 million constraints it removes up to 48.7% of constraints and cuts prover time by up to 72.8%.",
+      "whyItMatters": "zkML proofs are only as good as their circuits; for ERC-8004 validators that accept zkML evidence, under-constrained circuits are a real forgery risk and proving cost is the main adoption barrier, and this work addresses both.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{xue2026zkmldebloat,\n  title = {{Sound Debloating of Redundant Checks in Zero-Knowledge Machine-Learning Circuits}},\n  author = {Zhantong Xue and Pingchuan Ma and Zhaoyu Wang and Yuguang Zhou and Huaijin Wang and Shuai Wang},\n  year = {2026},\n  eprint = {2609.10149},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.10149}\n}"
+    },
+    {
+      "id": "pub-liu-2026-ancestry",
+      "title": "Attesting Outputs and Delegation Ancestry in Multi-Agent AI Systems",
+      "authors": [
+        "Lifei Liu",
+        "Haoran Yu"
+      ],
+      "year": 2026,
+      "arxiv": "2608.30387",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2608.30387",
+      "themes": [
+        "attestation",
+        "delegation",
+        "auditability"
+      ],
+      "protocols": [
+        "erc-8004",
+        "ap2"
+      ],
+      "relation": "related",
+      "summary": "Designs deployer-side attestations so that, after an incident in a multi-agent workflow, a verifier can tell which deployer released given output bytes and whether each cross-deployer delegation was authorized. It compares a signed linked list, a Merkle chain and a co-signed DAG, and only the co-signed DAG rejects a forged parent link after a child key is compromised.",
+      "whyItMatters": "Gives the evidence model that ERC-8004 validation records and AP2 mandate chains need when work and authority pass through several agents operated by different parties.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{liu2026ancestry,\n  title = {{Attesting Outputs and Delegation Ancestry in Multi-Agent AI Systems}},\n  author = {Lifei Liu and Haoran Yu},\n  year = {2026},\n  eprint = {2608.30387},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2608.30387}\n}"
+    },
+    {
+      "id": "pub-goenka-2026-tessindex",
+      "title": "TessIndex: Capability Verified Identity System for the Agent Economy",
+      "authors": [
+        "Mehul Goenka",
+        "Tejas Pathak",
+        "Siddharth Asthana"
+      ],
+      "year": 2026,
+      "arxiv": "2608.21942",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2608.21942",
+      "themes": [
+        "identity",
+        "registries",
+        "blockchain"
+      ],
+      "protocols": [
+        "erc-8004"
+      ],
+      "relation": "related",
+      "summary": "Proposes TessIndex, an agent identity system that records compact identity, ownership and verification commitments on a blockchain while keeping discovery, commerce and reputation metadata on servers, and replaces self-declared capabilities with predicate-based capability proofs. It comes from the same authors as TessPay.",
+      "whyItMatters": "A close design alternative to the ERC-8004 identity and validation registries, with the same split between on-chain anchors and off-chain metadata.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{goenka2026tessindex,\n  title = {{TessIndex: Capability Verified Identity System for the Agent Economy}},\n  author = {Mehul Goenka and Tejas Pathak and Siddharth Asthana},\n  year = {2026},\n  eprint = {2608.21942},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2608.21942}\n}"
+    },
+    {
+      "id": "pub-zhu-2026-constructvalidity",
+      "title": "When Guardrails Look Effective: Construct Validity Failures in LLM Agent Commerce Evaluation",
+      "authors": [
+        "Peiying Zhu",
+        "Sidi Chang"
+      ],
+      "year": 2026,
+      "arxiv": "2609.01519",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2609.01519",
+      "themes": [
+        "benchmarks",
+        "markets",
+        "evaluation"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "Audits a multi-turn buyer and seller agent testbed and shows that reported welfare gains from marketplace guardrails largely came from giving guarded and unguarded agents different offer formats; once the protocol is held fixed the effects shrink or vanish within noise. It proposes a construct-validity checklist that must pass before policy claims are made from agent market simulations.",
+      "whyItMatters": "A caution for anyone citing agent-commerce simulations as evidence that a protocol feature or guardrail works; the comparison must hold the protocol constant.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{zhu2026constructvalidity,\n  title = {{When Guardrails Look Effective: Construct Validity Failures in LLM Agent Commerce Evaluation}},\n  author = {Peiying Zhu and Sidi Chang},\n  year = {2026},\n  eprint = {2609.01519},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2609.01519}\n}"
+    },
+    {
+      "id": "pub-xu-2026-concurrency",
+      "title": "Parallelism or Concession? Concurrency-Aware Procurement Negotiation for Agentic Commerce",
+      "authors": [
+        "Xiaolin Xu",
+        "Donghao Zhu"
+      ],
+      "year": 2026,
+      "arxiv": "2610.06017",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2610.06017",
+      "themes": [
+        "markets",
+        "negotiation",
+        "economics"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "Models an agentic buyer that can run many parallel negotiations at once, each with a cost and a risk of over-commitment, and shows that more concurrent negotiators can replace price concessions. It turns the results into an optimizer that picks the number of negotiators and a price cap, and it beats common heuristics in simulation.",
+      "whyItMatters": "Agents can fan out purchase requests cheaply, which changes merchant-side load and cancellation risk for checkout protocols built around one buyer and one cart.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{xu2026concurrency,\n  title = {{Parallelism or Concession? Concurrency-Aware Procurement Negotiation for Agentic Commerce}},\n  author = {Xiaolin Xu and Donghao Zhu},\n  year = {2026},\n  eprint = {2610.06017},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.GT},\n  url = {https://arxiv.org/abs/2610.06017}\n}"
+    },
+    {
+      "id": "pub-irshad-2026-vac",
+      "title": "The Verifiable Action Card: Trustworthy Human-in-the-Loop Control for Secure Autonomous Agents",
+      "authors": [
+        "Hasnain Irshad",
+        "Anam Mughees",
+        "Neelam Mughees",
+        "Abdullah Mughees",
+        "Imtiaz Ali Soomro"
+      ],
+      "year": 2026,
+      "arxiv": "2609.18411",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2609.18411",
+      "themes": [
+        "security",
+        "consent",
+        "prompt-injection"
+      ],
+      "protocols": [
+        "ap2",
+        "mastercard-agent-pay",
+        "visa-tap"
+      ],
+      "relation": "related",
+      "summary": "Proposes the Verifiable Action Card, which rebuilds the confirmation prompt in an agentic browser from the action that will actually execute, shows it in trusted browser chrome and binds approval to that exact action at dispatch. On a 24-scenario benchmark it cuts attack success from 68% to 100% down to 0% across the tested models.",
+      "whyItMatters": "Human confirmation is the step-up that card agent programs and AP2 rely on for higher-risk purchases; this shows how that confirmation can be forged and one way to bind it to the real transaction.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{irshad2026vac,\n  title = {{The Verifiable Action Card: Trustworthy Human-in-the-Loop Control for Secure Autonomous Agents}},\n  author = {Hasnain Irshad and Anam Mughees and Neelam Mughees and Abdullah Mughees and Imtiaz Ali Soomro},\n  year = {2026},\n  eprint = {2609.18411},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.18411}\n}"
+    },
+    {
+      "id": "pub-zou-2026-intersage",
+      "title": "InterSAGE: The Secure and Verifiable Interoperability Protocol for An Internet of Agents",
+      "authors": [
+        "Zhenhua Zou",
+        "Sheng Guo",
+        "Qiuyang Zhan",
+        "Lepeng Zhao",
+        "Shuo Li",
+        "Zhuotao Liu"
+      ],
+      "year": 2026,
+      "arxiv": "2608.13030",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2608.13030",
+      "themes": [
+        "identity",
+        "agent-protocols",
+        "auditability"
+      ],
+      "protocols": [
+        "erc-8004"
+      ],
+      "relation": "related",
+      "summary": "A positioning paper for InterSAGE, a four-layer trust protocol suite (persistent identity, discovery, trust negotiation and accountability) meant to run alongside MCP, A2A, ANP and AG-UI. It binds agent identity cards to developer, code and operator, and compares the design with more than 50 related efforts.",
+      "whyItMatters": "Another proposal for the identity and accountability layer that ERC-8004 provides on chain; its survey table is a useful map of competing agent identity designs.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{zou2026intersage,\n  title = {{InterSAGE: The Secure and Verifiable Interoperability Protocol for An Internet of Agents}},\n  author = {Zhenhua Zou and Sheng Guo and Qiuyang Zhan and Lepeng Zhao and Shuo Li and Zhuotao Liu},\n  year = {2026},\n  eprint = {2608.13030},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2608.13030}\n}"
     }
   ],
   "unverified": [],
