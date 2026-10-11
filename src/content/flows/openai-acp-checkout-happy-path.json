@@ -1,0 +1,280 @@
+{
+  "id": "openai-acp-checkout-happy-path",
+  "protocol": "openai-acp",
+  "title": "ACP checkout, happy path (REST, delegated card token)",
+  "summary": "An agent discovers the seller, creates and updates a checkout session, gets a vault token scoped by an allowance, completes the session and receives an order event.",
+  "specVersion": "2026-04-17",
+  "specVersionDate": "2026-04-17",
+  "actors": [
+    {
+      "id": "buyer",
+      "label": "Buyer",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent (AI surface)",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant API",
+      "kind": "merchant"
+    },
+    {
+      "id": "psp",
+      "label": "PSP or vault",
+      "kind": "psp"
+    },
+    {
+      "id": "mpsp",
+      "label": "Merchant PSP",
+      "kind": "psp"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "merchant",
+      "label": "GET /.well-known/acp.json",
+      "detail": "Optional discovery with no authentication. The response lists protocol versions, transports (rest, mcp) and services. Payment handlers are not included.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"protocol\": {\n    \"name\": \"acp\",\n    \"version\": \"2026-04-17\",\n    \"supported_versions\": [\n      \"2026-01-30\",\n      \"2026-04-17\"\n    ]\n  },\n  \"api_base_url\": \"https://merchant.example.com/api\",\n  \"transports\": [\n    \"rest\"\n  ],\n  \"capabilities\": {\n    \"services\": [\n      \"checkout\",\n      \"orders\",\n      \"delegate_payment\"\n    ]\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.discovery.md",
+        "section": "3"
+      },
+      "failures": [
+        {
+          "condition": "Document missing (404)",
+          "outcome": "Agent falls back to an out-of-band configuration; discovery is optional."
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "from": "buyer",
+      "to": "agent",
+      "label": "Ask to buy an item",
+      "detail": "The buyer chooses a product in the agent interface. Nothing in ACP records this request."
+    },
+    {
+      "n": 3,
+      "from": "agent",
+      "to": "merchant",
+      "label": "POST /checkout_sessions",
+      "detail": "Create request with line_items, currency and capabilities, plus the bearer key, API-Version and a required Idempotency-Key.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version 2026-04-17.\nPOST /checkout_sessions HTTP/1.1\nAuthorization: Bearer <api-key>\nAPI-Version: 2026-04-17\nIdempotency-Key: idem_001\nContent-Type: application/json\n\n{\n  \"currency\": \"usd\",\n  \"line_items\": [\n    {\n      \"id\": \"item_123\"\n    }\n  ],\n  \"capabilities\": {\n    \"interventions\": {\n      \"supported\": [\n        \"3ds\"\n      ]\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.1 Create Session"
+      },
+      "failures": [
+        {
+          "condition": "Missing Idempotency-Key",
+          "outcome": "400 idempotency_key_required"
+        },
+        {
+          "condition": "Unsupported API-Version",
+          "outcome": "400 with supported_versions"
+        },
+        {
+          "condition": "Unknown item",
+          "outcome": "400 invalid_request with a param path"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "merchant",
+      "to": "agent",
+      "label": "201 session (not_ready_for_payment)",
+      "detail": "The merchant returns the authoritative session: line items, totals, fulfillment options, messages, links and its payment handlers.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"id\": \"cs_123\",\n  \"status\": \"not_ready_for_payment\",\n  \"currency\": \"usd\",\n  \"capabilities\": {\n    \"payment\": {\n      \"handlers\": [\n        {\n          \"id\": \"card_tokenized\",\n          \"name\": \"dev.acp.tokenized.card\",\n          \"version\": \"2026-01-22\",\n          \"spec\": \"https://example.com/handlers/tokenized.card\",\n          \"requires_delegate_payment\": true,\n          \"requires_pci_compliance\": false,\n          \"psp\": \"stripe\",\n          \"config_schema\": \"https://example.com/config.json\",\n          \"instrument_schemas\": [\n            \"https://example.com/instrument.json\"\n          ],\n          \"config\": {}\n        }\n      ]\n    },\n    \"interventions\": {\n      \"supported\": [\n        \"3ds\"\n      ],\n      \"required\": [],\n      \"enforcement\": \"conditional\"\n    }\n  },\n  \"line_items\": [\n    {\n      \"id\": \"li_1\",\n      \"item\": {\n        \"id\": \"item_123\"\n      },\n      \"quantity\": 1,\n      \"totals\": [\n        {\n          \"type\": \"subtotal\",\n          \"display_text\": \"Subtotal\",\n          \"amount\": 300\n        },\n        {\n          \"type\": \"total\",\n          \"display_text\": \"Total\",\n          \"amount\": 300\n        }\n      ]\n    }\n  ],\n  \"fulfillment_options\": [\n    {\n      \"type\": \"shipping\",\n      \"id\": \"ship_std\",\n      \"title\": \"Standard\"\n    }\n  ],\n  \"totals\": [\n    {\n      \"type\": \"subtotal\",\n      \"display_text\": \"Subtotal\",\n      \"amount\": 300\n    },\n    {\n      \"type\": \"tax\",\n      \"display_text\": \"Tax\",\n      \"amount\": 30\n    },\n    {\n      \"type\": \"total\",\n      \"display_text\": \"Total\",\n      \"amount\": 330\n    }\n  ],\n  \"messages\": [],\n  \"links\": [\n    {\n      \"type\": \"terms_of_use\",\n      \"url\": \"https://merchant.example.com/terms\"\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.1 Create Session"
+      }
+    },
+    {
+      "n": 5,
+      "from": "agent",
+      "to": "merchant",
+      "label": "POST /checkout_sessions/{id} (update)",
+      "detail": "The agent sends the fulfillment details and the selected fulfillment option. The merchant recalculates tax and totals.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"fulfillment_details\": {\n    \"name\": \"Ada Example\",\n    \"address\": {\n      \"name\": \"Ada Example\",\n      \"line_one\": \"1 Example Street\",\n      \"city\": \"San Francisco\",\n      \"state\": \"CA\",\n      \"country\": \"US\",\n      \"postal_code\": \"94131\"\n    }\n  },\n  \"selected_fulfillment_options\": [\n    {\n      \"type\": \"shipping\",\n      \"option_id\": \"ship_std\",\n      \"item_ids\": [\n        \"li_1\"\n      ]\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.2 Update Session"
+      },
+      "failures": [
+        {
+          "condition": "Item out of stock",
+          "outcome": "200 with a MessageError code out_of_stock; status stays not_ready_for_payment"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "merchant",
+      "to": "agent",
+      "label": "200 session (ready_for_payment)",
+      "detail": "Full state again. The agent re-renders totals and messages and shows them to the buyer.",
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.2 Update Session"
+      }
+    },
+    {
+      "n": 7,
+      "from": "agent",
+      "to": "buyer",
+      "label": "Show total, buyer confirms",
+      "detail": "The buyer confirms the total in the agent interface. This confirmation is a product feature; ACP has no signed consent object."
+    },
+    {
+      "n": 8,
+      "from": "agent",
+      "to": "psp",
+      "label": "POST /agentic_commerce/delegate_payment",
+      "detail": "The agent sends the card and an allowance bound to this merchant, this session, a maximum of 330 minor units in usd, one use and an expiry.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"payment_method\": {\n    \"type\": \"card\",\n    \"card_number_type\": \"network_token\",\n    \"number\": \"4000000000000002\",\n    \"display_card_funding_type\": \"credit\",\n    \"metadata\": {}\n  },\n  \"allowance\": {\n    \"reason\": \"one_time\",\n    \"max_amount\": 330,\n    \"currency\": \"usd\",\n    \"checkout_session_id\": \"cs_123\",\n    \"merchant_id\": \"merchant_abc\",\n    \"expires_at\": \"2026-10-11T18:00:00Z\"\n  },\n  \"risk_signals\": [],\n  \"metadata\": {}\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_payment.md",
+        "section": "2 Delegate Payment"
+      },
+      "failures": [
+        {
+          "condition": "Card rejected",
+          "outcome": "400 invalid_card"
+        },
+        {
+          "condition": "Too many requests",
+          "outcome": "429 rate_limit_exceeded"
+        }
+      ]
+    },
+    {
+      "n": 9,
+      "from": "psp",
+      "to": "agent",
+      "label": "201 vault token",
+      "detail": "The PSP stores the card and returns an opaque token id (vt_...). With Stripe this is a Shared Payment Token, a Stripe product.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"id\": \"vt_01EXAMPLE\",\n  \"created\": \"2026-10-11T17:30:00Z\",\n  \"metadata\": {}\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_payment.md",
+        "section": "Response"
+      }
+    },
+    {
+      "n": 10,
+      "from": "agent",
+      "to": "merchant",
+      "label": "POST /checkout_sessions/{id}/complete",
+      "detail": "payment_data names the handler and carries the token as the credential.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"payment_data\": {\n    \"handler_id\": \"card_tokenized\",\n    \"instrument\": {\n      \"type\": \"card\",\n      \"credential\": {\n        \"type\": \"spt\",\n        \"token\": \"vt_01EXAMPLE\"\n      }\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.4 Complete Session"
+      },
+      "failures": [
+        {
+          "condition": "Payment declined",
+          "outcome": "Session returns a MessageError payment_declined"
+        },
+        {
+          "condition": "Session needs 3DS",
+          "outcome": "4XX requires_3ds; see the 3DS flow"
+        }
+      ]
+    },
+    {
+      "n": 11,
+      "from": "merchant",
+      "to": "mpsp",
+      "label": "Charge the token",
+      "detail": "The merchant charges through its own PSP. The PSP accepts the token only inside the allowance. This call is outside ACP.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 12,
+      "from": "merchant",
+      "to": "agent",
+      "label": "200 completed + order",
+      "detail": "The response must carry status completed and an order with id, checkout_session_id and permalink_url. The OpenAPI lists 200; OpenAI expects 201.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"id\": \"cs_123\",\n  \"status\": \"completed\",\n  \"order\": {\n    \"id\": \"ord_123\",\n    \"checkout_session_id\": \"cs_123\",\n    \"permalink_url\": \"https://merchant.example.com/orders/ord_123\"\n  }\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.4 Complete Session"
+      }
+    },
+    {
+      "n": 13,
+      "from": "merchant",
+      "to": "agent",
+      "label": "Webhook order_create",
+      "detail": "Signed with Merchant-Signature (HMAC-SHA256). order_update events follow for shipping, refunds and other adjustments.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version 2026-04-17.\nPOST /agentic_checkout/webhooks/order_events HTTP/1.1\nMerchant-Signature: t=1791720000,v1=<64 hex>\n\n{\n  \"type\": \"order_create\",\n  \"data\": {\n    \"type\": \"order\",\n    \"id\": \"ord_123\",\n    \"checkout_session_id\": \"cs_123\",\n    \"permalink_url\": \"https://merchant.example.com/orders/ord_123\",\n    \"status\": \"created\"\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml",
+        "section": "order_events"
+      },
+      "failures": [
+        {
+          "condition": "Bad or stale signature",
+          "outcome": "Agent answers 401"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "src-openai-acp-rfc-checkout",
+    "src-openai-acp-schema-checkout-20260417",
+    "src-openai-acp-openapi-checkout-20260417",
+    "src-openai-acp-rfc-discovery",
+    "src-openai-acp-rfc-delegate-payment",
+    "src-openai-acp-openapi-webhook-20260417"
+  ]
+}

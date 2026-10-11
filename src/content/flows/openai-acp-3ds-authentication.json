@@ -1,0 +1,137 @@
+{
+  "id": "openai-acp-3ds-authentication",
+  "protocol": "openai-acp",
+  "title": "ACP alternative path: 3-D Secure step-up",
+  "summary": "The merchant requires 3DS, sets authentication_required, and rejects a complete call without authentication_result. The agent runs Delegate Authentication and completes again.",
+  "specVersion": "2026-04-17",
+  "specVersionDate": "2026-04-17",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "Agent (AI surface)",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant API",
+      "kind": "merchant"
+    },
+    {
+      "id": "auth",
+      "label": "Authentication provider",
+      "kind": "server"
+    },
+    {
+      "id": "buyer",
+      "label": "Buyer",
+      "kind": "human"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "merchant",
+      "to": "agent",
+      "label": "Session status authentication_required",
+      "detail": "The merchant must include authentication_metadata (acquirer details, directory server).",
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.4 and 8"
+      }
+    },
+    {
+      "n": 2,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Complete without authentication_result",
+      "detail": "A client error that the spec handles explicitly.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.4 Complete Session"
+      }
+    },
+    {
+      "n": 3,
+      "from": "merchant",
+      "to": "agent",
+      "label": "4XX requires_3ds",
+      "detail": "Error with type invalid_request, code requires_3ds and param $.authentication_result.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"type\": \"invalid_request\",\n  \"code\": \"requires_3ds\",\n  \"message\": \"Authentication result required.\",\n  \"param\": \"$.authentication_result\"\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "9.7"
+      }
+    },
+    {
+      "n": 4,
+      "from": "agent",
+      "to": "auth",
+      "label": "POST /delegate_authentication",
+      "detail": "Create an authentication session for the merchant, card and amount. Status action_required, pending or not_supported.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_authentication.md",
+        "section": "Create"
+      }
+    },
+    {
+      "n": 5,
+      "from": "agent",
+      "to": "auth",
+      "label": "Fingerprint, then POST .../authenticate",
+      "detail": "The client loads the 3DS method URL, waits up to 10 seconds and reports fingerprint_completion Y, N or U.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_authentication.md",
+        "section": "Authenticate"
+      },
+      "failures": [
+        {
+          "condition": "Challenge required",
+          "outcome": "The buyer completes the issuer challenge"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "buyer",
+      "to": "auth",
+      "label": "Issuer challenge (if any)",
+      "detail": "The buyer proves identity to the issuer."
+    },
+    {
+      "n": 7,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Complete with authentication_result",
+      "detail": "The client must send the outcome even when it is denied.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"payment_data\": {\n    \"handler_id\": \"card_tokenized\",\n    \"instrument\": {\n      \"type\": \"card\",\n      \"credential\": {\n        \"type\": \"spt\",\n        \"token\": \"vt_01EXAMPLE\"\n      }\n    }\n  },\n  \"authentication_result\": {\n    \"outcome\": \"authenticated\",\n    \"outcome_details\": {\n      \"three_ds_cryptogram\": \"<28 base64 characters>\",\n      \"electronic_commerce_indicator\": \"05\",\n      \"transaction_id\": \"ds_123\",\n      \"version\": \"2.2.0\"\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.4 Complete Session"
+      },
+      "failures": [
+        {
+          "condition": "Outcome denied",
+          "outcome": "Merchant declines; session stays open or ends per merchant policy"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "src-openai-acp-rfc-checkout",
+    "src-openai-acp-rfc-delegate-auth",
+    "src-openai-acp-openapi-delegate-auth-20260417",
+    "src-openai-acp-examples-20260417"
+  ]
+}

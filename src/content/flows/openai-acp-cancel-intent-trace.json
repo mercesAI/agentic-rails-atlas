@@ -1,0 +1,73 @@
+{
+  "id": "openai-acp-cancel-intent-trace",
+  "protocol": "openai-acp",
+  "title": "ACP alternative path: cancel with an intent trace",
+  "summary": "The buyer walks away. The agent cancels the session and may say why with a reason code.",
+  "specVersion": "2026-04-17",
+  "specVersionDate": "2026-04-17",
+  "actors": [
+    {
+      "id": "buyer",
+      "label": "Buyer",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent (AI surface)",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant API",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "buyer",
+      "to": "agent",
+      "label": "Decides not to buy",
+      "detail": "For example, shipping costs too much."
+    },
+    {
+      "n": 2,
+      "from": "agent",
+      "to": "merchant",
+      "label": "POST /checkout_sessions/{id}/cancel",
+      "detail": "Optional intent_trace with a required reason_code. Servers without intent trace support must still accept the body.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"intent_trace\": {\n    \"reason_code\": \"shipping_cost\",\n    \"trace_summary\": \"Buyer declined the shipping fee.\"\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.intent_traces.md",
+        "section": "Cancel"
+      },
+      "failures": [
+        {
+          "condition": "Session already completed or canceled",
+          "outcome": "405"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "merchant",
+      "to": "agent",
+      "label": "200 status canceled",
+      "detail": "The full session with status canceled.",
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.5 Cancel Session"
+      }
+    }
+  ],
+  "sources": [
+    "src-openai-acp-rfc-intent-traces",
+    "src-openai-acp-rfc-checkout",
+    "src-openai-acp-schema-checkout-20260417"
+  ]
+}

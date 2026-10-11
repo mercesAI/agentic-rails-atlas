@@ -1,0 +1,90 @@
+{
+  "id": "openai-acp-product-feed-push",
+  "protocol": "openai-acp",
+  "title": "ACP product feed push (Feed API, 2026-04-17)",
+  "summary": "The agent hosts the Feed API and the merchant pushes products to it. OpenAI runs the same idea under /product_feeds paths.",
+  "specVersion": "2026-04-17",
+  "specVersionDate": "2026-04-17",
+  "actors": [
+    {
+      "id": "merchant",
+      "label": "Merchant API",
+      "kind": "merchant"
+    },
+    {
+      "id": "agent",
+      "label": "Agent (AI surface)",
+      "kind": "agent"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "merchant",
+      "to": "agent",
+      "label": "POST /feeds",
+      "detail": "Create feed metadata (id, target_country). 201 on success.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"id\": \"feed_us\",\n  \"target_country\": \"US\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.feed.yaml",
+        "section": "/feeds"
+      }
+    },
+    {
+      "n": 2,
+      "from": "merchant",
+      "to": "agent",
+      "label": "PATCH /feeds/{id}/products",
+      "detail": "Upsert products by Product.id. Each product needs id and variants; each variant needs id and title.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"products\": [\n    {\n      \"id\": \"prod_1\",\n      \"title\": \"Denim jacket\",\n      \"variants\": [\n        {\n          \"id\": \"var_1_m\",\n          \"title\": \"Medium\",\n          \"price\": {\n            \"amount\": 3000,\n            \"currency\": \"usd\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.feed.yaml",
+        "section": "/feeds/{id}/products"
+      },
+      "failures": [
+        {
+          "condition": "Invalid product",
+          "outcome": "4xx; fix and resend"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "agent",
+      "to": "merchant",
+      "label": "GET /feeds/{id}/products (optional)",
+      "detail": "Read back what the agent holds.",
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.feed.yaml",
+        "section": "/feeds/{id}/products"
+      }
+    },
+    {
+      "n": 4,
+      "from": "merchant",
+      "to": "agent",
+      "label": "Full file replacement (alternative)",
+      "detail": "Send metadata.json plus products.jsonl to replace the whole set; OpenAI recommends a daily full file plus API updates during the day.",
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.feed.yaml",
+        "section": "File format"
+      }
+    }
+  ],
+  "sources": [
+    "src-openai-acp-openapi-feed-20260417",
+    "src-openai-acp-changelog-20260417",
+    "src-openai-acp-schema-feed-20260417",
+    "src-openai-commerce-docs"
+  ]
+}

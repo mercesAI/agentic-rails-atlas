@@ -1,0 +1,98 @@
+---
+protocol: openai-acp
+title: ACP in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+ACP is an open protocol for checkout by an AI agent. OpenAI and Stripe started ACP in 2025. The merchant operates a REST API for checkout sessions. The agent uses this API to buy products for a buyer.
+
+ACP has four roles. The buyer approves the purchase in the interface of the agent. The agent sends the requests to the merchant. The merchant keeps the orders, the payments, the taxes and the refunds. A payment service provider changes the card of the buyer into a token.
+
+The merchant is the merchant of record. OpenAI is not the merchant of record. The merchant charges the payment with its own payment service provider.
+
+The token has an allowance. The allowance gives one merchant, one checkout session, one maximum amount, one currency and one expiry time. The merchant can use the token one time only.
+
+ACP does not identify the agent with a public key directory. The agent and the merchant use a secret API key between them. ACP does not record proof that the buyer approved the purchase. The Shared Payment Token is a product of Stripe. It is not part of the ACP specification.
+
+Each version of ACP has a date, for example 2026-04-17. The client sends this date in the API-Version header.
+
+</SteDescription>
+
+<SteProcedure title="Buy a product with ACP (agent)">
+
+1. Send a POST request to `/checkout_sessions` with the line items and the currency.
+2. Put the API key, the API-Version header and an Idempotency-Key header in each POST request.
+3. Show the line items, the totals and the messages from the merchant to the buyer.
+4. Send the address and the fulfillment option of the buyer in an update request.
+5. Wait until the status is `ready_for_payment`.
+6. Get the approval of the buyer for the total amount.
+7. Send the card and the allowance to the payment service provider.
+8. Keep the token from the response.
+9. Send the token in `payment_data` to the `/complete` endpoint.
+10. Read the order in the response. Show the order link to the buyer.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SET THE ALLOWANCE AMOUNT HIGHER THAN THE TOTAL THAT THE BUYER APPROVED. THE MERCHANT CAN CHARGE ALL OF THE ALLOWANCE AMOUNT.
+</SteCaution>
+
+<SteProcedure title="Accept an ACP checkout (merchant)">
+
+1. Give an API key to each agent that you accept.
+2. Make sure that each request has a correct API key and API-Version header.
+3. If a POST request has no Idempotency-Key header, send status 400.
+4. Calculate the line items, the taxes and the totals in minor units.
+5. Send the full checkout session in each response.
+6. Put problems with the order in the messages of the session.
+7. When the agent sends the complete request, charge the token with your payment service provider.
+8. Make an order. Send the status `completed` and the order in the response.
+9. Send the `order_create` event to the webhook of the agent.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT LOG THE FULL CARD NUMBER OR THE CVC. THIS DATA IS IN THE SCOPE OF PCI DSS.
+</SteCaution>
+
+<SteProcedure title="Verify an order webhook (agent platform)">
+
+1. Read the Merchant-Signature header.
+2. Get the time value `t` and the signature value `v1` from the header.
+3. If the time value is more than 300 seconds old, send status 401.
+4. Calculate HMAC-SHA256 with the shared secret over the time value, a dot and the raw body.
+5. Compare your result with the `v1` value.
+6. If the values are not equal, send status 401.
+7. If the values are equal, process the order event.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT PARSE THE BODY AGAIN BEFORE YOU CALCULATE THE SIGNATURE. A DIFFERENT BODY GIVES A DIFFERENT SIGNATURE.
+</SteCaution>
+
+<SteNote>
+The OpenAI documentation and the ACP specification do not agree on some names and status codes. Use the specification for the protocol. Use the OpenAI documentation for ChatGPT.
+</SteNote>
+
+<SteNote>
+The ACP specification does not define six checkout status values. Do not use these values for important decisions without an agreement with the other party.
+</SteNote>
+
+<SteTerms>
+
+- **checkout session**: The record of one purchase on the server of the merchant.
+- **line item**: One product and its quantity in a checkout session.
+- **allowance**: The limits of a token: merchant, session, maximum amount, currency and expiry time.
+- **vault token**: A token that a payment service provider gives in place of a card number.
+- **payment handler**: A method of payment that the merchant accepts in a session.
+- **merchant of record**: The company that sells the product and accepts the payment.
+- **idempotency key**: A value that makes sure that the server does one action one time only.
+- **order webhook**: A message from the merchant to the agent about the status of an order.
+- **minor units**: The smallest unit of a currency, for example cents.
+- **delegate (TV)**: To give a limited right to another party.
+- **complete (TV)**: To finish a checkout session with a payment.
+
+</SteTerms>

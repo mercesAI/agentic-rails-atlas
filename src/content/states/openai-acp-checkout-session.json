@@ -1,0 +1,187 @@
+{
+  "id": "openai-acp-checkout-session",
+  "protocol": "openai-acp",
+  "title": "ACP checkout session status (2026-04-17, 11 values)",
+  "specVersion": "2026-04-17",
+  "states": [
+    {
+      "id": "incomplete",
+      "label": "incomplete",
+      "note": "Added 2026-01-30; no RFC definition."
+    },
+    {
+      "id": "not_ready_for_payment",
+      "label": "not_ready_for_payment",
+      "initial": true,
+      "note": "Original value; usually the status after create."
+    },
+    {
+      "id": "requires_escalation",
+      "label": "requires_escalation",
+      "note": "Added 2026-01-30; no RFC definition."
+    },
+    {
+      "id": "authentication_required",
+      "label": "authentication_required",
+      "note": "From 2025-12-12; RFC requires authentication_metadata."
+    },
+    {
+      "id": "ready_for_payment",
+      "label": "ready_for_payment",
+      "note": "Original value."
+    },
+    {
+      "id": "pending_approval",
+      "label": "pending_approval",
+      "note": "Added 2026-01-30; no RFC definition (B2B approval fields exist)."
+    },
+    {
+      "id": "in_progress",
+      "label": "in_progress",
+      "note": "Original value; meaning not detailed in the RFC."
+    },
+    {
+      "id": "complete_in_progress",
+      "label": "complete_in_progress",
+      "note": "Added 2026-01-30; no RFC definition."
+    },
+    {
+      "id": "completed",
+      "label": "completed",
+      "terminal": true,
+      "note": "Must carry an order."
+    },
+    {
+      "id": "canceled",
+      "label": "canceled",
+      "terminal": true,
+      "note": "Cancel again returns 405."
+    },
+    {
+      "id": "expired",
+      "label": "expired",
+      "terminal": true,
+      "note": "Added 2026-01-30; no RFC definition."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "not_ready_for_payment",
+      "to": "ready_for_payment",
+      "trigger": "Buyer data and fulfillment choice complete",
+      "apiCall": "POST /checkout_sessions/{id}",
+      "specRef": "RFC 4.2 (implied)"
+    },
+    {
+      "from": "incomplete",
+      "to": "not_ready_for_payment",
+      "trigger": "Required data added (inferred from name)",
+      "apiCall": "POST /checkout_sessions/{id}",
+      "specRef": "schema only"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "not_ready_for_payment",
+      "trigger": "Update invalidates the cart, for example out of stock",
+      "apiCall": "POST /checkout_sessions/{id}",
+      "specRef": "RFC 4.2 (implied)"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "authentication_required",
+      "trigger": "Merchant requires 3DS",
+      "apiCall": "session response",
+      "specRef": "RFC 4.4, 8"
+    },
+    {
+      "from": "authentication_required",
+      "to": "completed",
+      "trigger": "Complete with authentication_result",
+      "apiCall": "POST /checkout_sessions/{id}/complete",
+      "specRef": "RFC 4.4"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "requires_escalation",
+      "trigger": "Merchant needs buyer action outside the agent (inferred from name)",
+      "apiCall": "session response",
+      "specRef": "schema only"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "pending_approval",
+      "trigger": "Approval required, for example B2B (inferred from name)",
+      "apiCall": "POST /checkout_sessions/{id}/complete",
+      "specRef": "schema only"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "complete_in_progress",
+      "trigger": "Complete accepted, payment still processing (inferred from name)",
+      "apiCall": "POST /checkout_sessions/{id}/complete",
+      "specRef": "schema only"
+    },
+    {
+      "from": "complete_in_progress",
+      "to": "completed",
+      "trigger": "Payment confirmed, order created (inferred)",
+      "apiCall": "GET /checkout_sessions/{id}",
+      "specRef": "schema only"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "in_progress",
+      "trigger": "Processing (meaning not detailed)",
+      "apiCall": "POST /checkout_sessions/{id}/complete",
+      "specRef": "2025-09-29 schema"
+    },
+    {
+      "from": "in_progress",
+      "to": "completed",
+      "trigger": "Order created",
+      "apiCall": "POST /checkout_sessions/{id}/complete",
+      "specRef": "RFC 4.4"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "completed",
+      "trigger": "Complete succeeds; response carries an order",
+      "apiCall": "POST /checkout_sessions/{id}/complete",
+      "specRef": "RFC 4.4"
+    },
+    {
+      "from": "not_ready_for_payment",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5"
+    },
+    {
+      "from": "ready_for_payment",
+      "to": "expired",
+      "trigger": "expires_at passes (inferred from name)",
+      "apiCall": "none",
+      "specRef": "schema only"
+    },
+    {
+      "from": "not_ready_for_payment",
+      "to": "expired",
+      "trigger": "expires_at passes (inferred from name)",
+      "apiCall": "none",
+      "specRef": "schema only"
+    }
+  ],
+  "sources": [
+    "src-openai-acp-schema-checkout-20260417",
+    "src-openai-acp-schema-checkout-20250929",
+    "src-openai-acp-schema-checkout-20260130",
+    "src-openai-acp-rfc-checkout"
+  ]
+}

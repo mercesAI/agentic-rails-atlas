@@ -1,0 +1,129 @@
+{
+  "id": "openai-acp-delegate-payment",
+  "protocol": "openai-acp",
+  "title": "ACP Delegate Payment: allowance scoping and enforcement",
+  "summary": "The agent turns a card into a vault token bound by an allowance. The PSP, not ACP, enforces the limits; ACP defines no error code for an out-of-allowance charge.",
+  "specVersion": "2026-04-17",
+  "specVersionDate": "2026-04-17",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "Agent (AI surface)",
+      "kind": "agent"
+    },
+    {
+      "id": "psp",
+      "label": "PSP or vault",
+      "kind": "psp"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant API",
+      "kind": "merchant"
+    },
+    {
+      "id": "mpsp",
+      "label": "Merchant PSP",
+      "kind": "psp"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "psp",
+      "label": "POST /agentic_commerce/delegate_payment",
+      "detail": "Headers: Authorization, API-Version and Idempotency-Key are required. RFC section 2.2 says the client must sign with Signature and Timestamp; the header list and OpenAPI mark them optional.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version 2026-04-17.\nPOST /agentic_commerce/delegate_payment HTTP/1.1\nAuthorization: Bearer <api-key>\nAPI-Version: 2026-04-17\nIdempotency-Key: idem_001\nContent-Type: application/json\nSignature: <base64url detached signature>\nTimestamp: 2026-10-11T17:29:59Z\n\n{\n  \"payment_method\": {\n    \"type\": \"card\",\n    \"card_number_type\": \"network_token\",\n    \"number\": \"4000000000000002\",\n    \"display_card_funding_type\": \"credit\",\n    \"metadata\": {}\n  },\n  \"allowance\": {\n    \"reason\": \"one_time\",\n    \"max_amount\": 330,\n    \"currency\": \"usd\",\n    \"checkout_session_id\": \"cs_123\",\n    \"merchant_id\": \"merchant_abc\",\n    \"expires_at\": \"2026-10-11T18:00:00Z\"\n  },\n  \"risk_signals\": [],\n  \"metadata\": {}\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_payment.md",
+        "section": "2.2"
+      },
+      "failures": [
+        {
+          "condition": "Same key, different body",
+          "outcome": "422 idempotency_conflict"
+        },
+        {
+          "condition": "Same key still running",
+          "outcome": "409 idempotency_in_flight"
+        },
+        {
+          "condition": "No key",
+          "outcome": "400 idempotency_key_required"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "from": "psp",
+      "to": "psp",
+      "label": "Store card, bind allowance",
+      "detail": "The PSP or vault keeps the card and records reason one_time, max_amount, currency, checkout_session_id, merchant_id and expires_at against the token."
+    },
+    {
+      "n": 3,
+      "from": "psp",
+      "to": "agent",
+      "label": "201 { id: vt_... }",
+      "detail": "Only an opaque token returns to the agent.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"id\": \"vt_01EXAMPLE\",\n  \"created\": \"2026-10-11T17:30:00Z\",\n  \"metadata\": {}\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.delegate_payment.md",
+        "section": "Response"
+      }
+    },
+    {
+      "n": 4,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Complete with the token",
+      "detail": "The token travels in payment_data.instrument.credential.token.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md",
+        "section": "4.4 Complete Session"
+      }
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "mpsp",
+      "label": "Charge up to the allowance",
+      "detail": "The merchant PSP charges the token. Wrong merchant, wrong session, an amount above max_amount, a second use or a charge after expires_at should fail, but the error is PSP specific.",
+      "crossesTrustBoundary": true,
+      "failures": [
+        {
+          "condition": "Amount above max_amount",
+          "outcome": "Declined by the PSP; no ACP error code"
+        },
+        {
+          "condition": "After expires_at",
+          "outcome": "Declined by the PSP; no ACP error code"
+        },
+        {
+          "condition": "Different merchant_id or session",
+          "outcome": "Declined by the PSP; no ACP error code"
+        },
+        {
+          "condition": "Second use of a one_time token",
+          "outcome": "Declined by the PSP; no ACP error code"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "src-openai-acp-rfc-delegate-payment",
+    "src-openai-acp-schema-delegate-payment-20260417",
+    "src-openai-acp-openapi-delegate-payment-20260417"
+  ]
+}
