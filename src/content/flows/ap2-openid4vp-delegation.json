@@ -1,0 +1,112 @@
+{
+  "id": "ap2-openid4vp-delegation",
+  "protocol": "ap2",
+  "title": "AP2 alternative path: User Credential delegation with OpenID4VP and the Digital Credentials API",
+  "summary": "How a user credential signs AP2 mandates. The agent puts the Mandate Content in an OpenID4VP transaction_data entry of type delegate; the wallet, acting as Trusted Surface, returns a presentation whose key binding covers delegate_payload.",
+  "specVersion": "v0.2",
+  "specVersionDate": "2026-04-28",
+  "actors": [
+    {
+      "id": "sa",
+      "label": "Shopping Agent",
+      "kind": "agent"
+    },
+    {
+      "id": "platform",
+      "label": "Browser or OS (Digital Credentials API)",
+      "kind": "platform"
+    },
+    {
+      "id": "wallet",
+      "label": "Wallet (Trusted Surface)",
+      "kind": "trusted-surface"
+    },
+    {
+      "id": "user",
+      "label": "User",
+      "kind": "human"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "sa",
+      "to": "platform",
+      "label": "OpenID4VP request with a delegate entry in transaction_data",
+      "detail": "Under the User Credential model the agent asks the user's wallet to sign the Mandate Content. The delegate object needs type delegate, format and delegate_payload; delegate_disclosures is optional. The Digital Credentials API is the recommended channel.",
+      "payload": {
+        "format": "json",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Abridged OpenID4VP request through the Digital Credentials API, with the decoded delegate entry of transaction_data.\n{\n  \"protocol\": \"openid4vp-v1-unsigned\",\n  \"data\": {\n    \"response_type\": \"vp_token\",\n    \"response_mode\": \"dc_api\",\n    \"nonce\": \"5f0c...e2a\",\n    \"dcql_query\": {\n      \"credentials\": [\n        {\n          \"id\": \"dpc_credential\",\n          \"format\": \"dc+sd-jwt\",\n          \"meta\": {\n            \"vct_values\": [\n              \"com.emvco.dpc\"\n            ]\n          },\n          \"claims\": [\n            {\n              \"path\": [\n                \"card_last_four\"\n              ]\n            },\n            {\n              \"path\": [\n                \"card_network_code\"\n              ]\n            },\n            {\n              \"path\": [\n                \"credential_id\"\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    \"transaction_data\": [\n      \"<base64url payment_card entry for the confirmation screen>\",\n      \"<base64url delegate entry, decoded below>\"\n    ]\n  }\n}\n# decoded delegate entry\n{\n  \"type\": \"delegate\",\n  \"format\": \"dc+sd-jwt\",\n  \"credential_ids\": [\n    \"dpc_credential\"\n  ],\n  \"transaction_data_hashes_alg\": [\n    \"sha-256\"\n  ],\n  \"delegate_payload\": [\n    {\n      \"vct\": \"mandate.checkout.1\",\n      \"checkout_jwt\": \"eyJhbGciOiJFUzI1NiIs...\",\n      \"checkout_hash\": \"Nv3Wq...X8\"\n    },\n    {\n      \"vct\": \"mandate.payment.1\",\n      \"transaction_id\": \"Nv3Wq...X8\",\n      \"payee\": {\n        \"id\": \"merchant_1\",\n        \"name\": \"Example Outdoor Store\"\n      },\n      \"payment_amount\": {\n        \"amount\": 27999,\n        \"currency\": \"USD\"\n      },\n      \"payment_instrument\": {\n        \"id\": \"pi_7f3c\",\n        \"type\": \"card\",\n        \"description\": \"Card ending 4242\"\n      }\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Delegation using OpenID4VP"
+      }
+    },
+    {
+      "n": 2,
+      "from": "platform",
+      "to": "wallet",
+      "label": "Route the request to the user's wallet",
+      "detail": "The platform lets the user pick a wallet that holds a matching credential, in the example an EMVCo-style payment credential (vct com.emvco.dpc).",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Delegation using OpenID4VP"
+      }
+    },
+    {
+      "n": 3,
+      "from": "wallet",
+      "to": "user",
+      "label": "Show the purchase; authenticate",
+      "detail": "The wallet acts as the Trusted Surface and Holder: it shows the confirmation screen from the payment_card entry and authenticates the user.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "User Credential"
+      },
+      "failures": [
+        {
+          "condition": "No credential matches the DCQL query",
+          "outcome": "No response is returned; the agent cannot obtain a user-signed mandate this way."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "wallet",
+      "to": "platform",
+      "label": "Authorization response: vp_token with key binding over delegate_payload",
+      "detail": "The key binding covers delegate_payload, which turns the presentation into signed mandates under the Delegate SD-JWT draft. Examples use ES256 for both signatures.",
+      "payload": {
+        "format": "sd-jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# vp_token: the user credential as an SD-JWT, its disclosures, and a key-binding JWT that includes delegate_payload.\n<issuer-signed SD-JWT>~<disclosure card_last_four>~<disclosure card_network_code>~<disclosure credential_id>~<KB-JWT with delegate_payload>",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Delegation using OpenID4VP"
+      }
+    },
+    {
+      "n": 5,
+      "from": "platform",
+      "to": "sa",
+      "label": "Return the response to the agent",
+      "detail": "The agent can now present the mandates. Verifiers trust the credential issuer to vouch for the wallet as Trusted Surface.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "User Credential"
+      }
+    }
+  ],
+  "sources": [
+    "src-ap2-agent-authorization",
+    "src-ap2-delegate-sd-jwt"
+  ]
+}

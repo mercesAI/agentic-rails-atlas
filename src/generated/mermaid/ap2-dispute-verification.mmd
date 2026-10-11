@@ -1,0 +1,20 @@
+sequenceDiagram
+  accTitle: AP2 alternative path: verifying mandates and receipts in a dispute
+  accDescr: Sequence diagram: AP2 alternative path: verifying mandates and receipts in a dispute. 3 participants: Merchant, Credential Provider, and Dispute verifier. 7 steps, 2 crossing a trust boundary, 1 failure branch. Based on ap2 v0.2 (2026-04-28). Step 1: Merchant to Dispute verifier: Checkout Mandate and Checkout Receipt. This step crosses a trust boundary. Step 2: Credential Provider to Dispute verifier: Payment Mandate and Payment Receipt. This step crosses a trust boundary. Step 3: Dispute verifier to Dispute verifier: Verify the Checkout Mandate under the Merchant rules. If The mandate does not verify: It cannot serve as evidence of what the user approved. Step 4: Dispute verifier to Dispute verifier: Recompute the hash of the included checkout_jwt. Step 5: Dispute verifier to Dispute verifier: Match the Checkout Receipt reference. Step 6: Dispute verifier to Dispute verifier: Verify the Payment Mandate with checkout_hash. Step 7: Dispute verifier to Dispute verifier: Match the Payment Receipt reference.
+  autonumber
+  participant p_merchant as Merchant
+  participant p_cp as Credential Provider
+  participant p_verifier as Dispute verifier
+  p_merchant->>p_verifier: Checkout Mandate and Checkout Receipt
+  Note over p_merchant,p_verifier: Crosses a trust boundary
+  p_cp->>p_verifier: Payment Mandate and Payment Receipt
+  Note over p_cp,p_verifier: Crosses a trust boundary
+  alt Expected path
+    p_verifier->>p_verifier: Verify the Checkout Mandate under the Merchant rules
+  else The mandate does not verify
+    Note over p_verifier: It cannot serve as evidence of what the user approved.
+  end
+  p_verifier-->>p_verifier: Recompute the hash of the included checkout_jwt
+  p_verifier->>p_verifier: Match the Checkout Receipt reference
+  p_verifier-->>p_verifier: Verify the Payment Mandate with checkout_hash
+  p_verifier->>p_verifier: Match the Payment Receipt reference

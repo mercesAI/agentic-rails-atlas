@@ -1,0 +1,78 @@
+classDiagram
+  class CheckoutMandate {
+    string vct = mandate.checkout.1
+    string checkout_jwt
+    string checkout_hash
+    integer iat
+    integer exp
+  }
+  class OpenCheckoutMandate {
+    string vct = mandate.checkout.open.1
+    Constraint[] constraints
+    object cnf
+    integer iat
+    integer exp
+  }
+  class PaymentMandate {
+    string vct = mandate.payment.1
+    string transaction_id
+    Merchant payee
+    PISP pisp
+    Amount payment_amount
+    PaymentInstrument payment_instrument
+    string execution_date
+    object risk_data
+    integer iat
+    integer exp
+  }
+  class OpenPaymentMandate {
+    string vct = mandate.payment.open.1
+    Constraint[] constraints
+    object cnf
+    Merchant payee
+    Amount payment_amount
+    PaymentInstrument payment_instrument
+  }
+  class Amount {
+    integer amount
+    string currency
+  }
+  class Merchant {
+    string id
+    string name
+    string website
+  }
+  class PaymentInstrument {
+    string id
+    string type
+    string description
+  }
+  class PISP {
+    string legal_name
+    string brand_name
+    string domain_name
+  }
+  class PaymentReceipt {
+    string status
+    string iss
+    integer iat
+    string reference
+    string payment_id
+  }
+  class CheckoutReceipt {
+    string status
+    string iss
+    integer iat
+    string reference
+    string order_id
+  }
+  OpenCheckoutMandate <.. CheckoutMandate : sd_hash
+  OpenPaymentMandate <.. PaymentMandate : sd_hash
+  OpenPaymentMandate ..> OpenCheckoutMandate : payment.reference
+  PaymentMandate ..> CheckoutMandate : transaction_id = checkout_hash
+  PaymentMandate --> Amount
+  PaymentMandate --> Merchant
+  PaymentMandate --> PaymentInstrument
+  PaymentMandate --> PISP
+  PaymentReceipt ..> PaymentMandate : reference
+  CheckoutReceipt ..> CheckoutMandate : reference

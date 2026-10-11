@@ -1,0 +1,13 @@
+flowchart LR
+  subgraph TASK["A2A Task from the merchant agent (input-required)"]
+    MD["status.message.metadata<br/>x402.payment.status = payment-required"]
+    ART["task.artifacts: AP2 CartMandate (v0.1 object)<br/>holds x402PaymentRequiredResponse"]
+  end
+  subgraph MSG["A2A Message from the client agent"]
+    MD2["metadata<br/>x402.payment.status = payment-submitted"]
+    PART["message.parts: AP2 PaymentMandate (v0.1 object)<br/>holds the signed x402 PaymentPayload"]
+  end
+  ART --> PART
+  PART --> RC["metadata: x402.payment.receipts<br/>status payment-completed or payment-failed"]
+  V2["AP2 v0.2: no CartMandate,<br/>only Checkout and Payment Mandates"]
+  ART -. "no v0.2 equivalent defined" .-> V2

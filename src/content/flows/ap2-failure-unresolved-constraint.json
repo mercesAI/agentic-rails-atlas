@@ -1,0 +1,133 @@
+{
+  "id": "ap2-failure-unresolved-constraint",
+  "protocol": "ap2",
+  "title": "AP2 failure: unresolved_constraint and fallback to human present",
+  "summary": "A verifier cannot confirm that the agent-signed closed mandate meets the open mandate constraints, or meets an unknown constraint type. It returns unresolved_constraint, and the agent brings the user back to approve a closed mandate. This is the only step-up path in v0.2.",
+  "specVersion": "v0.2",
+  "specVersionDate": "2026-04-28",
+  "actors": [
+    {
+      "id": "user",
+      "label": "User",
+      "kind": "human"
+    },
+    {
+      "id": "sa",
+      "label": "Shopping Agent",
+      "kind": "agent"
+    },
+    {
+      "id": "ts",
+      "label": "Trusted Surface",
+      "kind": "trusted-surface"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "sa",
+      "to": "merchant",
+      "label": "Token plus open and closed Checkout Mandates",
+      "detail": "The agent presents a checkout it built autonomously. Here the checkout swaps the tent for a model that is not among acceptable_items, or the open mandate carries a constraint type the merchant does not know.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Merchant"
+      }
+    },
+    {
+      "n": 2,
+      "from": "merchant",
+      "to": "merchant",
+      "label": "Evaluate every constraint",
+      "detail": "The line item requirement cannot be matched. An unknown constraint type would fail the same way: verifiers must treat it as failing evaluation.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Verification and Processing Rules"
+      }
+    },
+    {
+      "n": 3,
+      "from": "merchant",
+      "to": "sa",
+      "label": "Checkout Receipt: status Error, unresolved_constraint",
+      "detail": "A non-terminal error. It may signal a fallback to a directly approved closed mandate or to a non-agentic flow.",
+      "payload": {
+        "format": "jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Checkout Receipt JWT payload with an error (checkout_receipt.json).\n{\n  \"status\": \"Error\",\n  \"iss\": \"https://outdoor.example\",\n  \"iat\": 1791760100,\n  \"reference\": \"r4Tz...hash-of-closed-checkout-mandate\",\n  \"error\": \"unresolved_constraint\",\n  \"error_description\": \"Line item req_1 could not be matched by the checkout.\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Errors"
+      }
+    },
+    {
+      "n": 4,
+      "from": "sa",
+      "to": "ts",
+      "label": "Fall back: request approval of closed Mandate Content",
+      "detail": "Holding the error receipt, the agent may present a different mandate. Here it turns the flow into a human-present one and asks the user to approve the exact checkout.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Flow Examples, introduction"
+      }
+    },
+    {
+      "n": 5,
+      "from": "ts",
+      "to": "user",
+      "label": "Show the exact checkout; authenticate",
+      "detail": "The user sees the substitute item and the price and decides.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 2 step 2"
+      },
+      "failures": [
+        {
+          "condition": "The user declines",
+          "outcome": "The purchase stops; the open mandate remains bounded by its exp."
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "ts",
+      "to": "sa",
+      "label": "User-signed closed mandates",
+      "detail": "The surface signs closed mandates with user_sk, so no open-mandate constraint needs to be evaluated.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 2 step 3"
+      }
+    },
+    {
+      "n": 7,
+      "from": "sa",
+      "to": "merchant",
+      "label": "Present the user-signed closed Checkout Mandate",
+      "detail": "The merchant verifies it as in the human-present flow and completes the checkout.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Merchant"
+      }
+    }
+  ],
+  "sources": [
+    "src-ap2-agent-authorization",
+    "src-ap2-flows",
+    "src-ap2-spec-v02",
+    "src-ap2-schema-receipts"
+  ]
+}

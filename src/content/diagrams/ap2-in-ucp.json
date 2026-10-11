@@ -1,0 +1,10 @@
+{
+  "id": "ap2-in-ucp",
+  "protocol": "ap2",
+  "type": "sequence",
+  "title": "AP2 inside UCP (extension dev.ucp.common.payment.ap2_mandate, v2026-08-25)",
+  "caption": "UCP decides where AP2 artifacts travel; AP2 decides what they contain. The business advertises the extension and its keys in /.well-known/ucp, signs each checkout in ap2.merchant_authorization, and requires ap2.checkout_mandate on complete; the Payment Mandate rides in the payment credential token. Once negotiated, neither side may fall back to an unprotected checkout. This is specified; live use is unverified.",
+  "alt": "Sequence diagram with Platform, Business, Trusted Surface and Credential Provider. 1, the platform fetches /.well-known/ucp. 2, the business lists the capability dev.ucp.common.payment.ap2_mandate and its keys. 3, the platform creates or updates a checkout. 4, the business returns the checkout with ap2.merchant_authorization, a detached JWS over the JCS-canonical checkout. 5, the platform verifies that signature before showing the checkout. 6, the platform sends Mandate Content to the Trusted Surface. 7, the surface returns signed mandates as SD-JWTs with key binding. 8, the platform sends the Payment Mandate to the Credential Provider. 9, it returns a token carrying the Payment Mandate. 10, the platform completes the checkout with ap2.checkout_mandate and the token in payment.instruments[*].credential.token. 11, the business returns the order or an error such as mandate_required or mandate_scope_mismatch.",
+  "sourceOfTruth": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/ad9950ba5c7bcd02af648f849bf7344052f76f57/docs/specification/payment/extensions/ap2-mandates.md", "label": "UCP AP2 Mandates Extension (v2026-08-25)" },
+  "sources": ["src-ap2-ucp-ext", "src-ap2-ucp-schema", "src-ucp-ap2-spec", "src-ucp-schema-ap2", "src-ap2-checkout-mandate-doc"]
+}

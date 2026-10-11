@@ -1,0 +1,24 @@
+sequenceDiagram
+  accTitle: AP2 failure: unresolved_constraint and fallback to human present
+  accDescr: Sequence diagram: AP2 failure: unresolved_constraint and fallback to human present. 4 participants: User, Shopping Agent, Trusted Surface, and Merchant. 7 steps, 5 crossing a trust boundary, 1 failure branch. Based on ap2 v0.2 (2026-04-28). Step 1: Shopping Agent to Merchant: Token plus open and closed Checkout Mandates. This step crosses a trust boundary. Step 2: Merchant to Merchant: Evaluate every constraint. Step 3: Merchant to Shopping Agent: Checkout Receipt: status Error, unresolved_constraint. This step crosses a trust boundary. Step 4: Shopping Agent to Trusted Surface: Fall back: request approval of closed Mandate Content. This step crosses a trust boundary. Step 5: Trusted Surface to User: Show the exact checkout authenticate. If The user declines: The purchase stops the open mandate remains bounded by its exp. Step 6: Trusted Surface to Shopping Agent: User-signed closed mandates. This step crosses a trust boundary. Step 7: Shopping Agent to Merchant: Present the user-signed closed Checkout Mandate. This step crosses a trust boundary.
+  autonumber
+  participant p_user as User
+  participant p_sa as Shopping Agent
+  participant p_ts as Trusted Surface
+  participant p_merchant as Merchant
+  p_sa->>p_merchant: Token plus open and closed Checkout Mandates
+  Note over p_sa,p_merchant: Crosses a trust boundary
+  p_merchant->>p_merchant: Evaluate every constraint
+  p_merchant->>p_sa: Checkout Receipt: status Error, unresolved_constraint
+  Note over p_merchant,p_sa: Crosses a trust boundary
+  p_sa->>p_ts: Fall back: request approval of closed Mandate Content
+  Note over p_sa,p_ts: Crosses a trust boundary
+  alt Expected path
+    p_ts->>p_user: Show the exact checkout#59; authenticate
+  else The user declines
+    Note over p_ts,p_user: The purchase stops#59; the open mandate remains bounded by its exp.
+  end
+  p_ts->>p_sa: User-signed closed mandates
+  Note over p_ts,p_sa: Crosses a trust boundary
+  p_sa->>p_merchant: Present the user-signed closed Checkout Mandate
+  Note over p_sa,p_merchant: Crosses a trust boundary

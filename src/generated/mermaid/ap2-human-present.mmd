@@ -1,0 +1,67 @@
+sequenceDiagram
+  accTitle: AP2 v0.2 human present: the user signs closed mandates on a Trusted Surface
+  accDescr: Sequence diagram: AP2 v0.2 human present: the user signs closed mandates on a Trusted Surface. 7 participants: User, Shopping Agent, Trusted Surface, Merchant, Credential Provider, Network, and Merchant Payment Processor. 16 steps, 12 crossing a trust boundary, 8 failure branches. Based on ap2 v0.2 (2026-04-28). Step 1: User to Shopping Agent: Start shopping. Step 2: Shopping Agent to Merchant: Build a cart over the commerce protocol. This step crosses a trust boundary. If The merchant does not accept mandates for this action: It can answer mandates_not_supported, a signal to fall back to a non-agentic flow. Step 3: Merchant to Shopping Agent: Signed checkout (checkout_jwt) mandate required. This step crosses a trust boundary. If The cart changes after this point: The merchant will reject any mandate whose checkout_hash does not match its latest checkout_jwt. Step 4: Shopping Agent to Credential Provider: Fetch instrument options. This step crosses a trust boundary. Step 5: Shopping Agent to Trusted Surface: Request approval of Checkout and Payment Mandate Content. This step crosses a trust boundary. Step 6: Trusted Surface to User: Show the content authenticate and get consent. If The user declines: No mandate is signed and nothing is presented. Step 7: Trusted Surface to Trusted Surface: Sign closed mandates with user_sk. Step 8: Trusted Surface to Shopping Agent: Return the signed mandates. This step crosses a trust boundary. Step 9: Shopping Agent to Credential Provider: Present the closed Payment Mandate. This step crosses a trust boundary. If The signature or chain does not verify: Payment Receipt with status Error and error invalid_credential terminal. If The mandate does not approve this payment: Payment Receipt with error invalid_mandate terminal. Step 10: Credential Provider to Network: Share the mandate, get a scoped credential (optional). This step crosses a trust boundary. Step 11: Credential Provider to Shopping Agent: Payment token. This step crosses a trust boundary. Step 12: Shopping Agent to Merchant: Token plus closed Checkout Mandate. This step crosses a trust boundary. If The hash of the merchant's checkout_jwt does not equal checkout_hash: The merchant returns a Checkout Receipt JWT with status Error. If A verification step fails for any other reason: The merchant must return a Checkout Receipt JWT carrying the error. Step 13: Merchant to Merchant Payment Processor: Initiate payment with the token and the checkout_jwt hash. This step crosses a trust boundary. Step 14: Merchant Payment Processor to Merchant Payment Processor: Verify the Payment Mandate inside the token. If transaction_id does not match the checkout_jwt hash: The payment is refused and a Payment Receipt with status Error goes back. Step 15: Merchant Payment Processor to Shopping Agent: Payment Receipt (also to the Credential Provider and Network). This step crosses a trust boundary. Step 16: Merchant to Shopping Agent: Checkout Receipt. This step crosses a trust boundary.
+  autonumber
+  participant p_user as User
+  participant p_sa as Shopping Agent
+  participant p_ts as Trusted Surface
+  participant p_merchant as Merchant
+  participant p_cp as Credential Provider
+  participant p_network as Network
+  participant p_mpp as Merchant Payment Processor
+  p_user->>p_sa: Start shopping
+  alt Expected path
+    p_sa->>p_merchant: Build a cart over the commerce protocol
+    Note over p_sa,p_merchant: Crosses a trust boundary
+  else The merchant does not accept mandates for this action
+    Note over p_sa,p_merchant: It can answer mandates_not_supported, a signal to fall back to a non-agentic flow.
+  end
+  alt Expected path
+    p_merchant-->>p_sa: Signed checkout (checkout_jwt)#59; mandate required
+    Note over p_merchant,p_sa: Crosses a trust boundary
+  else The cart changes after this point
+    Note over p_merchant,p_sa: The merchant will reject any mandate whose checkout_hash does not match its latest checkout_jwt.
+  end
+  p_sa->>p_cp: Fetch instrument options
+  Note over p_sa,p_cp: Crosses a trust boundary
+  p_sa->>p_ts: Request approval of Checkout and Payment Mandate Content
+  Note over p_sa,p_ts: Crosses a trust boundary
+  alt Expected path
+    p_ts->>p_user: Show the content#59; authenticate and get consent
+  else The user declines
+    Note over p_ts,p_user: No mandate is signed and nothing is presented.
+  end
+  p_ts->>p_ts: Sign closed mandates with user_sk
+  p_ts-->>p_sa: Return the signed mandates
+  Note over p_ts,p_sa: Crosses a trust boundary
+  alt Expected path
+    p_sa->>p_cp: Present the closed Payment Mandate
+    Note over p_sa,p_cp: Crosses a trust boundary
+  else The signature or chain does not verify
+    Note over p_sa,p_cp: Payment Receipt with status Error and error invalid_credential#59; terminal.
+  else The mandate does not approve this payment
+    Note over p_sa,p_cp: Payment Receipt with error invalid_mandate#59; terminal.
+  end
+  p_cp->>p_network: Share the mandate, get a scoped credential (optional)
+  Note over p_cp,p_network: Crosses a trust boundary
+  p_cp->>p_sa: Payment token
+  Note over p_cp,p_sa: Crosses a trust boundary
+  alt Expected path
+    p_sa->>p_merchant: Token plus closed Checkout Mandate
+    Note over p_sa,p_merchant: Crosses a trust boundary
+  else The hash of the merchant#39;s checkout_jwt does not equal checkout_hash
+    Note over p_sa,p_merchant: The merchant returns a Checkout Receipt JWT with status Error.
+  else A verification step fails for any other reason
+    Note over p_sa,p_merchant: The merchant must return a Checkout Receipt JWT carrying the error.
+  end
+  p_merchant->>p_mpp: Initiate payment with the token and the checkout_jwt hash
+  Note over p_merchant,p_mpp: Crosses a trust boundary
+  alt Expected path
+    p_mpp->>p_mpp: Verify the Payment Mandate inside the token
+  else transaction_id does not match the checkout_jwt hash
+    Note over p_mpp: The payment is refused and a Payment Receipt with status Error goes back.
+  end
+  p_mpp->>p_sa: Payment Receipt (also to the Credential Provider and Network)
+  Note over p_mpp,p_sa: Crosses a trust boundary
+  p_merchant->>p_sa: Checkout Receipt
+  Note over p_merchant,p_sa: Crosses a trust boundary

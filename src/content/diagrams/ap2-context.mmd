@@ -1,0 +1,31 @@
+flowchart LR
+  subgraph UZ["User zone (non-agentic)"]
+    U["User"]
+    TS["Trusted Surface<br/>user_sk"]
+  end
+  subgraph AZ["Agent zone (treated as a potential attacker)"]
+    SA["Shopping Agent<br/>agent_sk in cnf"]
+  end
+  subgraph MZ["Merchant zone"]
+    M["Merchant<br/>signs checkout_jwt"]
+    MPP["Merchant Payment Processor"]
+  end
+  subgraph PZ["Payment credential zone"]
+    CP["Credential Provider"]
+    NW["Network"]
+  end
+  subgraph CZ["Commerce protocol (out of AP2 scope)"]
+    CPROT["UCP, A2A or other"]
+  end
+  U -- "consent, biometric" --> TS
+  SA -- "Mandate Content" --> TS
+  TS -- "signed mandates" --> SA
+  SA <-- "cart and checkout" --> CPROT
+  CPROT <--> M
+  SA -- "Payment Mandate" --> CP
+  CP -. "optional: scoped credential" .-> NW
+  CP -- "token" --> SA
+  SA -- "token + Checkout Mandate" --> M
+  M -- "token + checkout_jwt hash" --> MPP
+  MPP -- "Payment Receipt" --> SA
+  M -- "Checkout Receipt" --> SA

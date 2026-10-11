@@ -1,0 +1,10 @@
+{
+  "id": "ap2-a2a-x402-embedding",
+  "protocol": "ap2",
+  "type": "other",
+  "title": "a2a-x402 Embedded Flow and its AP2 v0.1 target",
+  "caption": "The a2a-x402 v0.2 extension can nest x402 objects inside AP2 mandates: the payment requirements inside a CartMandate artifact and the signed payment inside a PaymentMandate message part. Those are AP2 v0.1 objects. AP2 v0.2 has no Cart mandate, and neither specification defines the v0.2 mapping, so the documented embedding is out of step with the current AP2.",
+  "alt": "Flowchart. An A2A Task from the merchant agent in state input-required carries metadata x402.payment.status payment-required and, in task.artifacts, an AP2 CartMandate (a v0.1 object) holding the x402PaymentRequiredResponse. The client agent answers with a Message whose metadata says payment-submitted and whose message.parts hold an AP2 PaymentMandate (v0.1) with the signed x402 PaymentPayload. The final metadata holds x402.payment.receipts with status payment-completed or payment-failed. A dotted arrow from the CartMandate points to a note that AP2 v0.2 has no CartMandate, only Checkout and Payment Mandates, and no v0.2 equivalent is defined.",
+  "sourceOfTruth": { "url": "https://github.com/google-agentic-commerce/a2a-x402/blob/125db5526a965d2325459d1a9df2e274a7e42396/spec/v0.2/spec.md", "label": "a2a-x402 extension v0.2, section 4 Composable Design" },
+  "sources": ["src-ap2-a2a-x402-v02", "src-ap2-schema-checkout", "src-ap2-schema-payment", "src-ap2-mandate-py-v01"]
+}

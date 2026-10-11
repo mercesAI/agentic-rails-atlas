@@ -1,0 +1,284 @@
+{
+  "id": "ap2-human-not-present",
+  "protocol": "ap2",
+  "title": "AP2 v0.2 human not present: the agent closes user-signed open mandates",
+  "summary": "The autonomous mode. The user signs open mandates with constraints and the agent public key in cnf, then leaves. Later the agent finds a fitting checkout, signs closed mandates with its own key, and verifiers check the chain (sd_hash), the checkout binding and every constraint.",
+  "specVersion": "v0.2",
+  "specVersionDate": "2026-04-28",
+  "actors": [
+    {
+      "id": "user",
+      "label": "User",
+      "kind": "human"
+    },
+    {
+      "id": "sa",
+      "label": "Shopping Agent",
+      "kind": "agent"
+    },
+    {
+      "id": "ts",
+      "label": "Trusted Surface",
+      "kind": "trusted-surface"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "cp",
+      "label": "Credential Provider",
+      "kind": "wallet"
+    },
+    {
+      "id": "mpp",
+      "label": "Merchant Payment Processor",
+      "kind": "psp"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "user",
+      "to": "sa",
+      "label": "Set a shopping task",
+      "detail": "The user describes a task the agent should finish later, for example buying a tent under a price limit at one store.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 1a step 1"
+      }
+    },
+    {
+      "n": 2,
+      "from": "sa",
+      "to": "ts",
+      "label": "Request approval of open Mandate Content",
+      "detail": "The agent proposes open Checkout and Payment Mandates: constraints instead of exact values, plus its own public key. An open Checkout Mandate needs at least one checkout.line_items constraint, and an open Payment Mandate needs a payment.reference constraint.",
+      "payload": {
+        "format": "json",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n{\n  \"open_checkout_mandate_content\": {\n    \"vct\": \"mandate.checkout.open.1\",\n    \"constraints\": [\n      {\n        \"type\": \"checkout.allowed_merchants\",\n        \"allowed\": [\n          {\n            \"id\": \"merchant_1\",\n            \"name\": \"Example Outdoor Store\"\n          }\n        ]\n      },\n      {\n        \"type\": \"checkout.line_items\",\n        \"items\": [\n          {\n            \"id\": \"req_1\",\n            \"acceptable_items\": [\n              {\n                \"id\": \"tent_2p_green\",\n                \"title\": \"Two-person tent, green\"\n              },\n              {\n                \"id\": \"tent_2p_grey\",\n                \"title\": \"Two-person tent, grey\"\n              }\n            ],\n            \"quantity\": 1\n          }\n        ]\n      }\n    ],\n    \"cnf\": {\n      \"jwk\": {\n        \"kty\": \"EC\",\n        \"crv\": \"P-256\",\n        \"x\": \"QpSy...27c\",\n        \"y\": \"37HL...9lw\"\n      }\n    },\n    \"exp\": 1791806400\n  },\n  \"open_payment_mandate_content\": {\n    \"vct\": \"mandate.payment.open.1\",\n    \"constraints\": [\n      {\n        \"type\": \"payment.amount_range\",\n        \"currency\": \"USD\",\n        \"max\": 30000,\n        \"min\": 0\n      },\n      {\n        \"type\": \"payment.allowed_payees\",\n        \"allowed\": [\n          {\n            \"id\": \"merchant_1\",\n            \"name\": \"Example Outdoor Store\"\n          }\n        ]\n      },\n      {\n        \"type\": \"payment.reference\",\n        \"conditional_transaction_id\": \"FzLo...JN8\"\n      }\n    ],\n    \"cnf\": {\n      \"jwk\": {\n        \"kty\": \"EC\",\n        \"crv\": \"P-256\",\n        \"x\": \"QpSy...27c\",\n        \"y\": \"37HL...9lw\"\n      }\n    },\n    \"exp\": 1791806400\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 1a step 2"
+      },
+      "failures": [
+        {
+          "condition": "A constraint type the verifier will not know is included",
+          "outcome": "Every verifier must fail it later with unresolved_constraint."
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "ts",
+      "to": "user",
+      "label": "Show the constraints; authenticate and get consent",
+      "detail": "The surface renders the limits the agent will act within and authenticates the user.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 1a step 3"
+      }
+    },
+    {
+      "n": 4,
+      "from": "ts",
+      "to": "ts",
+      "label": "Sign open mandates with user_sk",
+      "detail": "The surface signs both open mandates. The hash of the open Checkout Mandate goes into payment.reference of the open Payment Mandate, and the agent key goes into cnf so only that agent can use them. The specification recommends the shortest exp that still lets the agent finish.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Autonomous (Human Not Present)"
+      }
+    },
+    {
+      "n": 5,
+      "from": "ts",
+      "to": "sa",
+      "label": "Return the open mandates; the user leaves",
+      "detail": "From here on the agent acts without the user.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 1a"
+      }
+    },
+    {
+      "n": 6,
+      "from": "sa",
+      "to": "merchant",
+      "label": "Build a cart autonomously",
+      "detail": "The agent shops through the commerce protocol for a checkout it believes fits the task.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 1b step 1"
+      }
+    },
+    {
+      "n": 7,
+      "from": "merchant",
+      "to": "sa",
+      "label": "Signed checkout (checkout_jwt); mandate required",
+      "detail": "Same as in the human-present mode: the merchant signs the checkout and asks for a mandate.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 1b step 2"
+      }
+    },
+    {
+      "n": 8,
+      "from": "sa",
+      "to": "sa",
+      "label": "Select open mandates that fit",
+      "detail": "The agent picks the open mandates whose constraints the checkout meets. How it selects is out of scope. It must not create overlapping closed mandates from the same open mandate until it holds an error receipt for the previous one.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 2 step 1"
+      }
+    },
+    {
+      "n": 9,
+      "from": "sa",
+      "to": "sa",
+      "label": "Sign closed mandates with agent_sk",
+      "detail": "The agent signs closed Checkout and Payment Mandates as key-binding JWTs with the key named in cnf. The checkout_jwt hash links them, and sd_hash binds each to its open parent. It discloses only what the verifier needs.",
+      "payload": {
+        "format": "sd-jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate signed by the agent with agent_sk (the key in cnf).\n# sd_hash binds it to the user-signed open mandate it extends.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791760000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"c1d2e3f4\",\n    \"sd_hash\": \"hash-of-the-open-mandate-SD-JWT\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosure\": [\n    \"FW6M...Idw\",\n    {\n      \"vct\": \"mandate.payment.1\",\n      \"transaction_id\": \"Nv3Wq...X8\",\n      \"payee\": {\n        \"id\": \"merchant_1\",\n        \"name\": \"Example Outdoor Store\"\n      },\n      \"payment_amount\": {\n        \"amount\": 24900,\n        \"currency\": \"USD\"\n      },\n      \"payment_instrument\": {\n        \"id\": \"pi_7f3c\",\n        \"type\": \"card\",\n        \"description\": \"Card ending 4242\"\n      }\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 2 step 2"
+      }
+    },
+    {
+      "n": 10,
+      "from": "sa",
+      "to": "cp",
+      "label": "Present open and closed Payment Mandates",
+      "detail": "The Credential Provider verifies the chain, checks that the closed mandate keeps every value the open one fixed, evaluates each constraint and creates a token, possibly with the network.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Credential Provider and Network"
+      },
+      "failures": [
+        {
+          "condition": "The amount is outside payment.amount_range or the payee is not allowed",
+          "outcome": "Payment Receipt with status Error. The error the specification gives for a closed mandate that cannot be shown to meet the constraints is unresolved_constraint."
+        },
+        {
+          "condition": "The closed mandate is not signed by the key in cnf, or sd_hash does not match",
+          "outcome": "invalid_credential; terminal."
+        }
+      ]
+    },
+    {
+      "n": 11,
+      "from": "cp",
+      "to": "sa",
+      "label": "Payment token",
+      "detail": "Issued only after the chain verifies.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 2 step 3"
+      }
+    },
+    {
+      "n": 12,
+      "from": "sa",
+      "to": "merchant",
+      "label": "Token plus open and closed Checkout Mandates",
+      "detail": "The merchant checks the closed Checkout Mandate against the cart and evaluates every constraint in the open one, for example that each line item requirement is met without reusing an item.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Merchant"
+      },
+      "failures": [
+        {
+          "condition": "A line item cannot be matched, or the merchant is not in checkout.allowed_merchants",
+          "outcome": "Checkout Receipt with error unresolved_constraint; the agent may bring the user back to approve a closed mandate."
+        }
+      ]
+    },
+    {
+      "n": 13,
+      "from": "merchant",
+      "to": "mpp",
+      "label": "Initiate payment with the token and both hashes",
+      "detail": "The merchant passes the token, the checkout_jwt hash and the open Checkout Mandate hash.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 2 step 5"
+      }
+    },
+    {
+      "n": 14,
+      "from": "mpp",
+      "to": "sa",
+      "label": "Payment Receipt",
+      "detail": "The processor verifies the Payment Mandates in the token and both bindings, then signs the receipt. It also goes to the Credential Provider and the network.",
+      "payload": {
+        "format": "jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Payment Receipt JWT payload, signed by the Merchant Payment Processor (payment_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://processor.example\",\n  \"iat\": 1791720030,\n  \"reference\": \"k9Pq...hash-of-closed-payment-mandate\",\n  \"payment_id\": \"pay_2b71\",\n  \"psp_confirmation_id\": \"psp_88a1\",\n  \"network_confirmation_id\": \"net_51c0\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 2 steps 6 and 7"
+      }
+    },
+    {
+      "n": 15,
+      "from": "merchant",
+      "to": "sa",
+      "label": "Checkout Receipt",
+      "detail": "Signed by the merchant, referencing the hash of the closed Checkout Mandate.",
+      "payload": {
+        "format": "jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Checkout Receipt JWT payload, signed by the Merchant (checkout_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://outdoor.example\",\n  \"iat\": 1791720031,\n  \"reference\": \"r4Tz...hash-of-closed-checkout-mandate\",\n  \"order_id\": \"ord_6610\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Not Present, Phase 2 step 7"
+      }
+    },
+    {
+      "n": 16,
+      "from": "sa",
+      "to": "sa",
+      "label": "Store the tuple and narrow the open mandate",
+      "detail": "The agent stores the open mandate, the closed mandate and the receipt together, and reduces the open mandate's scope, often so it cannot be presented again. Budget and recurrence constraints allow bounded reuse.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Action Authorization"
+      }
+    }
+  ],
+  "sources": [
+    "src-ap2-flows",
+    "src-ap2-spec-v02",
+    "src-ap2-agent-authorization",
+    "src-ap2-schema-open-checkout",
+    "src-ap2-schema-open-payment",
+    "src-ap2-checkout-mandate-doc"
+  ]
+}

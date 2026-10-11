@@ -1,0 +1,320 @@
+{
+  "id": "ap2-human-present",
+  "protocol": "ap2",
+  "title": "AP2 v0.2 human present: the user signs closed mandates on a Trusted Surface",
+  "summary": "The direct mode. The merchant signs the checkout, the user approves the exact Checkout and Payment Mandates on a non-agentic Trusted Surface, the Credential Provider verifies the Payment Mandate and issues a token, the merchant and its processor verify the hash bindings, and both sides return signed receipts.",
+  "specVersion": "v0.2",
+  "specVersionDate": "2026-04-28",
+  "actors": [
+    {
+      "id": "user",
+      "label": "User",
+      "kind": "human"
+    },
+    {
+      "id": "sa",
+      "label": "Shopping Agent",
+      "kind": "agent"
+    },
+    {
+      "id": "ts",
+      "label": "Trusted Surface",
+      "kind": "trusted-surface"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "cp",
+      "label": "Credential Provider",
+      "kind": "wallet"
+    },
+    {
+      "id": "network",
+      "label": "Network",
+      "kind": "network"
+    },
+    {
+      "id": "mpp",
+      "label": "Merchant Payment Processor",
+      "kind": "psp"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "user",
+      "to": "sa",
+      "label": "Start shopping",
+      "detail": "The user asks the Shopping Agent to find and buy something. AP2 defines nothing about this exchange; the flows in the specification assume enrollment and any user credential already exist.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 1 step 1"
+      }
+    },
+    {
+      "n": 2,
+      "from": "sa",
+      "to": "merchant",
+      "label": "Build a cart over the commerce protocol",
+      "detail": "The agent browses and assembles a cart. Catalog, cart and checkout calls belong to the surrounding commerce protocol, for example UCP; AP2 leaves them out of scope.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Agentic Payment Protocol (v0.2), scope"
+      },
+      "failures": [
+        {
+          "condition": "The merchant does not accept mandates for this action",
+          "outcome": "It can answer mandates_not_supported, a signal to fall back to a non-agentic flow."
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "merchant",
+      "to": "sa",
+      "label": "Signed checkout (checkout_jwt); mandate required",
+      "detail": "The merchant creates the checkout, signs it as a JWT and says a mandate is required to continue. The specification text asks for a non-deterministic signature such as ECDSA here, while the security considerations allow a deterministic one with enough salt (issue 268).",
+      "payload": {
+        "format": "jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# checkout_jwt: a JWT signed by the merchant. AP2 does not define the payload;\n# it comes from the commerce protocol (a UCP Checkout object when AP2 runs inside UCP).\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"JWT\",\n    \"kid\": \"merchant-key-1\"\n  },\n  \"payload\": \"<Checkout object from the commerce protocol>\",\n  \"signature\": \"MEUCIQ...\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Checkout Mandate"
+      },
+      "failures": [
+        {
+          "condition": "The cart changes after this point",
+          "outcome": "The merchant will reject any mandate whose checkout_hash does not match its latest checkout_jwt."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "sa",
+      "to": "cp",
+      "label": "Fetch instrument options",
+      "detail": "The agent asks the Credential Provider, for example a wallet or a network, for the instruments it can use, and picks one. AP2 defines no message format for this call.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 1 step 4"
+      }
+    },
+    {
+      "n": 5,
+      "from": "sa",
+      "to": "ts",
+      "label": "Request approval of Checkout and Payment Mandate Content",
+      "detail": "The agent assembles the unsigned content of a closed Checkout Mandate and a closed Payment Mandate and hands it to a Trusted Surface. The surface is external under the User Credential model or internal under the Trusted Agent Provider model.",
+      "payload": {
+        "format": "json",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n{\n  \"checkout_mandate_content\": {\n    \"vct\": \"mandate.checkout.1\",\n    \"checkout_jwt\": \"eyJhbGciOiJFUzI1NiIs...\",\n    \"checkout_hash\": \"Nv3Wq...X8\"\n  },\n  \"payment_mandate_content\": {\n    \"vct\": \"mandate.payment.1\",\n    \"transaction_id\": \"Nv3Wq...X8\",\n    \"payee\": {\n      \"id\": \"merchant_1\",\n      \"name\": \"Example Outdoor Store\",\n      \"website\": \"https://outdoor.example\"\n    },\n    \"payment_amount\": {\n      \"amount\": 27999,\n      \"currency\": \"USD\"\n    },\n    \"payment_instrument\": {\n      \"id\": \"pi_7f3c\",\n      \"type\": \"card\",\n      \"description\": \"Card ending 4242\"\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 2 step 1"
+      }
+    },
+    {
+      "n": 6,
+      "from": "ts",
+      "to": "user",
+      "label": "Show the content; authenticate and get consent",
+      "detail": "The Trusted Surface renders the exact checkout and payment and authenticates the user, for example with a biometric. It must be non-agentic: no language model decides what the user sees.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Agentic vs Non-Agentic"
+      },
+      "failures": [
+        {
+          "condition": "The user declines",
+          "outcome": "No mandate is signed and nothing is presented."
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "from": "ts",
+      "to": "ts",
+      "label": "Sign closed mandates with user_sk",
+      "detail": "The surface signs mandate.checkout.1 and mandate.payment.1. The hash of checkout_jwt appears in both (checkout_hash and transaction_id), which links them for good. Under the Trusted Agent Provider model the key belongs to the agent provider and must stay out of the agent's reach.",
+      "payload": {
+        "format": "sd-jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate as an SD-JWT signed with user_sk (Trusted Surface).\n# transaction_id equals checkout_hash: both are the hash of checkout_jwt.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791720000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"a8b7c6d5\",\n    \"sd_hash\": \"uixo...0Ck\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosure\": [\n    \"FW6M...Idw\",\n    {\n      \"vct\": \"mandate.payment.1\",\n      \"transaction_id\": \"Nv3Wq...X8\",\n      \"payee\": {\n        \"id\": \"merchant_1\",\n        \"name\": \"Example Outdoor Store\"\n      },\n      \"payment_amount\": {\n        \"amount\": 27999,\n        \"currency\": \"USD\"\n      },\n      \"payment_instrument\": {\n        \"id\": \"pi_7f3c\",\n        \"type\": \"card\",\n        \"description\": \"Card ending 4242\"\n      }\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 2 step 3"
+      }
+    },
+    {
+      "n": 8,
+      "from": "ts",
+      "to": "sa",
+      "label": "Return the signed mandates",
+      "detail": "The surface passes both closed mandates back to the agent.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 2 step 4"
+      }
+    },
+    {
+      "n": 9,
+      "from": "sa",
+      "to": "cp",
+      "label": "Present the closed Payment Mandate",
+      "detail": "The Credential Provider verifies the mandate under the Delegate SD-JWT rules and checks its content before it releases any credential.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Credential Provider and Network"
+      },
+      "failures": [
+        {
+          "condition": "The signature or chain does not verify",
+          "outcome": "Payment Receipt with status Error and error invalid_credential; terminal."
+        },
+        {
+          "condition": "The mandate does not approve this payment",
+          "outcome": "Payment Receipt with error invalid_mandate; terminal."
+        }
+      ]
+    },
+    {
+      "n": 10,
+      "from": "cp",
+      "to": "network",
+      "label": "Share the mandate, get a scoped credential (optional)",
+      "detail": "The Credential Provider may pass the Payment Mandate to the payment network and receive a purchase credential scoped to this transaction, also called a token. The network then verifies the mandate under the same rules.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 2 step 5"
+      }
+    },
+    {
+      "n": 11,
+      "from": "cp",
+      "to": "sa",
+      "label": "Payment token",
+      "detail": "The token is released only after a final Payment Mandate is verified, which limits the damage if an agent or a token is stolen.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/security_and_privacy_considerations.md",
+        "section": "Payment Credential Theft"
+      }
+    },
+    {
+      "n": 12,
+      "from": "sa",
+      "to": "merchant",
+      "label": "Token plus closed Checkout Mandate",
+      "detail": "The agent completes the checkout with the token and the user-signed Checkout Mandate.",
+      "payload": {
+        "format": "sd-jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Checkout Mandate sent to the merchant with the payment token.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"7VLY...y34\"\n      }\n    ],\n    \"iat\": 1791720010,\n    \"aud\": \"merchant\",\n    \"nonce\": \"b9c8d7e6\",\n    \"sd_hash\": \"FzLo...JN8\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosures\": [\n    [\n      \"w-n1...Wow\",\n      \"checkout_jwt\",\n      \"eyJhbGciOiJFUzI1NiIs...\"\n    ],\n    [\n      \"szhp...Sw\",\n      {\n        \"_sd\": [\n          \"3A9U...FFM\"\n        ],\n        \"vct\": \"mandate.checkout.1\",\n        \"checkout_hash\": \"Nv3Wq...X8\"\n      }\n    ]\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Merchant"
+      },
+      "failures": [
+        {
+          "condition": "The hash of the merchant's checkout_jwt does not equal checkout_hash",
+          "outcome": "The merchant returns a Checkout Receipt JWT with status Error."
+        },
+        {
+          "condition": "A verification step fails for any other reason",
+          "outcome": "The merchant must return a Checkout Receipt JWT carrying the error."
+        }
+      ]
+    },
+    {
+      "n": 13,
+      "from": "merchant",
+      "to": "mpp",
+      "label": "Initiate payment with the token and the checkout_jwt hash",
+      "detail": "The merchant has checked the mandate against the current cart. For a pull payment it asks its processor to charge; for a push method it instead waits for confirmation that funds were sent.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md",
+        "section": "Human Present, Phase 2 step 7"
+      }
+    },
+    {
+      "n": 14,
+      "from": "mpp",
+      "to": "mpp",
+      "label": "Verify the Payment Mandate inside the token",
+      "detail": "The processor checks that the credential is scoped to this checkout, for example by finding the closed Payment Mandate inside the token and matching its transaction_id to the checkout_jwt hash.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Merchant Payment Processor"
+      },
+      "failures": [
+        {
+          "condition": "transaction_id does not match the checkout_jwt hash",
+          "outcome": "The payment is refused and a Payment Receipt with status Error goes back."
+        }
+      ]
+    },
+    {
+      "n": 15,
+      "from": "mpp",
+      "to": "sa",
+      "label": "Payment Receipt (also to the Credential Provider and Network)",
+      "detail": "The processor signs a Payment Receipt whose reference is the hash of the closed Payment Mandate.",
+      "payload": {
+        "format": "jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Payment Receipt JWT payload, signed by the Merchant Payment Processor (payment_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://processor.example\",\n  \"iat\": 1791720030,\n  \"reference\": \"k9Pq...hash-of-closed-payment-mandate\",\n  \"payment_id\": \"pay_2b71\",\n  \"psp_confirmation_id\": \"psp_88a1\",\n  \"network_confirmation_id\": \"net_51c0\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/payment_receipt.json"
+      }
+    },
+    {
+      "n": 16,
+      "from": "merchant",
+      "to": "sa",
+      "label": "Checkout Receipt",
+      "detail": "The merchant signs a Checkout Receipt whose reference is the hash of the closed Checkout Mandate. With both receipts and both mandates, a dispute verifier can rebuild what the user approved.",
+      "payload": {
+        "format": "jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Checkout Receipt JWT payload, signed by the Merchant (checkout_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://outdoor.example\",\n  \"iat\": 1791720031,\n  \"reference\": \"r4Tz...hash-of-closed-checkout-mandate\",\n  \"order_id\": \"ord_6610\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/checkout_receipt.json"
+      }
+    }
+  ],
+  "sources": [
+    "src-ap2-flows",
+    "src-ap2-spec-v02",
+    "src-ap2-agent-authorization",
+    "src-ap2-security",
+    "src-ap2-schema-checkout",
+    "src-ap2-schema-payment",
+    "src-ap2-schema-receipts"
+  ]
+}

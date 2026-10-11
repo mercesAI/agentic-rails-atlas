@@ -1,0 +1,20 @@
+flowchart LR
+  subgraph V1["v0.1 (2025-09-16)"]
+    IM["IntentMandate<br/>natural_language_description, merchants, skus,<br/>requires_refundability, intent_expiry"]
+    CM["CartMandate<br/>CartContents with W3C PaymentRequest<br/>merchant_authorization JWT with cart_hash"]
+    PM1["PaymentMandate<br/>payment_mandate_contents<br/>user_authorization (VP with KB-JWT)"]
+    IM --> CM --> PM1
+  end
+  subgraph V2["v0.2 (2026-04-28)"]
+    OCM["Open Checkout Mandate<br/>mandate.checkout.open.1<br/>constraints + cnf"]
+    OPM["Open Payment Mandate<br/>mandate.payment.open.1<br/>constraints + cnf"]
+    CCM["Closed Checkout Mandate<br/>mandate.checkout.1<br/>checkout_jwt + checkout_hash"]
+    CPM["Closed Payment Mandate<br/>mandate.payment.1<br/>transaction_id, payee, payment_amount"]
+    OCM -- "sd_hash" --> CCM
+    OPM -- "sd_hash" --> CPM
+    OPM -. "payment.reference" .-> OCM
+    CPM -. "transaction_id = checkout_hash" .-> CCM
+  end
+  IM -. "replaced by constraints" .-> OCM
+  CM -. "replaced by merchant-signed checkout_jwt" .-> CCM
+  PM1 -. "split into closed and open forms" .-> CPM

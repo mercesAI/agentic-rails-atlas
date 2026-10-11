@@ -1,0 +1,10 @@
+{
+  "id": "ap2-mandate-chain",
+  "protocol": "ap2",
+  "type": "other",
+  "title": "Mandate chain and hash bindings",
+  "caption": "Four bindings hold an AP2 purchase together. checkout_hash and transaction_id are both the hash of the merchant-signed checkout_jwt. cnf names the agent key that may close an open mandate, and sd_hash ties each closed mandate to its open parent. payment.reference links the two open mandates. Receipt references point to the closed mandates.",
+  "alt": "Flowchart. The merchant-signed checkout_jwt is hashed with sha-256 or the _sd_alg algorithm. The hash becomes checkout_hash in the Closed Checkout Mandate and transaction_id in the Closed Payment Mandate. In the open group, the Open Checkout Mandate and Open Payment Mandate both carry constraints and cnf with the agent key; the open checkout digest becomes conditional_transaction_id in payment.reference of the open payment mandate. Each open mandate is linked to its closed mandate by sd_hash in the key-binding JWT. The hash of the closed Checkout Mandate is the Checkout Receipt reference and the hash of the closed Payment Mandate is the Payment Receipt reference.",
+  "sourceOfTruth": { "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md", "label": "AP2 Agent Authorization, Mandate Structure" },
+  "sources": ["src-ap2-schema-checkout", "src-ap2-schema-payment", "src-ap2-schema-open-payment", "src-ap2-agent-authorization", "src-ap2-spec-v02", "src-ap2-flows"]
+}

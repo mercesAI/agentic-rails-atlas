@@ -1,0 +1,50 @@
+sequenceDiagram
+  accTitle: AP2 v0.2 human not present: the agent closes user-signed open mandates
+  accDescr: Sequence diagram: AP2 v0.2 human not present: the agent closes user-signed open mandates. 6 participants: User, Shopping Agent, Trusted Surface, Merchant, Credential Provider, and Merchant Payment Processor. 16 steps, 10 crossing a trust boundary, 4 failure branches. Based on ap2 v0.2 (2026-04-28). Step 1: User to Shopping Agent: Set a shopping task. Step 2: Shopping Agent to Trusted Surface: Request approval of open Mandate Content. This step crosses a trust boundary. If A constraint type the verifier will not know is included: Every verifier must fail it later with unresolved_constraint. Step 3: Trusted Surface to User: Show the constraints authenticate and get consent. Step 4: Trusted Surface to Trusted Surface: Sign open mandates with user_sk. Step 5: Trusted Surface to Shopping Agent: Return the open mandates the user leaves. This step crosses a trust boundary. Step 6: Shopping Agent to Merchant: Build a cart autonomously. This step crosses a trust boundary. Step 7: Merchant to Shopping Agent: Signed checkout (checkout_jwt) mandate required. This step crosses a trust boundary. Step 8: Shopping Agent to Shopping Agent: Select open mandates that fit. Step 9: Shopping Agent to Shopping Agent: Sign closed mandates with agent_sk. Step 10: Shopping Agent to Credential Provider: Present open and closed Payment Mandates. This step crosses a trust boundary. If The amount is outside payment.amount_range or the payee is not allowed: Payment Receipt with status Error. The error the specification gives for a closed mandate that cannot be shown to meet the constraints is unresolved_constraint. If The closed mandate is not signed by the key in cnf, or sd_hash does not match: invalid_credential terminal. Step 11: Credential Provider to Shopping Agent: Payment token. This step crosses a trust boundary. Step 12: Shopping Agent to Merchant: Token plus open and closed Checkout Mandates. This step crosses a trust boundary. If A line item cannot be matched, or the merchant is not in checkout.allowed_merchants: Checkout Receipt with error unresolved_constraint the agent may bring the user back to approve a closed mandate. Step 13: Merchant to Merchant Payment Processor: Initiate payment with the token and both hashes. This step crosses a trust boundary. Step 14: Merchant Payment Processor to Shopping Agent: Payment Receipt. This step crosses a trust boundary. Step 15: Merchant to Shopping Agent: Checkout Receipt. This step crosses a trust boundary. Step 16: Shopping Agent to Shopping Agent: Store the tuple and narrow the open mandate.
+  autonumber
+  participant p_user as User
+  participant p_sa as Shopping Agent
+  participant p_ts as Trusted Surface
+  participant p_merchant as Merchant
+  participant p_cp as Credential Provider
+  participant p_mpp as Merchant Payment Processor
+  p_user->>p_sa: Set a shopping task
+  alt Expected path
+    p_sa->>p_ts: Request approval of open Mandate Content
+    Note over p_sa,p_ts: Crosses a trust boundary
+  else A constraint type the verifier will not know is included
+    Note over p_sa,p_ts: Every verifier must fail it later with unresolved_constraint.
+  end
+  p_ts->>p_user: Show the constraints#59; authenticate and get consent
+  p_ts->>p_ts: Sign open mandates with user_sk
+  p_ts-->>p_sa: Return the open mandates#59; the user leaves
+  Note over p_ts,p_sa: Crosses a trust boundary
+  p_sa->>p_merchant: Build a cart autonomously
+  Note over p_sa,p_merchant: Crosses a trust boundary
+  p_merchant-->>p_sa: Signed checkout (checkout_jwt)#59; mandate required
+  Note over p_merchant,p_sa: Crosses a trust boundary
+  p_sa->>p_sa: Select open mandates that fit
+  p_sa-->>p_sa: Sign closed mandates with agent_sk
+  alt Expected path
+    p_sa->>p_cp: Present open and closed Payment Mandates
+    Note over p_sa,p_cp: Crosses a trust boundary
+  else The amount is outside payment.amount_range or the payee is not allowed
+    Note over p_sa,p_cp: Payment Receipt with status Error. The error the specification gives for a closed mandate that cannot be shown to meet the constraints is unresolved_constraint.
+  else The closed mandate is not signed by the key in cnf, or sd_hash does not match
+    Note over p_sa,p_cp: invalid_credential#59; terminal.
+  end
+  p_cp-->>p_sa: Payment token
+  Note over p_cp,p_sa: Crosses a trust boundary
+  alt Expected path
+    p_sa->>p_merchant: Token plus open and closed Checkout Mandates
+    Note over p_sa,p_merchant: Crosses a trust boundary
+  else A line item cannot be matched, or the merchant is not in checkout.allowed_merchants
+    Note over p_sa,p_merchant: Checkout Receipt with error unresolved_constraint#59; the agent may bring the user back to approve a closed mandate.
+  end
+  p_merchant->>p_mpp: Initiate payment with the token and both hashes
+  Note over p_merchant,p_mpp: Crosses a trust boundary
+  p_mpp->>p_sa: Payment Receipt
+  Note over p_mpp,p_sa: Crosses a trust boundary
+  p_merchant->>p_sa: Checkout Receipt
+  Note over p_merchant,p_sa: Crosses a trust boundary
+  p_sa->>p_sa: Store the tuple and narrow the open mandate

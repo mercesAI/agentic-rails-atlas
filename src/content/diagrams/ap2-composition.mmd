@@ -1,0 +1,23 @@
+flowchart TB
+  AP2["AP2 v0.2<br/>signed mandates"]
+  UCP["UCP<br/>checkout protocol"]
+  X402["x402<br/>HTTP and A2A payments"]
+  VI["Mastercard Verifiable Intent<br/>(Agent Pay)"]
+  FIDO["FIDO Alliance<br/>Payments and Agentic Authentication groups"]
+  A2A["A2A<br/>transport of the samples"]
+  E8226["ERC-8226 (Draft)<br/>on-chain mandate"]
+  E8004["ERC-8004<br/>agent identity"]
+  TAP["Visa TAP"]
+  ACP["OpenAI ACP"]
+  MPPX["Stripe MPP"]
+  UCP -- "embeds: dev.ucp.common.payment.ap2_mandate" --> AP2
+  AP2 -- "a2a-x402 Embedded Flow (targets AP2 v0.1)" --> X402
+  AP2 -- "same vct values, different constraint prefixes" --- VI
+  FIDO -- "governs specification work" --> AP2
+  FIDO --- VI
+  AP2 -. "samples run over" .-> A2A
+  E8226 -. "on-chain analogue, no reference to AP2" .- AP2
+  E8226 -- "identity layer" --> E8004
+  AP2 -. "no documented link" .- TAP
+  AP2 -. "no documented link" .- ACP
+  AP2 -. "no documented link" .- MPPX

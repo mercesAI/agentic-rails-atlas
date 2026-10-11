@@ -1,0 +1,10 @@
+{
+  "id": "ap2-v01-v02-model",
+  "protocol": "ap2",
+  "type": "comparison",
+  "title": "From three mandates (v0.1) to two mandate types, open or closed (v0.2)",
+  "caption": "v0.1 chained an Intent Mandate, a merchant-signed Cart Mandate and a Payment Mandate. v0.2 removed Intent and Cart: a natural-language intent became machine-checkable constraints, and the cart became a merchant-signed checkout_jwt. Tutorials written in 2025 describe the v0.1 model.",
+  "alt": "Flowchart in two parts. The v0.1 part shows IntentMandate with natural_language_description, merchants, skus, requires_refundability and intent_expiry, leading to CartMandate with CartContents, a W3C PaymentRequest and a merchant_authorization JWT carrying cart_hash, leading to PaymentMandate with payment_mandate_contents and user_authorization. The v0.2 part shows Open Checkout Mandate (mandate.checkout.open.1, constraints and cnf) and Open Payment Mandate (mandate.payment.open.1) linked by payment.reference, each extended by sd_hash into Closed Checkout Mandate (mandate.checkout.1 with checkout_jwt and checkout_hash) and Closed Payment Mandate (mandate.payment.1 with transaction_id, payee, payment_amount), which are linked because transaction_id equals checkout_hash. Dotted arrows show that IntentMandate was replaced by constraints, CartMandate by the merchant-signed checkout_jwt, and the v0.1 PaymentMandate split into closed and open forms.",
+  "sourceOfTruth": { "url": "https://github.com/google-agentic-commerce/AP2/compare/v0.1.0...v0.2.0", "label": "AP2 tags v0.1.0 and v0.2.0" },
+  "sources": ["src-ap2-mandate-py-v01", "src-ap2-spec-v01", "src-ap2-schema-checkout", "src-ap2-schema-payment", "src-ap2-schema-open-checkout", "src-ap2-schema-open-payment", "src-ap2-gh-releases"]
+}

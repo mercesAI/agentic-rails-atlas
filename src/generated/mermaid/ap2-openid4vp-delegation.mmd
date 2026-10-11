@@ -1,0 +1,21 @@
+sequenceDiagram
+  accTitle: AP2 alternative path: User Credential delegation with OpenID4VP and the Digital Credentials API
+  accDescr: Sequence diagram: AP2 alternative path: User Credential delegation with OpenID4VP and the Digital Credentials API. 4 participants: Shopping Agent, Browser or OS (Digital Credentials API), Wallet (Trusted Surface), and User. 5 steps, 4 crossing a trust boundary, 1 failure branch. Based on ap2 v0.2 (2026-04-28). Step 1: Shopping Agent to Browser or OS (Digital Credentials API): OpenID4VP request with a delegate entry in transaction_data. This step crosses a trust boundary. Step 2: Browser or OS (Digital Credentials API) to Wallet (Trusted Surface): Route the request to the user's wallet. This step crosses a trust boundary. Step 3: Wallet (Trusted Surface) to User: Show the purchase authenticate. If No credential matches the DCQL query: No response is returned the agent cannot obtain a user-signed mandate this way. Step 4: Wallet (Trusted Surface) to Browser or OS (Digital Credentials API): Authorization response: vp_token with key binding over delegate_payload. This step crosses a trust boundary. Step 5: Browser or OS (Digital Credentials API) to Shopping Agent: Return the response to the agent. This step crosses a trust boundary.
+  autonumber
+  participant p_sa as Shopping Agent
+  participant p_platform as Browser or OS (Digital Credentials API)
+  participant p_wallet as Wallet (Trusted Surface)
+  participant p_user as User
+  p_sa->>p_platform: OpenID4VP request with a delegate entry in transaction_data
+  Note over p_sa,p_platform: Crosses a trust boundary
+  p_platform->>p_wallet: Route the request to the user#39;s wallet
+  Note over p_platform,p_wallet: Crosses a trust boundary
+  alt Expected path
+    p_wallet->>p_user: Show the purchase#59; authenticate
+  else No credential matches the DCQL query
+    Note over p_wallet,p_user: No response is returned#59; the agent cannot obtain a user-signed mandate this way.
+  end
+  p_wallet->>p_platform: Authorization response: vp_token with key binding over delegate_payload
+  Note over p_wallet,p_platform: Crosses a trust boundary
+  p_platform-->>p_sa: Return the response to the agent
+  Note over p_platform,p_sa: Crosses a trust boundary

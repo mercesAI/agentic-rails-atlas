@@ -1,0 +1,72 @@
+{
+  "id": "ap2-failure-mandates-not-supported",
+  "protocol": "ap2",
+  "title": "AP2 failure: mandates_not_supported and fallback to a non-agentic flow",
+  "summary": "A verifier that does not use mandates for an action answers mandates_not_supported. The agent hands the purchase back to the user.",
+  "specVersion": "v0.2",
+  "specVersionDate": "2026-04-28",
+  "actors": [
+    {
+      "id": "user",
+      "label": "User",
+      "kind": "human"
+    },
+    {
+      "id": "sa",
+      "label": "Shopping Agent",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "sa",
+      "to": "merchant",
+      "label": "Present a Checkout Mandate",
+      "detail": "The agent tries to complete a checkout with a mandate at a merchant that has not implemented AP2 for this action.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Action Authorization"
+      }
+    },
+    {
+      "n": 2,
+      "from": "merchant",
+      "to": "sa",
+      "label": "Checkout Receipt: status Error, mandates_not_supported",
+      "detail": "Not terminal for the purchase: it may signal a fallback to non-agentic flows.",
+      "payload": {
+        "format": "jwt",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Checkout Receipt JWT payload (checkout_receipt.json).\n{\n  \"status\": \"Error\",\n  \"iss\": \"https://shop.example\",\n  \"iat\": 1791760300,\n  \"reference\": \"r4Tz...hash-of-presented-mandate\",\n  \"error\": \"mandates_not_supported\",\n  \"error_description\": \"This merchant does not accept mandates for checkout.\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Errors"
+      }
+    },
+    {
+      "n": 3,
+      "from": "sa",
+      "to": "user",
+      "label": "Hand the checkout to the user",
+      "detail": "The agent hands over to a flow the user completes without mandates, for example the merchant's own checkout page. AP2 does not define this handover.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/agent_authorization.md",
+        "section": "Errors"
+      }
+    }
+  ],
+  "sources": [
+    "src-ap2-agent-authorization",
+    "src-ap2-schema-receipts"
+  ]
+}

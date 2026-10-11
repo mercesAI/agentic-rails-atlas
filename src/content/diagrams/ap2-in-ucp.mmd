@@ -1,0 +1,17 @@
+sequenceDiagram
+  autonumber
+  participant P as Platform (agent)
+  participant B as Business (UCP merchant)
+  participant TS as Trusted Surface
+  participant CP as Credential Provider
+  P->>B: GET /.well-known/ucp
+  B-->>P: capabilities include dev.ucp.common.payment.ap2_mandate, keys[]
+  P->>B: create or update checkout
+  B-->>P: checkout with ap2.merchant_authorization (detached JWS, JCS)
+  P->>P: verify merchant signature before showing the checkout
+  P->>TS: Checkout and Payment Mandate Content
+  TS-->>P: signed mandates (SD-JWT with key binding)
+  P->>CP: Payment Mandate
+  CP-->>P: token carrying the Payment Mandate
+  P->>B: complete with ap2.checkout_mandate and payment.instruments[*].credential.token
+  B-->>P: order, or an error such as mandate_required or mandate_scope_mismatch

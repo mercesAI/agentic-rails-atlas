@@ -1,0 +1,19 @@
+flowchart TB
+  CJ["checkout_jwt<br/>signed by the Merchant"]
+  H(["hash of checkout_jwt<br/>sha-256 or _sd_alg"])
+  CJ --> H
+  subgraph OPEN["Open mandates, signed by the user (human not present)"]
+    OC["Open Checkout Mandate<br/>constraints, cnf = agent key"]
+    OP["Open Payment Mandate<br/>constraints, cnf = agent key<br/>payment.reference"]
+    OC -- "digest becomes conditional_transaction_id" --> OP
+  end
+  subgraph CLOSED["Closed mandates, signed by the user or by the agent key in cnf"]
+    CC["Closed Checkout Mandate<br/>checkout_jwt, checkout_hash"]
+    CPM["Closed Payment Mandate<br/>transaction_id"]
+  end
+  H -- "checkout_hash" --> CC
+  H -- "transaction_id" --> CPM
+  OC -- "sd_hash in the key-binding JWT" --> CC
+  OP -- "sd_hash in the key-binding JWT" --> CPM
+  CC -- "hash, computed like sd_hash" --> CR["Checkout Receipt reference"]
+  CPM -- "hash, computed like sd_hash" --> PR["Payment Receipt reference"]

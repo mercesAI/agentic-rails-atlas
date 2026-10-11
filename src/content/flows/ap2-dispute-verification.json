@@ -1,0 +1,122 @@
+{
+  "id": "ap2-dispute-verification",
+  "protocol": "ap2",
+  "title": "AP2 alternative path: verifying mandates and receipts in a dispute",
+  "summary": "After the fact, a dispute verifier collects both mandates and both receipts, recomputes the hash bindings and checks each receipt reference. AP2 defines these checks but leaves retention, retrieval and adjudication to others.",
+  "specVersion": "v0.2",
+  "specVersionDate": "2026-04-28",
+  "actors": [
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "cp",
+      "label": "Credential Provider",
+      "kind": "wallet"
+    },
+    {
+      "id": "verifier",
+      "label": "Dispute verifier",
+      "kind": "network"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "merchant",
+      "to": "verifier",
+      "label": "Checkout Mandate and Checkout Receipt",
+      "detail": "Either the Shopping Agent or the Merchant may supply them. Retention and retrieval are out of scope; the specification suggests a future lookup keyed on transaction_id.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Dispute Evidence"
+      }
+    },
+    {
+      "n": 2,
+      "from": "cp",
+      "to": "verifier",
+      "label": "Payment Mandate and Payment Receipt",
+      "detail": "The Shopping Agent, Credential Provider, Network or Merchant Payment Processor may supply them.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Dispute Evidence"
+      }
+    },
+    {
+      "n": 3,
+      "from": "verifier",
+      "to": "verifier",
+      "label": "Verify the Checkout Mandate under the Merchant rules",
+      "detail": "Signature chain and, for an autonomous purchase, every open-mandate constraint.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Dispute"
+      },
+      "failures": [
+        {
+          "condition": "The mandate does not verify",
+          "outcome": "It cannot serve as evidence of what the user approved."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "verifier",
+      "to": "verifier",
+      "label": "Recompute the hash of the included checkout_jwt",
+      "detail": "The recomputed value must equal checkout_hash.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Dispute"
+      }
+    },
+    {
+      "n": 5,
+      "from": "verifier",
+      "to": "verifier",
+      "label": "Match the Checkout Receipt reference",
+      "detail": "The receipt reference must equal the hash of the closed Checkout Mandate, computed the same way as sd_hash.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Dispute"
+      }
+    },
+    {
+      "n": 6,
+      "from": "verifier",
+      "to": "verifier",
+      "label": "Verify the Payment Mandate with checkout_hash",
+      "detail": "Under the Merchant Payment Processor rules, using checkout_hash from the Checkout Mandate as the expected transaction_id.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Dispute"
+      }
+    },
+    {
+      "n": 7,
+      "from": "verifier",
+      "to": "verifier",
+      "label": "Match the Payment Receipt reference",
+      "detail": "The reference must equal the hash of the closed Payment Mandate. When every check passes, the mandates show what the user and each role saw. Liability is still decided by network rules.",
+      "crossesTrustBoundary": false,
+      "specRef": {
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
+        "section": "Verification: Dispute"
+      }
+    }
+  ],
+  "sources": [
+    "src-ap2-spec-v02",
+    "src-ap2-agent-authorization",
+    "src-ap2-faq"
+  ]
+}
