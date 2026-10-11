@@ -1,0 +1,354 @@
+{
+  "protocol": "stripe-mpp",
+  "summary": "MPP binds every challenge parameter to its id, makes ids and proofs single use, forbids side effects before payment and requires TLS, so tampering and replay are covered at protocol level. What it leaves to clients is deciding whether a challenge is honest, because a malicious server can bind a bad price as easily as a good one. Credentials are bearer tokens. Loss limits, refunds and disputes come from the rail. The worst incidents so far were SDK bugs, not protocol flaws: four mppx advisories and one Rust advisory in 2026, all fixed.",
+  "threats": [
+    {
+      "id": "stripe-mpp-t1",
+      "stride": "S",
+      "title": "Malicious or spoofed server asks for the wrong payment",
+      "description": "A server, a mirror or an injected tool result issues a validly bound challenge that names its own recipient or an inflated amount, with a reassuring description.",
+      "preconditions": [
+        "The client pays whatever a challenge asks",
+        "No recipient allowlist or price ceiling"
+      ],
+      "impact": "The client pays the attacker; on-chain charges are final.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Binding only protects a challenge after the server issues it. Clients must check amount, recipient, currency and expires and ignore description, as the core requires; enforce an allowlist before signing.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-charge"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t2",
+      "stride": "I",
+      "title": "Leaked bearer credential is spent by someone else",
+      "description": "A credential copied from logs, an error message, analytics or a proxy is presented before the legitimate client uses it.",
+      "preconditions": [
+        "Credential logged or exposed in transit",
+        "Challenge still outstanding"
+      ],
+      "impact": "Whoever presents it first gets the paid resource; the payer has paid for someone else.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "The core forbids logging credentials and requires TLS 1.2 or later. Keep credentials in memory only and use short expires values.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t3",
+      "stride": "T",
+      "title": "Replay of a consumed challenge or proof",
+      "description": "The same credential is sent twice, concurrently or later, to obtain service twice or to settle twice.",
+      "preconditions": [
+        "Server does not record consumed ids atomically",
+        "Method proof not checked for single use"
+      ],
+      "impact": "Free service or double charge.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Ids are single use and methods must give single-use proofs; concurrent duplicates must settle at most once. mppx and the Rust SDK had replay bugs fixed in 0.4.8, 0.4.11 and 0.8.0.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-rs"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t4",
+      "stride": "T",
+      "title": "SPT replay through Stripe idempotency",
+      "description": "A stripe/charge implementation ignores Stripe's Idempotent-Replayed signal, so one SPT credential pays for several new challenges.",
+      "preconditions": [
+        "Server mppx before 0.4.11",
+        "Idempotency key not tied to the challenge"
+      ],
+      "impact": "Seller delivers several times for one payment (CVE-2026-34210).",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Use the idempotency key built from challenge id and SPT, treat Idempotent-Replayed as a replay, and upgrade mppx.",
+      "sources": [
+        "src-stripe-mpp-ghsa-34210",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t5",
+      "stride": "E",
+      "title": "Session close voucher accepted at the settled amount",
+      "description": "A close voucher equal to, not above, the settled amount was accepted, so an attacker could close or grief a channel for free.",
+      "preconditions": [
+        "Server mppx before 0.4.11"
+      ],
+      "impact": "Payee loses unsettled earnings or the channel is closed against its will (CVE-2026-34209).",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Implementation bug, fixed in mppx 0.4.11; servers must compare with less-than-or-equal and capture max(spent, settled) on close.",
+      "sources": [
+        "src-stripe-mpp-ghsa-34209",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t6",
+      "stride": "D",
+      "title": "Fee payer gas draining",
+      "description": "When the server sponsors fees, an attacker pads calldata or adds access lists so each sponsored transaction burns more gas than the policy expected.",
+      "preconditions": [
+        "feePayer true",
+        "Server mppx before 0.8.2"
+      ],
+      "impact": "Server's fee wallet drains (CVE-2026-63627, CVE-2026-63628).",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Cap calldata size and reject access lists for sponsored transactions; set a daily ceiling on the fee wallet.",
+      "sources": [
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-tempo-charge"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t7",
+      "stride": "I",
+      "title": "Shared cache stores a paid response",
+      "description": "A proxy or CDN caches a response to a request that used Payment-Authorization, which RFC 9111 does not protect the way it protects Authorization.",
+      "preconditions": [
+        "Intermediary caches by default",
+        "Server omits Cache-Control"
+      ],
+      "impact": "Paid content and receipts are served to other users.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Send no-store on 402 and private on receipts and on any response to a Payment-Authorization request.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t8",
+      "stride": "S",
+      "title": "Spoofed discovery metadata",
+      "description": "Discovery documents are unauthenticated, so an attacker publishes /openapi.json data with false prices or methods to lure agents.",
+      "preconditions": [
+        "Client trusts x-payment-info for decisions"
+      ],
+      "impact": "Agents route to an attacker or overpay.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Discovery is advisory and must not drive security decisions; the 402 challenge is authoritative.",
+      "sources": [
+        "src-stripe-mpp-discovery"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t9",
+      "stride": "D",
+      "title": "Channel liabilities that never end",
+      "description": "Channels and vouchers have no expiry, so deposits stay locked and unsettled vouchers stay claimable until someone closes the channel.",
+      "preconditions": [
+        "Client forgets to close",
+        "Server disappears"
+      ],
+      "impact": "Locked funds; late claims surprise the payer.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Servers should close idle channels; clients should track channels and force-close, waiting at least 16 minutes after requestClose.",
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t10",
+      "stride": "R",
+      "title": "Disputed delivery after an on-chain charge",
+      "description": "The client says it never got the resource; on stablecoin rails there is no chargeback and the receipt only proves payment.",
+      "preconditions": [
+        "Stablecoin method",
+        "Server returned an error after settling"
+      ],
+      "impact": "Payer bears the loss unless the seller refunds voluntarily.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "The charge intent forbids partial delivery before verification; keep receipts and logs and publish a refund policy. Card routes keep chargebacks.",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t11",
+      "stride": "I",
+      "title": "Public settlement reveals payer and payee",
+      "description": "Tempo and other chain methods settle on public ledgers that explorers index.",
+      "preconditions": [
+        "Chain-based method"
+      ],
+      "impact": "Spending patterns and counterparties are visible.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Use fresh addresses or card and Stripe methods where privacy matters; the core only asks methods to support pseudonymous options.",
+      "sources": [
+        "src-stripe-mpp-tempo-connection",
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "id": "stripe-mpp-t12",
+      "stride": "T",
+      "title": "Body swapped after payment",
+      "description": "A credential for a cheap request body is replayed with a different, more expensive body.",
+      "preconditions": [
+        "Challenge issued without digest",
+        "Non-idempotent request"
+      ],
+      "impact": "Client gets more than it paid for, or the server does work it did not price.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Use the digest parameter (RFC 9530) for requests with bodies and an Idempotency-Key.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "stripe-mpp-s1",
+      "title": "A tool result names a different recipient",
+      "preconditions": [
+        "An agent reads 402 responses relayed by a third-party tool",
+        "No recipient allowlist"
+      ],
+      "steps": [
+        "The tool rewrites the challenge from its own server, binding its own recipient",
+        "The agent sees a valid challenge and signs a Tempo transfer",
+        "The attacker's server returns a receipt for nothing"
+      ],
+      "impact": "Loss of the payment; no protocol refund on chain.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-charge"
+      ]
+    },
+    {
+      "id": "stripe-mpp-s2",
+      "title": "Fee wallet drained through sponsored transactions",
+      "preconditions": [
+        "Server offers feePayer true",
+        "mppx below 0.8.2"
+      ],
+      "steps": [
+        "Attacker requests many challenges",
+        "Each transaction it signs carries padded calldata or a large access list",
+        "The server co-signs and pays inflated fees"
+      ],
+      "impact": "The server's fee balance is spent without matching revenue.",
+      "sources": [
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-tempo-charge"
+      ]
+    },
+    {
+      "id": "stripe-mpp-s3",
+      "title": "Server vanishes mid-session",
+      "preconditions": [
+        "Open channel with a deposit",
+        "Server stops answering"
+      ],
+      "steps": [
+        "The client's close request times out",
+        "The client calls requestClose on chain",
+        "The server, if alive, can still settle its newest voucher during the grace period",
+        "After at least 15 minutes the client calls withdraw and recovers the rest"
+      ],
+      "impact": "Funds locked for the grace period; the payer loses at most what the server can still settle with vouchers it holds.",
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    }
+  ],
+  "research": [
+    {
+      "title": "A Formal Analysis of Agent Payment Protocols",
+      "date": "2026-08-30",
+      "finding": "Tamarin models of x402, MPP, ACP and AP2 with 40 previously undocumented formal-consistency findings across the four; the abstract does not break them out per protocol.",
+      "publicationId": "pub-jiang-2026-formal",
+      "sources": [
+        "src-stripe-mpp-arxiv-2609-00060"
+      ]
+    },
+    {
+      "title": "SoK: Security of Autonomous LLM Agents in Agentic Commerce",
+      "date": "2026-04-15",
+      "finding": "A systematization of agent commerce threats that includes MPP in its protocol set.",
+      "publicationId": "pub-mao-2026-sok",
+      "sources": [
+        "src-stripe-mpp-arxiv-2604-15367"
+      ]
+    },
+    {
+      "title": "Free-Riding the Agentic Web: A Systematic Security Analysis of x402 Payments",
+      "date": "2026-05-29",
+      "finding": "Attacks on x402 payment binding and delivery that apply by analogy to MPP charge implementations; the paper does not name MPP.",
+      "publicationId": "pub-ling-2026-freeriding",
+      "sources": [
+        "src-stripe-mpp-arxiv-other"
+      ]
+    }
+  ],
+  "cves": [
+    {
+      "id": "GHSA-8x4m-qw58-3pcx",
+      "date": "2026-03-26",
+      "summary": "Critical mppx advisory (before 0.4.8): several tempo/charge and tempo/session bypasses, including hash replay across modes and routes, free pull-mode charges, fee payer manipulation and voucher signature bypass. No CVE id.",
+      "severity": "critical",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-other"
+      ]
+    },
+    {
+      "id": "CVE-2026-34209",
+      "date": "2026-03-26",
+      "summary": "GHSA-mv9j-8jvg-j8mr: mppx before 0.4.11 accepted a session close voucher equal to the settled amount, closing or griefing a channel for free. Fixed in 0.4.11; NVD published 2026-03-31.",
+      "severity": "high",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-34209",
+        "src-stripe-mpp-nvd"
+      ]
+    },
+    {
+      "id": "CVE-2026-34210",
+      "date": "2026-03-26",
+      "summary": "GHSA-8mhj-rffc-rcvw: mppx before 0.4.11 ignored Stripe's Idempotent-Replayed header, so one SPT credential could be replayed. Fixed in 0.4.11; NVD published 2026-03-31.",
+      "severity": "medium",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-34210",
+        "src-stripe-mpp-nvd"
+      ]
+    },
+    {
+      "id": "GHSA-fxc9-7j2w-vx54",
+      "date": "2026-03-29",
+      "summary": "Critical advisory for the Rust crate mpp before 0.8.0: free and replayed charges, griefed sessions, fee payer manipulation and replayed stripe charges. No CVE id.",
+      "severity": "critical",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-rs"
+      ]
+    },
+    {
+      "id": "CVE-2026-63627",
+      "date": "2026-07-01",
+      "summary": "GHSA-727h-3vm5-qwq6: fee payer gas draining by calldata padding in mppx; fixed in 0.8.2.",
+      "severity": "medium",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-other"
+      ]
+    },
+    {
+      "id": "CVE-2026-63628",
+      "date": "2026-07-01",
+      "summary": "GHSA-vc9j-9wph-qghj: fee payer gas draining with access lists in mppx; fixed in 0.8.2.",
+      "severity": "medium",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-other"
+      ]
+    }
+  ],
+  "trustBoundaryDiagram": "stripe-mpp-context"
+}

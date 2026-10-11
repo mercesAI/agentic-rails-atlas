@@ -1,0 +1,205 @@
+{
+  "protocol": "stripe-mpp",
+  "notLegalAdvice": true,
+  "summary": "MPP mixes rails, so the rules follow the method. Card and Stripe methods inherit card law, PSD2 strong customer authentication and network rules; Tempo and other stablecoin methods inherit stablecoin, anti-money-laundering, travel rule and sanctions rules. The core itself has no identity or screening layer and forbids requiring accounts for payment, which pushes screening duties onto the parties that settle. Rows are dated; check each source before relying on it.",
+  "rows": [
+    {
+      "jurisdiction": "US",
+      "topic": "stablecoin",
+      "text": "Tempo charges settle in TIP-20 stablecoins. The GENIUS Act (Public Law 119-27, 2025-07-18) regulates payment stablecoins and takes effect on the earlier of 2027-01-18 or 120 days after final regulations.",
+      "sources": [
+        "src-policy-genius-act",
+        "src-stripe-mpp-tempo-tip20"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "stablecoin",
+      "text": "As of 2026-10-11 only proposed GENIUS Act rules were found; the OCC said it aimed to finalize by November 2026.",
+      "sources": [
+        "src-policy-occ-genius-proposal",
+        "src-policy-pymnts-occ-november"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "aml",
+      "text": "The MPP core has no KYC or sanctions layer and must not require accounts for payment. OFAC says sanctions obligations are the same for digital and fiat currency transactions, so sellers and settling parties screen on their own.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-policy-ofac-faq-virtual"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "aml",
+      "text": "FinCEN guidance FIN-2019-G001 treats hosted wallet providers as money transmitters; how it applies to an MPP server that only receives payer-signed transfers is not addressed.",
+      "sources": [
+        "src-policy-fincen-2019-cvc"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "liability",
+      "text": "Card charges through the stripe or card method fall under Regulation Z, which caps cardholder liability for unauthorized use at 50 USD and turns on actual, implied or apparent authority, a test agent payments make harder.",
+      "sources": [
+        "src-policy-regz-1026-12",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "liability",
+      "text": "Regulation E covers unauthorized electronic fund transfers from accounts; whether a Tempo wallet transfer counts is unclear, and Stripe stablecoin payments have no disputes.",
+      "sources": [
+        "src-policy-rege-1005-2",
+        "src-stripe-mpp-stripe-stablecoin"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "stablecoin",
+      "text": "MiCA applies to e-money tokens and crypto-asset service providers; its transitional period for providers ended on 2026-07-01, which matters for stablecoin methods offered to EU users.",
+      "sources": [
+        "src-policy-eu-mica",
+        "src-policy-amf-mica-end"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "aml",
+      "text": "The Transfer of Funds Regulation (EU) 2023/1113 applies the travel rule to crypto-asset transfers between providers. MPP credentials carry only an optional payer DID, so originator data must come from the providers.",
+      "sources": [
+        "src-policy-eu-tfr",
+        "src-stripe-mpp-core-01"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "sca",
+      "text": "Card charges inside the EU fall under PSD2 strong customer authentication and its RTS; the stripe method may trigger 3DS while the SPT is created, before any MPP request.",
+      "sources": [
+        "src-policy-eu-psd2",
+        "src-policy-eu-rts-sca",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "ai-rules",
+      "text": "AI Act Article 50 transparency duties apply from 2026-08-02, and the Digital Omnibus (Regulation (EU) 2026/1744) moved Annex III high-risk obligations to 2027-12-02. Nothing in it is specific to agent payments.",
+      "sources": [
+        "src-policy-eu-ai-act",
+        "src-policy-eu-ai-omnibus"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "data-protection",
+      "text": "GDPR covers online identifiers. Card credentials in the card method can carry billing address, cardholder name and payment account reference, and public chain settlement exposes addresses.",
+      "sources": [
+        "src-policy-eu-gdpr",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "UK",
+      "topic": "aml",
+      "text": "The UK Money Laundering Regulations 2017 cover cryptoasset businesses and the travel rule, which reaches providers that settle MPP stablecoin payments for UK customers.",
+      "sources": [
+        "src-policy-uk-mlrs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "UK",
+      "topic": "liability",
+      "text": "The UK Payment Services Regulations 2017 tie liability to consent (regulation 67) and limit payer liability for unauthorized transactions (regulation 77), which applies to card-based MPP charges.",
+      "sources": [
+        "src-policy-uk-psrs-67",
+        "src-policy-uk-psrs-77"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "UK",
+      "topic": "ai-rules",
+      "text": "The FCA payments priorities (2026-03-25) include agentic AI, and HM Treasury consulted on modernising payment services regulation from 2026-07-14 to 2026-10-06.",
+      "sources": [
+        "src-policy-fca-payments-priorities",
+        "src-policy-hmt-mpsr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "CA",
+      "topic": "stablecoin",
+      "text": "Canada's Stablecoin Act in Bill C-15 received Royal Assent on 2026-03-26 and is expected to take effect in 2027.",
+      "sources": [
+        "src-policy-ca-c15",
+        "src-policy-dlapiper-c15"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "CA",
+      "topic": "liability",
+      "text": "The Retail Payment Activities Act has been fully in force since 2025-09-08, bringing payment service providers under Bank of Canada supervision.",
+      "sources": [
+        "src-policy-boc-rpaa"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "SG",
+      "topic": "stablecoin",
+      "text": "Digital payment token services need a licence under the Payment Services Act 2019 (statute text not read directly), and MAS has a finalised framework for single-currency stablecoins.",
+      "sources": [
+        "src-policy-sg-psa",
+        "src-policy-mas-stablecoin"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "SG",
+      "topic": "ai-rules",
+      "text": "MAS issued Guidelines on AI Risk Management for financial institutions on 2026-10-07, effective 2027-10-07, and plans to consult on agentic AI guidance in 2027.",
+      "sources": [
+        "src-policy-mas-ai-guidelines",
+        "src-policy-mas-ai-release"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "liability",
+      "text": "Card routes keep network rules: the card method carries an encrypted network token authorized by a Server Enabler, and card economics are unchanged; no MPP-specific card pricing or liability rule was published.",
+      "sources": [
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-visa-card"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "data-protection",
+      "text": "The stripe method keeps raw card data away from client and server, and the card method encrypts the token so neither can parse it, which the specs say reduces PCI DSS scope.",
+      "sources": [
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified"
+    }
+  ]
+}

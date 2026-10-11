@@ -1,0 +1,298 @@
+{
+  "protocol": "stripe-mpp",
+  "summary": "MPP natively binds payee and amount, makes challenges single use, and returns receipts. Budgets, consent, identity, revocation and disputes come from rails or from tools around the protocol. The best places for an independent controls layer are the client just before the SDK signs (mppx runs extensions there), the session channel inventory, and receipt reconciliation after the fact.",
+  "native": [
+    {
+      "protocol": "stripe-mpp",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The core payment is pseudonymous with an optional DID source; mppx adds RFC 9421 request attestation for Web Bot Auth and Visa TAP, and the card method allows optional TAP headers.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-card-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "agent-registration-kya",
+      "support": "none",
+      "note": "The core forbids requiring accounts for payment; any know-your-customer step belongs to a method (the stripe method needs Stripe accounts on both sides).",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "user-consent-capture",
+      "support": "partial",
+      "note": "Browser wallets should show the origin and ask for explicit confirmation; SPT creation may prompt 3DS or biometrics. No user mandate object.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "spending-caps",
+      "support": "partial",
+      "note": "Caps come from the rail: the session deposit, SPT usage limits, Tempo access key limits. The core has none.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "recipient and realm are bound into the challenge id; SPTs are scoped to the seller networkId; v2 session descriptors must match the payee.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "time-windows-expiry",
+      "support": "partial",
+      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at, but session channels and vouchers never expire.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "revocation",
+      "support": "partial",
+      "note": "No core revocation message; subscriptions cancel by method-specific means and a payer can force-close a channel.",
+      "sources": [
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "step-up-authentication",
+      "support": "external",
+      "note": "Method-specific: Stripe may prompt 3DS while creating an SPT; card methods carry network cryptograms.",
+      "sources": [
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Single-use challenge ids and proofs, Idempotency-Key, digest binding, and channel and EIP-712 domain binding in sessions.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "Payment-Receipt with a method reference on every paid response; session receipts add spent and acceptedCumulative, plus a final SSE event.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "dispute-support",
+      "support": "external",
+      "note": "Depends on the rail: card and stripe routes keep chargebacks; Stripe stablecoin payments have no disputes; on-chain charges are final.",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "reputation",
+      "support": "none",
+      "note": "No reputation layer; the discovery draft only mentions future on-chain anchoring compatible with ERC-8004.",
+      "sources": [
+        "src-stripe-mpp-discovery"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Public explorer data (MPPscan, Tempo chain) and the Stripe Dashboard for Stripe-settled payments; servers should rate-limit.",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "kill-switch",
+      "support": "none",
+      "note": "No protocol stop; a payer stops signing or force-closes, and an operator revokes keys at the wallet or disables a Stripe account.",
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "title": "No user mandate",
+      "description": "MPP has no object that records what a user allowed an agent to buy; AP2 or wallet policy must supply it.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-ap2-glossary"
+      ]
+    },
+    {
+      "title": "No protocol budget",
+      "description": "Limits exist only in rails (deposit, SPT, access keys) and SDK hooks.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "title": "Identity is an add-on",
+      "description": "Request attestation is an mppx feature, not part of the core draft.",
+      "sources": [
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "title": "Channels without expiry",
+      "description": "Open channels and unsettled vouchers persist until closed.",
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "title": "Rail-dependent disputes",
+      "description": "Stablecoin charges have no chargeback; refunds are seller policy.",
+      "sources": [
+        "src-stripe-mpp-stripe-stablecoin",
+        "src-stripe-mpp-intent-charge"
+      ]
+    }
+  ],
+  "controlPoints": [
+    {
+      "point": "before-authorization",
+      "what": "Decide whether to pay: recipient allowlists, price ceilings, method preference.",
+      "how": "Accept-Payment ordering plus a policy check on the decoded challenge; mppx extensions run before signing.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-mppx-repo"
+      ]
+    },
+    {
+      "point": "at-signing",
+      "what": "Bound the worst case.",
+      "how": "Small session deposits, SPT usage limits, Tempo access key limits, short expires.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ]
+    },
+    {
+      "point": "at-edge",
+      "what": "Recognize and rate-limit agents.",
+      "how": "Web Bot Auth or TAP attestation through mppx; Retry-After; 403 for policy denials after valid payment.",
+      "sources": [
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "point": "at-settlement",
+      "what": "Screen and reconcile.",
+      "how": "Stripe fraud tools for Stripe-settled payments; TIP-20 policy registry allow and block lists on Tempo.",
+      "sources": [
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-tempo-tip20"
+      ]
+    },
+    {
+      "point": "after-the-fact",
+      "what": "Audit and close.",
+      "how": "Store receipts, reconcile with chain data or the Stripe Dashboard, force-close idle channels.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-tempo-session"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "item": "Check amount, recipient, currency and expires before paying; ignore description.",
+      "why": "Binding does not stop a dishonest server.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "item": "Never log credentials; keep them in memory.",
+      "why": "They are bearer tokens.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "item": "Send no-store on 402 and private on paid responses.",
+      "why": "Shared caches do not protect Payment-Authorization.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "item": "Consume challenge ids atomically.",
+      "why": "Concurrent duplicates must settle once.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "item": "Run mppx 0.8.2 or later (Rust mpp 0.8.0 or later).",
+      "why": "Earlier versions have published bypasses.",
+      "sources": [
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-rs"
+      ]
+    },
+    {
+      "item": "Cap session deposits and track every open channel.",
+      "why": "Channels never expire; the deposit is the worst case.",
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "item": "Cap fee payer spend.",
+      "why": "Sponsored fees were drained in 2026 advisories.",
+      "sources": [
+        "src-stripe-mpp-ghsa-other"
+      ]
+    },
+    {
+      "item": "Use digest for requests with bodies.",
+      "why": "Ties the payment to the exact request.",
+      "sources": [
+        "src-stripe-mpp-core-01"
+      ]
+    }
+  ]
+}
