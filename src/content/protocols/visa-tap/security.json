@@ -1,0 +1,282 @@
+{
+  "protocol": "visa-tap",
+  "summary": "TAP proves that a key from a payment scheme's store signed this host and path, for a stated purpose, within 8 minutes. Everything else is trust placed in a party: Visa's non-public onboarding and its key store, the verifier's choice to keep nonces, and the merchant's handling of personal data. The minimum signature leaves the method, the query and the body unbound, body objects have no canonical form, and the published key store and examples do not line up. No CVE or advisory names TAP, and no academic attack on it has been published; the threats below come from reading the specification and the sample code.",
+  "threats": [
+    {
+      "id": "visa-tap-t1",
+      "stride": "S",
+      "title": "Stolen agent signing key",
+      "description": "An attacker who obtains an Agent Provider's private key signs requests that verify as a trusted agent, browsing or paying.",
+      "preconditions": [
+        "Access to the agent's key material",
+        "The key is still in the key store"
+      ],
+      "impact": "Requests from the attacker pass every TAP check; merchants extend agent-level trust to them.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "TAP specifies no revocation list or key status endpoint; removal from the key store or expiry is the only stop. Merchants should combine TAP with other signals and cache keys briefly.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-jwks"
+      ]
+    },
+    {
+      "id": "visa-tap-t2",
+      "stride": "T",
+      "title": "Method, query or body changed under a valid signature",
+      "description": "The minimum signature covers only @authority and @path. An intermediary can change the method, the query string or the body, including the signed objects' transport, without breaking the header signature.",
+      "preconditions": [
+        "An attacker on the path or a misbehaving intermediary",
+        "The verifier relies on the minimum covered set"
+      ],
+      "impact": "A browse-tagged signature can be reused against other methods or bodies on the same path until it expires.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Ask agents to cover @method, @query and Content-Digest as extra fields; verify body objects separately; keep windows short.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-wba-draft",
+        "src-rfc9530"
+      ]
+    },
+    {
+      "id": "visa-tap-t3",
+      "stride": "S",
+      "title": "Replay inside the 8-minute window",
+      "description": "A captured signed request is resent while it is still valid.",
+      "preconditions": [
+        "The attacker can observe or obtain a signed request",
+        "The verifier keeps no nonce record"
+      ],
+      "impact": "The replay is accepted as a trusted agent request.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "TAP makes nonce tracking conditional. Keep nonces for at least 8 minutes, shared across edge nodes, and record them only after the signature verifies.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-cdn-proxy"
+      ]
+    },
+    {
+      "id": "visa-tap-t4",
+      "stride": "I",
+      "title": "Consumer data exposed to every merchant visited",
+      "description": "The consumer object carries IP address, device data, country and postal code, plus obfuscated contact values, to each merchant the agent visits.",
+      "preconditions": [
+        "The agent attaches agenticConsumer while browsing"
+      ],
+      "impact": "Profiling and cross-site tracking of the consumer; data protection duties for merchants.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "The specification has no minimization or retention rule; agents should send the object only where needed and merchants should treat it as personal data.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-terms"
+      ]
+    },
+    {
+      "id": "visa-tap-t5",
+      "stride": "I",
+      "title": "Unsalted credential hash reveals card data",
+      "description": "The payment credential hash covers a 16-digit account number, expiry and a 3-digit code with no stated algorithm or salt, so the input space is small.",
+      "preconditions": [
+        "The attacker sees a payment container with a credential hash",
+        "The hash is a plain digest"
+      ],
+      "impact": "Card data could be recovered by trying candidate values.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Treat the hash as sensitive card data, protect it in transit and logs, and ask Visa for the algorithm and any salt.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "id": "visa-tap-t6",
+      "stride": "T",
+      "title": "Unverified consumer data used for decisions",
+      "description": "The specification lets a merchant use consumer recognition data even when verification fails.",
+      "preconditions": [
+        "The merchant follows the discretionary wording",
+        "An attacker forges an agenticConsumer object"
+      ],
+      "impact": "Account matching or risk decisions based on forged identity data.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Use consumer data only after the nonce and signature verify; never log a user in on unverified data.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "id": "visa-tap-t7",
+      "stride": "S",
+      "title": "Key store confusion",
+      "description": "The published JWKS held one RSA key from a sandbox CA and no Ed25519 key, so verifiers may source keys elsewhere or accept keys loosely.",
+      "preconditions": [
+        "The verifier cannot resolve the agent's keyid from the published JWKS",
+        "An out-of-band key path is used"
+      ],
+      "impact": "Keys from an untrusted path could be accepted as Visa's.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Accept keys only from a channel Visa documents; pin the key store origin; alert on unknown keyids.",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "id": "visa-tap-t8",
+      "stride": "D",
+      "title": "Key store or verification as a single point of failure",
+      "description": "Every verification needs Visa's key store or a cached key; an outage or a CDN error blocks agents at many merchants at once.",
+      "preconditions": [
+        "Key cache expired during an outage"
+      ],
+      "impact": "Legitimate agents blocked; merchants fall back to bot rules.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Cache keys with a reasonable lifetime; the published JWKS uses a one-hour cache-control; monitor fetch failures.",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-visa-tap-cf-blog"
+      ]
+    },
+    {
+      "id": "visa-tap-t9",
+      "stride": "R",
+      "title": "No receipt or evidence from TAP",
+      "description": "TAP defines no receipt, so a verified request leaves no portable evidence of what the agent was allowed to do.",
+      "preconditions": [
+        "A dispute about an agent purchase"
+      ],
+      "impact": "Disputes rest on VIC signals and card rules, not on TAP records.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Log verification results with the signature parameters; rely on VIC confirmations for transaction evidence.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ]
+    },
+    {
+      "id": "visa-tap-t10",
+      "stride": "E",
+      "title": "Interoperability gaps bypass verification",
+      "description": "Sample code builds non-RFC signature bases, uses an unregistered algorithm name, and its CDN proxy protects only /product/ paths, skipping the tag and window checks. Implementations copied from it can be bypassed.",
+      "preconditions": [
+        "A deployment reuses the sample code"
+      ],
+      "impact": "Checkout and API paths left unverified; old or mis-tagged signatures accepted.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Use a conformant RFC 9421 library, verify every path that matters, and check the tag and window explicitly.",
+      "sources": [
+        "src-visa-tap-cdn-proxy",
+        "src-visa-tap-merchant-verifier",
+        "src-visa-tap-agent-app",
+        "src-rfc9421"
+      ]
+    },
+    {
+      "id": "visa-tap-t11",
+      "stride": "T",
+      "title": "browsingIOU without settlement terms",
+      "description": "The merchant grants access on a signed IOU expecting funds at settlement, but TAP defines no settlement or default rule.",
+      "preconditions": [
+        "The merchant serves paid content against IOUs"
+      ],
+      "impact": "Unpaid access with no protocol remedy.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Limit IOU amounts and exposure per agent; agree settlement terms with the payment service and acquirer.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "visa-tap-s1",
+      "title": "A browse signature reused against checkout data",
+      "preconditions": [
+        "The attacker captures a browse-tagged request to a path that also accepts POST",
+        "The verifier checks only the minimum components"
+      ],
+      "steps": [
+        "The attacker copies Signature-Input and Signature",
+        "Within 8 minutes it sends a POST to the same host and path with its own body",
+        "The header signature verifies because method and body are not covered",
+        "A verifier without a nonce record accepts it"
+      ],
+      "impact": "Requests with attacker-chosen content inherit trusted agent status.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-wba-draft"
+      ]
+    },
+    {
+      "id": "visa-tap-s2",
+      "title": "Card data recovered from a credential hash",
+      "preconditions": [
+        "A payment container with paymentCredentialsHash is logged or leaked",
+        "The hash is an unsalted digest"
+      ],
+      "steps": [
+        "The attacker learns the card's bank identification range and expiry candidates",
+        "It hashes candidate numbers and security codes",
+        "It finds the input that matches the hash"
+      ],
+      "impact": "Usable card data for card-not-present fraud.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "id": "visa-tap-s3",
+      "title": "A sample-code edge lets checkout through unchecked",
+      "preconditions": [
+        "A merchant deploys the sample CDN proxy"
+      ],
+      "steps": [
+        "The proxy verifies only paths starting with /product/",
+        "An attacker posts directly to the checkout path",
+        "No signature is required and rate limiting is off"
+      ],
+      "impact": "Bot traffic reaches checkout as if it had passed the agent gate.",
+      "sources": [
+        "src-visa-tap-cdn-proxy"
+      ]
+    }
+  ],
+  "research": [
+    {
+      "title": "RAILS: Verification-Native Clearing For Agentic Commerce",
+      "date": "2026-06-07",
+      "finding": "Argues that the Visa and Mastercard network agent protocols, along with MCP, A2A, x402 and AP2, assume rather than produce a determination of whether an agent met its obligation; its full text names Visa's TAP, the only paper found that does.",
+      "publicationId": "pub-devaloisfranklin-2026-rails",
+      "sources": [
+        "src-pub-2606-08790"
+      ]
+    },
+    {
+      "title": "A Formal Analysis of Agent Payment Protocols",
+      "date": "2026-08-30",
+      "finding": "Models x402, MPP, ACP and AP2 in Tamarin; TAP is not modeled, so no formal analysis of TAP exists.",
+      "publicationId": "pub-jiang-2026-formal",
+      "sources": [
+        "src-pub-2609-00060"
+      ]
+    },
+    {
+      "title": "FP-Inconsistent: fingerprint inconsistencies in evasive bot traffic",
+      "date": "2024-06-11",
+      "finding": "About half of the traffic bought from 20 bot services evaded two commercial anti-bot products by altering browser fingerprints, the weakness that signed agent requests aim to replace.",
+      "publicationId": "pub-venugopalan-2025-fpinconsistent",
+      "sources": [
+        "src-pub-2406-07647"
+      ]
+    },
+    {
+      "title": "Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication",
+      "date": "2010-01-01",
+      "finding": "Criticizes 3-D Secure for unverifiable password frames and for shifting liability onto cardholders; a reference point for any network-run authentication layer.",
+      "publicationId": "pub-murdoch-2010-3dsecure",
+      "sources": [
+        "src-pub-murdoch-2010"
+      ]
+    }
+  ],
+  "cves": [],
+  "trustBoundaryDiagram": "visa-tap-context"
+}

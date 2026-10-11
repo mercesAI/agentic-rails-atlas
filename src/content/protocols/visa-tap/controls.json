@@ -1,0 +1,278 @@
+{
+  "protocol": "visa-tap",
+  "summary": "TAP natively verifies agent identity and bounds every signature to 8 minutes. Replay protection, payee scoping, revocation and monitoring are partial, and consent, limits, step-up and disputes sit in Visa Intelligent Commerce. The best places for an independent controls layer are the edge, where the signature is checked, and the merchant, where the body objects and payment data are checked.",
+  "native": [
+    {
+      "protocol": "visa-tap",
+      "control": "agent-identity-verification",
+      "support": "native",
+      "note": "RFC 9421 signature with a key from the payment scheme's key store; the tag states browse or pay intent.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "Agents are onboarded to Visa Intelligent Commerce and approved by the scheme; the process is not public. The Agentic Directory (2026-06-10) lists agents Visa has verified.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev",
+        "src-visa-jun10"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "Consent lives in VIC, where the user approves each Payment Instruction with a passkey; the ID Token can carry auth_time and amr.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "spending-caps",
+      "support": "external",
+      "note": "No amounts or limits in TAP; VIC Payment Instructions and network controls apply.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "merchant-payee-scoping",
+      "support": "partial",
+      "note": "@authority binds the signature to one merchant host and @path to a page; the method and body are not bound.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "created and expires at most 8 minutes apart; created must be past and expires future.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "revocation",
+      "support": "partial",
+      "note": "An expired or missing key blocks verification; no revocation list or key status endpoint is specified.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "step-up-authentication",
+      "support": "external",
+      "note": "Step-up verification and Visa Payment Passkeys happen in VIC.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-eu-live"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "Nonce plus time window, but nonce tracking is optional for the verifier.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "receipts-evidence",
+      "support": "none",
+      "note": "TAP defines no receipt; VIC confirmations and commerce signals serve as transaction evidence.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-ai-vic-client"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "dispute-support",
+      "support": "external",
+      "note": "VIC signals support dispute resolution; no agent-specific liability shift is published.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-worldpay-liability"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "reputation",
+      "support": "none",
+      "note": "No reputation mechanism for agents; Agent Score rates merchant sites for agent readiness, not agents.",
+      "sources": [
+        "src-visa-jun10"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Visa says TAP feeds telemetry into its fraud and risk models; CDNs expose verification results to zone owners.",
+      "sources": [
+        "src-visa-threats",
+        "src-cf-signed-agent-field"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "kill-switch",
+      "support": "partial",
+      "note": "Visa can remove a key from its store and merchants can block untagged or failing requests; no emergency procedure is documented.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "title": "Request content is not bound",
+      "description": "Method, query and body are outside the minimum signature, so a valid signature does not prove what the agent asked for.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-wba-draft"
+      ]
+    },
+    {
+      "title": "Replay protection depends on the verifier",
+      "description": "Nonce tracking is conditional, and the nonce is a session value shared across signatures.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "title": "No revocation channel",
+      "description": "There is no revocation list or status endpoint; a compromised key stays valid until Visa removes it.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "title": "No user limits in the protocol",
+      "description": "Spending limits and consent live in VIC and are invisible to the merchant in the TAP request.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "title": "No evidence record",
+      "description": "TAP produces no receipt; merchants must log verification results themselves.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    }
+  ],
+  "controlPoints": [
+    {
+      "point": "before-authorization",
+      "what": "Approve the purchase instruction.",
+      "how": "VIC passkey approval of the Payment Instruction before the agent fetches credentials.",
+      "sources": [
+        "src-visa-vic-dev"
+      ]
+    },
+    {
+      "point": "at-signing",
+      "what": "Choose the tag and what to cover.",
+      "how": "The agent platform can add @method, @query and Content-Digest beyond the minimum and refuse to send consumer data to merchants the user did not pick.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "point": "at-edge",
+      "what": "Verify agent identity and freshness.",
+      "how": "CDN checks tag, window, nonce, key and signature, then applies bot policy.",
+      "sources": [
+        "src-visa-tap-cf-blog",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "point": "at-settlement",
+      "what": "Authorize the card payment.",
+      "how": "Issuer and network risk decisions on the agent-specific token; Visa feeds TAP telemetry into its risk models.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-threats"
+      ]
+    },
+    {
+      "point": "after-the-fact",
+      "what": "Evidence and disputes.",
+      "how": "VIC confirmations, merchant logs of verification results and ordinary card dispute rules.",
+      "sources": [
+        "src-visa-ai-vic-client",
+        "src-worldpay-liability"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "item": "Keep a nonce record for at least 8 minutes, shared across all verifier nodes.",
+      "why": "TAP makes it optional, and without it replays pass.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "item": "Reject windows over 8 minutes and check the tag against the page type.",
+      "why": "The sample proxy skips both checks.",
+      "sources": [
+        "src-visa-tap-cdn-proxy",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "item": "Verify every path that matters, including checkout and API routes.",
+      "why": "The sample proxy protects only /product/ paths.",
+      "sources": [
+        "src-visa-tap-cdn-proxy"
+      ]
+    },
+    {
+      "item": "Do not use payment containers or consumer data that fail verification.",
+      "why": "The specification leaves this to merchant discretion.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "item": "Ask agents to cover @method and Content-Digest where possible.",
+      "why": "The minimum set leaves method and body unbound.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-rfc9530"
+      ]
+    },
+    {
+      "item": "Treat credential hashes and contextualData as sensitive data in logs.",
+      "why": "They describe card data and personal data.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "item": "Use a conformant RFC 9421 library rather than the sample code.",
+      "why": "The sample deviates from RFC 9421 serialization and algorithm names.",
+      "sources": [
+        "src-visa-tap-agent-app",
+        "src-rfc9421"
+      ]
+    }
+  ]
+}
