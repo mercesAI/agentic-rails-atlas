@@ -1,0 +1,28 @@
+# Stripe MPP playground
+
+A client-side simulation of the Machine Payments Protocol. It follows the core draft `draft-httpauth-payment-01` (the "Payment" HTTP authentication scheme), the intent drafts `draft-payment-intent-charge-00` and `draft-payment-intent-subscription-00`, and the Tempo method drafts `draft-tempo-charge-00`, `draft-tempo-subscription-00` and `draft-tempo-session-00` (session protocol v1). Sources are in `research/vendor/mpp-specs/specs/`; exact encodings were checked against `research/vendor/mppx/src` (`Challenge.serialize`, `Credential.serialize`, `Receipt.serialize`, `PaymentRequest.serialize`). The x402 mapping follows `draft-evm-charge-00` and the mapping on MPP's comparison page.
+
+## What it covers
+
+- Challenge and credential builder. `WWW-Authenticate: Payment` with `id`, `realm`, `method`, `intent`, `request` (base64url of RFC 8785 canonical JSON, no padding), optional `expires`, `description`, `header="Payment-Authorization"` and `opaque`. The `id` is the recommended HMAC-SHA256 binding over `realm|method|intent|request|expires|digest[|header]|opaque`, computed with WebCrypto on a key generated at mount; the three HMAC test vectors from the core draft pass in the unit tests. The request carries `Accept-Payment`. The credential goes in `Authorization: Payment` or `Payment-Authorization: Payment` as the challenge selects, with a decode toggle. A base64url decoder accepts any value.
+- Failure injection with the core status table: changed parameter and replay give 402 `invalid-challenge`, expiry gives `payment-expired`, bad base64url gives `malformed-credential`, a failed proof gives `verification-failed`, each with a fresh challenge and an RFC 9457 problem document; a paid request denied by policy gives 403 with no challenge. Success gives 200 with `Payment-Receipt` (`status`, `method`, `timestamp`, `reference`).
+- Intent switcher: `charge`, `subscription`, and `session`, which is labeled as defined by the Tempo method rather than a standardized intent.
+- Session meter: price per unit, deposit, `minVoucherDelta`, cumulative vouchers signed as EIP-712 typed data (domain "Tempo Stream Channel", version "1", chain id 424242, `verifyingContract` the fixture escrow; type `Voucher(bytes32 channelId,uint128 cumulativeAmount)`) with a `viem` key from `generatePrivateKey`, verified by signature recovery in the spec's order. Top-up, server settle, cooperative close (capture `max(spent, settledOnChain)`), forced close with `requestClose()`, a 15 minute grace period on a simulated clock and `withdraw()`. It shows value authorized but not served and the worst-case loss, equal to the deposit. Session problem types: `insufficient-balance` (with `requiredTopUp`), `delta-too-small`, `amount-exceeds-deposit`, `signer-mismatch`, `invalid-signature`, `channel-not-found`, `channel-finalized`.
+- Method switcher: the 11 method ids with a spec file (`tempo`, `stripe`, `card`, `lightning`, `evm`, `solana`, `stellar`, `hedera`, `usdc`, `nearintents`, `xrpl`) and which of charge, subscription and session each defines, with an `Accept-Payment` example.
+- x402 to MPP translator: `PAYMENT-REQUIRED` to `WWW-Authenticate: Payment` (exact to `charge`, method `evm`, `eip155:<id>` to `methodDetails.chainId`, `asset` to `currency`, `payTo` to `recipient`), `PAYMENT-SIGNATURE` to `Authorization: Payment` (EIP-3009 fields to an `authorization` payload) and `PAYMENT-RESPONSE` to `Payment-Receipt`. Samples use the x402 playground fixtures (same token, payee, host and chain id). It notes that the nonce rules differ, so a real x402 signature would not verify as an MPP credential.
+
+## Safety
+
+Everything runs in the browser. No network calls, no wallet, no real chain id (Tempo's 4217 and 42431 are never used). The HMAC secret and the payer key are generated at mount, held in memory and replaced on reset. Token, payee, escrow and access-key addresses are fixtures.
+
+## Teaching simplifications (labeled in the UI)
+
+- Payment proofs for charge and subscription are not checked on a chain; the failure menu decides the outcome. The charge payload uses type `hash` with a random hash; the subscription `keyAuthorization` signature is a placeholder.
+- The session open and top-up transactions, settlement and the channel id are in-memory stand-ins (the channel id is a keccak256 of the fixture values, not the escrow contract's derivation). The clock is simulated.
+- Cooperative close uses the v2 capture rule `max(spent, settledOnChain)` while vouchers use the v1 domain.
+- A voucher lower than the accepted one, or sent during a pending forced close, must be rejected but the spec names no problem type; the simulation shows `verification-failed`.
+- The translator sets `expires` to now plus `maxTimeoutSeconds`, translates only the first `accepts[]` entry, and uses a placeholder x402 signature.
+
+## Files
+
+`lib/fixtures.ts`, `lib/codec.ts`, `lib/challenge.ts`, `lib/intents.ts`, `lib/methods.ts`, `lib/session.ts`, `lib/translate.ts` (pure logic, tested in `tests/unit/playgrounds/stripe-mpp.test.ts`), `Playground.tsx`, `stripe-mpp.css`.
