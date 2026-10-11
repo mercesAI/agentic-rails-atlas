@@ -1,0 +1,20 @@
+{
+  "protocol": "x402",
+  "cards": [
+    { "id": "x402-f1", "front": "PAYMENT-REQUIRED", "back": "V2 response header sent with status 402; holds a base64-encoded PaymentRequired object.", "claimIds": ["clm-x402-093"] },
+    { "id": "x402-f2", "front": "PAYMENT-RESPONSE", "back": "V2 response header with a base64-encoded SettleResponse; on 200 for success, on 402 with success false.", "claimIds": ["clm-x402-097"] },
+    { "id": "x402-f3", "front": "V1 header names", "back": "Requirements in the 402 JSON body; X-PAYMENT and X-PAYMENT-RESPONSE headers.", "claimIds": ["clm-x402-098"] },
+    { "id": "x402-f4", "front": "The three x402 roles", "back": "Client (pays), resource server (sells), facilitator (verifies and settles on one or more networks).", "claimIds": ["clm-x402-063"] },
+    { "id": "x402-f5", "front": "Does a facilitator hold funds?", "back": "No. It does not hold funds and is not a custodian.", "claimIds": ["clm-x402-064"] },
+    { "id": "x402-f6", "front": "Replay protection in exact EVM", "back": "A random 32-byte nonce that EIP-3009 tokens refuse to reuse, plus validAfter and validBefore.", "claimIds": ["clm-x402-127"] },
+    { "id": "x402-f7", "front": "Required fields of PaymentRequirements", "back": "scheme, network, amount, asset, payTo, maxTimeoutSeconds (extra is optional).", "claimIds": ["clm-x402-071"] },
+    { "id": "x402-f8", "front": "settlement_pending", "back": "A non-terminal settle result: the transaction was broadcast but not confirmed; the server retries once and reconciles.", "claimIds": ["clm-x402-111"] },
+    { "id": "x402-f9", "front": "The four V2 schemes", "back": "exact, upto, batch-settlement, auth-capture.", "claimIds": ["clm-x402-092"] },
+    { "id": "x402-f10", "front": "upto on EVM", "back": "The client signs a Permit2 ceiling; the server settles the metered charge, never above the ceiling; a zero charge needs no transaction.", "claimIds": ["clm-x402-104"] },
+    { "id": "x402-f11", "front": "x402 Technical Steering Committee", "back": "Coinbase (Erik Reppel), Cloudflare (Rohin Lohe), Stripe (Steve Kaliski), per TSC.md.", "claimIds": ["clm-x402-016"] },
+    { "id": "x402-f12", "front": "x402 Foundation operational launch", "back": "Announced by the Linux Foundation on 2026-07-14 with 40 member organizations.", "claimIds": ["clm-x402-022"] },
+    { "id": "x402-f13", "front": "x402 over MCP", "back": "Unpaid tool call returns isError true with PaymentRequired; the client retries with _meta x402/payment; the server returns _meta x402/payment-response.", "claimIds": ["clm-x402-116"] },
+    { "id": "x402-f14", "front": "A2A x402.payment.status values", "back": "payment-required, payment-rejected, payment-submitted, payment-verified, payment-completed, payment-failed.", "claimIds": ["clm-x402-113"] },
+    { "id": "x402-f15", "front": "ERC-8004 hooks for x402", "back": "An x402Support boolean in the registration file and a proofOfPayment for an x402 payment in the off-chain feedback file.", "claimIds": ["clm-x402-219"] }
+  ]
+}
