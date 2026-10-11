@@ -14,9 +14,9 @@ import {
 } from './checks';
 import { checkApprovedWords } from './approved-words';
 import { segmentParagraph, splitParagraphs, type Segment } from './segment';
+import { STE_LABEL } from './label';
 
-export const STE_LABEL =
-  'Written to the public ASD-STE100 Issue 9 writing rules. Vocabulary not checked against the official dictionary.';
+export { STE_LABEL };
 
 const COMPONENT_TO_BLOCK: Record<string, BlockType> = {
   SteDescription: 'description',

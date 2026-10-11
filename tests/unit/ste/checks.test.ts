@@ -103,7 +103,7 @@ describe('raw-text checks', () => {
     expect(checkSemicolons(seg('Set the header to `a; b`.'), ctx('procedure'))).toHaveLength(0);
   });
   it('flags an em dash', () => {
-    expect(checkEmDash(seg('The server — not the client — settles.'), ctx('description'))).toHaveLength(1);
+    expect(checkEmDash(seg('The server \u2014 not the client \u2014 settles.'), ctx('description'))).toHaveLength(1);
   });
   it('flags Latin abbreviations', () => {
     expect(checkLatinAbbreviations(seg('Use a stablecoin, e.g. USDC.'), ctx('description'))).toHaveLength(1);

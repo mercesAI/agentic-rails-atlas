@@ -238,7 +238,7 @@ export function checkSemicolons(seg: Segment, ctx: SentenceContext): Flag[] {
 }
 
 export function checkEmDash(seg: Segment, ctx: SentenceContext): Flag[] {
-  return /—/.test(seg.protectedText)
+  return /\u2014/.test(seg.protectedText)
     ? [flag('em-dash', 'error', seg, ctx, 'Do not use an em dash (house rule). Write two sentences or use a comma.')]
     : [];
 }
