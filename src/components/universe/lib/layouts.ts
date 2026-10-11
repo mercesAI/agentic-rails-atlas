@@ -4,7 +4,6 @@
  * server-rendered HTML matches the hydrated island. Coordinates live in a
  * fixed frame (FRAME_W by the mode height) that the island scales to fit.
  */
-import { scaleUtc } from 'd3';
 import { FAMILIES, LAYER_LABELS, LAYERS, type Family, type Layer } from '../../../lib/schemas';
 import { FAMILY_SHORT } from './labels';
 import { bubbleRadius, layerIndex, railScore } from './encoding';
@@ -238,6 +237,13 @@ export function quarterTicks(from: Date, to: Date): { date: Date; label: string 
   return out;
 }
 
+/** Linear date-to-x mapping (a tiny stand-in for d3-scale's scaleUtc, which would add the time-format modules). */
+export function linearTime(domain: [Date, Date], range: [number, number]): (d: Date) => number {
+  const t0 = domain[0].getTime();
+  const span = domain[1].getTime() - t0 || 1;
+  return (d) => range[0] + ((d.getTime() - t0) / span) * (range[1] - range[0]);
+}
+
 export function timelineLayout(protocols: readonly UniverseProtocol[]): LayoutResult {
   const width = FRAME_W;
   const height = FRAME_H;
@@ -249,7 +255,7 @@ export function timelineLayout(protocols: readonly UniverseProtocol[]): LayoutRe
   const last = parseDate(sorted[sorted.length - 1]!.firstAnnounced).getTime();
   const pad = Math.max(30 * DAY, (last - first) * 0.06);
   const domain: [Date, Date] = [new Date(first - pad), new Date(last + pad)];
-  const x = scaleUtc().domain(domain).range([TIMELINE_X0, TIMELINE_X1]);
+  const x = linearTime(domain, [TIMELINE_X0, TIMELINE_X1]);
   const xs = sorted.map((p) => round(x(parseDate(p.firstAnnounced))));
   const radius = 34;
   const lanes = assignLanes(xs, radius * 2 + 64, TIMELINE_LANES.length);
