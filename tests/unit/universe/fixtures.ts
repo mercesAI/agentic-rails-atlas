@@ -1,13 +1,12 @@
 import type { UniverseProtocol } from '../../../src/components/universe/lib/types';
 
-const base = {
+const base: Pick<UniverseProtocol, 'monogram' | 'tagline' | 'intro' | 'stewards' | 'latestVersion'> = {
   monogram: 'X',
   tagline: 'Tagline',
   intro: 'Intro.',
   stewards: ['Steward'],
   latestVersion: { label: 'v1', date: '2026-01-01' },
-  composesWith: [],
-} as const;
+};
 
 export const PROTOCOLS: UniverseProtocol[] = [
   { ...base, slug: 'erc-8004', order: 1, name: 'ERC-8004', bubbleLabel: 'ERC-8004', family: 'identity-trust', layerPrimary: 'identity-trust', layersSecondary: ['reputation-feedback', 'discovery'], rails: ['crypto', 'rail-agnostic'], status: 'draft', firstAnnounced: '2025-08-13', composesWith: [] },

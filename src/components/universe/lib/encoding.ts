@@ -3,7 +3,7 @@
  * Fill hue = family, ring style = rails, size = equal base plus a small boost per layer covered.
  */
 import { LAYERS, type Layer, type Rail, type RelationType, type Status } from '../../../lib/schemas';
-import type { OrbitCategoryId, PersonaMap, Relevance, UniverseProtocol, UniverseRelation } from './types';
+import type { OrbitCategoryId, PersonaMap, Relevance, UniverseRelation } from './types';
 
 export type RingStyle = 'solid' | 'dashed' | 'double' | 'dotted';
 
@@ -78,7 +78,12 @@ export const ORBIT_CATEGORY_LABELS: Record<OrbitCategoryId, string> = {
 };
 
 /** Distinct layers a protocol covers (primary plus secondary). */
-export function layersCovered(p: Pick<UniverseProtocol, 'layerPrimary' | 'layersSecondary'>): number {
+export interface LayerSpan {
+  layerPrimary: Layer;
+  layersSecondary: readonly Layer[];
+}
+
+export function layersCovered(p: LayerSpan): number {
   return new Set<Layer>([p.layerPrimary, ...p.layersSecondary]).size;
 }
 
@@ -87,7 +92,7 @@ export const RADIUS_BOOST = 3;
 export const MAX_BOOST_LAYERS = 6;
 
 /** Equal base size plus a small boost per extra layer covered (never by adoption). */
-export function bubbleRadius(p: Pick<UniverseProtocol, 'layerPrimary' | 'layersSecondary'>, base = BASE_RADIUS): number {
+export function bubbleRadius(p: LayerSpan, base = BASE_RADIUS): number {
   const extra = Math.min(layersCovered(p), MAX_BOOST_LAYERS) - 1;
   return base + (base / BASE_RADIUS) * RADIUS_BOOST * extra;
 }
