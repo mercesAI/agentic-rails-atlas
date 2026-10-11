@@ -1,0 +1,36 @@
+---
+slug: stripe-acs
+name: "Stripe Agentic Commerce Suite and Shared Payment Tokens"
+category: card-wallet-commerce
+starred: false
+oneLiner: "Stripe's merchant product for selling through AI agents (Agentic Commerce Suite) and its scoped, revocable payment credential that an agent passes to a seller without exposing card details (Shared Payment Token, SPT)."
+steward: "Stripe (company)"
+status: "Live"
+latestVersion:
+  label: "Stripe-Version 2026-09-30.preview in SPT examples"
+  date: "2026-09-30"
+relations:
+  - to: openai-acp
+    type: same-steward
+    note: "Stripe co-develops ACP with OpenAI; SPT is the first Delegated Payment implementation."
+  - to: stripe-mpp
+    type: same-steward
+    note: "Stripe co-authors MPP; MPP card payments on Stripe use SPTs."
+  - to: x402
+    type: compatible-with
+    note: "Stripe's machine payments preview supports x402 on Base (reported, February 2026)."
+  - to: ucp
+    type: compatible-with
+    note: "Stripe is a UCP co-developer listed on ucp.dev."
+sources:
+  - src-stripe-acs-launch
+  - src-stripe-spt
+  - src-stripe-acp-launch
+  - src-openai-commerce-docs
+  - src-stripe-mpp-docs
+  - src-x402-stripe-coverage
+  - src-ucp-site
+lastVerified: "2026-10-11"
+---
+
+Stripe launched Shared Payment Tokens with [ACP](/p/openai-acp/) on 2025-09-29 and the Agentic Commerce Suite on 2025-12-11. <Cite ids="src-stripe-acp-launch src-stripe-acs-launch" /> An SPT carries `usage_limits` (`currency`, `max_amount`, `expires_at`) and `seller_details`, and the seller confirms a PaymentIntent with it; OpenAI describes SPT as the first implementation compatible with the ACP Delegated Payment spec, but SPT itself is not part of the ACP spec. <Cite ids="src-stripe-spt src-openai-commerce-docs" /> Stripe's [MPP](/p/stripe-mpp/) integration accepts cards through SPTs, its machine payments preview added [x402](/p/x402/) on Base (reported, February 2026), and Stripe is a listed [UCP](/p/ucp/) co-developer. <Cite ids="src-stripe-mpp-docs src-x402-stripe-coverage src-ucp-site" />
