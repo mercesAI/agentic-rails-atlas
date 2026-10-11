@@ -469,3 +469,80 @@ Dispute on the seed figure: the seed says MPPScan figures "cited by Merit System
 | DOI 10.1145/2810103.2813713 | Micropayments for Decentralized Currencies (Pass, shelat) | 2015-10-12 | Foundation | [src-stripe-mpp-doi-foundations] |
 | DOI 10.1007/978-3-540-45126-6_6 | The Case Against Micropayments (Odlyzko) | 2003 | Critique | [src-stripe-mpp-doi-foundations] |
 | (no DOI) | Poon and Dryja, The Bitcoin Lightning Network (white paper) | 2016 | Foundation for Lightning method | not re-verified (PDF reachable) |
+
+## Seed audit
+
+| Seed fact (ATLAS_PROMPT 5.6 or ATLAS_FOLLOWUP) | Result | Source | Note |
+| --- | --- | --- | --- |
+| HTTP "Payment" auth scheme by Stripe and Tempo | confirmed | src-stripe-mpp-core-01, src-stripe-mpp-specs-repo | 3 Tempo and 2 Stripe authors |
+| Charges, sessions and subscriptions over many rails | confirmed | src-stripe-mpp-intent-charge, src-stripe-mpp-tempo-session, src-stripe-mpp-intent-subscription | session is per-method, not a standardized intent |
+| Launched 2026-03-18 with Tempo mainnet | confirmed | src-stripe-mpp-stripe-blog, src-stripe-mpp-tempo-mainnet | |
+| `draft-ryan-httpauth-payment` -00 and -01, expired 2026-09-18 | confirmed | src-stripe-mpp-ietf-ryan | -00 2026-02-16 UTC, -01 2026-03-18; expiry event 2026-09-18 |
+| Continues as `draft-httpauth-payment-01` (2026-09-09); rename 2026-09-09 | corrected (2.1.1) | src-stripe-mpp-ietf-current | -00 on 2026-06-19, -01 on 2026-09-09 |
+| Individual draft, no working group | confirmed | src-stripe-mpp-ietf-current | |
+| Companion drafts on paymentauth.org | confirmed | src-stripe-mpp-specs-repo | not on the Datatracker |
+| Governance: IETF core, methods by rails, no foundation | confirmed | src-stripe-mpp-governance | |
+| Licenses CC0-1.0 specs, Apache-2.0 or MIT tooling | confirmed | src-stripe-mpp-specs-license | `mppx` itself is MIT only |
+| Challenge parameters `id`, `realm`, `method`, `intent`, `request`, optional `expires`, `digest`, `description`, `opaque` | confirmed, extended | src-stripe-mpp-core-01 | plus optional `header` |
+| `Authorization: Payment` or `Payment-Authorization` | confirmed | src-stripe-mpp-core-01 | selected by the challenge's `header` parameter |
+| `200` with `Payment-Receipt`; `Accept-Payment`; RFC 9457; 403 = paid but denied | confirmed | src-stripe-mpp-core-01 | |
+| HMAC binding recommended; single-use proofs; `Idempotency-Key` | confirmed | src-stripe-mpp-core-01 | |
+| Session: escrow, cumulative EIP-712 vouchers, `open`, `topUp`, `voucher`, `close`, 15-minute forced close | confirmed | src-stripe-mpp-tempo-session | "at least 15 minutes"; wait 16 advised |
+| Session v2 TIP-20 precompile cuts costs up to 72% | confirmed with caveat | src-stripe-mpp-blog-sessions | best case for one operation; one operation costs 79.4% more |
+| Subscription fields amount, currency, period unit and count | confirmed | src-stripe-mpp-intent-subscription | `periodUnit`, `periodCount` |
+| Methods list (tempo, stripe, card by Visa, lightning by Lightspark, evm, solana, stellar, hedera, usdc by Circle, nearintents, xrpl) | confirmed | method sources | docs add `monad`, `redotpay` |
+| `card`: encrypted network tokens, VIC, optional TAP headers | corrected (2.1.12) | src-stripe-mpp-card-history, src-stripe-mpp-visa-card | optional-TAP wording dates from 2026-03-18, not 2026-10-05 |
+| `evm` "Permit2, EIP-3009 and more" | unconfirmed | | not checked field by field |
+| MCP error `-32042`, `_meta` credential and receipt | confirmed | src-stripe-mpp-mcp-transport | plus `-32043` |
+| Discovery optional via OpenAPI extensions | confirmed | src-stripe-mpp-discovery | |
+| x402 header and scheme mapping; `mppx` serves both | confirmed | src-stripe-mpp-vs-x402, src-stripe-mpp-mppx-changelog | |
+| Tempo mainnet 2026-03-18, chain 4217, testnet Moderato 42431 | confirmed | src-stripe-mpp-tempo-connection, src-stripe-mpp-tempo-mainnet | |
+| Fees in USD stablecoins | confirmed | src-stripe-mpp-tempo-fees | |
+| About 500 ms finality | corrected | src-stripe-mpp-tempo-consensus | blocks about every 600 ms (500 ms builder loop plus latency), deterministic finality, Simplex BFT |
+| TIP-20 with 6 decimals | confirmed | src-stripe-mpp-tempo-tip20 | |
+| Stripe side: PaymentIntents, SPTs with usage limits, crypto deposit addresses | confirmed | src-stripe-mpp-stripe-charge, src-stripe-mpp-stripe-docs | |
+| Sessions 2026-04-29: SPT cards, Klarna, Affirm over MPP; streaming with Metronome | confirmed, refined | src-stripe-mpp-stripe-sessions | streaming described as Metronome plus Tempo, not explicitly over MPP |
+| 2026-01-05 spec repo started | confirmed | src-stripe-mpp-gh-specs-commits | |
+| 2026-02-15 first draft | corrected | src-stripe-mpp-ietf-ryan | 2026-02-16 UTC on the Datatracker |
+| 2026-03-18 launch: 100+ services, Visa card spec, Lightning | confirmed | src-stripe-mpp-tempo-mainnet, src-stripe-mpp-visa-card | |
+| 2026-03-24 to 2026-09-08 new methods | confirmed | method sources | |
+| 2026-03-31 two CVEs against `mppx` | confirmed, refined | src-stripe-mpp-nvd, src-stripe-mpp-ghsa-34209 | NVD date; GitHub advisories and fix 2026-03-26 |
+| 2026-04-13 `Accept-Payment` | confirmed | src-stripe-mpp-gh-pr-231 | |
+| 2026-05-12 subscriptions | refined | src-stripe-mpp-blog-index, src-stripe-mpp-gh-pr-230 | blog and SDK date; spec merged 2026-07-29 |
+| 2026-06-08 x402 `exact` in `mppx` | refined | src-stripe-mpp-blog-index, src-stripe-mpp-npm-mppx | blog date; release 0.6.29 on 2026-06-02 |
+| 2026-06-17 session v2 | refined | src-stripe-mpp-blog-sessions, src-stripe-mpp-gh-pr-278 | blog date; spec merged 2026-06-25 |
+| 2026-08-12 TAP and Web Bot Auth identity | refined | src-stripe-mpp-blog-identity, src-stripe-mpp-gh-mppx-pr-732 | blog date; code merged 2026-08-04, npm 0.8.17 on 2026-08-10 |
+| 2026-08-25 `Payment-Authorization` | confirmed | src-stripe-mpp-gh-pr-328 | |
+| 2026-09-09 draft renamed | corrected (2.1.1) | src-stripe-mpp-ietf-current | -01 revision, not a rename |
+| Design partners Anthropic ... Visa | corrected | src-stripe-mpp-tempo-mainnet | Tempo partners; only Visa called MPP design partner |
+| Integrators Browserbase, Parallel, Alchemy, Dune | confirmed | src-stripe-mpp-stripe-blog, src-stripe-mpp-tempo-mainnet | |
+| Cloudflare Agents SDK supports MPP, "backwards compatible with x402" | confirmed | src-stripe-mpp-cloudflare | |
+| SDKs `mppx` (~0.13), `pympp`, Rust `mpp`, `mpp-go`, `mpp-rb`, Visa `mpp-card` | confirmed | src-stripe-mpp-sdk-registries | |
+| MPPScan about 4M tx, about $435K, cited 2026-06-24 | corrected | src-stripe-mpp-mppscan, src-stripe-mpp-merit-glossary | these are 2026-10-11 all-time values |
+| Compatible with x402; carries SPTs; Visa wrote `card`; `mppx` supports TAP | confirmed | see Relations | |
+| Mastercard AP4M cites MPP compatibility (2.1.2: Tempo lists AP4M as MPP-compatible) | unconfirmed, dropped | src-stripe-mpp-ap4m-coverage | no Tempo or Mastercard page confirming it could be opened; Tempo and Stripe are AP4M partners |
+| No cross-reference with AP2; UCP does not reference MPP | confirmed | src-stripe-mpp-ap2-glossary, src-stripe-mpp-ucp-repo | |
+| Bearer credentials; spending controls in rails; disputes method-dependent | confirmed | src-stripe-mpp-core-01, src-stripe-mpp-intent-charge | |
+| CVE-2026-34209, CVE-2026-34210, GHSA-fxc9-7j2w-vx54 | confirmed | src-stripe-mpp-ghsa-34209, src-stripe-mpp-ghsa-34210, src-stripe-mpp-ghsa-rs | |
+| No IETF WG; Tempo dominates core authorship; channels never expire; public settlement | confirmed | src-stripe-mpp-ietf-current, src-stripe-mpp-core-01, src-stripe-mpp-tempo-session | |
+| Appendix B: Tempo gas, Stripe minimums, `hostedFeePayer` (mppx 0.9.2+, live mode) | confirmed | src-stripe-mpp-tempo-fees, src-stripe-mpp-stripe-docs | |
+| Appendix B: Stripe 1.5% stablecoin fee; applicability to MPP | reported; unverified | src-stripe-mpp-yahoo-fee | current Stripe docs page shows no percentage |
+| Appendix B: SPT private preview, no pricing | partly confirmed | src-stripe-mpp-stripe-docs | no price found; preview status of SPT not re-read |
+| "MPP" in AP2 means Merchant Payment Processor | confirmed | src-stripe-mpp-ap2-glossary | |
+
+## Blocked sources
+
+- theblock.co (Tempo mainnet article): HTTP 403; used Tempo's own post.
+- mastercard.com and businesswire.com (AP4M release): HTTP 403 to curl and WebFetch; used secondary coverage.
+- thedefiant.io and fireblocks.com: HTTP 403 to curl HEAD; kept as Appendix A resources.
+All logged in `research/blocked.md`.
+
+## Conflicts
+
+Six conflicts appended to `research/conflicts.md` on 2026-10-11: IETF "standards track" wording; session intent status (PR #280 unmerged); Tempo chain id defaults in three method specs; MPPScan figure date; the Visa card method and TAP dating (correction 2.1.12); the launch "design partners" list.
+
+## Least certain
+
+1. The Tempo statement that AP4M is "MPP-compatible": seen only in a search-engine summary; no page could be opened, so it is dropped (unverified).
+2. Whether Stripe's 1.5 percent stablecoin fee applies to MPP stablecoin charges through deposit addresses (reported figure from 2025-12; current Stripe page silent).
+3. The exact scope of the June 2026 MPPScan reading (2.3M or 4M transactions); only the 2026-10-11 values were read directly.
