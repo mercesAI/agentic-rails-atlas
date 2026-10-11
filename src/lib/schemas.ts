@@ -685,6 +685,20 @@ export const EcosystemFile = z.object({
     }),
   ),
   metrics: z.array(Metric),
+  /** Costs block for section L (ATLAS_FOLLOWUP.md 3.3). Every figure dated, sourced and caveated. */
+  costs: z
+    .array(
+      z.object({
+        item: z.string(),
+        value: z.string(),
+        whoPays: z.string(),
+        asOf: isoDate,
+        confidence: Confidence,
+        caveat: z.string(),
+        sources: z.array(z.string()).min(1),
+      }),
+    )
+    .optional(),
   /** Optional chart definition rendered by MetricChart. */
   chart: z
     .object({
