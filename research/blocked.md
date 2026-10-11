@@ -8,3 +8,5 @@
 - api2.openreview.net: 403 "Challenge verification required" after about ten requests; WebArena, tau-bench and WASP records captured before the block.
 - proceedings.neurips.cc 2025 listing incomplete (64 entries) on the access date; WASP venue confirmed via OpenReview instead.
 - escience-conference.org/2026/papers: reachable; accepted list does not include arXiv:2609.19502 despite the arXiv comment. Venue left unconfirmed.
+- 2026-10-11, ap2: https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/: curl returned HTTP 403; alternative used: WebFetch of the same URL (succeeded).
+- 2026-10-11, ucp: https://www.warren.senate.gov/?p=31789 and /newsroom/news-coverage/...: HTTP 403; alternative used: eWeek 2026-02-05 coverage (letter marked reported)

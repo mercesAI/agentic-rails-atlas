@@ -15,7 +15,13 @@ Repositories read (all under `research/vendor/`):
 - **Tags and releases.** GitHub releases `v0.1.0` (published 2025-09-16) and `v0.2.0` (published 2026-04-28). `CHANGELOG.md` dates 0.1.0 at 2025-09-16 ("Create Agent Payments Protocol (AP2)") and 0.2.0 at 2026-04-28 ("Release of V2", commit `b4587ac`) [src-ap2-gh-releases] [src-ap2-changelog].
 - **Repository activity.** The last commit on `main` is `e1ea56d` "fix: remove uvlock (#246)", 2026-04-29. No commit has landed on `main` since then as of 2026-10-11 [src-ap2-gh-commits].
 - **Governance today.** The v0.2 FAQ says the core specification work "will continue in FIDO", while Google keeps enhancing the code samples and SDK in the repository [src-ap2-faq]. On issue 268, an AP2 spec author (GitHub user GarethCOliver, also the author of the Delegate SD-JWT draft) wrote on 2026-05-27 that further iterations have "officially moved" to FIDO and that the fix should be made in the agentic payments working group [src-ap2-issue-268]. Governance therefore sits with the FIDO Alliance working groups, not with Google alone. The same FAQ still calls AP2 "an open source project created by Google, similar to the A2A protocol" [src-ap2-faq]. FIDO details are in the next bullets and in "Versions and changelog".
-- **FIDO Alliance (2026-04-28).** See the FIDO subsection below, filled from the FIDO press release and the Google blog post.
+- **FIDO Alliance donation (2026-04-28).** Google's blog post "We're donating Agent Payments Protocol to the FIDO Alliance..." by Stavan Parikh (VP/GM, Payments), dated 2026-04-28, announces the donation, says ownership transitions to FIDO so AP2 stays platform-agnostic and community-led, announces v0.2 with "Human Not Present" payments on GitHub the same day, and describes Verifiable Intent as an AP2-compatible standard co-developed with Mastercard that is also being donated to FIDO [src-ap2-google-fido-blog].
+- **FIDO press release (2026-04-28)** "FIDO Alliance to Develop Standards for Trusted AI Agent Interactions": Google contributed AP2 and Mastercard contributed its Verifiable Intent framework, "co-developed with Google and designed to work with AP2". FIDO describes the Agentic Authentication Technical Working Group as "newly formed", chaired at launch by members from CVS Health, Google and OpenAI and vice-chaired by members from Amazon, Google and Okta. A Payments Technical Working Group is chaired by members from Mastercard and Visa; the contributions are to be developed within it. FIDO says work has commenced and that it "will provide reports as it progresses"; no deliverable or date is given [src-ap2-fido-pr].
+- **The Payments group already existed (correction 2.1.11 confirmed).** FIDO launched a Payments Working Group (PWG) on 2025-04-29, co-chaired by Henna Kapur of Visa and Jonathan Grossar of Mastercard [src-ap2-fido-pwg-2025]. Only the Agentic Authentication TWG was new on 2026-04-28. The 2025 release names the group "Payments Working Group" and the 2026 release "Payments Technical Working Group"; no source found states whether this was a rename (logged in Conflicts).
+- **FIDO deliverables.** No FIDO specification, draft or report on AP2 was found published as of 2026-10-11 (absence based on the FIDO press release, the AP2 repository and site, and a web search; FIDO working drafts are member-only) [src-ap2-fido-pr] [src-ap2-site].
+- **Project site.** `https://ap2-protocol.org` (MkDocs build of the repository docs) states that standardization will continue in FIDO's Agentic Authentication Technical and Payments Technical Working Groups, and still describes AP2 as an extension for A2A and UCP [src-ap2-site].
+- **License.** Apache License 2.0 (`LICENSE`); the Python package metadata in `pyproject.toml` also declares Apache-2.0 [src-ap2-repo].
+- **Launch (2025-09-16).** Google Cloud blog "Powering AI commerce with the new Agent Payments Protocol (AP2)" by Stavan Parikh and Rao Surapaneni, dated 2025-09-16: an open protocol developed with "more than 60 organizations", usable as an extension of A2A and MCP; named collaborators: Adyen, American Express, Ant International, Coinbase, Etsy, Forter, Intuit, JCB, Mastercard, Mysten Labs, PayPal, Revolut, Salesforce, ServiceNow, UnionPay International, Worldpay. The post also announced the A2A x402 extension built with Coinbase, the Ethereum Foundation, MetaMask and others, calling it "production-ready". Visa does not appear anywhere in the post [src-ap2-gcloud-launch].
 
 ## Versions and changelog
 
@@ -226,3 +232,191 @@ The non-normative example also shows `credential_ids` and `transaction_data_hash
 | `PaymentMandate` | `payment_mandate_contents`, `user_authorization` (optional base64url verifiable presentation, for example an SD-JWT VC with a key-binding JWT carrying `aud`, `nonce`, `sd_hash`, `transaction_data` with hashes of the CartMandate and PaymentMandateContents) |
 
 [src-ap2-mandate-py-v01]
+
+## Message flows step by step
+
+All flows in `docs/ap2/flows.md` are non-normative examples that assume enrollment and any user credentials exist in advance. AP2 does not define the commerce messages themselves (catalog, cart and checkout APIs); those come from the surrounding commerce protocol, for example UCP [src-ap2-flows] [src-ap2-spec-v02].
+
+### Flow 1: Human Present ("direct"), happy path
+
+| Step | Actor | Message or call | Spec reference |
+| --- | --- | --- | --- |
+| 1 | User to SA | User starts shopping | `flows.md` Phase 1 step 1 |
+| 2 | SA and Merchant | SA assembles a cart over the commerce protocol | Phase 1 step 2 |
+| 3 | Merchant to SA | Merchant creates a signed Checkout (the `checkout_jwt`) and requires a mandate | Phase 1 step 3; `specification.md` "Checkout Mandate" |
+| 4 | SA and CP | SA retrieves instrument options from the Credential Provider and picks one | Phase 1 step 4 |
+| 5 | SA to TS | SA builds Checkout and Payment Mandate Content and asks the Trusted Surface for approval | Phase 2 step 1 |
+| 6 | TS and User | TS renders the content and gets user authentication (for example biometric) and consent | Phase 2 step 2 |
+| 7 | TS | TS signs closed `mandate.checkout.1` and `mandate.payment.1` with `user_sk` (the Agent Provider key in the Trusted Agent Provider model); the `checkout_jwt` hash links the two | Phase 2 step 3 |
+| 8 | TS to SA | Mandates returned | Phase 2 step 4 |
+| 9 | SA to CP | SA sends the Payment Mandate; CP verifies it and creates a payment token, possibly sharing the mandate with the network to get a scoped purchase credential | Phase 2 step 5; `specification.md` "Credential Provider and Network" |
+| 10 | SA to Merchant | Token plus Checkout Mandate | Phase 2 step 6 |
+| 11 | Merchant | Verifies the Checkout Mandate against the current cart and `checkout_hash`, then initiates payment with the token and the `checkout_jwt` hash | Phase 2 step 7; "Verification: Merchant" |
+| 12 | MPP | Verifies the Payment Mandate carried in the token and its binding to the `checkout_jwt` hash | Phase 2 step 8; "Verification: Merchant Payment Processor" |
+| 13 | MPP and Merchant to SA, CP, Network | MPP-signed Payment Receipt to SA, CP and Network; Merchant-signed Checkout Receipt to SA | Phase 2 step 9 |
+
+For push payment methods the merchant instead receives confirmation that funds were sent [src-ap2-spec-v02]. The spec notes that because the user approves the closed checkout, this flow can often be replaced by a traditional e-commerce journey between the merchant and the Trusted Surface [src-ap2-spec-v02].
+
+### Flow 2: Human Not Present ("autonomous"), happy path
+
+| Step | Actor | Message or call | Spec reference |
+| --- | --- | --- | --- |
+| 1a.1 | User to SA | User sets a shopping task | `flows.md` Phase 1a step 1 |
+| 1a.2 | SA to TS | SA assembles open Mandate Contents (`mandate.checkout.open.1`, `mandate.payment.open.1`) with constraints | Phase 1a step 2 |
+| 1a.3 | TS and User | Authentication and consent | Phase 1a step 3 |
+| 1a.4 | TS | Signs the open mandates with `user_sk`; the hash of the open Checkout Mandate goes into the open Payment Mandate (`payment.reference` with `conditional_transaction_id`); `agent_pk` goes into `cnf` | Phase 1a step 4; `specification.md` "Autonomous" |
+| 1b.1 | SA and Merchant | SA autonomously assembles a cart | Phase 1b step 1 |
+| 1b.2 | Merchant to SA | Signed Checkout (`checkout_jwt`) | Phase 1b step 2 |
+| 2.1 | SA | Selects open mandates whose constraints fit the checkout (selection is out of scope); must not create overlapping mandates until it holds an error receipt | Phase 2 step 1 |
+| 2.2 | SA | Signs closed Checkout and Payment Mandates with `agent_sk` as key-binding JWTs; `checkout_jwt` hash links them; `sd_hash` binds each closed mandate to its open parent | Phase 2 step 2 |
+| 2.3 | SA to CP | Open and closed Payment Mandates; CP verifies the chain and constraints, creates a token | Phase 2 step 3 |
+| 2.4 | SA to Merchant | Token plus open and closed Checkout Mandates | Phase 2 step 4 |
+| 2.5 | Merchant | Verifies the closed Checkout Mandate against the cart and evaluates every open-mandate constraint; initiates payment with the token, `checkout_jwt` hash and open Checkout Mandate hash | Phase 2 step 5 |
+| 2.6 | MPP | Verifies the Payment Mandates in the token and both bindings | Phase 2 step 6 |
+| 2.7 | MPP and Merchant | Receipts as in the human-present flow | Phase 2 step 7 |
+
+The spec recommends setting `exp` on open mandates to the smallest value that lets the agent finish its task, and requires the agent to disclose only the open-mandate disclosures needed to evaluate the closed ones [src-ap2-spec-v02].
+
+### Flow 3: Constraint failure and fallback to human present
+
+1. A verifier (Merchant or Credential Provider) cannot confirm that the closed mandate meets the open mandate's constraints, or sees an unknown constraint type.
+2. It returns a receipt with status `Error` and error `unresolved_constraint` [src-ap2-agent-authorization].
+3. The error "MAY be used as a signal" to fall back to a directly approved closed mandate (the Human Present flow) or a non-agentic flow; `flows.md` says a Human Not Present flow can be turned into a Human Present flow this way [src-ap2-flows].
+4. With an error receipt in hand, the agent may present a different mandate for the same open mandate [src-ap2-spec-v02].
+
+This is the only "step-up" path in v0.2. The normative v0.2 documents define no 3DS2, OTP or other challenge messages (correction 2.1.10).
+
+### Flow 4: Terminal failures
+
+- `invalid_credential`: signature or chain verification fails; terminal.
+- `invalid_mandate`: the mandate does not approve the requested action; terminal.
+- `mandates_not_supported`: the verifier does not use mandates for this action; may fall back to non-agentic flows.
+- On any Merchant verification failure the Merchant must return a Checkout Receipt JWT with the error; on any CP or Network failure they must return a Payment Receipt JWT with the error [src-ap2-agent-authorization] [src-ap2-spec-v02].
+
+### Flow 5: Dispute verification
+
+A dispute verifier must: verify the Checkout Mandate under the Merchant rules; recompute the hash of the included `checkout_jwt`; check that the Checkout Receipt `reference` equals the hash of the closed Checkout Mandate (computed like `sd_hash`); verify the Payment Mandate under the MPP rules using `checkout_hash`; and check that the Payment Receipt `reference` equals the hash of the closed Payment Mandate. The Checkout Mandate and Receipt may be provided by the SA or the Merchant; the Payment Mandate and Receipt by the SA, CP, Network or MPP. Retention, retrieval and how evidence is used in a dispute are out of scope; the spec suggests a future retrieval keyed on `transaction_id` [src-ap2-spec-v02].
+
+### Flow 6: Delegation with OpenID4VP and the Digital Credentials API (User Credential model)
+
+1. The agent builds an OpenID4VP Authorization Request whose `transaction_data` contains a base64url object with `type` `delegate`, `format`, `delegate_payload` (the Mandate Contents) and optional `delegate_disclosures`.
+2. The request is sent through the Digital Credentials API where available (recommended), with a DCQL query for the user credential.
+3. The wallet (Trusted Surface as Holder) shows the content, and its Authorization Response includes `delegate_payload` in the key binding (per the Delegate SD-JWT draft).
+4. The non-normative example asks for an EMVCo-style DPC credential (`vct` `com.emvco.dpc`) with disclosures `card_last_four`, `card_network_code`, `credential_id`, and returns a `~`-separated SD-JWT in `vp_token` [src-ap2-agent-authorization].
+
+### v0.1 flows (for the version toggle)
+
+v0.1 Human Present: Intent Mandate captured from the request; merchant-signed `CartMandate`; user signs the cart; `PaymentMandate` with `user_authorization` sent toward the network and issuer; any party may challenge with 3DS2 or OTP through a redirect (Section 5.5). v0.1 Human Not Present: the user signs a detailed Intent Mandate up front and the agent can generate a Cart Mandate when conditions are met; a merchant can force the user back into session [src-ap2-spec-v01] [src-ap2-gcloud-launch].
+
+## State machines
+
+AP2 v0.2 defines no explicit state machine or status enum for a session. The implicit states are:
+
+| Object | States | Transitions | Source |
+| --- | --- | --- | --- |
+| Mandate | open, closed | An open mandate (constraints plus `cnf`) becomes closed when the agent creates a key-binding JWT with the key in `cnf`, bound to one transaction; a user can also sign a closed mandate directly | [src-ap2-agent-authorization] |
+| Open mandate scope | available, reduced, exhausted | After a success receipt the agent stores the open, closed and receipt tuple and reduces the open mandate's scope, "often preventing future presentations entirely"; with `payment.agent_recurrence` and `payment.budget` it can be reused within limits | [src-ap2-agent-authorization] [src-ap2-payment-mandate-doc] |
+| Presentation | pending, accepted, rejected | Verifier returns a receipt with `status` `Success` or `Error`; the agent must not present a new closed mandate from the same open mandate while one is pending without a rejection receipt | [src-ap2-schema-receipts] [src-ap2-spec-v02] |
+| Expiry | valid, expired | `exp` (Unix epoch) on any mandate; `payment.execution_date` window | [src-ap2-schema-payment] |
+
+There is no revocation state: the spec defines no mandate revocation mechanism. The Implementation Considerations only say the agent SHOULD let users manage active mandates, and that managing delegated mandates on external Trusted Surfaces is out of scope [src-ap2-implementation].
+
+The `a2a-x402` extension does define a payment state machine through the metadata key `x402.payment.status` with values `payment-required`, `payment-submitted`, `payment-rejected`, `payment-verified`, `payment-completed`, `payment-failed` [src-ap2-a2a-x402-v02].
+
+## Transports
+
+- **v0.2 is transport-agnostic.** AP2 "operates as a security feature within a Commerce Protocol"; catalog APIs, checkout updates and role-to-role APIs are out of scope. It is designed to be compatible with UCP [src-ap2-spec-v02].
+- **UCP binding.** UCP defines the capability `dev.ucp.common.payment.ap2_mandate` (extends `dev.ucp.shopping.checkout`), advertised in `/.well-known/ucp`. The merchant signs the checkout response as a JWS with detached content in `ap2.merchant_authorization` (ES256, ES384 or ES512, JCS canonicalization, keys from `keys[]` in `/.well-known/ucp`); the platform returns `ap2.checkout_mandate` (an SD-JWT with key binding) on `complete`; the Payment Mandate travels in `payment.instruments[*].credential.token`. UCP's 2026-08-25 refactor (commit `0b9d7c40`, release `v2026-08-25`) cites AP2 v0.2 and issue #268 [src-ap2-ucp-ext] [src-ap2-ucp-schema].
+- **A2A.** The Python and Go samples run the roles as A2A agents (`code/samples/python/scenarios/a2a/human-present/cards`, `.../x402`, `.../human-not-present/cards`, `.../x402`; `code/samples/go/scenarios/a2a`). The Implementation Considerations list "a Merchant Agent that communicates over agent-to-agent (a2a)" as one way to structure the merchant [src-ap2-repo] [src-ap2-implementation]. v0.1 documented an A2A extension and a sample agent card extension URI `https://google-a2a.github.io/A2A/ext/payments/v1` [src-ap2-spec-v01]. AP2 is not A2A: A2A is one possible transport for the samples.
+- **OpenID4VP and the Digital Credentials API** carry the delegation step in the User Credential model (`response_mode` `dc_api`) [src-ap2-agent-authorization].
+- **MCP.** v0.1 and the site describe AP2 as usable with MCP; the FAQ says an SDK and MCP server were "being worked on" [src-ap2-faq] [src-ap2-site]. No AP2 MCP server exists in the repository at `e1ea56d`.
+- **Android.** `code/samples/android/scenarios/digital-payment-credentials` demonstrates digital payment credentials on Android [src-ap2-repo].
+
+## Cryptography and standards used
+
+| Element | Used how | Normative? | Source |
+| --- | --- | --- | --- |
+| SD-JWT (RFC 9901, published 2025-11) | Format of every mandate; selective disclosure of constraints; salted digests; decoy digests allowed (Section 4.2.5) | Normative reference | [src-ap2-agent-authorization] [src-ap2-security] [src-ap2-rfc9901] |
+| SD-JWT VC | Mandates are SD-JWT VCs identified by `vct` | Spec text | [src-ap2-agent-authorization] |
+| Delegate SD-JWT (individual draft by G. Oliver) | Chains open and closed mandates; the closed mandate is a key-binding JWT (`typ` `kb+sd-jwt` in examples) carrying `sd_hash` over the parent | Normative reference to a GitHub draft; posted to the IETF as `draft-gco-oauth-delegate-sd-jwt-00` on 2026-04-22 | [src-ap2-agent-authorization] [src-ap2-delegate-sd-jwt] |
+| RFC 7800 `cnf` | Agent public key in open mandates (proof of possession) | Normative | [src-ap2-agent-authorization] |
+| OpenID4VP 1.0 | `transaction_data` of type `delegate`; DCQL | Normative | [src-ap2-agent-authorization] |
+| W3C Digital Credentials API | Recommended channel for OpenID4VP delegation | RECOMMENDED | [src-ap2-agent-authorization] |
+| OpenID4VCI | One way to issue the user credential | Informative | [src-ap2-agent-authorization] |
+| ISO 18013-5 mdoc, 18013-7 Annex C | Alternatives that "could" fill the same role | Informative | [src-ap2-agent-authorization] |
+| ES256 (ECDSA P-256) | Used in every example; `jwk.json` fixes `alg` ES256 and `crv` P-256 | Examples and SDK type | [src-ap2-payment-mandate-doc] [src-ap2-schema-types] |
+| SHA-256 | Default hash for `checkout_hash`, `transaction_id`, receipt `reference` unless `_sd_alg` says otherwise | Normative | [src-ap2-schema-checkout] |
+| JWT | Merchant-signed `checkout_jwt`; signed receipts | Normative | [src-ap2-spec-v02] |
+| eIDAS QWAC | `pisp.domain_name` described as secured by the TPP's QWAC | Schema description | [src-ap2-schema-types] |
+| EMVCo DPC credential | Example credential type `com.emvco.dpc` | Example only | [src-ap2-agent-authorization] |
+
+- **Hash bindings.** `checkout_hash` = hash of `checkout_jwt` (closed Checkout Mandate); `transaction_id` = the same hash in the closed Payment Mandate; `conditional_transaction_id` in `payment.reference` = digest of the open Checkout Mandate; `sd_hash` binds a closed mandate to its open parent; receipt `reference` = hash of the closed mandate, computed like `sd_hash` [src-ap2-schema-checkout] [src-ap2-schema-payment] [src-ap2-schema-open-payment] [src-ap2-spec-v02].
+- **Signature determinism rule.** `specification.md` requires the Checkout JWT to be signed with a non-deterministic scheme such as ECDSA, not a deterministic one such as Ed25519, to stop rainbow-table guessing of `checkout_hash`; `security_and_privacy_considerations.md` instead allows a deterministic scheme if the Checkout carries a salt of sufficient entropy. Issue #268 (opened 2026-05-26 by igrigorik, still open on 2026-10-11) reports the inconsistency; spec author GarethCOliver agreed on 2026-05-27 that a payload-entropy rule is reasonable and that the change belongs in the FIDO working group [src-ap2-spec-v02] [src-ap2-security] [src-ap2-issue-268].
+- **W3C VC 2.0 and DIDs (correction 2.2).** The v0.2 normative documents do not reference W3C Verifiable Credentials Data Model 2.0 or DIDs; they use SD-JWT VC, OpenID4VP and the Digital Credentials API. VC 2.0 and DIDs belong to the wider verifiable-credential family. The v0.1 specification spoke of "Verifiable Credentials (VCs)" generically, and the launch post says mandates are "signed by verifiable credentials" [src-ap2-agent-authorization] [src-ap2-spec-v01] [src-ap2-gcloud-launch].
+
+## Security model and published attacks or CVEs
+
+### Threat model (`security_and_privacy_considerations.md`)
+
+AP2 assumes that preventing prompt injection is infeasible, so every LLM and agent must be treated as a potential attacker [src-ap2-security].
+
+| Threat | Mitigation in the spec |
+| --- | --- |
+| Stolen Payment Mandate used with another checkout | Closed Payment Mandate carries `transaction_id`; open ones carry a reference constraint (the doc writes it as `mandate.payment.reference`, while the schema key is `payment.reference`) |
+| Reuse of an open mandate with a different closed mandate or checkout | Closed mandates must carry `sd_hash`; open mandates must carry the agent key in `cnf` |
+| Closed Checkout Mandate used with another session | Merchant checks `checkout_hash` against the latest `checkout_jwt` |
+| Payment manipulated in transit by the SA or CP | MPP and CP verify the user's signature; `transaction_id` link; constraint evaluation |
+| Theft of the payment credential or token | Token released to the merchant only after a final Payment Mandate is verified |
+| Prompt injection steering product choice ("Manipulated Discovery") | Merchant signature; constraints bound the worst-case financial impact |
+| Double spend from one open mandate | Deterministic part of the agent must not sign overlapping closed mandates without rejection receipts, which must be integrity-protected from the LLM; CP, networks or MPPs MAY reject overlapping mandates or invalidate tokens |
+| Leakage of user intent through constraints | Selective disclosure MUST be used; decoy digests MAY be added |
+| Rainbow-table guessing of digests | Salted digests (RFC 9901 Section 9.1); entropy in the Checkout JWT |
+
+- **No revocation.** v0.2 defines no way to revoke a mandate before `exp` [src-ap2-implementation] [src-ap2-agent-authorization].
+- **No step-up.** v0.2 defines no step-up authentication; failures fall back through `unresolved_constraint` (correction 2.1.10). Liability is left to the networks, as in v0.1 Table 6.1 [src-ap2-agent-authorization] [src-ap2-spec-v01].
+- **Agent identification** is left to the commerce protocol layer [src-ap2-implementation].
+- **Agent-to-agent delegation** is conceptually possible but out of scope [src-ap2-spec-v02].
+- **CVEs and advisories.** No CVE and no GitHub security advisory was found for `google-agentic-commerce/AP2` as of 2026-10-11 [src-ap2-gh-advisories].
+
+### Reported weaknesses in the reference SDK and samples (GitHub issues, unreviewed by maintainers)
+
+Since 2026-04-29 outside contributors have filed issues against the Python SDK and samples, none merged or confirmed by maintainers as of 2026-10-11: closed checkout binding not enforced by default (#328, #358), verifiers never consume an accepted closed Payment Mandate so it can be replayed (#346), constraint evaluation is presence-driven so a withheld disclosure can silently pass (#339), the `contains` requirement on constraints is dropped by code generation (#356), the budget cap uses `max * 100` for all currencies (#362), and the Mandate Receipt `result` versus `status` mismatch (#374) [src-ap2-gh-issues-since]. These are reported, not verified.
+
+### Research (details under Publications)
+
+- arXiv:2608.23858 reports 48 threats with 8 rated high risk; arXiv:2602.06345 reports replay and context-binding gaps; arXiv:2601.22569 shows prompt injection that steers agent choices; arXiv:2609.00060 models agent payment protocols in Tamarin. See the Publications table for verified titles.
+
+## Controls (native and gaps)
+
+| Control id | Support | AP2 v0.2 mechanism or gap | Sources |
+| --- | --- | --- | --- |
+| `agent-identity-verification` | partial | Agent proves possession of the key in `cnf`; who the agent is, is left to the commerce protocol | [src-ap2-agent-authorization] [src-ap2-implementation] |
+| `agent-registration-kya` | none | No registry or KYA; Trusted Agent Provider model relies on verifiers trusting each provider out of band | [src-ap2-agent-authorization] |
+| `user-consent-capture` | native | Trusted Surface (non-agentic) renders Mandate Content and gets authentication and consent before signing | [src-ap2-spec-v02] |
+| `spending-caps` | native | `payment.amount_range` per payment, `payment.budget` cumulative | [src-ap2-schema-open-payment] |
+| `merchant-payee-scoping` | native | `checkout.allowed_merchants`, `payment.allowed_payees`, `payment.allowed_pisps`, `payment.allowed_payment_instruments`, `checkout.line_items` | [src-ap2-schema-open-checkout] [src-ap2-schema-open-payment] |
+| `time-windows-expiry` | native | `iat`, `exp`, `payment.execution_date`, `payment.agent_recurrence` | [src-ap2-schema-open-payment] |
+| `revocation` | none | No mandate revocation defined; only short `exp` and agent-side management | [src-ap2-implementation] |
+| `step-up-authentication` | none | Not specified in v0.2; `unresolved_constraint` fallback to a human-present approval | [src-ap2-agent-authorization] |
+| `replay-protection` | partial | `checkout_hash`, `transaction_id`, `sd_hash`, `cnf`, one-at-a-time presentation rule; consumption tracking left to verifiers (see issue #346) | [src-ap2-security] [src-ap2-gh-issues-since] |
+| `receipts-evidence` | native | Signed Payment and Checkout Receipts bound by `reference` | [src-ap2-schema-receipts] |
+| `dispute-support` | partial | Dispute verification steps defined; retention, retrieval and adjudication out of scope | [src-ap2-spec-v02] |
+| `reputation` | none | Not addressed | [src-ap2-spec-v02] |
+| `monitoring-signals` | partial | `risk_data` map from the Trusted Surface; no event or telemetry format | [src-ap2-schema-payment] |
+| `kill-switch` | external | CP, networks or MPPs MAY reject overlapping mandates or invalidate tokens; card networks keep their own controls | [src-ap2-security] |
+
+## Observability
+
+- **Public data.** The specification, schemas and samples on GitHub; the docs site; GitHub issues and pull requests. AP2 defines no public registry, explorer, indexer, `.well-known` path or event stream of its own [src-ap2-repo] [src-ap2-spec-v02].
+- **Schema `$id` URLs** use `https://ap2-protocol.org/schemas/...` (for example `checkout_mandate.json`, `payment_mandate.json`, `payment_mandate_open.json`, `types/merchant.json`) [src-ap2-schema-types].
+- **Discovery through UCP.** A business advertises `dev.ucp.common.payment.ap2_mandate` in `/.well-known/ucp`, and signing keys sit in `keys[]` there, so AP2 support is publicly observable only for UCP merchants that publish profiles [src-ap2-ucp-ext].
+- **Private data.** Mandates, receipts and `risk_data` stay between the SA, CP, Merchant, MPP and Network. Selective disclosure deliberately limits what each sees [src-ap2-security].
+- **Self-reported deployment surfaces.** Issue #345 (2026-08-29) claims a merchant-side v0.2 deployment at Suede Agent Studio with `/.well-known/ap2.json` and `/.well-known/ap2-jwks.json`. These paths are not defined by AP2; they are that implementer's own convention [src-ap2-issue-345].
+
+## Compliance touchpoints
+
+- **PSD2 and SCA language.** The glossary defines Strong Customer Authentication, Dynamic Linking (linking SCA to transaction details) and PISP; `pisp.json` refers to eIDAS QWAC certificates of the TPP. These are European open-banking terms, but the spec does not claim PSD2 compliance [src-ap2-glossary] [src-ap2-schema-types].
+- **PCI DSS.** The FAQ says the role-based design keeps sensitive PCI and PII data from shopping agents through payload encryption and selective disclosure [src-ap2-faq].
+- **Dispute evidence and liability.** Mandates are evidence for network adjudicators; liability rules stay with each network (v0.1 Table 6.1 is "not a binding contract of any kind") [src-ap2-spec-v01] [src-ap2-faq].
+- **Privacy and data minimization.** Selective disclosure is mandatory for constraints; agents must reveal only needed disclosures [src-ap2-security] [src-ap2-spec-v02].
+- **Post-quantum and algorithm agility.** Issue #250, cited by #268, proposes a `signature_algorithm` field citing HKMA, EU DORA and NIST IR 8547; not adopted [src-ap2-issue-268].
