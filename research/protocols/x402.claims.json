@@ -605,6 +605,309 @@
       ],
       "confidence": "verified",
       "topic": "versions"
+    },
+    {
+      "id": "clm-x402-063",
+      "text": "x402 defines three main roles: a client that wants to pay for a resource, a resource server that provides it, and a facilitator that verifies and executes payments for one or more networks.",
+      "sources": [
+        "src-x402-repo",
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-x402-064",
+      "text": "The x402 docs state that the facilitator does not hold funds or act as a custodian.",
+      "sources": [
+        "src-x402-docs-facilitator-concept"
+      ],
+      "confidence": "verified",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-x402-065",
+      "text": "Anyone can run an x402 facilitator, and a resource server can verify and settle payments itself without a separate facilitator.",
+      "sources": [
+        "src-x402-docs-facilitator-concept",
+        "src-x402-repo"
+      ],
+      "confidence": "verified",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-x402-066",
+      "text": "A trust-minimizing principle in the x402 README says no payment scheme may let the facilitator or resource server move funds other than in accordance with client intentions.",
+      "sources": [
+        "src-x402-repo"
+      ],
+      "confidence": "verified",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-x402-067",
+      "text": "For Solana exact payments the fee payer that signs the transaction may be the merchant or a third-party facilitator, and is advertised in extra.feePayer.",
+      "sources": [
+        "src-x402-scheme-exact-svm"
+      ],
+      "confidence": "verified",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-x402-068",
+      "text": "In the cloudflare:402 credit-backed binding the network itself acts as merchant of record and payTo is the constant merchant.",
+      "sources": [
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-x402-069",
+      "text": "The V2 PaymentRequired object has the fields x402Version, error, resource, accepts and extensions, of which x402Version, resource and accepts are required.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-070",
+      "text": "The V2 ResourceInfo object has the fields url (required), description, mimeType, serviceName, tags and iconUrl.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-071",
+      "text": "A V2 PaymentRequirements entry has the required fields scheme, network, amount, asset, payTo and maxTimeoutSeconds, plus an optional extra object.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-072",
+      "text": "In V2 PaymentRequirements the network field is a CAIP-2 identifier such as eip155:84532, and amount is a string in atomic units.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-073",
+      "text": "The extra object of PaymentRequirements reserves the keys assetTransferMethod and paymentFlow; other keys are scheme specific, such as name and version for the EVM token's EIP-712 domain.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-074",
+      "text": "Each x402 extension entry has an info object and a JSON Schema in schema, and clients must echo at least the received info back without deleting or overwriting it.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-075",
+      "text": "The V2 PaymentPayload object has the fields x402Version, resource, accepted, payload and extensions, where accepted is the chosen PaymentRequirements entry.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-076",
+      "text": "The exact EVM payload with the eip3009 method carries a signature and an authorization with from, to, value, validAfter, validBefore and nonce.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-077",
+      "text": "The exact EVM permit2 payload carries a permit2Authorization whose spender is the x402ExactPermit2Proxy at 0x402085c248EeA27D92E8b30b2C58ed07f9E20001, and the erc7710 payload carries delegationManager, permissionContext and delegator.",
+      "sources": [
+        "src-x402-scheme-exact-evm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-078",
+      "text": "The Solana exact payload is a single transaction field holding a base64 partially signed versioned transaction.",
+      "sources": [
+        "src-x402-scheme-exact-svm"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-079",
+      "text": "The VerifyResponse object has the fields isValid (required), invalidReason, payer, extensions and extra.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-080",
+      "text": "The SettleResponse object, also called SettlementResponse in the spec headings, has the fields success, errorReason, payer, transaction, network, amount and extensions.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-081",
+      "text": "In SettleResponse the transaction field is an empty string if nothing was broadcast and must be non-empty when errorReason is settlement_pending.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-082",
+      "text": "The SupportedResponse from GET /supported has the fields kinds, extensions and signers, where signers maps CAIP-2 patterns to signer addresses.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-083",
+      "text": "A discovery resource returned by GET /discovery/resources has the fields resource, type, x402Version, accepts, lastUpdated and extensions, and the list takes limit values from 1 to 100 with a default of 20.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-084",
+      "text": "V1 PaymentRequirements used the fields scheme, network, maxAmountRequired, asset, payTo, resource, description, mimeType, outputSchema, maxTimeoutSeconds and extra, with networks as plain strings such as base-sepolia.",
+      "sources": [
+        "src-x402-spec-v1",
+        "src-x402-transport-http-v1"
+      ],
+      "confidence": "verified",
+      "specVersion": "v1",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-085",
+      "text": "The bazaar extension describes inputs with info.input.type of http or mcp, plus method, queryParams, bodyType, body, headers, toolName and inputSchema, and outputs with info.output.type and info.output.example.",
+      "sources": [
+        "src-x402-ext-bazaar"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-086",
+      "text": "The payment-identifier extension carries info.required and info.id, an identifier of 16 to 128 characters.",
+      "sources": [
+        "src-x402-ext-payment-identifier"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-087",
+      "text": "The offer-receipt extension carries signed offers with format eip712 or jws, payload, signature and acceptIndex, using EIP-712 domains named x402 offer and x402 receipt.",
+      "sources": [
+        "src-x402-ext-offer-receipt"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-088",
+      "text": "The sign-in-with-x extension sends a SIGN-IN-WITH-X client header and its info includes domain, uri, version, nonce, issuedAt, expirationTime, statement and resources.",
+      "sources": [
+        "src-x402-ext-siwx"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-089",
+      "text": "The builder-code extension appends an ERC-8021 Schema 2 CBOR suffix to settlement calldata with keys a for app, w for wallet or facilitator, s for service and m for facilitator metadata.",
+      "sources": [
+        "src-x402-ext-builder-code"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-090",
+      "text": "The auth-hints extension lists authRequirements with acceptIndexes and methods that name type, tokenType and authorizationServer.",
+      "sources": [
+        "src-x402-ext-auth-hints"
+      ],
+      "confidence": "verified",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-091",
+      "text": "The x402 extension identifiers in the specs are bazaar, sign-in-with-x, payment-identifier, offer-receipt, builder-code, http-message-signatures, auth-hints, eip2612GasSponsoring and erc20ApprovalGasSponsoring.",
+      "sources": [
+        "src-x402-ext-bazaar",
+        "src-x402-repo"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "specVersion": "v2",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-x402-092",
+      "text": "x402 V2 defines four schemes: exact, upto, batch-settlement and auth-capture.",
+      "sources": [
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "specVersion": "v2",
+      "topic": "objects"
     }
   ]
 }
