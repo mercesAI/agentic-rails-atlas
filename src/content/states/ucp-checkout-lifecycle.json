@@ -29,7 +29,7 @@
   {
    "id": "complete_in_progress",
    "label": "complete_in_progress",
-   "note": "Complete accepted for asynchronous processing; no order yet. An Action (for example a 3DS challenge) can be outstanding. No new Update or Complete."
+   "note": "Complete accepted for asynchronous processing; no order yet. An Action (for example a 3DS challenge) can be outstanding. No new Update or Complete; on trouble the platform follows fallback, handoff, then cancel."
   },
   {
    "id": "completed",
@@ -95,18 +95,18 @@
    "specRef": "shopping/checkout/index.md#complete-checkout"
   },
   {
+   "from": "ready_for_complete",
+   "to": "requires_escalation",
+   "trigger": "Complete returns a buyer handoff (requires_buyer_input or requires_buyer_review)",
+   "apiCall": "POST /checkout-sessions/{id}/complete",
+   "specRef": "shopping/checkout/index.md#complete-checkout"
+  },
+  {
    "from": "complete_in_progress",
    "to": "completed",
    "trigger": "Business finishes processing; any Action resolved",
    "apiCall": "GET /checkout-sessions/{id} (get_checkout)",
    "specRef": "shopping/checkout/index.md#accepted-completion"
-  },
-  {
-   "from": "complete_in_progress",
-   "to": "incomplete",
-   "trigger": "Action fails or payment declined with a recoverable error",
-   "apiCall": "GET /checkout-sessions/{id}",
-   "specRef": "payment/extensions/authentication.md#decline-failure-and-abandonment"
   },
   {
    "from": "incomplete",
