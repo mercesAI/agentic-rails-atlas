@@ -70,7 +70,12 @@ export function lintStyle(root: string = ROOT): StyleFinding[] {
   for (const file of walkFiles(join(root, 'src', 'content'), (p) => CONTENT_EXT.test(p))) {
     const text = readFileSync(file, 'utf8');
     emDashes(file, text, text);
-    const masked = text.replace(/https?:\/\/[^\s"')\]>]+/g, (m) => ' '.repeat(m.length));
+    // Mask URLs, and in JSON the values of fields that quote third-party wording
+    // verbatim (publication and source titles, BibTeX), so their titles are not
+    // judged as our prose. Em dashes are still checked everywhere above.
+    const masked = text
+      .replace(/https?:\/\/[^\s"')\]>]+/g, (m) => ' '.repeat(m.length))
+      .replace(/"(title|bibtex)"\s*:\s*"(?:[^"\\]|\\.)*"/g, (m) => (file.endsWith('.json') ? ' '.repeat(m.length) : m));
     for (const { phrase, re } of banned) {
       re.lastIndex = 0;
       for (const m of masked.matchAll(re)) {
