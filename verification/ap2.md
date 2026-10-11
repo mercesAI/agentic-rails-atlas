@@ -138,3 +138,57 @@ Rule checks across all 208 claims:
 | clm-ap2-202 | pass | research/vendor/AP2/docs/ap2/agent_authorization.md:455-465 |  |
 | clm-ap2-205 | pass | research/vendor/AP2/code/sdk/python/ap2/sdk/README.md:21-22, 83-90 |  |
 | clm-ap2-206 | pass | FIDO PR 2026-04-28 "Payments Technical Working Group"; 2025-04-29 release "Payments Working Group (PWG)" |  |
+
+## Check 2: field names, enums, error codes and payloads
+
+Method: FieldTable rows parsed from `index.mdx` (script `ft.mjs` in the scratchpad) and compared one by one with `research/vendor/AP2/code/sdk/schemas/ap2/*.json` (identical at v0.2.0 and e1ea56d). Every key and identifier-like value in the 15 flow payloads, every backticked or dotted identifier in `index.mdx`, `observability.json`, `security.json`, `controls.json`, `compliance.json` and `ste.mdx` was grepped in `research/vendor/AP2/docs`, `code/sdk` and, for v0.1 names, `git grep v0.1.0`. UCP and Verifiable Intent names were grepped in `research/vendor/ucp` and `research/vendor/verifiable-intent` (and the GitHub tags v2026-01-11 and VI v0.1.0). Mandate and receipt objects in flow payloads were validated with ajv 8.20.0 (draft 2020-12) against the schemas.
+
+Totals: 66 FieldTable rows, 95 flow-payload identifiers, 68 text identifiers, plus the playground constants. 4 identifiers do not exist in the spec (all illustrative wrapper keys in flow payloads); 0 field, constraint key, `vct` or error code is misspelled.
+
+### 2a. FieldTables against the v0.2.0 schemas
+
+| Table | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| Closed Checkout Mandate (5 rows) | pass | checkout_mandate.json | required = vct, checkout_jwt, checkout_hash; iat, exp optional; vct const `mandate.checkout.1` |
+| Closed Payment Mandate (10 rows) | pass | payment_mandate.json | all ten properties present, required set matches (follow-up 2.3.4 satisfied: `vct`, `pisp`, `iat`, `exp` listed) |
+| Open Checkout Mandate (5 rows) | pass | open_checkout_mandate.json | required vct, constraints, cnf; `contains` line_items |
+| Open Payment Mandate (11 rows) | pass | open_payment_mandate.json | optional pre-set payee, payment_amount, payment_instrument, pisp, execution_date, risk_data present in schema; `contains` payment_reference |
+| Constraint types (10 rows) | pass | open_*_mandate.json `$defs` | all ten `type` consts exact; field names (allowed, items, acceptable_items, quantity, currency, max, min, frequency enum, max_occurrences, not_before, not_after, conditional_transaction_id) exact; budget `max` correctly typed number |
+| Shared types (6 rows) | pass | types/*.json | Amount, Merchant, PaymentInstrument, PISP, Item, JWK required sets match |
+| Receipts (8 rows) | pass | payment_receipt.json, checkout_receipt.json, specification.md:354-360 | status enum Success/Error; oneOf requirements match |
+| Action authorization errors (4 rows) | pass | agent_authorization.md:521-535 | `invalid_credential`, `unresolved_constraint`, `invalid_mandate`, `mandates_not_supported` exact; terminal vs fallback correct |
+| OpenID4VP transaction_data (4 rows) | pass | agent_authorization.md:104-111, 193-197 | type `delegate`, format, delegate_payload required, delegate_disclosures optional |
+| v0.1 objects (3 rows) | pass | `git show v0.1.0:src/ap2/types/mandate.py` | IntentMandate fields, CartMandate contents/merchant_authorization (cart_hash in description), PaymentMandate payment_mandate_contents/user_authorization |
+
+### 2b. Identifiers not found in the spec
+
+| Identifier | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| `checkout_mandate_content` | fail (low) | src/content/flows/ap2-human-present.json step 5 | Presentation wrapper key, not an AP2 field. The spec calls it "Mandate Content" with no key. Rename to a comment-labeled pair of payloads or add `# wrapper keys are labels, not AP2 fields`. |
+| `payment_mandate_content` | fail (low) | ap2-human-present.json step 5 | Same; appears in AP2 only as a Python test variable (`code/sdk/python/ap2/tests/receipt_wrapper_tests.py:33`). |
+| `open_checkout_mandate_content` | fail (low) | ap2-human-not-present.json step 2 | Same. |
+| `open_payment_mandate_content` | fail (low) | ap2-human-not-present.json step 2 | Same. |
+| `pay_none` | pass | ap2-failure-invalid-credential.json step 3 | Illustrative value of `payment_id`, not an identifier. |
+| `dev.ucp.shopping.ap2_mandate` | pass | gh api tag v2026-01-11 and vendor/ucp tag v2026-04-08 `source/schemas/shopping/ap2_mandate.json` | Historic UCP name, correctly dated. |
+| `ap2.merchant_authorization`, `ap2.checkout_mandate`, `mandate_required`, `mandate_scope_mismatch`, `/.well-known/ucp` | pass | research/vendor/ucp/docs/specification/payment/extensions/ap2-mandates.md; source/schemas/common/payment_ap2_mandate.json | UCP identifiers, correctly attributed to UCP. |
+| `mandate.payment.amount_range` | pass | research/vendor/verifiable-intent spec/README.md at 356c296 | Verifiable Intent string, attributed to VI. |
+
+Minor presentation inconsistency: the decoded SD-JWT in ap2-human-present.json step 7 uses the label `disclosure` while step 12 and the spec examples use `disclosures`.
+
+### 2c. Schema validation of payload objects (ajv)
+
+16 mandate and receipt objects found in flow payloads; 15 valid. The one "invalid" object (ap2-human-present.json step 12, closed Checkout Mandate without top-level `checkout_jwt`) is the decoded SD-JWT form in which `checkout_jwt` travels as a selective disclosure, exactly as in `docs/ap2/checkout_mandate.md` lines 254-280. Not a defect. Note that the published schemas have `$id` values that do not match their file names (`types/receipt_status.json` has `$id` `.../receipt-status.json`; `types/jwk.json` has `.../jwk_public_key.json`), so `$ref` resolution fails without remapping. That is an upstream quirk, not a site error.
+
+### 2d. Playground (`src/playgrounds/ap2/`)
+
+| Item | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| `vct` constants | pass | lib/types.ts:11-14 | four exact strings |
+| Error codes | pass | lib/types.ts:19 | four exact strings |
+| Constraint types | pass | lib/types.ts:23-33 | ten exact strings |
+| `frequency` enum | pass | lib/types.ts:36 | seven exact values |
+| Mandate and receipt field names | pass | lib/types.ts:39-215 | match schemas; receipt status `Success`/`Error`; the prose `result` receipt is modeled separately and labeled |
+| JWS `typ` values (`example+sd-jwt`, `kb+sd-jwt`, `JWT`) | pass | lib/mandates.ts:80, 97, 143 | all appear in docs/ap2 examples |
+| v0.1 names | pass | lib/v01.ts | every snake_case name found at tag v0.1.0 except scenario ids |
+| "Teaching simplification" label | pass | Playground.tsx:82; lib/mandates.ts:11, 153; lib/v01.ts:6 | present where SD-JWT chaining and the reference hash are simplified |
+| Other snake_case strings | pass | fixtures, scenario ids, CSS classes | not protocol identifiers; `com.example.loyalty_tier` is a deliberately unknown constraint type following the spec's rDNS advice |
