@@ -1,0 +1,58 @@
+sequenceDiagram
+  accTitle: Metered inference: an MPP session on Tempo with vouchers, a top-up and a cooperative close
+  accDescr: Sequence diagram: Metered inference: an MPP session on Tempo with vouchers, a top-up and a cooperative close. 3 participants: Client agent, Inference API server, and Tempo channel escrow (TIP-20 precompile in v2). 13 steps, 10 crossing a trust boundary, 9 failure branches. Based on several protocols MPP core draft-httpauth-payment-01 Tempo session draft-tempo-session-00 (v2 text merged 2026-06-25) (2026-06-25). Step 1: Client agent to Inference API server: POST /v1/chat/completions with Accept-Payment. This step crosses a trust boundary. Step 2: Inference API server to Client agent: 402 with WWW-Authenticate: Payment, method tempo, intent session. This step crosses a trust boundary. Step 3: Client agent to Client agent: Choose a deposit, sign the open transaction and a zero voucher. Step 4: Client agent to Inference API server: Retry with Authorization: Payment, action open. This step crosses a trust boundary. If The challenge id is unknown, used or expired: 402 with a fresh challenge and a matching problem type such as invalid-challenge or payment-expired. Step 5: Inference API server to Tempo channel escrow (TIP-20 precompile in v2): Broadcast the open transaction. This step crosses a trust boundary. Step 6: Inference API server to Client agent: 200, stream starts, Payment-Receipt in headers. This step crosses a trust boundary. Step 7: Client agent to Inference API server: Voucher per unit batch (action voucher, HEAD allowed). This step crosses a trust boundary. If The voucher total exceeds the deposit: Rejected (session/amount-exceeds-deposit). If The increase is below minVoucherDelta: Rejected (session/delta-too-small). If The voucher is signed by the wrong key: Rejected (session/signer-mismatch). Step 8: Inference API server to Client agent: SSE event payment-need-voucher. If No voucher arrives within the server's timeout (for example 60 seconds): The server should close the stream the agent has paid only for what its vouchers covered. Step 9: Client agent to Inference API server: Top up (action topUp). This step crosses a trust boundary. If The challenge id is unknown or expired: Rejected with problem type challenge-not-found. Step 10: Inference API server to Tempo channel escrow (TIP-20 precompile in v2): Broadcast topUp settle when the server chooses. This step crosses a trust boundary. Step 11: Client agent to Inference API server: Close (action close) with the final voucher. This step crosses a trust boundary. Step 12: Inference API server to Tempo channel escrow (TIP-20 precompile in v2): close: capture max(spent, settled), refund the rest. This step crosses a trust boundary. If The server never closes (forced close): The agent calls requestClose on chain a grace period of at least 15 minutes starts in which the server can still settle or close the spec advises waiting at least 16 minutes before withdraw, which returns all unsettled funds. If The agent tops up while a close request is pending: The topUp cancels the close request and emits CloseRequestCancelled. If A close voucher equal to the settled amount (mppx before 0.4.11, CVE-2026-34209): The vulnerable server accepted it, letting anyone close or grief a channel for free fixed in 0.4.11. Step 13: Inference API server to Client agent: Final receipt with txHash (SSE payment-receipt event).
+  autonumber
+  participant p_client as Client agent
+  participant p_server as Inference API server
+  participant p_escrow as Tempo channel escrow (TIP-20 precompile in v2)
+  p_client->>p_server: POST /v1/chat/completions with Accept-Payment
+  Note over p_client,p_server: Crosses a trust boundary
+  p_server-->>p_client: 402 with WWW-Authenticate: Payment, method tempo, intent session
+  Note over p_server,p_client: Crosses a trust boundary
+  p_client->>p_client: Choose a deposit, sign the open transaction and a zero voucher
+  alt Expected path
+    p_client->>p_server: Retry with Authorization: Payment, action open
+    Note over p_client,p_server: Crosses a trust boundary
+  else The challenge id is unknown, used or expired
+    Note over p_client,p_server: 402 with a fresh challenge and a matching problem type such as invalid-challenge or payment-expired.
+  end
+  p_server->>p_escrow: Broadcast the open transaction
+  Note over p_server,p_escrow: Crosses a trust boundary
+  p_server-->>p_client: 200, stream starts, Payment-Receipt in headers
+  Note over p_server,p_client: Crosses a trust boundary
+  alt Expected path
+    p_client->>p_server: Voucher per unit batch (action voucher, HEAD allowed)
+    Note over p_client,p_server: Crosses a trust boundary
+  else The voucher total exceeds the deposit
+    Note over p_client,p_server: Rejected (session/amount-exceeds-deposit).
+  else The increase is below minVoucherDelta
+    Note over p_client,p_server: Rejected (session/delta-too-small).
+  else The voucher is signed by the wrong key
+    Note over p_client,p_server: Rejected (session/signer-mismatch).
+  end
+  alt Expected path
+    p_server-->>p_client: SSE event payment-need-voucher
+  else No voucher arrives within the server#39;s timeout (for example 60 seconds)
+    Note over p_server,p_client: The server should close the stream#59; the agent has paid only for what its vouchers covered.
+  end
+  alt Expected path
+    p_client->>p_server: Top up (action topUp)
+    Note over p_client,p_server: Crosses a trust boundary
+  else The challenge id is unknown or expired
+    Note over p_client,p_server: Rejected with problem type challenge-not-found.
+  end
+  p_server->>p_escrow: Broadcast topUp#59; settle when the server chooses
+  Note over p_server,p_escrow: Crosses a trust boundary
+  p_client->>p_server: Close (action close) with the final voucher
+  Note over p_client,p_server: Crosses a trust boundary
+  alt Expected path
+    p_server->>p_escrow: close: capture max(spent, settled), refund the rest
+    Note over p_server,p_escrow: Crosses a trust boundary
+  else The server never closes (forced close)
+    Note over p_server,p_escrow: The agent calls requestClose on chain#59; a grace period of at least 15 minutes starts in which the server can still settle or close#59; the spec advises waiting at least 16 minutes before withdraw, which returns all unsettled funds.
+  else The agent tops up while a close request is pending
+    Note over p_server,p_escrow: The topUp cancels the close request and emits CloseRequestCancelled.
+  else A close voucher equal to the settled amount (mppx before 0.4.11, CVE-2026-34209)
+    Note over p_server,p_escrow: The vulnerable server accepted it, letting anyone close or grief a channel for free#59; fixed in 0.4.11.
+  end
+  p_server->>p_client: Final receipt with txHash (SSE payment-receipt event)

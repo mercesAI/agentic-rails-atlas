@@ -1,0 +1,86 @@
+sequenceDiagram
+  accTitle: An agent buys one API call: discovery, x402 exact payment, ERC-8004 feedback
+  accDescr: Sequence diagram: An agent buys one API call: discovery, x402 exact payment, ERC-8004 feedback. 9 participants: Client agent, Bazaar discovery endpoint, ERC-8004 Identity Registry, IPFS or HTTPS host, Seller resource server, x402 facilitator, Token contract (EVM chain), ERC-8004 Reputation Registry, and Indexer or reader. 14 steps, 13 crossing a trust boundary, 13 failure branches. Based on several protocols x402 v2.0 ERC-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Client agent to Bazaar discovery endpoint: GET /discovery/resources (Bazaar). This step crosses a trust boundary. If The listing is stale and the server now asks for more: The live 402 response wins the client must compare it with its budget again. Step 2: Client agent to ERC-8004 Identity Registry: Read tokenURI and getAgentWallet (ERC-8004). This step crosses a trust boundary. If The agent NFT was transferred: agentWallet was cleared on transfer getAgentWallet returns no wallet until the new owner binds one again. Step 3: Client agent to IPFS or HTTPS host: Fetch the registration file. This step crosses a trust boundary. If The file is gone or does not list the endpoint: Nothing on chain flags it the client should not pay that endpoint. Step 4: Client agent to Seller resource server: GET /weather (no payment header). This step crosses a trust boundary. Step 5: Seller resource server to Client agent: 402 Payment Required with PAYMENT-REQUIRED. This step crosses a trust boundary. Step 6: Client agent to Client agent: Check payTo against agentWallet, sign EIP-3009. If payTo differs from the agent's agentWallet: Neither protocol forces this check a client that skips it can pay an address the agent never verified. If The amount is above the spend cap: The SDK rejects the entry and no payment is created. Step 7: Client agent to Seller resource server: Retry with PAYMENT-SIGNATURE. This step crosses a trust boundary. If The header is malformed: The server answers 400 (invalid payment). Step 8: Seller resource server to x402 facilitator: POST /verify, run the handler. This step crosses a trust boundary. If isValid is false (for example insufficient_funds or invalid_exact_evm_payload_signature): The server answers 402 again and the handler does not run. If The handler fails: The server does not settle, so the client is not charged. Step 9: Seller resource server to x402 facilitator: POST /settle. This step crosses a trust boundary. If The settle call times out or returns settlement_pending: The outcome is indeterminate the server must reconcile the broadcast hash before it retries. Step 10: x402 facilitator to Token contract (EVM chain): transferWithAuthorization (facilitator pays gas). This step crosses a trust boundary. If The nonce was used or the balance dropped: The transaction reverts and the facilitator returns success false. Step 11: Seller resource server to Client agent: 200 OK with PAYMENT-RESPONSE. This step crosses a trust boundary. Step 12: Client agent to IPFS or HTTPS host: Publish the feedback file with proofOfPayment. This step crosses a trust boundary. Step 13: Client agent to ERC-8004 Reputation Registry: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash). This step crosses a trust boundary. If The caller owns or operates the agent: Reverts with Self-feedback not allowed. If valueDecimals is above 18: Reverts with too many decimals. Step 14: Indexer or reader to IPFS or HTTPS host: Fetch the file, check hash and txHash. This step crosses a trust boundary. If The txHash does not exist or pays someone else: Nothing on chain flags it and getSummary still counts the value only off-chain scoring can discount it.
+  autonumber
+  participant p_client as Client agent
+  participant p_bazaar as Bazaar discovery endpoint
+  participant p_identity as ERC-8004 Identity Registry
+  participant p_files as IPFS or HTTPS host
+  participant p_seller as Seller resource server
+  participant p_facilitator as x402 facilitator
+  participant p_chain as Token contract (EVM chain)
+  participant p_reputation as ERC-8004 Reputation Registry
+  participant p_reader as Indexer or reader
+  alt Expected path
+    p_client->>p_bazaar: GET /discovery/resources (Bazaar)
+    Note over p_client,p_bazaar: Crosses a trust boundary
+  else The listing is stale and the server now asks for more
+    Note over p_client,p_bazaar: The live 402 response wins#59; the client must compare it with its budget again.
+  end
+  alt Expected path
+    p_client->>p_identity: Read tokenURI and getAgentWallet (ERC-8004)
+    Note over p_client,p_identity: Crosses a trust boundary
+  else The agent NFT was transferred
+    Note over p_client,p_identity: agentWallet was cleared on transfer#59; getAgentWallet returns no wallet until the new owner binds one again.
+  end
+  alt Expected path
+    p_client->>p_files: Fetch the registration file
+    Note over p_client,p_files: Crosses a trust boundary
+  else The file is gone or does not list the endpoint
+    Note over p_client,p_files: Nothing on chain flags it#59; the client should not pay that endpoint.
+  end
+  p_client->>p_seller: GET /weather (no payment header)
+  Note over p_client,p_seller: Crosses a trust boundary
+  p_seller-->>p_client: 402 Payment Required with PAYMENT-REQUIRED
+  Note over p_seller,p_client: Crosses a trust boundary
+  alt Expected path
+    p_client->>p_client: Check payTo against agentWallet, sign EIP-3009
+  else payTo differs from the agent#39;s agentWallet
+    Note over p_client: Neither protocol forces this check#59; a client that skips it can pay an address the agent never verified.
+  else The amount is above the spend cap
+    Note over p_client: The SDK rejects the entry and no payment is created.
+  end
+  alt Expected path
+    p_client->>p_seller: Retry with PAYMENT-SIGNATURE
+    Note over p_client,p_seller: Crosses a trust boundary
+  else The header is malformed
+    Note over p_client,p_seller: The server answers 400 (invalid payment).
+  end
+  alt Expected path
+    p_seller->>p_facilitator: POST /verify, run the handler
+    Note over p_seller,p_facilitator: Crosses a trust boundary
+  else isValid is false (for example insufficient_funds or invalid_exact_evm_payload_signature)
+    Note over p_seller,p_facilitator: The server answers 402 again and the handler does not run.
+  else The handler fails
+    Note over p_seller,p_facilitator: The server does not settle, so the client is not charged.
+  end
+  alt Expected path
+    p_seller->>p_facilitator: POST /settle
+    Note over p_seller,p_facilitator: Crosses a trust boundary
+  else The settle call times out or returns settlement_pending
+    Note over p_seller,p_facilitator: The outcome is indeterminate#59; the server must reconcile the broadcast hash before it retries.
+  end
+  alt Expected path
+    p_facilitator->>p_chain: transferWithAuthorization (facilitator pays gas)
+    Note over p_facilitator,p_chain: Crosses a trust boundary
+  else The nonce was used or the balance dropped
+    Note over p_facilitator,p_chain: The transaction reverts and the facilitator returns success false.
+  end
+  p_seller-->>p_client: 200 OK with PAYMENT-RESPONSE
+  Note over p_seller,p_client: Crosses a trust boundary
+  p_client->>p_files: Publish the feedback file with proofOfPayment
+  Note over p_client,p_files: Crosses a trust boundary
+  alt Expected path
+    p_client->>p_reputation: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash)
+    Note over p_client,p_reputation: Crosses a trust boundary
+  else The caller owns or operates the agent
+    Note over p_client,p_reputation: Reverts with #quot;Self-feedback not allowed#quot;.
+  else valueDecimals is above 18
+    Note over p_client,p_reputation: Reverts with #quot;too many decimals#quot;.
+  end
+  alt Expected path
+    p_reader->>p_files: Fetch the file, check hash and txHash
+    Note over p_reader,p_files: Crosses a trust boundary
+  else The txHash does not exist or pays someone else
+    Note over p_reader,p_files: Nothing on chain flags it and getSummary still counts the value#59; only off-chain scoring can discount it.
+  end

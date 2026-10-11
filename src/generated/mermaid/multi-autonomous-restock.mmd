@@ -1,0 +1,56 @@
+sequenceDiagram
+  accTitle: Autonomous restock while the user is away: AP2 v0.2 open mandates, agent-closed mandates, verification and receipts
+  accDescr: Sequence diagram: Autonomous restock while the user is away: AP2 v0.2 open mandates, agent-closed mandates, verification and receipts. 6 participants: Cafe owner (user), Shopping Agent, Trusted Surface, Supplier (merchant), Credential Provider, and Merchant Payment Processor. 16 steps, 8 crossing a trust boundary, 6 failure branches. Based on several protocols AP2 v0.2 (2026-04-28). Step 1: Cafe owner (user) to Shopping Agent: Set the standing task. Step 2: Shopping Agent to Trusted Surface: Propose open Checkout and Payment Mandates. If A constraint type a verifier does not know is included: Every verifier must treat it as failing, so the mandate can never be used. Step 3: Trusted Surface to Cafe owner (user): Show the limits, authenticate, get consent. Step 4: Trusted Surface to Shopping Agent: Return user-signed open mandates the owner leaves. Step 5: Shopping Agent to Supplier (merchant): Stock runs low: build a cart. This step crosses a trust boundary. Step 6: Supplier (merchant) to Shopping Agent: Merchant-signed checkout (checkout_jwt) mandate required. This step crosses a trust boundary. Step 7: Shopping Agent to Shopping Agent: Deterministic pre-check before signing. If A previous closed mandate has neither a success nor a rejection receipt: The agent must wait signing a second checkout would risk a double spend. Step 8: Shopping Agent to Shopping Agent: Sign closed mandates with the agent key (cnf, sd_hash). Step 9: Shopping Agent to Credential Provider: Present open and closed Payment Mandates. This step crosses a trust boundary. Step 10: Credential Provider to Shopping Agent: Verify the chain and constraints issue a payment token. This step crosses a trust boundary. If Budget exceeded, too soon for the recurrence, or a payee not allowed: Payment Receipt with status Error and unresolved_constraint the agent may bring the owner back to approve a closed mandate (human present). If The closed mandate is not signed by the key in cnf, or sd_hash does not match: invalid_credential, a terminal error. Step 11: Shopping Agent to Supplier (merchant): Send the token and the open and closed Checkout Mandates. This step crosses a trust boundary. Step 12: Supplier (merchant) to Supplier (merchant): Merchant verifies bindings and constraints. If The merchant is not allowed or a line item cannot be matched: Checkout Receipt with error unresolved_constraint. With that rejection receipt in hand, the agent may present a new closed mandate for a different checkout. Step 13: Supplier (merchant) to Merchant Payment Processor: Initiate payment with the token and both hashes. This step crosses a trust boundary. Step 14: Merchant Payment Processor to Shopping Agent: Processor verifies the Payment Mandates in the token Payment Receipt. This step crosses a trust boundary. If A binding does not match or the card is declined: Payment Receipt with status Error, error and error_description. Step 15: Supplier (merchant) to Shopping Agent: Checkout Receipt with order_id. This step crosses a trust boundary. Step 16: Shopping Agent to Shopping Agent: Store the tuple, add to the budget, narrow the open mandate.
+  autonumber
+  participant p_user as Cafe owner (user)
+  participant p_agent as Shopping Agent
+  participant p_ts as Trusted Surface
+  participant p_merchant as Supplier (merchant)
+  participant p_cp as Credential Provider
+  participant p_mpp as Merchant Payment Processor
+  p_user->>p_agent: Set the standing task
+  alt Expected path
+    p_agent->>p_ts: Propose open Checkout and Payment Mandates
+  else A constraint type a verifier does not know is included
+    Note over p_agent,p_ts: Every verifier must treat it as failing, so the mandate can never be used.
+  end
+  p_ts->>p_user: Show the limits, authenticate, get consent
+  p_ts-->>p_agent: Return user-signed open mandates#59; the owner leaves
+  p_agent->>p_merchant: Stock runs low: build a cart
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  p_merchant-->>p_agent: Merchant-signed checkout (checkout_jwt)#59; mandate required
+  Note over p_merchant,p_agent: Crosses a trust boundary
+  alt Expected path
+    p_agent->>p_agent: Deterministic pre-check before signing
+  else A previous closed mandate has neither a success nor a rejection receipt
+    Note over p_agent: The agent must wait#59; signing a second checkout would risk a double spend.
+  end
+  p_agent-->>p_agent: Sign closed mandates with the agent key (cnf, sd_hash)
+  p_agent->>p_cp: Present open and closed Payment Mandates
+  Note over p_agent,p_cp: Crosses a trust boundary
+  alt Expected path
+    p_cp-->>p_agent: Verify the chain and constraints#59; issue a payment token
+    Note over p_cp,p_agent: Crosses a trust boundary
+  else Budget exceeded, too soon for the recurrence, or a payee not allowed
+    Note over p_cp,p_agent: Payment Receipt with status Error and unresolved_constraint#59; the agent may bring the owner back to approve a closed mandate (human present).
+  else The closed mandate is not signed by the key in cnf, or sd_hash does not match
+    Note over p_cp,p_agent: invalid_credential, a terminal error.
+  end
+  p_agent->>p_merchant: Send the token and the open and closed Checkout Mandates
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_merchant: Merchant verifies bindings and constraints
+  else The merchant is not allowed or a line item cannot be matched
+    Note over p_merchant: Checkout Receipt with error unresolved_constraint. With that rejection receipt in hand, the agent may present a new closed mandate for a different checkout.
+  end
+  p_merchant->>p_mpp: Initiate payment with the token and both hashes
+  Note over p_merchant,p_mpp: Crosses a trust boundary
+  alt Expected path
+    p_mpp->>p_agent: Processor verifies the Payment Mandates in the token#59; Payment Receipt
+    Note over p_mpp,p_agent: Crosses a trust boundary
+  else A binding does not match or the card is declined
+    Note over p_mpp,p_agent: Payment Receipt with status Error, error and error_description.
+  end
+  p_merchant->>p_agent: Checkout Receipt with order_id
+  Note over p_merchant,p_agent: Crosses a trust boundary
+  p_agent->>p_agent: Store the tuple, add to the budget, narrow the open mandate
