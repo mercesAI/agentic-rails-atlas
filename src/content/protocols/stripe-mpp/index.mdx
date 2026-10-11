@@ -115,3 +115,323 @@ keyFacts:
     value: "x402 (exact maps to charge; mppx serves both), Stripe SPTs, Visa card method on VIC and TAP, Mastercard AP4M (Tempo's statement), AP2 (complementary, no cross-reference)"
     claimIds: [clm-stripe-mpp-178, clm-stripe-mpp-179, clm-stripe-mpp-186, clm-stripe-mpp-183, clm-stripe-mpp-202, clm-stripe-mpp-187]
 ---
+
+<Mode eli5>
+
+Think of a toll gate on a road built for delivery robots. A robot rolls up and asks to pass. The gate does not open; it hands back a small printed ticket: "one cent, pay to this gate, any of these coins or cards accepted, ticket good for five minutes." The ticket carries a stamp that only the gate can make, so nobody can fake one or change the price.
+
+The robot picks a way to pay that it carries: digital dollars, a card that its owner set up, or a Lightning payment. It pays, staples the proof to the ticket and rolls up again. The gate checks the stamp, checks the proof, keeps the ticket so nobody can use it twice, opens, and gives the robot a receipt.
+
+Some robots pass the same gate thousands of times an hour. For them there is a prepaid jar. The robot puts ten dollars in the jar once, and then hands the gate small signed notes as it goes: "I have now used 3 cents," "now 4 cents." The gate cashes the notes when it likes, and the robot can never lose more than what is in the jar. When the robot leaves, the gate takes what was used and the rest goes back.
+
+That is MPP. The gate is a web server, the ticket is a challenge, the stapled proof is a credential, and the jar is a payment channel. Two companies, Tempo and Stripe, wrote the rules together, and each kind of money writes its own small rule book.
+
+</Mode>
+
+MPP (Machine Payments Protocol) answers the same question as every HTTP 402 design: how does a server charge a client that has no account? Its answer is to treat payment as an HTTP (Hypertext Transfer Protocol) authentication scheme named Payment.<Cite ids="clm-stripe-mpp-005 clm-stripe-mpp-001" /> The server answers 402 with a `WWW-Authenticate: Payment` challenge that names a method, an intent and a base64url request; the client pays through that method and retries with `Authorization: Payment` and a credential; the server returns 200 with a `Payment-Receipt`.<Cite ids="clm-stripe-mpp-091 clm-stripe-mpp-055" /> The challenge id is bound to every parameter, usually with an HMAC (hash-based message authentication code), so a client cannot pay for something other than what the server asked, and each id works once.<Cite ids="clm-stripe-mpp-058 clm-stripe-mpp-059 clm-stripe-mpp-123" /> The core never moves money. Payment methods do, and they span Tempo stablecoins, Stripe Shared Payment Tokens, Visa network tokens and Lightning, so MPP is not crypto-only.<Cite ids="clm-stripe-mpp-007 clm-stripe-mpp-018" /> What MPP does not give you: an IETF standard (the core is an individual draft), a protocol identity for the agent, a user mandate, or a dispute process that works the same on every rail.<Cite ids="clm-stripe-mpp-006 clm-stripe-mpp-134 clm-stripe-mpp-136" />
+
+### Problem and design goals
+
+The specification repository describes MPP as an open protocol for machine-to-machine payments in which a client pays inside the HTTP exchange, with no pre-provisioned account or API (application programming interface) key.<Cite ids="clm-stripe-mpp-001" /> Tempo Labs and Stripe co-author it, so it is not a Stripe-only protocol.<Cite ids="clm-stripe-mpp-002 clm-stripe-mpp-003" /> Stripe announced it on 2026-03-18, the same day Tempo announced its mainnet.<Cite ids="clm-stripe-mpp-014" />
+
+Three design choices shape everything else. First, MPP reuses the HTTP authentication framework instead of inventing new headers: the challenge rides in `WWW-Authenticate`, the proof in `Authorization`, and only the receipt and preference headers are new.<Cite ids="clm-stripe-mpp-091 clm-stripe-mpp-089" /> Second, it separates the shape of a payment from the rail. The specification splits into a core, intents (abstract patterns such as a one-time charge), payment methods (concrete rails) and extensions for discovery and transports.<Cite ids="clm-stripe-mpp-007" /> Third, it pushes rail work out of the core: each method is defined and maintained by the rail behind it, and rails can add methods without approval.<Cite ids="clm-stripe-mpp-010 clm-stripe-mpp-012" />
+
+The core also sets two guardrails for servers. A server must not perform side effects for a request that has not been paid, and it must not require a user account in order to pay.<Cite ids="clm-stripe-mpp-051 clm-stripe-mpp-052" /> The charge intent goes further and treats any partial delivery before verification, such as streamed tokens or a started tool call, as forbidden.<Cite ids="clm-stripe-mpp-096" />
+
+### Actors and roles
+
+The core has two roles. The client requests a resource, receives the challenge, pays through the named method and retries with a credential. Before paying it must check the amount, recipient, currency and validity window, and it must not rely on the free-text description.<Cite ids="clm-stripe-mpp-050" /> The server issues challenges, binds them, verifies and settles credentials and returns receipts.<Cite ids="clm-stripe-mpp-058 clm-stripe-mpp-063" />
+
+Methods add their own roles. In the `card` method a Client Enabler, such as a token service provider, provisions an encrypted network token and cryptogram, and a Server Enabler, such as a PSP (payment service provider) or acquirer, decrypts it and asks the card network for authorization.<Cite ids="clm-stripe-mpp-053" /> In the `stripe` method the merchant is identified by a Stripe Business Network Profile in `methodDetails.networkId`, and both client and server need Stripe accounts.<Cite ids="clm-stripe-mpp-054" /> In a Tempo session the payer funds an escrow and the payee withdraws from it: the payer calls open, topUp, requestClose and withdraw, while the payee calls settle and close.<Cite ids="clm-stripe-mpp-206" /> When `methodDetails.feePayer` is true the server co-signs the Tempo transaction and pays its fees, and the server always pays for settle and close.<Cite ids="clm-stripe-mpp-164" /> Stripe offers a hosted variant: with `hostedFeePayer` Stripe pays customers' Tempo network fees, from `mppx` 0.9.2, in live mode only and not with Connect.<Cite ids="clm-stripe-mpp-163" />
+
+Discovery adds a third kind of party. Crawlers and explorers read optional OpenAPI documents to list paid services; MPPscan, run by Merit Systems, indexes servers, agents, transactions and volume.<Cite ids="clm-stripe-mpp-115 clm-stripe-mpp-138" />
+
+### Core objects
+
+Three objects carry every payment. The challenge is a set of auth-params on `WWW-Authenticate: Payment`. Five are required: `id`, `realm`, `method`, `intent` and `request`.<Cite ids="clm-stripe-mpp-055" /> Five are optional: `digest`, `expires`, `description`, `header` and `opaque`.<Cite ids="clm-stripe-mpp-056" /> The `request` value is base64url JSON without padding, canonicalized with JCS (the JSON Canonicalization Scheme, RFC 8785), so two implementations compute the same binding input.<Cite ids="clm-stripe-mpp-057" /> The server binds `id` to everything except `description`, and the recommended way is an HMAC-SHA256 over the parameters joined by pipes.<Cite ids="clm-stripe-mpp-058 clm-stripe-mpp-059" /> The `digest` parameter uses RFC 9530 to tie the payment to the request body.<Cite ids="clm-stripe-mpp-119" />
+
+The credential is base64url JSON with three fields: a `challenge` object that echoes the challenge, an optional `source` that identifies the payer (a DID, or decentralized identifier, is recommended), and a method-specific `payload`.<Cite ids="clm-stripe-mpp-062" /> It goes in `Authorization` by default. If the challenge carried `header="Payment-Authorization"`, the only allowed value, the client sends it in `Payment-Authorization` instead, which lets a client keep an ordinary bearer token in `Authorization`.<Cite ids="clm-stripe-mpp-060 clm-stripe-mpp-061" />
+
+The receipt is base64url JSON in `Payment-Receipt` with `status`, `method`, `timestamp` and `reference`, and `status` is always success.<Cite ids="clm-stripe-mpp-063" /> A server must never send a receipt on an error response.<Cite ids="clm-stripe-mpp-064" /> Errors are RFC 9457 problem documents with type URIs under paymentauth.org, from `payment-required` to `payment-action-required`.<Cite ids="clm-stripe-mpp-068 clm-stripe-mpp-069" />
+
+Intents define the shared shape of `request`. A `charge` needs `amount` in base units and `currency`, with optional `recipient`, `description`, `externalId` and `methodDetails`.<Cite ids="clm-stripe-mpp-070" /> A `subscription` adds `periodUnit` (day, week or month) and `periodCount`, with an optional `subscriptionExpires`.<Cite ids="clm-stripe-mpp-072" /> Expiry never sits inside `request`; it travels only as the `expires` auth-param.<Cite ids="clm-stripe-mpp-071" /> Method identifiers are lowercase ASCII letters, and the spec repository defines eleven of them.<Cite ids="clm-stripe-mpp-065 clm-stripe-mpp-082" />
+
+<Mode spec>
+
+**Field tables.** Core version draft-httpauth-payment-01, read from `specs/core/draft-httpauth-payment-01.md` in tempoxyz/mpp-specs at commit 50309c8. Descriptions are paraphrased.
+
+<FieldTable caption="Challenge auth-params (WWW-Authenticate: Payment)" specVersion="draft-httpauth-payment-01" fields={[
+  { "name": "id", "type": "string", "required": true, "description": "Non-empty challenge identifier, bound to the other parameters and echoed unchanged.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "realm", "type": "string", "required": true, "description": "Protection space as in RFC 9110.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "method", "type": "string", "required": true, "description": "Payment method id, lowercase ASCII letters (tempo, stripe, card ...).", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "intent", "type": "string", "required": true, "description": "Intent id: charge, subscription, or a method-defined session.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "request", "type": "string", "required": true, "description": "base64url (no padding) of JCS-canonical JSON defined by the intent and method.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "digest", "type": "string", "required": false, "description": "RFC 9530 digest of the request body; recommended for POST, PUT and PATCH.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "expires", "type": "string", "required": false, "description": "RFC 3339 expiry; clients must not pay an expired challenge.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "description", "type": "string", "required": false, "description": "Display text only; excluded from the binding.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "header", "type": "string", "required": false, "description": "Only value Payment-Authorization; selects the credential field.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" },
+  { "name": "opaque", "type": "string", "required": false, "description": "base64url JCS map of server correlation data; bound and echoed.", "specRef": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md" }
+]} />
+
+<FieldTable caption="Credential (Authorization: Payment or Payment-Authorization: Payment)" specVersion="draft-httpauth-payment-01" fields={[
+  { "name": "challenge", "type": "object", "required": true, "description": "Echo of id, realm, method, intent, request, plus description, opaque, digest, expires and header when the challenge had them." },
+  { "name": "source", "type": "string", "required": false, "description": "Payer identifier; DID format recommended, for example did:pkh on Tempo." },
+  { "name": "payload", "type": "object", "required": true, "description": "Method-specific proof: a signed transaction, an SPT id, an encrypted card token, a preimage or a voucher." }
+]} />
+
+<FieldTable caption="Receipt (Payment-Receipt)" specVersion="draft-httpauth-payment-01" fields={[
+  { "name": "status", "type": "string", "required": true, "description": "Always success; receipts appear only on 2xx responses." },
+  { "name": "method", "type": "string", "required": true, "description": "Method used." },
+  { "name": "timestamp", "type": "string", "required": true, "description": "RFC 3339 settlement time." },
+  { "name": "reference", "type": "string", "required": true, "description": "Method reference: Tempo transaction hash, Stripe PaymentIntent id, card authorization reference, or channelId for a session." },
+  { "name": "subscriptionId", "type": "string", "required": false, "description": "base64url id returned on subscription activation (subscription intent)." }
+]} />
+
+<FieldTable caption="Shared request fields by intent" specVersion="draft-payment-intent-charge-00, draft-payment-intent-subscription-00, draft-tempo-session-00" fields={[
+  { "name": "amount", "type": "string", "required": true, "description": "Base units. For a Tempo session it is the price per unit." },
+  { "name": "currency", "type": "string", "required": true, "description": "ISO 4217 lowercase code, token address, or method-defined value." },
+  { "name": "recipient", "type": "string", "required": false, "description": "Payee; required by Tempo session and Tempo subscription, forbidden in stripe subscription." },
+  { "name": "periodUnit / periodCount", "type": "string", "required": false, "description": "Subscription only: day, week or month, and a positive integer string." },
+  { "name": "subscriptionExpires", "type": "string", "required": false, "description": "Subscription only: end of the grant." },
+  { "name": "unitType / suggestedDeposit", "type": "string", "required": false, "description": "Tempo session only, for example llm_token and a deposit hint." },
+  { "name": "description / externalId", "type": "string", "required": false, "description": "Display text and merchant reference." },
+  { "name": "methodDetails", "type": "object", "required": false, "description": "Method-specific fields; may carry a version, absent means 1." }
+]} />
+
+**Problem types** (base `https://paymentauth.org/problems/`): `payment-required`, `payment-insufficient`, `payment-expired`, `verification-failed`, `method-unsupported` (400), `malformed-credential`, `invalid-challenge`, `bad-request` (400), `invalid-payload`, `internal-payment-error` (500) and `payment-action-required`; the rest return 402.<Cite ids="clm-stripe-mpp-069" />
+
+**Headers requested from IANA** (not registered as of 2026-10-11): `Accept-Payment`, `Payment-Authorization`, `Payment-Receipt`, the Payment authentication scheme, and two new registries for methods and intents.<Cite ids="clm-stripe-mpp-089 clm-stripe-mpp-090" />
+
+Illustrative example, spec version draft-httpauth-payment-01 with draft-tempo-charge-00: a Tempo charge challenge. The id, addresses and dates are placeholders, and the chain is the Moderato testnet.
+
+```http
+HTTP/1.1 402 Payment Required
+Cache-Control: no-store
+Content-Type: application/problem+json
+WWW-Authenticate: Payment id="kM9xPqWvT2nJrHsY4aDfEb",
+    realm="api.example.com",
+    method="tempo",
+    intent="charge",
+    expires="2026-10-11T12:05:00Z",
+    request="eyJhbW91bnQiOiIxMDAwMCIsLi4ufQ"
+
+# decoded request
+{
+  "amount": "10000",
+  "currency": "0x20c0000000000000000000000000000000000000",
+  "recipient": "0xB0B0000000000000000000000000000000000B0B",
+  "methodDetails": { "chainId": 42431, "feePayer": true }
+}
+```
+
+</Mode>
+
+### Message flow step by step
+
+The main sequence in section C plays a one-time Tempo charge over HTTP.<Cite ids="clm-stripe-mpp-091" />
+
+1. The client requests the resource. It may add `Accept-Payment` with method and intent pairs and q weights, such as `tempo/charge, stripe/charge;q=0.5`.<Cite ids="clm-stripe-mpp-066" />
+2. The server answers 402 with `Cache-Control: no-store` and one or more `WWW-Authenticate: Payment` challenges, optionally with a `payment-required` problem body.<Cite ids="clm-stripe-mpp-124 clm-stripe-mpp-068" /> The challenge stays authoritative even when the client stated preferences.<Cite ids="clm-stripe-mpp-067" />
+3. The client decodes `request` and checks amount, recipient, currency and expiry.<Cite ids="clm-stripe-mpp-050" /> For Tempo it signs a `transfer` or `transferWithMemo` transaction valid no later than `expires`; with `feePayer` true it leaves the fee to the server.<Cite ids="clm-stripe-mpp-211" />
+4. The client retries the same request with `Authorization: Payment` and the credential.<Cite ids="clm-stripe-mpp-091" />
+5. The server checks that the id is outstanding and bound, not expired, and that the proof, amount, recipient and digest match, then settles.<Cite ids="clm-stripe-mpp-058 clm-stripe-mpp-119 clm-stripe-mpp-123" />
+6. The server answers 200 with `Payment-Receipt` and `Cache-Control: private`; for Tempo the receipt `reference` is the transaction hash.<Cite ids="clm-stripe-mpp-124 clm-stripe-mpp-063" />
+
+Failures come back in one shape. A malformed credential, an unknown or used id, an expired challenge or a failed proof each get 402, a fresh challenge and a matching problem type.<Cite ids="clm-stripe-mpp-092" /> A 403 means the payment was valid but policy denies access, and it carries no new challenge.<Cite ids="clm-stripe-mpp-093" /> Servers should check ordinary authentication first and answer 401 before they issue a payment challenge, and should reject a request with two Payment credentials with 400.<Cite ids="clm-stripe-mpp-094 clm-stripe-mpp-095" />
+
+Other methods change step 3 and step 5. With `stripe`, the client creates a Shared Payment Token (SPT) and sends its `spt_` id; the server creates a PaymentIntent with `confirm` true and the token as `shared_payment_granted_token`, and returns a receipt only if the PaymentIntent reached `succeeded`.<Cite ids="clm-stripe-mpp-077 clm-stripe-mpp-097" /> The spec recommends an idempotency key made from the challenge id and the SPT, and Connect parameters such as `application_fee_amount` come from server configuration, never from the challenge.<Cite ids="clm-stripe-mpp-098 clm-stripe-mpp-099" /> With `card`, the challenge carries accepted networks, a merchant name and an RSA key; the Client Enabler returns a JWE (JSON Web Encryption) that neither client nor server can parse, and the server's enabler decrypts it and authorizes it on the network.<Cite ids="clm-stripe-mpp-078 clm-stripe-mpp-121 clm-stripe-mpp-053" />
+
+Over MCP (Model Context Protocol) the same exchange becomes JSON-RPC. A paid tool returns error `-32042` with the challenges in `error.data`, where `request` is a plain JSON object and `httpStatus` should be 402.<Cite ids="clm-stripe-mpp-110 clm-stripe-mpp-210" /> The client retries with the credential under `_meta` key `org.paymentauth/credential` and gets the receipt under `org.paymentauth/receipt`; a failed verification returns `-32043` with a fresh challenge.<Cite ids="clm-stripe-mpp-111 clm-stripe-mpp-112" />
+
+<Mode spec>
+
+| Condition | Status | Response | Problem type |
+| --- | --- | --- | --- |
+| No credential | 402 | Fresh challenge | `payment-required` |
+| Bad base64url or JSON | 402 | Fresh challenge | `malformed-credential` |
+| Unknown or used `id` | 402 | Fresh challenge | `invalid-challenge` |
+| Expired challenge | 402 | Fresh challenge | `payment-expired` |
+| Proof fails | 402 | Fresh challenge | `verification-failed` |
+| Paid, policy denies | 403 | No challenge | none |
+| Two Payment credentials | 400 | Reject | none |
+
+**MCP codes** (draft-payment-transport-mcp-00): `-32042` payment required, `-32043` verification failed with a fresh challenge, `-32602` malformed credential, `-32603` processor failure. Servers advertise support under `capabilities.experimental.payment.methods`.<Cite ids="clm-stripe-mpp-110 clm-stripe-mpp-112 clm-stripe-mpp-113" />
+
+Illustrative example, spec version draft-httpauth-payment-01: the decoded credential for the Tempo charge above, sent in `Authorization: Payment <base64url>`.
+
+```json
+{
+  "challenge": {
+    "id": "kM9xPqWvT2nJrHsY4aDfEb",
+    "realm": "api.example.com",
+    "method": "tempo",
+    "intent": "charge",
+    "request": "eyJhbW91bnQiOiIxMDAwMCIsLi4ufQ",
+    "expires": "2026-10-11T12:05:00Z"
+  },
+  "payload": { "type": "transaction", "signature": "0x76f9...signed transaction bytes" },
+  "source": "did:pkh:eip155:42431:0x1234567890abcdef1234567890abcdef12345678"
+}
+```
+
+</Mode>
+
+### Lifecycle and states
+
+A challenge has a short life: issued, then consumed once, expired, or replaced by a fresh challenge after a failure.<Cite ids="clm-stripe-mpp-092 clm-stripe-mpp-123" /> The longer lifecycles belong to sessions and subscriptions.
+
+A Tempo session is a payment channel. The client deposits into an escrow, signs rising vouchers as it consumes units, and the server settles on chain when it chooses.<Cite ids="clm-stripe-mpp-100" /> The challenge prices one unit and names the escrow contract.<Cite ids="clm-stripe-mpp-074" /> The credential `action` is one of `open`, `topUp`, `voucher` or `close`, and every voucher carries the channel id, a cumulative amount (a running total, not a delta) and an EIP-712 signature.<Cite ids="clm-stripe-mpp-075 clm-stripe-mpp-076" /> Vouchers go to the same resource URI, and HEAD requests can carry voucher-only updates.<Cite ids="clm-stripe-mpp-101" /> For SSE (server-sent events) streams the receipt arrives in the first headers and again as a final `payment-receipt` event, with `acceptedCumulative` and `spent` fields that let the client audit the meter.<Cite ids="clm-stripe-mpp-114 clm-stripe-mpp-204" />
+
+A channel ends one of two ways. On a cooperative close the client sends `action: "close"`, and in v2 the server captures the greater of what was spent and what is already settled, then refunds the rest.<Cite ids="clm-stripe-mpp-102" /> On a forced close the client calls `requestClose`, a grace period of at least 15 minutes starts in which the server can still settle, and the client then calls `withdraw`; the spec advises waiting 16 minutes.<Cite ids="clm-stripe-mpp-103 clm-stripe-mpp-104" /> A top-up during that grace period cancels the close request.<Cite ids="clm-stripe-mpp-205" /> Channels never expire and vouchers have no validity field, so an open channel stays a liability until somebody closes it.<Cite ids="clm-stripe-mpp-107 clm-stripe-mpp-196" />
+
+Session protocol v1 uses the TempoStreamChannel escrow contract; v2 uses a TIP-20 channel reserve precompile, and `methodDetails.sessionProtocol` says which.<Cite ids="clm-stripe-mpp-108" /> The EIP-712 domain names differ too: Tempo Stream Channel in v1, TIP20 Channel Reserve in v2.<Cite ids="clm-stripe-mpp-109" />
+
+A subscription starts with activation: the server verifies the grant, collects the first period and returns a `subscriptionId` in the receipt.<Cite ids="clm-stripe-mpp-073" /> Each later period allows at most one renewal, collected before or with delivery, and missed periods never add up to extra authority.<Cite ids="clm-stripe-mpp-105 clm-stripe-mpp-207" /> The id alone authorizes nothing.<Cite ids="clm-stripe-mpp-106" /> Expiry, cancellation, a failed renewal or a bad credential all return 402 with a fresh challenge.<Cite ids="clm-stripe-mpp-208" />
+
+<Mode spec>
+
+<FieldTable caption="Tempo session payload by action" specVersion="draft-tempo-session-00 (2026-06-25 v2 text)" fields={[
+  { "name": "open", "type": "action", "required": false, "description": "type transaction, channelId, transaction (signed), authorizedSigner, descriptor (v2), cumulativeAmount (usually 0), signature." },
+  { "name": "topUp", "type": "action", "required": false, "description": "Adds deposit with a signed transaction; cancels a pending close request." },
+  { "name": "voucher", "type": "action", "required": false, "description": "channelId, cumulativeAmount, signature; off-chain, no fee." },
+  { "name": "close", "type": "action", "required": false, "description": "channelId, descriptor (v2), final cumulativeAmount, signature; server closes on chain." }
+]} />
+
+<FieldTable caption="Tempo session methodDetails" specVersion="draft-tempo-session-00" fields={[
+  { "name": "escrowContract", "type": "string", "required": true, "description": "Escrow contract or precompile address." },
+  { "name": "channelId", "type": "string", "required": false, "description": "Existing channel to reuse." },
+  { "name": "minVoucherDelta", "type": "string", "required": false, "description": "Smallest accepted voucher increase." },
+  { "name": "chainId", "type": "number", "required": false, "description": "Default 4217 (mainnet)." },
+  { "name": "feePayer", "type": "boolean", "required": false, "description": "Server sponsors open and topUp fees." },
+  { "name": "operator", "type": "string", "required": false, "description": "v2 payee-side operator." },
+  { "name": "sessionProtocol", "type": "string", "required": false, "description": "v1 or v2." }
+]} />
+
+**Escrow calls**: payer `open(payee, token, deposit, salt, authorizedSigner)`, `topUp`, `requestClose(channelId)`, `withdraw(channelId)`; payee `settle(channelId, cumulativeAmount, signature)` and `close(channelId, cumulativeAmount, signature)`.<Cite ids="clm-stripe-mpp-206 clm-stripe-mpp-103" /> **Session problem types**: `session/invalid-signature`, `session/signer-mismatch`, `session/amount-exceeds-deposit`, `session/delta-too-small`, `session/channel-not-found` (410), `session/channel-finalized` (410), `session/challenge-not-found`, `session/insufficient-balance`.<Cite ids="clm-stripe-mpp-075" />
+
+Illustrative example, spec version draft-tempo-session-00: a voucher credential payload sent to the same resource URI.
+
+```json
+{
+  "challenge": { "id": "kM9xPqWvT2nJrHsY4aDfEb", "realm": "api.llm-service.example", "method": "tempo", "intent": "session", "request": "eyJ...", "expires": "2026-10-11T12:05:00Z" },
+  "payload": { "action": "voucher", "channelId": "0x6d0f...8e9f", "cumulativeAmount": "250000", "signature": "0x1234...cdef" }
+}
+```
+
+</Mode>
+
+### Security and trust model (summary)
+
+<Mode eli5>
+
+The stamped ticket stops two tricks: changing the price and using a ticket twice. It does not stop a fake gate from printing an honest-looking ticket with its own address, so the robot must still check who it pays. Anyone who steals the stapled proof before the robot uses it can spend it, so the proof must stay secret.
+
+</Mode>
+
+The core assumes an attacker who can read, inject, change and replay traffic, and who may run a malicious client or server.<Cite ids="clm-stripe-mpp-122 clm-stripe-mpp-050" /> Its guarantees are binding and single use: the server binds the id to every parameter, methods must give single-use proofs, and each id works once.<Cite ids="clm-stripe-mpp-058 clm-stripe-mpp-123" /> TLS 1.2 or later is required and TLS 1.3 recommended.<Cite ids="clm-stripe-mpp-118" />
+
+Credentials are bearer tokens: whoever holds an unused one can present it, so servers and intermediaries must not log them or put them in errors or analytics.<Cite ids="clm-stripe-mpp-122" /> Caching needs care. Shared caches treat `Authorization` specially but not `Payment-Authorization`, so responses to that header must be private or no-store.<Cite ids="clm-stripe-mpp-125" /> The client carries the last line of defense: binding stops tampering after the challenge is issued, but only the client's own checks stop a malicious server from asking for too much or naming the wrong recipient.<Cite ids="clm-stripe-mpp-050" />
+
+Loss limits come from the rail, not the core: a session deposit, SPT usage limits, or Tempo access key limits.<Cite ids="clm-stripe-mpp-135 clm-stripe-mpp-126" /> Disputes also depend on the rail, so card routes keep chargebacks while Stripe stablecoin payments have none.<Cite ids="clm-stripe-mpp-136" />
+
+The SDKs have had the serious bugs. Within two weeks of launch both the TypeScript and Rust SDKs received critical multi-bug advisories, GHSA-8x4m-qw58-3pcx and GHSA-fxc9-7j2w-vx54, neither with a CVE (Common Vulnerabilities and Exposures) id.<Cite ids="clm-stripe-mpp-198 clm-stripe-mpp-131 clm-stripe-mpp-130" /> CVE-2026-34209 let a close voucher equal to the settled amount close a channel for free, and CVE-2026-34210 let one SPT credential be replayed; both were fixed in `mppx` 0.4.11 on 2026-03-26.<Cite ids="clm-stripe-mpp-127 clm-stripe-mpp-128 clm-stripe-mpp-129" /> Two medium advisories in July 2026 let attackers drain a server fee payer through calldata padding or access lists, fixed in 0.8.2.<Cite ids="clm-stripe-mpp-132" /> A formal analysis models MPP with x402, ACP and AP2 in Tamarin and reports 40 new findings across the four.<Cite ids="clm-stripe-mpp-133" /> Section H has the threat table.
+
+### Versioning and governance
+
+The core carries no version on the wire, like Basic and Bearer; an incompatible change would need a new scheme name such as Payment2.<Cite ids="clm-stripe-mpp-029" /> Methods may add a `version` in `methodDetails`, and its absence means 1.<Cite ids="clm-stripe-mpp-030" />
+
+The IETF (Internet Engineering Task Force) record is easy to misread. `draft-ryan-httpauth-payment-00` was posted on 2026-02-16 and `-01` on 2026-03-18, and that name expired on 2026-09-18.<Cite ids="clm-stripe-mpp-020 clm-stripe-mpp-021 clm-stripe-mpp-022" /> A new name, `draft-httpauth-payment-00`, appeared on 2026-06-19 while the old one was still active, and `-01` followed on 2026-09-09, expiring 2027-03-13.<Cite ids="clm-stripe-mpp-023 clm-stripe-mpp-024" /> The 2026-09-09 event was a revision, not a rename, and the Datatracker records no "replaces" link between the two names.<Cite ids="clm-stripe-mpp-025 clm-stripe-mpp-026" /> Both are individual submissions with no working group, stream or intended status, so the core is not an IETF standard.<Cite ids="clm-stripe-mpp-006" /> mpp.dev's description of the core as submitted to the standards track is stronger than that record.<Cite ids="clm-stripe-mpp-194" /> The intent, method, discovery and MCP drafts are not on the Datatracker at all, and IANA (Internet Assigned Numbers Authority) has registered none of the requested names.<Cite ids="clm-stripe-mpp-027 clm-stripe-mpp-090" />
+
+The core draft lists five authors, three from Tempo Labs and two from Stripe.<Cite ids="clm-stripe-mpp-004" /> Governance sends the core through the IETF and leaves each method to its rail, with no foundation, charter or steering committee.<Cite ids="clm-stripe-mpp-010 clm-stripe-mpp-011" /> Specifications are CC0 1.0 and tooling is Apache-2.0 or MIT; the `mppx` SDK is MIT.<Cite ids="clm-stripe-mpp-008 clm-stripe-mpp-009" />
+
+### Extensibility
+
+Methods are the main axis. The spec repository holds eleven method ids: `tempo`, `stripe`, `card`, `lightning`, `evm`, `solana`, `stellar`, `hedera`, `usdc`, `nearintents` and `xrpl`.<Cite ids="clm-stripe-mpp-082" /> mpp.dev documents two more, `monad` and `redotpay`, that have no spec file.<Cite ids="clm-stripe-mpp-083" /> Rails write their own: Jacob Brans of Visa wrote `card`, Lightspark wrote `lightning`, Circle wrote `usdc`, and Coinbase, MegaETH Labs and Monad Foundation wrote the `evm` charge.<Cite ids="clm-stripe-mpp-084 clm-stripe-mpp-085 clm-stripe-mpp-086 clm-stripe-mpp-087" /> The methods map in section C shows rail, author and intents.
+
+Intents are the second axis, and the rule is strict. A new intent starts as an experimental definition inside a method and moves to `specs/intents/` only after two or more methods adopt it.<Cite ids="clm-stripe-mpp-013" /> Only `charge` and `subscription` are there today; session is defined inside the tempo, evm, solana, hedera, lightning and xrpl method specs.<Cite ids="clm-stripe-mpp-049 clm-stripe-mpp-088" /> The 2026-06-17 MPP blog called sessions a formal intent, but the pull request for a generic session intent (PR #280) closed unmerged on 2026-09-28.<Cite ids="clm-stripe-mpp-195 clm-stripe-mpp-048" />
+
+Extensions are the third axis. Discovery is optional: a server publishes `/openapi.json` with `x-service-info` and per-operation `x-payment-info`, and the 402 challenge stays authoritative.<Cite ids="clm-stripe-mpp-115 clm-stripe-mpp-117" /> The MCP transport is the other extension, and `mppx` adds request attestation for Web Bot Auth and Visa TAP (Trusted Agent Protocol) outside the spec.<Cite ids="clm-stripe-mpp-110 clm-stripe-mpp-134" />
+
+<Mode spec>
+
+| Method | Rail | Spec author | Intents in mpp-specs |
+| --- | --- | --- | --- |
+| `tempo` | TIP-20 stablecoins on Tempo | Tempo Labs | charge, session, subscription |
+| `stripe` | Shared Payment Tokens | Stripe and Tempo Labs | charge, subscription |
+| `card` | Encrypted network tokens | Visa | charge |
+| `lightning` | BOLT11 | Lightspark | charge, session |
+| `evm` | ERC-20 on EVM chains | Coinbase, MegaETH Labs, Monad Foundation; OKG (session) | charge, session |
+| `solana` | SOL and SPL tokens | Solana Foundation; Moonsong Labs (session) | charge, session |
+| `stellar` | SEP-41 tokens | Stellar Development Foundation | charge |
+| `hedera` | Hedera Token Service | Hedera | charge, session |
+| `usdc` | Circle USDC | Circle Internet Group | charge |
+| `nearintents` | NEAR Intents | Near One | charge |
+| `xrpl` | XRP Ledger | Ripple | charge, session |
+
+Sources for the table: the method specs at commit 50309c8.<Cite ids="clm-stripe-mpp-082 clm-stripe-mpp-088 clm-stripe-mpp-084 clm-stripe-mpp-085 clm-stripe-mpp-086 clm-stripe-mpp-087" />
+
+<FieldTable caption="Tempo charge methodDetails and payload" specVersion="draft-tempo-charge-00" fields={[
+  { "name": "chainId", "type": "number", "required": false, "description": "Spec default 42431 (the Moderato testnet id)." },
+  { "name": "feePayer", "type": "boolean", "required": false, "description": "Server sponsors the fee." },
+  { "name": "memo", "type": "string", "required": false, "description": "bytes32; forces transferWithMemo." },
+  { "name": "splits", "type": "array", "required": false, "description": "Extra recipients with amount and optional memo." },
+  { "name": "supportedModes", "type": "array", "required": false, "description": "pull (server broadcasts) or push (client broadcasts)." },
+  { "name": "payload.type", "type": "string", "required": true, "description": "transaction (signature), hash (hash) or proof (zero-amount EIP-712 proof)." }
+]} />
+
+<FieldTable caption="stripe and card charge fields" specVersion="draft-stripe-charge-00, draft-card-charge-00" fields={[
+  { "name": "networkId (stripe)", "type": "string", "required": true, "description": "Business Network Profile of the seller." },
+  { "name": "paymentMethodTypes (stripe)", "type": "array", "required": true, "description": "For example card or link." },
+  { "name": "spt (stripe payload)", "type": "string", "required": true, "description": "Shared Payment Token id starting spt_." },
+  { "name": "acceptedNetworks, merchantName (card)", "type": "array, string", "required": true, "description": "Networks the server takes and the display name." },
+  { "name": "encryptionJwk or jwksUri plus kid (card)", "type": "object or string", "required": true, "description": "Server RSA key for the JWE." },
+  { "name": "encryptedPayload (card payload)", "type": "string", "required": true, "description": "JWE with the network token and dynamic data; plus network, panLastFour and expiry fields." }
+]} />
+
+</Mode>
+
+### How it composes with the other seven
+
+MPP settles a payment and stops there, so it pairs with protocols that say who the agent is and what the user approved.<Cite ids="clm-stripe-mpp-134" /> Its closest sibling is x402: MPP's own documentation maps the x402 headers onto Payment authentication and x402 `exact` onto `charge`, and `mppx` can serve both on one route.<Cite ids="clm-stripe-mpp-177 clm-stripe-mpp-178 clm-stripe-mpp-179" /> The `stripe` method carries Stripe Shared Payment Tokens, the same token family Stripe uses for agentic checkout with ACP (Agentic Commerce Protocol).<Cite ids="clm-stripe-mpp-186" /> Visa wrote the `card` method and says it builds on VIC (Visa Intelligent Commerce) and TAP.<Cite ids="clm-stripe-mpp-084 clm-stripe-mpp-183" /> Tempo says it is working with Mastercard on MPP compatibility for Agent Pay for Machines.<Cite ids="clm-stripe-mpp-202" /> AP2 (Agent Payments Protocol) is complementary in principle, but neither side references the other, and the UCP and ERC-8004 repositories do not mention MPP.<Cite ids="clm-stripe-mpp-187 clm-stripe-mpp-188" /> The section "Compare and compose" below goes further.
+
+### Limitations and open issues
+
+- **Not a standard yet.** An individual draft, a first name that expired, and no IANA entries.<Cite ids="clm-stripe-mpp-006 clm-stripe-mpp-022 clm-stripe-mpp-090" />
+- **Narrow authorship.** All five core authors work at Tempo Labs or Stripe, and there is no neutral working group.<Cite ids="clm-stripe-mpp-193" />
+- **Session is not standardized.** It lives in six method specs, and the generic intent pull request closed unmerged.<Cite ids="clm-stripe-mpp-088 clm-stripe-mpp-048" />
+- **Session v2 savings are a best case.** Opening a channel on an existing reserve balance costs 72.1 percent less gas than v1, but settling to a new payee balance costs 79.4 percent more.<Cite ids="clm-stripe-mpp-169" />
+- **Spec inconsistencies.** Tempo charge defaults `chainId` to the testnet id 42431, Tempo session to mainnet 4217, and the subscription spec calls 42431 mainnet.<Cite ids="clm-stripe-mpp-160 clm-stripe-mpp-155" /> Tempo subscriptions allow only day or week periods although the intent allows month.<Cite ids="clm-stripe-mpp-081 clm-stripe-mpp-072" />
+- **Channels never expire.** Unsettled vouchers persist until someone closes the channel.<Cite ids="clm-stripe-mpp-196" />
+- **Public settlement.** Tempo settlement is visible on a public chain and indexed by MPPscan.<Cite ids="clm-stripe-mpp-138" />
+- **Thin and tiny usage.** MPPscan counted 4,072,426 transactions and 435,476 USD all time as of 2026-10-11, but only 8,774 USD across 998,771 transactions in the last 30 days, under one cent each.<Cite ids="clm-stripe-mpp-171 clm-stripe-mpp-172" /> The homepage shows only the last 7 days by default.<Cite ids="clm-stripe-mpp-173" /> 126 of the 129 directory listings accept Tempo.<Cite ids="clm-stripe-mpp-147" />
+- **Vendor framing.** The MPP versus x402 page is written by MPP's authors and recommends MPP by default.<Cite ids="clm-stripe-mpp-197" />
+- **Unclear fees.** A 1.5 percent Stripe stablecoin fee was reported in 2025, and whether it applies to MPP charges is not stated.<Cite ids="clm-stripe-mpp-165 clm-stripe-mpp-166" />
+
+### What changed in 2025 and 2026
+
+- 2026-01-05: the spec repository was created; its first commit became public on 2026-03-18.<Cite ids="clm-stripe-mpp-028" />
+- 2026-02-16: `draft-ryan-httpauth-payment-00` posted.<Cite ids="clm-stripe-mpp-020" />
+- 2026-03-18: launch by Stripe and Tempo with Tempo mainnet; Visa named the design partner for cards, Lightspark extended MPP to Lightning.<Cite ids="clm-stripe-mpp-014 clm-stripe-mpp-015 clm-stripe-mpp-016" />
+- 2026-03-24 to 2026-06-21: Solana, Stellar, EVM, Hedera, USDC and NEAR Intents methods merged.<Cite ids="clm-stripe-mpp-031 clm-stripe-mpp-032 clm-stripe-mpp-034 clm-stripe-mpp-035 clm-stripe-mpp-036 clm-stripe-mpp-037" />
+- 2026-03-26: advisories and the `mppx` 0.4.11 fix; NVD published the two CVEs on 2026-03-31.<Cite ids="clm-stripe-mpp-129" />
+- 2026-04-13: `Accept-Payment` merged.<Cite ids="clm-stripe-mpp-033" />
+- 2026-04-29: at Sessions, Stripe added cards, Klarna and Affirm through SPTs for MPP payments.<Cite ids="clm-stripe-mpp-150" />
+- 2026-05-12: subscriptions announced on the blog with `mppx` 0.6.20; the intent spec merged 2026-07-29.<Cite ids="clm-stripe-mpp-040 clm-stripe-mpp-039" />
+- 2026-06-02: `mppx` 0.6.29 shipped x402 `exact` compatibility (blog post 2026-06-08).<Cite ids="clm-stripe-mpp-043" />
+- 2026-06-10: Mastercard's Agent Pay for Machines release quoted Tempo on MPP compatibility.<Cite ids="clm-stripe-mpp-202" />
+- 2026-06-17 and 2026-06-25: session v2 announced, then merged into the spec.<Cite ids="clm-stripe-mpp-041" />
+- 2026-06-19: `draft-httpauth-payment-00` posted.<Cite ids="clm-stripe-mpp-023" />
+- 2026-08-04 to 2026-08-12: TAP and Web Bot Auth attestation merged in `mppx`, shipped in 0.8.17 and announced.<Cite ids="clm-stripe-mpp-044" />
+- 2026-08-25 and 2026-08-27: `Payment-Authorization` merged; `mppx` 0.9.0 added dual MPP and x402 wrappers.<Cite ids="clm-stripe-mpp-042 clm-stripe-mpp-045" />
+- 2026-09-08 and 2026-09-09: XRPL methods merged; `draft-httpauth-payment-01` posted.<Cite ids="clm-stripe-mpp-038 clm-stripe-mpp-024" />
+- 2026-09-18 and 2026-09-28: the old draft name expired; the generic session intent pull request closed unmerged.<Cite ids="clm-stripe-mpp-022 clm-stripe-mpp-048" />
+
+## Compare and compose
+
+x402 is the sibling to compare first. Both answer HTTP 402, but x402 uses its own headers and a facilitator, while MPP uses HTTP authentication and lets the server or the rail settle. MPP's mapping sends `PAYMENT-REQUIRED` to `WWW-Authenticate: Payment`, `PAYMENT-SIGNATURE` to `Authorization: Payment` and `PAYMENT-RESPONSE` to `Payment-Receipt`.<Cite ids="clm-stripe-mpp-177" /> x402 `exact` maps to MPP `charge`, while x402 `upto` and EVM batch settlement are the usage-based counterparts of MPP sessions.<Cite ids="clm-stripe-mpp-178" /> With `mppx` one route can emit both challenges, accept either credential and return the matching receipt, and the `mppx` client prefers the Payment challenge when it sees both.<Cite ids="clm-stripe-mpp-179 clm-stripe-mpp-180" /> Stripe sits on both sides: it co-authors MPP and holds a seat on the x402 Technical Steering Committee.<Cite ids="clm-stripe-mpp-192" />
+
+On the card side, the `stripe` method carries Stripe Shared Payment Tokens, the token family Stripe also uses for agentic checkout next to ACP, and Stripe documents SPTs as a public preview with no published price.<Cite ids="clm-stripe-mpp-186 clm-stripe-mpp-209" /> Visa's `card` method has two links to TAP. The spec lets a client add TAP signature headers, and that sentence has been in the file since its first public version of 2026-03-18.<Cite ids="clm-stripe-mpp-182" /> Visa's announcement of the same day says the spec and SDK are built on VIC and TAP, although the `mpp-card` 0.1.8 package contains no TAP signing code.<Cite ids="clm-stripe-mpp-183 clm-stripe-mpp-184" />
+
+Mastercard has no MPP method; the Visa `card` method simply accepts `mastercard` as a network value.<Cite ids="clm-stripe-mpp-191" /> In Mastercard's 2026-06-10 release for Agent Pay for Machines (AP4M), Tempo says it is working with Mastercard on MPP compatibility; Mastercard's own text makes no MPP claim, and no Tempo page lists AP4M.<Cite ids="clm-stripe-mpp-202 clm-stripe-mpp-203" /> Tempo and Stripe are both in AP4M's initial partner group.<Cite ids="clm-stripe-mpp-189" />
+
+AP2 is complementary rather than connected: AP2 carries evidence of what a user authorized, MPP negotiates and settles a payment, but no specification binds them and neither repository mentions the other.<Cite ids="clm-stripe-mpp-187" /> Watch the acronym: in AP2 documents MPP means Merchant Payment Processor.<Cite ids="clm-stripe-mpp-019" /> UCP and ERC-8004 have no MPP link either, though the MPP discovery draft calls itself compatible with future on-chain anchoring of the kind ERC-8004 provides.<Cite ids="clm-stripe-mpp-187 clm-stripe-mpp-188" />
