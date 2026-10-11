@@ -798,7 +798,7 @@
     },
     {
       "id": "clm-visa-tap-081",
-      "text": "TAP says payment container data must not be used for payment when required fields are missing, the nonce does not match or the signature fails.",
+      "text": "TAP says payment container data should not be used for payment when required fields are missing, the nonce does not match or the signature fails.",
       "sources": [
         "src-visa-tap-spec"
       ],
@@ -2216,6 +2216,146 @@
       "confidence": "verified",
       "topic": "security",
       "asOf": "2025-10-28"
+    },
+    {
+      "id": "clm-visa-tap-223",
+      "text": "The TAP specification lists four benefits of its agent signature: strong identity tied to a payment scheme program, tamper-proof requests, replay protection through timestamps and nonces, and no reliance on IP addresses or extra header content.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-visa-tap-224",
+      "text": "The TAP specification says a public key associated with Visa implies that the agent takes part in, and complies with, the Visa Intelligent Commerce program requirements.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-visa-tap-225",
+      "text": "Visa's TAP overview describes three kinds of verifiable information: agent intent, consumer recognition and payment information.",
+      "sources": [
+        "src-visa-tap-overview"
+      ],
+      "confidence": "verified",
+      "topic": "identity",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-visa-tap-226",
+      "text": "The TAP specification's benefits text says the signature covers critical parts of the message such as method, path and headers, but its required minimum covers only @authority and @path.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "criticism"
+    },
+    {
+      "id": "clm-visa-tap-227",
+      "text": "TAP's trust model has three signatures: an agent recognition signature in the message header, a signed consumer or device identity in the request body, and a signed payment container in the request body.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-visa-tap-228",
+      "text": "Under TAP the consumer recognition object is provided while browsing and may be provided at payment, while the payment container comes at payment or whenever the merchant requests a payment.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-visa-tap-229",
+      "text": "The TAP payment container section also leaves it to the merchant's discretion whether the object's content is usable when verification fails.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "security"
+    },
+    {
+      "id": "clm-visa-tap-230",
+      "text": "The TAP specification's Python sample builds a @signature-params line that starts with the label sig2= and leaves out the alg parameter, unlike its header examples and RFC 9421.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-rfc9421"
+      ],
+      "confidence": "verified",
+      "topic": "criticism"
+    },
+    {
+      "id": "clm-visa-tap-231",
+      "text": "Under TAP, a merchant that wants the encrypted payment payload onboards its public key to each payment scheme it accepts through a scheme-specific API.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-visa-tap-232",
+      "text": "Visa's TAP overview lists a consumer's blockchain wallet address among the consumer recognition data an agent may pass, while the specification's object tables define no wallet field.",
+      "sources": [
+        "src-visa-tap-overview",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "objects",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-visa-tap-233",
+      "text": "The TAP specification targets agents that are initially unknown to the merchant, and merchants that have not adopted it can ignore its signatures.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-visa-tap-234",
+      "text": "The TAP specification says a merchant that recognizes agents may present an agent-specific experience, such as simpler pages or fewer checkout steps.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-visa-tap-235",
+      "text": "Under TAP, the keys at Visa's well-known URL verify the message signature, the ID Token JWS and the signed body objects.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-visa-tap-236",
+      "text": "Visa's TAP overview says merchants and their proxies, such as CDNs and bot mitigation services, have historically classed automated web traffic as bots and typically blocked it.",
+      "sources": [
+        "src-visa-tap-overview"
+      ],
+      "confidence": "verified",
+      "topic": "identity",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-visa-tap-237",
+      "text": "The TAP specification defines two interactions: browsing, to learn product details, availability and the final cost after taxes and shipping, and payment, to buy a product or gain paid access to a resource.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "topic": "flow"
     }
   ]
 }
