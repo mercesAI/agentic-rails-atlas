@@ -1,0 +1,178 @@
+{
+  "protocol": "x402",
+  "summary": "x402 makes two strong promises and leaves the rest to the parties. The client's signature binds the amount and the recipient, so a facilitator can only broadcast what the client signed, and a single-use nonce with a validity window stops replay. Everything around that is out of scope: whether the payTo in a 402 response is the seller the client meant, how much an agent may spend, whether the service is delivered after payment, what the facilitator learns, and whether the facilitator serves everyone. Most real incidents so far were SDK bugs (route matching, Solana duplicate settlement), not protocol breaks, and the academic literature focuses on binding, atomicity and facilitator behavior.",
+  "threats": [
+    {
+      "id": "x402-t1",
+      "stride": "S",
+      "title": "Payee substitution in an altered 402 response",
+      "description": "An attacker who can change the 402 response (a compromised proxy, a malicious mirror or an injected tool result) swaps payTo for its own address. The client signs a valid authorization to the attacker.",
+      "preconditions": ["The attacker can modify or forge the PAYMENT-REQUIRED header", "The client does not check payTo against an expected address"],
+      "impact": "Funds go to the attacker; an exact settlement cannot be reversed by the protocol.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "The signature protects payTo after signing, not before. Pin expected payTo addresses per domain in a client policy, use TLS end to end, and prefer signed offers (offer-receipt) where the seller supports them.",
+      "sources": ["src-x402-scheme-exact-evm", "src-x402-scheme-exact", "src-x402-arxiv-2605-11781", "src-x402-ext-offer-receipt"]
+    },
+    {
+      "id": "x402-t2",
+      "stride": "T",
+      "title": "Facilitator changes the amount or recipient",
+      "description": "A malicious or buggy facilitator tries to settle a different amount or send funds elsewhere.",
+      "preconditions": ["The facilitator controls the broadcast"],
+      "impact": "None for exact on EVM: amount and recipient are inside the signed EIP-712 struct, and the Permit2 proxy enforces the witness recipient.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Keep this property when adding schemes: the trust-minimizing principle forbids schemes that let the facilitator move funds against client intent. Under upto, the witness also names the only facilitator allowed to settle.",
+      "sources": ["src-x402-scheme-exact-evm", "src-x402-repo", "src-x402-scheme-upto-evm"]
+    },
+    {
+      "id": "x402-t3",
+      "stride": "S",
+      "title": "Replay of a captured payment header",
+      "description": "Someone resends a PAYMENT-SIGNATURE that already paid, to get the resource again or to charge the payer twice.",
+      "preconditions": ["The attacker sees a signed header (logs, a proxy, a shared cache)"],
+      "impact": "Blocked: EIP-3009 tokens refuse a used nonce, and facilitators check nonce state at verify time.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Keep validBefore short, never cache responses that carry payment headers (the SDK sets Cache-Control no-store on 402), and add payment-identifier for idempotent server-side access grants.",
+      "sources": ["src-x402-spec-v2", "src-x402-sdk-eip3009-utils", "src-x402-core-changelog", "src-x402-ext-payment-identifier"]
+    },
+    {
+      "id": "x402-t4",
+      "stride": "E",
+      "title": "Payment bypass through route matching",
+      "description": "Encoded path tricks (percent-encoded line terminators, backslashes, escaped slashes) make a paid route look unpaid to the middleware while the framework still serves it.",
+      "preconditions": ["The server runs an affected SDK version", "Routes are matched with wildcards or path parameters"],
+      "impact": "Free access to paid resources.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Upgrade @x402/core (fixes in 2.21.0, 2.22.0 and 2.27.0) and test protected routes with encoded variants. An older high-severity advisory (GHSA-3j63-5h8p-gf7c) hit legacy resource-server packages below 0.5.2.",
+      "sources": ["src-x402-core-changelog", "src-x402-ghsa-2025"]
+    },
+    {
+      "id": "x402-t5",
+      "stride": "R",
+      "title": "Paid but not delivered, or delivered but unpaid",
+      "description": "Payment and service execution are separate steps. Under authorization the server serves before it settles; under upfront the client pays before the handler runs.",
+      "preconditions": ["A handler or settle failure, or a dishonest party"],
+      "impact": "The seller loses work when a settle fails, or the buyer loses money when the handler fails; neither side can prove the other's fault inside the protocol.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Use auth-capture for refundable or delayed delivery, keep PAYMENT-RESPONSE hashes and offer-receipt receipts as evidence, and watch research such as A402 that binds payment to execution.",
+      "sources": ["src-x402-spec-v2", "src-x402-arxiv-2603-01179", "src-x402-scheme-auth-capture"]
+    },
+    {
+      "id": "x402-t6",
+      "stride": "D",
+      "title": "Facilitator outage or refusal",
+      "description": "The facilitator is down, slow or refuses certain payers or sellers. Most traffic runs through few facilitators.",
+      "preconditions": ["A server depends on one facilitator"],
+      "impact": "Paid routes answer 502 or stop selling; a settle timeout leaves the outcome unknown.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Anyone can run a facilitator and a server can self-facilitate. Configure a second facilitator, set timeouts deliberately (the TypeScript client defaults to 90 seconds), and reconcile settlement_pending results on chain before retrying.",
+      "sources": ["src-x402-docs-facilitator-concept", "src-x402-sdk-facilitator-client", "src-x402-sdk-express", "src-x402-arxiv-2607-19545"]
+    },
+    {
+      "id": "x402-t7",
+      "stride": "T",
+      "title": "Duplicate settlement race",
+      "description": "Concurrent or retried settles for the same payment produce more than one transfer or more than one access grant.",
+      "preconditions": ["Several settle workers, or networks where duplicates are not rejected on chain"],
+      "impact": "Double charging or double service; a 2026 advisory covered facilitators that process Solana payments.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Patch to @x402/svm 2.6.0, PyPI x402 2.3.0 or Go 2.5.0 or later. Deduplicate atomically across every settle process; the Solana SDK keeps a 120 second settlement cache.",
+      "sources": ["src-x402-ghsa-2026", "src-x402-docs-facilitator-concept", "src-x402-arxiv-2605-30998", "src-x402-scheme-exact"]
+    },
+    {
+      "id": "x402-t8",
+      "stride": "I",
+      "title": "Personal data in payment metadata",
+      "description": "Resource URLs and descriptions in PaymentRequired and PaymentPayload reach the facilitator, which may have no data agreement with the payer.",
+      "preconditions": ["Servers put identifiers or query data in resource fields"],
+      "impact": "Leakage of personal or business data to third parties.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Keep resource.url and description generic, strip query strings, and consider filtering middleware as proposed in the Hardening x402 paper.",
+      "sources": ["src-x402-arxiv-2604-11430", "src-x402-spec-v2"]
+    },
+    {
+      "id": "x402-t9",
+      "stride": "E",
+      "title": "Overspending by an agent",
+      "description": "An agent pays more than its owner intended: no cap, a disabled cap, or an upto ceiling that the server fully uses.",
+      "preconditions": ["spendControls disabled or set high", "Upto endpoints with generous ceilings"],
+      "impact": "Budget loss; under upto the client trusts the server to charge fairly up to the ceiling.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Budgets are out of scope in the spec. Keep the SDK default cap ($1 per payment) or lower it, add per-task budgets in a policy hook, and set low ceilings for upto.",
+      "sources": ["src-x402-spec-v2", "src-x402-sdk-spendcontrols", "src-x402-scheme-upto-evm"]
+    },
+    {
+      "id": "x402-t10",
+      "stride": "T",
+      "title": "Cross-resource substitution",
+      "description": "A payment made for one resource is accepted for another, for example a cheap route's payment used on an expensive one.",
+      "preconditions": ["The server does not tie a verified payment to the specific route and requirements it issued"],
+      "impact": "Underpayment or free access.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Verify against the server's own requirements for the requested route, never against the accepted object the client echoed. The free-riding paper lists this among four flaw classes.",
+      "sources": ["src-x402-arxiv-2605-30998", "src-x402-spec-v2"]
+    },
+    {
+      "id": "x402-t11",
+      "stride": "R",
+      "title": "Manufactured volume and wash activity",
+      "description": "Because facilitators often pay gas, settlement counts can be inflated almost for free, and nothing on chain shows who controls a paying wallet.",
+      "preconditions": ["Cheap gas and permissive facilitators"],
+      "impact": "Misleading adoption metrics and leaderboards; poor inputs for reputation systems.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Report adjusted figures with their method and date; weight reputation by payment evidence and buyer diversity.",
+      "sources": ["src-x402-arxiv-2607-12575", "src-x402-4pillars", "src-x402-forkast-visa"]
+    },
+    {
+      "id": "x402-t12",
+      "stride": "D",
+      "title": "Oversized headers dropped in transit",
+      "description": "Base64 JSON headers can exceed 2 KB, and some intermediaries drop or truncate large headers.",
+      "preconditions": ["Many accepts entries or large extensions"],
+      "impact": "Clients never see the requirements, or servers never see the payment.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Keep accepts lists short and omit optional fields; the cloudflare:402 binding strips schema objects for this reason.",
+      "sources": ["src-x402-scheme-batch-cf"]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "x402-s1",
+      "title": "A tool result swaps the payee",
+      "preconditions": ["An agent reads 402 responses relayed through a third-party tool or proxy", "No payTo pinning in the client policy"],
+      "steps": ["The proxy rewrites payTo in PAYMENT-REQUIRED to its own address", "The agent signs a valid authorization for that address", "The real server's facilitator rejects it with a recipient mismatch", "The signed authorization still names the attacker, who can try to settle it on its own"],
+      "impact": "Loss of the signed amount; no protocol refund under exact.",
+      "sources": ["src-x402-scheme-exact-evm", "src-x402-spec-v2", "src-x402-arxiv-2605-11781"]
+    },
+    {
+      "id": "x402-s2",
+      "title": "A settle timeout followed by a blind retry",
+      "preconditions": ["The facilitator broadcast the transfer but the receipt wait timed out", "The server retries without checking"],
+      "steps": ["The first /settle times out after the handler ran", "The server retries /settle", "The retry fails because the nonce is now used, and the server wrongly concludes the payment failed", "The server withholds the resource although the client paid"],
+      "impact": "A paying client is refused; support cost and reputation damage for the seller.",
+      "sources": ["src-x402-spec-v2", "src-x402-sdk-facilitator-client", "src-x402-docs-facilitator-concept"]
+    },
+    {
+      "id": "x402-s3",
+      "title": "An agent with controls switched off",
+      "preconditions": ["spendControls set to false, as the browser paywall does for humans", "The agent calls many paid endpoints in a loop"],
+      "steps": ["A bug makes the agent call a paid route repeatedly", "Each call is a valid, small exact payment", "No cap stops the loop"],
+      "impact": "Budget drained in small, irreversible payments.",
+      "sources": ["src-x402-sdk-spendcontrols", "src-x402-spec-v2"]
+    }
+  ],
+  "research": [
+    { "title": "Five Attacks on x402 Agentic Payment Protocol", "date": "2026-05-12", "finding": "Five practical attacks on authorization, binding, replay protection and web-layer handling, tested on local chains, Base Sepolia and live endpoints, with audits of three SDKs.", "publicationId": "pub-li-2026-fiveattacks", "sources": ["src-x402-arxiv-2605-11781"] },
+    { "title": "Free-Riding the Agentic Web: A Systematic Security Analysis of x402 Payments", "date": "2026-05-29", "finding": "Four flaw classes, including cross-resource substitution and a duplicate settlement race, organized around five invariants.", "publicationId": "pub-ling-2026-freeriding", "sources": ["src-x402-arxiv-2605-30998"] },
+    { "title": "When HTTP 402 Meets the Blockchain: Risks on Emerging x402 Payments", "date": "2026-07-21", "finding": "First systematic study of facilitator-mediated deployments; proposes eight security rules for facilitators and reports four new attack vectors. A widely repeated claim that all 15 tested facilitators broke at least one rule is not in the abstract.", "publicationId": "pub-wang-2026-http402", "sources": ["src-x402-arxiv-2607-19545"] },
+    { "title": "A402: Binding Cryptocurrency Payments to Service Execution for Agentic Commerce", "date": "2026-03-01", "finding": "x402 does not make execution, payment and delivery atomic; proposes Atomic Service Channels.", "publicationId": "pub-li-2026-a402", "sources": ["src-x402-arxiv-2603-01179"] },
+    { "title": "Hardening x402: PII-Safe Agentic Payments via Pre-Execution Metadata Filtering", "date": "2026-04-13", "finding": "Resource metadata sent to servers and facilitators is a PII leakage channel; proposes redacting middleware with spending policies.", "publicationId": "pub-stantchev-2026-hardening", "sources": ["src-x402-arxiv-2604-11430"] },
+    { "title": "How Agentic Is Agentic Commerce? A Population-Scale Measurement of x402 Adoption and Authenticity", "date": "2026-07-14", "finding": "Counts 136,708,672 settlements on Base over 280 days and argues the count is not adoption because it can be manufactured almost for free.", "publicationId": "pub-ling-2026-howagentic", "sources": ["src-x402-arxiv-2607-12575"] },
+    { "title": "A Formal Analysis of Agent Payment Protocols", "date": "2026-08-30", "finding": "Tamarin models of x402, MPP, ACP and AP2.", "publicationId": "pub-jiang-2026-formal", "sources": ["src-x402-arxiv-2609-00060"] }
+  ],
+  "cves": [
+    { "id": "GHSA-3j63-5h8p-gf7c", "date": "2025-08-20", "summary": "High-severity GitHub advisory for the legacy npm packages x402, x402-next, x402-express and x402-hono below 0.5.2, mainly affecting resource server builders. No CVE identifier assigned.", "severity": "high", "confidence": "verified", "sources": ["src-x402-ghsa-2025"] },
+    { "id": "GHSA-qr2g-p6q7-w82m", "date": "2026-03-07", "summary": "High-severity GitHub advisory for facilitators that process Solana payments; patched in @x402/svm 2.6.0, PyPI x402 2.3.0 and Go 2.5.0. No CVE identifier assigned.", "severity": "high", "confidence": "verified", "sources": ["src-x402-ghsa-2026"] }
+  ],
+  "trustBoundaryDiagram": "x402-context"
+}
