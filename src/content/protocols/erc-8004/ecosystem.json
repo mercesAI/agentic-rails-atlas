@@ -1,0 +1,327 @@
+{
+  "protocol": "erc-8004",
+  "stewards": [
+    {
+      "name": "ERC-8004 team (8004.org)",
+      "role": "Community effort coordinated by Marco De Rossi (MetaMask) and Davide Crapis (Ethereum Foundation); co-authors Jordan Ellis (Google) and Erik Reppel (Coinbase); maintains the contracts and best practices.",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "name": "ethereum/ERCs editors",
+      "role": "Editorial process for the text; returned it to Draft on 2026-01-13.",
+      "sources": [
+        "src-erc-8004-commit-draft"
+      ]
+    },
+    {
+      "name": "Owner of the registry proxies",
+      "role": "One externally owned account on Ethereum and Base (2026-10-11), holder not published; authorizes upgrades and new-chain deployments.",
+      "sources": [
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-issue-95"
+      ]
+    }
+  ],
+  "implementers": [
+    {
+      "name": "Identity and Reputation registries on 25 mainnets",
+      "role": "Same proxy addresses on every chain listed in the contracts README (as of 2026-08-15).",
+      "status": "live",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-readme-history"
+      ]
+    },
+    {
+      "name": "Validation Registry",
+      "role": "Specified only; no listed address on any chain.",
+      "status": "unknown",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "name": "8004scan (AltLayer)",
+      "role": "Multi-chain explorer.",
+      "status": "live",
+      "sources": [
+        "src-8004scan"
+      ]
+    },
+    {
+      "name": "Agentscan (alias)",
+      "role": "Explorer.",
+      "status": "live",
+      "sources": [
+        "src-agentscan"
+      ]
+    },
+    {
+      "name": "QuickNode ERC-8004 Explorer",
+      "role": "Explorer and tutorials.",
+      "status": "live",
+      "sources": [
+        "src-quicknode-8004-faq"
+      ]
+    },
+    {
+      "name": "Agent0 subgraphs (The Graph)",
+      "role": "Indexers on Base, BNB Chain, Ethereum, Monad and Polygon since 2026-04-14.",
+      "status": "live",
+      "sources": [
+        "src-thegraph-agent0"
+      ]
+    },
+    {
+      "name": "CSOAI agent census",
+      "role": "Measured dataset of agent states (2026-09-26).",
+      "status": "live",
+      "sources": [
+        "src-csoai-census"
+      ]
+    }
+  ],
+  "sdks": [
+    {
+      "registry": "npm",
+      "name": "agent0-sdk",
+      "version": "1.7.1",
+      "url": "https://www.npmjs.com/package/agent0-sdk",
+      "note": "TypeScript, MIT, from agent0lab/agent0-ts."
+    },
+    {
+      "registry": "pypi",
+      "name": "agent0-sdk",
+      "version": "1.7.1",
+      "url": "https://pypi.org/project/agent0-sdk/"
+    },
+    {
+      "registry": "npm",
+      "name": "create-8004-agent",
+      "version": "1.4.2",
+      "url": "https://www.npmjs.com/package/create-8004-agent"
+    },
+    {
+      "registry": "npm",
+      "name": "@chaoschain/sdk",
+      "version": "0.3.3",
+      "url": "https://www.npmjs.com/package/@chaoschain/sdk"
+    },
+    {
+      "registry": "pypi",
+      "name": "chaoschain-sdk",
+      "version": "0.4.1",
+      "url": "https://pypi.org/project/chaoschain-sdk/"
+    },
+    {
+      "registry": "npm",
+      "name": "@lucid-agents/identity",
+      "version": "5.0.0",
+      "url": "https://www.npmjs.com/package/@lucid-agents/identity",
+      "note": "Daydreams."
+    },
+    {
+      "registry": "other",
+      "name": "erc-8004-contracts (not published to npm)",
+      "url": "https://github.com/erc-8004/erc-8004-contracts",
+      "note": "Reference Solidity contracts, version 2.0.0."
+    }
+  ],
+  "metrics": [
+    {
+      "id": "erc-8004-8004scan-agents",
+      "metric": "Registered agents (8004scan)",
+      "value": 561576,
+      "unit": "agent ids",
+      "asOf": "2026-10-11",
+      "definition": "Agent token ids the explorer counts across its networks; method not published.",
+      "sources": [
+        "src-8004scan"
+      ],
+      "caveat": "Count is not quality: ids are free to mint (gas only) and include placeholders. Compare with the census and arXiv:2606.26028 below.",
+      "disputed": true,
+      "disputeSources": [
+        "src-csoai-census",
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "id": "erc-8004-8004scan-feedback",
+      "metric": "Feedback entries (8004scan)",
+      "value": 682170,
+      "unit": "entries",
+      "asOf": "2026-10-11",
+      "definition": "Feedback submissions the explorer counts.",
+      "sources": [
+        "src-8004scan"
+      ],
+      "caveat": "Includes Sybil feedback; arXiv:2606.26028 found 59.2% to 90.6% of reviewers coordinated on three chains (data to 2026-05-13).",
+      "disputed": true,
+      "disputeSources": [
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "id": "erc-8004-8004scan-wallets",
+      "metric": "Unique wallets (8004scan)",
+      "value": 496805,
+      "unit": "wallets",
+      "asOf": "2026-10-11",
+      "definition": "Distinct addresses seen by the explorer.",
+      "sources": [
+        "src-8004scan"
+      ],
+      "caveat": "Wallets are not people or operators."
+    },
+    {
+      "id": "erc-8004-networks",
+      "metric": "Networks (8004scan) versus listed mainnets (README)",
+      "value": "30 versus 25",
+      "unit": "networks",
+      "asOf": "2026-10-11",
+      "definition": "8004scan network count against mainnets in the official contracts README.",
+      "sources": [
+        "src-8004scan",
+        "src-erc-8004-contracts-readme"
+      ],
+      "caveat": "8004scan may include testnets or community deployments.",
+      "disputed": true,
+      "disputeSources": [
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "id": "erc-8004-census-ids",
+      "metric": "Agent ids read (CSOAI census)",
+      "value": 505635,
+      "unit": "agent ids",
+      "asOf": "2026-09-26",
+      "definition": "Ids read with eth_call on Ethereum (51,458), Base (95,776) and BSC (358,401).",
+      "sources": [
+        "src-csoai-census"
+      ],
+      "caveat": "Three chains only; read state partial."
+    },
+    {
+      "id": "erc-8004-census-endpoints",
+      "metric": "Ids declaring an http(s) MCP, A2A or web endpoint (CSOAI census)",
+      "value": 13210,
+      "unit": "agent ids",
+      "asOf": "2026-09-26",
+      "definition": "Files that declare at least one such endpoint; 231,014 files were not fetched and 52,469 ids had no URI.",
+      "sources": [
+        "src-csoai-census"
+      ],
+      "caveat": "Declared, not live: of 2,113 MCP endpoints probed, 580 responded."
+    },
+    {
+      "id": "erc-8004-live-share",
+      "metric": "Agents with a valid file and a live endpoint (arXiv:2606.26028)",
+      "value": "3% Ethereum, 4% BSC, 15% Base",
+      "unit": "share of agents",
+      "asOf": "2026-05-13",
+      "definition": "Share of registered agents whose file was valid and at least one endpoint answered, in the authors' crawl.",
+      "sources": [
+        "src-pub-2606-26028"
+      ],
+      "caveat": "arXiv preprint; method is the authors' own. Count is not quality."
+    },
+    {
+      "id": "erc-8004-sybil-share",
+      "metric": "Reviewers with coordinated Sybil behavior (arXiv:2606.26028)",
+      "value": "73.5% Ethereum, 59.2% BSC, 90.6% Base",
+      "unit": "share of reviewers",
+      "asOf": "2026-05-13",
+      "definition": "Share of reviewer addresses the authors flag as coordinated.",
+      "sources": [
+        "src-pub-2606-26028"
+      ],
+      "caveat": "Detection heuristics are the authors' own."
+    },
+    {
+      "id": "erc-8004-quality-report",
+      "metric": "Agents with sustained activity (community report)",
+      "value": "about 50 of 119,675",
+      "unit": "agents",
+      "asOf": "2026-04-02",
+      "definition": "Self-reported by an agent account in a GitHub issue.",
+      "sources": [
+        "src-erc-8004-issue-73"
+      ],
+      "caveat": "Unverified; shown only as context."
+    }
+  ],
+  "costs": [
+    {
+      "item": "Protocol fee",
+      "value": "None; gas only",
+      "whoPays": "The caller of each transaction",
+      "asOf": "2026-10-11",
+      "confidence": "reported",
+      "caveat": "From the QuickNode explorer FAQ; the contracts have no fee or payable function.",
+      "sources": [
+        "src-quicknode-8004-faq",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "item": "register(string) gas",
+      "value": "about 203,412 gas (67-character IPFS URI); 203,460 gas with a 69-character URI",
+      "whoPays": "Agent owner",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Method: eth_estimateGas from an unfunded test address against public RPCs on Ethereum and Base, measured by the Atlas on 2026-10-11 and re-run the same day. An estimate, not a mined transaction; grows with URI length and metadata.",
+      "sources": [
+        "src-erc-8004-gas-probe"
+      ]
+    },
+    {
+      "item": "giveFeedback gas (first feedback from a new client)",
+      "value": "about 155,185 gas with empty tags and URI; about 178,504 gas with tag1, an endpoint and an IPFS URI",
+      "whoPays": "Client, or a sponsor through EIP-7702",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Method: eth_estimateGas on Ethereum and Base, 2026-10-11, agentId 1. No published figure exists from the authors or any vendor. Later feedback from the same client costs less.",
+      "sources": [
+        "src-erc-8004-gas-probe"
+      ]
+    },
+    {
+      "item": "Illustrative giveFeedback cost on Ethereum",
+      "value": "about 0.000012 to 0.000017 ETH at 0.067 to 0.097 gwei",
+      "whoPays": "Client",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Gas prices change by orders of magnitude; on Layer 2 networks the L1 data fee is extra and not included.",
+      "sources": [
+        "src-erc-8004-gas-probe"
+      ]
+    },
+    {
+      "item": "Registration (vendor docs)",
+      "value": "\"Costs dollars\" on Ethereum mainnet, \"pennies\" on Base, Mantle, BNB and Avalanche",
+      "whoPays": "Agent owner",
+      "asOf": "2026-05-05",
+      "confidence": "reported",
+      "caveat": "Qualitative, reflects gas prices in the first half of 2026.",
+      "sources": [
+        "src-quicknode-register"
+      ]
+    },
+    {
+      "item": "Registration (secondary estimate)",
+      "value": "about $1 to $5 on Ethereum mainnet, about $0.20 on Layer 2 networks",
+      "whoPays": "Agent owner",
+      "asOf": "2026-04-28",
+      "confidence": "reported",
+      "caveat": "Secondary estimate; on 2026-10-11 the measured gas cost was cents on mainnet. Always read with its date.",
+      "sources": [
+        "src-cobo-8004"
+      ]
+    }
+  ]
+}

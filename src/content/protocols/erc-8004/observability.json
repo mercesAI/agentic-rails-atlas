@@ -1,0 +1,174 @@
+{
+  "protocol": "erc-8004",
+  "score": 5,
+  "scoreReasons": [
+    "Everything the registries record is public by design: token ownership, agentURI, metadata including agentWallet, every feedback value and tag, revocations and responses.",
+    "Named events (Registered, URIUpdated, MetadataSet, NewFeedback, FeedbackRevoked, ResponseAppended) at the same proxy addresses on every listed mainnet make indexing simple.",
+    "Registration files, feedback files and the /.well-known domain proof are public whenever their URI is public.",
+    "Public explorers, subgraphs and a CC BY 4.0 census dataset already exist.",
+    "What stays private is only what parties choose not to publish, such as the payment details behind a feedback entry; the quality of the data is the weak point, not its visibility."
+  ],
+  "public": [
+    {
+      "what": "Identity events",
+      "where": "Identity Registry 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432 on each listed mainnet",
+      "how": "Registered(agentId, agentURI, owner), URIUpdated(agentId, newURI, updatedBy), MetadataSet(agentId, indexedMetadataKey, metadataKey, metadataValue), ERC-721 Transfer.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "what": "Reputation events",
+      "where": "Reputation Registry 0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
+      "how": "NewFeedback (with endpoint, feedbackURI, feedbackHash), FeedbackRevoked, ResponseAppended; reads getClients, readAllFeedback, getSummary.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "what": "Validation events (specified)",
+      "where": "No listed address; a contract answers at 0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58 on Ethereum and Base but is not announced",
+      "how": "ValidationRequest and ValidationResponse as specified.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "what": "Registration file",
+      "where": "tokenURI(agentId), served by ipfs://, https:// or a data: URI",
+      "how": "Fetch and parse; check registrations against agentRegistry and agentId.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "what": "Domain proof",
+      "where": "https://{endpoint-domain}/.well-known/agent-registration.json",
+      "how": "Fetch over HTTPS and match a registrations entry.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "what": "Feedback detail",
+      "where": "feedbackURI from NewFeedback",
+      "how": "Fetch, compare feedbackHash (keccak256), read proofOfPayment and look up txHash.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "what": "Explorers",
+      "where": "8004scan.io, agentscan.info, erc-8004.quicknode.com",
+      "how": "Web explorers over the same events and files.",
+      "sources": [
+        "src-8004scan",
+        "src-agentscan",
+        "src-quicknode-8004-faq"
+      ]
+    },
+    {
+      "what": "Subgraphs",
+      "where": "Agent0 subgraphs on The Graph (Base, BNB Chain, Ethereum, Monad, Polygon)",
+      "how": "GraphQL over indexed identity, feedback and validation events.",
+      "sources": [
+        "src-thegraph-agent0"
+      ]
+    },
+    {
+      "what": "Upgrade control",
+      "where": "owner() and the ERC-1967 implementation slot of each proxy",
+      "how": "eth_call and eth_getStorageAt; on 2026-10-11 the owner was 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603 on Ethereum and Base.",
+      "sources": [
+        "src-erc-8004-onchain-probe"
+      ]
+    }
+  ],
+  "private": [
+    {
+      "what": "Payments behind feedback",
+      "why": "ERC-8004 carries no payment; only an optional proofOfPayment in a file points to one."
+    },
+    {
+      "what": "Who operates an agent",
+      "why": "The registry records an owner address, not a person or company."
+    },
+    {
+      "what": "Files that are no longer served",
+      "why": "Only the URI and an optional hash stay on-chain; HTTPS content can disappear or change."
+    },
+    {
+      "what": "Who holds the upgrade key",
+      "why": "The owner is an externally owned account whose holder is not published."
+    }
+  ],
+  "indexerCaptures": [
+    {
+      "signal": "New agents and their files",
+      "from": "Registered, URIUpdated, Transfer",
+      "identifiers": [
+        "agentId",
+        "agentURI",
+        "owner",
+        "agentRegistry"
+      ],
+      "sources": [
+        "src-erc-8004-spec",
+        "src-thegraph-agent0"
+      ]
+    },
+    {
+      "signal": "Payee changes",
+      "from": "MetadataSet with metadataKey agentWallet",
+      "identifiers": [
+        "agentId",
+        "agentWallet"
+      ],
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "signal": "Feedback stream and Sybil clusters",
+      "from": "NewFeedback, FeedbackRevoked, ResponseAppended",
+      "identifiers": [
+        "agentId",
+        "clientAddress",
+        "feedbackIndex",
+        "tag1",
+        "feedbackURI"
+      ],
+      "sources": [
+        "src-erc-8004-spec",
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "signal": "Liveness of declared endpoints",
+      "from": "Registration file services plus probes",
+      "identifiers": [
+        "services[].name",
+        "services[].endpoint"
+      ],
+      "sources": [
+        "src-csoai-census"
+      ]
+    },
+    {
+      "signal": "Registry upgrades",
+      "from": "ERC-1967 Upgraded event and implementation slot",
+      "identifiers": [
+        "proxy address",
+        "implementation address",
+        "owner"
+      ],
+      "sources": [
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-identity-sol"
+      ]
+    }
+  ]
+}

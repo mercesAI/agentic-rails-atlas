@@ -1,0 +1,263 @@
+{
+  "protocol": "erc-8004",
+  "summary": "ERC-8004 natively provides reputation and partial identity: a verifiable agent token, a signed payee address and a filtered feedback log. It offers no consent, caps, step-up or kill switch, because it moves no money. Controls layers act before authorization (pick agents by trusted reviewers and fresh wallet reads), at signing (refuse stale payees) and after the fact (write payment-backed feedback, watch transfers and upgrades).",
+  "native": [
+    {
+      "protocol": "erc-8004",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The on-chain agentId, owner and agentWallet are verifiable, and the optional /.well-known file proves domain control. Nothing proves who operates the agent.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "agent-registration-kya",
+      "support": "partial",
+      "note": "A permissionless registry for discovery: anyone can mint an identity, with no KYC or know-your-agent check.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "user-consent-capture",
+      "support": "none",
+      "note": "No consent or mandate object; ERC-8226 (Draft) proposes one on top.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8226"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "spending-caps",
+      "support": "none",
+      "note": "ERC-8004 moves no money, so it has no caps.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "merchant-payee-scoping",
+      "support": "partial",
+      "note": "agentWallet publishes a payee address that the wallet itself signed for; nothing limits what a client may pay.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "time-windows-expiry",
+      "support": "partial",
+      "note": "Only the wallet-binding signature expires (at most 5 minutes ahead in the reference code).",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "revocation",
+      "support": "partial",
+      "note": "Clients revoke their own feedback and owners can unset the wallet; an identity cannot be revoked or burned.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "Not covered.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "EIP-712 domain and deadline bind the wallet signature, but there is no nonce; feedback uses per-client indexes.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "proofOfPayment and file hashes live in off-chain files and are never verified on-chain.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Only appendResponse, for example to show a refund; no dispute resolution.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "reputation",
+      "support": "native",
+      "note": "The Reputation Registry: tagged values per client, revocation, responses and a filtered summary.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Public events and tags such as reachable, uptime and responseTime that monitors can publish as feedback.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-bp-reputation"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "kill-switch",
+      "support": "none",
+      "note": "No pause and no burn; only the registry owner can change the code by upgrade.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-minimaluups-mainnet"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "title": "No link between feedback and real interactions",
+      "description": "Since feedbackAuth was removed, feedback is open to any address; proofOfPayment is optional and unchecked.",
+      "sources": [
+        "src-erc-8004-commit-jan07",
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "title": "No mandate or spending limits",
+      "description": "An agent identity says nothing about what it may spend or for whom. ERC-8226 (Draft) proposes a mandate layer.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8226"
+      ]
+    },
+    {
+      "title": "No emergency stop",
+      "description": "There is no pause or burn; the only lever is an upgrade by one owner key.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "title": "Validation not available",
+      "description": "The Validation Registry is specified, not officially deployed, so third-party checks have no official on-chain home.",
+      "sources": [
+        "src-erc-8004-contracts-readme"
+      ]
+    }
+  ],
+  "controlPoints": [
+    {
+      "point": "before-authorization",
+      "what": "Decide which agents may be hired",
+      "how": "getSummary with a curated reviewer list, endpoint probes, /.well-known domain proof, minimum feedback from paying clients.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "point": "at-signing",
+      "what": "Confirm the payee",
+      "how": "Read getAgentWallet just before signing a payment and refuse if the token moved since the wallet was bound.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "point": "at-edge",
+      "what": "Check the endpoint is the agent",
+      "how": "Match the serving domain against the registration file and its /.well-known file.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "point": "after-the-fact",
+      "what": "Record outcomes",
+      "how": "Upload feedback with proofOfPayment and call giveFeedback; monitor Transfer, URIUpdated, MetadataSet and proxy upgrades.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-onchain-probe"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "item": "Never call getSummary with an unvetted reviewer list",
+      "why": "Measured data shows majority Sybil reviewers on three chains.",
+      "sources": [
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "item": "Read agentWallet immediately before paying",
+      "why": "A transfer clears it and cached values go stale.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "item": "Verify proofOfPayment against the chain",
+      "why": "The registry never checks it.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "item": "Pin or hash the registration file you approved",
+      "why": "HTTPS files can change without an event.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "item": "Alert on proxy implementation and owner changes",
+      "why": "One externally owned account can upgrade all registries on Ethereum and Base.",
+      "sources": [
+        "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "item": "Do not rely on the Validation Registry address in scripts",
+      "why": "It is not listed or announced as deployed.",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "item": "Keep spending caps in the payment layer",
+      "why": "ERC-8004 has none.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    }
+  ]
+}
