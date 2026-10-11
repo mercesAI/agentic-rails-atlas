@@ -2,6 +2,7 @@
 /** Section C: main flow (FlowPlayer plus generated Mermaid), state machine (explorer plus Mermaid), then meta.diagrams. */
 import Section from '../Section.astro';
 import InProgress from '../InProgress.astro';
+import ResolvedDiagramView from '../ResolvedDiagramView.astro';
 import MermaidDiagram from '../../islands/MermaidDiagram.astro';
 import FlowPlayer from '../../islands/FlowPlayer';
 import StateMachineExplorer from '../../islands/StateMachineExplorer';
@@ -58,12 +59,6 @@ const flowSot = flow?.steps.find((s) => s.specRef)?.specRef;
   ) : (
     <InProgress file={`src/content/states/${meta.stateMachine}.json`} />
   )}
-  {meta.diagrams.length > 0 && <h3 id="c-diagrams-more">More diagrams</h3>}
-  {ctx.diagrams.map((d) =>
-    d.meta ? (
-      <MermaidDiagram id={d.id} level={4} generatedFrom={`src/content/diagrams/${d.id}.mmd`} />
-    ) : (
-      <InProgress file={`src/content/diagrams/${d.id}.json`} />
-    ),
-  )}
+  {ctx.diagrams.some((d) => d.id !== meta.mainFlow && d.id !== meta.stateMachine) && <h3 id="c-diagrams-more">More diagrams</h3>}
+  {ctx.diagrams.filter((d) => d.id !== meta.mainFlow && d.id !== meta.stateMachine).map((d) => <ResolvedDiagramView d={d} sources={ctx.sources} sourceIndex={sourceIndex} />)}
 </Section>

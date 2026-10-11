@@ -1,7 +1,7 @@
 ---
 import Section from '../Section.astro';
 import ThreatTable from '../ThreatTable.astro';
-import MermaidDiagram from '../../islands/MermaidDiagram.astro';
+import ResolvedDiagramView from '../ResolvedDiagramView.astro';
 import type { ProtocolPageContext } from '../lib/load';
 
 export interface Props {
@@ -17,9 +17,9 @@ const trust = ctx.trustDiagram;
     <>
       <h3 id="h-security-boundaries">Trust boundaries</h3>
       {trust.inSectionC ? (
-        <p>The trust-boundary diagram is shown in section C: <a href={`#diagram-${trust.id}`}>{trust.meta?.title ?? trust.id}</a>.</p>
+        <p>The trust-boundary diagram is shown in section C: <a href={`#diagram-${trust.id}`}>{trust.meta?.title ?? trust.flow?.title ?? trust.machine?.title ?? trust.id}</a>.</p>
       ) : (
-        <MermaidDiagram id={trust.id} level={4} generatedFrom={`src/content/diagrams/${trust.id}.mmd`} />
+        <ResolvedDiagramView d={trust} sources={ctx.sources} sourceIndex={Object.fromEntries(ctx.order.map((id, i) => [id, i + 1]))} />
       )}
     </>
   )}

@@ -1,0 +1,65 @@
+---
+/**
+ * Renders one entry of meta.diagrams: a hand-written diagram, or the generated
+ * Mermaid of a flow or state machine with that id (with an optional player or
+ * explorer behind a disclosure), or the "in progress" placeholder.
+ */
+import MermaidDiagram from '../islands/MermaidDiagram.astro';
+import FlowPlayer from '../islands/FlowPlayer';
+import StateMachineExplorer from '../islands/StateMachineExplorer';
+import InProgress from './InProgress.astro';
+import { describeFlow, describeFlowSteps, describeStateMachine, describeStateTransitions } from '../../lib/flows/describe';
+import type { Source } from '../../lib/schemas';
+import { generatedDescription, type ResolvedDiagram } from './lib/load';
+
+export interface Props {
+  d: ResolvedDiagram;
+  sources: Map<string, Source>;
+  sourceIndex: Record<string, number>;
+  level?: 3 | 4;
+}
+const { d, sources, sourceIndex, level = 4 } = Astro.props;
+const sot = (ids: string[] | undefined) => {
+  const s = ids?.map((id) => sources.get(id)).find(Boolean);
+  return s ? { url: s.url, label: s.title } : undefined;
+};
+const flowRef = d.flow?.steps.find((s) => s.specRef)?.specRef;
+---
+{d.kind === 'diagram' && <MermaidDiagram id={d.id} level={level} generatedFrom={`src/content/diagrams/${d.id}.mmd`} />}
+{d.kind === 'flow' && d.flow && (
+  <div class="resolved-diagram">
+    <MermaidDiagram
+      id={d.id}
+      title={d.flow.title}
+      caption={d.flow.summary ?? `Sequence generated from the flow definition (spec version ${d.flow.specVersion}, ${d.flow.specVersionDate}).`}
+      alt={generatedDescription(d.id) ?? describeFlow(d.flow)}
+      altSteps={describeFlowSteps(d.flow)}
+      sourceOfTruth={flowRef ? { url: flowRef.url, label: flowRef.section ?? 'Specification' } : sot(d.flow.sources)}
+      generatedFrom={`src/content/flows/${d.id}.json`}
+      level={level}
+    />
+    <details class="resolved-diagram__play">
+      <summary>Play this flow step by step</summary>
+      <FlowPlayer client:visible flow={d.flow} sourceIndex={sourceIndex} />
+    </details>
+  </div>
+)}
+{d.kind === 'state' && d.machine && (
+  <div class="resolved-diagram">
+    <MermaidDiagram
+      id={d.id}
+      title={d.machine.title}
+      caption={`Generated from the state machine definition (spec version ${d.machine.specVersion}).`}
+      alt={generatedDescription(d.id) ?? describeStateMachine(d.machine)}
+      altSteps={describeStateTransitions(d.machine)}
+      sourceOfTruth={sot(d.machine.sources)}
+      generatedFrom={`src/content/states/${d.id}.json`}
+      level={level}
+    />
+    <details class="resolved-diagram__play">
+      <summary>Explore the transitions</summary>
+      <StateMachineExplorer client:visible machine={d.machine} />
+    </details>
+  </div>
+)}
+{d.kind === 'missing' && <InProgress file={`src/content/diagrams/${d.id}.json`} />}

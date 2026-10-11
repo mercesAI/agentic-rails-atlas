@@ -81,6 +81,40 @@ export function githubMeta(repo: string | undefined): GithubMeta | null {
   };
 }
 
+/**
+ * An id listed in `meta.diagrams` (or `trustBoundaryDiagram`): a hand-written
+ * diagram (DiagramMeta), or, when no DiagramMeta exists, a flow or state
+ * machine of that id whose generated Mermaid is shown instead.
+ */
+export interface ResolvedDiagram {
+  id: string;
+  kind: 'diagram' | 'flow' | 'state' | 'missing';
+  meta: DiagramMeta | null;
+  flow?: Flow;
+  machine?: StateMachine;
+}
+
+const MERMAID_INDEX = import.meta.glob<{ diagrams?: { id: string; description?: string }[] }>(
+  '/src/generated/mermaid/index.json',
+  { eager: true, import: 'default' },
+);
+
+/** Accessible description written by scripts/flow-to-mermaid.ts, when present. */
+export function generatedDescription(id: string): string | undefined {
+  const idx = Object.values(MERMAID_INDEX)[0];
+  return idx?.diagrams?.find((d) => d.id === id)?.description || undefined;
+}
+
+export async function resolveDiagram(id: string): Promise<ResolvedDiagram> {
+  const meta = await safe(() => diagramMetaById(id), null);
+  if (meta) return { id, kind: 'diagram', meta };
+  const flow = await safe(() => flowById(id), null);
+  if (flow) return { id, kind: 'flow', meta: null, flow };
+  const machine = await safe(() => machineById(id), null);
+  if (machine) return { id, kind: 'state', meta: null, machine };
+  return { id, kind: 'missing', meta: null };
+}
+
 export interface ProtocolPageContext {
   slug: string;
   page: string;
@@ -92,8 +126,8 @@ export interface ProtocolPageContext {
   order: string[];
   flow: Flow | null;
   machine: StateMachine | null;
-  diagrams: { id: string; meta: DiagramMeta | null }[];
-  trustDiagram: { id: string; meta: DiagramMeta | null; inSectionC: boolean } | null;
+  diagrams: ResolvedDiagram[];
+  trustDiagram: (ResolvedDiagram & { inSectionC: boolean }) | null;
   publications: Publication[];
   personas: Map<string, Persona>;
   relations: Relation[];
@@ -130,10 +164,13 @@ export async function loadProtocolPage(slug: string, page: string): Promise<Prot
   ]);
   const flow = await safe(() => flowById(meta.mainFlow), null);
   const machine = await safe(() => machineById(meta.stateMachine), null);
-  const diagrams = await Promise.all(meta.diagrams.map(async (id) => ({ id, meta: await safe(() => diagramMetaById(id), null) })));
+  const diagrams = await Promise.all(meta.diagrams.map((id) => resolveDiagram(id)));
   const trustId = sidecars.security?.trustBoundaryDiagram;
   const trustDiagram = trustId
-    ? { id: trustId, meta: await safe(() => diagramMetaById(trustId), null), inSectionC: meta.diagrams.includes(trustId) }
+    ? {
+        ...(await resolveDiagram(trustId)),
+        inSectionC: meta.diagrams.includes(trustId) || trustId === meta.mainFlow || trustId === meta.stateMachine,
+      }
     : null;
 
   const compare = await safe(async () => (await getCollection('compare'))[0]?.data ?? null, null);
@@ -158,7 +195,7 @@ export async function loadProtocolPage(slug: string, page: string): Promise<Prot
     'c-diagrams': dedupe([
       ...(flow?.sources ?? []),
       ...(machine?.sources ?? []),
-      ...diagrams.flatMap((d) => d.meta?.sources ?? []),
+      ...diagrams.flatMap((d) => d.meta?.sources ?? d.flow?.sources ?? d.machine?.sources ?? []),
     ]).filter((id) => id.startsWith('src-')),
     'd-ste': expand(scanCiteIds(loaded.ste?.body)),
     'e-personas': refs(sidecars.protocolPersonas),

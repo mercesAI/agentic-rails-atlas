@@ -339,7 +339,8 @@
 .metric-chart__unit { font-family: var(--font-body); font-weight: 400; color: var(--fg-muted); font-size: 0.875rem; }
 .metric-chart__legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; list-style: none; padding: 0; margin: 0.5rem 0; font-size: 0.82rem; color: var(--fg-muted); }
 .metric-chart__legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
-.metric-chart__svg { width: 100%; height: auto; display: block; }
+.metric-chart__scroll { overflow-x: auto; position: relative; }
+.metric-chart__svg { width: 100%; min-width: 520px; height: auto; display: block; }
 .metric-chart__grid { stroke: var(--border); stroke-width: 1; }
 .metric-chart__axis { stroke: var(--border-strong); stroke-width: 1; }
 .metric-chart__tick { font-family: var(--font-mono); font-size: 11px; fill: var(--fg-muted); }
@@ -471,3 +472,7 @@
 /* Scroll containers must contain their .sr-only descendants (absolutely positioned), or the
    hidden text escapes the clip and widens the page on small screens. */
 .proto .table-wrap, .proto .sm__canvas, .proto .fp__steps, .proto .sm__list, .proto .diagram-figure__canvas { position: relative; }
+
+/* Flows and state machines listed in meta.diagrams */
+.resolved-diagram__play { margin-top: 0.5rem; }
+.resolved-diagram__play summary { cursor: pointer; color: var(--link); font-size: 0.9rem; }

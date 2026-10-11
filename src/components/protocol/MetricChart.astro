@@ -60,6 +60,7 @@ const titleId = `chart-${chart.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
       ))}
     </ul>
   )}
+  <div class="metric-chart__scroll" role="region" aria-labelledby={titleId} tabindex="0">
   <svg viewBox={`0 0 ${W} ${H}`} class="metric-chart__svg" role="img" aria-labelledby={titleId}>
     {yTicks.map((v) => (
       <g>
@@ -99,6 +100,7 @@ const titleId = `chart-${chart.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
       </g>
     ))}
   </svg>
+  </div>
   <p class="metric-chart__source">Source: {chart.sourceLine}</p>
   <details class="metric-chart__table">
     <summary>Show the data as a table</summary>
