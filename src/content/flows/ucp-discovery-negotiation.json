@@ -1,0 +1,149 @@
+{
+ "id": "ucp-discovery-negotiation",
+ "protocol": "ucp",
+ "title": "UCP discovery and capability negotiation (two layers)",
+ "summary": "Negotiation happens in two layers. First the platform picks one protocol version profile from the business profile. Then, on each request, the business intersects capabilities by exact version and prunes extensions whose parent is not in the result. The example shows a cart capability dropped because only the platform lists it, and a loyalty extension dropped because only the business lists it.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  }
+ ],
+ "sources": [
+  "src-ucp-overview",
+  "src-ucp-schema-profile"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "GET /.well-known/ucp",
+   "detail": "Discovery is optional (MAY) but common. The business profile is public by design.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25.\nGET /.well-known/ucp HTTP/1.1\nHost: shop.example",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Negotiation Protocol"
+   }
+  },
+  {
+   "n": 2,
+   "from": "business",
+   "to": "platform",
+   "label": "Profile: version, supported_versions, capabilities",
+   "detail": "The business lists ucp.version 2026-08-25 and, in supported_versions, a leaf profile for 2026-04-08. Its capabilities are checkout, fulfillment (extends checkout) and loyalty (extends checkout).",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Abbreviated.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"supported_versions\": {\n      \"2026-04-08\": \"https://shop.example/.well-known/ucp/2026-04-08\"\n    },\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\",\n          \"extends\": \"dev.ucp.shopping.checkout\"\n        }\n      ],\n      \"dev.ucp.common.loyalty\": [\n        {\n          \"version\": \"2026-08-25\",\n          \"extends\": \"dev.ucp.shopping.checkout\"\n        }\n      ]\n    }\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Profile Structure"
+   }
+  },
+  {
+   "n": 3,
+   "from": "platform",
+   "to": "platform",
+   "label": "Layer 1: select version 2026-08-25",
+   "detail": "The platform should prefer the newest version it supports. If it chose 2026-04-08 it would fetch that leaf profile and check that its ucp.version equals 2026-04-08. Leaf profiles must not contain supported_versions.",
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Protocol Version"
+   },
+   "failures": [
+    {
+     "condition": "No version in common",
+     "outcome": "version_unsupported (REST 422) as a transport error, with an optional continue_url."
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "from": "platform",
+   "to": "business",
+   "label": "Request with UCP-Agent: profile=\"...\"",
+   "detail": "The platform names its own profile on every request. Over MCP the same URL travels in meta[\"ucp-agent\"].profile inside the tool arguments.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25.\nPOST /ucp/v1/checkout-sessions HTTP/1.1\nHost: shop.example\nUCP-Agent: profile=\"https://agent.example/profiles/shopping-agent.json\"\n\n# MCP form of the same advertisement\n{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"create_checkout\",\n    \"arguments\": {\n      \"meta\": {\n        \"ucp-agent\": {\n          \"profile\": \"https://agent.example/profiles/shopping-agent.json\"\n        }\n      },\n      \"checkout\": {\n        \"line_items\": []\n      }\n    }\n  },\n  \"id\": 1\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Platform Advertisement on Request"
+   }
+  },
+  {
+   "n": 5,
+   "from": "business",
+   "to": "platform",
+   "label": "GET platform profile",
+   "detail": "The business fetches and validates the platform profile unless it has a cached copy. The platform lists checkout, fulfillment and cart.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Platform profile, abbreviated.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\",\n          \"extends\": \"dev.ucp.shopping.checkout\"\n        }\n      ],\n      \"dev.ucp.shopping.cart\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ]\n    }\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Business Requirements"
+   },
+   "failures": [
+    {
+     "condition": "Fetch fails or times out",
+     "outcome": "profile_unreachable (REST 424)."
+    },
+    {
+     "condition": "Not valid JSON or violates the schema",
+     "outcome": "profile_malformed (REST 422)."
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "from": "business",
+   "to": "business",
+   "label": "Layer 2: intersect and prune",
+   "detail": "Kept: checkout and fulfillment, which both list at 2026-08-25. Dropped: cart (only the platform lists it) and loyalty (only the business lists it). Pruning then removes any extension whose parents are all gone and repeats until stable; fulfillment survives because checkout is present.",
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Intersection Algorithm"
+   }
+  },
+  {
+   "n": 7,
+   "from": "business",
+   "to": "platform",
+   "label": "Response ucp envelope: version and active capabilities",
+   "detail": "The business includes the version used and the active capabilities in every response, so the platform always knows which schema applies.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ]\n    }\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Capability Declaration in Responses"
+   }
+  }
+ ]
+}

@@ -1,0 +1,85 @@
+classDiagram
+  class Profile {
+    UcpMeta ucp
+    JWK[] keys
+  }
+  class UcpMeta {
+    string version
+    object services
+    object capabilities
+    object payment_handlers
+    object supported_versions
+    string status
+  }
+  class ServiceBinding {
+    string version
+    string transport
+    string endpoint
+    string schema
+  }
+  class CapabilityEntry {
+    string version
+    string spec
+    string schema
+    string extends
+    object config
+  }
+  class PaymentHandler {
+    string id
+    string version
+    object[] available_instruments
+    object config
+  }
+  class Checkout {
+    string id
+    string status
+    LineItem[] line_items
+    string currency
+    Total[] totals
+    Link[] links
+    Message[] messages
+    object actions
+    string expires_at
+    string continue_url
+    Payment payment
+    OrderRef order
+  }
+  class PaymentInstrument {
+    string id
+    string handler_id
+    string type
+    object credential
+    object display
+  }
+  class Credential {
+    string type
+    string token
+  }
+  class Order {
+    string id
+    string checkout_id
+    string permalink_url
+    LineItem[] line_items
+    object fulfillment
+    Adjustment[] adjustments
+  }
+  class Adjustment {
+    string id
+    string type
+    string status
+    string occurred_at
+  }
+  class AP2 {
+    string merchant_authorization
+    string checkout_mandate
+  }
+  Profile --> UcpMeta : ucp
+  UcpMeta --> "0..*" ServiceBinding : services
+  UcpMeta --> "0..*" CapabilityEntry : capabilities
+  UcpMeta --> "0..*" PaymentHandler : payment_handlers
+  Checkout --> "0..*" PaymentInstrument : payment.instruments
+  PaymentInstrument ..> PaymentHandler : handler_id
+  PaymentInstrument --> Credential : credential
+  Checkout --> AP2 : ap2 (extension)
+  Checkout ..> Order : order.id
+  Order --> "0..*" Adjustment : adjustments

@@ -1,0 +1,24 @@
+sequenceDiagram
+  accTitle: UCP alternative path: 3DS2 step-up through actions (authentication extension)
+  accDescr: Sequence diagram: UCP alternative path: 3DS2 step-up through actions (authentication extension). 4 participants: Buyer, Platform (agent surface), Business (merchant of record), and Business PSP. 6 steps, 6 crossing a trust boundary, 1 failure branch. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST.../complete. This step crosses a trust boundary. Step 2: Business (merchant of record) to Business PSP: Authorize issuer wants 3DS. This step crosses a trust boundary. Step 3: Business (merchant of record) to Platform (agent surface): complete_in_progress + action. This step crosses a trust boundary. Step 4: Platform (agent surface) to Buyer: Show the challenge surface. This step crosses a trust boundary. Step 5: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_123. This step crosses a trust boundary. If Challenge fails: The business returns incomplete or requires_escalation the platform must not reprocess the same action id unless its contract allows it. Step 6: Business (merchant of record) to Platform (agent surface): completed with order. This step crosses a trust boundary.
+  autonumber
+  participant p_buyer as Buyer
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  participant p_psp as Business PSP
+  p_platform->>p_business: POST .../complete
+  Note over p_platform,p_business: Crosses a trust boundary
+  p_business->>p_psp: Authorize#59; issuer wants 3DS
+  Note over p_business,p_psp: Crosses a trust boundary
+  p_business->>p_platform: complete_in_progress + action
+  Note over p_business,p_platform: Crosses a trust boundary
+  p_platform->>p_buyer: Show the challenge surface
+  Note over p_platform,p_buyer: Crosses a trust boundary
+  alt Expected path
+    p_platform->>p_business: GET /checkout-sessions/chk_123
+    Note over p_platform,p_business: Crosses a trust boundary
+  else Challenge fails
+    Note over p_platform,p_business: The business returns incomplete or requires_escalation#59; the platform must not reprocess the same action id unless its contract allows it.
+  end
+  p_business-->>p_platform: completed with order
+  Note over p_business,p_platform: Crosses a trust boundary

@@ -1,0 +1,17 @@
+stateDiagram-v2
+  [*] --> Negotiating
+  Negotiating --> Unlocked : AP2 not in intersection
+  Negotiating --> SecurityLocked : ap2_mandate in intersection
+  Unlocked --> TrustedUI : buyer places order in trusted UI
+  TrustedUI --> [*]
+  SecurityLocked --> SignedCheckout : business adds ap2.merchant_authorization
+  SignedCheckout --> Rejected : platform cannot verify signature
+  SignedCheckout --> MandateSigned : buyer consents, checkout_mandate signed
+  MandateSigned --> Rejected : mandate missing, expired or wrong scope
+  MandateSigned --> Completed : business verifies, PSP verifies payment mandate
+  Completed --> [*]
+  Rejected --> [*]
+  note right of SecurityLocked
+    No downgrade to an unprotected
+    checkout for this session
+  end note

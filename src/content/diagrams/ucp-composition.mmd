@@ -1,0 +1,13 @@
+flowchart LR
+  U["UCP"]
+  AP2["AP2 mandates"] -- "optional extension ap2_mandate" --> U
+  U -- "transport" --> MCP["MCP"]
+  U -- "transport" --> A2A["A2A"]
+  MA["Mastercard Agent Pay tokens"] -. "network_token credential type (no documented link)" .- U
+  TAP["Visa TAP"] -. "both use RFC 9421; no bridge" .- U
+  WBA["Web Bot Auth draft"] -- "optional signature interop" --- U
+  ACP["OpenAI ACP"] -. "same job, no bridge" .- U
+  X["x402"] -. "not mentioned in the spec" .- U
+  E8["ERC-8004"] -. "not mentioned; UCP identity is domain-based" .- U
+  U -- "powers checkout in" --> G["Google AI Mode, Gemini, Universal Cart"]
+  U -- "feed required by" --> MS["Microsoft Copilot Checkout"]

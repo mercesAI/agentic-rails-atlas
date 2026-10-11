@@ -1,0 +1,26 @@
+sequenceDiagram
+  accTitle: UCP alternative path: requires_escalation and handoff through continue_url
+  accDescr: Sequence diagram: UCP alternative path: requires_escalation and handoff through continue_url. 3 participants: Buyer, Platform (agent surface), and Business (merchant of record). 6 steps, 5 crossing a trust boundary, 2 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): PUT /checkout-sessions/chk_456. This step crosses a trust boundary. Step 2: Business (merchant of record) to Platform (agent surface): status requires_escalation + continue_url. This step crosses a trust boundary. If continue_url is missing: The business broke a MUST the platform cannot hand off and should treat the checkout as stuck. Step 3: Platform (agent surface) to Platform (agent surface): Resolve recoverable errors first. Step 4: Platform (agent surface) to Buyer: Open continue_url for the buyer. This step crosses a trust boundary. Step 5: Buyer to Business (merchant of record): Buyer finishes on the business UI. This step crosses a trust boundary. If The buyer abandons: The session expires (default 6 hours) and becomes canceled. Step 6: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_456. This step crosses a trust boundary.
+  autonumber
+  participant p_buyer as Buyer
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  p_platform->>p_business: PUT /checkout-sessions/chk_456
+  Note over p_platform,p_business: Crosses a trust boundary
+  alt Expected path
+    p_business-->>p_platform: status requires_escalation + continue_url
+    Note over p_business,p_platform: Crosses a trust boundary
+  else continue_url is missing
+    Note over p_business,p_platform: The business broke a MUST#59; the platform cannot hand off and should treat the checkout as stuck.
+  end
+  p_platform->>p_platform: Resolve recoverable errors first
+  p_platform->>p_buyer: Open continue_url for the buyer
+  Note over p_platform,p_buyer: Crosses a trust boundary
+  alt Expected path
+    p_buyer->>p_business: Buyer finishes on the business UI
+    Note over p_buyer,p_business: Crosses a trust boundary
+  else The buyer abandons
+    Note over p_buyer,p_business: The session expires (default 6 hours) and becomes canceled.
+  end
+  p_platform->>p_business: GET /checkout-sessions/chk_456
+  Note over p_platform,p_business: Crosses a trust boundary

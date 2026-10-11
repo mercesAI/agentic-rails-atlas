@@ -1,0 +1,14 @@
+sequenceDiagram
+  accTitle: UCP failure: no capability in common
+  accDescr: Sequence diagram: UCP failure: no capability in common. 3 participants: Platform (agent surface), Business (merchant of record), and Buyer. 4 steps, 3 crossing a trust boundary. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST /carts with UCP-Agent. This step crosses a trust boundary. Step 2: Business (merchant of record) to Business (merchant of record): Intersection is empty. Step 3: Business (merchant of record) to Platform (agent surface): 200 OK, ucp.status error, capabilities_incompatible. This step crosses a trust boundary. Step 4: Platform (agent surface) to Buyer: Fall back to continue_url. This step crosses a trust boundary.
+  autonumber
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  participant p_buyer as Buyer
+  p_platform->>p_business: POST /carts with UCP-Agent
+  Note over p_platform,p_business: Crosses a trust boundary
+  p_business->>p_business: Intersection is empty
+  p_business-->>p_platform: 200 OK, ucp.status error, capabilities_incompatible
+  Note over p_business,p_platform: Crosses a trust boundary
+  p_platform->>p_buyer: Fall back to continue_url
+  Note over p_platform,p_buyer: Crosses a trust boundary

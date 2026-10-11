@@ -1,0 +1,120 @@
+{
+ "id": "ucp-3ds-authentication-actions",
+ "protocol": "ucp",
+ "title": "UCP alternative path: 3DS2 step-up through actions (authentication extension)",
+ "summary": "With dev.ucp.common.payment.authentication negotiated, the business can answer a complete with complete_in_progress and an action for device data collection or a 3DS challenge. The platform runs the browser surface, the surface reports back, and the platform confirms the outcome with Get Checkout. UCP does not carry EMV 3DS messages itself.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "buyer",
+   "label": "Buyer",
+   "kind": "human"
+  },
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  },
+  {
+   "id": "psp",
+   "label": "Business PSP",
+   "kind": "psp"
+  }
+ ],
+ "sources": [
+  "src-ucp-payment-auth",
+  "src-ucp-checkout",
+  "src-ucp-embedded-openrpc"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "POST .../complete",
+   "detail": "Both sides listed the authentication extension, which extends checkout.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/authentication.md",
+    "section": "Discovery and Negotiation"
+   }
+  },
+  {
+   "n": 2,
+   "from": "business",
+   "to": "psp",
+   "label": "Authorize; issuer wants 3DS",
+   "detail": "The business, its handler and its PSP own the 3DS protocol state. UCP only carries the action that lets the platform show the right surface.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/authentication.md",
+    "section": "Overview"
+   }
+  },
+  {
+   "n": 3,
+   "from": "business",
+   "to": "platform",
+   "label": "complete_in_progress + action",
+   "detail": "The response has an actions object keyed by action type. Each entry has an id and a config naming the payment instrument and the URL to open. At most one authentication action should be outstanding per payment attempt.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Trimmed.\n{\n  \"id\": \"chk_123\",\n  \"status\": \"complete_in_progress\",\n  \"actions\": {\n    \"dev.ucp.common.payment.three_ds_challenge\": [\n      {\n        \"id\": \"tds-1\",\n        \"config\": {\n          \"payment_instrument_id\": \"instr_1\",\n          \"url\": \"https://payments.example.com/3ds/challenge/session_123\"\n        }\n      }\n    ]\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/authentication.md",
+    "section": "Runtime Shape"
+   }
+  },
+  {
+   "n": 4,
+   "from": "platform",
+   "to": "buyer",
+   "label": "Show the challenge surface",
+   "detail": "The buyer completes the issuer challenge. The embedded surface reports action.ready, then action.done or action.error.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/source/services/shopping/embedded.openrpc.json",
+    "section": "action.done"
+   }
+  },
+  {
+   "n": 5,
+   "from": "platform",
+   "to": "business",
+   "label": "GET /checkout-sessions/chk_123",
+   "detail": "The action completion signal is not authoritative, so the platform must confirm with Get Checkout that the business removed the action or changed the status.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Actions"
+   },
+   "failures": [
+    {
+     "condition": "Challenge fails",
+     "outcome": "The business returns incomplete or requires_escalation; the platform must not reprocess the same action id unless its contract allows it."
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "from": "business",
+   "to": "platform",
+   "label": "completed with order",
+   "detail": "Authentication succeeded and the order exists.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Status Values"
+   }
+  }
+ ]
+}

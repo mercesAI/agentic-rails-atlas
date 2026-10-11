@@ -1,0 +1,112 @@
+{
+ "id": "ucp-failure-lost-complete-response",
+ "protocol": "ucp",
+ "title": "UCP failure: the Complete Checkout response is lost",
+ "summary": "The complete call reaches the business but the response never arrives. The platform must not start a new complete. It polls Get Checkout with bounded backoff until expires_at, and only if the state is still unclear does it resend the identical request with the same Idempotency-Key. A different payload under the same key gets HTTP 409.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  }
+ ],
+ "sources": [
+  "src-ucp-checkout",
+  "src-ucp-signatures",
+  "src-ucp-overview"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "POST .../complete (Idempotency-Key K1)",
+   "detail": "The platform submits the payment with a fresh idempotency key K1 of at least 128 bits of entropy, covered by the request signature.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25.\nPOST /ucp/v1/checkout-sessions/chk_123/complete HTTP/1.1\nIdempotency-Key: 3b7f0c3e-9d1a-4f5e-8c2b-1a6e4d9f7b20",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/signatures.md",
+    "section": "Replay Protection"
+   }
+  },
+  {
+   "n": 2,
+   "from": "business",
+   "to": "platform",
+   "label": "Response lost (timeout)",
+   "detail": "The business may already have placed the order. The platform cannot tell.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Complete Checkout"
+   }
+  },
+  {
+   "n": 3,
+   "from": "platform",
+   "to": "business",
+   "label": "GET /checkout-sessions/chk_123 with backoff",
+   "detail": "The platform should poll Get Checkout with bounded backoff and must stop at expires_at. If the answer is completed or complete_in_progress, it is done: no retry.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Accepted completion"
+   },
+   "failures": [
+    {
+     "condition": "Get Checkout shows completed",
+     "outcome": "Stop. The order exists; read order.id."
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "from": "platform",
+   "to": "business",
+   "label": "Resend identical request with K1",
+   "detail": "Only if Get Checkout still does not show whether the original was processed may the platform resend the identical request with the same key. The business stores keys for at least 24 hours (48 recommended) and returns the stored result.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Complete Checkout"
+   },
+   "failures": [
+    {
+     "condition": "The platform changes the body but keeps K1",
+     "outcome": "HTTP 409, idempotency key reused with a different payload."
+    },
+    {
+     "condition": "The platform uses a new key for the retry",
+     "outcome": "Forbidden by the spec; it risks a second order."
+    },
+    {
+     "condition": "The business cannot reach its idempotency store",
+     "outcome": "It fails closed with HTTP 503."
+    }
+   ]
+  },
+  {
+   "n": 5,
+   "from": "business",
+   "to": "platform",
+   "label": "Stored result: completed with order",
+   "detail": "The platform gets the original outcome once, without a duplicate charge.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/signatures.md",
+    "section": "Replay Protection"
+   }
+  }
+ ]
+}

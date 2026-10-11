@@ -1,0 +1,140 @@
+{
+ "id": "ucp-checkout-lifecycle",
+ "protocol": "ucp",
+ "title": "UCP checkout session status (v2026-08-25), with the AP2 lock",
+ "specVersion": "2026-08-25",
+ "sources": [
+  "src-ucp-checkout",
+  "src-ucp-schema-checkout",
+  "src-ucp-ap2-spec",
+  "src-ucp-payment-auth"
+ ],
+ "states": [
+  {
+   "id": "incomplete",
+   "label": "incomplete",
+   "initial": true,
+   "note": "Data missing or a recoverable error or Action outstanding. Messages say what to fix. expires_at defaults to 6 hours after creation."
+  },
+  {
+   "id": "requires_escalation",
+   "label": "requires_escalation",
+   "note": "Needs buyer input or buyer review. continue_url is required, with a requires_buyer_input or requires_buyer_review message."
+  },
+  {
+   "id": "ready_for_complete",
+   "label": "ready_for_complete",
+   "note": "All data present and no Action outstanding. The platform may call Complete Checkout. With AP2 negotiated, every response here carries ap2.merchant_authorization."
+  },
+  {
+   "id": "complete_in_progress",
+   "label": "complete_in_progress",
+   "note": "Complete accepted for asynchronous processing; no order yet. An Action (for example a 3DS challenge) can be outstanding. No new Update or Complete."
+  },
+  {
+   "id": "completed",
+   "label": "completed",
+   "terminal": true,
+   "note": "Order placed; order.id and order.permalink_url present. Immutable. The business sends a confirmation email."
+  },
+  {
+   "id": "canceled",
+   "label": "canceled",
+   "terminal": true,
+   "note": "Canceled by the platform or invalid or expired. Start a new session if needed."
+  }
+ ],
+ "transitions": [
+  {
+   "from": "incomplete",
+   "to": "ready_for_complete",
+   "trigger": "All information collected, no Action outstanding",
+   "apiCall": "PUT /checkout-sessions/{id} (update_checkout)",
+   "specRef": "shopping/checkout/index.md#status-values"
+  },
+  {
+   "from": "incomplete",
+   "to": "requires_escalation",
+   "trigger": "Business needs data its API cannot collect, or a policy needs buyer review",
+   "apiCall": "POST or PUT /checkout-sessions response",
+   "specRef": "shopping/checkout/index.md#error-handling"
+  },
+  {
+   "from": "requires_escalation",
+   "to": "incomplete",
+   "trigger": "Issue resolved through an update",
+   "apiCall": "PUT /checkout-sessions/{id}",
+   "specRef": "shopping/checkout/index.md#checkout-status-lifecycle"
+  },
+  {
+   "from": "requires_escalation",
+   "to": "completed",
+   "trigger": "Buyer finishes on the business UI through continue_url",
+   "apiCall": "continue_url (browser), then GET /checkout-sessions/{id}",
+   "specRef": "shopping/checkout/index.md#continue-url"
+  },
+  {
+   "from": "ready_for_complete",
+   "to": "completed",
+   "trigger": "Complete Checkout succeeds synchronously",
+   "apiCall": "POST /checkout-sessions/{id}/complete (complete_checkout)",
+   "specRef": "shopping/checkout/index.md#complete-checkout"
+  },
+  {
+   "from": "ready_for_complete",
+   "to": "complete_in_progress",
+   "trigger": "Complete Checkout accepted for asynchronous processing",
+   "apiCall": "POST /checkout-sessions/{id}/complete",
+   "specRef": "shopping/checkout/index.md#accepted-completion"
+  },
+  {
+   "from": "ready_for_complete",
+   "to": "incomplete",
+   "trigger": "Complete returns a recoverable change (for example payment_failed or out_of_stock)",
+   "apiCall": "POST /checkout-sessions/{id}/complete",
+   "specRef": "shopping/checkout/index.md#complete-checkout"
+  },
+  {
+   "from": "complete_in_progress",
+   "to": "completed",
+   "trigger": "Business finishes processing; any Action resolved",
+   "apiCall": "GET /checkout-sessions/{id} (get_checkout)",
+   "specRef": "shopping/checkout/index.md#accepted-completion"
+  },
+  {
+   "from": "complete_in_progress",
+   "to": "incomplete",
+   "trigger": "Action fails or payment declined with a recoverable error",
+   "apiCall": "GET /checkout-sessions/{id}",
+   "specRef": "payment/extensions/authentication.md#decline-failure-and-abandonment"
+  },
+  {
+   "from": "incomplete",
+   "to": "canceled",
+   "trigger": "Platform cancels, or the session expires",
+   "apiCall": "POST /checkout-sessions/{id}/cancel (cancel_checkout)",
+   "specRef": "shopping/checkout/index.md#cancel-checkout"
+  },
+  {
+   "from": "requires_escalation",
+   "to": "canceled",
+   "trigger": "Platform cancels, or the session expires",
+   "apiCall": "POST /checkout-sessions/{id}/cancel",
+   "specRef": "shopping/checkout/index.md#cancel-checkout"
+  },
+  {
+   "from": "ready_for_complete",
+   "to": "canceled",
+   "trigger": "Platform cancels, or the session expires",
+   "apiCall": "POST /checkout-sessions/{id}/cancel",
+   "specRef": "shopping/checkout/index.md#cancel-checkout"
+  },
+  {
+   "from": "complete_in_progress",
+   "to": "canceled",
+   "trigger": "Session invalid or expired (cancellation race rules apply)",
+   "apiCall": "POST /checkout-sessions/{id}/cancel",
+   "specRef": "shopping/checkout/index.md#accepted-completion"
+  }
+ ]
+}

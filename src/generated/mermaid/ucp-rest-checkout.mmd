@@ -1,0 +1,90 @@
+sequenceDiagram
+  accTitle: UCP checkout over REST: discovery, negotiation, payment handler, completion and order webhook
+  accDescr: Sequence diagram: UCP checkout over REST: discovery, negotiation, payment handler, completion and order webhook. 5 participants: Buyer, Platform (agent surface), Business (merchant of record), Credential provider (wallet), and Business PSP. 13 steps, 12 crossing a trust boundary, 16 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/ucp. This step crosses a trust boundary. If The profile URL redirects or is not HTTPS: The platform must not use it there is no profile to negotiate with. Step 2: Business (merchant of record) to Platform (agent surface): 200 business profile (ucp, keys). This step crosses a trust boundary. If The profile advertises a non-date version such as draft: Not allowed in public discovery the platform should treat it as malformed. Step 3: Platform (agent surface) to Platform (agent surface): Pick a version, check namespace authority. If A capability schema URL is on a host that does not own the namespace: The platform rejects that capability before fetching anything from it. Step 4: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions (UCP-Agent, signed). This step crosses a trust boundary. If Signature or key problem: signature_missing, signature_invalid or key_not_found (401) digest_mismatch or algorithm_unsupported (400). If Profile URL malformed, unreachable or invalid: invalid_profile_url (400), profile_unreachable (424) or profile_malformed (422), with an optional continue_url. Step 5: Business (merchant of record) to Platform (agent surface): GET platform profile, verify key, intersect. This step crosses a trust boundary. If The platform profile URL resolves to a special-use address such as 169.254.169.254: The business must refuse to fetch it (server-side request forgery guard). If The intersection is empty: capabilities_incompatible as a UCP response (HTTP 200) with an optional continue_url see the failure flow. Step 6: Business (merchant of record) to Platform (agent surface): 201 checkout, status incomplete. This step crosses a trust boundary. If All items are unavailable: ucp.status error with an out_of_stock message and no checkout resource. Step 7: Platform (agent surface) to Business (merchant of record): PUT /checkout-sessions/chk_123 (full replacement). This step crosses a trust boundary. If The business needs data its API cannot collect, or a policy needs buyer review: status requires_escalation with continue_url see the escalation flow. If Idempotency key reused with a different payload: HTTP 409. Step 8: Platform (agent surface) to Buyer: Show checkout in a trusted UI buyer places order. This step crosses a trust boundary. If The buyer declines: The platform may call POST /checkout-sessions/chk_123/cancel, or let the session expire. Step 9: Platform (agent surface) to Credential provider (wallet): Run the payment handler, get an opaque token. This step crosses a trust boundary. If The platform cannot run any advertised handler: The platform cannot complete it can hand off with continue_url. Step 10: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions/chk_123/complete. This step crosses a trust boundary. If More than one instrument without split payments: payment_failed. If The response is lost: Poll Get Checkout, then resend only the identical request with the same Idempotency-Key see the failure flow. Step 11: Business (merchant of record) to Business PSP: Authorize the token with the PSP (outside UCP). This step crosses a trust boundary. If The issuer asks for 3DS2: With the authentication extension, the business returns an action see the 3DS flow. Step 12: Business (merchant of record) to Platform (agent surface): 200 completed with order. This step crosses a trust boundary. Step 13: Business (merchant of record) to Platform (agent surface): POST webhook_url: signed order event. This step crosses a trust boundary. If Unsigned webhook or signer does not match the order business: The platform must reject the event it can reconcile with GET /orders/order_789.
+  autonumber
+  participant p_buyer as Buyer
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  participant p_cp as Credential provider (wallet)
+  participant p_psp as Business PSP
+  alt Expected path
+    p_platform->>p_business: GET /.well-known/ucp
+    Note over p_platform,p_business: Crosses a trust boundary
+  else The profile URL redirects or is not HTTPS
+    Note over p_platform,p_business: The platform must not use it#59; there is no profile to negotiate with.
+  end
+  alt Expected path
+    p_business-->>p_platform: 200 business profile (ucp, keys)
+    Note over p_business,p_platform: Crosses a trust boundary
+  else The profile advertises a non-date version such as draft
+    Note over p_business,p_platform: Not allowed in public discovery#59; the platform should treat it as malformed.
+  end
+  alt Expected path
+    p_platform->>p_platform: Pick a version, check namespace authority
+  else A capability schema URL is on a host that does not own the namespace
+    Note over p_platform: The platform rejects that capability before fetching anything from it.
+  end
+  alt Expected path
+    p_platform->>p_business: POST /checkout-sessions (UCP-Agent, signed)
+    Note over p_platform,p_business: Crosses a trust boundary
+  else Signature or key problem
+    Note over p_platform,p_business: signature_missing, signature_invalid or key_not_found (401)#59; digest_mismatch or algorithm_unsupported (400).
+  else Profile URL malformed, unreachable or invalid
+    Note over p_platform,p_business: invalid_profile_url (400), profile_unreachable (424) or profile_malformed (422), with an optional continue_url.
+  end
+  alt Expected path
+    p_business-->>p_platform: GET platform profile, verify key, intersect
+    Note over p_business,p_platform: Crosses a trust boundary
+  else The platform profile URL resolves to a special-use address such as 169.254.169.254
+    Note over p_business,p_platform: The business must refuse to fetch it (server-side request forgery guard).
+  else The intersection is empty
+    Note over p_business,p_platform: capabilities_incompatible as a UCP response (HTTP 200) with an optional continue_url#59; see the failure flow.
+  end
+  alt Expected path
+    p_business-->>p_platform: 201 checkout, status incomplete
+    Note over p_business,p_platform: Crosses a trust boundary
+  else All items are unavailable
+    Note over p_business,p_platform: ucp.status error with an out_of_stock message and no checkout resource.
+  end
+  alt Expected path
+    p_platform->>p_business: PUT /checkout-sessions/chk_123 (full replacement)
+    Note over p_platform,p_business: Crosses a trust boundary
+  else The business needs data its API cannot collect, or a policy needs buyer review
+    Note over p_platform,p_business: status requires_escalation with continue_url#59; see the escalation flow.
+  else Idempotency key reused with a different payload
+    Note over p_platform,p_business: HTTP 409.
+  end
+  alt Expected path
+    p_platform->>p_buyer: Show checkout in a trusted UI#59; buyer places order
+    Note over p_platform,p_buyer: Crosses a trust boundary
+  else The buyer declines
+    Note over p_platform,p_buyer: The platform may call POST /checkout-sessions/chk_123/cancel, or let the session expire.
+  end
+  alt Expected path
+    p_platform->>p_cp: Run the payment handler, get an opaque token
+    Note over p_platform,p_cp: Crosses a trust boundary
+  else The platform cannot run any advertised handler
+    Note over p_platform,p_cp: The platform cannot complete#59; it can hand off with continue_url.
+  end
+  alt Expected path
+    p_platform->>p_business: POST /checkout-sessions/chk_123/complete
+    Note over p_platform,p_business: Crosses a trust boundary
+  else More than one instrument without split payments
+    Note over p_platform,p_business: payment_failed.
+  else The response is lost
+    Note over p_platform,p_business: Poll Get Checkout, then resend only the identical request with the same Idempotency-Key#59; see the failure flow.
+  end
+  alt Expected path
+    p_business->>p_psp: Authorize the token with the PSP (outside UCP)
+    Note over p_business,p_psp: Crosses a trust boundary
+  else The issuer asks for 3DS2
+    Note over p_business,p_psp: With the authentication extension, the business returns an action#59; see the 3DS flow.
+  end
+  p_business-->>p_platform: 200 completed with order
+  Note over p_business,p_platform: Crosses a trust boundary
+  alt Expected path
+    p_business->>p_platform: POST webhook_url: signed order event
+    Note over p_business,p_platform: Crosses a trust boundary
+  else Unsigned webhook or signer does not match the order business
+    Note over p_business,p_platform: The platform must reject the event#59; it can reconcile with GET /orders/order_789.
+  end

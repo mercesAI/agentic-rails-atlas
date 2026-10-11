@@ -1,0 +1,119 @@
+{
+ "id": "ucp-checkout-escalation",
+ "protocol": "ucp",
+ "title": "UCP alternative path: requires_escalation and handoff through continue_url",
+ "summary": "The business needs something the API cannot collect, or a policy needs the buyer to approve the order. It returns requires_escalation with a continue_url and a message whose severity is requires_buyer_input or requires_buyer_review. The platform fixes any recoverable errors first, then opens continue_url, and the buyer finishes on the business UI.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "buyer",
+   "label": "Buyer",
+   "kind": "human"
+  },
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  }
+ ],
+ "sources": [
+  "src-ucp-checkout",
+  "src-ucp-schema-checkout"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "PUT /checkout-sessions/chk_456",
+   "detail": "The platform updates the checkout with the data it has.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Update Checkout"
+   }
+  },
+  {
+   "n": 2,
+   "from": "business",
+   "to": "platform",
+   "label": "status requires_escalation + continue_url",
+   "detail": "requires_buyer_input means the checkout is incomplete because the business needs data its API cannot take. requires_buyer_review means the checkout is complete but a policy, such as a high-value order or a first purchase, needs the buyer to approve it. Either way continue_url must be an absolute HTTPS URL.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Trimmed.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\"\n  },\n  \"id\": \"chk_456\",\n  \"status\": \"requires_escalation\",\n  \"messages\": [\n    {\n      \"type\": \"error\",\n      \"code\": \"high_value_order\",\n      \"content\": \"Orders over $500 require additional verification\",\n      \"severity\": \"requires_buyer_review\"\n    }\n  ],\n  \"continue_url\": \"https://shop.example/checkout-sessions/chk_456\"\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Error Handling"
+   },
+   "failures": [
+    {
+     "condition": "continue_url is missing",
+     "outcome": "The business broke a MUST; the platform cannot hand off and should treat the checkout as stuck."
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "from": "platform",
+   "to": "platform",
+   "label": "Resolve recoverable errors first",
+   "detail": "If the messages also hold recoverable errors, the platform fixes them with another update before handing off. The example error-processing algorithm in the spec checks requires_buyer_input before requires_buyer_review.",
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Error Processing Algorithm"
+   }
+  },
+  {
+   "n": 4,
+   "from": "platform",
+   "to": "buyer",
+   "label": "Open continue_url for the buyer",
+   "detail": "The platform must use continue_url. The recommended form is an opaque URL backed by server-side state whose lifetime follows expires_at; a stateless checkout permalink is the alternative.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Continue URL"
+   }
+  },
+  {
+   "n": 5,
+   "from": "buyer",
+   "to": "business",
+   "label": "Buyer finishes on the business UI",
+   "detail": "The buyer gives the missing data or approves the order on the merchant site. The business moves the session to completed.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Checkout Status Lifecycle"
+   },
+   "failures": [
+    {
+     "condition": "The buyer abandons",
+     "outcome": "The session expires (default 6 hours) and becomes canceled."
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "from": "platform",
+   "to": "business",
+   "label": "GET /checkout-sessions/chk_456",
+   "detail": "The platform reads the final state. A completed checkout carries the order and is immutable.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Get Checkout"
+   }
+  }
+ ]
+}

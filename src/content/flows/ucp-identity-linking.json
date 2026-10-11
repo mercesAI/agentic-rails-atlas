@@ -1,0 +1,136 @@
+{
+ "id": "ucp-identity-linking",
+ "protocol": "ucp",
+ "title": "UCP identity linking: OAuth 2.0 authorization code with PKCE",
+ "summary": "To act for a signed-in buyer (orders, saved addresses, loyalty), the platform links the buyer account at the business with OAuth 2.0. It finds the authorization server through protected-resource and authorization-server metadata, runs the authorization code flow with PKCE S256, and requests scopes derived from capabilities. Three access levels exist: public, agent-authenticated and user-authenticated.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "buyer",
+   "label": "Buyer",
+   "kind": "human"
+  },
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  }
+ ],
+ "sources": [
+  "src-ucp-identity-linking",
+  "src-ucp-checkout"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "GET /.well-known/oauth-protected-resource",
+   "detail": "RFC 9728 protected-resource metadata names the authorization server.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/common/identity-linking/index.md",
+    "section": "Discovery"
+   }
+  },
+  {
+   "n": 2,
+   "from": "platform",
+   "to": "business",
+   "label": "GET /.well-known/oauth-authorization-server",
+   "detail": "RFC 8414 metadata; the platform falls back to /.well-known/openid-configuration only on 404. The issuer must match byte for byte.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/common/identity-linking/index.md",
+    "section": "Discovery"
+   },
+   "failures": [
+    {
+     "condition": "Issuer mismatch",
+     "outcome": "The platform must stop; the metadata may be spoofed."
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "from": "platform",
+   "to": "buyer",
+   "label": "Redirect to authorize (PKCE S256, capability scopes)",
+   "detail": "Scopes come from capabilities, for example dev.ucp.shopping.order:read and dev.ucp.shopping.checkout:manage. Plain PKCE must not be used.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25.\nGET /authorize?response_type=code&client_id=https%3A%2F%2Fagent.example%2Fclient&redirect_uri=https%3A%2F%2Fagent.example%2Fcb&scope=dev.ucp.shopping.order%3Aread%20dev.ucp.shopping.checkout%3Amanage&code_challenge=E9Melhoa2Ow...&code_challenge_method=S256&state=af0ifjsldkj HTTP/1.1\nHost: accounts.shop.example",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/common/identity-linking/index.md",
+    "section": "Account Linking Flow"
+   }
+  },
+  {
+   "n": 4,
+   "from": "buyer",
+   "to": "business",
+   "label": "Sign in and consent at the business",
+   "detail": "The buyer authenticates with the business, not with the platform.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/common/identity-linking/index.md",
+    "section": "Account Linking Flow"
+   }
+  },
+  {
+   "n": 5,
+   "from": "business",
+   "to": "platform",
+   "label": "Redirect with code and iss",
+   "detail": "The business must return iss (RFC 9207) and enforce exact redirect_uri matching.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/common/identity-linking/index.md",
+    "section": "Account Linking Flow"
+   }
+  },
+  {
+   "n": 6,
+   "from": "platform",
+   "to": "business",
+   "label": "Token request with code_verifier",
+   "detail": "The platform exchanges the code for tokens. In the accelerated IdP flow of v2026-08-25, the platform instead presents a JWT grant from a trusted IdP (RFC 8693 token exchange, RFC 7523 bearer grant) and never forwards a raw IdP token.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/common/identity-linking/index.md",
+    "section": "Accelerated IdP Flow"
+   }
+  },
+  {
+   "n": 7,
+   "from": "platform",
+   "to": "business",
+   "label": "User-authenticated call, e.g. GET /orders/{id}",
+   "detail": "Platform credentials plus the user token give the user-authenticated access level. Businesses must support RFC 7009 token revocation and should support OpenID RISC account events.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/common/identity-linking/index.md",
+    "section": "Access Levels"
+   },
+   "failures": [
+    {
+     "condition": "No user token",
+     "outcome": "identity_required (401) with a WWW-Authenticate Bearer challenge."
+    },
+    {
+     "condition": "Token lacks the scope",
+     "outcome": "insufficient_scope (403)."
+    }
+   ]
+  }
+ ]
+}

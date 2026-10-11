@@ -1,0 +1,35 @@
+sequenceDiagram
+  accTitle: AP2 mandates inside a UCP checkout (spec flow live use unverified)
+  accDescr: Sequence diagram: AP2 mandates inside a UCP checkout (spec flow live use unverified). 4 participants: Buyer, Platform (agent surface), Business (merchant of record), and Business PSP. 7 steps, 6 crossing a trust boundary, 4 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST /checkout-sessions (profile lists AP2, keys). This step crosses a trust boundary. If The platform profile has no usable key: agent_missing_key. Step 2: Business (merchant of record) to Business (merchant of record): Intersection includes AP2: lock the session. Step 3: Business (merchant of record) to Platform (agent surface): Checkout + ap2.merchant_authorization. This step crosses a trust boundary. If Signature missing or invalid: merchant_authorization_missing or merchant_authorization_invalid the platform must not show the checkout. Step 4: Platform (agent surface) to Buyer: Verify, show, get consent. This step crosses a trust boundary. Step 5: Platform (agent surface) to Business (merchant of record): complete with ap2.checkout_mandate. This step crosses a trust boundary. If No checkout mandate: mandate_required the business must reject the complete. If Mandate bound to another checkout, expired or badly signed: mandate_scope_mismatch, mandate_expired or mandate_invalid_signature. Step 6: Business (merchant of record) to Business PSP: Verify mandate pass payment mandate to PSP. This step crosses a trust boundary. Step 7: Business (merchant of record) to Platform (agent surface): completed with order. This step crosses a trust boundary.
+  autonumber
+  participant p_buyer as Buyer
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  participant p_psp as Business PSP
+  alt Expected path
+    p_platform->>p_business: POST /checkout-sessions (profile lists AP2, keys)
+    Note over p_platform,p_business: Crosses a trust boundary
+  else The platform profile has no usable key
+    Note over p_platform,p_business: agent_missing_key.
+  end
+  p_business->>p_business: Intersection includes AP2: lock the session
+  alt Expected path
+    p_business->>p_platform: Checkout + ap2.merchant_authorization
+    Note over p_business,p_platform: Crosses a trust boundary
+  else Signature missing or invalid
+    Note over p_business,p_platform: merchant_authorization_missing or merchant_authorization_invalid#59; the platform must not show the checkout.
+  end
+  p_platform->>p_buyer: Verify, show, get consent
+  Note over p_platform,p_buyer: Crosses a trust boundary
+  alt Expected path
+    p_platform->>p_business: complete with ap2.checkout_mandate
+    Note over p_platform,p_business: Crosses a trust boundary
+  else No checkout mandate
+    Note over p_platform,p_business: mandate_required#59; the business must reject the complete.
+  else Mandate bound to another checkout, expired or badly signed
+    Note over p_platform,p_business: mandate_scope_mismatch, mandate_expired or mandate_invalid_signature.
+  end
+  p_business->>p_psp: Verify mandate#59; pass payment mandate to PSP
+  Note over p_business,p_psp: Crosses a trust boundary
+  p_business->>p_platform: completed with order
+  Note over p_business,p_platform: Crosses a trust boundary

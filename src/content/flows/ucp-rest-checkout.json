@@ -1,0 +1,331 @@
+{
+ "id": "ucp-rest-checkout",
+ "protocol": "ucp",
+ "title": "UCP checkout over REST: discovery, negotiation, payment handler, completion and order webhook",
+ "summary": "The default UCP path on the REST binding. The platform reads the business profile at /.well-known/ucp, creates a checkout session with its own profile URL in UCP-Agent, the business intersects capabilities and answers with the active set and its payment handlers. The platform fills in missing data with a full-replacement update, shows the checkout to the buyer in a trusted UI, obtains an opaque token from the credential provider, and completes. The business charges the token through its own PSP and later sends signed order webhooks.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "buyer",
+   "label": "Buyer",
+   "kind": "human"
+  },
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  },
+  {
+   "id": "cp",
+   "label": "Credential provider (wallet)",
+   "kind": "wallet"
+  },
+  {
+   "id": "psp",
+   "label": "Business PSP",
+   "kind": "psp"
+  }
+ ],
+ "sources": [
+  "src-ucp-overview",
+  "src-ucp-checkout",
+  "src-ucp-checkout-rest",
+  "src-ucp-rest-openapi",
+  "src-ucp-schema-checkout",
+  "src-ucp-schema-payment",
+  "src-ucp-signatures",
+  "src-ucp-order",
+  "src-ucp-schema-profile"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "GET /.well-known/ucp",
+   "detail": "The platform may fetch the business profile before its first request and should cache it per the HTTP cache headers. The profile must be served over HTTPS without redirects, with Cache-Control public and a max-age of at least 60 seconds.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25.\nGET /.well-known/ucp HTTP/1.1\nHost: shop.example\nAccept: application/json",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Discovery, Governance, and Negotiation; Profile Requirements"
+   },
+   "failures": [
+    {
+     "condition": "The profile URL redirects or is not HTTPS",
+     "outcome": "The platform must not use it; there is no profile to negotiate with."
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "from": "business",
+   "to": "platform",
+   "label": "200 business profile (ucp, keys)",
+   "detail": "The profile has a ucp object with version, services, capabilities and payment_handlers, and a top-level keys array that is a JWK Set. supported_versions, business only and optional, maps older releases to leaf profiles. Each service pairs a transport with an endpoint.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Keys shortened.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"supported_versions\": {\n      \"2026-04-08\": \"https://shop.example/.well-known/ucp/2026-04-08\"\n    },\n    \"services\": {\n      \"dev.ucp.shopping\": [\n        {\n          \"version\": \"2026-08-25\",\n          \"transport\": \"rest\",\n          \"endpoint\": \"https://shop.example/ucp/v1\",\n          \"schema\": \"https://ucp.dev/2026-08-25/services/shopping/rest.openapi.json\"\n        },\n        {\n          \"version\": \"2026-08-25\",\n          \"transport\": \"mcp\",\n          \"endpoint\": \"https://shop.example/ucp/mcp\",\n          \"schema\": \"https://ucp.dev/2026-08-25/services/shopping/mcp.openrpc.json\"\n        }\n      ]\n    },\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\",\n          \"schema\": \"https://ucp.dev/2026-08-25/schemas/shopping/checkout.json\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\",\n          \"extends\": \"dev.ucp.shopping.checkout\",\n          \"schema\": \"https://ucp.dev/2026-08-25/schemas/shopping/fulfillment.json\"\n        }\n      ],\n      \"dev.ucp.shopping.order\": [\n        {\n          \"version\": \"2026-08-25\",\n          \"schema\": \"https://ucp.dev/2026-08-25/schemas/shopping/order.json\"\n        }\n      ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [\n        {\n          \"id\": \"gpay_1234\",\n          \"version\": \"2026-08-25\",\n          \"available_instruments\": [\n            {\n              \"type\": \"card\"\n            }\n          ]\n        }\n      ]\n    }\n  },\n  \"keys\": [\n    {\n      \"kid\": \"shop_2026\",\n      \"kty\": \"EC\",\n      \"crv\": \"P-256\",\n      \"x\": \"qIVY...FivA\",\n      \"y\": \"Mc4n...Z6F0\",\n      \"use\": \"sig\",\n      \"alg\": \"ES256\"\n    }\n  ]\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Business Profile"
+   },
+   "failures": [
+    {
+     "condition": "The profile advertises a non-date version such as draft",
+     "outcome": "Not allowed in public discovery; the platform should treat it as malformed."
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "from": "platform",
+   "to": "platform",
+   "label": "Pick a version, check namespace authority",
+   "detail": "The platform picks a protocol version from ucp.version and the keys of supported_versions, preferring the newest it supports. For each capability it checks that the schema URL host matches the reverse-DNS name (dev.ucp maps to ucp.dev) and rejects capabilities that fail, without following redirects. That check proves provenance, not trust.",
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Authority Binding"
+   },
+   "failures": [
+    {
+     "condition": "A capability schema URL is on a host that does not own the namespace",
+     "outcome": "The platform rejects that capability before fetching anything from it."
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "from": "platform",
+   "to": "business",
+   "label": "POST /checkout-sessions (UCP-Agent, signed)",
+   "detail": "The platform creates a checkout session and names its own profile in UCP-Agent using RFC 8941 dictionary syntax. UCP-Agent and Request-Id are required headers and Idempotency-Key is required on state-changing calls. Here the platform authenticates with RFC 9421 signatures over the method, authority, path, ucp-agent, idempotency-key, content-digest and content-type.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25. Digest and signature are not real.\nPOST /ucp/v1/checkout-sessions HTTP/1.1\nHost: shop.example\nUCP-Agent: profile=\"https://agent.example/profiles/shopping-agent.json\"\nIdempotency-Key: 9f1c2d7e-4b8a-4c51-a0e2-6d3f8b7c1e55\nRequest-Id: req_01\nContent-Type: application/json\nContent-Digest: sha-256=:X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"ucp-agent\" \"idempotency-key\" \"content-digest\" \"content-type\");keyid=\"agent_2026\"\nSignature: sig1=:MEUCIQ...:\n\n{\n  \"line_items\": [\n    {\n      \"item\": {\n        \"id\": \"item_123\"\n      },\n      \"quantity\": 2\n    }\n  ]\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/rest.md",
+    "section": "Create Checkout"
+   },
+   "failures": [
+    {
+     "condition": "Signature or key problem",
+     "outcome": "signature_missing, signature_invalid or key_not_found (401); digest_mismatch or algorithm_unsupported (400)."
+    },
+    {
+     "condition": "Profile URL malformed, unreachable or invalid",
+     "outcome": "invalid_profile_url (400), profile_unreachable (424) or profile_malformed (422), with an optional continue_url."
+    }
+   ]
+  },
+  {
+   "n": 5,
+   "from": "business",
+   "to": "platform",
+   "label": "GET platform profile, verify key, intersect",
+   "detail": "Unless cached, the business fetches the platform profile named in UCP-Agent, resolves the signing key from its keys array and verifies the signature. It then keeps capabilities both sides list, selects the highest version present in both, drops capabilities with no shared version, and prunes extensions whose parent is gone, repeating until nothing changes.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Intersection Algorithm"
+   },
+   "failures": [
+    {
+     "condition": "The platform profile URL resolves to a special-use address such as 169.254.169.254",
+     "outcome": "The business must refuse to fetch it (server-side request forgery guard)."
+    },
+    {
+     "condition": "The intersection is empty",
+     "outcome": "capabilities_incompatible as a UCP response (HTTP 200) with an optional continue_url; see the failure flow."
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "from": "business",
+   "to": "platform",
+   "label": "201 checkout, status incomplete",
+   "detail": "Every response carries a ucp envelope with the version used, the active capabilities and the payment handlers for this cart. The checkout has an id, a status, line items, totals, required legal links and an expires_at that defaults to 6 hours after creation. Messages tell the platform what is missing.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [\n        {\n          \"id\": \"gpay_1234\",\n          \"version\": \"2026-08-25\",\n          \"available_instruments\": [\n            {\n              \"type\": \"card\"\n            }\n          ]\n        }\n      ]\n    }\n  },\n  \"id\": \"chk_123\",\n  \"status\": \"incomplete\",\n  \"currency\": \"USD\",\n  \"line_items\": [\n    {\n      \"id\": \"li_1\",\n      \"item\": {\n        \"id\": \"item_123\",\n        \"title\": \"Red T-Shirt\",\n        \"price\": 2500\n      },\n      \"quantity\": 2\n    }\n  ],\n  \"totals\": [\n    {\n      \"type\": \"subtotal\",\n      \"amount\": 5000\n    },\n    {\n      \"type\": \"total\",\n      \"amount\": 5000\n    }\n  ],\n  \"messages\": [\n    {\n      \"type\": \"error\",\n      \"code\": \"missing\",\n      \"path\": \"$.buyer.email\",\n      \"content\": \"Buyer email is required\",\n      \"severity\": \"recoverable\"\n    }\n  ],\n  \"links\": [\n    {\n      \"type\": \"terms_of_service\",\n      \"url\": \"https://shop.example/terms\"\n    }\n  ],\n  \"expires_at\": \"2026-10-11T18:00:00Z\",\n  \"continue_url\": \"https://shop.example/checkout-sessions/chk_123\"\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Status Values"
+   },
+   "failures": [
+    {
+     "condition": "All items are unavailable",
+     "outcome": "ucp.status error with an out_of_stock message and no checkout resource."
+    }
+   ]
+  },
+  {
+   "n": 7,
+   "from": "platform",
+   "to": "business",
+   "label": "PUT /checkout-sessions/chk_123 (full replacement)",
+   "detail": "The platform sends the whole checkout again with the missing data, here the buyer email and a fulfillment choice. Update is a full replacement, not a patch, so anything left out is removed. When nothing is missing and no action is outstanding, the business answers ready_for_complete.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25. Headers as in step 4, with a new Idempotency-Key.\nPUT /ucp/v1/checkout-sessions/chk_123 HTTP/1.1\nHost: shop.example\n\n{\n  \"line_items\": [\n    {\n      \"item\": {\n        \"id\": \"item_123\"\n      },\n      \"quantity\": 2\n    }\n  ],\n  \"buyer\": {\n    \"email\": \"buyer@example.com\"\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Update Checkout"
+   },
+   "failures": [
+    {
+     "condition": "The business needs data its API cannot collect, or a policy needs buyer review",
+     "outcome": "status requires_escalation with continue_url; see the escalation flow."
+    },
+    {
+     "condition": "Idempotency key reused with a different payload",
+     "outcome": "HTTP 409."
+    }
+   ]
+  },
+  {
+   "n": 8,
+   "from": "platform",
+   "to": "buyer",
+   "label": "Show checkout in a trusted UI; buyer places order",
+   "detail": "Without the AP2 extension, an agent may fill the checkout but must hand it to a trusted, deterministic UI where the buyer reviews and places the order. The required links (terms, privacy) and policies are shown here.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Guidelines"
+   },
+   "failures": [
+    {
+     "condition": "The buyer declines",
+     "outcome": "The platform may call POST /checkout-sessions/chk_123/cancel, or let the session expire."
+    }
+   ]
+  },
+  {
+   "n": 9,
+   "from": "platform",
+   "to": "cp",
+   "label": "Run the payment handler, get an opaque token",
+   "detail": "The platform executes the handler that the credential provider specified (here com.google.pay) directly with the provider. The business is not in this exchange. On Google AI surfaces, Google Pay is used with PAN_ONLY for allowed_auth_methods.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Payment Architecture"
+   },
+   "failures": [
+    {
+     "condition": "The platform cannot run any advertised handler",
+     "outcome": "The platform cannot complete; it can hand off with continue_url."
+    }
+   ]
+  },
+  {
+   "n": 10,
+   "from": "platform",
+   "to": "business",
+   "label": "POST /checkout-sessions/chk_123/complete",
+   "detail": "The platform submits exactly one payment instrument (unless split payments is negotiated). The instrument names the handler instance in handler_id and carries an opaque credential. Credentials go from platform to business only and the business must not echo them back.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25. Token is not real.\nPOST /ucp/v1/checkout-sessions/chk_123/complete HTTP/1.1\nHost: shop.example\n\n{\n  \"payment\": {\n    \"instruments\": [\n      {\n        \"id\": \"instr_1\",\n        \"handler_id\": \"gpay_1234\",\n        \"type\": \"card\",\n        \"selected\": true,\n        \"display\": {\n          \"description\": \"Visa ending 1234\"\n        },\n        \"credential\": {\n          \"type\": \"PAYMENT_GATEWAY\",\n          \"token\": \"examplePaymentMethodToken\"\n        }\n      }\n    ]\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Complete Checkout"
+   },
+   "failures": [
+    {
+     "condition": "More than one instrument without split payments",
+     "outcome": "payment_failed."
+    },
+    {
+     "condition": "The response is lost",
+     "outcome": "Poll Get Checkout, then resend only the identical request with the same Idempotency-Key; see the failure flow."
+    }
+   ]
+  },
+  {
+   "n": 11,
+   "from": "business",
+   "to": "psp",
+   "label": "Authorize the token with the PSP (outside UCP)",
+   "detail": "The business, as merchant of record, sends the token to its own payment service provider, which must be able to process Google tokens. This leg is not part of UCP; card economics and the PSP contract are unchanged.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Credential Flow & PCI Scope"
+   },
+   "failures": [
+    {
+     "condition": "The issuer asks for 3DS2",
+     "outcome": "With the authentication extension, the business returns an action; see the 3DS flow."
+    }
+   ]
+  },
+  {
+   "n": 12,
+   "from": "business",
+   "to": "platform",
+   "label": "200 completed with order",
+   "detail": "Synchronous completion returns status completed with an order id and a permalink to the order page. A completed checkout is immutable, and the business must send the buyer a confirmation email. Asynchronous processing returns complete_in_progress without an order.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Trimmed to the changed fields.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\"\n  },\n  \"id\": \"chk_123\",\n  \"status\": \"completed\",\n  \"order\": {\n    \"id\": \"order_789\",\n    \"permalink_url\": \"https://shop.example/orders/order_789\"\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Complete Checkout"
+   }
+  },
+  {
+   "n": 13,
+   "from": "business",
+   "to": "platform",
+   "label": "POST webhook_url: signed order event",
+   "detail": "The platform put a webhook_url in the config of its dev.ucp.shopping.order capability. The business posts the full order snapshot there with Standard Webhooks headers and an RFC 9421 signature. The platform must reject an event whose signer profile does not match the business of the order.",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25. Signature not real; body trimmed.\nPOST /webhooks/ucp/orders HTTP/1.1\nHost: agent.example\nWebhook-Id: evt_001\nWebhook-Timestamp: 1791734400\nContent-Digest: sha-256=:...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"content-digest\");keyid=\"shop_2026\"\nSignature: sig1=:...:\n\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\"\n  },\n  \"id\": \"order_789\",\n  \"checkout_id\": \"chk_123\",\n  \"permalink_url\": \"https://shop.example/orders/order_789\",\n  \"currency\": \"USD\",\n  \"fulfillment\": {\n    \"events\": [\n      {\n        \"id\": \"ful_1\",\n        \"occurred_at\": \"2026-10-12T09:00:00Z\",\n        \"type\": \"shipped\",\n        \"line_items\": [\n          {\n            \"id\": \"li_1\",\n            \"quantity\": 2\n          }\n        ]\n      }\n    ]\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/order/index.md",
+    "section": "Webhook Signature Verification"
+   },
+   "failures": [
+    {
+     "condition": "Unsigned webhook or signer does not match the order business",
+     "outcome": "The platform must reject the event; it can reconcile with GET /orders/order_789."
+    }
+   ]
+  }
+ ]
+}

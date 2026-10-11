@@ -1,0 +1,28 @@
+sequenceDiagram
+  accTitle: UCP discovery and capability negotiation (two layers)
+  accDescr: Sequence diagram: UCP discovery and capability negotiation (two layers). 2 participants: Platform (agent surface) and Business (merchant of record). 7 steps, 5 crossing a trust boundary, 3 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/ucp. This step crosses a trust boundary. Step 2: Business (merchant of record) to Platform (agent surface): Profile: version, supported_versions, capabilities. This step crosses a trust boundary. Step 3: Platform (agent surface) to Platform (agent surface): Layer 1: select version 2026-08-25. If No version in common: version_unsupported (REST 422) as a transport error, with an optional continue_url. Step 4: Platform (agent surface) to Business (merchant of record): Request with UCP-Agent: profile=.... This step crosses a trust boundary. Step 5: Business (merchant of record) to Platform (agent surface): GET platform profile. This step crosses a trust boundary. If Fetch fails or times out: profile_unreachable (REST 424). If Not valid JSON or violates the schema: profile_malformed (REST 422). Step 6: Business (merchant of record) to Business (merchant of record): Layer 2: intersect and prune. Step 7: Business (merchant of record) to Platform (agent surface): Response ucp envelope: version and active capabilities. This step crosses a trust boundary.
+  autonumber
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  p_platform->>p_business: GET /.well-known/ucp
+  Note over p_platform,p_business: Crosses a trust boundary
+  p_business-->>p_platform: Profile: version, supported_versions, capabilities
+  Note over p_business,p_platform: Crosses a trust boundary
+  alt Expected path
+    p_platform->>p_platform: Layer 1: select version 2026-08-25
+  else No version in common
+    Note over p_platform: version_unsupported (REST 422) as a transport error, with an optional continue_url.
+  end
+  p_platform->>p_business: Request with UCP-Agent: profile=#quot;...#quot;
+  Note over p_platform,p_business: Crosses a trust boundary
+  alt Expected path
+    p_business-->>p_platform: GET platform profile
+    Note over p_business,p_platform: Crosses a trust boundary
+  else Fetch fails or times out
+    Note over p_business,p_platform: profile_unreachable (REST 424).
+  else Not valid JSON or violates the schema
+    Note over p_business,p_platform: profile_malformed (REST 422).
+  end
+  p_business->>p_business: Layer 2: intersect and prune
+  p_business-->>p_platform: Response ucp envelope: version and active capabilities
+  Note over p_business,p_platform: Crosses a trust boundary

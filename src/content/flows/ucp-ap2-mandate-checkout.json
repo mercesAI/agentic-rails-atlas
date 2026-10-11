@@ -1,0 +1,152 @@
+{
+ "id": "ucp-ap2-mandate-checkout",
+ "protocol": "ucp",
+ "title": "AP2 mandates inside a UCP checkout (spec flow; live use unverified)",
+ "summary": "When dev.ucp.common.payment.ap2_mandate is in the intersection, the session is security locked. The business signs every checkout response (ap2.merchant_authorization, a detached JWS over the JCS-canonical checkout). The platform verifies it before showing the checkout, and on complete sends ap2.checkout_mandate (an SD-JWT with key binding that contains the whole signed checkout) plus a payment mandate inside the credential token. No public source shows this running in production as of 2026-10-11.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "buyer",
+   "label": "Buyer",
+   "kind": "human"
+  },
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  },
+  {
+   "id": "psp",
+   "label": "Business PSP",
+   "kind": "psp"
+  }
+ ],
+ "sources": [
+  "src-ucp-ap2-spec",
+  "src-ucp-schema-ap2",
+  "src-ucp-google-universal-cart"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "POST /checkout-sessions (profile lists AP2, keys)",
+   "detail": "Both profiles list dev.ucp.common.payment.ap2_mandate, which extends checkout; the business config declares vp_formats_supported with dc+sd-jwt. Under the trusted platform provider model, the platform profile must publish at least one key in keys.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md",
+    "section": "Discovery & Negotiation"
+   },
+   "failures": [
+    {
+     "condition": "The platform profile has no usable key",
+     "outcome": "agent_missing_key."
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "from": "business",
+   "to": "business",
+   "label": "Intersection includes AP2: lock the session",
+   "detail": "From now on neither party may fall back to an unprotected checkout for this session.",
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md",
+    "section": "Activation and Session Locking"
+   }
+  },
+  {
+   "n": 3,
+   "from": "business",
+   "to": "platform",
+   "label": "Checkout + ap2.merchant_authorization",
+   "detail": "The business signs the checkout without the ap2 field, canonicalized with JCS, as a JWS with detached content (header..signature). The header names alg (ES256, ES384 or ES512) and kid.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Signature not real.\n{\n  \"id\": \"chk_123\",\n  \"status\": \"ready_for_complete\",\n  \"ap2\": {\n    \"merchant_authorization\": \"eyJhbGciOiJFUzI1NiIsImtpZCI6InNob3BfMjAyNiJ9..MEUCIQ...\"\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md",
+    "section": "Business Authorization"
+   },
+   "failures": [
+    {
+     "condition": "Signature missing or invalid",
+     "outcome": "merchant_authorization_missing or merchant_authorization_invalid; the platform must not show the checkout."
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "from": "platform",
+   "to": "buyer",
+   "label": "Verify, show, get consent",
+   "detail": "The platform verifies the business signature with a key from the business keys array, then shows the checkout. A trusted platform provider signs mandates with its server key after explicit consent; alternatively the user wallet signs with a key bound to a digital payment credential, for example through OpenID4VP.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md",
+    "section": "Step 2: User Consent & Mandate Generation"
+   }
+  },
+  {
+   "n": 5,
+   "from": "platform",
+   "to": "business",
+   "label": "complete with ap2.checkout_mandate",
+   "detail": "The checkout mandate is an SD-JWT with key binding that contains the full checkout, including the business signature, so the platform signature covers it. The payment mandate travels in payment.instruments[*].credential.token.",
+   "payload": {
+    "format": "json",
+    "content": "// Illustrative example, spec version 2026-08-25. Tokens not real.\n{\n  \"payment\": {\n    \"instruments\": [\n      {\n        \"id\": \"instr_1\",\n        \"handler_id\": \"gpay_1234\",\n        \"type\": \"card\",\n        \"credential\": {\n          \"type\": \"PAYMENT_GATEWAY\",\n          \"token\": \"<payment mandate, composite token>\"\n        }\n      }\n    ]\n  },\n  \"ap2\": {\n    \"checkout_mandate\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~\"\n  }\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md",
+    "section": "Step 3: Submission (complete_checkout)"
+   },
+   "failures": [
+    {
+     "condition": "No checkout mandate",
+     "outcome": "mandate_required; the business must reject the complete."
+    },
+    {
+     "condition": "Mandate bound to another checkout, expired or badly signed",
+     "outcome": "mandate_scope_mismatch, mandate_expired or mandate_invalid_signature."
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "from": "business",
+   "to": "psp",
+   "label": "Verify mandate; pass payment mandate to PSP",
+   "detail": "The business verifies the checkout mandate and keeps it as durable evidence; the PSP verifies the payment mandate in the credential.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md",
+    "section": "Verification & Processing"
+   }
+  },
+  {
+   "n": 7,
+   "from": "business",
+   "to": "platform",
+   "label": "completed with order",
+   "detail": "Same completion as the main flow.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md",
+    "section": "Complete Checkout"
+   }
+  }
+ ]
+}

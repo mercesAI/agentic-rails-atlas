@@ -1,0 +1,32 @@
+flowchart LR
+  subgraph BZ["Buyer"]
+    BY["Buyer"]
+  end
+  subgraph PZ["Platform trust zone"]
+    PA["Agent or app"]
+    PP["Platform profile and keys"]
+    TU["Trusted checkout UI"]
+  end
+  subgraph CZ["Credential provider zone"]
+    CP["Wallet, for example Google Pay"]
+  end
+  subgraph MZ["Business trust zone (merchant of record)"]
+    WK["/.well-known/ucp profile and keys"]
+    API["UCP endpoint: REST, MCP, A2A, embedded"]
+    WEB["Web checkout (continue_url)"]
+  end
+  subgraph SZ["Payment processing"]
+    PSP["Business PSP"]
+  end
+  BY -- "asks to buy" --> PA
+  PA -- "1 discover" --> WK
+  PA -- "2 checkout calls, UCP-Agent, signed" --> API
+  API -. "3 fetch platform profile" .-> PP
+  PA -- "4 review and place order" --> TU
+  TU --- BY
+  PA -- "5 run handler, get token" --> CP
+  PA -- "6 complete with opaque token" --> API
+  API -- "7 authorize token" --> PSP
+  API -- "8 signed order webhooks" --> PA
+  API -. "escalation handoff" .-> WEB
+  WEB --- BY

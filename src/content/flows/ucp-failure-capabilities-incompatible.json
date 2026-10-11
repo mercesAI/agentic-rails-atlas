@@ -1,0 +1,82 @@
+{
+ "id": "ucp-failure-capabilities-incompatible",
+ "protocol": "ucp",
+ "title": "UCP failure: no capability in common",
+ "summary": "The platform only supports carts and the business only supports checkout, so the intersection is empty. This is a business outcome, not a transport error: HTTP 200, ucp.status error, a capabilities_incompatible message and an optional continue_url to the web storefront.",
+ "specVersion": "2026-08-25",
+ "specVersionDate": "2026-08-25",
+ "actors": [
+  {
+   "id": "platform",
+   "label": "Platform (agent surface)",
+   "kind": "platform"
+  },
+  {
+   "id": "business",
+   "label": "Business (merchant of record)",
+   "kind": "merchant"
+  },
+  {
+   "id": "buyer",
+   "label": "Buyer",
+   "kind": "human"
+  }
+ ],
+ "sources": [
+  "src-ucp-overview"
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "from": "platform",
+   "to": "business",
+   "label": "POST /carts with UCP-Agent",
+   "detail": "The platform profile lists only dev.ucp.shopping.cart.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Negotiation Protocol"
+   }
+  },
+  {
+   "n": 2,
+   "from": "business",
+   "to": "business",
+   "label": "Intersection is empty",
+   "detail": "The business lists only dev.ucp.shopping.checkout, so no capability survives the first step of the algorithm.",
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Intersection Algorithm"
+   }
+  },
+  {
+   "n": 3,
+   "from": "business",
+   "to": "platform",
+   "label": "200 OK, ucp.status error, capabilities_incompatible",
+   "detail": "Capability failure is reported in a UCP response with severity unrecoverable. Discovery and version failures, in contrast, are transport errors (400, 422, 424).",
+   "payload": {
+    "format": "http",
+    "content": "# Illustrative example, spec version 2026-08-25.\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"error\",\n    \"capabilities\": {}\n  },\n  \"messages\": [\n    {\n      \"type\": \"error\",\n      \"code\": \"capabilities_incompatible\",\n      \"content\": \"No compatible capabilities in the intersection\",\n      \"severity\": \"unrecoverable\"\n    }\n  ],\n  \"continue_url\": \"https://shop.example/\"\n}",
+    "illustrative": true
+   },
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "Error Codes"
+   }
+  },
+  {
+   "n": 4,
+   "from": "platform",
+   "to": "buyer",
+   "label": "Fall back to continue_url",
+   "detail": "The platform sends the buyer to the storefront to finish on the web. The business should choose the most relevant page: cart or checkout, product, or the homepage.",
+   "crossesTrustBoundary": true,
+   "specRef": {
+    "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md",
+    "section": "The continue_url Field"
+   }
+  }
+ ]
+}

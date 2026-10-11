@@ -1,0 +1,28 @@
+sequenceDiagram
+  accTitle: UCP failure: the Complete Checkout response is lost
+  accDescr: Sequence diagram: UCP failure: the Complete Checkout response is lost. 2 participants: Platform (agent surface) and Business (merchant of record). 5 steps, 5 crossing a trust boundary, 4 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): POST.../complete (Idempotency-Key K1). This step crosses a trust boundary. Step 2: Business (merchant of record) to Platform (agent surface): Response lost (timeout). This step crosses a trust boundary. Step 3: Platform (agent surface) to Business (merchant of record): GET /checkout-sessions/chk_123 with backoff. This step crosses a trust boundary. If Get Checkout shows completed: Stop. The order exists read order.id. Step 4: Platform (agent surface) to Business (merchant of record): Resend identical request with K1. This step crosses a trust boundary. If The platform changes the body but keeps K1: HTTP 409, idempotency key reused with a different payload. If The platform uses a new key for the retry: Forbidden by the spec it risks a second order. If The business cannot reach its idempotency store: It fails closed with HTTP 503. Step 5: Business (merchant of record) to Platform (agent surface): Stored result: completed with order. This step crosses a trust boundary.
+  autonumber
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  p_platform->>p_business: POST .../complete (Idempotency-Key K1)
+  Note over p_platform,p_business: Crosses a trust boundary
+  p_business-->>p_platform: Response lost (timeout)
+  Note over p_business,p_platform: Crosses a trust boundary
+  alt Expected path
+    p_platform->>p_business: GET /checkout-sessions/chk_123 with backoff
+    Note over p_platform,p_business: Crosses a trust boundary
+  else Get Checkout shows completed
+    Note over p_platform,p_business: Stop. The order exists#59; read order.id.
+  end
+  alt Expected path
+    p_platform->>p_business: Resend identical request with K1
+    Note over p_platform,p_business: Crosses a trust boundary
+  else The platform changes the body but keeps K1
+    Note over p_platform,p_business: HTTP 409, idempotency key reused with a different payload.
+  else The platform uses a new key for the retry
+    Note over p_platform,p_business: Forbidden by the spec#59; it risks a second order.
+  else The business cannot reach its idempotency store
+    Note over p_platform,p_business: It fails closed with HTTP 503.
+  end
+  p_business-->>p_platform: Stored result: completed with order
+  Note over p_business,p_platform: Crosses a trust boundary

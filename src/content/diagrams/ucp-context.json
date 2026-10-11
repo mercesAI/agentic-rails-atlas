@@ -1,0 +1,10 @@
+{
+  "id": "ucp-context",
+  "protocol": "ucp",
+  "type": "context",
+  "title": "UCP actors and trust boundaries",
+  "caption": "Five zones: the buyer, the platform with its own profile, keys and trusted UI, the credential provider that issues tokens, the business that is merchant of record and publishes /.well-known/ucp, and the business's PSP. Credentials move one way, platform to business. Numbers follow the main flow.",
+  "alt": "Flowchart. The buyer asks an agent on the platform to buy. The platform discovers the business profile at /.well-known/ucp, then calls the business UCP endpoint over REST, MCP, A2A or embedded transport with a UCP-Agent header and a signature. The business fetches the platform profile and keys. The platform shows the checkout in a trusted UI where the buyer places the order, runs the payment handler with a credential provider such as Google Pay to get an opaque token, and completes the checkout with that token. The business authorizes the token with its own PSP and sends signed order webhooks to the platform. When escalation is needed, the buyer finishes on the business web checkout through continue_url.",
+  "sourceOfTruth": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md", "label": "UCP specification overview, v2026-08-25: discovery, negotiation and payment architecture" },
+  "sources": ["src-ucp-overview", "src-ucp-checkout", "src-ucp-glossary", "src-ucp-order", "src-ucp-google-faq"]
+}

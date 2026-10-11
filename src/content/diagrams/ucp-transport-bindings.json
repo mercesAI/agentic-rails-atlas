@@ -1,0 +1,10 @@
+{
+  "id": "ucp-transport-bindings",
+  "protocol": "ucp",
+  "type": "architecture",
+  "title": "UCP transport bindings",
+  "caption": "The same capability runs over four transports. Each service entry in a profile pairs a transport with an endpoint and a machine-readable description. The platform names its profile in a header on REST and A2A, and in a meta object on MCP.",
+  "alt": "Flowchart. One operation, create checkout, maps to four transports. REST uses POST /checkout-sessions with UCP-Agent, Idempotency-Key and Request-Id headers and is described by OpenAPI 3.1. MCP uses tools/call create_checkout with meta ucp-agent profile in the arguments and is described by OpenRPC over streamable HTTP. A2A sends a message with a DataPart keyed a2a.ucp.checkout, with UCP-Agent and X-A2A-Extensions headers, described by an Agent Card at the endpoint. Embedded uses ec.* JSON-RPC messages such as ec.ready, ec.start, ec.complete and ec.payment.credential_request inside a host frame, described by OpenRPC.",
+  "sourceOfTruth": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/tree/cd78fb38e819de77d9b527d110476eccb876f1bd/source/services/shopping", "label": "UCP service descriptions (OpenAPI and OpenRPC), v2026-08-25" },
+  "sources": ["src-ucp-overview", "src-ucp-rest-openapi", "src-ucp-mcp-openrpc", "src-ucp-a2a", "src-ucp-embedded-openrpc"]
+}

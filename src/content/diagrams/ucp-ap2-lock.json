@@ -1,0 +1,10 @@
+{
+  "id": "ucp-ap2-lock",
+  "protocol": "ucp",
+  "type": "state",
+  "title": "The AP2 lock inside UCP",
+  "caption": "AP2 is an optional extension. If it is in the capability intersection the session is security locked: the business signs every checkout response, the platform must verify that signature, and complete must carry a checkout mandate. Without AP2 the buyer places the order in a trusted UI. The extension is specified; no public source shows it in production as of 2026-10-11.",
+  "alt": "State diagram. Negotiation leads either to Unlocked, when AP2 is not in the intersection, or to Security locked, when dev.ucp.common.payment.ap2_mandate is. Unlocked leads to the buyer placing the order in a trusted UI. Security locked leads to a signed checkout carrying ap2.merchant_authorization. If the platform cannot verify the signature the session is rejected. Otherwise the buyer consents and a checkout mandate is signed. A missing, expired or mis-scoped mandate is rejected; a valid one is verified by the business and the payment mandate by the PSP, and the checkout completes. A note says there is no downgrade to an unprotected checkout for that session.",
+  "sourceOfTruth": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md", "label": "UCP AP2 Mandates Extension, v2026-08-25" },
+  "sources": ["src-ucp-ap2-spec", "src-ucp-schema-ap2", "src-ucp-checkout", "src-ucp-google-universal-cart"]
+}

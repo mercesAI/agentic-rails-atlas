@@ -1,0 +1,10 @@
+{
+  "id": "ucp-data-model",
+  "protocol": "ucp",
+  "type": "data-model",
+  "title": "UCP core objects (v2026-08-25)",
+  "caption": "The profile document holds the ucp metadata and a top-level keys array. A checkout carries payment instruments that point at a handler instance by handler_id and hold an opaque credential (token, PAN or network token). With the AP2 extension a checkout also has an ap2 object. A completed checkout points to an order, which records fulfillment and adjustments. Field names from the v2026-08-25 JSON Schemas; lists trimmed.",
+  "alt": "Class diagram. Profile has ucp metadata and keys. Ucp metadata has version, services, capabilities, payment_handlers, supported_versions and status, and links to service bindings (version, transport, endpoint, schema), capability entries (version, spec, schema, extends, config) and payment handlers (id, version, available_instruments, config). Checkout has id, status, line_items, currency, totals, links, messages, actions, expires_at, continue_url, payment and order. Checkout has payment instruments (id, handler_id, type, credential, display); each instrument refers to a payment handler by handler_id and contains a credential with type and token. Checkout has an optional ap2 object with merchant_authorization and checkout_mandate. Checkout refers to an order with id, checkout_id, permalink_url, line_items, fulfillment and adjustments; adjustments have id, type, status and occurred_at.",
+  "sourceOfTruth": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/tree/cd78fb38e819de77d9b527d110476eccb876f1bd/source/schemas", "label": "UCP JSON Schemas at tag v2026-08-25" },
+  "sources": ["src-ucp-schema-profile", "src-ucp-schema-checkout", "src-ucp-schema-payment", "src-ucp-schema-order", "src-ucp-schema-ap2"]
+}

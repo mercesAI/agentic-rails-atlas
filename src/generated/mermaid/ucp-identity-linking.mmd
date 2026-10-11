@@ -1,0 +1,31 @@
+sequenceDiagram
+  accTitle: UCP identity linking: OAuth 2.0 authorization code with PKCE
+  accDescr: Sequence diagram: UCP identity linking: OAuth 2.0 authorization code with PKCE. 3 participants: Buyer, Platform (agent surface), and Business (merchant of record). 7 steps, 7 crossing a trust boundary, 3 failure branches. Based on ucp 2026-08-25 (2026-08-25). Step 1: Platform (agent surface) to Business (merchant of record): GET /.well-known/oauth-protected-resource. This step crosses a trust boundary. Step 2: Platform (agent surface) to Business (merchant of record): GET /.well-known/oauth-authorization-server. This step crosses a trust boundary. If Issuer mismatch: The platform must stop the metadata may be spoofed. Step 3: Platform (agent surface) to Buyer: Redirect to authorize (PKCE S256, capability scopes). This step crosses a trust boundary. Step 4: Buyer to Business (merchant of record): Sign in and consent at the business. This step crosses a trust boundary. Step 5: Business (merchant of record) to Platform (agent surface): Redirect with code and iss. This step crosses a trust boundary. Step 6: Platform (agent surface) to Business (merchant of record): Token request with code_verifier. This step crosses a trust boundary. Step 7: Platform (agent surface) to Business (merchant of record): User-authenticated call, e.g. GET /orders/ id. This step crosses a trust boundary. If No user token: identity_required (401) with a WWW-Authenticate Bearer challenge. If Token lacks the scope: insufficient_scope (403).
+  autonumber
+  participant p_buyer as Buyer
+  participant p_platform as Platform (agent surface)
+  participant p_business as Business (merchant of record)
+  p_platform->>p_business: GET /.well-known/oauth-protected-resource
+  Note over p_platform,p_business: Crosses a trust boundary
+  alt Expected path
+    p_platform->>p_business: GET /.well-known/oauth-authorization-server
+    Note over p_platform,p_business: Crosses a trust boundary
+  else Issuer mismatch
+    Note over p_platform,p_business: The platform must stop#59; the metadata may be spoofed.
+  end
+  p_platform->>p_buyer: Redirect to authorize (PKCE S256, capability scopes)
+  Note over p_platform,p_buyer: Crosses a trust boundary
+  p_buyer->>p_business: Sign in and consent at the business
+  Note over p_buyer,p_business: Crosses a trust boundary
+  p_business->>p_platform: Redirect with code and iss
+  Note over p_business,p_platform: Crosses a trust boundary
+  p_platform-->>p_business: Token request with code_verifier
+  Note over p_platform,p_business: Crosses a trust boundary
+  alt Expected path
+    p_platform->>p_business: User-authenticated call, e.g. GET /orders/#123;id#125;
+    Note over p_platform,p_business: Crosses a trust boundary
+  else No user token
+    Note over p_platform,p_business: identity_required (401) with a WWW-Authenticate Bearer challenge.
+  else Token lacks the scope
+    Note over p_platform,p_business: insufficient_scope (403).
+  end
