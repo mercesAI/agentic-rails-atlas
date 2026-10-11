@@ -9,7 +9,7 @@ import {
   ringStyle,
 } from '../../../src/components/universe/lib/encoding';
 import { nextInDirection } from '../../../src/components/universe/lib/nav';
-import { groupByCategory, orbitLayout } from '../../../src/components/universe/lib/orbit';
+import { groupByCategory, labelArc, orbitLayout } from '../../../src/components/universe/lib/orbit';
 import type { UniverseOrbit, UniverseRelation } from '../../../src/components/universe/lib/types';
 
 describe('ringStyle', () => {
@@ -63,6 +63,15 @@ describe('relations and relevance', () => {
   it('relationsFor keeps both directions and drops absent ends', () => {
     expect(relationsFor('a', rels, new Set(['a', 'b', 'c'])).map((r) => `${r.from}-${r.to}`)).toEqual(['a-b', 'c-a']);
   });
+  it('relationsFor keeps a symmetric relation once but both directions of a directed one', () => {
+    const both: UniverseRelation[] = [
+      { from: 'a', to: 'b', type: 'compatible-with', note: '' },
+      { from: 'b', to: 'a', type: 'compatible-with', note: '' },
+      { from: 'a', to: 'b', type: 'embeds', note: '' },
+      { from: 'b', to: 'a', type: 'embeds', note: '' },
+    ];
+    expect(relationsFor('a', both, new Set(['a', 'b']))).toHaveLength(3);
+  });
   it('relevanceOf defaults to high with no persona and low when unmapped', () => {
     expect(relevanceOf({}, null, 'a')).toBe('high');
     expect(relevanceOf({ p: { a: 'medium' } }, 'p', 'a')).toBe('medium');
@@ -113,12 +122,20 @@ describe('orbitLayout', () => {
       const v = ((n.x - cx) / rx) ** 2 + ((n.y - cy) / ry) ** 2;
       expect(v).toBeCloseTo(1, 2);
     }
-    expect(o.labels).toHaveLength(3);
+    expect(o.arcs.map((x) => x.key)).toEqual(['agent-communication', 'machine-payments', 'legal-policy']);
+    for (const arc of o.arcs) expect(arc.d).toMatch(/^M [\d.-]+ [\d.-]+ A /);
   });
   it('puts satellites in a band under the chart in the other modes', () => {
     const o = orbitLayout(items, 'layers', { width: 1200, height: 700 });
     expect(o.extraHeight).toBeGreaterThan(0);
     for (const n of Object.values(o.nodes)) expect(n.y).toBeGreaterThan(700);
+  });
+  it('labelArc runs left to right on both halves', () => {
+    const coords = (d: string) => d.match(/-?[\d.]+/g)!.map(Number);
+    const top = coords(labelArc(600, 400, 500, 300, -Math.PI / 2, 0.3));
+    const bottom = coords(labelArc(600, 400, 500, 300, Math.PI / 2, 0.3));
+    expect(top[0]!).toBeLessThan(top[top.length - 2]!);
+    expect(bottom[0]!).toBeLessThan(bottom[bottom.length - 2]!);
   });
   it('handles no items', () => {
     expect(orbitLayout([], 'constellation', { width: 1200, height: 720 }).nodes).toEqual({});

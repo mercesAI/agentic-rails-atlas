@@ -115,15 +115,31 @@ export function layerIndex(layer: Layer): number {
   return LAYERS.indexOf(layer);
 }
 
-/** Relations that touch a protocol, limited to pairs where both ends are on the canvas. */
+/** Relation types that read the same in both directions. */
+export const SYMMETRIC_RELATIONS: ReadonlySet<RelationType> = new Set<RelationType>([
+  'complements',
+  'competes-with',
+  'compatible-with',
+  'same-steward',
+]);
+
+/**
+ * Relations that touch a protocol, limited to pairs where both ends are on the
+ * canvas. A symmetric relation recorded in both directions is kept once.
+ */
 export function relationsFor(
   slug: string,
   relations: readonly UniverseRelation[],
   present: ReadonlySet<string>,
 ): UniverseRelation[] {
-  return relations.filter(
-    (r) => (r.from === slug || r.to === slug) && present.has(r.from) && present.has(r.to) && r.from !== r.to,
-  );
+  const seen = new Set<string>();
+  return relations.filter((r) => {
+    if (!(r.from === slug || r.to === slug) || !present.has(r.from) || !present.has(r.to) || r.from === r.to) return false;
+    const key = SYMMETRIC_RELATIONS.has(r.type) ? `${[r.from, r.to].sort().join('|')}|${r.type}` : `${r.from}|${r.to}|${r.type}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 /** Relevance of a protocol to a persona; no persona selected means every protocol is high. */

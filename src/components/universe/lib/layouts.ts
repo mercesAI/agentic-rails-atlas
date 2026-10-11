@@ -264,7 +264,8 @@ export function timelineLayout(protocols: readonly UniverseProtocol[]): LayoutRe
     const r = round(bubbleRadius(p, radius));
     const y = TIMELINE_LANES[lanes[i] ?? 0] ?? TIMELINE_LANES[0];
     nodes[p.slug] = { x: xs[i]!, y, r };
-    guides.vlines.push({ x: xs[i]!, y1: y + r + TEXT_ROOM_COMPACT + 18, y2: axisY });
+    // Stem from under the status and date lines down to the axis.
+    guides.vlines.push({ x: xs[i]!, y1: y + r + TEXT_ROOM_COMPACT + 30, y2: axisY });
   });
   guides.hlines.push({ x1: TIMELINE_X0 - 30, x2: TIMELINE_X1 + 30, y: axisY });
   for (const t of quarterTicks(domain[0], domain[1])) {

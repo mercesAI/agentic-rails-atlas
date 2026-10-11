@@ -15,6 +15,8 @@ export interface OrbitLayout {
   nodes: Record<string, PlacedNode>;
   labels: GuideLabel[];
   ring: { cx: number; cy: number; rx: number; ry: number } | null;
+  /** Constellation: category names set along the ring (SVG path data for a textPath). */
+  arcs: { key: string; text: string; d: string }[];
   /** Extra height the ring or the band adds under the chart. */
   extraHeight: number;
 }
@@ -36,7 +38,8 @@ export function orbitLayout(
   const groups = groupByCategory(items);
   const nodes: Record<string, PlacedNode> = {};
   const labels: GuideLabel[] = [];
-  if (groups.length === 0) return { nodes, labels, ring: null, extraHeight: 0 };
+  const arcs: OrbitLayout['arcs'] = [];
+  if (groups.length === 0) return { nodes, labels, ring: null, arcs, extraHeight: 0 };
 
   if (mode === 'constellation') {
     // The ring grows the canvas a little so satellites clear the text under the bubbles.
@@ -58,17 +61,11 @@ export function orbitLayout(
         a += step;
       }
       const mid = (start + a - step) / 2;
-      const inward = 0.86;
-      labels.push({
-        x: round(cx + rx * inward * Math.cos(mid)),
-        y: round(cy + ry * inward * Math.sin(mid) + 4),
-        text: ORBIT_CATEGORY_LABELS[cat],
-        anchor: Math.cos(mid) > 0.35 ? 'end' : Math.cos(mid) < -0.35 ? 'start' : 'middle',
-        kind: 'category',
-      });
+      const half = Math.max((a - start) / 2, 0.34);
+      arcs.push({ key: cat, text: ORBIT_CATEGORY_LABELS[cat], d: labelArc(cx, cy, rx, ry, mid, half) });
       a += gapSlots * step;
     }
-    return { nodes, labels, ring: { cx, cy, rx: round(rx), ry: round(ry) }, extraHeight: extra };
+    return { nodes, labels, ring: { cx, cy, rx: round(rx), ry: round(ry) }, arcs, extraHeight: extra };
   }
 
   const top = frame.height + 20;
@@ -86,5 +83,21 @@ export function orbitLayout(
       };
     });
   });
-  return { nodes, labels, ring: null, extraHeight: ORBIT_BAND_H };
+  return { nodes, labels, ring: null, arcs, extraHeight: ORBIT_BAND_H };
+}
+
+/**
+ * Path for a category name set just inside the ring, centered on angle `mid`.
+ * The path always runs left to right on screen so the text is never upside down:
+ * clockwise on the upper half, counterclockwise on the lower half (where the
+ * glyphs face the center, so the path sits closer to the ring).
+ */
+export function labelArc(cx: number, cy: number, rx: number, ry: number, mid: number, half: number): string {
+  const lower = Math.sin(mid) > 0;
+  const inset = lower ? 7 : 15;
+  const ex = rx - inset;
+  const ey = ry - inset;
+  const pt = (t: number) => `${round(cx + ex * Math.cos(t))} ${round(cy + ey * Math.sin(t))}`;
+  const [from, to, sweep] = lower ? [mid + half, mid - half, 0] : [mid - half, mid + half, 1];
+  return `M ${pt(from)} A ${round(ex)} ${round(ey)} 0 0 ${sweep} ${pt(to)}`;
 }

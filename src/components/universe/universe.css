@@ -87,8 +87,14 @@
 .u-persona__option input { accent-color: var(--accent); margin: 0; }
 .universe__hint { margin-top: 0.6rem; font-size: 0.8125rem; color: var(--fg-subtle); }
 
-/* Canvas */
-.universe__viewport { margin-top: 0.75rem; }
+/* Canvas and the details panel beside it */
+.universe__body {
+  margin-top: 0.75rem; display: grid; gap: 1.25rem 1.5rem; align-items: start;
+  grid-template-columns: minmax(0, 1fr) 19rem;
+}
+@media (max-width: 1100px) { .universe__body { grid-template-columns: minmax(0, 1fr); } }
+.universe__dialog .universe__body { grid-template-columns: minmax(0, 1fr); }
+.universe__aside { position: sticky; top: 1rem; min-width: 0; }
 .universe__canvas {
   position: relative; width: 100%; container-type: inline-size;
   transition: aspect-ratio var(--dur-slow) var(--ease-out);
@@ -109,13 +115,8 @@
 .u-span rect { fill: var(--family-soft); stroke: var(--family-fill); stroke-width: 1; opacity: 0.8; }
 .u-span[data-active='true'] line { opacity: 0.85; }
 .u-edges line { fill: none; }
-.u-edges--faint line { stroke: var(--border-strong); stroke-width: 1; opacity: 0.6; }
 .u-edges--active line { stroke: var(--fg-muted); stroke-width: 1.5; }
 .u-arrow { fill: var(--fg-muted); }
-.u-edge-label {
-  font-family: var(--font-body); font-size: 11px; fill: var(--fg);
-  paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round;
-}
 
 /* Bubbles */
 .ub {
@@ -160,6 +161,7 @@
 [data-status='pilot'] { --dot: var(--status-pilot); }
 [data-status='live'] { --dot: var(--status-live); }
 [data-status='mixed'] { --dot: var(--status-mixed); }
+.ub__date { font-family: var(--font-mono); font-size: max(10px, 11cqw / 12); color: var(--fg-muted); }
 .ub__rel { font-size: max(10px, 11cqw / 12); color: var(--fg-subtle); font-style: italic; }
 
 /* Persona dimming: lighter ring and fill, text stays at AA contrast. */
@@ -197,13 +199,13 @@
 .usat__one { color: var(--fg-muted); }
 .u-ext { display: inline-block; margin-left: 0.25em; vertical-align: 0.05em; }
 
-/* Hover and focus card */
+/* Hover and focus card (in the panel beside the chart) */
 .ucard {
-  position: absolute; z-index: 5; width: min(340px, 44%); padding: 0.9rem 1rem;
-  background: var(--bg-elevated); border: 1px solid var(--border-strong); border-left: 3px solid var(--family-fill);
-  border-radius: var(--radius-md); box-shadow: var(--shadow-2); pointer-events: none;
-  font-size: 0.8125rem; line-height: 1.45;
+  padding: 0.9rem 1rem;
+  background: var(--bg-elevated); border: 1px solid var(--border); border-left: 3px solid var(--family-fill, var(--border-strong));
+  border-radius: var(--radius-md); font-size: 0.8125rem; line-height: 1.45;
 }
+.ucard--empty { border-left-color: var(--border-strong); }
 .ucard__eyebrow { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--family-ink); }
 .ucard__name { margin-top: 0.15rem; font-family: var(--font-heading); font-weight: 600; font-size: 1.05rem; color: var(--fg); }
 .ucard__intro { margin-top: 0.4rem; color: var(--fg-muted); }
@@ -217,6 +219,9 @@
   padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.75rem;
   color: var(--family-ink); background: var(--family-soft);
 }
+.ucard__relations ul { display: grid; gap: 0.2rem; margin-top: 0.3rem; }
+.ucard__relations li { display: flex; align-items: center; gap: 0.5rem; color: var(--fg); }
+.ucard__relations em { font-style: normal; color: var(--fg-muted); }
 .ucard__hint { margin-top: 0.6rem; font-size: 0.75rem; color: var(--fg-subtle); }
 
 /* Legend */

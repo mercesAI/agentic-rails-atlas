@@ -193,7 +193,6 @@ export default function BubbleUniverse({
       orbit={orbit}
       sorted={sorted}
       bySlug={bySlug}
-      allEdges={allEdges}
       edgeTypes={edgeTypes}
       active={active}
       activeProtocol={activeProtocol}
@@ -259,7 +258,6 @@ interface StageProps {
   orbit: UniverseOrbit[];
   sorted: UniverseProtocol[];
   bySlug: Map<string, UniverseProtocol>;
-  allEdges: UniverseRelation[];
   edgeTypes: RelationType[];
   active: string | null;
   activeProtocol: UniverseProtocol | null;
@@ -291,7 +289,6 @@ function Stage(props: StageProps) {
     orbit,
     sorted,
     bySlug,
-    allEdges,
     edgeTypes,
     active,
     activeProtocol,
@@ -351,15 +348,6 @@ function Stage(props: StageProps) {
     }
   };
 
-  const activeNode = active ? layout.nodes[active] : undefined;
-  const cardStyle: CSSProperties = {};
-  if (activeNode) {
-    if (activeNode.x > W / 2) cardStyle.right = pct(W - (activeNode.x - activeNode.r - 18), W);
-    else cardStyle.left = pct(activeNode.x + activeNode.r + 18, W);
-    if (activeNode.y < H / 2) cardStyle.top = pct(Math.max(0, activeNode.y - activeNode.r), H);
-    else cardStyle.bottom = pct(Math.max(0, H - (activeNode.y + activeNode.r)), H);
-  }
-
   return (
     <div className="universe__stage" data-mode={mode}>
       <div className="universe__toolbar">
@@ -415,6 +403,7 @@ function Stage(props: StageProps) {
         {persona ? ` Dimmed bubbles are less relevant to ${personaName}.` : ''}
       </p>
 
+      <div className="universe__body">
       <div className="universe__viewport" ref={viewportRef}>
         <div
           className="universe__canvas"
@@ -452,23 +441,22 @@ function Stage(props: StageProps) {
                   </g>
                 );
               })}
+              {(orbitPlaced?.arcs ?? []).map((arc) => (
+                <g key={`arc-${arc.key}`}>
+                  <path id={`${uid}-arc-${arc.key}`} d={arc.d} fill="none" stroke="none" />
+                  <text className="u-label u-label--category">
+                    <textPath href={`#${uid}-arc-${arc.key}`} startOffset="50%" textAnchor="middle">
+                      {arc.text}
+                    </textPath>
+                  </text>
+                </g>
+              ))}
               {[...layout.guides.labels, ...(orbitPlaced?.labels ?? [])].map((g, i) => (
                 <text key={`lbl-${i}`} className={`u-label u-label--${g.kind}`} x={g.x} y={g.y} textAnchor={g.anchor}>
                   {g.text}
                 </text>
               ))}
             </g>
-            {mode === 'constellation' ? (
-              <g className="u-edges u-edges--faint">
-                {allEdges.map((r, i) => {
-                  const a = layout.nodes[r.from];
-                  const b = layout.nodes[r.to];
-                  if (!a || !b) return null;
-                  const e = edgePath(a, b);
-                  return <line key={`f-${i}`} {...e} />;
-                })}
-              </g>
-            ) : null}
             <g className="u-edges u-edges--active">
               {activeEdges.map((r, i) => {
                 const a = layout.nodes[r.from];
@@ -482,9 +470,6 @@ function Stage(props: StageProps) {
                       strokeDasharray={RELATION_DASH[r.type] || undefined}
                       markerEnd={DIRECTED.has(r.type) ? `url(#${markerId})` : undefined}
                     />
-                    <text className="u-edge-label" x={(e.x1 + e.x2) / 2} y={(e.y1 + e.y2) / 2 - 4} textAnchor="middle">
-                      {RELATION_LABELS[r.type]}
-                    </text>
                   </g>
                 );
               })}
@@ -535,14 +520,13 @@ function Stage(props: StageProps) {
                     <span className="ub__dot" aria-hidden="true" />
                     <span className="sr-only">Status: </span>
                     {STATUS_LABELS[p.status]}
-                    {mode === 'timeline' ? (
-                      <>
-                        <span aria-hidden="true">, </span>
-                        <span className="sr-only">first announced </span>
-                        <time dateTime={p.firstAnnounced}>{p.firstAnnounced}</time>
-                      </>
-                    ) : null}
                   </span>
+                  {mode === 'timeline' ? (
+                    <span className="ub__date">
+                      <span className="sr-only">First announced </span>
+                      <time dateTime={p.firstAnnounced}>{p.firstAnnounced}</time>
+                    </span>
+                  ) : null}
                   {rel === 'low' ? <span className="ub__rel">Less relevant</span> : null}
                 </span>
               </a>
@@ -577,68 +561,96 @@ function Stage(props: StageProps) {
               })
             : null}
 
-          {activeProtocol && activeNode ? (
-            <div className="ucard" id={cardId} data-family={activeProtocol.family} style={cardStyle}>
-              <p className="ucard__eyebrow">{FAMILY_LABELS[activeProtocol.family]}</p>
-              <p className="ucard__name">{activeProtocol.name}</p>
-              <p className="ucard__intro">{activeProtocol.intro}</p>
-              <dl className="ucard__facts">
-                <div>
-                  <dt>Stewards</dt>
-                  <dd>{activeProtocol.stewards.join('; ')}</dd>
-                </div>
-                <div>
-                  <dt>First announced</dt>
-                  <dd>{activeProtocol.firstAnnounced}</dd>
-                </div>
-                <div>
-                  <dt>Latest version</dt>
-                  <dd>
-                    {activeProtocol.latestVersion.label}, {activeProtocol.latestVersion.date}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Status</dt>
-                  <dd>
-                    <span className="ub__status" data-status={activeProtocol.status}>
-                      <span className="ub__dot" aria-hidden="true" />
-                      {STATUS_LABELS[activeProtocol.status]}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Rails</dt>
-                  <dd>{activeProtocol.rails.map((r) => RAIL_LABELS[r]).join(', ')}</dd>
-                </div>
-                <div>
-                  <dt>Layer</dt>
-                  <dd>
-                    {LAYER_LABELS[activeProtocol.layerPrimary]}
-                    {activeProtocol.layersSecondary.length > 0
-                      ? ` (also ${activeProtocol.layersSecondary.map((l) => LAYER_LABELS[l].toLowerCase()).join(', ')})`
-                      : ''}
-                  </dd>
-                </div>
-              </dl>
-              {activeProtocol.composesWith.length > 0 ? (
-                <div className="ucard__composes">
-                  <p className="ucard__sub">Composes with</p>
-                  <ul>
-                    {activeProtocol.composesWith.map((s) => {
-                      const q = bySlug.get(s);
-                      return (
-                        <li key={s} className="ucard__chip" data-family={q?.family}>
-                          {q?.bubbleLabel ?? s}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ) : null}
-              <p className="ucard__hint">Enter or click opens the page.</p>
-            </div>
-          ) : null}
         </div>
+      </div>
+      <aside className="universe__aside" aria-label="Protocol details">
+        {activeProtocol ? (
+          <div className="ucard" id={cardId} data-family={activeProtocol.family}>
+            <p className="ucard__eyebrow">{FAMILY_LABELS[activeProtocol.family]}</p>
+            <p className="ucard__name">{activeProtocol.name}</p>
+            <p className="ucard__intro">{activeProtocol.intro}</p>
+            <dl className="ucard__facts">
+              <div>
+                <dt>Stewards</dt>
+                <dd>{activeProtocol.stewards.join('; ')}</dd>
+              </div>
+              <div>
+                <dt>First announced</dt>
+                <dd>{activeProtocol.firstAnnounced}</dd>
+              </div>
+              <div>
+                <dt>Latest version</dt>
+                <dd>
+                  {activeProtocol.latestVersion.label}, {activeProtocol.latestVersion.date}
+                </dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd>
+                  <span className="ub__status" data-status={activeProtocol.status}>
+                    <span className="ub__dot" aria-hidden="true" />
+                    {STATUS_LABELS[activeProtocol.status]}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Rails</dt>
+                <dd>{activeProtocol.rails.map((r) => RAIL_LABELS[r]).join(', ')}</dd>
+              </div>
+              <div>
+                <dt>Layer</dt>
+                <dd>
+                  {LAYER_LABELS[activeProtocol.layerPrimary]}
+                  {activeProtocol.layersSecondary.length > 0
+                    ? ` (also ${activeProtocol.layersSecondary.map((l) => LAYER_LABELS[l].toLowerCase()).join(', ')})`
+                    : ''}
+                </dd>
+              </div>
+            </dl>
+            {activeProtocol.composesWith.length > 0 ? (
+              <div className="ucard__composes">
+                <p className="ucard__sub">Composes with</p>
+                <ul>
+                  {activeProtocol.composesWith.map((s) => {
+                    const q = bySlug.get(s);
+                    return (
+                      <li key={s} className="ucard__chip" data-family={q?.family}>
+                        {q?.bubbleLabel ?? s}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : null}
+            {activeEdges.length > 0 ? (
+              <div className="ucard__relations">
+                <p className="ucard__sub">Relations drawn on the chart</p>
+                <ul>
+                  {activeEdges.map((r, i) => (
+                    <li key={`${r.from}-${r.type}-${r.to}-${i}`}>
+                      <svg className="ulegend__line" viewBox="0 0 28 8" width="28" height="8" aria-hidden="true" focusable="false">
+                        <line x1="1" y1="4" x2="27" y2="4" strokeDasharray={RELATION_DASH[r.type] || undefined} />
+                      </svg>
+                      <span>
+                        {bySlug.get(r.from)?.bubbleLabel ?? r.from} <em>{RELATION_LABELS[r.type].toLowerCase()}</em>{' '}
+                        {bySlug.get(r.to)?.bubbleLabel ?? r.to}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            <p className="ucard__hint">Enter or click opens the page.</p>
+          </div>
+        ) : (
+          <div className="ucard ucard--empty">
+            <p className="ucard__name">Eight protocols, one chart</p>
+            <p className="ucard__intro">
+              Hover over or focus a bubble to see its summary, stewards, dates, status, rails, layers and the protocols it relates to.
+            </p>
+          </div>
+        )}
+      </aside>
       </div>
 
       <Legend edgeTypes={edgeTypes} showOrbit={showOrbit} />
