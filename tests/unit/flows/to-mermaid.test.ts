@@ -153,6 +153,6 @@ describe('describe', () => {
     expect(text).toContain('(POST /checkout_sessions/{id})');
   });
   it('contains no em dash', () => {
-    expect(describeFlow(flow) + describeStateMachine(machine)).not.toContain('—');
+    expect(describeFlow(flow) + describeStateMachine(machine)).not.toContain('\u2014');
   });
 });
