@@ -1,0 +1,46 @@
+---
+/**
+ * An STE procedure. The slot holds one ordered list; each item is one instruction
+ * (at most 20 words, starting with an imperative verb or a condition then a comma).
+ */
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+<section class="ste-procedure" data-ste-block="procedure">
+  <h3 class="ste-procedure__title"><span class="ste-procedure__kind">Procedure</span> {title}</h3>
+  <div class="ste-procedure__body"><slot /></div>
+</section>
+
+<style>
+  .ste-procedure {
+    margin-block: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+  }
+  .ste-procedure__title {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--fg);
+    margin: 0 0 0.75rem;
+  }
+  .ste-procedure__kind {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+  .ste-procedure__body :global(ol) {
+    margin: 0;
+    padding-inline-start: 1.75rem;
+    line-height: 1.65;
+    color: var(--fg);
+  }
+  .ste-procedure__body :global(li) { margin-block: 0.35rem; padding-inline-start: 0.25rem; }
+  .ste-procedure__body :global(li::marker) { font-family: var(--font-mono); color: var(--fg-muted); }
+</style>

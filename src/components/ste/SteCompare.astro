@@ -1,0 +1,57 @@
+---
+/**
+ * Side-by-side view: the Standard English description and the STE description.
+ * Pass the Standard English text as the `standard` slot (or the `standard` prop).
+ * The default slot holds the STE text, usually an <SteDescription> block.
+ * The linter checks only the STE side.
+ */
+export interface Props {
+  standard?: string;
+  standardLabel?: string;
+  steLabel?: string;
+}
+const { standard, standardLabel = 'Standard English', steLabel = 'Simplified Technical English' } = Astro.props;
+const hasStandardSlot = Astro.slots.has('standard');
+---
+<div class="ste-compare">
+  <section class="ste-compare__col" aria-label={standardLabel}>
+    <h4 class="ste-compare__label">{standardLabel}</h4>
+    <div class="ste-compare__body">
+      {hasStandardSlot ? <slot name="standard" /> : standard && <p>{standard}</p>}
+    </div>
+  </section>
+  <section class="ste-compare__col" aria-label={steLabel} data-reading-mode="ste">
+    <h4 class="ste-compare__label">{steLabel}</h4>
+    <div class="ste-compare__body"><slot /></div>
+  </section>
+</div>
+
+<style>
+  .ste-compare {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-block: 1.5rem;
+  }
+  @media (min-width: 52rem) {
+    .ste-compare { grid-template-columns: 1fr 1fr; }
+  }
+  .ste-compare__col {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    min-width: 0;
+  }
+  .ste-compare__col[data-reading-mode='ste'] { border-style: dashed; border-color: var(--border-strong); }
+  .ste-compare__label {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+  .ste-compare__body { color: var(--fg); line-height: 1.65; }
+  .ste-compare__body :global(p) { margin-block: 0 0.75rem; }
+</style>

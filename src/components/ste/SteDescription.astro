@@ -1,0 +1,26 @@
+---
+/**
+ * Descriptive STE text: at most 25 words per sentence, at most 6 sentences per paragraph.
+ * The linter (scripts/ste/lint-ste.ts) finds this block by its component name.
+ */
+export interface Props {
+  title?: string;
+}
+const { title } = Astro.props;
+---
+<section class="ste-block ste-description" data-ste-block="description">
+  {title && <h3 class="ste-block__title">{title}</h3>}
+  <div class="ste-block__body"><slot /></div>
+</section>
+
+<style>
+  .ste-block { margin-block: 1.25rem; }
+  .ste-block__title {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--fg);
+    margin-block: 0 0.5rem;
+  }
+  .ste-block__body { color: var(--fg); line-height: 1.65; }
+  .ste-block__body :global(p) { margin-block: 0 0.75rem; max-width: 68ch; }
+</style>

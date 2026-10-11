@@ -1,0 +1,88 @@
+---
+/**
+ * The STE check report for one protocol. Reads src/generated/ste-report/<slug>.json,
+ * which `pnpm lint:ste` writes. Shows "report not generated" when the file is missing.
+ */
+import type { SteReport as Report } from '../../lib/ste/lint';
+import { STE_LABEL } from '../../lib/ste/lint';
+
+export interface Props {
+  protocol: string;
+}
+const { protocol } = Astro.props;
+const reports = import.meta.glob<{ default: Report }>('/src/generated/ste-report/*.json', { eager: true });
+const report = Object.entries(reports).find(([path]) => path.endsWith(`/${protocol}.json`))?.[1]?.default;
+const SEVERITY_LABEL = { error: 'Error', warning: 'Warning', review: 'Review' } as const;
+---
+<section class="ste-report" aria-labelledby={`ste-report-${protocol}`}>
+  <h3 class="ste-report__title" id={`ste-report-${protocol}`}>STE check report</h3>
+  {
+    report ? (
+      <>
+        <dl class="ste-report__stats">
+          <div><dt>Sentences</dt><dd>{report.sentences}</dd></div>
+          <div><dt>Longest procedural sentence</dt><dd>{report.maxProcedureWords} words (limit 20)</dd></div>
+          <div><dt>Longest descriptive sentence</dt><dd>{report.maxDescriptiveWords} words (limit 25)</dd></div>
+          <div><dt>Flags</dt><dd>{report.flags.length === 0 ? 'None' : `${report.counts.errors} errors, ${report.counts.warnings} warnings, ${report.counts.reviews} for review`}</dd></div>
+        </dl>
+        {report.flags.length > 0 && (
+          <ul class="ste-report__flags">
+            {report.flags.map((f) => (
+              <li data-severity={f.severity}>
+                <span class="ste-report__sev">{SEVERITY_LABEL[f.severity]}</span>
+                <code>{f.rule}</code> <span class="ste-report__block">({f.blockType})</span>
+                <p class="ste-report__msg">{f.message}</p>
+                <p class="ste-report__text">{f.text}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p class="ste-report__label">{report.label}</p>
+      </>
+    ) : (
+      <>
+        <p class="ste-report__missing">Report not generated. Run <code>pnpm lint:ste</code>.</p>
+        <p class="ste-report__label">{STE_LABEL}</p>
+      </>
+    )
+  }
+</section>
+
+<style>
+  .ste-report {
+    margin-block: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg-sunken);
+    color: var(--fg);
+  }
+  .ste-report__title { font-family: var(--font-heading); font-size: 1rem; margin: 0 0 0.75rem; }
+  .ste-report__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .ste-report__stats dt { font-size: 0.8rem; color: var(--fg-muted); }
+  .ste-report__stats dd { margin: 0; font-family: var(--font-mono); font-size: 0.95rem; }
+  .ste-report__flags { list-style: none; margin: 1rem 0 0; padding: 0; }
+  .ste-report__flags li { padding-block: 0.5rem; border-top: 1px solid var(--border); }
+  .ste-report__sev {
+    display: inline-block;
+    min-width: 4.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  li[data-severity='error'] .ste-report__sev { color: var(--confidence-unverified); }
+  li[data-severity='warning'] .ste-report__sev { color: var(--confidence-reported); }
+  li[data-severity='review'] .ste-report__sev { color: var(--fg-muted); }
+  .ste-report__block { color: var(--fg-subtle); font-size: 0.85rem; }
+  .ste-report__msg { margin: 0.25rem 0 0; color: var(--fg); }
+  .ste-report__text { margin: 0.25rem 0 0; color: var(--fg-muted); font-size: 0.9rem; }
+  .ste-report__missing { margin: 0; color: var(--fg-muted); }
+  .ste-report__label { margin: 0.75rem 0 0; font-size: 0.85rem; color: var(--fg-muted); }
+</style>

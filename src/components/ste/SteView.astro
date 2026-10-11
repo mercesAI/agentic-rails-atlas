@@ -1,0 +1,33 @@
+---
+/**
+ * Wrapper for section D of a protocol page: the STE version of the protocol.
+ * The slot holds the rendered ste.mdx body. The check report follows it.
+ */
+import SteReport from './SteReport.astro';
+
+export interface Props {
+  protocol: string;
+  showReport?: boolean;
+}
+const { protocol, showReport = true } = Astro.props;
+---
+<div class="ste-view" data-reading-mode="ste" data-protocol={protocol}>
+  <p class="ste-view__intro">
+    This section uses Simplified Technical English (ASD-STE100): short sentences, one instruction per step, and one word for one meaning.
+  </p>
+  <slot />
+  {showReport && <SteReport protocol={protocol} />}
+</div>
+
+<style>
+  .ste-view {
+    font-family: var(--font-body);
+    color: var(--fg);
+  }
+  .ste-view__intro {
+    margin: 0 0 1rem;
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+    max-width: 68ch;
+  }
+</style>
