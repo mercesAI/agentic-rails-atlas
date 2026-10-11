@@ -74,6 +74,8 @@ export default function CitationDrawer() {
   const close = () => ref.current?.close();
 
   return (
+    // Backdrop click closes; Escape is handled natively by <dialog>.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <dialog
       ref={ref}
       className="drawer"

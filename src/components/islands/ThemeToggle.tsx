@@ -54,6 +54,8 @@ export default function ThemeToggle() {
   };
 
   return (
+    // Roving tabindex: the radios inside are the focus targets; arrow keys move the selection.
+    // eslint-disable-next-line jsx-a11y/interactive-supports-focus
     <div className="segmented segmented--icons" role="radiogroup" aria-label="Theme" onKeyDown={onKeyDown}>
       {THEMES.map((t) => (
         <button

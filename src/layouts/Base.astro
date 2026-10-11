@@ -45,22 +45,26 @@ const citations = getCitationPayload(Astro.url.pathname);
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>{fullTitle}</title>
     <script is:inline>
-      (function () {
-        function apply() {
-          var root = document.documentElement;
+      (() => {
+        const apply = () => {
+          const root = document.documentElement;
           try {
-            var t = localStorage.getItem('atlas:theme');
+            const t = localStorage.getItem('atlas:theme');
             if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
             else root.removeAttribute('data-theme');
-          } catch (e) { /* storage blocked */ }
-          var mode = 'practitioner';
+          } catch {
+            /* storage blocked: system theme */
+          }
+          let mode = 'practitioner';
           try {
-            var m = localStorage.getItem('atlas:reading-mode');
+            const m = localStorage.getItem('atlas:reading-mode');
             if (m === 'eli5' || m === 'practitioner' || m === 'spec' || m === 'ste') mode = m;
-          } catch (e) { /* storage blocked */ }
+          } catch {
+            /* storage blocked: default mode */
+          }
           root.setAttribute('data-reading-mode', mode);
           root.classList.add('js');
-        }
+        };
         apply();
         if (!window.__atlasBoot) {
           window.__atlasBoot = true;

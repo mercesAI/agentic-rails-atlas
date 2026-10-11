@@ -41,6 +41,8 @@ export default function ReadingModeSwitch({ compact = false }: Props) {
   };
 
   return (
+    // Roving tabindex: the radios inside are the focus targets; arrow keys move the selection.
+    // eslint-disable-next-line jsx-a11y/interactive-supports-focus
     <div className="segmented" role="radiogroup" aria-label="Reading mode" onKeyDown={onKeyDown}>
       {READING_MODES.map((m) => (
         <button

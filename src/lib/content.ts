@@ -3,7 +3,7 @@
  * Every helper tolerates empty collections and missing sidecar files: a
  * missing sidecar is `null`, and the page renders an "in progress" placeholder.
  */
-import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry, type CollectionKey } from 'astro:content';
 import type { Claim, ProtocolMeta, ProtocolSlug, Source } from './schemas';
 import { dedupe } from './citations';
 
@@ -40,9 +40,7 @@ export interface LoadedProtocol {
 }
 
 /** getCollection that never throws (an empty or misconfigured collection yields []). */
-async function safeCollection<C extends Parameters<typeof getCollection>[0]>(
-  name: C,
-): Promise<CollectionEntry<C>[]> {
+async function safeCollection<C extends CollectionKey>(name: C): Promise<CollectionEntry<C>[]> {
   try {
     return (await getCollection(name)) as CollectionEntry<C>[];
   } catch (err) {
