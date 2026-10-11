@@ -1,0 +1,92 @@
+---
+slug: metered-inference
+order: 2
+title: Metered inference
+summary: An agent streams tokens from an inference API and pays per unit through an MPP session on Tempo, with a deposit, off-chain vouchers, a top-up and a cooperative close; the forced close is the fallback. Compared with x402 upto and batch-settlement.
+protocols:
+  - stripe-mpp
+  - x402
+flow: multi-metered-inference
+personas:
+  - autonomous-agent
+  - api-seller
+  - agent-dev
+  - controls-builder
+  - wallet-cp
+lastVerified: "2026-10-11"
+---
+
+## The situation
+
+A coding agent calls a large language model and does not know in advance how many tokens the answer will take. A per-request price does not fit, and an on-chain payment per token would cost more than the tokens. The seller wants to stop serving the moment money stops; the agent wants to stop paying the moment the answer ends. No human is present during the stream: the owner set a budget earlier.
+
+The Machine Payments Protocol (MPP) handles this with a payment channel on the Tempo chain. The agent deposits into an escrow, signs off-chain vouchers that raise a running total as tokens arrive, and the server settles on chain when it chooses.<Cite ids="clm-stripe-mpp-100" /> One correction up front: "session" is not a standardized MPP intent. The only intents in the specification folder are `charge` and `subscription`, and a pull request for a generic session intent was closed without merging on 2026-09-28.<Cite ids="clm-stripe-mpp-049 clm-stripe-mpp-048" /> The session in this scenario is the one defined by the Tempo payment method.<Cite ids="clm-stripe-mpp-088" />
+
+## Actors
+
+- **Client agent** with a Tempo wallet, or with a delegated `authorizedSigner` key that signs vouchers.<Cite ids="clm-scn-metered-inference-002" />
+- **Inference API server**, the payee, which issues challenges, keeps per-channel accounting and settles.
+- **Tempo channel escrow**: a contract in session v1 and a TIP-20 channel reserve precompile in v2.<Cite ids="clm-stripe-mpp-108" /> Tempo mainnet is chain 4217 and produces blocks about every 600 ms with deterministic finality.<Cite ids="clm-stripe-mpp-155 clm-stripe-mpp-157" />
+
+## Step by step
+
+All thirteen steps belong to MPP (core draft plus the Tempo session method).
+
+1. The agent sends the request, optionally with `Accept-Payment` naming method and intent pairs such as `tempo/session`.<Cite ids="clm-stripe-mpp-066" />
+2. The server answers 402 with `WWW-Authenticate: Payment`; the challenge requires `id`, `realm`, `method`, `intent` and `request`.<Cite ids="clm-stripe-mpp-091 clm-stripe-mpp-055" /> For a session, `amount` is a price per unit, with `unitType`, `suggestedDeposit`, `currency`, `recipient` and a required `methodDetails.escrowContract`.<Cite ids="clm-stripe-mpp-074" />
+3. The agent chooses a deposit and signs the open transaction plus a voucher for zero.<Cite ids="clm-scn-metered-inference-002" />
+4. It retries with `Authorization: Payment` and payload action `open`.<Cite ids="clm-stripe-mpp-075" />
+5. The server broadcasts the open transaction. It pays that fee only if its challenge set `feePayer`.<Cite ids="clm-stripe-mpp-164 clm-scn-metered-inference-004" />
+6. The stream starts. Every paid response carries a `Payment-Receipt` with `challengeId`, `channelId`, `acceptedCumulative` and `spent`; its `reference` is the `channelId`.<Cite ids="clm-stripe-mpp-204" /> For SSE the receipt arrives in the headers and again as a final event.<Cite ids="clm-stripe-mpp-114" />
+7. As tokens arrive the agent signs vouchers with `channelId`, `cumulativeAmount` and an EIP-712 signature; amounts are running totals, not deltas.<Cite ids="clm-stripe-mpp-076" /> Vouchers go to the same URI and may ride on HEAD requests.<Cite ids="clm-stripe-mpp-101" />
+8. When the deposit is used up, the server pauses and emits `payment-need-voucher`.<Cite ids="clm-scn-metered-inference-001" />
+9. The agent sends action `topUp` with `additionalDeposit`. A top-up needs a fresh challenge, which a HEAD request can fetch.<Cite ids="clm-scn-metered-inference-003" />
+10. The server broadcasts the top-up and may settle at any time. It pays the fees for settle and close.<Cite ids="clm-stripe-mpp-164" />
+11. The agent sends action `close` with a final voucher.<Cite ids="clm-stripe-mpp-075" />
+12. In session v2 the server captures max(spent, settled on chain) and refunds the rest of the deposit to the payer.<Cite ids="clm-stripe-mpp-102" />
+13. The final receipt includes the close `txHash`.<Cite ids="clm-stripe-mpp-204" />
+
+## Which protocol does what
+
+| Steps | Protocol | Object or message | Spec version |
+|---|---|---|---|
+| 1 to 2 | MPP core | `Accept-Payment`, `WWW-Authenticate: Payment` challenge | `draft-httpauth-payment-01` |
+| 2 to 13 | MPP, Tempo method | session request, actions `open`, `voucher`, `topUp`, `close`, session receipt | Tempo session `draft-tempo-session-00`, v2 text |
+| comparison | x402 | `upto` and `batch-settlement` schemes | V2 |
+
+The current core draft is `draft-httpauth-payment-01`, published 2026-09-09; it is an individual submission, not an IETF standard.<Cite ids="clm-stripe-mpp-024 clm-stripe-mpp-006" /> Session v2 text was merged on 2026-06-25.<Cite ids="clm-stripe-mpp-041" />
+
+## Where controls apply
+
+- **Before authorization.** A policy reads the decoded challenge: recipient allowlist, price per unit, method preference.<Cite ids="src-stripe-mpp-core-01" /> Every top-up is a new spending decision and deserves the same check.
+- **At signing.** The deposit is the hard cap: vouchers cannot exceed it, so exposure is bounded by what the agent locked.<Cite ids="clm-stripe-mpp-126" /> MPP has no budget object of its own; limits come from the rail, here the deposit.<Cite ids="clm-stripe-mpp-135" />
+- **At the edge.** A 403 means the payment was valid but policy denies access, with no new challenge.<Cite ids="clm-stripe-mpp-093" />
+- **At settlement.** TIP-20 policy allow and block lists on Tempo act on the token transfers.<Cite ids="src-stripe-mpp-tempo-tip20" />
+- **After the fact.** Receipts carry `spent` and `acceptedCumulative`, so the agent can reconcile them against the close transaction. Channels have no expiry and vouchers have no `validUntil`, so idle channels need a policy to close them.<Cite ids="clm-stripe-mpp-107 clm-stripe-mpp-196" />
+
+## What is observable from outside
+
+Tempo settlement is public, and MPPscan by Merit Systems indexes MPP servers, agents, transactions and volume.<Cite ids="clm-stripe-mpp-138" /> MPPscan reported 998,771 transactions and 8,774 USD of volume in the 30 days to 2026-10-11.<Cite ids="clm-stripe-mpp-172" /> On chain an observer sees the open, each top-up, any settle and the close, with payer, payee and amounts.<Cite ids="src-stripe-mpp-tempo-session" /> The vouchers themselves stay off chain, so per-token pricing and the timing of use stay between agent and server.<Cite ids="clm-scn-metered-inference-004" /> Challenges, credentials and receipts are bilateral HTTP headers.<Cite ids="clm-stripe-mpp-124" />
+
+## What can go wrong
+
+- **The server stops answering.** The agent calls `requestClose`, waits a grace period of at least 15 minutes during which the server can still settle, then calls `withdraw`.<Cite ids="clm-stripe-mpp-103" /> The spec advises waiting at least 16 minutes.<Cite ids="clm-stripe-mpp-104" /> The agent loses time, not money beyond what it signed.
+- **A top-up during a pending close.** It cancels the close request and emits `CloseRequestCancelled`.<Cite ids="clm-stripe-mpp-205" />
+- **Bad vouchers.** A wrong signer, a total above the deposit or a too-small increase is rejected; the server serves nothing more and carries the risk of anything it delivered beyond its last accepted voucher.<Cite ids="clm-scn-metered-inference-001" />
+- **SDK bugs.** CVE-2026-34209 let a close voucher equal to the settled amount close or grief a channel for free in mppx before 0.4.11.<Cite ids="clm-stripe-mpp-127" /> Both MPP SDKs had critical advisories within two weeks of launch.<Cite ids="clm-stripe-mpp-198" />
+- **Wrong cost model.** Session v2 cut gas for opening a channel with an existing reserve balance by 72.1 percent, but raised gas for settling to a new payee balance by 79.4 percent. The 72 percent figure is a best case for one operation, not a general saving.<Cite ids="clm-stripe-mpp-169" />
+
+Costs: MPP defines no protocol fee.<Cite ids="clm-stripe-mpp-170" /> For a 50,000-gas transfer Tempo's base fee is capped at about $0.0006 (as of 2026-10-11).<Cite ids="clm-stripe-mpp-161" />
+
+## Variants
+
+MPP's own documentation names x402 `upto` and EVM `batch-settlement` as the usage-based counterparts to the session.<Cite ids="clm-stripe-mpp-178" />
+
+| | MPP Tempo session | x402 `upto` | x402 `batch-settlement` |
+|---|---|---|---|
+| Up front | Deposit into a channel | Permit2 signature for a ceiling | Deposit into a channel |
+| Per unit | Off-chain cumulative voucher | Nothing; server meters | Cumulative voucher per request |
+| Settlement | Server settles or closes when it chooses | Server settles the metered charge, at most the ceiling | Many vouchers claimed in one transfer |
+| Exit without the server | `requestClose`, at least 15 minutes, `withdraw` | Not needed; one charge | `initiateWithdraw`, then `finalizeWithdraw` after 15 minutes to 30 days |
+
+In `upto` the client signs a Permit2 authorization for a ceiling and the server settles the metered charge, which must not exceed it.<Cite ids="clm-x402-104" /> The client must trust the server to charge fairly up to that ceiling.<Cite ids="clm-x402-131" /> `batch-settlement` opens a channel with a deposit, carries a cumulative voucher on each request, and claims many vouchers in one token transfer.<Cite ids="clm-x402-106" /> Its exit is `initiateWithdraw` and then `finalizeWithdraw` after a `withdrawDelay` of 15 minutes to 30 days.<Cite ids="clm-x402-107" /> With mppx one server route can offer both MPP and x402 challenges and accept either credential.<Cite ids="clm-stripe-mpp-179" />

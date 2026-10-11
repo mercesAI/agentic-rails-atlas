@@ -1,0 +1,42 @@
+{
+  "protocol": "stripe-mpp",
+  "generatedAt": "2026-10-11",
+  "claims": [
+    {
+      "id": "clm-scn-metered-inference-001",
+      "text": "In a Tempo session, when a streaming response exhausts the available balance the server must stop delivering metered content, and for SSE it must emit a payment-need-voucher event with acceptedCumulative, channelId, deposit and requiredCumulative; when requiredCumulative exceeds deposit the client must top up before sending a new voucher.",
+      "sources": ["src-stripe-mpp-tempo-session"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "draft-tempo-session-00",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-metered-inference-002",
+      "text": "The Tempo session open payload may name an authorizedSigner, an address delegated to sign vouchers, and its initial voucher for cumulativeAmount 0 proves that the client controls the signing key.",
+      "sources": ["src-stripe-mpp-tempo-session"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "draft-tempo-session-00",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-scn-metered-inference-003",
+      "text": "A Tempo session topUp credential must include a challenge, which a client outside a live stream can obtain with a HEAD request; a topUp that references an unknown or expired challenge is rejected with problem type challenge-not-found.",
+      "sources": ["src-stripe-mpp-tempo-session"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "draft-tempo-session-00",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-metered-inference-004",
+      "text": "In a Tempo session the feePayer option covers only the client-signed open and topUp transactions; without it the client pays those fees in a USD TIP-20 token, and voucher updates are off chain and cost no fee.",
+      "sources": ["src-stripe-mpp-tempo-session"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "draft-tempo-session-00",
+      "topic": "flow"
+    }
+  ]
+}
