@@ -383,7 +383,7 @@ No state machine: a cart exists or returns 404 (`rfc.cart.md`) [src-openai-acp-r
 - **Formal analysis (arXiv 2609.00060, 2026-08-30).** Jiang and co-authors model x402, MPP, ACP and AP2 in Tamarin and report 86 verification cases, 46 reproduced known or calibration cases and 40 previously undocumented formal-consistency findings across the four protocols, consolidated into 18 shared principles. The abstract does not break the findings down by protocol, so ACP-specific findings are not stated here [src-arxiv-2609-00060].
 - **Protocol-level attacks (arXiv 2607.21824, 2026-07-23).** Louck reports 33 structural vulnerabilities across "three leading platforms" with deterministic exploitation; the abstract does not name ACP or the platforms [src-arxiv-2607-21824].
 - **Audit trail gap (arXiv 2607.19436, 2026-07-21).** Srivastava states that protocols such as AP2 and ACP do not provide interoperable, tamper-evident auditability [src-arxiv-2607-19436].
-- **Verifiable Intent view.** The Mastercard-led Verifiable Intent repository says SPTs authorize payment execution while VI credentials prove user authorization, and proposes carrying VI credentials through ACP's extension mechanism; it says adoption design would need coordination with ACP's maintainers [src-vi-protocols].
+- **Verifiable Intent view.** The Verifiable Intent repository (`agent-intent/verifiable-intent`) says SPTs authorize payment execution while VI credentials prove user authorization, and proposes carrying VI credentials through ACP's extension mechanism; it says adoption design would need coordination with ACP's maintainers [src-vi-protocols].
 
 ## Controls
 
@@ -423,14 +423,72 @@ Status per control id from `CONTROL_IDS` (native = defined in the ACP spec; part
 - **Marketing consent.** `marketing_consent_options` with `privacy_policy_url` and `marketing_consents` (`opted_in`) let sellers record opt-ins; consent is captured only at completion [src-openai-acp-changelog-20260417]. The spec does not name GDPR, CAN-SPAM or TCPA.
 - **Prohibited products.** OpenAI's policy for ChatGPT excludes, among others, adult content, age-restricted products (alcohol, nicotine, gambling), weapons and prescription-only medications [src-openai-commerce-docs]. ACP itself has an `age_verification_required` and `region_restricted` message code [src-openai-acp-schema-checkout-20260417].
 - **Data minimization.** OpenAI's launch post says only the information needed for the order is shared with the merchant, with the user's permission [src-openai-buy-it]. RFC-AC asks implementers to redact addresses as policy requires [src-openai-acp-rfc-checkout].
-- **Regions.** Stripe SPTs are available to agents, customers and sellers in the US, Canada and listed European countries (33 country codes plus US in the docs list) [src-stripe-spt]. Instant Checkout launched for US users and US Etsy sellers [src-openai-buy-it].
+- **Regions.** Stripe SPTs are available to agents, customers and sellers in the US, Canada and listed European countries (34 country codes in the docs list, including US and CA) [src-stripe-spt]. Instant Checkout launched for US users and US Etsy sellers [src-openai-buy-it].
 - **Terms.** Using Stripe SPTs requires agreeing to Stripe's agentic commerce preview service terms [src-stripe-spt].
 
 ## Ecosystem and SDKs
 
+### Surfaces (agents)
+
+| Surface | Status | Date | Source |
+| --- | --- | --- | --- |
+| ChatGPT Instant Checkout (in-chat purchase through ACP) | Launched for US Plus, Pro and Free users buying from US Etsy sellers; single-item only; Shopify merchants "coming soon" | 2025-09-29 | [src-openai-buy-it] [src-stripe-acp-launch] |
+| ChatGPT Instant Checkout | Reported "moving to Apps" (OpenAI spokesperson quoted by The Information, relayed by trade press) | reported 2026-03 (article 2026-03-10) | [src-retailsystems-pivot] |
+| ChatGPT product discovery through ACP feeds | Live; merchants use their own checkout; "initial version of Instant Checkout did not offer the level of flexibility" OpenAI wanted | 2026-03-24 | [src-openai-product-discovery] |
+| ChatGPT apps: external checkout | Generally available (recommended path) | accessed 2026-10-11 | [src-openai-apps-monetization] |
+| ChatGPT apps: payment sheet | Private beta for select marketplace partners | accessed 2026-10-11 | [src-openai-apps-monetization] |
+| Microsoft Copilot Checkout | Rolling out in the US on Copilot.com with PayPal, Shopify and Stripe; Microsoft says it is "adopting open standards like" ACP | 2026-01-08 | [src-ms-copilot-checkout] |
+| Microsoft Merchant Center | Later page: "MMC will support" UCP and Copilot Checkout requires a UCP-compliant feed | accessed 2026-10-11 | [src-ms-agentic-commerce] |
+
+### Merchants, platforms and PSPs (with what each source actually says)
+
+- **Etsy:** US Etsy sellers live at launch (2025-09-29) [src-openai-buy-it].
+- **Shopify:** "over a million Shopify merchants" announced as coming soon on 2025-09-29 (named: Glossier, SKIMS, Spanx, Vuori) [src-openai-buy-it]. On 2026-03-24 OpenAI said Shopify product data reaches ChatGPT through Shopify Catalog with no extra merchant work, and buyers complete purchases on the merchant's store in an in-app browser [src-openai-product-discovery].
+- **Walmart:** announced 2025-10-14 that customers would "soon" shop Walmart in ChatGPT using Instant Checkout [src-walmart-openai]; on 2026-03-24 OpenAI described a Walmart in-ChatGPT app with account linking, loyalty and Walmart payments [src-openai-product-discovery].
+- **Retailers integrated into ACP for discovery (2026-03-24):** Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot, Wayfair [src-openai-product-discovery].
+- **Feed providers:** Salesforce and Stripe named as third-party delivery paths [src-openai-product-discovery].
+- **PayPal:** 2025-10-28, PayPal "will adopt" ACP, support Instant Checkout through the delegated payments API and run an "ACP server" for its merchants, with catalogs arriving "in 2026" [src-paypal-acp]. Corporate CLA signed 2026-04-16 [src-openai-acp-cla-signatories].
+- **PSPs listed for the ChatGPT payment sheet:** Adyen, Checkout.com, Fiserv, PayPal, Stripe, Worldpay [src-openai-apps-monetization].
+- **Stripe:** co-developer; Shared Payment Tokens (first Delegated Payment-compatible implementation) [src-openai-commerce-docs]; Agentic Commerce Suite launched 2025-12-11 with named brands (Coach, Kate Spade, URBN, Revolve, Ashley Furniture, Halara, ABT Electronics, Nectar) and platforms (Squarespace, Wix, Etsy, WooCommerce, commercetools, BigCommerce) [src-stripe-acs-launch]; Stripe's docs list "UCP or ACP" as the protocol used for selling through agents [src-stripe-agentic-commerce].
+- **Meta:** CLA 2026-03-19, TSC seat 3 on 2026-04-24 [src-openai-acp-cla-signatories] [src-openai-acp-governance].
+- **Other CLA signatories:** Adyen, Wix, commercetools, OpenCommerce Network (nekuda-linked), Affirm, Agentic Commerce Inc. (Catalog) [src-openai-acp-cla-signatories].
+
+Separate announced from live: Walmart's 2025 Instant Checkout plan and PayPal's catalog plan were announcements; whether either ran on Instant Checkout before the March 2026 change is not confirmed by a primary source read here.
+
+### SDKs and packages
+
+| Package | Registry | Publisher | Status (2026-10-11) | Source |
+| --- | --- | --- | --- | --- |
+| `@agentic-commerce-protocol/specification` | npm | ACP repo `package.json` name, version 0.1.0 | **Not published** (404) | [src-openai-acp-package-json] [src-openai-acp-npm-404] |
+| `agentic-commerce-protocol` | npm and PyPI | Svix ("Type definitions for the Agentic Commerce Protocol specification") | 0.2.0 (npm published 2025-10-02); unofficial, third party | [src-svix-acp-types] |
+| `acp-sdk` | PyPI | IBM Corp. | 1.0.3; this is IBM's Agent Communication Protocol, **not** this ACP | [src-pypi-acp-sdk] |
+
+There is no official ACP SDK from OpenAI or Stripe. Reference implementations are OpenAI's and Stripe's hosted services and docs [src-openai-acp-readme]. The repository's CI runs `scripts/validate-consistency.js` (ajv schema compile, example validation) [src-openai-acp-workflows].
+
 ## Fees and costs
 
+| Party | Fact | Date | Source | Caveat |
+| --- | --- | --- | --- | --- |
+| OpenAI (Instant Checkout) | "Merchants pay a small fee on completed purchases"; free for users; does not change prices or ranking | 2025-09-29 | [src-openai-buy-it] | primary; no rate published by OpenAI |
+| OpenAI (ChatGPT checkout, Shopify merchants) | 4% of ChatGPT checkout sales, on top of Shopify fees; Google AI Mode, Gemini and Microsoft Copilot checkouts with no additional fee "for now" | 2026-01-21 | [src-pymnts-4pct] | secondary: PYMNTS relaying The Information, citing a Shopify spokesperson; not published by OpenAI; whether it applies after the March 2026 change is unknown |
+| ACP protocol | No protocol fee; Apache-2.0; no fee to join the TSC or a DWG | 2026-03-10 | [src-openai-acp-license] [src-openai-acp-governance] | primary |
+| Stripe SPT | No SPT price found on the Stripe pages read; agent features are labeled "Private preview" with a waitlist | accessed 2026-10-11 | [src-stripe-agentic-commerce] [src-stripe-spt] | absence of evidence; Appendix B also lists no pricing |
+| Merchant PSP | Normal processing fees of the merchant's own PSP apply because the merchant charges the payment | 2025-09-29 | [src-openai-commerce-docs] | primary statement of model; no figures |
+| Stripe MPP (context) | SPT card payments through MPP have a 0.50 USD minimum | accessed 2026-10-11 | [src-stripe-mpp-docs] | MPP, not ACP |
+
 ## Metrics with dates and caveats
+
+| Metric | Value | As of | Source | Caveat |
+| --- | --- | --- | --- | --- |
+| ChatGPT weekly users (context at launch) | "More than 700 million" | 2025-09-29 | [src-openai-buy-it] | OpenAI's own figure; not an ACP metric |
+| Shopify merchants announced for Instant Checkout | "Over a million" (coming soon) | 2025-09-29 | [src-openai-buy-it] | announcement, not live count |
+| Shopify merchants selling through AI tools (ChatGPT, Gemini, Copilot) | "Around a dozen" | 2026-03-03 | [src-retailsystems-pivot] | reported remark by Shopify's president at an investor conference |
+| Retailers named as integrated into ACP for discovery | 7 | 2026-03-24 | [src-openai-product-discovery] | named list, not a total |
+| Corporate CLA signatories | 10 | 2026-06-03 | [src-openai-acp-cla-signatories] | includes OpenAI and Stripe |
+| TSC seats filled | 3 of up to 7 | 2026-04-24 | [src-openai-acp-governance] | |
+| GitHub stars / forks | 1,570 / 253 | 2026-10-11 | [src-openai-acp-gh-repo] | popularity, not adoption |
+| Commits after the 2026-04-17 release | 18 (last 2026-07-18 UTC) | 2026-10-11 | [src-openai-acp-gh-commits] | |
+| ACP transaction volume or GMV | No official data | 2026-10-11 | [src-openai-buy-it] [src-openai-product-discovery] | none published by OpenAI, Stripe or the project |
 
 ## Relations to the other seven protocols
 
