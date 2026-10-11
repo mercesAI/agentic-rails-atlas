@@ -178,3 +178,122 @@ The spec says "at least the following 4 fields" (nonce, kid, alg, signature) [sr
 | Merchant backend parser | expects `Signature-Agent`, label `sig1`, order `nonce`, `created`, `expires`, `keyid`, `tag`, components such as `directory-agent` and `query-param` | merchant-backend/app/security/signature_verification.py |
 
 Sources: [src-visa-tap-agent-registry] [src-visa-tap-agent-app] [src-visa-tap-merchant-verifier].
+
+## Message flows step by step (happy path and failures)
+
+TAP defines verification procedures, not an HTTP API. All flows below are from the specification [src-visa-tap-spec] unless another source is named. Visa says the agent side (how signatures are generated) is in the "Visa Intelligent Commerce Client Implementation Guide for onboarded agents", which is not public [src-visa-tap-overview].
+
+### Flow A: browsing request (product detail page), `agent-browser-auth`
+
+| # | From | To | Message or call | Spec reference | What can fail |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Agent | Merchant (through Checkout Enabler and Site Protection Provider) | `GET https://www.example.com/example-product` with `Signature-Input: sig2=("@authority" "@path"); created=...; keyid=...; alg="Ed25519"; expires=...; nonce=...; tag="agent-browser-auth"` and `Signature: sig2=:...:` | [Sample Browsing Request] | Checkout Enabler strips headers (spec only expects pass-through) |
+| 2 | Verifier (merchant or CDN) | | Look for a `Signature-Input` with tag `agent-browser-auth` or `agent-payer-auth` | [Verification Steps] | No such tag: "not signed by a trusted agent"; merchant may block or use other means |
+| 3 | Verifier | | Check every minimum field is present | [Minimum fields] | Any missing: block |
+| 4 | Verifier | | `created` in the past, `expires` in the future, interval no more than 8 minutes | [Timestamps] | Block |
+| 5 | Verifier | | If keeping nonces from the last 8 minutes, reject a repeated nonce | [Nonce] | Repeated: block. Tracking is conditional ("If maintaining a record") |
+| 6 | Verifier | Key store | Use cached key for `keyid` or fetch it (Visa: `https://mcp.visa.com/.well-known/jwks`) | [Locate the public key], [Public Keys Retrieval Service] | Key not retrievable or expired: block |
+| 7 | Verifier | | Rebuild the signature base and verify with the key | [Validate the signature] | Fails: block |
+| 8 | Verifier | Merchant | Treat as a trusted agent seeking product details or paying; may still limit the interaction | [Verification Steps] | |
+| 9 | Agent | Merchant | Optional `agenticConsumer` object in the request body with the same `nonce` and `kid` | [Consumer Recognition] | See Flow C |
+
+### Flow B: checkout request, `agent-payer-auth`
+
+Same as Flow A with URL `https://www.example.com/checkout` and `tag="agent-payer-auth"` [Sample Checkout Request]. The body may carry `agenticConsumer` and should carry `agenticPaymentContainer` with the same `nonce` and `kid`. What the container holds depends on the merchant's processing path: a credential hash for key-entered guest checkout, an encrypted `payload` when a network token is expected, or a `browsingIOU` after an HTTP 402 [src-visa-tap-spec].
+
+### Flow C: consumer recognition object verification
+
+| # | Step | Spec reference | Outcome on failure |
+| --- | --- | --- | --- |
+| 1 | Check the minimum fields (`nonce`, `idToken`, `contextualData`, `kid`, `alg`, `signature`) | [Consumer Recognition, Minimum fields] | "content may be inaccurate" |
+| 2 | Compare `nonce` with the message signature nonce | [Nonce] | content may be inaccurate even if the signature verifies |
+| 3 | Locate the key for `kid` | [Locate the public key] | content may be inaccurate |
+| 4 | Build the base from all fields in the order received except `signature`, then verify | [Validate the signature] | content may be inaccurate |
+| 5 | Verify the ID Token JWS with Visa's key (`kid` in the JWT header) and map obfuscated email or phone to own accounts | [ID Token], [Processing of Identity Data] | Merchant decides |
+
+The merchant may use the data even if verification fails ("at the discretion of the Merchant") [src-visa-tap-spec].
+
+### Flow D: payment container verification
+
+| # | Step | Spec reference | Outcome on failure |
+| --- | --- | --- | --- |
+| 1 | Check `nonce`, `kid`, `alg`, `signature` are present | [Payment, Minimum fields] | Must not be used for any payment |
+| 2 | Compare `nonce` with the message signature nonce; may be skipped when a payment is required without a message signature | [Nonce] | Must not be used |
+| 3 | Locate the key for `kid` | [Locate the public key] | "may be inaccurate" (weaker wording than steps 1, 2 and 4) |
+| 4 | Build the base (all fields in order, minus `signature`) and verify | [Validate the signature] | Must not be used |
+| 5 | Process by type: compare credential hash with the hash of key-entered card data (mismatch: decline); decrypt `payload` with the merchant private key; or check `browsingIOU` against the 402 response | [Processing of Payment Data] | Decline or deny access |
+
+### Flow E: HTTP 402 and `browsingIOU` (paid content)
+
+1. Agent requests a resource; merchant answers HTTP 402 with `invoiceId`, `amount` and a card acceptor id (CAID). The spec does not define the 402 response format, header or body [src-visa-tap-spec].
+2. Agent retries with `agenticPaymentContainer.browsingIOU` carrying `invoiceId`, `amount`, `cardAcceptorId`, `acquirerId`, `uri`, `sequenceCounter`, `paymentService`, `kid`, `alg`, `signature`.
+3. Merchant checks the IOU against its 402 data and verifies the signature, then grants access "with the expectation that the funds will be available when settlement occurs". No settlement mechanism, timing or liability is specified [src-visa-tap-spec].
+
+### Flow F: Cloudflare edge verification (deployed variant)
+
+Cloudflare's 2025-10-24 post lists the checks it runs: (1) `Signature-Input` and `Signature` present; (2) take `keyid`, fetch and cache the key from the public key directory; (3) current time between `created` and `expires`; (4) nonce not seen recently; (5) tag valid: `agent-browser-auth` when browsing, `agent-payer-auth` when paying; (6) rebuild the signature base from the components in `Signature-Input`; (7) Ed25519 verification [src-visa-tap-cf-blog]. The same post's example request uses `tag="web-bot-auth"`, which contradicts step 5; Cloudflare's numbered checks match the Visa spec.
+
+### Flow G: sample repository flow (not spec)
+
+The Streamlit agent generates a UUID nonce, `created = now`, `expires = created + 8 * 60`, and signs `"@authority"`, `"@path"` and `"@signature-params"` with Ed25519 (default) or RSA-PSS; it drives a Playwright browser with the headers to product, cart and checkout pages. The sample CDN proxy only requires signatures on paths starting with `/product/`; every other path (including `/api` and checkout pages) is forwarded without verification [src-visa-tap-agent-app] [src-visa-tap-cdn-proxy].
+
+## State machines
+
+TAP defines no stateful objects. The only state is verifier-side:
+
+| State holder | States | Transition | Source |
+| --- | --- | --- | --- |
+| Nonce record (optional) | unseen, seen (kept for 8 minutes) | first valid use marks seen; repeat within 8 minutes blocks | [src-visa-tap-spec] |
+| Key cache | not cached, cached, expired | fetch by `keyid`; expired key blocks | [src-visa-tap-spec] |
+| Signature validity window | not yet valid, valid (up to 8 minutes), expired | `created` and `expires` | [src-visa-tap-spec] |
+| Sample registry key (not spec) | `is_active` `"true"` or other | `DELETE /agents/{agent_id}` deactivates the agent; proxy rejects inactive keys | [src-visa-tap-agent-registry] [src-visa-tap-cdn-proxy] |
+| Browsing IOU (implied) | issued in 402, presented, accepted, settled | settlement not specified | [src-visa-tap-spec] |
+
+A purchase instruction lifecycle exists in VIC, not in TAP: the `visa/ai` client calls `POST /vacp/v1/instructions`, `PUT /vacp/v1/instructions/{instructionId}`, `PUT /vacp/v1/instructions/{instructionId}/cancel`, `POST /vacp/v1/instructions/{instructionId}/credentials` and `POST /vacp/v1/instructions/{instructionId}/confirmations`, plus `POST /vacp/v1/cards` for enrollment [src-visa-ai-vic-client].
+
+## Transports
+
+- **HTTP headers.** `Signature-Input` and `Signature` (RFC 9421) on HTTP requests; the spec says "HTTP header, REST API header or similar message header" [src-visa-tap-spec].
+- **Request body.** `agenticConsumer` and `agenticPaymentContainer` JSON objects in the request body. The spec does not say how they are carried on a `GET` browsing request [src-visa-tap-spec]. The repository README says identifiers arrive "via query parameters" [src-visa-tap-repo]; the spec says Checkout Enablers must pass through "message signatures and query parameters". The carrying format is therefore not fixed in public text.
+- **Other channels.** The spec says the agent can communicate over web or API channels and protocols such as MCP and ACP [src-visa-tap-spec]; the press release says TAP is "extendable to non-web message protocols" [src-visa-tap-pr]. No binding for MCP or ACP is published.
+- **Key retrieval.** HTTPS `GET` of a JWKS at `https://mcp.visa.com/.well-known/jwks`, plus a `GET /keys` operation with a `keyID` parameter whose host is not named [src-visa-tap-spec].
+- **CDN layer.** Verification can run at the merchant or at a Site Protection Provider (Cloudflare, Akamai) [src-visa-tap-spec] [src-visa-tap-cf-blog].
+
+## Cryptography and standards used
+
+| Standard | Use in TAP | Date checked | Source |
+| --- | --- | --- | --- |
+| RFC 9421 HTTP Message Signatures | Agent recognition signature; `Signature-Input`, `Signature`, derived components `@authority`, `@path`, parameters `created`, `expires`, `keyid`, `alg`, `nonce`, `tag` | RFC dated February 2024, Standards Track | [src-rfc9421] |
+| RFC 9530 Digest Fields | Not used by TAP; TAP does not require `Content-Digest`, so request bodies (including the signed objects' transport) are not covered by the message signature | RFC dated February 2024, obsoletes RFC 3230 | [src-rfc9530] [src-visa-tap-spec] |
+| Ed25519 | Message signature algorithm in spec examples (`alg="Ed25519"`) | | [src-visa-tap-spec] |
+| PS256 (RSASSA-PSS with SHA-256, JOSE name) | Example `alg` for the body objects and preferred for the ID Token | | [src-visa-tap-spec] |
+| RFC 7519 JWT, RFC 7515 JWS, RFC 7518 | ID Token format and algorithms; `none` not supported | | [src-visa-tap-spec] |
+| OpenID Connect ID Token claims | `iss`, `sub`, `aud`, `exp`, `iat`, `auth_time`, `amr`, `email`, `phone_number` and verified flags | | [src-visa-tap-spec] |
+| JWK / JWKS | Key store format | | [src-visa-tap-spec] [src-visa-tap-jwks] |
+| Merchant public key encryption | Encrypts `payload`; algorithm and format not specified | | [src-visa-tap-spec] |
+| ISO 3166-1 alpha-2, E.164, RFC 5322 | Country code, phone format, email format | | [src-visa-tap-spec] |
+
+**Algorithm naming.** RFC 9421 says `alg` values must come from the IANA "HTTP Signature Algorithms" registry, whose initial entries are `rsa-pss-sha512`, `rsa-v1_5-sha256`, `hmac-sha256`, `ecdsa-p256-sha256`, `ecdsa-p384-sha384` and `ed25519` (lowercase) [src-rfc9421]. The TAP spec uses `"Ed25519"` in the header examples and the JOSE name `"PS256"` in body objects. The sample code uses `ed25519` and `rsa-pss-sha256`; `rsa-pss-sha256` is not in the RFC 9421 initial registry [src-visa-tap-agent-app] [src-rfc9421].
+
+**Signature base construction.** RFC 9421 requires each component line as `"<component>": <value>` and `"@signature-params"` as the last line, with the parameters serialized as a Structured Field (no spaces after `;`) [src-rfc9421]. The spec's Python sample writes `@authority:` and `@path:` without quotes around the component names, while it quotes `"@signature-params"`; the sample agent and CDN proxy quote all three but join parameters with `"; "` (a space after each semicolon) and copy the raw header text into the base. The sample merchant backend builds a non-RFC base (`"nonce": ...`, `"created": ...`, `"expires": ...` lines, no `@signature-params`) and verifies RSA-PSS only [src-visa-tap-spec] [src-visa-tap-agent-app] [src-visa-tap-cdn-proxy] [src-visa-tap-merchant-verifier]. Both sides of the sample use the same non-canonical serialization, so they interoperate with each other but not necessarily with a strict RFC 9421 library. Open PR #21 (2026-07-15) proposes to make the merchant verifier conform [src-visa-tap-gh-meta].
+
+**Body object signatures.** The base is "a canonical representation of all fields in the object in the order received except for the signature itself". No canonicalization (such as JCS, RFC 8785) or JWS serialization is named, and no test vector exists; issue #23 asks for one [src-visa-tap-spec] [src-visa-tap-gh-meta]. The sample agent's generic `create_signature` signs base64 of a key-sorted compact JSON string with RSA-PSS; this is not described in the spec [src-visa-tap-agent-app].
+
+### TAP compared with the Web Bot Auth working group draft
+
+`draft-ietf-webbotauth-httpsig-protocol-00` ("HTTP Message Signatures for automated traffic", T. Meunier of Cloudflare and S. Major of Google) was posted 2026-09-01; -00 is the current revision on 2026-10-11 and it expires 2027-03-05 [src-wba-draft]. TAP launched on 2025-10-14, almost eleven months earlier, so the WG draft cannot be its basis. Both use RFC 9421, and the TAP spec says it is "aligned with web-bot-auth" [src-visa-tap-spec].
+
+| Aspect | TAP (Visa spec) | Web Bot Auth WG draft -00 |
+| --- | --- | --- |
+| `tag` | `agent-browser-auth` or `agent-payer-auth` | MUST be `web-bot-auth` |
+| Key discovery header | none; `Signature-Agent` not in the required fields | `Signature-Agent` is REQUIRED (Dictionary Structured Header, https URI) and must be covered by the signature |
+| Covered components | `@authority` and `@path` required | at least one of `@authority` or `@target-uri`; `@method`, `@path`, `@target-uri`, `@query-param` SHOULD be added to narrow scope |
+| `nonce` | required; a session identifier shared with body objects; uniqueness tracking optional | not required by the draft; replay protection deferred to RFC 9421 Section 7.2.2 |
+| `keyid` | opaque string; examples are 43-character base64url strings | MUST be a base64url JWK SHA-256 thumbprint |
+| `alg` | required | not in the required list |
+| Validity window | `expires - created` no more than 8 minutes | expiry RECOMMENDED no more than 24 hours |
+| Key directory | Visa-hosted `https://mcp.visa.com/.well-known/jwks` | `/.well-known/http-message-signatures-directory` with media type `application/http-message-signatures-directory+json` |
+| Body coverage | none; separate signed body objects | none by default; `Content-Digest` (RFC 9530) if needed |
+| Status | Visa specification under proprietary Product Terms | IETF working group Internet-Draft, Revised BSD license for code |
+
+Sources: [src-visa-tap-spec] [src-wba-draft] [src-rfc9530]. Note that the TAP spec's prose about the signature base mentions "signature agent" among the attributes, but no `Signature-Agent` component appears in its required fields or examples [src-visa-tap-spec]. The Cloudflare post says both Visa and Mastercard protocols "build on Web Bot Auth by introducing a new tag" and require a `nonce` [src-visa-tap-cf-blog].
