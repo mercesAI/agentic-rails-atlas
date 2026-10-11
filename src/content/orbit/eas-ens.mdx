@@ -1,0 +1,28 @@
+---
+slug: eas-ens
+name: Ethereum Attestation Service and ENS
+category: agent-identity
+starred: false
+oneLiner: Two Ethereum building blocks for naming and vouching; EAS records signed attestations against registered schemas, and ENS maps human-readable names to addresses and text records, now including draft agent records.
+steward: EAS, the ethereum-attestation-service GitHub organization (MIT-licensed contracts, no EIP); ENS, the ENS DAO with ENSIPs proposed in ensdomains/ensips
+status: Live (EAS on mainnet since 2023-03-04; ENS live); agent ENSIPs 25 and 26 are Draft
+relations:
+  - to: erc-8004
+    type: compatible-with
+    note: ERC-8004's registration example lists an ENS service and allows an ENS agent name; ENSIP-25 and ENSIP-26 reference ERC-8004. ERC-8004 does not mention EAS.
+sources:
+  - src-orbit-eas-site
+  - src-orbit-eas-contracts-repo
+  - src-orbit-eas-mainnet-deployment
+  - src-orbit-ensip-1
+  - src-orbit-ensip-index
+  - src-orbit-ens-dao-docs
+  - src-orbit-ensip-25
+  - src-orbit-ensip-26
+  - src-erc-8004-spec
+lastVerified: "2026-10-11"
+---
+
+The Ethereum Attestation Service is an open contract system for attestations on EVM chains: anyone registers a schema and then attests against it, on-chain or off-chain, with optional resolver contracts. It has no EIP number. <Cite ids="src-orbit-eas-site src-orbit-eas-contracts-repo" /> Its mainnet contract was deployed in block 16756728 on 2023-03-04, and the project's site reports more than 9.5 million attestations and 450,000 attesters, its own figures as of 2026-10-11. <Cite ids="src-orbit-eas-mainnet-deployment src-orbit-eas-site" /> None of the eight protocols cites EAS.
+
+ENS resolves human-readable names to addresses and records; its core proposal, now ENSIP-1, dates from 2016-04-04, and the ENS DAO governs the protocol. <Cite ids="src-orbit-ensip-1 src-orbit-ens-dao-docs" /> Two Draft ENSIPs target agents. ENSIP-25, merged 2026-02-18, defines a text record `agent-registration[<registry>][<agentId>]` with which a name owner confirms a link to an agent registry entry, using the [ERC-8004](/p/erc-8004/) Identity Registry as its example. ENSIP-26, merged 2026-05-06, adds `agent-context` and `agent-endpoint[<protocol>]` keys aligned with ERC-8004 service names. <Cite ids="src-orbit-ensip-index src-orbit-ensip-25 src-orbit-ensip-26" /> From the other side, ERC-8004's registration example lists an `ENS` service, and agents may advertise an ENS name. <Cite ids="src-erc-8004-spec" />

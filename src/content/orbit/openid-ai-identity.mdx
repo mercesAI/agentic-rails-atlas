@@ -1,0 +1,35 @@
+---
+slug: openid-ai-identity
+name: OpenID Foundation AI identity work and related OAuth standards
+category: agent-identity
+starred: false
+oneLiner: The OpenID Foundation's AI Identity Management community group studies agent identity gaps; nearby proposals (OIDC-A, an expired OAuth on-behalf-of draft) and older standards (RFC 8693, RFC 9396, CIBA) are context, not parts of the eight.
+steward: OpenID Foundation (community group and CIBA); IETF OAuth working group (RFC 8693, RFC 9396); OIDC-A and the on-behalf-of draft are individual proposals
+status: Community group active; related RFCs and CIBA published; on-behalf-of draft expired
+relations:
+  - to: ucp
+    type: complements
+    note: UCP's Identity Linking accelerated IdP flow uses RFC 8693 token exchange to get a JWT authorization grant; this is the only use of these standards found among the eight.
+  - to: ap2
+    type: compatible-with
+    note: AP2 uses OpenID4VP from the OpenID Foundation for delegation, not RFC 8693, RFC 9396 or CIBA.
+sources:
+  - src-orbit-oidf-aiim-cg
+  - src-orbit-oidf-aiim-whitepaper
+  - src-ap2-pub-2510-25819
+  - src-orbit-oidf-nist-response
+  - src-orbit-oidf-emvco-response
+  - src-ap2-pub-2509-25974
+  - src-orbit-oidca-repo
+  - src-orbit-oauth-obo-draft
+  - src-orbit-rfc8693
+  - src-orbit-rfc9396
+  - src-orbit-openid-ciba-core
+  - src-ucp-identity-linking
+  - src-ap2-agent-authorization
+lastVerified: "2026-10-11"
+---
+
+The OpenID Foundation's Artificial Intelligence Identity Management community group studies agent identity use cases and gaps; protocol work is outside its charter. <Cite ids="src-orbit-oidf-aiim-cg" /> It released the white paper "Identity Management for Agentic AI" on 2025-10-07, later posted to arXiv as 2510.25819, answered a NIST request for information on 2026-03-11, and published expert comments on the EMVCo agentic framework on 2026-10-08. <Cite ids="src-orbit-oidf-aiim-whitepaper src-ap2-pub-2510-25819 src-orbit-oidf-nist-response src-orbit-oidf-emvco-response" /> OIDC-A (OpenID Connect for Agents) is a single-author proposal on arXiv (2509.25974, 2025-09-30), not an OpenID Foundation specification. <Cite ids="src-ap2-pub-2509-25974 src-orbit-oidca-repo" /> The individual draft `draft-oauth-ai-agents-on-behalf-of-user` from WSO2 authors added `requested_actor` and `actor_token` to OAuth 2.0; its last revision, `-02`, is dated 2025-08-26, and it expired on 2026-02-27 without adoption. <Cite ids="src-orbit-oauth-obo-draft" />
+
+Three older standards often come up as building blocks: RFC 8693 OAuth 2.0 Token Exchange (January 2020), RFC 9396 Rich Authorization Requests with `authorization_details` (May 2023), and OpenID Connect CIBA Core 1.0, final on 2021-09-01, which lets a service ask a user to approve a request on another device. <Cite ids="src-orbit-rfc8693 src-orbit-rfc9396 src-orbit-openid-ciba-core" /> Among the eight only [UCP](/p/ucp/) uses one of them: its Identity Linking accelerated flow exchanges a token through RFC 8693 for a JWT authorization grant. <Cite ids="src-ucp-identity-linking" /> [AP2](/p/ap2/) uses OpenID4VP rather than any of the three. <Cite ids="src-ap2-agent-authorization" /> No specification among the eight cites RFC 9396, CIBA, OIDC-A or the on-behalf-of draft.

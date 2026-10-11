@@ -1,0 +1,47 @@
+---
+slug: emvco-agentic-framework
+name: EMVCo agentic payments framework
+category: agent-identity
+starred: true
+oneLiner: A draft EMVCo framework for card-based agentic payments, built around Intent Services, a shared layer to register, look up and manage the intent a consumer has authorized.
+steward: EMVCo (owned by American Express, Discover, JCB, Mastercard, UnionPay and Visa); Agentic Payments Task Force
+status: Draft; public comment period closed 2026-09-30
+latestVersion:
+  label: "EMV Agentic Payments: Framework for Specifications v1.0 DRAFT"
+  date: "2026-09-01"
+relations:
+  - to: mastercard-agent-pay
+    type: complements
+    note: The framework names Mastercard's Verifiable Intent as an existing solution whose cryptographic assurance Intent Services would complement.
+  - to: ap2
+    type: complements
+    note: Indirect. AP2's example requests a credential of type com.emvco.dpc (the EMV Digital Payment Credential), a technology the framework says it may inform.
+sources:
+  - src-mcap-emvco-news
+  - src-mcap-emvco-hub
+  - src-orbit-emvco-framework-resource
+  - src-gloss-emvco-about
+  - src-orbit-oidf-emvco-response
+  - src-ap2-agent-authorization
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+EMVCo, the body that writes the EMV card standards, published "EMV Agentic Payments: Framework for Specifications" as a v1.0 draft for public feedback on 2026-09-01. <Cite ids="src-mcap-emvco-news src-orbit-emvco-framework-resource" /> EMVCo is owned by American Express, Discover, JCB, Mastercard, UnionPay and Visa, and the work runs in an Agentic Payments Task Force. <Cite ids="src-gloss-emvco-about src-mcap-emvco-hub" />
+
+The draft centers on Intent Services, a shared layer where participants register, reference, retrieve and manage the intent a consumer has authorized, before, during and after a transaction. It targets cases where intent has to be tracked over time: recurring purchases, cumulative budgets and activity after the purchase. It describes ecosystem roles and the data needed to register intent, keep its lifecycle and state, and let authorized parties retrieve it. <Cite ids="src-mcap-emvco-news" /> The draft itself sits behind EMVCo's terms of use, so the atlas does not list its field names.
+
+## Status
+
+The comment period ended on 2026-09-30, and no final version was found on 2026-10-11. <Cite ids="src-mcap-emvco-news" /> EMVCo says it may consider Know Your Agent (KYA) and agentic transaction indicators in future publications, so neither is part of this draft. It also says the work may lead to changes in EMV 3-D Secure, EMV Payment Tokenisation, EMV Secure Remote Commerce and the EMV Digital Payment Credential, and it names the FIDO Alliance, the OpenID Foundation, the OpenWallet Foundation and W3C as collaborators. <Cite ids="src-mcap-emvco-news" /> On 2026-10-08 OpenID Foundation experts published comments on the draft. They asked for a defined verifier role, a split between agent identity and delegated authority, and a threat model, and they said the comments are not an OpenID Foundation consensus view. <Cite ids="src-orbit-oidf-emvco-response" />
+
+## How it relates to the eight
+
+Verifiable Intent, the intent layer of [Mastercard Agent Pay](/p/mastercard-agent-pay/), is the only part of the eight that EMVCo names, and EMVCo describes Intent Services as complementing VI's cryptographic assurance. <Cite ids="src-mcap-emvco-news src-mcap-emvco-hub" /> The link to [AP2](/p/ap2/) is indirect: AP2's authorization example asks for a credential of type `com.emvco.dpc`, the EMV Digital Payment Credential, which the framework says it may inform. <Cite ids="src-ap2-agent-authorization src-mcap-emvco-news" /> Visa and Mastercard are among EMVCo's owners, but the framework does not name TAP or Agent Pay. <Cite ids="src-gloss-emvco-about src-mcap-emvco-news" />
+
+## Status history
+
+- 2026-09-01: v1.0 draft published for public review. <Cite ids="src-mcap-emvco-news" />
+- 2026-09-30: comment period closes. <Cite ids="src-mcap-emvco-news" />
+- 2026-10-08: OpenID Foundation experts publish comments. <Cite ids="src-orbit-oidf-emvco-response" />

@@ -1,0 +1,57 @@
+---
+slug: fido-passkeys-agentic
+name: FIDO passkeys and the FIDO agentic working groups
+category: agent-identity
+starred: true
+oneLiner: The FIDO Alliance publishes the passkey standards (CTAP, with W3C WebAuthn) and, since 2026-04-28, hosts standards work on AI agents, including AP2 and Mastercard's Verifiable Intent.
+steward: FIDO Alliance (CTAP and the agentic working groups); W3C Web Authentication Working Group (WebAuthn)
+status: Live passkey standards; agentic working groups active with no public deliverable
+latestVersion:
+  label: WebAuthn Level 3 W3C Recommendation; CTAP 2.3 Proposed Standard (2026-02-26)
+  date: "2026-08-25"
+relations:
+  - to: ap2
+    type: same-steward
+    note: Google contributed AP2 to the FIDO Alliance on 2026-04-28, so AP2 specification work now continues inside FIDO.
+  - to: mastercard-agent-pay
+    type: same-steward
+    note: Mastercard contributed Verifiable Intent, the intent layer of Agent Pay, to FIDO on 2026-04-28; Mastercard Payment Passkeys authenticate consumers in live regional transactions.
+  - to: visa-tap
+    type: complements
+    note: Visa co-chairs the FIDO Payments working group; Visa Payment Passkeys authenticate Visa Intelligent Commerce payment instructions around TAP, not the TAP signature itself.
+sources:
+  - src-orbit-fido-passkeys
+  - src-orbit-fido-specs-download
+  - src-gloss-webauthn-3
+  - src-fido-agentic
+  - src-fido-pwg
+  - src-ap2-google-fido-blog
+  - src-visa-vic-dev
+  - src-visa-eu-live
+  - src-mcap-launch-2025
+  - src-mcap-latam-2026
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+A passkey is a sign-in credential based on FIDO standards, kept on a phone, a computer or a hardware security key. Passkeys use FIDO2: WebAuthn is the browser API and CTAP is the protocol between the device and an authenticator. Synced passkeys move across a user's devices through a passkey provider, while device-bound passkeys stay on one device. <Cite ids="src-orbit-fido-passkeys" /> WebAuthn Level 3 became a W3C Recommendation on 2026-08-25, and the newest CTAP is version 2.3, a FIDO Proposed Standard of 2026-02-26 (CTAP 2.2 dates from 2025-07-14). <Cite ids="src-gloss-webauthn-3 src-orbit-fido-specs-download" />
+
+## The agentic working groups
+
+On 2026-04-28 the FIDO Alliance announced a newly formed Agentic Authentication technical working group, chaired by members from CVS Health, Google and OpenAI, with vice-chairs from Amazon, Google and Okta. Its scope is how users delegate to agents with phishing-resistant authentication and how a service tells user-initiated actions from agent-initiated ones. The same release names a Payments technical working group chaired by Mastercard and Visa, and three focus areas: verifiable user instructions, agent authentication and trusted delegation for commerce. No deliverables or dates were given. <Cite ids="src-fido-agentic" />
+
+Only the Agentic Authentication group was new that day. FIDO had launched a Payments working group on 2025-04-29, co-chaired by Visa and Mastercard. <Cite ids="src-fido-pwg" /> No source says whether the 2026 "Payments technical working group" is the same body under a new name. FIDO drafts are member-only, and no public FIDO deliverable on agents was found on 2026-10-11. <Cite ids="src-fido-agentic" />
+
+## How it relates to the eight
+
+On 2026-04-28 Google contributed [AP2](/p/ap2/) and Mastercard contributed Verifiable Intent, which Mastercard co-developed with Google to work with AP2. FIDO is now the home of both. <Cite ids="src-fido-agentic src-ap2-google-fido-blog" /> Passkeys also appear in the card networks' agent programs. Visa Intelligent Commerce authenticates payment instructions with passkeys, and Visa says every Agentic Ready transaction in Europe used Visa Payment Passkeys. These passkeys sit beside [Visa TAP](/p/visa-tap/), not inside its signature scheme. <Cite ids="src-visa-vic-dev src-visa-eu-live" /> Mastercard says its Agentic Tokens build on the same tokenization behind Payment Passkeys, and its live regional purchases for [Mastercard Agent Pay](/p/mastercard-agent-pay/) use Mastercard Payment Passkeys to authenticate consumers. <Cite ids="src-mcap-launch-2025 src-mcap-latam-2026" /> OpenAI co-chairs the agentic group, but [ACP](/p/openai-acp/) has no specification link to FIDO. No relation was found for UCP, x402, ERC-8004 or MPP. <Cite ids="src-fido-agentic" />
+
+## Status history
+
+- 2019-03-04: WebAuthn Level 1 becomes a W3C Recommendation. <Cite ids="src-gloss-webauthn-3" />
+- 2025-04-29: FIDO launches the Payments working group (Visa and Mastercard co-chairs). <Cite ids="src-fido-pwg" />
+- 2025-07-14: CTAP 2.2 Proposed Standard. <Cite ids="src-orbit-fido-specs-download" />
+- 2026-02-26: CTAP 2.3 Proposed Standard. <Cite ids="src-orbit-fido-specs-download" />
+- 2026-04-28: Agentic Authentication technical working group formed; AP2 and Verifiable Intent contributed. <Cite ids="src-fido-agentic" />
+- 2026-08-25: WebAuthn Level 3 becomes a W3C Recommendation. <Cite ids="src-gloss-webauthn-3" />
