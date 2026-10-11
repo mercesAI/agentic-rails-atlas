@@ -1,0 +1,116 @@
+{
+  "protocol": "erc-8004",
+  "items": [
+    {
+      "q": "Is ERC-8004 a Final standard?",
+      "a": "No. It is a Draft. It moved to Review on 2025-10-08, and an EIP editor returned it to Draft on 2026-01-13. It was still Draft on 2026-10-11, even though registries run on 25 mainnets.",
+      "claimIds": [
+        "clm-erc-8004-002",
+        "clm-erc-8004-005",
+        "clm-erc-8004-006",
+        "clm-erc-8004-185"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Does ERC-8004 move money or pay agents?",
+      "a": "No. The text calls payments orthogonal, and the registries have no payable function. x402 or another rail moves the money; ERC-8004 only publishes the payee address and lets feedback point to a payment.",
+      "claimIds": [
+        "clm-erc-8004-017",
+        "clm-erc-8004-159"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Are all three registries deployed?",
+      "a": "No. The Identity and Reputation registries are listed on 25 mainnets. The Validation Registry is specified, but the contracts README lists no address for it; a contract answers at a scripted address on Ethereum and Base but is not announced, so treat it as not officially deployed.",
+      "claimIds": [
+        "clm-erc-8004-083",
+        "clm-erc-8004-099",
+        "clm-erc-8004-086"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Does an agent have to authorize feedback with feedbackAuth?",
+      "a": "Not any more. The agent-signed feedbackAuth was removed from the contracts on 2025-11-12 and from the text on 2026-01-07. Any address except the owner and operators can rate an agent.",
+      "claimIds": [
+        "clm-erc-8004-090",
+        "clm-erc-8004-183"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Does a large number of registered agents mean the ecosystem is healthy?",
+      "a": "No. Agent count is not agent quality. Ids are free to mint and include placeholders; one study found only 3% to 15% of agents with a valid file and a live endpoint (data to 2026-05-13), and a census found 13,210 of 505,635 ids declaring an http(s) endpoint (2026-09-26).",
+      "claimIds": [
+        "clm-erc-8004-157",
+        "clm-erc-8004-153",
+        "clm-erc-8004-150"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Where does proofOfPayment live?",
+      "a": "Only in the off-chain feedback file. The registry stores value, decimals, two tags and the revoked flag; it never stores or checks the payment proof. Upload the file first, then call giveFeedback with its URI and hash.",
+      "claimIds": [
+        "clm-erc-8004-076",
+        "clm-erc-8004-057",
+        "clm-erc-8004-077"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Why does getSummary need a list of client addresses?",
+      "a": "Because unfiltered feedback is open to Sybil and spam attacks. The reader must choose reviewers it trusts, and the reference code reverts with an empty list.",
+      "claimIds": [
+        "clm-erc-8004-066",
+        "clm-erc-8004-109"
+      ]
+    },
+    {
+      "q": "What happens to the agent wallet when the agent token is sold?",
+      "a": "The transfer clears agentWallet, and the new owner must bind a wallet again with a signature from that wallet.",
+      "claimIds": [
+        "clm-erc-8004-041",
+        "clm-erc-8004-036"
+      ]
+    },
+    {
+      "q": "Who can upgrade the registries?",
+      "a": "Only the contract owner. On Ethereum and Base on 2026-10-11 that was one externally owned account, not a multisig contract; the holder is not published.",
+      "claimIds": [
+        "clm-erc-8004-105",
+        "clm-erc-8004-106",
+        "clm-erc-8004-107"
+      ]
+    },
+    {
+      "q": "Is ERC-8004 the same as ERC-8183 or ERC-8126?",
+      "a": "No. ERC-8183 is job escrow with an evaluator and ERC-8126 is a verification standard that requires ERC-8004. ERC-8126 reached Final on 2026-06-02 while ERC-8004 stays Draft.",
+      "claimIds": [
+        "clm-erc-8004-133",
+        "clm-erc-8004-134"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Is the ERC-8004 Identity Registry the same thing as the ERC-3643 Identity Registry?",
+      "a": "No. The T-REX registry maps wallets to verified identities and countries for token transfers. The ERC-8004 registry is an open ERC-721 directory of agents. In ERC-3643 an Agent is an operator role, not an AI agent.",
+      "claimIds": [
+        "clm-erc-8004-177",
+        "clm-erc-8004-179"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Does ERC-8004 check who runs an agent?",
+      "a": "No. Registration is permissionless and has no KYC or know-your-agent step, and the text cannot guarantee that advertised capabilities work.",
+      "claimIds": [
+        "clm-erc-8004-118",
+        "clm-erc-8004-110"
+      ],
+      "misconception": true
+    }
+  ]
+}

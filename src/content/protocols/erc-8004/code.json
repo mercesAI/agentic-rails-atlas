@@ -1,0 +1,66 @@
+{
+  "protocol": "erc-8004",
+  "snippets": [
+    {
+      "title": "Register an agent and bind a wallet (viem, from the contract tests)",
+      "sdk": "erc-8004-contracts tests (Hardhat with viem)",
+      "version": "contracts 2.0.0 (commit b9e466c)",
+      "language": "typescript",
+      "side": "contract",
+      "code": "const txHash = await identityRegistry.write.register([\"ipfs://agent\"]);\nconst agentId = await getAgentIdFromRegistration(txHash); // reads the Registered log\n\nconst chainId = await publicClient.getChainId();\nconst block = await publicClient.getBlock();\nconst deadline = block.timestamp + 240n; // must be at most 5 minutes ahead\n\nconst signature = await newWalletSigner.signTypedData({\n  account: newWalletSigner.account,\n  domain: {\n    name: \"ERC8004IdentityRegistry\",\n    version: \"1\",\n    chainId,\n    verifyingContract: identityRegistry.address,\n  },\n  types: {\n    AgentWalletSet: [\n      { name: \"agentId\", type: \"uint256\" },\n      { name: \"newWallet\", type: \"address\" },\n      { name: \"owner\", type: \"address\" },\n      { name: \"deadline\", type: \"uint256\" },\n    ],\n  },\n  primaryType: \"AgentWalletSet\",\n  message: {\n    agentId,\n    newWallet: newWalletSigner.account.address,\n    owner: owner.account.address,\n    deadline,\n  },\n});\n\nawait identityRegistry.write.setAgentWallet(\n  [agentId, newWalletSigner.account.address, deadline, signature],\n  { account: owner.account }\n);",
+      "docsUrl": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/test/core.ts",
+      "note": "Shortened from the test \"Should set and get agentWallet with EOA signature\". The tests run against a local Hardhat chain; keep it that way when you try it.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "title": "Give and revoke feedback (viem, from the contract tests)",
+      "sdk": "erc-8004-contracts tests (Hardhat with viem)",
+      "version": "contracts 2.0.0 (commit b9e466c)",
+      "language": "typescript",
+      "side": "contract",
+      "code": "await reputationRegistry.write.giveFeedback([\n  agentId,\n  90, 0,            // value, valueDecimals\n  \"tag1\",\n  \"tag2\",\n  \"\",               // endpoint\n  \"ipfs://feedback\",\n  keccak256(toHex(\"content\")),\n], { account: client.account });\n\n// feedbackIndex is 1-based; only the original client may revoke\nawait reputationRegistry.write.revokeFeedback([agentId, 1n], { account: client.account });",
+      "docsUrl": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/test/core.ts",
+      "note": "From the test \"Should revoke feedback\". The client must not be the agent owner or an operator.",
+      "sources": [
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "title": "Create, register and rate an agent with agent0-sdk",
+      "sdk": "agent0-sdk (npm)",
+      "version": "1.7.1",
+      "language": "typescript",
+      "side": "client",
+      "code": "import { SDK } from 'agent0-sdk';\n\nconst sdk = new SDK({\n  chainId: 11155111, // Ethereum Sepolia testnet\n  rpcUrl: process.env.RPC_URL,\n  privateKey: process.env.PRIVATE_KEY,\n  ipfs: 'pinata',\n  pinataJwt: process.env.PINATA_JWT,\n});\n\nconst agent = sdk.createAgent(\n  'My AI Agent',\n  'An intelligent assistant for various tasks.',\n  'https://example.com/agent-image.png'\n);\nawait agent.setMCP('https://mcp.example.com/');\nagent.setTrust(true, true, false); // reputation, cryptoEconomic, teeAttestation\nagent.setActive(true);\n\nconst registrationFile = await agent.registerIPFS();\n\nconst tx = await sdk.giveFeedback('11155111:123', 85, 'data_analyst', 'finance');\nconst { receipt } = await tx.waitConfirmed();",
+      "docsUrl": "https://www.npmjs.com/package/agent0-sdk",
+      "note": "Shortened from the package README quick start. The SDK writes agent ids as chainId:agentId, which is shorter than the global agentRegistry form in the Draft text. Never put a real key in code.",
+      "sources": [
+        "src-npm-agent0-sdk"
+      ]
+    },
+    {
+      "title": "Read the summary from trusted reviewers (Solidity interface)",
+      "sdk": "ERC-8004 Draft interface",
+      "version": "Draft 2026-01-25",
+      "language": "solidity",
+      "side": "contract",
+      "code": "function getSummary(\n    uint256 agentId,\n    address[] calldata clientAddresses, // must be non-empty\n    string calldata tag1,\n    string calldata tag2\n) external view returns (uint64 count, int128 summaryValue, uint8 summaryValueDecimals);",
+      "docsUrl": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+      "note": "The reference implementation reverts with \"clientAddresses required\" on an empty list and returns a plain mean.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    }
+  ],
+  "labs": [
+    {
+      "title": "Registration file builder and reputation aggregator simulator",
+      "path": "src/playgrounds/erc-8004/",
+      "status": "planned"
+    }
+  ]
+}
