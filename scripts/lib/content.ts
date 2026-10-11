@@ -236,13 +236,15 @@ export function outsideModeBlocks(body: string): string {
 
 /** Converts MDX to plain prose: drops imports, code fences, JSX tags, HTML comments and Markdown syntax. */
 export function mdxToPlainText(mdx: string): string {
+  // Replacements keep line breaks so callers can report line numbers.
+  const keepLines = (m: string): string => ' ' + '\n'.repeat((m.match(/\n/g) ?? []).length);
   return mdx
     .replace(/^(import|export)\s.*$/gm, '')
-    .replace(/```[\s\S]*?```/g, (m) => '\n'.repeat((m.match(/\n/g) ?? []).length))
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<[A-Za-z][^>]*\/>/g, ' ')
-    .replace(/<\/?[A-Za-z][^>]*>/g, ' ')
+    .replace(/```[\s\S]*?```/g, keepLines)
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, keepLines)
+    .replace(/<!--[\s\S]*?-->/g, keepLines)
+    .replace(/<[A-Za-z][^>]*\/>/g, keepLines)
+    .replace(/<\/?[A-Za-z][^>]*>/g, keepLines)
     .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/`([^`]*)`/g, '$1')
