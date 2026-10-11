@@ -587,3 +587,100 @@ Visa also extends VIC beyond its own protocol: it authored the card payment meth
 **Sources.** src-orbit-klarna-app; src-ucp-site.
 
 ---
+
+## Microsoft Copilot Checkout
+
+- **id:** `microsoft-copilot-checkout`
+- **Category:** card-wallet-commerce
+- **What it is:** In-chat checkout on Copilot.com where the merchant stays merchant of record, fed by product data from Microsoft Merchant Center.
+- **Steward:** Microsoft (Microsoft Advertising and Copilot).
+- **Status (as of 2026-10-11):** Live in the US, rolling out since 2026-01-08 with PayPal, Shopify and Stripe. Microsoft's page says Copilot Checkout requires a UCP-compliant feed (present tense) and that Merchant Center "will support" UCP (future tense); Microsoft also says it is adopting open standards like ACP. Copilot does not become merchant of record.
+- **Latest version:** launch (2026-01-08).
+- **Primary links:**
+  - https://about.ads.microsoft.com/en/blog/post/january-2026/conversations-that-convert-copilot-checkout-and-brand-agents (launch)
+  - https://about.ads.microsoft.com/en/solutions/technology/agentic-commerce (requirements page)
+
+**Status history.**
+- 2026-01-08: Copilot Checkout and Brand Agents announced, US rollout.
+
+**Relations to the eight.**
+- ucp: uses-as-rail. A UCP-compliant feed is required; full Merchant Center UCP support is stated in the future tense.
+- openai-acp: compatible-with. Microsoft says it is adopting open standards like ACP; no ACP binding documented.
+- Other six: no documented relation.
+
+**Sources.** src-ms-copilot-checkout; src-ucp-microsoft-page; src-ms-agentic-commerce.
+
+---
+
+## Perplexity Instant Buy (with PayPal)
+
+- **id:** `perplexity-instant-buy`
+- **Category:** card-wallet-commerce
+- **What it is:** In-chat checkout in Perplexity for PayPal merchants, using PayPal identity verification and purchase protection.
+- **Steward:** Perplexity and PayPal (companies).
+- **Status (as of 2026-10-11):** Live for US users since 2025-11-25 per PayPal's newsroom; early retailers named include Abercrombie & Fitch, Ashley Furniture, Fabletics, Adorama and Newegg. Perplexity's separate Comet browser agent is the subject of Amazon v. Perplexity (see the legal item).
+- **Latest version:** launch (2025-11-25).
+- **Primary links:**
+  - https://newsroom.paypal-corp.com/2025-11-PayPal-and-Perplexity-Launch-Instant-Buy (launch)
+  - https://newsroom.paypal-corp.com/2025-11-PayPal-Launches-Agentic-Shopping-with-Perplexity (related PayPal release)
+
+**Status history.**
+- 2025-11-25: Instant Buy launched for US Perplexity users with PayPal.
+
+**Relations to the eight.**
+- None documented. The releases do not name ACP, UCP, AP2 or another protocol; PayPal's own ACP and UCP ties are listed under the PayPal item.
+
+**Sources.** src-orbit-perplexity-instant-buy; src-orbit-perplexity-paypal-agentic.
+
+---
+
+## Google Universal Cart
+
+- **id:** `google-universal-cart`
+- **Category:** card-wallet-commerce
+- **What it is:** A Google shopping product (not the UCP protocol) that keeps one cart across merchants and across Search, Gemini, YouTube and Gmail, tracks prices and restocks, and checks out through UCP with Google Pay.
+- **Steward:** Google (company).
+- **Status (as of 2026-10-11):** Announced 2026-05-19 at Google I/O; rollout in the US across Search and the Gemini app was scheduled for summer 2026, with YouTube and Gmail later. Whether the rollout completed was not verified. The same post says AP2 comes to Google products "in the coming months", starting with Gemini Spark, and that the brand remains merchant of record.
+- **Latest version:** announcement (2026-05-19).
+- **Primary links:**
+  - https://blog.google/products-and-platforms/products/shopping/google-shopping-cart/ (announcement)
+
+**Status history.**
+- 2026-05-19: Universal Cart announced; UCP checkout expansion to Canada and Australia, then the UK, announced in the same post.
+
+**Relations to the eight.**
+- ucp: uses-as-rail. Checkout runs on UCP. Disambiguation: Universal Cart is a product, UCP is the protocol (Appendix D).
+- ap2: same-steward. Google started AP2 (now at FIDO) and says AP2 will reach Google products starting with Gemini Spark; live use unverified.
+- Other six: no documented relation.
+
+**Sources.** src-ucp-google-universal-cart.
+
+---
+
+## Shopify Agentic Storefronts
+
+- **id:** `shopify-agentic-storefronts`
+- **Category:** card-wallet-commerce
+- **What it is:** A Shopify admin channel that syndicates a merchant's Shopify Catalog data to AI assistants (ChatGPT, Microsoft Copilot, Google AI Mode and Gemini) and, where enabled, lets buyers check out inside the AI channel; an Agentic plan opens the catalog to brands that do not run a Shopify store.
+- **Steward:** Shopify (company); Shopify co-develops UCP with Google.
+- **Status (as of 2026-10-11):** Mixed. Announced 2026-01-11 with UCP. Shopify Help Center: checkout is active by default for eligible US stores; Microsoft Copilot, Google AI Mode and Gemini storefronts are in early access and not yet available to all stores. Agentic Storefronts got its own admin page on 2026-05-11 (changelog). Secondary reports say eligible US merchants were auto-enrolled in Google AI Mode checkout around 2026-09-18 to 2026-09-22 with opt-out (reported). A per-channel fee is reported but its rate is not public (unverified).
+- **Latest version:** admin page update (2026-05-11).
+- **Primary links:**
+  - https://www.shopify.com/news/ai-commerce-at-scale (announcement)
+  - https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/requirements (requirements)
+  - https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/customer-experience (customer experience, early access note)
+  - https://shopify.dev/changelog/a-new-home-for-agentic-storefronts-in-your-admin (changelog)
+
+**Status history.**
+- 2026-01-11: Agentic Storefronts and Agentic plan announced alongside UCP.
+- 2026-05-11: dedicated Agentic Storefronts page in Shopify admin.
+- 2026-09-18 to 2026-09-22: reported automatic enrollment in Google AI Mode checkout.
+
+**Relations to the eight.**
+- ucp: same-steward. Shopify co-develops UCP and holds a permanent Governing Council seat; Google and Copilot checkouts run on UCP.
+- openai-acp: uses-as-rail. Shopify catalog data reaches ChatGPT (OpenAI, 2026-03-24); buyers complete purchases on the merchant's store.
+- Other six: no documented relation.
+
+**Sources.** src-orbit-shopify-news; src-orbit-shopify-help-requirements; src-orbit-shopify-help-cx; src-orbit-shopify-changelog; src-ucp-ppcland-shopify; src-openai-product-discovery.
+
+---
