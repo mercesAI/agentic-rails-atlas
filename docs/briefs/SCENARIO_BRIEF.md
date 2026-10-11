@@ -17,3 +17,6 @@ No em dashes, no banned phrases, US spelling, sentence case, dates as YYYY-MM-DD
 
 ## Finish
 `pnpm tsx scripts/verify/validate-content.ts`, `pnpm lint:style`, `pnpm tsx scripts/flow-to-mermaid.ts && pnpm tsx scripts/render-diagrams.ts --only multi-<slug>-context`, `pnpm build` and confirm `dist/scenarios/<slug>/index.html` exists. Final reply: word count, step count, claims added, and the two facts you were least sure about.
+
+## Scratchpad
+Several agents share the session scratchpad. Put your temporary files in a subfolder named after your task (for example `scratchpad/<slug>-writer/`) so no other agent overwrites them. Never keep anything the repository needs in the scratchpad.

@@ -46,3 +46,9 @@ Corrections to the seed facts in `ATLAS_PROMPT.md`, from `ATLAS_FOLLOWUP.md` Sec
 | R17 | TAP spec examples | the example keyid, nonce, timestamps and signature reuse Web Bot Auth draft test vector E.2.2; browsing and checkout examples show the same signature, and the example window is 3,600 seconds against TAP's own 8-minute limit | TAP spec, IETF draft | visa-tap section B, H |
 | R18 | "No paper names TAP" | RAILS (arXiv 2606.08790) names TAP | arXiv | visa-tap section G |
 | R19 | `visa/mcp` repository | now resolves to `visa/ai` (MIT, created 2025-11-05) | GitHub API | visa-tap resources |
+| R20 | ACP `authentication_required` added 2026-01-30 | first appears in the 2025-12-12 schema | acp repo | openai-acp |
+| R21 | ACP CLA signatories include "nekuda" | the signatory is OpenCommerce Network Inc. (a nekuda GitHub user is listed); Agentic Commerce Inc. (Catalog) also signed | acp repo CLA files | openai-acp |
+| R22 | ACP request signing "mandatory for Delegate Payment" | mandatory only in RFC section 2.2; the same RFC's header list says RECOMMENDED and the OpenAPI marks `Signature` optional | acp RFC and OpenAPI | openai-acp |
+| R23 | ACP extensions: discount, affiliate attribution, marketing consent | only discount uses the extensions framework; affiliate attribution and marketing consent are fields defined by their own RFCs | acp repo | openai-acp |
+| R24 | ACP versions as releases; npm `@agentic-commerce-protocol/specification` [verify] | 0 GitHub releases and 0 tags; versions are dated spec folders (latest 2026-04-17); the npm package is not published (404); PyPI `acp-sdk` is IBM's Agent Communication Protocol | GitHub API, npm, PyPI | openai-acp |
+| R25 | ACP spec drift `items[{id, quantity}]` | confirmed and wider: schema requires `line_items`, `Item` has no `quantity`, one example uses `product_id`; released snapshots were edited after release (2026-04-17 edited 2026-05-01) | acp repo history | openai-acp |

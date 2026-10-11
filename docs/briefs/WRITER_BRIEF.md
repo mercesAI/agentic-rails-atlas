@@ -42,3 +42,6 @@ Run `pnpm tsx scripts/verify/validate-content.ts`, `pnpm lint:style`, `pnpm lint
 - Quiz and flashcards come from `verified` claims only; every item lists its `claimIds`.
 - Write early and commit: create `index.mdx` frontmatter and `facts.json` in your first few tool calls, then commit after every 2 or 3 files (`git add src/content/protocols/<slug> src/content/flows/<slug>-* src/content/states/<slug>-* src/content/diagrams/<slug>-* && git commit -m "content(<slug>): ..."`, message ending `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`). Usage limits have stopped agents before.
 - The protocol template is being built in parallel. If `src/layouts/Protocol.astro` or the page route does not exist yet, write the content anyway, validate it with the scripts, and check the rendered page at the end once `dist/p/<slug>/index.html` builds. Read `docs/integration-notes/template.md` if it exists: it says where the section P text goes.
+
+## Scratchpad
+Several agents share the session scratchpad. Put your temporary files in a subfolder named after your task (for example `scratchpad/<slug>-writer/`) so no other agent overwrites them. Never keep anything the repository needs in the scratchpad.

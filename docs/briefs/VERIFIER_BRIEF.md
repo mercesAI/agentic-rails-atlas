@@ -17,3 +17,6 @@ You did not write this content. You check it and report; you never edit content.
 
 ## Output
 Write `verification/<slug>.md` with: a summary table (check, pass count, fail count, unreachable count); a table per check with one row per item (id or identifier, verdict, evidence: file path and line or URL, note); a "Do not get wrong" table; a prioritized list of required fixes with the exact file and the suggested correction; a list of blocked or unreachable sources. Then reply with JSON: `{"slug": "...", "claimsChecked": N, "claimsFailed": N, "identifiersChecked": N, "identifiersWrong": N, "datesWrong": N, "doNotGetWrongFailed": N, "diagramIssues": N, "styleIssues": N, "coveragePass": boolean, "requiredFixes": ["..."]}`.
+
+## Scratchpad
+Several agents share the session scratchpad. Put your temporary files in a subfolder named after your task (for example `scratchpad/<slug>-writer/`) so no other agent overwrites them. Never keep anything the repository needs in the scratchpad.

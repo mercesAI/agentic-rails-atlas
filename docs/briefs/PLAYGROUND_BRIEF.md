@@ -23,3 +23,6 @@ You build the client-side simulation for one protocol of the Agentic Rails Atlas
 
 ## Finish
 `pnpm exec vitest run tests/unit/playgrounds/<slug>.test.ts`, `pnpm exec tsc --noEmit -p tsconfig.json` (your files), `pnpm build`. Do not edit `src/content/protocols/<slug>/index.mdx`; instead write `docs/integration-notes/playground-<slug>.md` with the line to set in its frontmatter: `playground: { status: 'ready', component: '<slug>' }` plus a one-paragraph note of what the simulation covers. Final reply: features implemented against the Section 5.n list (done, partial, skipped with reason), test count, chunk size.
+
+## Scratchpad
+Several agents share the session scratchpad. Put your temporary files in a subfolder named after your task (for example `scratchpad/<slug>-writer/`) so no other agent overwrites them. Never keep anything the repository needs in the scratchpad.

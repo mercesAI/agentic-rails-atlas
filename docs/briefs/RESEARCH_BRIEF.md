@@ -34,3 +34,6 @@ Write your dossier to disk section by section as you go (append after each headi
 
 ## Write early and commit
 Usage limits have stopped earlier agents before they wrote anything. Create `research/protocols/<slug>.md` with its headings and the "Identity and governance" section within your first few tool calls. Write the sources file once it has 10 records. After each dossier section, append it and commit: `git add research/protocols/<slug>.* && git commit -m "research(<slug>): <section>"`, the message ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Only add your own files (plus `research/blocked.md` and `research/conflicts.md` when you change them).
+
+## Scratchpad
+Several agents share the session scratchpad. Put your temporary files in a subfolder named after your task (for example `scratchpad/<slug>-writer/`) so no other agent overwrites them. Never keep anything the repository needs in the scratchpad.
