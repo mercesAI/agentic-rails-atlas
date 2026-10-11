@@ -1,0 +1,106 @@
+---
+protocol: visa-tap
+title: Visa Trusted Agent Protocol in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+The Visa Trusted Agent Protocol (TAP) helps a merchant to identify an AI agent that Visa approved. The agent signs each HTTP request with a private key. The merchant or its CDN verifies the signature with a public key from Visa. TAP does not move money. TAP is a Visa specification. It is not an IETF standard.
+
+The signature uses RFC 9421. Two HTTP headers carry it: Signature-Input and Signature. The signature includes the host and the path of the request. It also includes a time of creation, a time of expiry, a key identifier, an algorithm, a nonce and a tag.
+
+The tag tells the purpose of the request. The tag `agent-browser-auth` is for a visit to a product page. The tag `agent-payer-auth` is for payment. A request without one of these tags does not come from a trusted agent.
+
+At checkout, the agent can add two signed objects to the request body. The consumer object helps the merchant to identify a known customer. The payment container gives the payment data. The agent signs the two objects with the same key and the same nonce as the header signature.
+
+The signature does not include the HTTP method, the query or the body. A signature is valid for a maximum of 8 minutes.
+
+</SteDescription>
+
+<SteProcedure title="Verify a TAP request at the edge (CDN operator)">
+
+1. Find the Signature-Input header and the Signature header in the request.
+2. If the tag is not `agent-browser-auth` or `agent-payer-auth`, apply your usual bot policy.
+3. Make sure that each minimum field is in the Signature-Input header.
+4. Make sure that the creation time is in the past and the expiry time is in the future.
+5. Make sure that the two times are not more than 8 minutes apart.
+6. Compare the nonce with the nonces of the last 8 minutes.
+7. Get the public key for the `keyid` value from your cache or from the Visa key store.
+8. Make the signature base again from the covered components and the parameters.
+9. Verify the signature with the public key.
+10. If a check fails, block the request.
+11. If all checks pass, send the request to the merchant as a trusted agent request.
+
+</SteProcedure>
+
+<SteCaution>
+KEEP A RECORD OF THE NONCES OF THE LAST 8 MINUTES. IF YOU DO NOT KEEP THIS RECORD, AN ATTACKER CAN SEND A COPY OF A VALID REQUEST AGAIN.
+</SteCaution>
+
+<SteProcedure title="Accept a TAP checkout (merchant)">
+
+1. Verify the header signature. Make sure that the tag is `agent-payer-auth`.
+2. Read the `agenticConsumer` object and the `agenticPaymentContainer` object from the request body.
+3. Make sure that each object has the minimum fields.
+4. Make sure that the nonce in each object is the same as the nonce in the header.
+5. Get the public key for the `kid` value of each object.
+6. Verify the signature of each object.
+7. If the payment container is not valid, do not use it for the payment.
+8. If the agent types the card data, make a hash of that data and compare the two hashes.
+9. If the hashes are different, decline the transaction.
+10. If the payment comes through an API, decrypt the payload with your private key.
+11. Send the payment to your acquirer.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT USE THE PAYMENT CONTAINER FOR A PAYMENT IF ITS SIGNATURE OR ITS NONCE IS NOT CORRECT. THE PAYMENT DATA CAN BE FALSE.
+</SteCaution>
+
+<SteProcedure title="Sign a TAP request (agent platform)">
+
+1. Get a signing key through the Visa onboarding process.
+2. Make a new nonce for the session.
+3. Set the creation time to the time now.
+4. Set the expiry time to not more than 8 minutes after the creation time.
+5. Select the tag `agent-browser-auth` for a product page.
+6. Select the tag `agent-payer-auth` for a checkout page.
+7. Make the signature base from the host, the path and the parameters.
+8. Sign the signature base with your private key.
+9. Put the signature in the Signature-Input header and the Signature header.
+10. Sign each checkout body object with the same key and the same nonce.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SEND THE CONSUMER OBJECT TO A MERCHANT THAT THE CONSUMER DID NOT SELECT. THE OBJECT CONTAINS THE IP ADDRESS, THE DEVICE DATA AND THE LOCATION OF THE CONSUMER.
+</SteCaution>
+
+<SteNote>
+On 2026-10-11, the Visa key store had one RSA key and no Ed25519 key. You cannot find the example key of the specification in the key store.
+</SteNote>
+
+<SteNote>
+The examples in the specification do not verify. They use test values from a different draft.
+</SteNote>
+
+<SteNote>
+TAP does not give a liability rule for agent payments. On 2026-07-30, Worldpay wrote that no liability shift exists.
+</SteNote>
+
+<SteTerms>
+
+- **agent recognition signature**: The RFC 9421 signature that the agent puts in the HTTP headers of each request.
+- **tag**: The signature parameter that tells the purpose of the request: a visit to a product page or a payment.
+- **nonce**: A value that identifies the session. All signatures of one interaction use the same nonce.
+- **key store**: The web location where Visa publishes the public keys for verification.
+- **signature base**: The exact text that the agent signs and that the verifier makes again.
+- **consumer recognition object**: The signed body object that helps the merchant to identify a known customer.
+- **payment container**: The signed body object that contains the payment data.
+- **browsing IOU**: A signed promise to pay that the agent sends after the merchant sends status 402.
+- **Site Protection Provider**: A CDN or proxy in front of the merchant site. It can verify signatures for the merchant.
+- **verify (TV)**: To make sure that a signature is correct with the public key.
+- **sign (TV)**: To make a signature with a private key.
+
+</SteTerms>
