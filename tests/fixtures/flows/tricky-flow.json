@@ -1,0 +1,38 @@
+{
+  "id": "x402-fixture-tricky",
+  "protocol": "x402",
+  "title": "Fixture: labels with colons; quotes \"and\" {braces}",
+  "specVersion": "fixture",
+  "specVersionDate": "2026-10-11",
+  "actors": [
+    { "id": "client-agent", "label": "Agent: client; v2", "kind": "agent" },
+    { "id": "end", "label": "Resource server {api}", "kind": "server" },
+    { "id": "facilitator", "label": "Facilitator \"#1\"", "kind": "facilitator" }
+  ],
+  "steps": [
+    { "n": 1, "from": "client-agent", "to": "end", "label": "GET /weather?city=Paris", "detail": "Plain request." },
+    {
+      "n": 2,
+      "from": "end",
+      "to": "client-agent",
+      "label": "402 Payment Required: {accepts: [...]}",
+      "detail": "Challenge.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 3,
+      "from": "client-agent",
+      "to": "end",
+      "label": "Retry with PAYMENT-SIGNATURE header; 100% of price",
+      "detail": "Signed retry.",
+      "failures": [
+        { "condition": "signature invalid: \"bad sig\"", "outcome": "Server responds 402 again; no funds move" },
+        { "condition": "end", "outcome": "Request times out #timeout" }
+      ]
+    },
+    { "n": 4, "from": "end", "to": "facilitator", "label": "POST /settle", "detail": "Settle." },
+    { "n": 5, "from": "facilitator", "to": "end", "label": "Settlement result <txHash>", "detail": "Result." },
+    { "n": 6, "from": "end", "to": "client-agent", "label": "200 OK", "detail": "Resource." }
+  ],
+  "sources": ["src-fixture"]
+}

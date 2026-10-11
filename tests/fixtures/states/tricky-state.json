@@ -1,0 +1,19 @@
+{
+  "id": "openai-acp-fixture-session",
+  "protocol": "openai-acp",
+  "title": "Fixture: checkout session; states",
+  "specVersion": "fixture",
+  "states": [
+    { "id": "not-ready", "label": "not_ready_for_payment", "initial": true },
+    { "id": "ready", "label": "ready \"for\" payment {x}" },
+    { "id": "completed", "label": "completed", "terminal": true, "note": "Order created: id returned; done" },
+    { "id": "canceled", "label": "canceled", "terminal": true }
+  ],
+  "transitions": [
+    { "from": "not-ready", "to": "ready", "trigger": "POST /checkout_sessions/{id}: buyer details added", "apiCall": "POST /checkout_sessions/{id}" },
+    { "from": "ready", "to": "completed", "trigger": "complete; payment token accepted" },
+    { "from": "ready", "to": "canceled", "trigger": "cancel" },
+    { "from": "not-ready", "to": "canceled", "trigger": "end" }
+  ],
+  "sources": ["src-fixture"]
+}
