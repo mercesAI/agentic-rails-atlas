@@ -4,6 +4,7 @@
  * specs/intents/draft-payment-intent-charge-00.md, specs/intents/draft-payment-intent-subscription-00.md,
  * specs/methods/tempo/draft-tempo-charge-00.md, draft-tempo-session-00.md, draft-tempo-subscription-00.md.
  */
+import { getAddress } from 'viem';
 
 export const CORE_SPEC = 'draft-httpauth-payment-01';
 export const SESSION_SPEC = 'draft-tempo-session-00';
@@ -22,16 +23,16 @@ export const FIXTURE_REALM = FIXTURE_HOST;
 
 /** Fixture 6-decimal token, same address as the x402 playground fixture. */
 export const FIXTURE_TOKEN = {
-  address: '0x7E57000000000000000000000000000000007e57',
+  address: getAddress('0x7e57000000000000000000000000000000007e57'),
   symbol: 'SIMUSD',
   decimals: 6,
 } as const;
 
 /** Fixture payee and escrow addresses. */
-export const FIXTURE_RECIPIENT = '0xB0b0000000000000000000000000000000000B0b';
-export const FIXTURE_ESCROW = '0xE5c0000000000000000000000000000000000E5c';
+export const FIXTURE_RECIPIENT = getAddress('0xb0b0000000000000000000000000000000000b0b');
+export const FIXTURE_ESCROW = getAddress('0xe5c0000000000000000000000000000000000e5c');
 /** Fixture access key for the subscription intent (methodDetails.accessKey). */
-export const FIXTURE_ACCESS_KEY = '0xACce000000000000000000000000000000000ACc';
+export const FIXTURE_ACCESS_KEY = getAddress('0xacce000000000000000000000000000000000acc');
 
 /** Canonical Permit2 address (methodDetails.permit2Address default in draft-evm-charge-00); never called here. */
 export const PERMIT2_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3';

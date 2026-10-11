@@ -7,7 +7,7 @@
  */
 import { base64Decode, encodeCanonical, encodeJson } from './codec';
 import { computeChallengeId, serializeChallenge, serializeReceipt, type Challenge, type Credential, type Receipt } from './challenge';
-import { FIXTURE_REALM, PERMIT2_ADDRESS } from './fixtures';
+import { FIXTURE_REALM, FIXTURE_RECIPIENT, FIXTURE_TOKEN, PERMIT2_ADDRESS, SIM_CHAIN_ID } from './fixtures';
 
 export interface X402Requirements {
   scheme: string;
@@ -172,10 +172,10 @@ export function translatePaymentResponse(value: string, now: Date): Translation<
 export function sampleX402(now: Date, payer: string): { required: string; signature: string; response: string } {
   const req: X402Requirements = {
     scheme: 'exact',
-    network: 'eip155:424242',
+    network: `eip155:${SIM_CHAIN_ID}`,
     amount: '10000',
-    asset: '0x7E57000000000000000000000000000000007e57',
-    payTo: '0xB0b0000000000000000000000000000000000B0b',
+    asset: FIXTURE_TOKEN.address,
+    payTo: FIXTURE_RECIPIENT,
     maxTimeoutSeconds: 60,
     extra: { name: 'Sim USD', version: '2' },
   };
