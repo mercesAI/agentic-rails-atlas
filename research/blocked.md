@@ -44,3 +44,9 @@
 - 2026-10-11, market: https://www.digitalcommerce360.com (Morgan Stanley and Bain coverage): HTTP 403; alternative used: search extracts; Bain figures from bain.com (page date read).
 - 2026-10-11, fees: https://docs.stripe.com/agentic-commerce/concepts: HTTP 404; alternative used: https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens.
 - 2026-10-11, fees: https://payai.network/pricing: HTTP 404; alternative used: https://docs.payai.network/x402/facilitators/pricing and https://facilitator.payai.network/.
+- 2026-10-11, pubs-c: https://www.imf.org/en/publications/imf-notes/issues/2026/04/22/how-agentic-ai-will-reshape-payments-575560: HTTP 403 to curl; alternative used: DOI 10.5089/9781513533308.068 (Crossref search, DOI content negotiation) and the bookstore.imf.org redirect to elibrary.imf.org.
+- 2026-10-11, pubs-c: https://www.mckinsey.com (agentic commerce report page and PDF): curl timeout and WebFetch timeout; alternative used: the McKinsey-owned mirror karriere.mckinsey.de (title, date, authors, figures).
+- 2026-10-11, pubs-c: https://www.bain.com (press release and 2030 forecast Snap Chart): HTTP 403 to curl; alternative used: WebFetch of the same bain.com pages, which succeeded.
+- 2026-10-11, pubs-c: https://www.mastercard.com/us/en/news-and-trends/Insights/2026/mastercard-agentic-commerce-trust-white-paper.html (and the /am/en and /global/en variants): HTTP 403 to curl and WebFetch; alternative tried: the 2026-09-30 Investor Relations release PDF on s25.q4cdn.com (names the Trust Framework, links no white paper). Seed entry left unverified.
+- 2026-10-11, pubs-c: https://export.arxiv.org/api/query: HTTP 429 after about 25 search requests at 0.5 s spacing; resumed after a pause with 3 s spacing.
+- 2026-10-11, pubs-c: https://datatracker.ietf.org/api/v1/doc/documentauthor/?document=<name>: returned no object list for the filter used; alternative used: author lines in the draft text at ietf.org/archive/id.
