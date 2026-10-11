@@ -1,0 +1,97 @@
+---
+protocol: ap2
+title: AP2 in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+AP2 is an open protocol for agent payments. A mandate is a signed record. It shows what a user lets an agent buy. AP2 does not move money. Cards, bank transfers or tokens move the money.
+
+Google started AP2 in 2025. Since 2026-04-28, groups of the FIDO Alliance control the specification.
+
+Version 0.2 has two types of mandate: the Checkout Mandate and the Payment Mandate. Version 0.2 has no Intent Mandate and no Cart Mandate. Each mandate is closed or open. A closed mandate shows one checkout and one exact amount. An open mandate shows limits and the public key of the agent.
+
+AP2 has five roles. The agent buys for the user. The Credential Provider gives a payment token. The Merchant signs the checkout. The Merchant Payment Processor processes the payment.
+
+The Trusted Surface shows the mandate to the user and gets the approval. The Trusted Surface must not use an AI model.
+
+The hash of the signed checkout is in each mandate. Thus, each mandate is for one checkout only. AP2 has no procedure to cancel a mandate before it expires. AP2 version 0.2 has no step-up authentication.
+
+</SteDescription>
+
+<SteProcedure title="Approve a purchase for an agent (user)">
+
+1. Open the request on your Trusted Surface, for example your bank app.
+2. Read the merchant, the items and the amount.
+3. If the request has limits, read the maximum amount and the expiry time.
+4. Make sure that the merchants are the merchants that you expect.
+5. Approve the request with your fingerprint or your PIN.
+6. Keep the receipts that the agent shows you.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT APPROVE AN OPEN MANDATE WITH A LONG EXPIRY TIME. YOU CANNOT CANCEL AN OPEN MANDATE BEFORE IT EXPIRES.
+</SteCaution>
+
+<SteProcedure title="Verify a Checkout Mandate (merchant)">
+
+1. Sign each checkout with an ECDSA key, for example ES256.
+2. When the agent sends a Checkout Mandate, verify the signature chain.
+3. Calculate the hash of your latest signed checkout.
+4. Make sure that this hash is equal to the checkout_hash value.
+5. If the agent also sends an open mandate, examine each constraint.
+6. If you do not know a constraint type, reject the mandate.
+7. If a check fails, send a Checkout Receipt with the error code.
+8. If all checks are correct, complete the checkout and send a Checkout Receipt.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT ACCEPT A CHECKOUT MANDATE IF THE HASH IS NOT EQUAL TO THE HASH OF YOUR LATEST CHECKOUT. THE USER DID NOT APPROVE THAT CHECKOUT.
+</SteCaution>
+
+<SteProcedure title="Close an open mandate (agent developer)">
+
+1. Find the open mandates that agree with the checkout.
+2. Make sure that the amount is in the amount range.
+3. Make sure that the merchant and the items are in the allowed lists.
+4. Sign the closed mandates with the agent key from the cnf claim.
+5. Send only the data that the verifier must have.
+6. Send the Payment Mandate to the Credential Provider.
+7. Send the token and the Checkout Mandate to the merchant.
+8. If you get the error unresolved_constraint, ask the user to approve the purchase.
+9. Keep the open mandate, the closed mandate and the receipt together.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SEND A SECOND CLOSED MANDATE FROM THE SAME OPEN MANDATE BEFORE YOU GET A RECEIPT WITH AN ERROR. THE AGENT CAN PAY TWO TIMES.
+</SteCaution>
+
+<SteCaution>
+KEEP THE AGENT KEY AWAY FROM THE AI MODEL. A PERSON WITH THIS KEY CAN SIGN CLOSED MANDATES.
+</SteCaution>
+
+<SteNote>
+The errors invalid_credential and invalid_mandate stop the purchase. The errors unresolved_constraint and mandates_not_supported can start a different procedure.
+</SteNote>
+
+<SteNote>
+No public source shows that a company uses AP2 mandates in production. This is correct on 2026-10-11.
+</SteNote>
+
+<SteTerms>
+
+- **mandate**: A signed record that shows what a user lets an agent buy.
+- **closed mandate**: A mandate for one checkout and one exact amount.
+- **open mandate**: A mandate with limits and the public key of the agent.
+- **constraint**: A limit in an open mandate, for example a maximum amount or a list of merchants.
+- **Trusted Surface**: The screen where the user reads and approves a mandate. It does not use an AI model.
+- **Credential Provider**: The company that gives a payment token after it verifies the Payment Mandate.
+- **checkout_hash**: The hash of the checkout that the merchant signed.
+- **receipt**: A signed record that shows if the payment or the checkout is complete.
+- **expire (IV)**: To stop being valid at a set time.
+
+</SteTerms>
