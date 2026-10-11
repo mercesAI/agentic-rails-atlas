@@ -1,0 +1,46 @@
+{
+ "protocol": "ucp",
+ "snippets": [
+  {
+   "title": "Validate a checkout response with @ucp-js/sdk",
+   "sdk": "@ucp-js/sdk",
+   "version": "0.5.1",
+   "language": "typescript",
+   "side": "client",
+   "code": "import { CheckoutResponseSchema, CheckoutResponse } from \"@ucp-js/sdk\";\n\n// Validate data against UCP schemas\nconst parseResult = CheckoutResponseSchema.safeParse(checkoutData);\n\nif (parseResult.success) {\n  const checkout: CheckoutResponse = parseResult.data;\n  console.log(checkout.status); // \"incomplete\" | \"ready_for_complete\" | ...\n  console.log(checkout.currency); // ISO 4217 currency code\n} else {\n  console.error(parseResult.error);\n}",
+   "docsUrl": "https://github.com/Universal-Commerce-Protocol/js-sdk#usage",
+   "note": "From the SDK README. 0.5.x is generated against schema 2026-08-25. The SDK provides types and validation, not an HTTP client.",
+   "sources": [
+    "src-ucp-js-sdk-readme"
+   ]
+  },
+  {
+   "title": "Parse a checkout with ucp-sdk (Python)",
+   "sdk": "ucp-sdk",
+   "version": "0.5.0",
+   "language": "python",
+   "side": "client",
+   "code": "from ucp_sdk.models.schemas.shopping.checkout import Checkout\n\n# Parse a UCP checkout response\ncheckout = Checkout.model_validate(checkout_data)\n\n# Access typed fields\nprint(checkout.status)  # \"incomplete\" | \"ready_for_complete\" | ...\nprint(checkout.currency)  # ISO 4217 currency code\nfor item in checkout.line_items:\n    print(f\"{item.item.title}: {item.quantity}\")",
+   "docsUrl": "https://github.com/Universal-Commerce-Protocol/python-sdk#usage",
+   "note": "From the SDK README; Pydantic models generated from the 2026-08-25 schemas.",
+   "sources": [
+    "src-ucp-python-sdk-readme"
+   ]
+  },
+  {
+   "title": "Run the sample business server and the happy path client",
+   "sdk": "UCP samples (rest/python)",
+   "version": "commit cdb291c (2026-10-05)",
+   "language": "bash",
+   "side": "cli",
+   "code": "# from rest/python/server\nuv run server.py \\\n  --products_db_path=/tmp/ucp_test/products.db \\\n  --transactions_db_path=/tmp/ucp_test/transactions.db \\\n  --port=8182\n\n# from rest/python/client/flower_shop\nuv run simple_happy_path_client.py --server_url=http://localhost:8182",
+   "docsUrl": "https://github.com/Universal-Commerce-Protocol/samples/tree/main/rest/python/client/flower_shop",
+   "note": "Discovery, create checkout, fulfillment and complete against a local server. The client signs every request with an ephemeral ES256 key unless you pass --disable_signatures. Local only; no real payments.",
+   "sources": [
+    "src-ucp-samples-client-readme",
+    "src-ucp-samples"
+   ]
+  }
+ ],
+ "labs": []
+}

@@ -1,0 +1,299 @@
+{
+ "protocol": "ucp",
+ "stewards": [
+  {
+   "name": "UCP Governing Council",
+   "role": "Owns all UCP assets; 5 seats (Google and Shopify permanent, Stripe elected, 2 open as of 2026-10-11).",
+   "sources": [
+    "src-ucp-governance",
+    "src-ucp-maintainers"
+   ]
+  },
+  {
+   "name": "Google",
+   "role": "Launched UCP, holds a permanent seat and the proxy vote for open seats until December 2028, custodian of ucp.dev.",
+   "sources": [
+    "src-ucp-governance",
+    "src-ucp-google-nrf"
+   ]
+  },
+  {
+   "name": "Shopify",
+   "role": "Co-developer and permanent council seat.",
+   "sources": [
+    "src-ucp-governance",
+    "src-ucp-google-dev-blog"
+   ]
+  },
+  {
+   "name": "Domain Tech Councils (Shopping, Food, Lodging, Payments)",
+   "role": "16-member councils elected every 6 months; Payments council includes Adyen, Ant International, Coinbase, Global Payments, PayPal and Stripe.",
+   "sources": [
+    "src-ucp-governance",
+    "src-ucp-announcements"
+   ]
+  }
+ ],
+ "implementers": [
+  {
+   "name": "Google AI Mode in Search and Gemini",
+   "role": "Platform; UCP checkout for US shoppers, starting with Etsy and Wayfair on 2026-02-11.",
+   "status": "live",
+   "sources": [
+    "src-ucp-google-feb2026",
+    "src-ucp-google-faq"
+   ]
+  },
+  {
+   "name": "Etsy and Wayfair",
+   "role": "Businesses live on Google surfaces from 2026-02-11.",
+   "status": "live",
+   "sources": [
+    "src-ucp-google-feb2026"
+   ]
+  },
+  {
+   "name": "Shopify, Target and Walmart",
+   "role": "Businesses; Google said on 2026-02-11 that their checkout through UCP was coming soon.",
+   "status": "announced",
+   "sources": [
+    "src-ucp-google-feb2026"
+   ]
+  },
+  {
+   "name": "Shopify merchants (native checkout on Google)",
+   "role": "Reported automatic enrollment of eligible US merchants around 2026-09-22 (secondary only).",
+   "status": "unknown",
+   "sources": [
+    "src-ucp-ppcland-shopify"
+   ]
+  },
+  {
+   "name": "Google Universal Cart",
+   "role": "Google shopping product that uses UCP for checkout (announced 2026-05-19).",
+   "status": "announced",
+   "sources": [
+    "src-ucp-google-universal-cart"
+   ]
+  },
+  {
+   "name": "Microsoft Copilot Checkout and Merchant Center",
+   "role": "Copilot Checkout requires a UCP-compliant feed; Microsoft says MMC will support UCP (future tense).",
+   "status": "announced",
+   "sources": [
+    "src-ucp-microsoft-page"
+   ]
+  },
+  {
+   "name": "Stripe",
+   "role": "Documents a Stripe Payments handler for UCP.",
+   "status": "live",
+   "sources": [
+    "src-ucp-stripe-docs"
+   ]
+  },
+  {
+   "name": "Adyen",
+   "role": "Documents a UCP Tokenization Handler bound to checkout session and merchant.",
+   "status": "live",
+   "sources": [
+    "src-ucp-adyen-docs"
+   ]
+  },
+  {
+   "name": "AP2 extension in production",
+   "role": "Specified; no public deployment found.",
+   "status": "unknown",
+   "sources": [
+    "src-ucp-ap2-spec",
+    "src-ucp-google-universal-cart"
+   ]
+  }
+ ],
+ "sdks": [
+  {
+   "registry": "pypi",
+   "name": "ucp-sdk",
+   "version": "0.5.0",
+   "url": "https://pypi.org/project/ucp-sdk/",
+   "note": "Pydantic models; 0.5.x matches schema 2026-08-25; released 2026-08-27."
+  },
+  {
+   "registry": "npm",
+   "name": "@ucp-js/sdk",
+   "version": "0.5.1",
+   "url": "https://www.npmjs.com/package/@ucp-js/sdk",
+   "note": "Zod schemas and TypeScript types; published 2026-09-02."
+  },
+  {
+   "registry": "crates",
+   "name": "ucp-schema",
+   "version": "1.4.1",
+   "url": "https://crates.io/crates/ucp-schema",
+   "note": "Runtime resolution of UCP schema annotations; 2026-08-03."
+  }
+ ],
+ "metrics": [
+  {
+   "id": "ucp-codevelopers",
+   "metric": "Co-developer organizations listed on ucp.dev",
+   "value": 21,
+   "unit": "organizations",
+   "asOf": "2026-10-11",
+   "definition": "Unique names across the Shopping, Lodging and Food co-developer lists.",
+   "sources": [
+    "src-ucp-site"
+   ],
+   "caveat": "Google appears in three verticals (23 logo slots); a count of names, not of integrations."
+  },
+  {
+   "id": "ucp-endorsers",
+   "metric": "Endorsers listed on ucp.dev",
+   "value": 51,
+   "unit": "organizations",
+   "asOf": "2026-10-11",
+   "definition": "Names in the endorser list on the homepage.",
+   "sources": [
+    "src-ucp-site"
+   ],
+   "caveat": "Endorsement is not deployment."
+  },
+  {
+   "id": "ucp-endorsers-launch",
+   "metric": "Endorsers at launch",
+   "value": "over 20",
+   "unit": "organizations",
+   "asOf": "2026-01-11",
+   "definition": "Google's wording at launch.",
+   "sources": [
+    "src-ucp-google-dev-blog"
+   ]
+  },
+  {
+   "id": "ucp-gh-stars",
+   "metric": "GitHub stars, Universal-Commerce-Protocol/ucp",
+   "value": 3413,
+   "unit": "stars",
+   "asOf": "2026-10-11",
+   "definition": "Stars on the spec repository.",
+   "sources": [
+    "src-ucp-gh-repo"
+   ],
+   "caveat": "Interest, not usage."
+  },
+  {
+   "id": "ucp-gh-forks",
+   "metric": "GitHub forks, Universal-Commerce-Protocol/ucp",
+   "value": 476,
+   "unit": "forks",
+   "asOf": "2026-10-11",
+   "definition": "Forks of the spec repository.",
+   "sources": [
+    "src-ucp-gh-repo"
+   ]
+  },
+  {
+   "id": "ucp-releases",
+   "metric": "Protocol releases",
+   "value": 4,
+   "unit": "releases",
+   "asOf": "2026-10-11",
+   "definition": "Dated tags v2026-01-11 to v2026-08-25.",
+   "sources": [
+    "src-ucp-gh-releases"
+   ]
+  },
+  {
+   "id": "ucp-gc-seats",
+   "metric": "Governing Council seats filled",
+   "value": "3 of 5",
+   "unit": "seats",
+   "asOf": "2026-10-11",
+   "definition": "MAINTAINERS.md roster.",
+   "sources": [
+    "src-ucp-maintainers"
+   ]
+  },
+  {
+   "id": "ucp-interest",
+   "metric": "Companies interested in integrating",
+   "value": "hundreds",
+   "unit": "companies",
+   "asOf": "2026-02-11",
+   "definition": "Google's statement about tech, payments and retail companies.",
+   "sources": [
+    "src-ucp-google-feb2026"
+   ],
+   "caveat": "Marketing claim, no list."
+  },
+  {
+   "id": "ucp-merchants",
+   "metric": "Merchants live, transaction volume",
+   "value": "not published",
+   "unit": "n/a",
+   "asOf": "2026-10-11",
+   "definition": "No merchant count or volume from Google or the project.",
+   "sources": [
+    "src-ucp-google-faq",
+    "src-ucp-site"
+   ]
+  }
+ ],
+ "costs": [
+  {
+   "item": "Protocol fee",
+   "value": "None; Apache-2.0 open standard",
+   "whoPays": "Nobody",
+   "asOf": "2026-10-11",
+   "confidence": "verified",
+   "caveat": "Platform and PSP fees are separate from the protocol.",
+   "sources": [
+    "src-ucp-gh-repo"
+   ]
+  },
+  {
+   "item": "Google cut of agentic checkout sales",
+   "value": "Google told The Register it does not plan to take a cut",
+   "whoPays": "Merchant (nothing to Google, as stated)",
+   "asOf": "2026-01-12",
+   "confidence": "reported",
+   "caveat": "A statement of intent to a reporter, not a published fee schedule.",
+   "sources": [
+    "src-ucp-register"
+   ]
+  },
+  {
+   "item": "Payment processing",
+   "value": "The merchant's normal PSP fees; the PSP must process Google's tokens",
+   "whoPays": "Merchant pays its PSP",
+   "asOf": "2026-10-11",
+   "confidence": "reported",
+   "caveat": "Inferred from the merchant-of-record and PSP roles in Google's FAQ; no fee schedule exists.",
+   "sources": [
+    "src-ucp-google-faq"
+   ]
+  },
+  {
+   "item": "Google AI Mode, Gemini and Microsoft Copilot checkout fees",
+   "value": "No additional fees, for now",
+   "whoPays": "Merchant",
+   "asOf": "2026-01-21",
+   "confidence": "reported",
+   "caveat": "Reported by PYMNTS citing The Information, in contrast to a 4% ChatGPT checkout fee for Shopify merchants.",
+   "sources": [
+    "src-ucp-pymnts-fees"
+   ]
+  },
+  {
+   "item": "Google Pay on Google AI surfaces",
+   "value": "PAN_ONLY for allowed_auth_methods",
+   "whoPays": "Card economics unchanged",
+   "asOf": "2026-10-11",
+   "confidence": "verified",
+   "caveat": "Affects which credentials reach the PSP, not a fee.",
+   "sources": [
+    "src-ucp-google-faq"
+   ]
+  }
+ ]
+}

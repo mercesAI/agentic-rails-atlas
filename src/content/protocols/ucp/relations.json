@@ -1,0 +1,66 @@
+[
+ {
+  "from": "ucp",
+  "to": "ap2",
+  "type": "embeds",
+  "note": "AP2 is an optional UCP extension, dev.ucp.common.payment.ap2_mandate (dev.ucp.shopping.ap2_mandate before v2026-08-25). UCP places the merchant authorization, checkout mandate and payment mandate; AP2 defines the formats. Live use is unverified.",
+  "sources": [
+   "src-ucp-ap2-spec",
+   "src-ucp-schema-ap2",
+   "src-ucp-schema-ap2-0408",
+   "src-ucp-google-faq"
+  ]
+ },
+ {
+  "from": "ucp",
+  "to": "ap2",
+  "type": "same-steward",
+  "note": "Google launched both; Google donated AP2 to the FIDO Alliance on 2026-04-28 while UCP stays under its own Governing Council.",
+  "sources": [
+   "src-ucp-google-ap2-fido",
+   "src-ucp-governance"
+  ]
+ },
+ {
+  "from": "ucp",
+  "to": "openai-acp",
+  "type": "competes-with",
+  "note": "Both specify agent checkout with the merchant as merchant of record; no bridge or mapping is specified. Stripe co-develops ACP and sits on UCP councils.",
+  "sources": [
+   "src-ucp-maintainers",
+   "src-ucp-announcements",
+   "src-ucp-glossary"
+  ]
+ },
+ {
+  "from": "ucp",
+  "to": "mastercard-agent-pay",
+  "type": "compatible-with",
+  "note": "The network_token credential type (number, cryptogram, eci_value, token_requestor_id) can carry network tokens in general; no Agent Pay integration is documented, and Google surfaces use Google Pay PAN_ONLY.",
+  "sources": [
+   "src-ucp-schema-payment",
+   "src-ucp-google-faq",
+   "src-ucp-site"
+  ]
+ },
+ {
+  "from": "ucp",
+  "to": "visa-tap",
+  "type": "complements",
+  "note": "Both use RFC 9421 HTTP Message Signatures and UCP added optional Web Bot Auth interop; the UCP spec never names TAP and no bridge is documented. Visa is a listed endorser.",
+  "sources": [
+   "src-ucp-signatures",
+   "src-ucp-site"
+  ]
+ },
+ {
+  "from": "ucp",
+  "to": "stripe-mpp",
+  "type": "complements",
+  "note": "No documented relation in the spec; Stripe's UCP integration is a payment handler for tokenized methods, not MPP.",
+  "sources": [
+   "src-ucp-stripe-docs",
+   "src-ucp-overview"
+  ]
+ }
+]
