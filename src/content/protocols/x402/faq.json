@@ -1,18 +1,128 @@
 {
   "protocol": "x402",
   "items": [
-    { "q": "Is x402 a Coinbase product?", "a": "No longer. Coinbase Developer Platform originated it in 2025, but since 2026 it is governed by the x402 Foundation, a Linux Foundation project with a Technical Steering Committee of Coinbase, Cloudflare and Stripe. coinbase/x402 is now a fork of the foundation repository.", "misconception": true, "claimIds": ["clm-x402-003", "clm-x402-226", "clm-x402-016", "clm-x402-010"] },
-    { "q": "Is every x402 payment USDC on Base?", "a": "No. Networks are CAIP-2 ids across many EVM chains, Solana, Lightning and others, and default assets include USDT0, MegaUSD, USDM and USDT as well as USDC. Solana was quoted at nearly 65 percent of volume in 2026 to 2026-04-02.", "misconception": true, "claimIds": ["clm-x402-178", "clm-x402-123", "clm-x402-055", "clm-x402-202"] },
-    { "q": "Are the V1 and V2 headers the same?", "a": "No. V1 put the requirements in a JSON body and used X-PAYMENT and X-PAYMENT-RESPONSE. V2 uses PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE, CAIP-2 network ids and an amount field instead of maxAmountRequired.", "misconception": true, "claimIds": ["clm-x402-098", "clm-x402-084"] },
-    { "q": "Is the PyPI package x402 a legacy V1 package?", "a": "No. PyPI x402 2.x is the V2 Python SDK (2.25.0 on 2026-09-29). The legacy V1 packages are the unscoped npm packages such as x402 and x402-express.", "misconception": true, "claimIds": ["clm-x402-041", "clm-x402-039"] },
-    { "q": "What happened to the deferred scheme?", "a": "Cloudflare proposed it in 2025-09. It merged on 2026-04-15 under the name batch-settlement, together with the credit-backed cloudflare:402 binding. The separate deferred pull request closed without merging.", "misconception": true, "claimIds": ["clm-x402-056", "clm-x402-051", "clm-x402-057"] },
-    { "q": "Can a facilitator steal or redirect the payment?", "a": "Not under exact on EVM: the signature covers the amount and the recipient, so the facilitator can only broadcast what the client signed. It can refuse or delay service, and it sees payment metadata.", "claimIds": ["clm-x402-126", "clm-x402-064", "clm-x402-165"] },
-    { "q": "Can I get a refund?", "a": "Not in the exact scheme, which defines no refund. auth-capture supports void, refund and reclaim, batch-settlement channels allow refunds and withdrawal, and third parties such as x402r add refund and arbitration.", "claimIds": ["clm-x402-129", "clm-x402-130"] },
-    { "q": "How much does x402 cost?", "a": "The protocol charges nothing. Costs are facilitator fees and gas. The CDP facilitator makes the first 1,000 on-chain transactions each month free, then charges $0.001 per transaction, and verification is free (as of 2026-10-11).", "claimIds": ["clm-x402-186", "clm-x402-191"] },
-    { "q": "How big is x402 really?", "a": "Contested. The x402.org counter showed $24.24M over 30 days but was last updated 2026-08-25; Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21); an academic study argues settlement counts can be manufactured almost for free.", "misconception": true, "claimIds": ["clm-x402-194", "clm-x402-198", "clm-x402-205", "clm-x402-206"] },
-    { "q": "Is the Cloudflare Monetization Gateway the same thing as cloudflare:402?", "a": "No. The Monetization Gateway closed beta (2026-09-30) settles USDC on Base through Coinbase's facilitator. cloudflare:402 is a separate credit-backed batch-settlement variant where Cloudflare is merchant of record.", "misconception": true, "claimIds": ["clm-x402-183", "clm-x402-184", "clm-x402-068"] },
-    { "q": "Is x402 the same as L402?", "a": "No. L402 is an earlier HTTP 402 payment design on Lightning by Lightning Labs; the bLIP-0026 draft (an open, unmerged proposal) is token-agnostic with optional macaroons. No source states that it is the ancestor of x402. x402's own Lightning binding sends only a preimage, no macaroon.", "misconception": true, "claimIds": ["clm-x402-222", "clm-x402-223", "clm-x402-224"] },
-    { "q": "Does x402 limit how much my agent can spend?", "a": "The protocol does not; budgets are out of scope. The TypeScript client applies spendControls by default: only default assets and at most $1 per payment, unless you change or disable them.", "claimIds": ["clm-x402-147", "clm-x402-145", "clm-x402-146"] },
-    { "q": "Who runs x402scan?", "a": "Merit Systems, which publishes the source on GitHub and is a General member of the x402 Foundation.", "claimIds": ["clm-x402-227", "clm-x402-228"] }
+    {
+      "q": "Is x402 a Coinbase product?",
+      "a": "No longer. Coinbase Developer Platform originated it in 2025, but since 2026 it is governed by the x402 Foundation, a Linux Foundation project with a Technical Steering Committee of Coinbase, Cloudflare and Stripe. coinbase/x402 is now a fork of the foundation repository.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-003",
+        "clm-x402-226",
+        "clm-x402-016",
+        "clm-x402-010"
+      ]
+    },
+    {
+      "q": "Is every x402 payment USDC on Base?",
+      "a": "No. Networks are CAIP-2 ids across many EVM chains, Solana, Lightning and others, and default assets include USDT0, MegaUSD, USDM and USDT as well as USDC. A Solana Foundation quote in the Linux Foundation release of 2026-04-02 put Solana at nearly 65 percent of x402 volume in 2026 to date.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-178",
+        "clm-x402-123",
+        "clm-x402-055",
+        "clm-x402-202"
+      ]
+    },
+    {
+      "q": "Are the V1 and V2 headers the same?",
+      "a": "No. V1 put the requirements in a JSON body and used X-PAYMENT and X-PAYMENT-RESPONSE. V2 uses PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE, CAIP-2 network ids and an amount field instead of maxAmountRequired.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-098",
+        "clm-x402-084"
+      ]
+    },
+    {
+      "q": "Is the PyPI package x402 a legacy V1 package?",
+      "a": "No. PyPI x402 2.x is the V2 Python SDK (2.25.0 on 2026-09-29). The legacy V1 packages are the unscoped npm packages such as x402 and x402-express.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-041",
+        "clm-x402-039"
+      ]
+    },
+    {
+      "q": "What happened to the deferred scheme?",
+      "a": "Cloudflare proposed it in 2025-09. It merged on 2026-04-15 under the name batch-settlement, together with the credit-backed cloudflare:402 binding. The separate deferred pull request closed without merging.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-056",
+        "clm-x402-051",
+        "clm-x402-057"
+      ]
+    },
+    {
+      "q": "Can a facilitator steal or redirect the payment?",
+      "a": "Not under exact on EVM: the signature covers the amount and the recipient, so the facilitator can only broadcast what the client signed. It can refuse or delay service, and it sees payment metadata.",
+      "claimIds": [
+        "clm-x402-126",
+        "clm-x402-064",
+        "clm-x402-165"
+      ]
+    },
+    {
+      "q": "Can I get a refund?",
+      "a": "Not in the exact scheme, which defines no refund. auth-capture supports void, refund and reclaim, batch-settlement channels allow refunds and withdrawal, and third parties such as x402r add refund and arbitration.",
+      "claimIds": [
+        "clm-x402-129",
+        "clm-x402-130"
+      ]
+    },
+    {
+      "q": "How much does x402 cost?",
+      "a": "The protocol charges nothing. Costs are facilitator fees and gas. The CDP facilitator makes the first 1,000 on-chain transactions each month free, then charges $0.001 per transaction, and verification is free (as of 2026-10-11).",
+      "claimIds": [
+        "clm-x402-186",
+        "clm-x402-191"
+      ]
+    },
+    {
+      "q": "How big is x402 really?",
+      "a": "Contested. The x402.org counter showed $24.24M over 30 days but was last updated 2026-08-25; Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21); an academic study argues settlement counts can be manufactured almost for free.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-194",
+        "clm-x402-198",
+        "clm-x402-205",
+        "clm-x402-206"
+      ]
+    },
+    {
+      "q": "Is the Cloudflare Monetization Gateway the same thing as cloudflare:402?",
+      "a": "No. The Monetization Gateway closed beta (2026-09-30) settles USDC on Base through Coinbase's facilitator. cloudflare:402 is a separate credit-backed batch-settlement variant where Cloudflare is merchant of record.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-183",
+        "clm-x402-184",
+        "clm-x402-068"
+      ]
+    },
+    {
+      "q": "Is x402 the same as L402?",
+      "a": "No. L402 is an earlier HTTP 402 payment design on Lightning by Lightning Labs, launched as LSAT on 2020-03-30 with a macaroon plus a BOLT11 invoice and renamed L402 on 2023-04-20. Its bLIP-0026 draft, rewritten on 2026-02-25 and still an open pull request, makes macaroons optional. No source states that L402 is the ancestor of x402, and x402's own Lightning binding sends only a preimage, no macaroon.",
+      "misconception": true,
+      "claimIds": [
+        "clm-x402-222",
+        "clm-x402-223",
+        "clm-x402-224"
+      ]
+    },
+    {
+      "q": "Does x402 limit how much my agent can spend?",
+      "a": "The protocol does not; budgets are out of scope. The TypeScript client applies spendControls by default: only default assets and at most $1 per payment, unless you change or disable them.",
+      "claimIds": [
+        "clm-x402-147",
+        "clm-x402-145",
+        "clm-x402-146"
+      ]
+    },
+    {
+      "q": "Who runs x402scan?",
+      "a": "Merit Systems, which publishes the source on GitHub and is a General member of the x402 Foundation.",
+      "claimIds": [
+        "clm-x402-227",
+        "clm-x402-228"
+      ]
+    }
   ]
 }

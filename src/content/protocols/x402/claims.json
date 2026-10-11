@@ -1209,7 +1209,9 @@
       "sources": [
         "src-x402-scheme-exact-evm",
         "src-x402-core-changelog",
-        "src-x402-ext-builder-code"
+        "src-x402-ext-builder-code",
+        "src-x402-docs-wallet-compat",
+        "src-x402-scheme-auth-capture-evm"
       ],
       "confidence": "verified",
       "topic": "crypto"
@@ -1542,7 +1544,8 @@
       "text": "An exact eip3009 payment appears on chain only as the token's own Transfer and AuthorizationUsed events, so nothing marks it as an x402 payment.",
       "sources": [
         "src-x402-scheme-exact-evm",
-        "src-x402-erc8004-bp"
+        "src-x402-erc8004-bp",
+        "src-gloss-erc-3009"
       ],
       "confidence": "verified",
       "topic": "observability"
@@ -1855,12 +1858,13 @@
     },
     {
       "id": "clm-x402-188",
-      "text": "A secondary comparison reports PayAI charging $0.001 per settlement after 1,000 free settlements and thirdweb charging a 0.3 percent facilitator fee; self-hosted facilitators pay only gas and operations.",
+      "text": "PayAI's own pricing docs say each settlement has cost the network's on-chain gas plus 30 percent since 2026-09-21, paid in credits of $0.001, with 1,000 free credits per receiving wallet for life; a secondary comparison reports thirdweb charging a 0.3 percent facilitator fee, and self-hosted facilitators pay only gas and operations.",
       "sources": [
+        "src-fee-payai-pricing-docs",
         "src-x402-fee-wavect"
       ],
-      "confidence": "reported",
-      "asOf": "2026-07-12",
+      "confidence": "verified",
+      "asOf": "2026-10-11",
       "topic": "ecosystem"
     },
     {
@@ -1956,7 +1960,7 @@
     },
     {
       "id": "clm-x402-198",
-      "text": "Visa and Artemis data to 2026-04-21 adjusts x402 activity to about $15.0M across 109.6M transactions, an average of $0.14, against unadjusted $135.7M and 178.3M operations.",
+      "text": "Visa and Artemis data to 2026-04-21 adjusts x402 activity to about $15.0M across 109.6M transactions, an average of $0.14.",
       "sources": [
         "src-x402-forkast-visa"
       ],
@@ -1996,11 +2000,11 @@
     },
     {
       "id": "clm-x402-202",
-      "text": "The Linux Foundation said Solana carried nearly 65 percent of x402 transaction volume in 2026 up to 2026-04-02.",
+      "text": "A Solana Foundation quote (Rishin Sharma) in the Linux Foundation release of 2026-04-02 says Solana drove nearly 65 percent of x402 transaction volume in 2026 to date.",
       "sources": [
         "src-x402-lf-april"
       ],
-      "confidence": "verified",
+      "confidence": "reported",
       "asOf": "2026-04-02",
       "topic": "metrics"
     },
@@ -2050,7 +2054,7 @@
     },
     {
       "id": "clm-x402-207",
-      "text": "Daily x402 transactions surged during the PING memecoin launch in late October 2025, with nearly 500,000 transactions in the week of 2025-10-14 to 2025-10-20.",
+      "text": "Daily x402 transactions surged during a wave of x402-powered memecoin launches in October 2025, with nearly 500,000 transactions between 2025-10-14 and 2025-10-20.",
       "sources": [
         "src-x402-ping-coverage"
       ],
@@ -2060,7 +2064,7 @@
     },
     {
       "id": "clm-x402-208",
-      "text": "The figures of about $1.59M in three days and 74,000 buyers by 2025-10-26 during the PING spike could not be re-located in a source.",
+      "text": "Figures of about $1.59M in three days and 74,000 buyers by 2025-10-26 during the October 2025 memecoin spike could not be re-located in a source.",
       "sources": [
         "src-x402-ping-coverage"
       ],
@@ -2122,7 +2126,7 @@
       "sources": [
         "src-x402-lf-july",
         "src-x402-tsc",
-        "src-x402-mpp-vs-x402"
+        "src-stripe-mpp-docs-repo"
       ],
       "confidence": "verified",
       "asOf": "2026-10-10",
@@ -2208,13 +2212,17 @@
     },
     {
       "id": "clm-x402-223",
-      "text": "The original Lightning Labs L402 design used a macaroon and a BOLT11 invoice in WWW-Authenticate, while bLIP-0026 (2023-06-06) is token-agnostic and makes macaroons optional.",
+      "text": "Lightning Labs launched the design as LSAT on 2020-03-30 (first commit 2020-02-06) with a macaroon and a BOLT11 invoice in WWW-Authenticate and renamed it L402 on 2023-04-20. bLIP-0026, still an open pull request, was rewritten on 2026-02-25 to be token-agnostic with macaroons optional; the Lightning Labs repository adopted that text on 2026-03-10 and returned to macaroon= on 2026-03-20.",
       "sources": [
         "src-x402-l402-repo",
-        "src-x402-blip-0026"
+        "src-orbit-l402-repo-history",
+        "src-prehistory-lsat-blog",
+        "src-x402-blip-0026",
+        "src-orbit-l402-blip-pr"
       ],
       "confidence": "verified",
-      "topic": "relations"
+      "topic": "relations",
+      "asOf": "2026-10-11"
     },
     {
       "id": "clm-x402-224",
@@ -2347,7 +2355,7 @@
       "text": "The x402 Technical Steering Committee consists of three companies, and Stripe sits on both the x402 TSC and the MPP project.",
       "sources": [
         "src-x402-tsc",
-        "src-x402-mpp-vs-x402"
+        "src-stripe-mpp-docs-repo"
       ],
       "confidence": "verified",
       "asOf": "2026-10-10",
@@ -2401,7 +2409,7 @@
         "src-x402-learn-quicknode-paywall",
         "src-x402-learn-quicknode-solana"
       ],
-      "confidence": "verified",
+      "confidence": "reported",
       "asOf": "2026-10-11",
       "topic": "other"
     },

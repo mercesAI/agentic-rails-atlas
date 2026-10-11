@@ -1,6 +1,6 @@
 stateDiagram-v2
   accTitle: x402 payment lifecycle (V2, all three payment flows)
-  accDescr: State diagram: x402 payment lifecycle (V2, all three payment flows). 11 states: Unpaid request, Payment required (402), Payload received, Verified, Committed before execution, Handler executed, Settlement pending, Settled, Rejected, Responded 200, and Voided or reclaimed. Starts in Unpaid request. Ends in Rejected, Responded 200, and Voided or reclaimed. 16 transitions. From Unpaid request to Payment required (402) when Server sends 402 (HTTP 402 + PAYMENT-REQUIRED). From Payment required (402) to Payload received when Client retries with a signed payload (PAYMENT-SIGNATURE header). From Payload received to Rejected when Malformed payload or unsupported scheme, network or flow (HTTP 400). From Payload received to Verified when authorization flow: facilitator returns isValid true (POST /verify). From Payload received to Rejected when isValid false or facilitator unreachable (POST /verify). From Payload received to Committed before execution when upfront or escrow flow: first settle succeeds (POST /settle). From Verified to Handler executed when Handler runs. From Committed before execution to Handler executed when Handler runs. From Handler executed to Settled when authorization flow: settle succeeds, or escrow: capture succeeds (POST /settle). From Handler executed to Settlement pending when Settle broadcast but not confirmed, or timed out (POST /settle). From Settlement pending to Settled when Server reconciles on chain and finds the transfer. From Settlement pending to Rejected when Reconciliation shows no transfer and one retry fails (POST /settle). From Handler executed to Rejected when Settle fails (for example insufficient_funds) (HTTP 402 + PAYMENT-RESPONSE success false). From Handler executed to Voided or reclaimed when escrow: server voids the hold, or the client reclaims after captureDeadline (POST /settle with payload.type void). From Settled to Responded 200 when Server returns the resource (HTTP 200 + PAYMENT-RESPONSE). From Handler executed to Responded 200 when upfront: payment already settled, server returns the resource (HTTP 200 + PAYMENT-RESPONSE).
+  accDescr: State diagram: x402 payment lifecycle (V2, all three payment flows). 11 states: Unpaid request, Payment required (402), Payload received, Verified, Committed before execution, Handler executed, Settlement pending, Settled, Rejected, Responded 200, and Voided or reclaimed. Starts in Unpaid request. Ends in Rejected, Responded 200, and Voided or reclaimed. 18 transitions. From Unpaid request to Payment required (402) when Server sends 402 (HTTP 402 + PAYMENT-REQUIRED). From Payment required (402) to Payload received when Client retries with a signed payload (PAYMENT-SIGNATURE header). From Payload received to Rejected when Malformed payload or unsupported scheme, network or flow (HTTP 400). From Payload received to Verified when authorization flow: facilitator returns isValid true (POST /verify). From Payload received to Rejected when Facilitator returns isValid false (POST /verify, then HTTP 402). From Payload received to Rejected when Facilitator unreachable (@x402/express answers 502 SDK behavior, not in the spec) (HTTP 502). From Payload received to Committed before execution when upfront or escrow flow: first settle succeeds (POST /settle). From Verified to Handler executed when Handler runs. From Committed before execution to Handler executed when Handler runs. From Handler executed to Settled when authorization flow: settle succeeds, or escrow: capture succeeds (POST /settle). From Handler executed to Settlement pending when Settle broadcast but not confirmed, or timed out (POST /settle). From Settlement pending to Settled when Server reconciles on chain and finds the transfer. From Settlement pending to Rejected when Reconciliation shows no transfer and one retry fails (POST /settle). From Handler executed to Rejected when Settle fails (for example insufficient_funds) (HTTP 402 + PAYMENT-RESPONSE success false). From Handler executed to Voided or reclaimed when escrow: server voids the hold (POST /settle with payload.type void). From Handler executed to Voided or reclaimed when escrow: client reclaims an untouched hold after captureDeadline (reclaim called by the client on the escrow contract (never relayed through the facilitator)). From Settled to Responded 200 when Server returns the resource (HTTP 200 + PAYMENT-RESPONSE). From Handler executed to Responded 200 when upfront: payment already settled, server returns the resource (HTTP 200 + PAYMENT-RESPONSE).
   state "Unpaid request" as s_unpaid
   state "Payment required (402)" as s_payment_required
   state "Payload received" as s_payload_received
@@ -17,7 +17,8 @@ stateDiagram-v2
   s_payment_required --> s_payload_received : Client retries with a signed payload
   s_payload_received --> s_rejected : Malformed payload or unsupported scheme, network or flow
   s_payload_received --> s_verified : authorization flow: facilitator returns isValid true
-  s_payload_received --> s_rejected : isValid false or facilitator unreachable
+  s_payload_received --> s_rejected : Facilitator returns isValid false
+  s_payload_received --> s_rejected : Facilitator unreachable (@x402/express answers 502#59; SDK behavior, not in the spec)
   s_payload_received --> s_held : upfront or escrow flow: first settle succeeds
   s_verified --> s_executed : Handler runs
   s_held --> s_executed : Handler runs
@@ -26,7 +27,8 @@ stateDiagram-v2
   s_settle_pending --> s_settled : Server reconciles on chain and finds the transfer
   s_settle_pending --> s_rejected : Reconciliation shows no transfer and one retry fails
   s_executed --> s_rejected : Settle fails (for example insufficient_funds)
-  s_executed --> s_voided : escrow: server voids the hold, or the client reclaims after captureDeadline
+  s_executed --> s_voided : escrow: server voids the hold
+  s_executed --> s_voided : escrow: client reclaims an untouched hold after captureDeadline
   s_settled --> s_responded : Server returns the resource
   s_executed --> s_responded : upfront: payment already settled, server returns the resource
   s_rejected --> [*]
@@ -39,5 +41,5 @@ stateDiagram-v2
   note right of s_held : upfront#58; settled. escrow#58; deposit or hold placed.
   note right of s_settle_pending : errorReason settlement_pending#59; transaction hash present.
   note right of s_settled : success true#59; PAYMENT-RESPONSE carries the transaction hash.
-  note right of s_rejected : 400 for a malformed payload, 402 for a failed payment, 502 when the facilitator is unreachable.
+  note right of s_rejected : 400 for a malformed payload and 402 for a failed payment (spec)#59; the @x402/express middleware answers 502 when the facilitator is unreachable (SDK behavior).
   note right of s_voided : auth-capture escrow only.
