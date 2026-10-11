@@ -142,7 +142,7 @@ export default function StackMap({ protocols }: StackMapProps) {
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.04 }}
+        fitViewOptions={{ padding: 0.04, minZoom: 0.5 }}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
@@ -151,7 +151,7 @@ export default function StackMap({ protocols }: StackMapProps) {
         zoomOnScroll={false}
         preventScrolling={false}
         panOnScroll={false}
-        minZoom={0.3}
+        minZoom={0.5}
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
         aria-label="Stack map: layers as rows, protocols as columns"
