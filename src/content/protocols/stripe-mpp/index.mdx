@@ -1,0 +1,117 @@
+---
+slug: stripe-mpp
+order: 6
+name: Stripe MPP (Machine Payments Protocol)
+bubbleLabel: MPP
+monogram: MPP
+tagline: HTTP Payment authentication
+intro: "The Machine Payments Protocol, co-authored by Tempo and Stripe, adds a Payment authentication scheme to HTTP 402. A server issues a challenge, the client pays through a named method and retries with a credential, and the server returns a receipt. Charges and subscriptions are specified intents; metered sessions are defined per method. Rails include Tempo stablecoins, Stripe Shared Payment Tokens, Visa network tokens and Lightning."
+family: payment-execution
+layerPrimary: payment-credential
+layersSecondary:
+  - settlement-rails
+  - discovery
+rails:
+  - multi-rail
+  - crypto
+  - card
+stewards:
+  - Tempo Labs
+  - Stripe
+governance: "The core is an individual IETF Internet-Draft (draft-httpauth-payment-01), not a standard and not a working group document. Each payment method is defined and maintained by its rail; rails add methods without approval. No foundation, charter or steering committee."
+license:
+  spec: "CC0 1.0 (specifications); IETF Trust terms apply to IETF submissions"
+  code: "Spec tooling Apache-2.0 or MIT; mppx SDK MIT"
+status: mixed
+statusNote: "Payments run live on Tempo mainnet and through Stripe since 2026-03-18, but the core is an individual Internet-Draft with no IANA registrations yet, Stripe labels its MPP docs Frontier with a preview API version, and session is a per-method intent, not a standardized one."
+firstAnnounced: "2026-03-18"
+latestVersion:
+  label: "Core draft-httpauth-payment-01 (2026-09-09); mppx 0.13.4 on 2026-10-08"
+  date: "2026-09-09"
+lastVerified: "2026-10-11"
+transports:
+  - "HTTP (WWW-Authenticate: Payment, Authorization or Payment-Authorization, Payment-Receipt, Accept-Payment)"
+  - "JSON-RPC and MCP (error -32042, _meta org.paymentauth/credential and org.paymentauth/receipt)"
+  - "SSE streams (final payment-receipt event for sessions)"
+buildsOn:
+  - HTTP 402 and RFC 9110 authentication
+  - RFC 8785 JCS
+  - RFC 9530 Digest Fields
+  - RFC 9457 Problem Details
+  - HMAC-SHA256
+  - EIP-712
+  - JWE and JWK (card method)
+  - Stripe Shared Payment Tokens
+  - TIP-20 (Tempo)
+  - BOLT11 (Lightning method)
+composesWith:
+  - x402
+  - visa-tap
+  - openai-acp
+  - mastercard-agent-pay
+  - ap2
+personas:
+  - api-seller
+  - agent-dev
+  - psp
+  - autonomous-agent
+  - controls-builder
+disambiguation:
+  - "MPP here is the Machine Payments Protocol by Tempo and Stripe. In AP2 documents, MPP means Merchant Payment Processor, an unrelated role."
+  - "MPP is not a Stripe-only protocol: Tempo Labs co-authors the core, and Visa, Lightspark, Circle and others author payment methods."
+  - "MPP is not an IETF standard: the core is an individual Internet-Draft with no working group."
+  - "Stripe's machine payments product covers both MPP and x402; they are separate protocols."
+mainFlow: stripe-mpp-charge
+stateMachine: stripe-mpp-session-channel
+diagrams:
+  - stripe-mpp-context
+  - stripe-mpp-data-model
+  - stripe-mpp-anatomy
+  - stripe-mpp-methods-map
+  - stripe-mpp-x402-mapping
+  - stripe-mpp-session-lifecycle
+  - stripe-mpp-tempo-session
+  - stripe-mpp-subscription-renewal
+  - stripe-mpp-stripe-spt-charge
+  - stripe-mpp-card-charge
+  - stripe-mpp-mcp-tool-call
+  - stripe-mpp-failure-expired-challenge
+  - stripe-mpp-failure-reused-challenge
+  - stripe-mpp-failure-policy-denied
+  - stripe-mpp-composition
+  - stripe-mpp-attack-surface
+playground:
+  status: coming-next
+  note: "Planned: a challenge and credential builder (base64url JCS encode and decode, HMAC-bound challenge id, header parameter for Payment-Authorization), an intent and method switcher, an x402 to MPP header translator, and a session meter (price per unit, deposit, cumulative vouchers, top-up, cooperative versus forced close, worst-case loss equal to the deposit). Simulation only, ephemeral keys on fake chain ids, no real funds."
+keyFacts:
+  - label: Steward
+    value: "Tempo Labs and Stripe (co-authors); five core authors, three from Tempo Labs and two from Stripe"
+    claimIds: [clm-stripe-mpp-002, clm-stripe-mpp-003, clm-stripe-mpp-004]
+  - label: Governance
+    value: "Core through the IETF as an individual Internet-Draft (no working group, not a standard); methods maintained by each rail; no foundation"
+    claimIds: [clm-stripe-mpp-006, clm-stripe-mpp-010, clm-stripe-mpp-011]
+  - label: License
+    value: "Specs CC0 1.0; tooling Apache-2.0 or MIT; mppx MIT"
+    claimIds: [clm-stripe-mpp-008, clm-stripe-mpp-009]
+  - label: First announced
+    value: "2026-03-18, with Tempo mainnet (spec repository started 2026-01-05)"
+    claimIds: [clm-stripe-mpp-014, clm-stripe-mpp-028]
+  - label: Latest version
+    value: "draft-httpauth-payment-01 posted 2026-09-09, expires 2027-03-13; first name draft-ryan-httpauth-payment expired 2026-09-18; mppx 0.13.4 (2026-10-08)"
+    claimIds: [clm-stripe-mpp-024, clm-stripe-mpp-022, clm-stripe-mpp-046]
+  - label: Status
+    value: "Live on Tempo and Stripe; core still a draft; IANA registrations requested, not done"
+    claimIds: [clm-stripe-mpp-089, clm-stripe-mpp-090, clm-stripe-mpp-154]
+  - label: Transports
+    value: "HTTP authentication headers; JSON-RPC and MCP (-32042); optional OpenAPI discovery"
+    claimIds: [clm-stripe-mpp-091, clm-stripe-mpp-110, clm-stripe-mpp-115]
+  - label: Rails
+    value: "11 method ids in the spec repo (tempo, stripe, card, lightning, evm, solana, stellar, hedera, usdc, nearintents, xrpl); not crypto-only"
+    claimIds: [clm-stripe-mpp-082, clm-stripe-mpp-018]
+  - label: Builds on
+    value: "HTTP 402 auth scheme, RFC 8785 JCS, RFC 9530 digest, RFC 9457 problems, HMAC-SHA256 binding, EIP-712 vouchers, JWE card tokens"
+    claimIds: [clm-stripe-mpp-057, clm-stripe-mpp-059, clm-stripe-mpp-068, clm-stripe-mpp-119, clm-stripe-mpp-120, clm-stripe-mpp-121]
+  - label: Composes with
+    value: "x402 (exact maps to charge; mppx serves both), Stripe SPTs, Visa card method on VIC and TAP, Mastercard AP4M (Tempo's statement), AP2 (complementary, no cross-reference)"
+    claimIds: [clm-stripe-mpp-178, clm-stripe-mpp-179, clm-stripe-mpp-186, clm-stripe-mpp-183, clm-stripe-mpp-202, clm-stripe-mpp-187]
+---
