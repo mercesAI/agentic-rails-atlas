@@ -1,2 +1,103 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./prose.css";
+@import "./site.css";
+@import "./print.css";
+
+/*
+  Base typography and global behavior. Colors come only from tokens.css.
+  Fonts: Bricolage Grotesque (headings), IBM Plex Sans (body), JetBrains Mono (code),
+  all self-hosted through fontsource imports in Base.astro.
+*/
+
+:root {
+  --header-h: 7.25rem;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+@media (max-width: 767px) {
+  :root { --header-h: 3.75rem; }
+}
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  font-family: var(--font-body);
+  font-feature-settings: 'ss01' on;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); color: var(--fg); text-wrap: balance; }
+p, li { text-wrap: pretty; }
+
+/* Focus: visible, high-contrast ring from the --focus token on every interactive element. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+:where(main):focus { outline: none; }
+
+/* Skip link */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 100;
+  padding: 0.6rem 1rem; border-radius: var(--radius-md);
+  background: var(--accent); color: var(--accent-fg); font-weight: 600; text-decoration: none;
+}
+.skip-link:focus { top: 0.75rem; }
+
+.site-main {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 3rem) var(--gutter) 4rem;
+}
+.site-main--wide { max-width: none; }
+
+/* Shared controls */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0.85rem; font: inherit; font-size: 0.875rem; font-weight: 500;
+  color: var(--fg); background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md); cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.btn:hover { background: var(--surface-hover); }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--fg-muted); }
+.btn--ghost:hover { color: var(--fg); background: var(--surface-hover); }
+.link-btn {
+  font: inherit; color: var(--link); background: none; border: 0; padding: 0;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; cursor: pointer;
+}
+.link-btn:hover { color: var(--link-hover); }
+
+kbd {
+  display: inline-block; min-width: 1.4em; padding: 0.05em 0.35em;
+  font-family: var(--font-mono); font-size: 0.75em; line-height: 1.4; text-align: center;
+  color: var(--fg-muted); background: var(--bg-sunken);
+  border: 1px solid var(--border); border-bottom-width: 2px; border-radius: var(--radius-sm);
+}
+
+/* Segmented controls (theme and reading mode) */
+.segmented {
+  display: inline-flex; padding: 2px; gap: 2px;
+  background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius-md);
+}
+.segmented__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+  min-height: 1.9rem; padding: 0 0.6rem;
+  font: inherit; font-size: 0.8125rem; font-weight: 500; color: var(--fg-muted);
+  background: transparent; border: 0; border-radius: calc(var(--radius-md) - 2px); cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.segmented--icons .segmented__btn { width: 1.95rem; padding: 0; }
+.segmented__btn:hover { color: var(--fg); }
+.segmented__btn[aria-checked='true'] { color: var(--fg); background: var(--surface-hover); box-shadow: var(--shadow-1); }
+
+/* View transitions: quick and quiet; none under reduced motion (tokens zero the durations). */
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: var(--dur-base); }

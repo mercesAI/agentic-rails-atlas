@@ -1,0 +1,22 @@
+/* Print stylesheet (protocol pages first). Light colors, no chrome, practitioner text, URLs after links. */
+@media print {
+  @page { margin: 18mm 16mm; }
+  html, body { background: #fff; color: #000; font-size: 11pt; }
+  .site-header, .site-footer, .skip-link, .copy-link, .segmented, dialog, .term-tooltip,
+  .no-print, [data-print='hide'], astro-island:has(.segmented) { display: none !important; }
+  .site-main { max-width: none; padding: 0; }
+  .prose { max-width: none; font-size: 11pt; }
+  h1, h2, h3 { break-after: avoid; }
+  pre, table, figure, .callout, .diagram { break-inside: avoid; }
+  .table-wrap { overflow: visible; border-color: #999; }
+  .astro-code, pre { white-space: pre-wrap; border-color: #999; background: #f5f5f5 !important; }
+  .astro-code span { color: var(--shiki-light) !important; }
+  .diagram[data-theme-variant='light'] { display: block !important; }
+  .diagram[data-theme-variant='dark'] { display: none !important; }
+  .mode-block[data-modes~='eli5']:not([data-modes~='practitioner']),
+  .mode-block[data-modes~='ste']:not([data-modes~='practitioner']) { display: none !important; }
+  button.term { text-decoration: none; }
+  .cite a { color: #000; }
+  .cite a::after, a[href^='#']::after, a[href^='/']::after { content: none !important; }
+  details > *:not(summary) { display: block; }
+}

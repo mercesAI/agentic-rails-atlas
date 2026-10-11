@@ -1,0 +1,149 @@
+/* Article typography: tables, code blocks (Shiki dual theme), callouts, cite markers, diagrams. */
+
+.prose {
+  max-width: var(--content-width);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--fg);
+}
+.prose > * + * { margin-top: 1.1em; }
+.prose h2 { font-size: 1.6rem; margin-top: 2.6em; padding-top: 0.2em; }
+.prose h3 { font-size: 1.25rem; margin-top: 2em; }
+.prose h4 { font-size: 1.05rem; margin-top: 1.6em; }
+.prose h2 + *, .prose h3 + *, .prose h4 + * { margin-top: 0.6em; }
+.prose ul, .prose ol { padding-left: 1.4em; }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.prose li + li { margin-top: 0.35em; }
+.prose li::marker { color: var(--fg-subtle); }
+.prose strong { font-weight: 600; color: var(--fg); }
+.prose blockquote { border-left: 2px solid var(--border-strong); padding-left: 1em; color: var(--fg-muted); }
+.prose hr { border: 0; border-top: 1px solid var(--border); margin: 2.5em 0; }
+.prose :not(pre) > code {
+  padding: 0.1em 0.35em; font-size: 0.88em;
+  background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow-wrap: anywhere;
+}
+.prose a > code { color: inherit; }
+
+/* Headings wrapped by rehype-autolink-headings keep heading color. */
+.prose :is(h2, h3, h4) > a { color: inherit; text-decoration: none; }
+
+/* Copy-link buttons added by lib/client/copy-link.ts */
+.copy-link {
+  margin-left: 0.4em; padding: 0 0.3em;
+  font-family: var(--font-mono); font-size: 0.8em; font-weight: 400;
+  color: var(--fg-subtle); background: none; border: 0; border-radius: var(--radius-sm);
+  cursor: pointer; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out);
+}
+:is(h2, h3):hover > .copy-link, .copy-link:focus-visible, .copy-link[data-copied] { opacity: 1; }
+.copy-link[data-copied] { color: var(--confidence-verified); }
+.copy-link[data-copied]::after { content: ' copied'; font-family: var(--font-body); font-size: 0.75em; }
+@media (hover: none) { .copy-link { opacity: 0.7; } }
+
+/* Tables */
+.table-wrap { overflow-x: auto; max-width: 100%; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.table-wrap:focus-visible { outline-offset: 0; }
+.prose table, .table-wrap table { width: 100%; border-collapse: collapse; font-size: 0.9rem; line-height: 1.5; }
+.table-wrap table { border: 0; }
+.prose table caption, .table-wrap caption {
+  caption-side: top; text-align: left; padding: 0.7rem 0.9rem;
+  font-family: var(--font-heading); font-weight: 600; color: var(--fg);
+}
+.field-table__version { margin-left: 0.6em; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 400; color: var(--fg-subtle); }
+.prose th, .prose td, .table-wrap th, .table-wrap td {
+  padding: 0.55rem 0.9rem; text-align: left; vertical-align: top; border-top: 1px solid var(--border);
+}
+.prose thead th, .table-wrap thead th {
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--fg-muted); background: var(--bg-sunken);
+}
+.table-wrap tbody th { font-weight: 500; }
+.table-wrap tbody tr:hover { background: var(--surface-hover); }
+
+/* Code blocks: Astro Shiki with dual themes and defaultColor: false. */
+.astro-code, pre.shiki {
+  margin: 0; padding: 1rem 1.1rem; overflow-x: auto;
+  font-size: 0.85rem; line-height: 1.6;
+  background-color: var(--bg-sunken) !important;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  tab-size: 2;
+}
+.astro-code, .astro-code span { color: var(--shiki-dark); font-style: var(--shiki-dark-font-style); font-weight: var(--shiki-dark-font-weight); }
+:root[data-theme='light'] .astro-code,
+:root[data-theme='light'] .astro-code span { color: var(--shiki-light); font-style: var(--shiki-light-font-style); font-weight: var(--shiki-light-font-weight); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .astro-code,
+  :root:not([data-theme]) .astro-code span { color: var(--shiki-light); font-style: var(--shiki-light-font-style); font-weight: var(--shiki-light-font-weight); }
+}
+pre:not(.astro-code) {
+  padding: 1rem 1.1rem; overflow-x: auto; font-size: 0.85rem;
+  background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius-md);
+}
+
+/* Diagrams: both theme variants are inlined; CSS shows the matching one. */
+.diagram[data-theme-variant='light'] { display: none; }
+:root[data-theme='light'] .diagram[data-theme-variant='light'] { display: block; }
+:root[data-theme='light'] .diagram[data-theme-variant='dark'] { display: none; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .diagram[data-theme-variant='light'] { display: block; }
+  :root:not([data-theme]) .diagram[data-theme-variant='dark'] { display: none; }
+}
+.diagram svg { max-width: 100%; height: auto; }
+
+/* Callouts */
+.callout {
+  --c: var(--link);
+  position: relative; margin: 1.5em 0; padding: 0.9rem 1.1rem 0.9rem 1.15rem;
+  background: var(--bg-elevated); border: 1px solid var(--border); border-left: 3px solid var(--c);
+  border-radius: var(--radius-md); font-size: 0.95rem;
+}
+.callout[data-kind='caution'] { --c: var(--fresh-amber); }
+.callout[data-kind='disambiguation'] { --c: var(--status-mixed); }
+.callout[data-kind='changed'] { --c: var(--fresh-green); }
+.callout__title {
+  display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.35rem;
+  font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--c);
+}
+.callout__glyph { width: 0.7rem; height: 0.7rem; border: 1.5px solid var(--c); border-radius: 50%; }
+.callout[data-kind='caution'] .callout__glyph { border-radius: 1px; transform: rotate(45deg); }
+.callout[data-kind='disambiguation'] .callout__glyph { border-style: double; border-width: 3px; }
+.callout[data-kind='changed'] .callout__glyph { background: var(--c); }
+.callout__body > * + * { margin-top: 0.6em; }
+
+/* Citation markers */
+.cite { font-size: 0.7em; line-height: 0; margin-left: 0.1em; white-space: nowrap; }
+.cite a { font-family: var(--font-mono); text-decoration: none; color: var(--link); padding: 0 0.1em; border-radius: var(--radius-sm); }
+.cite a:hover { background: var(--selection); }
+.cite a[data-missing] { color: var(--confidence-unverified); }
+.cite__flag {
+  display: inline-grid; place-items: center; width: 1.1em; height: 1.1em; margin-left: 0.15em;
+  font-family: var(--font-mono); font-size: 0.85em; color: var(--confidence-unverified);
+  border: 1px dashed var(--confidence-unverified); border-radius: 50%;
+}
+
+/* Glossary terms inserted by rehype-glossary */
+button.term {
+  display: inline; padding: 0; margin: 0; font: inherit; color: inherit; background: none; border: 0;
+  text-decoration: underline dotted var(--fg-subtle); text-decoration-thickness: 1px; text-underline-offset: 0.2em;
+  cursor: help;
+}
+button.term:hover { text-decoration-color: var(--link); }
+.term-tooltip {
+  position: absolute; z-index: 60; padding: 0.75rem 0.9rem;
+  font-size: 0.875rem; line-height: 1.5; color: var(--fg);
+  background: var(--bg-elevated); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-2);
+}
+.term-tooltip p + p, .term-tooltip p + a { margin-top: 0.35rem; display: block; }
+.term-tooltip__term { font-family: var(--font-heading); font-weight: 600; }
+
+/* Section headers from the page layout */
+.page-header { max-width: var(--content-width); margin-bottom: 2.5rem; }
+.page-header__eyebrow {
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-subtle);
+}
+.page-header h1 { font-size: clamp(2rem, 4.5vw, 3rem); letter-spacing: -0.025em; margin-top: 0.4rem; }
+.page-header__lede { margin-top: 0.9rem; font-size: 1.15rem; line-height: 1.6; color: var(--fg-muted); }
+.page-header__meta { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; font-size: 0.875rem; color: var(--fg-muted); }
