@@ -1,0 +1,214 @@
+[
+  {
+    "id": "agent-pay-acceptance-framework",
+    "term": "Agent Pay Acceptance Framework",
+    "aliases": [
+      "Acceptance Framework"
+    ],
+    "plain": "Mastercard's rules and integration paths for merchants accepting agent payments, launched in October 2025. Mastercard's guides refer to it for full details, but its specification is not public.",
+    "ste": "The Mastercard rules for merchants that accept payments from agents. The full text is not public.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-latam-2025",
+      "src-mcap-dev-level3"
+    ]
+  },
+  {
+    "id": "agent-pay-for-machines",
+    "term": "Agent Pay for Machines",
+    "aliases": [
+      "AP4M"
+    ],
+    "plain": "A Mastercard service launched on 2026-06-10 for high-frequency, low-value payments by agents and machines, with credentialing, permissioning, transacting and settlement across cards, accounts and stablecoins. No API or pricing is published.",
+    "ste": "A Mastercard service for many small payments by agents and machines. It can settle on cards, accounts or stablecoins.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-ap4m-2026"
+    ]
+  },
+  {
+    "id": "agent-pay-trust-framework",
+    "term": "Agent Pay Trust Framework",
+    "aliases": [
+      "Trust Framework"
+    ],
+    "plain": "The name Mastercard gave on 2026-09-30 to the identity, intent, controls, execution and intelligence parts of Agent Pay, together with a probability score test in the US. No white paper was found.",
+    "ste": "The name for the five trust parts of Agent Pay: identity, intent, controls, execution and intelligence.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-trust-2026"
+    ]
+  },
+  {
+    "id": "virtual-card-token",
+    "term": "Mastercard Virtual Card Token",
+    "aliases": [
+      "MVCT",
+      "virtual card token"
+    ],
+    "plain": "A Mastercard token for web guest checkouts that comes with an expiry date and a one-time DTVC, so an agent can type all three into a normal card form.",
+    "ste": "A Mastercard token that an agent can put in a usual card form. It comes with a code for one use.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-mvct",
+      "src-mcap-dev-mvct-pay"
+    ]
+  },
+  {
+    "id": "intent-api",
+    "term": "Intent API (Mastercard)",
+    "aliases": [
+      "Mastercard Intent API"
+    ],
+    "plain": "A Mastercard API that registers an agent-captured purchase intent and returns an intentId with tokenized credentials, which the merchant validates at checkout. Field names are published; the schema is not.",
+    "ste": "A Mastercard API that keeps the purchase intent of the consumer. It gives an intent identifier and a token.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level3"
+    ]
+  },
+  {
+    "id": "srcdpaid",
+    "term": "srcDpaId",
+    "aliases": [
+      "DPA identifier"
+    ],
+    "plain": "A Mastercard-generated merchant identifier used in Intent API orders; merchants reject a checkout when it does not match their own.",
+    "ste": "An identifier that Mastercard gives to a merchant. The merchant compares it with the identifier in the intent.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level3"
+    ]
+  },
+  {
+    "id": "dsrp-cryptogram",
+    "term": "DSRP cryptogram",
+    "aliases": [
+      "Digital Secure Remote Payment"
+    ],
+    "plain": "A one-time cryptogram for remote token payments. Mastercard says the Level 3 Agent Pay payload contains a DSRP cryptogram and card metadata.",
+    "ste": "A cryptographic value for one remote payment with a token.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level3"
+    ]
+  },
+  {
+    "id": "mastercard-id-token",
+    "term": "mastercardIdToken",
+    "aliases": [
+      "Agent User Identity"
+    ],
+    "plain": "A Mastercard-issued JWT identifying the consumer, carried in the Level 2 Agent User Identity object; compatible with OpenID Connect ID Tokens.",
+    "ste": "A token from Mastercard that identifies the consumer. The agent sends it in the request body.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-level2"
+    ]
+  },
+  {
+    "id": "trusted-agent-list",
+    "term": "Trusted agent list",
+    "aliases": [
+      "trusted agent lists"
+    ],
+    "plain": "The network-maintained list of agents that passed Mastercard's security review and certification; merchants rely on it through signature verification.",
+    "ste": "The list of agents that passed the Mastercard examination.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-rails"
+    ]
+  },
+  {
+    "id": "agent-probability-score",
+    "term": "AI agent probability score",
+    "aliases": [
+      "probability score"
+    ],
+    "plain": "A Mastercard signal, in US testing since 2026-09-30, that estimates how likely it is that an AI agent initiated a transaction. Fields and thresholds are not published.",
+    "ste": "A Mastercard value that shows how probable it is that an agent started a payment.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-trust-2026"
+    ]
+  },
+  {
+    "id": "immediate-mode",
+    "term": "Immediate mode (Verifiable Intent)",
+    "aliases": [
+      "two-layer mode"
+    ],
+    "plain": "The Verifiable Intent mode in which the user signs final checkout and payment values in L2 and no L3 is created.",
+    "ste": "The mode where the user signs the final values. The agent does not sign credentials.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-spec",
+      "src-mcap-vi-format"
+    ]
+  },
+  {
+    "id": "autonomous-mode",
+    "term": "Autonomous mode (Verifiable Intent)",
+    "aliases": [
+      "three-layer mode"
+    ],
+    "plain": "The Verifiable Intent mode in which the user signs open mandates with constraints and the agent key, and the agent later signs L3a and L3b.",
+    "ste": "The mode where the user signs limits and the agent signs the final credentials later.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-spec",
+      "src-mcap-vi-format"
+    ]
+  },
+  {
+    "id": "split-agent-attack",
+    "term": "Split-agent attack",
+    "aliases": [],
+    "plain": "An attack in which the checkout and payment mandates of one Verifiable Intent pair bind different agent keys; prevented by requiring an identical cnf.jwk in both.",
+    "ste": "An attack where two mandates in one pair have different agent keys.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-security"
+    ]
+  },
+  {
+    "id": "delegate-payload",
+    "term": "delegate_payload",
+    "aliases": [],
+    "plain": "An L2 and L3 claim in Verifiable Intent that lists references to the mandate disclosures, so a verifier can see that mandates exist even when it cannot read them.",
+    "ste": "A claim that shows which mandates are in the credential.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-format",
+      "src-mcap-vi-security"
+    ]
+  }
+]

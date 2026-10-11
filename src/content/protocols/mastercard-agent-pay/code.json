@@ -1,0 +1,72 @@
+{
+  "protocol": "mastercard-agent-pay",
+  "snippets": [
+    {
+      "title": "Run the Verifiable Intent examples",
+      "sdk": "verifiable-intent (Python reference SDK)",
+      "version": "0.1.0",
+      "language": "bash",
+      "side": "cli",
+      "code": "# Install (using uv)\nuv venv .venv && source .venv/bin/activate\nuv pip install -e \".[dev]\"\n\n# Run an example\npython examples/autonomous_flow.py\npython examples/immediate_flow.py",
+      "docsUrl": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/README.md",
+      "note": "From the README quick start. The package is not on PyPI; install from a clone.",
+      "sources": [
+        "src-mcap-vi-readme",
+        "src-mcap-vi-pyproject"
+      ]
+    },
+    {
+      "title": "Create an Immediate-mode L2 mandate",
+      "sdk": "verifiable-intent (Python reference SDK)",
+      "version": "0.1.0",
+      "language": "python",
+      "side": "client",
+      "code": "mandate = UserMandate(\n    nonce=str(uuid.uuid4()),\n    aud=\"https://agent.verifiable-intent.example\",\n    iat=now,\n    iss=\"https://wallet.example.com\",\n    exp=now + 900,\n    mode=MandateMode.IMMEDIATE,\n    sd_hash=hash_bytes(l1.serialize().encode(\"ascii\")),\n    checkout_mandate=CheckoutMandate(\n        vct=\"mandate.checkout.1\",\n        checkout_jwt=checkout_jwt,\n        checkout_hash=c_hash,\n    ),\n    payment_mandate=PaymentMandate(\n        vct=\"mandate.payment.1\",\n        payment_instrument=PAYMENT_INSTRUMENT,\n        payee=MERCHANTS[0],\n        currency=\"USD\",\n        amount=27999,\n        transaction_id=c_hash,\n    ),\n)\nresult = create_layer2_immediate(mandate, user.private_key)",
+      "docsUrl": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/examples/immediate_flow.py",
+      "note": "Excerpt from examples/immediate_flow.py (prompt_summary and comments removed). The examples use fixed test keys.",
+      "sources": [
+        "src-mcap-vi-readme",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "title": "Verify a two-layer chain at the network",
+      "sdk": "verifiable-intent (Python reference SDK)",
+      "version": "0.1.0",
+      "language": "python",
+      "side": "server",
+      "code": "network_result = verify_chain(\n    l1,\n    l2,\n    l3_payment=None,\n    issuer_public_key=issuer.public_key,\n    l1_serialized=l1.serialize(),\n)\nif not network_result.valid:\n    for e in network_result.errors:\n        print(e)",
+      "docsUrl": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/examples/immediate_flow.py",
+      "note": "Adapted from examples/immediate_flow.py (logging call replaced with print). In production get the issuer key from its JWKS endpoint.",
+      "sources": [
+        "src-mcap-vi-readme"
+      ]
+    },
+    {
+      "title": "Start the Mastercard Developers MCP server (documentation only)",
+      "sdk": "@mastercard/developers-mcp",
+      "version": "0.1.7",
+      "language": "bash",
+      "side": "cli",
+      "code": "npx -y @mastercard/developers-mcp",
+      "docsUrl": "https://github.com/mastercard/developers-agent-toolkit/blob/2c6781ce476a222faf93862a735ced7777aa02ae/README.md",
+      "note": "Reads Mastercard documentation for an assistant. It makes no Agent Pay or payment calls.",
+      "sources": [
+        "src-mcap-toolkit-readme",
+        "src-mcap-toolkit-api"
+      ]
+    }
+  ],
+  "labs": [
+    {
+      "title": "Agentic token lifecycle simulator",
+      "path": "/p/mastercard-agent-pay/#o-playground",
+      "status": "planned"
+    },
+    {
+      "title": "Verifiable Intent layer builder",
+      "path": "/p/mastercard-agent-pay/#o-playground",
+      "status": "planned"
+    }
+  ]
+}

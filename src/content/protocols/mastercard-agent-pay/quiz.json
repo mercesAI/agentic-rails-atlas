@@ -1,0 +1,158 @@
+{
+  "protocol": "mastercard-agent-pay",
+  "questions": [
+    {
+      "id": "mcap-q01",
+      "question": "What kind of thing is Mastercard Agent Pay?",
+      "options": [
+        "An open protocol governed by FIDO",
+        "A proprietary Mastercard card-network program",
+        "A version of Google's AP2",
+        "An IETF standard"
+      ],
+      "answer": 1,
+      "explanation": "Agent Pay is a proprietary Mastercard program with no public specification; it is not AP2.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-004",
+        "clm-mastercard-agent-pay-006"
+      ]
+    },
+    {
+      "id": "mcap-q02",
+      "question": "Which agents can receive Mastercard agentic tokens?",
+      "options": [
+        "Any agent with a card number",
+        "Only registered agents",
+        "Only agents on Stripe",
+        "Any agent that signs with Ed25519"
+      ],
+      "answer": 1,
+      "explanation": "Mastercard says only registered agents can transact through the network.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-072"
+      ]
+    },
+    {
+      "id": "mcap-q03",
+      "question": "Which Signature-Input tag does Mastercard's Level 1 guide give for Agent Pay?",
+      "options": [
+        "agent-browser-auth",
+        "agent-payer-auth",
+        "Agent-pay-auth",
+        "web-bot-auth"
+      ],
+      "answer": 2,
+      "explanation": "The guide gives Agent-pay-auth; the browse and pay tags are Visa's.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-081",
+        "clm-mastercard-agent-pay-083"
+      ]
+    },
+    {
+      "id": "mcap-q04",
+      "question": "What is a DTVC?",
+      "options": [
+        "An agentic token",
+        "A one-time security code issued with a Virtual Card Token",
+        "A Verifiable Intent layer",
+        "A key directory entry"
+      ],
+      "answer": 1,
+      "explanation": "A DTVC is a one-time code issued with a Mastercard Virtual Card Token, not a token itself.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-105"
+      ]
+    },
+    {
+      "id": "mcap-q05",
+      "question": "What happens when a verifier cannot find the keyid in the directory?",
+      "options": [
+        "Apply the normal bot policy",
+        "Block the request",
+        "Accept and log",
+        "Ask the agent to retry"
+      ],
+      "answer": 1,
+      "explanation": "Mastercard's decision table blocks requests whose key is not found.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-243"
+      ]
+    },
+    {
+      "id": "mcap-q06",
+      "question": "What is the recommended lifetime of a Verifiable Intent L2 Immediate credential?",
+      "options": [
+        "5 minutes",
+        "About 15 minutes",
+        "24 hours",
+        "About one year"
+      ],
+      "answer": 1,
+      "explanation": "L2 Immediate lasts about 15 minutes.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-130"
+      ]
+    },
+    {
+      "id": "mcap-q07",
+      "question": "In Autonomous mode, which value must L3a transaction_id equal?",
+      "options": [
+        "L1 sub",
+        "L2 nonce",
+        "L3b checkout_hash",
+        "The agent kid"
+      ],
+      "answer": 2,
+      "explanation": "L3a transaction_id must equal L3b checkout_hash.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-150"
+      ]
+    },
+    {
+      "id": "mcap-q08",
+      "question": "How do AP2 and Verifiable Intent name the per-transaction amount constraint?",
+      "options": [
+        "Both use payment.amount",
+        "AP2 payment.amount_range, VI mandate.payment.amount_range",
+        "Both use mandate.payment.amount_range",
+        "AP2 amount_range, VI budget"
+      ],
+      "answer": 1,
+      "explanation": "Aligned semantics, different key prefixes.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-184"
+      ]
+    },
+    {
+      "id": "mcap-q09",
+      "question": "Who says AP4M will work toward MPP compatibility?",
+      "options": [
+        "Mastercard, in its own text",
+        "Stripe",
+        "Tempo, quoted in Mastercard's AP4M release",
+        "Visa"
+      ],
+      "answer": 2,
+      "explanation": "The statement is Tempo's; Mastercard's own text makes no MPP claim.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-197",
+        "clm-mastercard-agent-pay-198"
+      ]
+    },
+    {
+      "id": "mcap-q10",
+      "question": "Which statement about Mastercard's disclosed Agent Pay volume is correct?",
+      "options": [
+        "It reports monthly transaction counts",
+        "It publishes no volume or value figures",
+        "It reports value but not counts",
+        "It reports counts only for Europe"
+      ],
+      "answer": 1,
+      "explanation": "Mastercard has published no Agent Pay transaction volume or value figures.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-210"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "protocol": "mastercard-agent-pay",
+  "items": [
+    {
+      "q": "Is Mastercard Agent Pay the same as AP2?",
+      "a": "No. AP2 is Google's open protocol; Agent Pay is Mastercard's proprietary card-network program. They connect only through Verifiable Intent, which uses the same four mandate type strings as AP2 v0.2 on its main branch.",
+      "misconception": true,
+      "claimIds": [
+        "clm-mastercard-agent-pay-006",
+        "clm-mastercard-agent-pay-004",
+        "clm-mastercard-agent-pay-183"
+      ]
+    },
+    {
+      "q": "Is a Mastercard agentic token the same as a Visa agentic token?",
+      "a": "No. The words are shared but the products are separate: Mastercard Agentic Tokens belong to Agent Pay, and Visa's agentic network tokens belong to Visa Intelligent Commerce.",
+      "misconception": true,
+      "claimIds": [
+        "clm-mastercard-agent-pay-008"
+      ]
+    },
+    {
+      "q": "Is Agent Pay live at scale?",
+      "a": "Mastercard has enabled issuers at network level in several regions, but the transactions it names are pilots, controlled trials or first transactions, and it publishes no volume data.",
+      "misconception": true,
+      "claimIds": [
+        "clm-mastercard-agent-pay-211",
+        "clm-mastercard-agent-pay-210",
+        "clm-mastercard-agent-pay-058",
+        "clm-mastercard-agent-pay-044"
+      ]
+    },
+    {
+      "q": "Are agentic tokens issued by MDES?",
+      "a": "The Mastercard pages read for this atlas say only that agentic tokens build on Mastercard tokenization. They do not name MDES, so this atlas does not either.",
+      "misconception": true,
+      "claimIds": [
+        "clm-mastercard-agent-pay-002",
+        "clm-mastercard-agent-pay-007"
+      ]
+    },
+    {
+      "q": "Is DTVC a kind of agentic token?",
+      "a": "No. A DTVC is a one-time security code issued with a Mastercard Virtual Card Token for guest checkouts. Mastercard pages expand it both as Validation Code and as Verification Code.",
+      "misconception": true,
+      "claimIds": [
+        "clm-mastercard-agent-pay-105",
+        "clm-mastercard-agent-pay-104"
+      ]
+    },
+    {
+      "q": "Which tag does a Mastercard agent put in Signature-Input?",
+      "a": "Mastercard's Level 1 guide gives Agent-pay-auth; its testing glossary writes agent-pay-auth. The browse and pay tags agent-browser-auth and agent-payer-auth are Visa's.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-081",
+        "clm-mastercard-agent-pay-082",
+        "clm-mastercard-agent-pay-083"
+      ]
+    },
+    {
+      "q": "Where is the Mastercard key directory?",
+      "a": "Unknown publicly. The only host in Mastercard's example, agentpay-key-directory.mastercard.com, did not resolve on 2026-10-11, and Cloudflare names no Mastercard URL.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-084",
+        "clm-mastercard-agent-pay-085",
+        "clm-mastercard-agent-pay-086"
+      ]
+    },
+    {
+      "q": "Does a merchant need new code to accept Agent Pay?",
+      "a": "Not at Level 1. The agent types the token into the existing card form and the token looks like a card number; signature checks can run at the CDN. PCI scope does not change.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-078",
+        "clm-mastercard-agent-pay-079",
+        "clm-mastercard-agent-pay-241"
+      ]
+    },
+    {
+      "q": "Is the Mastercard Agent Toolkit a payments SDK?",
+      "a": "No. It is an MCP server and library that reads Mastercard documentation. It makes no payment calls, and no public Agent Pay SDK or sandbox exists.",
+      "misconception": true,
+      "claimIds": [
+        "clm-mastercard-agent-pay-110",
+        "clm-mastercard-agent-pay-111",
+        "clm-mastercard-agent-pay-109"
+      ]
+    },
+    {
+      "q": "Does Mastercard say AP4M is compatible with MPP?",
+      "a": "Not in its own words. In Mastercard's AP4M release, Tempo says it is working with Mastercard on Machine Payments Protocol compatibility.",
+      "misconception": true,
+      "claimIds": [
+        "clm-mastercard-agent-pay-197",
+        "clm-mastercard-agent-pay-198"
+      ]
+    },
+    {
+      "q": "What happens in a dispute over an agent purchase?",
+      "a": "Standard chargeback rights apply. No agent-specific reason code or liability shift is published, and Verifiable Intent provides evidence but assigns no liability.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-209",
+        "clm-mastercard-agent-pay-174"
+      ]
+    },
+    {
+      "q": "Which version of Verifiable Intent should I code against?",
+      "a": "The 0.1 label covers two sets of names. Tag v0.1.0 (2026-03-05) uses names such as payment.amount; main after 2026-04-20 uses mandate.payment.amount_range and .1 suffixes. This atlas follows main.",
+      "claimIds": [
+        "clm-mastercard-agent-pay-117",
+        "clm-mastercard-agent-pay-118",
+        "clm-mastercard-agent-pay-121"
+      ]
+    }
+  ]
+}

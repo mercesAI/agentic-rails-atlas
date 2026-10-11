@@ -1,0 +1,571 @@
+{
+  "cells": [
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "primary-job",
+      "value": "Let registered agents pay with scoped card tokens",
+      "detail": "Network registers agents, issues agentic tokens and lets merchants recognize agent requests.",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-dev-rails"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "layers-covered",
+      "value": "Payment credential, identity and trust, intent",
+      "detail": "Tokens, agent registration and signatures, Verifiable Intent for intent.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "stewards",
+      "value": "Mastercard",
+      "detail": "Verifiable Intent maintained by Mastercard and contributed to FIDO.",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-fido-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "governance-model",
+      "value": "Proprietary network program",
+      "detail": "No public spec, version or governance body; VI is open at FIDO.",
+      "sources": [
+        "src-mcap-dev-level3",
+        "src-mcap-fido-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "license-spec-and-code",
+      "value": "Program proprietary; VI Apache-2.0",
+      "detail": "Acceptance Framework spec not public.",
+      "sources": [
+        "src-mcap-vi-readme",
+        "src-mcap-dev-level3"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "first-announced",
+      "value": "2025-04-29",
+      "sources": [
+        "src-mcap-launch-2025"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "latest-version-and-date",
+      "value": "Unversioned; VI 0.1 (main 2026-04-20)",
+      "detail": "Latest program addition: Trust Framework, 2026-09-30.",
+      "sources": [
+        "src-mcap-vi-pr23",
+        "src-mcap-trust-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "maturity",
+      "value": "Pilots or first transactions",
+      "detail": "Network-level enablement in Europe since 2026-06-02; named transactions controlled.",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-santander-2026",
+        "src-mcap-latam-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "transports",
+      "value": "HTTP signatures, card forms, merchant APIs, card authorization",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-level3"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "settlement-rails",
+      "value": "Card rails; AP4M adds accounts and stablecoins",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-ap4m-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "agent-identity-model",
+      "value": "Registered, certified agents; RFC 9421 with tag Agent-pay-auth",
+      "detail": "Key directory location not public.",
+      "sources": [
+        "src-mcap-dev-rails",
+        "src-mcap-dev-level1"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "user-authorization-model",
+      "value": "Consumer consent with passkeys; optional VI user-signed L2",
+      "sources": [
+        "src-mcap-latam-2026",
+        "src-mcap-vi-format"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Both",
+      "detail": "VI Immediate (user present) and Autonomous (agent delegated) modes.",
+      "sources": [
+        "src-mcap-vi-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "merchant-of-record",
+      "value": "Merchant stays merchant of record",
+      "detail": "Normal card acceptance through the merchant acquirer.",
+      "sources": [
+        "src-mcap-dev-level1"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "credential-type",
+      "value": "Agentic network token (plus Virtual Card Token with DTVC)",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-dev-mvct"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "cryptography",
+      "value": "Ed25519 or ECDSA P-256 request signatures; ES256 SD-JWT for VI; DSRP cryptogram",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-spec",
+        "src-mcap-dev-level3"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "replay-protection",
+      "value": "Nonce and window on signatures; single-use tokens and DTVC",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-mvct"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "native-spending-controls",
+      "value": "Token limits by merchant, amount, time; VI amount_range and budget",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "revocation",
+      "value": "Not documented",
+      "detail": "No public revocation API; VI 0.1 has no revocation protocol.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-llms"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "refunds-and-disputes",
+      "value": "Standard chargebacks; no agent reason codes",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-nevermined-review"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "privacy-exposure",
+      "value": "Agents see tokens, not card numbers; VI sub always visible",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-security"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "discovery-mechanism",
+      "value": "None for merchants; key directory for agent keys",
+      "sources": [
+        "src-mcap-cloudflare-blog"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Registration required (agents and merchants)",
+      "sources": [
+        "src-mcap-dev-rails"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "decentralization",
+      "value": "Centralized in Mastercard",
+      "sources": [
+        "src-mcap-dev-rails"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "detail": "Nothing public beyond releases and the VI repository.",
+      "sources": [
+        "src-mcap-vi-gh-repo",
+        "src-mcap-trust-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "fees-and-who-pays-them",
+      "value": "Not published; card economics unchanged",
+      "detail": "No price table, interchange category, token fee or liability rule published.",
+      "sources": [
+        "src-mcap-nevermined-review",
+        "src-mcap-mcc-fees"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "who-pays",
+      "value": "Card economics unchanged",
+      "detail": "Merchant pays its usual card acceptance fees.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-nevermined-review"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "builds-on-standards",
+      "value": "Network tokenization, RFC 9421, FIDO passkeys, SD-JWT, RFC 7800",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-rfc9421",
+        "src-mcap-vi-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "composes-with",
+      "value": "AP2 and UCP via VI, ACP via Stripe SPT, MPP (Tempo statement), x402 (member)",
+      "sources": [
+        "src-mcap-vi-landscape",
+        "src-mcap-stripe-spt-2026",
+        "src-mcap-ap4m-2026",
+        "src-mcap-x402-lf-july"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "VI Python reference SDK; no Agent Pay SDK",
+      "detail": "The Agent Toolkit is documentation only.",
+      "sources": [
+        "src-mcap-vi-pyproject",
+        "src-mcap-dev-llms",
+        "src-mcap-toolkit-api"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "adoption-evidence",
+      "value": "Named pilots; no volume data",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-trust-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "published-security-research",
+      "value": "None specific; VI threat model and issue 29",
+      "sources": [
+        "src-mcap-arxiv-issuer",
+        "src-mcap-vi-security",
+        "src-mcap-vi-issue29"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "regulatory-touchpoints",
+      "value": "Regulation Z and E, PSD2 SCA, UK PSRs, network rules, EMVCo",
+      "sources": [
+        "src-policy-regz-1026-12",
+        "src-policy-eu-rts-sca",
+        "src-mcap-emvco-news"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "dimension": "biggest-open-question",
+      "value": "Liability for agent purchases within limits",
+      "sources": [
+        "src-mcap-nevermined-review",
+        "src-mcap-vi-issue15"
+      ],
+      "confidence": "reported"
+    }
+  ],
+  "radar": [
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "openness",
+      "value": 1,
+      "justification": "Proprietary program with an unpublished Acceptance Framework; only Verifiable Intent is open.",
+      "sources": [
+        "src-mcap-dev-level3",
+        "src-mcap-vi-readme"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "decentralization",
+      "value": 0,
+      "justification": "Mastercard alone registers agents, runs the directory and issues tokens.",
+      "sources": [
+        "src-mcap-dev-rails"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Network enablement in several regions but named transactions are pilots; developer docs an early preview.",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-dev-release-history"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Many named banks and partners, no volume data.",
+      "sources": [
+        "src-mcap-europe-2026",
+        "src-mcap-latam-2026",
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "human-not-present",
+      "value": 3,
+      "justification": "Tokens with limits and VI Autonomous mandates support delegation; VI not shown in live authorizations.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "Card chargeback rights apply; no agent-specific codes; VI evidence without liability rules.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-security"
+      ]
+    }
+  ],
+  "controlsCells": [
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "agent-identity-verification",
+      "support": "native",
+      "note": "Registered agents sign requests with RFC 9421 and the tag Agent-pay-auth; verifiers check against the Mastercard key directory at the CDN or merchant.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-cloudflare-blog"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "agent-registration-kya",
+      "support": "native",
+      "note": "Registration, security review, certification and trusted agent lists; Skyfire named as Know Your Agent partner on 2026-09-30.",
+      "sources": [
+        "src-mcap-dev-rails",
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "user-consent-capture",
+      "support": "native",
+      "note": "Consumer authorizes the agent and sets limits; passkeys in regional pilots; Verifiable Intent L2 signed by the user key.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-latam-2026",
+        "src-mcap-vi-spec"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "Tokens limited by merchant, amount or time window; Verifiable Intent amount_range and budget constraints.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "Merchant-specific tokens; Verifiable Intent allowed_merchants and allowed_payees; Intent API srcDpaId check.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-vi-constraints",
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "Time-limited tokens, signature created and expires, orderExpiry, Verifiable Intent layer lifetimes (L3 at most one hour).",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-level3",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "revocation",
+      "support": "partial",
+      "note": "No public revocation API for agents or tokens; Verifiable Intent 0.1 has no revocation protocol, only JWKS key removal and expiry.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-llms"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "step-up-authentication",
+      "support": "partial",
+      "note": "Passkeys at consent; deferred orders escalated to the consumer; 3DS for agentic flows still in development at networks and EMVCo.",
+      "sources": [
+        "src-mcap-latam-2026",
+        "src-mcap-dev-level3",
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Mandatory nonce and short window on signatures; single-use tokens and one-time DTVC; Verifiable Intent nonce, aud and one L3 pair per mandate pair.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-dev-mvct",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "Verifiable Intent chain gives dispute evidence; intent records kept as chargeback evidence; no receipt object in the program.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-level3"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Standard chargeback rights; no agent-specific reason codes or liability shift; Verifiable Intent leaves dispute choreography out of scope.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mcap-launch-2025",
+        "src-mcap-vi-security"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "reputation",
+      "support": "none",
+      "note": "No public agent reputation score; the probability score rates transactions, not agents.",
+      "sources": [
+        "src-mcap-trust-2026"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "monitoring-signals",
+      "support": "native",
+      "note": "Agent transactions recognizable to issuers; probability score in US testing from 2026-09-30; Verifiable Intent risk_data at consent.",
+      "sources": [
+        "src-mcap-launch-2025",
+        "src-mcap-trust-2026",
+        "src-mcap-vi-format"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Issuers keep card-level blocks and declines; no documented control to disable one agent across the network.",
+      "sources": [
+        "src-mcap-vi-security",
+        "src-mcap-dev-rails"
+      ]
+    }
+  ]
+}
