@@ -1,0 +1,122 @@
+---
+slug: openai-acp
+order: 4
+name: Agentic Commerce Protocol (ACP)
+bubbleLabel: ACP
+monogram: ACP
+tagline: Agent checkout against the merchant's API
+intro: "The Agentic Commerce Protocol, from OpenAI and Stripe, defines how an AI surface runs checkout against a merchant's own REST API and passes a scoped, single-use payment token. It launched with ChatGPT Instant Checkout on 2025-09-29. Since March 2026 ChatGPT uses it mainly for product feeds and discovery, with checkout on the merchant's side."
+family: checkout-orders
+layerPrimary: checkout-orders
+layersSecondary:
+  - payment-credential
+  - discovery
+  - post-purchase-disputes
+rails:
+  - card
+  - rail-agnostic
+stewards:
+  - "OpenAI and Stripe (founding maintainers)"
+  - "Technical Steering Committee: OpenAI, Stripe, Meta"
+governance: "Technical Steering Committee of up to 7 organizations, appointed by the founding maintainers OpenAI and Stripe, since 2026-03-10. Major changes go through Specification Enhancement Proposals (SEPs) with a simple majority vote; the founders keep a block-only veto on SEPs. No foundation."
+license:
+  spec: "Apache-2.0 (NOTICE names OpenAI and Stripe, 2025)"
+status: beta
+statusNote: "The README says beta and the core RFCs say Draft. In ChatGPT, product feeds and discovery are live, external checkout is generally available and the payment sheet is a private beta; the 2025 in-chat Instant Checkout was scaled back in March 2026."
+firstAnnounced: "2025-09-29"
+latestVersion:
+  label: "2026-04-17 (dated spec folder; no Git tag or release; edited after release)"
+  date: "2026-04-17"
+lastVerified: "2026-10-11"
+transports:
+  - "REST over HTTPS (JSON, API-Version header)"
+  - "MCP binding (JSON-RPC 2.0, five tools)"
+  - "Order webhooks (merchant to agent, HMAC signed)"
+  - "Feed API and feed files (metadata.json plus products.jsonl)"
+buildsOn:
+  - REST and JSON Schema
+  - OpenAPI and OpenRPC
+  - EMV 3-D Secure 2
+  - Card network tokens
+  - HMAC-SHA256
+  - RFC 8615 well-known URIs
+  - Model Context Protocol
+composesWith:
+  - ucp
+  - stripe-mpp
+  - visa-tap
+  - mastercard-agent-pay
+personas:
+  - ai-platform
+  - merchant-smb
+  - merchant-enterprise
+  - psp
+  - consumer
+  - agent-dev
+disambiguation:
+  - "ACP here is the Agentic Commerce Protocol from OpenAI and Stripe."
+  - "Not IBM's Agent Communication Protocol (BeeAI), which merged into A2A under the Linux Foundation (announced 2025-08-29). The PyPI package acp-sdk is IBM's."
+  - "Not Virtuals' Agent Commerce Protocol, the commerce layer of the Virtuals on-chain agent economy, and not ERC-8183, which also calls itself the Agentic Commerce Protocol."
+  - "Not the Agent Client Protocol, which connects code editors to coding agents."
+  - "The Shared Payment Token (SPT) is Stripe's product used with ACP, not part of the ACP specification."
+mainFlow: openai-acp-checkout-happy-path
+stateMachine: openai-acp-checkout-session
+diagrams:
+  - openai-acp-context
+  - openai-acp-data-model
+  - openai-acp-versions
+  - openai-acp-models-2025-2026
+  - openai-acp-allowance-scoping
+  - openai-acp-delegate-payment
+  - openai-acp-3ds-authentication
+  - openai-acp-failure-idempotency-conflict
+  - openai-acp-cancel-intent-trace
+  - openai-acp-order-webhook
+  - openai-acp-product-feed-push
+  - openai-acp-mcp-tool-mapping
+  - openai-acp-docs-vs-spec
+  - openai-acp-composition
+playground:
+  status: coming-next
+  note: "A checkout session state machine simulator: create, update, complete and cancel against a fixture merchant with a request and response log, a version toggle (2025-09-29 with five statuses versus 2026-04-17 with eleven), allowance enforcement on a delegated token (exceed max_amount, let expires_at pass, present it to the wrong merchant_id or checkout_session_id, reuse a one_time token), HMAC verification of a Merchant-Signature webhook with an ephemeral secret, and capability and payment handler negotiation. Simulation only, no real funds or cards."
+keyFacts:
+  - label: Steward
+    value: "OpenAI and Stripe (founding maintainers); MAINTAINERS.md lists OpenAI, Stripe and Meta"
+    claimIds: [clm-openai-acp-001, clm-openai-acp-009]
+  - label: Governance
+    value: "TSC of up to 7 seats appointed by OpenAI and Stripe since 2026-03-10; seats filled: OpenAI, Stripe, Meta (from 2026-04-24); SEPs by simple majority; founders' block-only veto; no foundation"
+    claimIds: [clm-openai-acp-010, clm-openai-acp-011, clm-openai-acp-012, clm-openai-acp-014, clm-openai-acp-015, clm-openai-acp-017, clm-openai-acp-018]
+  - label: License
+    value: "Apache-2.0; contributions under a CLA (10 corporate signatories as of 2026-06-03)"
+    claimIds: [clm-openai-acp-005, clm-openai-acp-021, clm-openai-acp-022]
+  - label: First announced
+    value: "2025-09-29, with ChatGPT Instant Checkout and Stripe's Shared Payment Token"
+    claimIds: [clm-openai-acp-007, clm-openai-acp-008]
+  - label: Latest version
+    value: "2026-04-17, a dated spec folder (no GitHub release or tag); last commit 2026-07-18"
+    claimIds: [clm-openai-acp-027, clm-openai-acp-028, clm-openai-acp-037]
+  - label: Status
+    value: "Beta (README), Draft (core RFCs); ChatGPT uses it for feeds and discovery since 2026-03-24"
+    claimIds: [clm-openai-acp-002, clm-openai-acp-003, clm-openai-acp-178]
+  - label: Transports
+    value: "REST over HTTPS, an MCP binding with five tools, merchant-to-agent order webhooks, feed API and files"
+    claimIds: [clm-openai-acp-091, clm-openai-acp-128, clm-openai-acp-156, clm-openai-acp-113]
+  - label: Rails
+    value: "Card credentials (FPAN or network token) through Delegate Payment; seller-backed handlers for saved cards, gift cards, points and store credit"
+    claimIds: [clm-openai-acp-078, clm-openai-acp-062]
+  - label: Merchant of record
+    value: "The merchant, never OpenAI; the merchant charges through its own PSP"
+    claimIds: [clm-openai-acp-045, clm-openai-acp-044]
+  - label: Builds on
+    value: "REST, JSON Schema, OpenAPI, 3-D Secure 2, network tokens, HMAC-SHA256, RFC 8615, MCP"
+    claimIds: [clm-openai-acp-091, clm-openai-acp-103, clm-openai-acp-135, clm-openai-acp-118, clm-openai-acp-129]
+  - label: Composes with
+    value: "Stripe SPT (vendor token under Delegate Payment), Visa and Mastercard agent tokens under SPTs, UCP side by side with no bridge"
+    claimIds: [clm-openai-acp-049, clm-openai-acp-164, clm-openai-acp-205]
+---
+
+Draft in progress.
+
+## Compare and compose
+
+Draft in progress.

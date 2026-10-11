@@ -1,0 +1,21 @@
+{
+  "protocol": "openai-acp",
+  "tldr": "ACP lets an AI agent run checkout against a merchant's own API: it creates and updates a session, gets a payment token scoped to that merchant and amount, and completes the order, while the merchant stays merchant of record.",
+  "whyItExists": "Shopping inside a chat window needs a way for the AI surface to build a cart, show authoritative prices and taxes, and pay without becoming the store. Card forms and redirects break the conversation, and handing raw card numbers to every merchant's API is unsafe. ACP gives the merchant a small REST contract it hosts itself, lets a payment provider swap the card for a single-use token limited by an allowance, and leaves orders, payments, refunds and chargebacks with the merchant.",
+  "whatItIsNot": [
+    { "text": "Not IBM's Agent Communication Protocol, not Virtuals' Agent Commerce Protocol, not ERC-8183 and not the Agent Client Protocol. The PyPI package acp-sdk is IBM's.", "claimIds": ["clm-openai-acp-226", "clm-openai-acp-227", "clm-openai-acp-228", "clm-openai-acp-229", "clm-openai-acp-202"] },
+    { "text": "OpenAI is not the merchant of record. The merchant is, its name appears on the card statement, and it handles refunds and chargebacks.", "claimIds": ["clm-openai-acp-045", "clm-openai-acp-046"] },
+    { "text": "The Shared Payment Token is Stripe's product used with ACP, not the ACP specification. The spec defines a generic Delegate Payment endpoint; spt is only an example credential type.", "claimIds": ["clm-openai-acp-050", "clm-openai-acp-058"] },
+    { "text": "Not the 2025 Instant Checkout any more. OpenAI scaled back in-chat checkout in March 2026; ChatGPT now uses ACP mainly for product feeds and discovery, and merchants use their own checkout.", "claimIds": ["clm-openai-acp-224", "clm-openai-acp-177", "clm-openai-acp-178"] },
+    { "text": "Not a mandate protocol. ACP has no signed proof of user intent like AP2's mandates; the allowance limits what a token can do, not why.", "claimIds": ["clm-openai-acp-212", "clm-openai-acp-138"] },
+    { "text": "Not versioned by releases. Versions are dated spec folders with no GitHub release or tag, and released folders were edited after release.", "claimIds": ["clm-openai-acp-028", "clm-openai-acp-041"] },
+    { "text": "Not bridged to UCP. The two share several status names and a well-known discovery pattern, but no mapping or bridge specification exists.", "claimIds": ["clm-openai-acp-205", "clm-openai-acp-206"] }
+  ],
+  "changedRecently": [
+    { "date": "2026-04-17", "text": "Version 2026-04-17 released: Cart, a push Feed API, Delegate Authentication (3DS2), /.well-known/acp.json discovery, the MCP binding and a mandatory Idempotency-Key on every POST.", "claimIds": ["clm-openai-acp-027", "clm-openai-acp-034", "clm-openai-acp-035"] },
+    { "date": "2026-04-24", "text": "Meta joined the Technical Steering Committee as seat 3.", "claimIds": ["clm-openai-acp-014"] },
+    { "date": "2026-05-01", "text": "The released 2026-04-17 order schema was edited after release; its status list now says completed where the changelog says delivered.", "claimIds": ["clm-openai-acp-041", "clm-openai-acp-221"] },
+    { "date": "2026-07-18", "text": "Last commit so far: an optional product url on checkout items (unreleased). No commit landed between then and 2026-10-11.", "claimIds": ["clm-openai-acp-037", "clm-openai-acp-039", "clm-openai-acp-040"] },
+    { "date": "2026-10-11", "text": "In ChatGPT apps, external checkout is generally available and the payment sheet is a private beta for select marketplace partners.", "claimIds": ["clm-openai-acp-183", "clm-openai-acp-184"] }
+  ]
+}
