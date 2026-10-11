@@ -58,7 +58,9 @@ export default function CitationDrawer() {
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      // Runs in the capture phase, before Astro's ClientRouter marks same-page
+      // hash links as handled; so do not bail on e.defaultPrevented here.
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const target = (e.target as Element | null)?.closest?.('[data-cite]');
       if (!target) return;
       const ids = target.getAttribute('data-cite') ?? '';
@@ -67,8 +69,8 @@ export default function CitationDrawer() {
       const d = ref.current;
       if (d && !d.open) d.showModal();
     };
-    document.addEventListener('click', onClick);
-    return () => document.removeEventListener('click', onClick);
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, []);
 
   const close = () => ref.current?.close();

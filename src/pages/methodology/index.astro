@@ -34,7 +34,7 @@ const md = await createMarkdownProcessor();
 async function renderMd(path: string): Promise<string | null> {
   const raw = RAW[path];
   if (!raw) return null;
-  const body = raw.replace(/^# .*\n/, '').replace(/—/g, ', ');
+  const body = raw.replace(/^# .*\n/, '').replace(/\u2014/g, ', ');
   const { code } = await md.render(body);
   return code
     .replace(/<(\/?)h3/g, '<$1h4')
