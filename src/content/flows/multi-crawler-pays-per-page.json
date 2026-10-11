@@ -1,0 +1,289 @@
+{
+  "id": "multi-crawler-pays-per-page",
+  "protocol": "multi",
+  "title": "A crawler pays per page: (a) Cloudflare Monetization Gateway beta with USDC on Base, (b) the credit-backed cloudflare:402 network",
+  "summary": "Two separate variants, never one path. Steps 1 to 6, variant (a): the Cloudflare Monetization Gateway closed beta (2026-09-30) answers with an inline x402 402 and settles USDC on Base through Coinbase's x402 facilitator. Steps 7 to 13, variant (b): the credit-backed batch-settlement binding on the cloudflare:402 network, where the crawler signs with RFC 9421, Cloudflare is merchant of record and bills later off chain, as the x402 spec describes it with a registration link to Cloudflare's pay-per-crawl documentation.",
+  "specVersion": "x402 V2 (repository at f8f8330); cloudflare:402 network version 1.0.0; Monetization Gateway beta post (2026-09-30)",
+  "specVersionDate": "2026-09-30",
+  "actors": [
+    {
+      "id": "crawler",
+      "label": "AI crawler or agent",
+      "kind": "agent"
+    },
+    {
+      "id": "edge",
+      "label": "Cloudflare edge (gateway)",
+      "kind": "cdn"
+    },
+    {
+      "id": "origin",
+      "label": "Publisher origin",
+      "kind": "merchant"
+    },
+    {
+      "id": "facilitator",
+      "label": "Coinbase x402 facilitator",
+      "kind": "facilitator"
+    },
+    {
+      "id": "base",
+      "label": "Base (USDC)",
+      "kind": "chain"
+    },
+    {
+      "id": "keydir",
+      "label": "Crawler key directory",
+      "kind": "registry"
+    },
+    {
+      "id": "billing",
+      "label": "Cloudflare billing (merchant of record)",
+      "kind": "psp"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "crawler",
+      "to": "edge",
+      "label": "(a) Request a priced resource",
+      "protocol": "x402",
+      "detail": "Variant (a), Monetization Gateway closed beta. The agent requests a resource the seller has priced in the gateway. Sellers define which requests require payment, the cost and the destination, with rules on URL, headers or query parameters. The beta is limited to eligible US-based sellers and buyers.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://blog.cloudflare.com/monetization-gateway-beta/"
+      },
+      "controlPoint": "Before authorization: the crawler's own allowlist of publishers and its per-request price ceiling."
+    },
+    {
+      "n": 2,
+      "from": "edge",
+      "to": "crawler",
+      "label": "(a) 402 with PAYMENT-REQUIRED (USDC on Base)",
+      "protocol": "x402",
+      "detail": "The gateway answers inline with HTTP 402 and a PAYMENT-REQUIRED header holding base64 PaymentRequired JSON; there is no redirect to a checkout page. Cloudflare's post does not name the x402 scheme, so the scheme value below is left open.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, x402 V2. Decoded PAYMENT-REQUIRED. The scheme is not named in Cloudflare's post.\n{\n  \"x402Version\": 2,\n  \"resource\": { \"url\": \"https://publisher.example/api/article/42\" },\n  \"accepts\": [\n    {\n      \"scheme\": \"<not named in the announcement>\",\n      \"network\": \"eip155:8453\",\n      \"amount\": \"1000\",\n      \"asset\": \"<USDC contract on Base>\",\n      \"payTo\": \"0x<seller address>\",\n      \"maxTimeoutSeconds\": 60\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "5.1 PaymentRequired Schema"
+      },
+      "observable": "Private: the 402 goes only to the requester."
+    },
+    {
+      "n": 3,
+      "from": "crawler",
+      "to": "edge",
+      "label": "(a) Retry with PAYMENT-SIGNATURE",
+      "protocol": "x402",
+      "detail": "The agent's wallet signs a payment authorization and the agent retries the same request with a PAYMENT-SIGNATURE header holding the base64 PaymentPayload, whose accepted field echoes the chosen requirement.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "5.2 PaymentPayload Schema"
+      },
+      "controlPoint": "At signing: wallet policy and SDK spendControls cap the amount per payment.",
+      "failures": [
+        {
+          "condition": "The wallet holds too little USDC",
+          "outcome": "Verification fails, for example with insufficient_funds; nothing is served."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "edge",
+      "to": "facilitator",
+      "label": "(a) POST /verify, then POST /settle",
+      "protocol": "x402",
+      "detail": "The gateway sends x402Version, paymentPayload and paymentRequirements to Coinbase's x402 facilitator for verification and settlement. Cloudflare's post says the buyer gets the resource after settlement.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "7. Facilitator Interface"
+      },
+      "controlPoint": "At settlement: the facilitator's screening and deduplication before money moves.",
+      "failures": [
+        {
+          "condition": "The settle call times out",
+          "outcome": "Indeterminate: settlement may still have happened; settlement_pending is retried and reconciled."
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "facilitator",
+      "to": "base",
+      "label": "(a) USDC transfer on Base",
+      "protocol": "x402",
+      "detail": "The facilitator broadcasts the transfer on Base and usually pays the gas.",
+      "crossesTrustBoundary": true,
+      "observable": "Public: the USDC transfer on Base, with payer and payee addresses and the amount; not which page was bought."
+    },
+    {
+      "n": 6,
+      "from": "edge",
+      "to": "crawler",
+      "label": "(a) 200 with the resource and PAYMENT-RESPONSE",
+      "protocol": "x402",
+      "detail": "The gateway returns the resource with a PAYMENT-RESPONSE header holding the SettleResponse, including the transaction hash. Variant (a) ends here.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "5.3 SettlementResponse Schema"
+      },
+      "controlPoint": "After the fact: the transaction hash is the receipt; the exact flow has no refund in the protocol."
+    },
+    {
+      "n": 7,
+      "from": "crawler",
+      "to": "keydir",
+      "label": "(b) One-time setup: publish keys and register the signature agent",
+      "protocol": "x402",
+      "detail": "Variant (b), credit-backed cloudflare:402. The crawler hosts its public keys at /.well-known/http-message-signatures-directory and registers that signature agent through the registrationUrl, which points to Cloudflare's pay-per-crawl documentation for AI crawler owners. Cloudflare ties the signature agent to a billing identity.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/batch-settlement/scheme_batch_settlement_cloudflare.md",
+        "section": "First-time Setup (Client)"
+      },
+      "controlPoint": "Before authorization: Cloudflare's onboarding of the crawler and the credit terms set at registration.",
+      "observable": "Public: the crawler's key directory can be fetched by anyone; the billing link is private to Cloudflare."
+    },
+    {
+      "n": 8,
+      "from": "crawler",
+      "to": "edge",
+      "label": "(b) GET the page",
+      "protocol": "x402",
+      "detail": "The crawler requests an article on a site that charges crawlers.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 9,
+      "from": "edge",
+      "to": "crawler",
+      "label": "(b) 402: batch-settlement on cloudflare:402, payTo merchant",
+      "protocol": "x402",
+      "detail": "The 402 carries PAYMENT-REQUIRED with scheme batch-settlement, network cloudflare:402, asset USD, payTo set to the constant merchant, and the http-message-signatures extension with registrationUrl, signatureSchemes and tags. Schema and optional fields are dropped to keep the header under 2 KB.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, cloudflare:402 network version 1.0.0. Decoded PAYMENT-REQUIRED.\n{\n  \"x402Version\": 2,\n  \"resource\": { \"url\": \"https://publisher.example/article\", \"mimeType\": \"text/html\" },\n  \"accepts\": [\n    { \"scheme\": \"batch-settlement\", \"network\": \"cloudflare:402\", \"amount\": \"1\", \"asset\": \"USD\", \"payTo\": \"merchant\", \"extra\": { \"version\": \"1.0.0\" } }\n  ],\n  \"extensions\": {\n    \"http-message-signatures\": {\n      \"info\": { \"registrationUrl\": \"<Cloudflare pay-per-crawl verification docs>\", \"signatureSchemes\": [\"ed25519\"], \"tags\": [\"web-bot-auth\"] }\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/batch-settlement/scheme_batch_settlement_cloudflare.md",
+        "section": "PaymentRequired for batch-settlement"
+      },
+      "failures": [
+        {
+          "condition": "The signature agent is not recognized",
+          "outcome": "The amount may be missing from accepts; the client should retry with authentication."
+        }
+      ]
+    },
+    {
+      "n": 10,
+      "from": "crawler",
+      "to": "edge",
+      "label": "(b) Retry signed with RFC 9421 plus PAYMENT-SIGNATURE",
+      "protocol": "x402",
+      "detail": "The crawler sends Signature-Agent, Signature-Input and Signature, and a PAYMENT-SIGNATURE whose payload holds only amount and asset. The signature must cover @authority, signature-agent and payment-signature, which binds the commitment to the request.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, cloudflare:402 network version 1.0.0. Placeholder values.\nGET /article HTTP/2\nHost: publisher.example\nSignature-Agent: crawler.example\nSignature-Input: sig=(\"@authority\" \"signature-agent\" \"payment-signature\");created=1791720000;expires=1791720030;keyid=\"<jwk-thumbprint>\";tag=\"web-bot-auth\"\nSignature: sig=:<ed25519 signature>:\nPAYMENT-SIGNATURE: <base64 of {\"x402Version\":2,\"payload\":{\"amount\":\"1\",\"asset\":\"USD\"},\"accepted\":{...}}>",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/batch-settlement/scheme_batch_settlement_cloudflare.md",
+        "section": "PAYMENT-SIGNATURE Header Payload"
+      },
+      "controlPoint": "At signing: the crawler's signer refuses commitments above its per-page ceiling or outside its publisher list."
+    },
+    {
+      "n": 11,
+      "from": "edge",
+      "to": "keydir",
+      "label": "(b) Fetch the key, check the agent is known, verify",
+      "protocol": "x402",
+      "detail": "The edge fetches the public key from the Signature-Agent directory, verifies the signature, confirms the agent is tied to a billing identity, checks amount, asset and freshness (typically within 30 seconds), and checks that accepted matches an offer.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/batch-settlement/scheme_batch_settlement_cloudflare.md",
+        "section": "Verification"
+      },
+      "controlPoint": "At the edge: Cloudflare's signature and billing-identity checks stand in for a facilitator.",
+      "failures": [
+        {
+          "condition": "Unknown signature agent",
+          "outcome": "signature_agent_unknown."
+        },
+        {
+          "condition": "Bad or missing message signature",
+          "outcome": "invalid_signature."
+        },
+        {
+          "condition": "Agent not tied to a valid billing identity",
+          "outcome": "payment_failed."
+        },
+        {
+          "condition": "Amount does not match",
+          "outcome": "price_not_acceptable."
+        }
+      ]
+    },
+    {
+      "n": 12,
+      "from": "edge",
+      "to": "crawler",
+      "label": "(b) 200 with the page and PAYMENT-RESPONSE (no transaction)",
+      "protocol": "x402",
+      "detail": "The edge serves the page with a PAYMENT-RESPONSE whose transaction field is empty and whose payer is the signature agent: the commitment settles later.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, cloudflare:402 network version 1.0.0. Decoded PAYMENT-RESPONSE.\n{ \"success\": true, \"transaction\": \"\", \"network\": \"cloudflare:402\", \"payer\": \"crawler.example\", \"amount\": \"1\", \"asset\": \"USD\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/batch-settlement/scheme_batch_settlement_cloudflare.md",
+        "section": "PAYMENT-RESPONSE Header"
+      },
+      "observable": "Private: no chain transaction; only the crawler, Cloudflare and the publisher see the commitment."
+    },
+    {
+      "n": 13,
+      "from": "billing",
+      "to": "origin",
+      "label": "(b) Batched billing and periodic payout over off-chain rails",
+      "protocol": "x402",
+      "detail": "Cloudflare, as merchant of record, aggregates commitments, bills the identity behind each signature agent and pays content owners periodically over off-chain rails. Settlement periods, failed payments, rate limits and disputes follow the registration terms, not x402.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/batch-settlement/scheme_batch_settlement_cloudflare.md",
+        "section": "Settlement"
+      },
+      "controlPoint": "After the fact: Cloudflare's invoices and dispute terms; the crawler reconciles its own logs of PAYMENT-RESPONSE headers against the bill.",
+      "observable": "Private: the mapping from signature identity to billing account is held by Cloudflare.",
+      "failures": [
+        {
+          "condition": "The crawler's account cannot be charged at the end of the period",
+          "outcome": "Handled under Cloudflare's registration terms; x402 defines nothing."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "src-x402-cf-mg-beta",
+    "src-x402-spec-v2",
+    "src-x402-fee-cdp",
+    "src-x402-scheme-batch-cf",
+    "src-x402-ext-http-sig"
+  ]
+}

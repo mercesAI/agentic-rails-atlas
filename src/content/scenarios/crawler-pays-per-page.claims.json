@@ -1,0 +1,108 @@
+{
+  "protocol": "x402",
+  "generatedAt": "2026-10-11",
+  "claims": [
+    {
+      "id": "clm-scn-crawler-pays-per-page-001",
+      "text": "Cloudflare's 2026-09-30 post says the Monetization Gateway lets domain owners charge agents per use for websites, APIs, MCP tools or datasets, with HTTP 402 returned inline and no redirect to a checkout page.",
+      "sources": ["src-x402-cf-mg-beta"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-002",
+      "text": "The Monetization Gateway post says pages that are crawled once and used many times fall under Cloudflare's Pay Per Use, a network of verified buyers who report each use and pay for it, rather than under the gateway.",
+      "sources": ["src-x402-cf-mg-beta"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-003",
+      "text": "The Monetization Gateway post names no x402 scheme identifier; it describes fixed and variable pricing examples and says sellers choose from several pricing schemes.",
+      "sources": ["src-x402-cf-mg-beta"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-004",
+      "text": "The Monetization Gateway post does not mention Web Bot Auth or any crawler signature requirement and says identity primitives are planned.",
+      "sources": ["src-x402-cf-mg-beta"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-005",
+      "text": "Monetization Gateway sellers define which requests require payment, the cost and where payment is sent, with rules that can match the URL, headers or query parameters, or with prices supplied by the seller's origin.",
+      "sources": ["src-x402-cf-mg-beta"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-006",
+      "text": "The Monetization Gateway post gives no fee, commission or seller payout schedule.",
+      "sources": ["src-x402-cf-mg-beta"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "metrics"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-007",
+      "text": "In the cloudflare:402 binding the HTTP message signature must cover @authority, signature-agent and payment-signature, which binds the payment commitment to the request.",
+      "sources": ["src-x402-scheme-batch-cf"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "cloudflare:402 1.0.0",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-008",
+      "text": "To use cloudflare:402 a client hosts its keys at /.well-known/http-message-signatures-directory and registers its signature agent through the registrationUrl, which points to Cloudflare's pay-per-crawl documentation for AI crawler owners; Cloudflare then ties the signature agent to a billing identity.",
+      "sources": ["src-x402-scheme-batch-cf"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "cloudflare:402 1.0.0",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-009",
+      "text": "In cloudflare:402 Cloudflare aggregates payment commitments, bills the identity behind each signature agent and pays content owners periodically over off-chain rails; settlement periods, payment failure handling, rate limits and dispute resolution are set at registration, not by x402.",
+      "sources": ["src-x402-scheme-batch-cf"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "cloudflare:402 1.0.0",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-010",
+      "text": "A cloudflare:402 client with a pre-authorized payment agreement can send PAYMENT-SIGNATURE and its message signature in the first request and skip the 402 response.",
+      "sources": ["src-x402-scheme-batch-cf"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "cloudflare:402 1.0.0",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-011",
+      "text": "cloudflare:402 verification checks the message signature, that the signature agent is known to Cloudflare, that amount and asset suffice, timestamp freshness (typically within 30 seconds) and that accepted matches an offered requirement; the binding lists ed25519 and the tags web-bot-auth and agent-browser-auth.",
+      "sources": ["src-x402-scheme-batch-cf"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "cloudflare:402 1.0.0",
+      "topic": "security"
+    },
+    {
+      "id": "clm-scn-crawler-pays-per-page-012",
+      "text": "The cloudflare:402 PAYMENT-RESPONSE example carries an empty transaction field and names the crawler's signature agent as payer, because the commitment is settled later off chain.",
+      "sources": ["src-x402-scheme-batch-cf"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "cloudflare:402 1.0.0",
+      "topic": "observability"
+    }
+  ]
+}

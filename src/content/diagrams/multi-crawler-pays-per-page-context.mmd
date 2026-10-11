@@ -1,0 +1,23 @@
+flowchart LR
+  CR["AI crawler or agent"]
+  subgraph CF["Cloudflare"]
+    ED["Edge: Monetization Gateway or pay-per-crawl"]
+    BL["Billing, merchant of record (variant b)"]
+  end
+  OR["Publisher origin"]
+  subgraph VA["Variant (a): Monetization Gateway closed beta, 2026-09-30"]
+    FA["Coinbase x402 facilitator"]
+    BA["Base: USDC transfer"]
+  end
+  subgraph VB["Variant (b): batch-settlement on cloudflare:402, credit-backed"]
+    KD["Crawler key directory: /.well-known/http-message-signatures-directory"]
+  end
+  CR -- "a: 402, then PAYMENT-SIGNATURE (x402 V2)" --> ED
+  ED -- "a: /verify and /settle" --> FA
+  FA -- "a: settle" --> BA
+  CR -. "b: RFC 9421 signature plus PAYMENT-SIGNATURE, payTo merchant, asset USD" .-> ED
+  ED -. "b: fetch key by Signature-Agent" .-> KD
+  ED -. "b: commitment, no chain transaction" .-> BL
+  BL -. "b: periodic invoice" .-> CR
+  BL -. "b: periodic payout, off-chain rails" .-> OR
+  ED -- "serves page" --> OR
