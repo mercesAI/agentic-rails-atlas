@@ -237,7 +237,77 @@ Optional extension claim: `agent_attestation` with `type` and `value`; unknown t
 
 ## Message flows
 
+Flows 1 to 5 come from Mastercard's merchant-facing developer guides, which describe behavior but publish no wire schema. Flows 6 and 7 come from the VI spec. Mastercard says VI will be embedded in Agent Pay's intent APIs, but no public document shows the VI chain inside a live Agent Pay authorization (see Least certain).
+
+### Flow 1: agent registration and certification
+
+1. The agent developer creates a key pair and registers the public key in the Mastercard Agent Pay key directory during onboarding [src-mcap-dev-level1].
+2. Mastercard runs a security review and certification: the agent must authenticate consumers properly, use tokenized credentials and never store raw card data, capture consumer intent accurately and follow privacy rules [src-mcap-dev-level1] [src-mcap-dev-rails].
+3. Certified agents are added to trusted agent lists maintained by the network; merchants check these lists through Web Bot Auth verification [src-mcap-dev-rails].
+4. Merchants register for Agent Pay through their acquirer or PSP [src-mcap-dev-rails].
+Failure: an unregistered agent cannot transact on the network ("Only registered agents can transact through the network") [src-mcap-dev-rails]; the September 2025 "Agent Sign-Up" is the developer entry point named for toolkit users [src-mcap-sep-2025].
+
+### Flow 2: token provisioning (agentic token)
+
+1. The consumer authenticates with the agent platform and authorizes it to buy on their behalf; regional releases name Mastercard Payment Passkeys for authentication [src-mcap-dev-level1] [src-mcap-latam-2026].
+2. The platform requests a token from the network; the token contains no card data and "may be single-use, merchant-specific, or time-limited" [src-mcap-dev-level1].
+3. Agents may not use cards already on file at the merchant, because without an agentic token the network cannot identify the flow as agentic [src-mcap-dev-level1].
+Via Stripe: when a customer authorizes an agent, Stripe provisions an agentic network token from Mastercard scoped to the customer's intent and shares it with the agent as a Shared Payment Token; the network maps it to the latest funding PAN at authorization and adds agent information to the authorization message [src-mcap-stripe-spt-2026].
+
+### Flow 3: Level 1 purchase through existing checkout forms, with edge verification
+
+1. The agent requests a page and signs it with RFC 9421 HTTP Message Signatures: headers `Signature-Input` and `Signature`, with `tag="Agent-pay-auth"`, `keyid`, `created`, `expires`, `nonce`, `alg` [src-mcap-dev-level1].
+2. The CDN (Cloudflare) or the merchant backend checks: both headers present; fetch the key for `keyid` from the directory; `created` and `expires` bracket the current time; the nonce is unused; the tag is valid; rebuild the signature base; verify the Ed25519 signature [src-mcap-cloudflare-blog] [src-mcap-dev-level1].
+3. The agent fills the standard card form with the token; "the token looks like a standard card number" to the merchant [src-mcap-dev-level1].
+4. The merchant's processor submits the authorization; the network detokenizes and routes to the issuer [src-mcap-dev-level1].
+Failures (merchant decision table): no `Signature-Input` with a scheme tag, apply the non-agent bot policy; a required field missing, block; key not found in the directory, block [src-mcap-dev-level1].
+
+### Flow 4: guest checkout with a Virtual Card Token and DTVC
+
+1. The integrator (for example an agent platform) requests a checkout for a merchant web domain; after user validation and consent it requests a one-time DTVC [src-mcap-dev-mvct].
+2. Mastercard returns the virtual card token, its expiry and a new DTVC [src-mcap-dev-mvct-pay].
+3. The agent types these into the card number, expiry and security code fields [src-mcap-dev-mvct].
+4. On authorization Mastercard processes the token, validates the DTVC and tells the issuer whether DTVC validation was performed; the issuer approves or declines [src-mcap-dev-mvct-pay].
+
+### Flow 5: Level 2 and Level 3 enrichment
+
+1. Level 2: the request body carries an Agent User Identity object (`mastercardIdToken` plus `signature`, `kid`, `nonce`, `alg`) and a Payment Data object; both are signed with the same private key as the HTTP message signature and carry the same nonce, so the merchant can bind the body to the verified request and compare the form data hash with `paymentData` [src-mcap-dev-level2].
+2. Level 3: the agent captures intent; Mastercard's Intent API validates and stores it and returns an `intentId` with tokenized credentials; at checkout the agent sends the intent; the merchant checks intent signature, `intentStatus` `ACTIVE`, expiry and `srcDpaId`, then compares totals, SKUs, quantities and delivery details [src-mcap-dev-level3].
+Failures: reject if the checkout total exceeds `orderTotalAmount` or the merchant id differs; flag for review on SKU, quantity or address mismatches; for deferred orders, require the agent to get explicit consumer confirmation [src-mcap-dev-level3]. Mastercard labels intent exchange between agent and merchant "future facing" [src-mcap-dev-rails].
+
+### Flow 6: VI Immediate mode (2 layers, user present)
+
+1. Enrollment: the user registers a public key with the Credential Provider; the Issuer signs L1 (`sd+jwt`) binding it in `cnf.jwk` [src-mcap-vi-spec].
+2. The agent builds a cart and creates `checkout_jwt` (SHOULD be merchant-signed; implementation-defined in v0.1) [src-mcap-vi-spec] [src-mcap-vi-format].
+3. The user reviews and signs L2 (`kb-sd-jwt`) with a `mandate.checkout.1` (with `checkout_hash`) and a `mandate.payment.1` (with `transaction_id` equal to the same hash); no `cnf` in mandates [src-mcap-vi-spec].
+4. The agent forwards L1 plus L2; checkout disclosed to the merchant, payment disclosed to the network [src-mcap-vi-spec].
+5. The merchant verifies the L1 signature (Issuer JWKS), L2 signature (L1 `cnf.jwk`), `sd_hash`, catalog match and recomputed hash; the network verifies the chain and the `transaction_id` binding and authorizes [src-mcap-vi-spec].
+
+### Flow 7: VI Autonomous mode (3 layers, agent delegated)
+
+1. The user signs L2 (`kb-sd-jwt+kb`) with `mandate.checkout.open.1` and `mandate.payment.open.1`, both carrying the identical agent `cnf.jwk` (with `kid`) and constraints; the payment mandate includes `mandate.payment.reference` [src-mcap-vi-format].
+2. The agent shops, obtains `checkout_jwt`, and signs two L3 credentials: L3a (`mandate.payment.1` with `transaction_id`, plus the selected merchant disclosure; `aud` = network) and L3b (`mandate.checkout.1` with `checkout_hash` and `line_items`; `aud` = merchant) [src-mcap-vi-spec].
+3. The merchant verifies L3b (key resolved from L2 by `kid`, `typ`, selective `sd_hash`, checkout constraints) [src-mcap-vi-spec].
+4. The network verifies L3a, checks payment constraints, enforces one L3 pair per mandate pair (or the occurrence and budget counters when `mandate.payment.agent_recurrence` is present) and records the spend [src-mcap-vi-security].
+5. The network "returns assurance data" and the issuer makes the final decision [src-mcap-vi-spec].
+Failures named in the spec: signature or `typ` mismatch, `exp` passed (300 second skew recommended), L3 containing `cnf`, a self-asserted `jwk` header, `cnf.jwk` differing between mandates (split-agent attack), orphaned or duplicate mandates, hash mismatch, and constraint violations such as "Amount exceeded", "Budget exceeded", "Merchant not in allowed list", "Payee not in allowed list", "Maximum occurrences exceeded" [src-mcap-vi-format] [src-mcap-vi-constraints] [src-mcap-vi-security].
+
+### Flow 8: Agent Pay for Machines
+
+Mastercard describes four capabilities (credentialing with VI, permissioning with programmatic spending limits, transacting, and multi-rail settlement across cards, accounts and stablecoins) but publishes no message flow, API or settlement schedule [src-mcap-ap4m-2026].
+
 ## State machines
+
+| Machine | States documented | Transitions documented | Gaps | Source |
+|---|---|---|---|---|
+| Agent onboarding | registered, security reviewed, certified, on trusted agent list | registration, review, certification | Suspension, delisting and key rotation are not documented publicly | [src-mcap-dev-rails] [src-mcap-dev-level1] |
+| Agentic token | provisioned (scoped single-use, merchant-specific or time-limited), used | provisioning by the platform, use at checkout, detokenization by the network | No public lifecycle API, suspend or delete states for agentic tokens; MDES is not named by any Mastercard page read (correction 2.2) | [src-mcap-dev-level1] |
+| Intent (Intent API) | `intentStatus` is "dynamically updated"; only `ACTIVE` is named | register, validate at checkout | Other status values are not published | [src-mcap-dev-level3] |
+| Order | `orderExecutionType` `IMMEDIATE` or `DEFERRED`; `orderStatus` values not published; `orderExpiry` | expiry | Status enum not published | [src-mcap-dev-level3] |
+| VI credential lifecycle | enrollment, L1 issuance, L2 Immediate or L2 Autonomous, L3 creation (Autonomous), presentation, verification, settlement | numbered steps 1 to 7 | No revocation step in v0.1 | [src-mcap-vi-spec] [src-mcap-vi-security] |
+| VI mandate pair (network state) | unfulfilled, fulfilled (base model); with `mandate.payment.agent_recurrence`: counters `occurrence_count` and `cumulative_spent` until `max_occurrences`, `budget.max` or `end_date` | record each authorized L3a | The spec says networks MUST hold this state but defines no API for it | [src-mcap-vi-constraints] [src-mcap-vi-security] |
+| VI autonomous mandate expiry | valid until L2 `exp`; when it expires before fulfillment the implementation SHOULD prompt the user to re-authorize | expiry | | [src-mcap-vi-format] |
+| Trust Framework probability score | testing in the US (2026-09-30) | | Score range, thresholds and message fields not published | [src-mcap-trust-2026] |
 
 ## Transports
 
