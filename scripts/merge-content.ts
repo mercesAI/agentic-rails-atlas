@@ -204,7 +204,10 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
   for (const path of [...new Set(researchSourceFiles)].sort()) {
     const data = readInput(path);
     if (data === undefined) continue;
-    addSources(arrayFrom(data, ['sources']), rel(root, path), false);
+    // A top-level array is a Source[] only in *.sources.json files; other files
+    // (for example orbit.b.timeline.json) carry sources under a `sources` key.
+    const items = path.endsWith('.sources.json') ? arrayFrom(data, ['sources']) : Array.isArray(data) ? [] : arrayFrom(data, ['sources']);
+    addSources(items, rel(root, path), false);
   }
   for (const f of listDir(join(content, 'scenarios')).filter((f) => f.endsWith('.sources.json'))) {
     const path = join(content, 'scenarios', f);
@@ -366,7 +369,9 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
     const data = readInput(path);
     if (data === undefined) continue;
     const lane = DEFAULT_LANES[m[1]] ?? 'Standards';
-    const items = arrayFrom(data, ['timeline', 'events']).map((e) =>
+    // A top-level array is a timeline only when the file name says so.
+    const raw = Array.isArray(data) ? (/timeline|events/.test(f) ? data : []) : arrayFrom(data, ['timeline', 'events']);
+    const items = raw.map((e) =>
       e && typeof e === 'object' && !('lane' in e) ? { ...e, lane } : e,
     );
     for (const e of parseEach(TimelineEvent, items, rel(root, path), 'timeline')) {

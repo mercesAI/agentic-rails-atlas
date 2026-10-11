@@ -231,6 +231,13 @@ async function launchBrowser(): Promise<Browser> {
 // Main
 // ---------------------------------------------------------------------------
 
+/** Mermaid layout options shared by both themes (part of the cache key). */
+const RENDER_CONFIG = {
+  sequence: { useMaxWidth: true, mirrorActors: true, wrap: true, width: 180 },
+  flowchart: { useMaxWidth: true, htmlLabels: false },
+  state: { useMaxWidth: true },
+};
+
 export interface DiagramIndexEntry {
   hash: string;
   source: string;
@@ -287,7 +294,7 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
   const indexPath = join(outDir, 'index.json');
   const prev = readJson<DiagramIndex>(indexPath);
   const diagrams: Record<string, DiagramIndexEntry> = { ...(prev?.diagrams ?? {}) };
-  const themeHash = sha256(JSON.stringify(vars) + mermaidVersion);
+  const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + mermaidVersion);
 
   const todo: string[] = [];
   const skipped: string[] = [];
@@ -323,9 +330,7 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
             theme: 'base',
             fontFamily: vars[mode].fontFamily,
             themeVariables: vars[mode],
-            sequence: { useMaxWidth: true, mirrorActors: false },
-            flowchart: { useMaxWidth: true, htmlLabels: false },
-            state: { useMaxWidth: true },
+            ...RENDER_CONFIG,
           };
           const domId = `mmd-${id}-${mode}`;
           const r = await page.evaluate(

@@ -38,20 +38,161 @@
     {
       "slug": "x402",
       "name": "x402",
-      "status": "missing",
+      "status": "fail",
       "checks": [
         {
-          "id": "folder",
-          "label": "Protocol folder",
-          "actual": "missing",
-          "expected": "present",
+          "id": "sections",
+          "label": "Sections A to T (MDX and sidecars)",
+          "actual": "14 missing, 0 invalid",
+          "expected": "all present",
           "pass": false,
-          "detail": "src/content/protocols/x402/ has no files"
+          "detail": "missing: ste.mdx, personas.json, resources.json, security.json, controls.json, compliance.json, observability.json, ecosystem.json, timeline.json, code.json, faq.json, open-questions.json, quiz.json, flashcards.json"
+        },
+        {
+          "id": "practitioner-words",
+          "label": "Practitioner words (outside Mode blocks)",
+          "actual": 0,
+          "expected": ">= 2000",
+          "pass": false
+        },
+        {
+          "id": "eli5-words",
+          "label": "ELI5 words",
+          "actual": 0,
+          "expected": "200 to 350",
+          "pass": false
+        },
+        {
+          "id": "spec-tables",
+          "label": "Spec-deep blocks with a FieldTable",
+          "actual": 0,
+          "expected": ">= 1",
+          "pass": false,
+          "detail": "0 spec blocks"
+        },
+        {
+          "id": "diagrams",
+          "label": "Diagrams (main flow, state machine, meta.diagrams)",
+          "actual": 17,
+          "expected": ">= 6",
+          "pass": true
+        },
+        {
+          "id": "diagram-types",
+          "label": "Required diagram types",
+          "actual": "all",
+          "expected": "context, sequence, failure-sequence, state, data-model, composition",
+          "pass": true
+        },
+        {
+          "id": "diagram-refs",
+          "label": "Diagram references resolve",
+          "actual": 0,
+          "expected": "= 0",
+          "pass": true
+        },
+        {
+          "id": "resources",
+          "label": "Resources",
+          "actual": 0,
+          "expected": ">= 12",
+          "pass": false
+        },
+        {
+          "id": "publications",
+          "label": "Verified publications tagged",
+          "actual": 48,
+          "expected": ">= 8",
+          "pass": true
+        },
+        {
+          "id": "personas",
+          "label": "Personas",
+          "actual": 0,
+          "expected": ">= 4",
+          "pass": false
+        },
+        {
+          "id": "threats",
+          "label": "STRIDE threats",
+          "actual": 0,
+          "expected": ">= 8",
+          "pass": false
+        },
+        {
+          "id": "faq",
+          "label": "FAQ items",
+          "actual": 0,
+          "expected": ">= 8",
+          "pass": false
+        },
+        {
+          "id": "open-questions",
+          "label": "Open questions",
+          "actual": 0,
+          "expected": ">= 6",
+          "pass": false
+        },
+        {
+          "id": "quiz",
+          "label": "Quiz questions",
+          "actual": 0,
+          "expected": "= 10",
+          "pass": false
+        },
+        {
+          "id": "flashcards",
+          "label": "Flashcards",
+          "actual": 0,
+          "expected": "= 15",
+          "pass": false
+        },
+        {
+          "id": "glossary",
+          "label": "Glossary terms (full, linked to this protocol)",
+          "actual": 0,
+          "expected": ">= 10",
+          "pass": false
+        },
+        {
+          "id": "timeline",
+          "label": "Timeline events",
+          "actual": 0,
+          "expected": ">= 8",
+          "pass": false
+        },
+        {
+          "id": "compare-cells",
+          "label": "Compare matrix cells",
+          "actual": "0 of 34",
+          "expected": "34 of 34",
+          "pass": false
+        },
+        {
+          "id": "controls-cells",
+          "label": "Controls map cells",
+          "actual": "0 of 14",
+          "expected": "14 of 14",
+          "pass": false
+        },
+        {
+          "id": "claims-sourced",
+          "label": "Claims with sources",
+          "actual": "250 of 250",
+          "expected": "100%",
+          "pass": true
+        },
+        {
+          "id": "claim-refs",
+          "label": "Referenced claim ids exist",
+          "actual": 0,
+          "expected": "= 0",
+          "pass": true
         }
       ],
-      "claims": 0,
-      "unverifiedClaims": 0,
-      "reportedClaims": 0
+      "claims": 250,
+      "unverifiedClaims": 6,
+      "reportedClaims": 16
     },
     {
       "slug": "visa-tap",
@@ -164,7 +305,7 @@
   ],
   "summary": {
     "pass": 0,
-    "fail": 0,
-    "missing": 8
+    "fail": 1,
+    "missing": 7
   }
 }
