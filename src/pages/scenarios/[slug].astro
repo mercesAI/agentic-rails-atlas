@@ -40,7 +40,7 @@ const meta = entry.data;
 const page = Astro.url.pathname;
 
 const [protocols, sourcesMerged, claimsAll] = await Promise.all([getProtocols(), getSourcesMap(), getClaimsMap()]);
-const protocolBySlug = new Map(protocols.map((p) => [p.slug, p]));
+const protocolBySlug = new Map<string, (typeof protocols)[number]>(protocols.map((p) => [p.slug, p]));
 
 const claims = new Map<string, Claim>(claimsAll);
 for (const file of Object.values(SCN_CLAIMS)) for (const c of file?.claims ?? []) claims.set(c.id, c);
