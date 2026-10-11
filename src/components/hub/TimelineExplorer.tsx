@@ -131,7 +131,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
   };
 
   return (
-    <div className="tl">
+    <div className="tl" data-no-copy-link="">
       <div className="tl__controls">
         <fieldset className="tl__group">
           <legend>View</legend>

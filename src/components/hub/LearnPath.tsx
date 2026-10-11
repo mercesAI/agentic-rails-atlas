@@ -71,7 +71,7 @@ export default function LearnPath({ levels, quizzes }: Props) {
   const totalMinutes = levels.reduce((s, l) => s + levelMinutes(l), 0);
 
   return (
-    <div className="learn">
+    <div className="learn" data-no-copy-link="">
       <div className="learn__overall">
         <strong>
           {percent}% complete ({doneUnits} of {units} steps)

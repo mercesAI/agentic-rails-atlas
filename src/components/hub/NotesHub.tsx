@@ -110,7 +110,7 @@ export default function NotesHub({ scopes, titles }: Props) {
   };
 
   return (
-    <div className="notes-hub">
+    <div className="notes-hub" data-no-copy-link="">
       <div className="notes-hub__bar">
         <label>
           <span>Search notes</span>
