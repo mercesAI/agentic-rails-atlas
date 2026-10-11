@@ -1,0 +1,162 @@
+{
+  "protocol": "visa-tap",
+  "questions": [
+    {
+      "id": "visa-tap-q1",
+      "question": "Which tag marks a TAP checkout request?",
+      "options": [
+        "web-bot-auth",
+        "agent-browser-auth",
+        "agent-payer-auth",
+        "Agent-pay-auth"
+      ],
+      "answer": 2,
+      "explanation": "agent-payer-auth is for checkout and payment; agent-browser-auth is for browsing. web-bot-auth is the IETF draft's tag and Agent-pay-auth is Mastercard's.",
+      "claimIds": [
+        "clm-visa-tap-040",
+        "clm-visa-tap-220"
+      ]
+    },
+    {
+      "id": "visa-tap-q2",
+      "question": "What are the minimum covered components of a TAP signature?",
+      "options": [
+        "@method and @path",
+        "@authority and @path",
+        "@target-uri only",
+        "@authority, @path and content-digest"
+      ],
+      "answer": 1,
+      "explanation": "TAP requires only @authority and @path; method, query and digest are not in the minimum.",
+      "claimIds": [
+        "clm-visa-tap-038",
+        "clm-visa-tap-117"
+      ]
+    },
+    {
+      "id": "visa-tap-q3",
+      "question": "How far apart may created and expires be?",
+      "options": [
+        "60 seconds",
+        "8 minutes",
+        "1 hour",
+        "24 hours"
+      ],
+      "answer": 1,
+      "explanation": "TAP caps the window at 8 minutes. The Web Bot Auth draft recommends 24 hours or less.",
+      "claimIds": [
+        "clm-visa-tap-043",
+        "clm-visa-tap-113"
+      ]
+    },
+    {
+      "id": "visa-tap-q4",
+      "question": "What does TAP call the nonce?",
+      "options": [
+        "A one-time random value per request",
+        "A session identifier shared by all signatures and objects",
+        "A hash of the body",
+        "A counter"
+      ],
+      "answer": 1,
+      "explanation": "TAP reuses one nonce across all message signatures and signed body objects in an interaction.",
+      "claimIds": [
+        "clm-visa-tap-042"
+      ]
+    },
+    {
+      "id": "visa-tap-q5",
+      "question": "Where does Visa say it hosts TAP public keys?",
+      "options": [
+        "/.well-known/http-message-signatures-directory",
+        "https://mcp.visa.com/.well-known/jwks",
+        "/.well-known/ucp",
+        "In the Signature-Agent header"
+      ],
+      "answer": 1,
+      "explanation": "The specification names Visa's JWKS at mcp.visa.com.",
+      "claimIds": [
+        "clm-visa-tap-069",
+        "clm-visa-tap-112"
+      ]
+    },
+    {
+      "id": "visa-tap-q6",
+      "question": "What did that key store hold on 2026-10-11?",
+      "options": [
+        "Ed25519 keys matching the examples",
+        "One RSA key from a Visa sandbox CA",
+        "No keys",
+        "An EC P-256 key"
+      ],
+      "answer": 1,
+      "explanation": "One 2048-bit RSA key with a certificate from a Visa sandbox issuing CA, and no Ed25519 key.",
+      "claimIds": [
+        "clm-visa-tap-071",
+        "clm-visa-tap-072"
+      ]
+    },
+    {
+      "id": "visa-tap-q7",
+      "question": "Which object carries contextualData?",
+      "options": [
+        "agenticPaymentContainer",
+        "agenticConsumer",
+        "browsingIOU",
+        "cardMetadata"
+      ],
+      "answer": 1,
+      "explanation": "The consumer recognition object agenticConsumer holds nonce, idToken, contextualData, kid, alg and signature.",
+      "claimIds": [
+        "clm-visa-tap-047"
+      ]
+    },
+    {
+      "id": "visa-tap-q8",
+      "question": "When does a payment container carry a browsingIOU?",
+      "options": [
+        "Always",
+        "When the merchant asked for payment with HTTP 402",
+        "For key-entered guest checkout",
+        "Only for Mastercard cards"
+      ],
+      "answer": 1,
+      "explanation": "browsingIOU is present when the merchant requested payment with a 402 response.",
+      "claimIds": [
+        "clm-visa-tap-063"
+      ]
+    },
+    {
+      "id": "visa-tap-q9",
+      "question": "Who authored the card method of Stripe MPP?",
+      "options": [
+        "Mastercard",
+        "Stripe",
+        "Visa",
+        "Cloudflare"
+      ],
+      "answer": 2,
+      "explanation": "draft-card-charge-00 is authored by Jacob Brans of Visa and says a client may include TAP headers.",
+      "claimIds": [
+        "clm-visa-tap-185",
+        "clm-visa-tap-186"
+      ]
+    },
+    {
+      "id": "visa-tap-q10",
+      "question": "When did Visa announce TAP?",
+      "options": [
+        "2025-04-30",
+        "2025-10-14",
+        "2026-03-18",
+        "2026-09-01"
+      ],
+      "answer": 1,
+      "explanation": "Visa announced TAP on 2025-10-14, developed with Cloudflare. 2025-04-30 is VIC's unveiling.",
+      "claimIds": [
+        "clm-visa-tap-004",
+        "clm-visa-tap-008"
+      ]
+    }
+  ]
+}

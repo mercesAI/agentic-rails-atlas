@@ -1,0 +1,113 @@
+{
+  "protocol": "visa-tap",
+  "items": [
+    {
+      "q": "Is TAP an IETF standard?",
+      "a": "No. TAP is a Visa specification on the Visa Developer Center under Visa's own revocable Product Terms. Visa says it will align with the IETF, the OpenID Foundation and EMVCo, but none of them publishes TAP.",
+      "claimIds": [
+        "clm-visa-tap-003",
+        "clm-visa-tap-010",
+        "clm-visa-tap-013"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Does TAP move money?",
+      "a": "No. TAP identifies the agent and can carry payment data in a signed container. The payment itself runs through Visa Intelligent Commerce tokens and ordinary card authorization.",
+      "claimIds": [
+        "clm-visa-tap-002",
+        "clm-visa-tap-140"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Is TAP the same as Web Bot Auth?",
+      "a": "No. Both use RFC 9421, and TAP says it is aligned with web-bot-auth, but TAP predates the 2026-09-01 working group draft and differs from it: its own two tags, no Signature-Agent header, a mandatory nonce, an 8-minute window and Visa's own key store.",
+      "claimIds": [
+        "clm-visa-tap-107",
+        "clm-visa-tap-106",
+        "clm-visa-tap-108",
+        "clm-visa-tap-109",
+        "clm-visa-tap-111",
+        "clm-visa-tap-112"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Is a Visa agentic token the same as a Mastercard agentic token?",
+      "a": "No. Visa's agent credentials are agentic network tokens in Visa Intelligent Commerce; Mastercard Agentic Tokens are a separate Agent Pay product on another network.",
+      "claimIds": [
+        "clm-visa-tap-201",
+        "clm-visa-tap-200"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Which tags does TAP use?",
+      "a": "agent-browser-auth for browsing and agent-payer-auth for checkout and payment. A request with neither was not signed by a trusted agent. Mastercard uses a single tag, Agent-pay-auth.",
+      "claimIds": [
+        "clm-visa-tap-040",
+        "clm-visa-tap-041",
+        "clm-visa-tap-220"
+      ]
+    },
+    {
+      "q": "Can I verify the specification's example request?",
+      "a": "No. The example values come from a Web Bot Auth test vector that signs a different base, the browsing and checkout examples share one signature, and the example window is 3,600 seconds against TAP's 8-minute limit.",
+      "claimIds": [
+        "clm-visa-tap-114",
+        "clm-visa-tap-116",
+        "clm-visa-tap-115"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Where do I get the agent's public key?",
+      "a": "The specification points to https://mcp.visa.com/.well-known/jwks. On 2026-10-11 that JWKS held one RSA key from a Visa sandbox CA and no Ed25519 key, and Visa has not said how production agent keys are distributed.",
+      "claimIds": [
+        "clm-visa-tap-069",
+        "clm-visa-tap-071",
+        "clm-visa-tap-072",
+        "clm-visa-tap-074"
+      ]
+    },
+    {
+      "q": "Does the signature protect the request body?",
+      "a": "No. The minimum covered components are @authority and @path; method, query and a content digest are not required. The body objects carry their own signatures, linked by the nonce and key.",
+      "claimIds": [
+        "clm-visa-tap-117",
+        "clm-visa-tap-095",
+        "clm-visa-tap-078"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Must a merchant adopt TAP to accept agent purchases?",
+      "a": "No. Merchants are not required to use TAP or register with a payment scheme, and those that have not adopted it can ignore the signatures.",
+      "claimIds": [
+        "clm-visa-tap-034",
+        "clm-visa-tap-233"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Is the sample code open source?",
+      "a": "Not clearly. LICENSE.md binds users to Visa's terms while the source files carry MIT-style headers, and GitHub reports no recognized license. The terms text governs.",
+      "claimIds": [
+        "clm-visa-tap-019",
+        "clm-visa-tap-020",
+        "clm-visa-tap-021"
+      ],
+      "misconception": true
+    },
+    {
+      "q": "Does TAP shift chargeback liability?",
+      "a": "No agent-specific liability shift has been published. Worldpay wrote on 2026-07-30 that none exists yet, and properly tokenized agent transactions follow existing rules.",
+      "claimIds": [
+        "clm-visa-tap-169",
+        "clm-visa-tap-170"
+      ],
+      "misconception": true
+    }
+  ]
+}

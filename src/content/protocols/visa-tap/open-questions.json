@@ -1,0 +1,68 @@
+{
+  "protocol": "visa-tap",
+  "items": [
+    {
+      "question": "How do production agent keys reach merchants and CDNs?",
+      "context": "The published JWKS held one RSA sandbox key on 2026-10-11, while the examples use Ed25519. Visa has not documented another channel.",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "question": "Will TAP converge on the Web Bot Auth working group draft?",
+      "context": "Visa says it will align with the IETF, and the draft -00 appeared on 2026-09-01, but tags, key discovery and nonce rules differ today.",
+      "sources": [
+        "src-visa-tap-pr",
+        "src-wba-draft"
+      ]
+    },
+    {
+      "question": "What is the canonical byte form for body object signatures?",
+      "context": "The specification says fields in the order received, with no canonicalization and no test vector; an open issue asks for one.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-gh-meta"
+      ]
+    },
+    {
+      "question": "Who carries the loss when an agent buys the wrong thing?",
+      "context": "No agent-specific liability rule exists; Worldpay says none yet, and regulators in the UK are consulting.",
+      "sources": [
+        "src-worldpay-liability",
+        "src-policy-hmt-mpsr"
+      ]
+    },
+    {
+      "question": "Will Visa and Mastercard share one key directory?",
+      "context": "The TAP specification names a shared approach as a goal, but each network hosts its own today, and Mastercard's location is unknown.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-cf-blog",
+        "src-mcap-dev-level1"
+      ]
+    },
+    {
+      "question": "How many merchants verify TAP, and how much traffic is signed?",
+      "context": "No count is published; only four merchants were named live on 2026-07-02.",
+      "sources": [
+        "src-visa-eu-live"
+      ]
+    },
+    {
+      "question": "How is a browsingIOU settled, and what happens on default?",
+      "context": "The merchant grants access expecting funds at settlement, but TAP defines no settlement or default rule.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "question": "What standing does a payment instruction keep after its agent is revoked?",
+      "context": "An open repository issue asks this, and TAP defines no revocation channel.",
+      "sources": [
+        "src-visa-tap-gh-meta",
+        "src-visa-tap-spec"
+      ]
+    }
+  ]
+}
