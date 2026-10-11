@@ -1,8 +1,238 @@
-/* Design tokens: placeholder, replaced in Phase 2 */
-:root {
-  --bg: #0b0e14;
-  --fg: #e6e9ef;
-  color-scheme: dark;
+/*
+  Design tokens for the Agentic Rails Atlas.
+  Concept: an observatory for payment rails. Dark-first, with an equally polished light theme.
+  The four layer families are the only saturated hues; everything else is neutral.
+  Rails are encoded by ring style (solid = card network, dashed = crypto-native, double = rail-agnostic or multi-rail), never by color.
+  Status is a small dot, never a block.
+*/
+
+@theme {
+  --font-heading: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
-:root[data-theme="light"] { --bg: #fafafa; --fg: #15181e; color-scheme: light; }
-body { background: var(--bg); color: var(--fg); }
+
+:root {
+  color-scheme: dark;
+
+  /* Neutral scale (dark theme) */
+  --bg: #0a0d14;
+  --bg-elevated: #10141d;
+  --bg-sunken: #060810;
+  --bg-overlay: rgb(10 13 20 / 0.86);
+  --surface: #151a25;
+  --surface-hover: #1b2130;
+  --border: #242b3a;
+  --border-strong: #35405a;
+  --fg: #e7eaf0;
+  --fg-muted: #a3acbe;
+  --fg-subtle: #6f7a90;
+  --fg-inverse: #0a0d14;
+  --accent: #c9d4ff;
+  --accent-fg: #0a0d14;
+  --focus: #ffd166;
+  --link: #9fb4ff;
+  --link-hover: #c9d4ff;
+  --selection: rgb(159 180 255 / 0.3);
+
+  /* Family hues (the only saturated colors). Each has a fill (bubble), an ink (text on neutral bg) and a soft (tinted background). */
+  --family-identity-fill: #3fa7a1;
+  --family-identity-ink: #7fd8d2;
+  --family-identity-soft: rgb(63 167 161 / 0.16);
+  --family-authorization-fill: #c08a3e;
+  --family-authorization-ink: #e8b86a;
+  --family-authorization-soft: rgb(192 138 62 / 0.16);
+  --family-checkout-fill: #7f74d8;
+  --family-checkout-ink: #b3abf2;
+  --family-checkout-soft: rgb(127 116 216 / 0.16);
+  --family-payment-fill: #d06a7b;
+  --family-payment-ink: #f0a2ae;
+  --family-payment-soft: rgb(208 106 123 / 0.16);
+
+  /* Status dots */
+  --status-draft: #8a93a8;
+  --status-beta: #e8b86a;
+  --status-pilot: #7fd8d2;
+  --status-live: #7fd38d;
+  --status-mixed: #b3abf2;
+
+  /* Confidence and freshness */
+  --confidence-verified: #7fd38d;
+  --confidence-reported: #e8b86a;
+  --confidence-unverified: #f0a2ae;
+  --fresh-green: #7fd38d;
+  --fresh-amber: #e8b86a;
+  --fresh-red: #f0a2ae;
+
+  /* Semantic for tables and controls map */
+  --support-native: #7fd38d;
+  --support-partial: #e8b86a;
+  --support-external: #9fb4ff;
+  --support-none: #6f7a90;
+
+  /* Diagram palette (Mermaid theme variables derive from these) */
+  --diagram-bg: transparent;
+  --diagram-line: #8a93a8;
+  --diagram-node-bg: #151a25;
+  --diagram-node-border: #35405a;
+  --diagram-text: #e7eaf0;
+  --diagram-note-bg: #1b2130;
+  --diagram-boundary: #c08a3e;
+
+  /* Shape and motion */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.03) inset;
+  --shadow-2: 0 10px 30px rgb(0 0 0 / 0.45);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 480ms;
+
+  /* Layout */
+  --content-width: 72ch;
+  --page-max: 1440px;
+  --rail-left: 240px;
+  --rail-right: 280px;
+  --gutter: clamp(16px, 4vw, 40px);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f7f7f5;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #efefeb;
+  --bg-overlay: rgb(247 247 245 / 0.9);
+  --surface: #ffffff;
+  --surface-hover: #f0f1f4;
+  --border: #dcdee4;
+  --border-strong: #b8bcc8;
+  --fg: #171a21;
+  --fg-muted: #4a5163;
+  --fg-subtle: #737b90;
+  --fg-inverse: #f7f7f5;
+  --accent: #27306b;
+  --accent-fg: #ffffff;
+  --focus: #b2560f;
+  --link: #2d4bcf;
+  --link-hover: #1a2f9a;
+  --selection: rgb(45 75 207 / 0.18);
+
+  --family-identity-fill: #2a8a85;
+  --family-identity-ink: #126b66;
+  --family-identity-soft: rgb(42 138 133 / 0.12);
+  --family-authorization-fill: #b4792b;
+  --family-authorization-ink: #7d5312;
+  --family-authorization-soft: rgb(180 121 43 / 0.12);
+  --family-checkout-fill: #6a5fcd;
+  --family-checkout-ink: #4a3fa8;
+  --family-checkout-soft: rgb(106 95 205 / 0.12);
+  --family-payment-fill: #c25569;
+  --family-payment-ink: #9a3447;
+  --family-payment-soft: rgb(194 85 105 / 0.12);
+
+  --status-draft: #737b90;
+  --status-beta: #9a6a14;
+  --status-pilot: #126b66;
+  --status-live: #2f7d3a;
+  --status-mixed: #4a3fa8;
+
+  --confidence-verified: #2f7d3a;
+  --confidence-reported: #9a6a14;
+  --confidence-unverified: #9a3447;
+  --fresh-green: #2f7d3a;
+  --fresh-amber: #9a6a14;
+  --fresh-red: #9a3447;
+
+  --support-native: #2f7d3a;
+  --support-partial: #9a6a14;
+  --support-external: #2d4bcf;
+  --support-none: #737b90;
+
+  --diagram-line: #4a5163;
+  --diagram-node-bg: #ffffff;
+  --diagram-node-border: #b8bcc8;
+  --diagram-text: #171a21;
+  --diagram-note-bg: #f0f1f4;
+  --diagram-boundary: #b4792b;
+
+  --shadow-1: 0 1px 2px rgb(23 26 33 / 0.08), 0 0 0 1px rgb(23 26 33 / 0.04);
+  --shadow-2: 0 10px 30px rgb(23 26 33 / 0.12);
+}
+
+/* Family token lookup by data attribute, so components can write `color: var(--family-ink)`. */
+[data-family='identity-trust'] {
+  --family-fill: var(--family-identity-fill);
+  --family-ink: var(--family-identity-ink);
+  --family-soft: var(--family-identity-soft);
+}
+[data-family='authorization-intent'] {
+  --family-fill: var(--family-authorization-fill);
+  --family-ink: var(--family-authorization-ink);
+  --family-soft: var(--family-authorization-soft);
+}
+[data-family='checkout-orders'] {
+  --family-fill: var(--family-checkout-fill);
+  --family-ink: var(--family-checkout-ink);
+  --family-soft: var(--family-checkout-soft);
+}
+[data-family='payment-execution'] {
+  --family-fill: var(--family-payment-fill);
+  --family-ink: var(--family-payment-ink);
+  --family-soft: var(--family-payment-soft);
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100dvh;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+code, kbd, pre, samp, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+a:hover { color: var(--link-hover); }
+
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+::selection { background: var(--selection); }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; }
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+/* Reading modes. The <html> element carries data-reading-mode; Mode blocks declare which modes show them. */
+.mode-block { display: none; }
+:root[data-reading-mode='eli5'] .mode-block[data-modes~='eli5'],
+:root[data-reading-mode='practitioner'] .mode-block[data-modes~='practitioner'],
+:root[data-reading-mode='spec'] .mode-block[data-modes~='spec'],
+:root[data-reading-mode='ste'] .mode-block[data-modes~='ste'] { display: block; }
+
+@media print {
+  :root { color-scheme: light; --bg: #fff; --fg: #000; --fg-muted: #333; --border: #999; }
+  nav, .no-print, .notes-panel, .command-palette { display: none !important; }
+  .mode-block[data-modes~='practitioner'] { display: block !important; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 0.8em; color: #333; }
+}
