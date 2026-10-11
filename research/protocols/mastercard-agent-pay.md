@@ -73,7 +73,167 @@ Version caveat: at tag `v0.1.0` the mandate VCTs were `mandate.checkout`, `manda
 
 ## Actors and roles
 
+### Agent Pay program roles (Mastercard documents)
+
+| Role | What it does in Agent Pay | Source |
+|---|---|---|
+| Consumer (cardholder) | Authenticates with the agent platform, authorizes purchases, sets permissions and limits; authentication with Mastercard Payment Passkeys is named in regional releases | [src-mcap-dev-level1] [src-mcap-latam-2026] |
+| Agent platform or agent developer | Registers the agent and its public key with Mastercard, passes certification, requests agentic tokens, signs requests with Web Bot Auth, may register intent through the Intent API | [src-mcap-dev-level1] [src-mcap-dev-level3] |
+| Issuer | Issues the card; enabled at network level for Agent Pay (all US issuers planned by November 2025, Latin American issuers by February 2026, all European issuers by 2026-06-02); makes the final authorization decision | [src-mcap-q3-transcript] [src-mcap-latam-2025] [src-mcap-europe-2026] |
+| Mastercard (network) | Registers and verifies agents, keeps trusted agent lists and a key directory, issues agentic tokens, detokenizes, flags agent-initiated transactions, runs the Intent API and (from 2026-09-30) a probability score | [src-mcap-dev-rails] [src-mcap-dev-level1] [src-mcap-trust-2026] |
+| Merchant | Registers through its acquirer or PSP, accepts tokens in existing forms (Level 1 and 2) or through APIs (Level 3), verifies agent signatures directly or at its CDN | [src-mcap-dev-rails] [src-mcap-dev-level1] |
+| Acquirer, PSP or orchestrator | Handles merchant registration and acceptance (named examples: Braintree, Checkout.com, PayPal, Stripe, Getnet, Worldline, PayOS, IPSI) | [src-mcap-launch-2025] [src-mcap-paypal-2025] [src-mcap-stripe-spt-2026] [src-mcap-europe-2026] [src-mcap-australia-2026] |
+| Edge or CDN provider | Verifies Web Bot Auth signatures on behalf of merchants (Cloudflare) | [src-mcap-cloudflare-blog] |
+| KYA provider | Skyfire extends Know Your Agent into Agent Pay (2026-09-30) | [src-mcap-trust-2026] |
+
+### Verifiable Intent roles (spec)
+
+| Role | Trust level in the spec | Responsibilities | Source |
+|---|---|---|---|
+| Issuer | Trusted third party | Signs L1; a bank or "a payment network (Mastercard) acting on the bank's behalf"; publishes a JWKS endpoint | [src-mcap-vi-spec] |
+| Credential Provider | Service provider | Hosts the wallet that stores L1 and where users build L2 | [src-mcap-vi-spec] |
+| User | Root of authority | Signs L2 with the key bound in L1 `cnf.jwk` | [src-mcap-vi-spec] |
+| Agent | Constrained delegate | Signs L3a and L3b with the key bound in L2 mandate `cnf.jwk` (Autonomous only) | [src-mcap-vi-spec] |
+| Merchant | Verifier | Creates `checkout_jwt` (SHOULD be signed in v0.1) and verifies the checkout side | [src-mcap-vi-spec] [src-mcap-vi-format] |
+| Payment Network | Verifier and arbiter | Verifies the chain as a pre-authorization step, enforces one L3 pair per mandate pair, tracks cumulative spend; the issuer still makes the final decision | [src-mcap-vi-spec] |
+
 ## Core objects with exact field names
+
+Two kinds of objects exist. The Agent Pay program objects are described only in Mastercard's merchant-facing developer guides (no schema files are public). The VI objects come from the open spec at commit `356c296`; file paths are relative to `research/vendor/verifiable-intent/`.
+
+### A. Agent Pay program objects (developer guides, no public schema)
+
+**Web Bot Auth `Signature-Input` parameters as Mastercard documents them** [src-mcap-dev-level1]
+
+| Field | Type | Required | Meaning | Source file |
+|---|---|---|---|---|
+| `keyid` | string | yes (verification step 2 lists it) | Identifies the agent's public key in the network key directory | Level 1 guide, "Understanding the Signature Headers" |
+| `alg` | string | yes | Example values `ed25519`, `ecdsa-p256-sha256` | same |
+| `created` | integer | yes | Signature creation time | same |
+| `expires` | integer | yes | Signature expiry | same |
+| `nonce` | string | yes | Replay protection; also binds body objects to the signature | same |
+| `tag` | string | yes | Interaction type; Mastercard Agent Pay uses `Agent-pay-auth` (spelled `agent-pay-auth` in the same site's glossary); Visa uses `agent-browser-auth` and `agent-payer-auth`; generic agents such as ChatGPT use `web-bot-auth` | Level 1 guide; testing guide glossary [src-mcap-dev-testing] |
+| `Signature-Agent` header | string | shown in the example | The example value is `"https://agentpay-key-directory.mastercard.com/"`; that host returned NXDOMAIN on 2026-10-11, so treat it as illustrative | Level 1 guide example request |
+
+Covered components in the example: `"@authority" "@path"` [src-mcap-dev-level1].
+
+**Agent User Identity object** (consumer recognition, request body) [src-mcap-dev-level2]
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| `mastercardIdToken` | string (JWT) | not stated | Mastercard-issued JWT identifying the consumer; RFC 7519 and OIDC ID Token compatible, aligned with EMVCo Secure Remote Commerce |
+| `signature` | string | not stated | Binds the identity to the message signature |
+| `kid` | string | not stated | Matches the message signature key |
+| `nonce` | string | not stated | Same nonce as the message signature |
+| `alg` | string | not stated | For example `PS256`, `ES256` |
+
+**Payment Data object** (request body) [src-mcap-dev-level2]
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| `paymentData` | varies | not stated | Level 1 and 2 form fill: a hash of the tokenized payment data typed into the form; Level 3: a hash of credentials submitted |
+| `signature` | string | not stated | Made with the same private key as the HTTP message signature |
+| `kid` | string | not stated | Matches the message signature `keyid` |
+| `nonce` | string | not stated | Matches the message signature nonce |
+| `alg` | string | not stated | For example `PS256`, `ES256` |
+
+For Level 3 direct payments the guide says the Mastercard payload is a tokenized payload "containing DSRP cryptogram and card metadata" (Digital Secure Remote Payment) [src-mcap-dev-level3].
+
+**Intent API objects** (key elements only; Mastercard points to the Acceptance Framework for the full spec, which is not public) [src-mcap-dev-level3]
+
+| Object | Fields named in the guide |
+|---|---|
+| Intent | `intentId` (Mastercard-generated), `intentSummary` (agent-generated text), `intentStatus` (validation requires `ACTIVE`), `orders`, `consumer`, `digitalAccountCredentials` (tokenized credentials) |
+| Order | `orderId`, `orderExecutionType` (`IMMEDIATE` or `DEFERRED`), `orderStatus`, `orderExpiry` (UTC epoch seconds), `orderTotalAmount`, `items`, `merchants`, `orderDeliveryDetails` |
+| Item | `itemId`, `itemName`, `itemDescription`, `itemUnitPrice`, `itemQuantity`, `itemDeliveryMethod`, `itemUrl`, `itemImageUrl`, `itemMetadata` |
+| Merchant | `srcDpaId` (Mastercard-generated merchant identifier), `merchantName`, `merchantUrl`, `merchantLogoUrl` |
+
+**Virtual Card Token checkout response** (guest checkout path) [src-mcap-dev-mvct] [src-mcap-dev-mvct-pay]: a virtual card token (static token number), token expiration date and a newly generated one-time DTVC, which the integrator places in standard card fields; Mastercard validates the DTVC and tells the issuer in the authorization request whether DTVC validation was performed.
+
+### B. Verifiable Intent credential layers
+
+**Layer overview** (`spec/credential-format.md` section 2) [src-mcap-vi-format]
+
+| Layer | `typ` | Signed by | Lifetime (recommended, maximum) |
+|---|---|---|---|
+| L1 | `sd+jwt` | Issuer | about 1 year; SHOULD NOT exceed 1 year |
+| L2 Immediate | `kb-sd-jwt` | User key from L1 `cnf.jwk` | about 15 minutes; 15 minutes |
+| L2 Autonomous | `kb-sd-jwt+kb` | User key from L1 `cnf.jwk` | 24 hours to 30 days (30 days RECOMMENDED default for consumers); MUST NOT exceed L1 `exp` |
+| L3a (payment, to network) | `kb-sd-jwt` | Agent key from L2 mandate `cnf.jwk` | 5 minutes recommended; MUST NOT exceed 1 hour |
+| L3b (checkout, to merchant) | `kb-sd-jwt` | Agent key from L2 mandate `cnf.jwk` | 5 minutes recommended; MUST NOT exceed 1 hour |
+
+**L1 header and payload** (`spec/credential-format.md` sections 3.2 to 3.4) [src-mcap-vi-format]
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| header `alg` | string | REQUIRED | MUST be `ES256` |
+| header `typ` | string | REQUIRED | MUST be `sd+jwt` |
+| header `kid` | string | REQUIRED | Issuer key id in its JWKS |
+| `iss` | string | REQUIRED | Issuer URI |
+| `sub` | string | REQUIRED | Opaque stable user id |
+| `iat`, `exp` | integer | REQUIRED | Unix times; `exp` SHOULD be at most 1 year after `iat` |
+| `vct` | string | REQUIRED | Credential type URI, always visible; the Mastercard reference profile MUST use `https://credentials.mastercard.com/card` |
+| `cnf` | object | REQUIRED | `cnf.jwk` holds the user's public key (RFC 7800) |
+| `pan_last_four` | string | REQUIRED (Mastercard profile) | Last four PAN digits, always visible |
+| `scheme` | string | REQUIRED (Mastercard profile) | For example `mastercard`, `visa` |
+| `card_id` | string | OPTIONAL | Opaque card-level id |
+| `_sd_alg` | string | REQUIRED | MUST be `sha-256` |
+| `_sd` | array | REQUIRED | Disclosure digests |
+| `email` | string | OPTIONAL, selectively disclosable | User email |
+
+**L2 header and always-visible payload** (sections 4.2 and 4.3) [src-mcap-vi-format]
+
+| Field | Type | Required | Meaning |
+|---|---|---|---|
+| header `alg` | string | REQUIRED | `ES256` |
+| header `typ` | string | REQUIRED | `kb-sd-jwt` (Immediate) or `kb-sd-jwt+kb` (Autonomous) |
+| header `kid` | string | OPTIONAL | References the user device key in L1 `cnf.jwk` |
+| `nonce` | string | REQUIRED | Random nonce |
+| `aud` | string | REQUIRED | In L2 the agent (typically the agent platform URL) |
+| `iss` | string | OPTIONAL | Signer of L2 (wallet or user agent), a URI |
+| `iat`, `exp` | integer | REQUIRED | See lifetimes |
+| `sd_hash` | string | REQUIRED | `B64U(SHA-256(ASCII(serialized_L1)))` |
+| `delegate_payload` | array | REQUIRED | `{"...": "<hash>"}` references to the mandate disclosures |
+| `_sd_alg`, `_sd` | string, array | REQUIRED | `sha-256`; digests |
+| `prompt_summary` | string | OPTIONAL, selectively disclosable (Autonomous) | Human-readable intent |
+
+**Mandates** (sections 4.4, 4.5, 5.5, 5.6, 10) [src-mcap-vi-format]
+
+| Mandate | `vct` | Fields (required unless noted) | Used in |
+|---|---|---|---|
+| Checkout, final | `mandate.checkout.1` | `vct`, `checkout_jwt`, `checkout_hash`; L3b adds optional `line_items`, `prompt_summary`; MUST NOT contain `cnf` or `constraints` | L2 Immediate, L3b |
+| Payment, final | `mandate.payment.1` | `vct`, `payment_instrument`, `payment_amount` (`currency` ISO 4217, `amount` integer minor units), `payee`, `transaction_id`; L3a adds optional `selected_merchant`; MUST NOT contain `cnf` or `constraints` | L2 Immediate, L3a |
+| Checkout, open | `mandate.checkout.open.1` | `vct`, `cnf` (`cnf.jwk` with `kid`), `constraints` (at least one), optional `prompt_summary` | L2 Autonomous |
+| Payment, open | `mandate.payment.open.1` | `vct`, `cnf`, `payment_instrument`, `constraints` (at least one, including `mandate.payment.reference`), optional `risk_data` (`device_id`, `ip_address`; never copied into L3) | L2 Autonomous |
+
+Sub-objects: `payment_instrument` has `type` (example `mastercard.srcDigitalCard`), `id` (example: a token UUID) and optional `description`; `payee` has optional `id` and required `name` and `website` [src-mcap-vi-format].
+
+**L3 header and payload** (sections 5.2 and 5.3): header `alg` `ES256`, `typ` `kb-sd-jwt`, `kid` matching L2 `cnf.jwk.kid` (a `jwk` header is forbidden); payload `nonce` (distinct from L2), `aud` (L3a: network; L3b: merchant), `iat`, `exp`, `sd_hash` (selective: L3a over L2 base plus payment and merchant disclosures; L3b over L2 base plus checkout and item disclosures), `delegate_payload`, `_sd_alg`, `_sd`; no `cnf` [src-mcap-vi-format].
+
+**Hash bindings** (sections 6.1, 6.2, 4.5.3) [src-mcap-vi-format]
+
+| Value | Formula | Where |
+|---|---|---|
+| `sd_hash` (L2) | `B64U(SHA-256(ASCII(serialized_L1)))` | L2 payload |
+| `checkout_hash` | `B64U(SHA-256(ASCII(checkout_jwt)))` | checkout mandate; equals `transaction_id` on the payment mandate; L3a `transaction_id` MUST equal L3b `checkout_hash` |
+| `conditional_transaction_id` | `B64U(SHA-256(ASCII(checkout_disclosure_b64)))` | inside `mandate.payment.reference` in L2 Autonomous; binds the payment mandate to the checkout mandate before any checkout JWT exists |
+
+### C. VI constraint types (`spec/constraints.md` section 4, eight registered types) [src-mcap-vi-constraints]
+
+| Type string | Fields | Checked by | Notes |
+|---|---|---|---|
+| `mandate.checkout.allowed_merchants` | `allowed` (merchant objects with optional `id`, required `name`, `website`, or disclosure refs) | merchant or verifier with the checkout | Needs a merchant `id` inside `checkout_jwt` to be enforceable |
+| `mandate.checkout.line_items` | `items` (each `id`, `acceptable_items` of `{id, title}`, `quantity`), optional `match_mode` (`minimum` default, `exact`) | merchant side | Empty `acceptable_items` means any item |
+| `mandate.payment.allowed_payees` | `allowed` (payee objects) | network | Exact matching only |
+| `mandate.payment.amount_range` | `currency`, optional `min`, optional `max` (integer minor units) | network | Per transaction |
+| `mandate.payment.budget` | `currency`, optional `min`, required `max` | network (stateful) | Cumulative cap |
+| `mandate.payment.recurrence` | `frequency` (ISO 20022 codes such as `MNTH`), `start_date`, RECOMMENDED `end_date`, `number` | network (stateful) | Merchant-managed subscription setup; later charges happen outside VI |
+| `mandate.payment.agent_recurrence` | `frequency` (`ON_DEMAND` or ISO 20022 code), `start_date`, `end_date` (required), RECOMMENDED `max_occurrences` | network (stateful) | Requires companion `mandate.payment.amount_range` and `mandate.payment.budget` |
+| `mandate.payment.reference` | `conditional_transaction_id` | chain verifier (not the constraint checker) | Mandatory in every Autonomous payment mandate |
+
+Strictness: PERMISSIVE (default, skips unknown types) and STRICT; verifiers MUST still reject open mandates containing unknown types; a per-type policy map may override the mode [src-mcap-vi-constraints].
+
+Optional extension claim: `agent_attestation` with `type` and `value`; unknown types MUST be ignored; no scheme is defined yet [src-mcap-vi-spec].
 
 ## Message flows
 
