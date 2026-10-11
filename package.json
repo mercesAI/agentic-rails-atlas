@@ -11,7 +11,7 @@
   "packageManager": "pnpm@12.11.2",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && tsx scripts/build-sw.ts",
+    "build": "tsx scripts/merge-content.ts && tsx scripts/build-search-index.ts && astro build && tsx scripts/build-sw.ts",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check && tsc --noEmit -p tsconfig.json && eslint . && tsx scripts/verify/validate-content.ts",
@@ -25,7 +25,9 @@
     "verify:sources": "tsx scripts/verify/verify-sources.ts",
     "lint:ste": "tsx scripts/ste/lint-ste.ts",
     "lint:style": "tsx scripts/style/lint-style.ts",
-    "gates": "pnpm lint:style && pnpm lint:ste && pnpm verify:sources && pnpm verify:coverage && pnpm check && pnpm test && pnpm build"
+    "gates": "pnpm lint:style && pnpm lint:ste && pnpm verify:sources && pnpm verify:coverage && pnpm check && pnpm test && pnpm build",
+    "merge": "tsx scripts/merge-content.ts",
+    "deploy:preview": "pnpm build && echo 'Deploy dist/ with: npx wrangler pages deploy dist --project-name agentic-rails-atlas'"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.2",
