@@ -1,0 +1,10 @@
+{
+  "id": "multi-autonomous-restock-context",
+  "protocol": "multi",
+  "type": "composition",
+  "title": "Autonomous restock: actors and protocol boundaries",
+  "caption": "AP2 v0.2 in human-not-present mode. The owner approves open mandates once on a Trusted Surface; afterward the agent closes them with its own key and three verifiers check the chain: the Credential Provider for payment and budget, the merchant for the checkout, and the Merchant Payment Processor for the bindings in the token. Checkout and catalog calls belong to the surrounding commerce protocol. Specified only: production use is unverified.",
+  "alt": "Flowchart. Before the purchase, the cafe owner approves limits on a non-agentic Trusted Surface, which returns user-signed open mandates with allowed merchants, line items, a budget and a recurrence to the Shopping Agent. Later the agent shops with the supplier through a commerce protocol such as UCP and receives a merchant-signed checkout JWT. A deterministic signer holding the agent key named in cnf produces closed mandates as key-binding JWTs with sd_hash. The agent sends the payment chain to the Credential Provider, which verifies it, tracks budget and recurrence and issues a token. The agent sends the token and the checkout chain to the supplier, which verifies the checkout chain and passes the token and hashes to its Merchant Payment Processor. The processor returns a Payment Receipt and the supplier a Checkout Receipt to the agent.",
+  "sourceOfTruth": { "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md", "label": "AP2 v0.2 specification, Autonomous (Human Not Present) mode" },
+  "sources": ["src-ap2-spec-v02", "src-ap2-flows", "src-ap2-agent-authorization", "src-ap2-payment-mandate-doc"]
+}

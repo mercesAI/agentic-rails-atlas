@@ -1,0 +1,30 @@
+flowchart LR
+  subgraph UZ["Before: user present"]
+    US["Cafe owner"]
+    TS["Trusted Surface (non-agentic)"]
+  end
+  subgraph AZ["Agent zone"]
+    SA["Shopping Agent"]
+    AK["Agent key named in cnf (deterministic signer)"]
+  end
+  subgraph CPZ["Credential Provider"]
+    CP["Verifies payment chain, tracks budget and recurrence, issues token"]
+  end
+  subgraph MZ["Supplier (merchant)"]
+    ME["Signs checkout_jwt, verifies checkout chain"]
+  end
+  subgraph PZ["Payment processing"]
+    MP["Merchant Payment Processor"]
+  end
+  US -- "1 approves limits" --> TS
+  TS -- "2 user-signed open mandates: allowed_merchants, line_items, budget, recurrence" --> SA
+  SA -. "commerce protocol, for example UCP" .-> ME
+  ME -- "3 checkout_jwt" --> SA
+  SA --- AK
+  AK -- "4 closed mandates: KB-JWT, sd_hash" --> SA
+  SA -- "5 payment chain" --> CP
+  CP -- "6 token" --> SA
+  SA -- "7 token plus checkout chain" --> ME
+  ME -- "8 token and hashes" --> MP
+  MP -- "9 Payment Receipt" --> SA
+  ME -- "10 Checkout Receipt" --> SA
