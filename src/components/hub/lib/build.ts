@@ -44,7 +44,7 @@ export async function loadTimeline(): Promise<TimelineData> {
     confidence: e.confidence,
     sources: dedupe(e.sources).map((id) => ({ n: num.get(id) ?? 0, id, title: sources.get(id)?.title ?? id })),
   }));
-  const familyOf = new Map(protocols.map((p) => [p.slug, p.family as string]));
+  const familyOf = new Map<string, string>(protocols.map((p) => [p.slug, p.family]));
   const lanes = buildLanes(protocols, events).map((l) => ({ ...l, family: familyOf.get(l.id) }));
   const kinds = [...new Set(events.map((e) => e.kind))].sort();
   return { lanes, events, kinds, order, sources, missingLanes };

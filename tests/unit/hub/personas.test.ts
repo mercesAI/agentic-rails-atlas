@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { relevance, relevanceScore, roleSteps, RELEVANCE_LABELS } from '../../../src/components/hub/lib/personas';
+import { relevance, relevanceScore, roleSteps, RELEVANCE_LABELS, type PersonasLike } from '../../../src/components/hub/lib/personas';
 
-const file = {
+const file: PersonasLike = {
   personas: [{ persona: 'agent-dev' }],
   responsibilities: {
     columns: ['agent-dev', 'psp', 'consumer', 'issuer'],
