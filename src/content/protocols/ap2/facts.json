@@ -1,0 +1,24 @@
+{
+  "protocol": "ap2",
+  "tldr": "AP2 defines signed mandates that prove what a user approved an agent to buy. Version 0.2 has Checkout and Payment Mandates, each closed (exact values) or open (constraints), carried inside a commerce protocol such as UCP.",
+  "whyItExists": "When an agent pays, the merchant, the card issuer and the network cannot tell whether the person behind it agreed to this purchase. Today's payment systems assume a human clicked buy. AP2 gives every party a signed, checkable record of what the user approved: either the exact checkout and amount, or a set of limits (merchants, items, price range, budget, dates) inside which the agent may close a purchase on its own. The record later serves as evidence in a dispute.",
+  "whatItIsNot": [
+    { "text": "Not a payment rail. AP2 moves no money; it carries authorization evidence on top of cards, bank transfers or stablecoins.", "claimIds": ["clm-ap2-002", "clm-ap2-144"] },
+    { "text": "Not A2A. A2A is one transport that the samples use; v0.2 treats AP2 as a security feature inside a commerce protocol.", "claimIds": ["clm-ap2-003", "clm-ap2-104"] },
+    { "text": "Not a Google-only project any more. Google donated it to the FIDO Alliance on 2026-04-28, and specification work now sits with FIDO working groups.", "claimIds": ["clm-ap2-012", "clm-ap2-022"] },
+    { "text": "Not the three mandates of 2025. Version 0.2 has no Intent Mandate and no Cart Mandate, only Checkout and Payment Mandates.", "claimIds": ["clm-ap2-031", "clm-ap2-032"] },
+    { "text": "Not proven in production. No primary source shows live use of AP2 mandates, inside UCP or anywhere else.", "claimIds": ["clm-ap2-139", "clm-ap2-164"] },
+    { "text": "Not Stripe's MPP and not Visa's TAP. In AP2, MPP is the Merchant Payment Processor role, and Trusted Agent Provider is a delegation model.", "claimIds": ["clm-ap2-040", "clm-ap2-048"] },
+    { "text": "Not built on W3C VC 2.0 or DIDs. v0.2 uses SD-JWT VC, OpenID4VP and the Digital Credentials API; VC 2.0 and DIDs are only the wider family.", "claimIds": ["clm-ap2-110"] }
+  ],
+  "changedRecently": [
+    { "date": "2026-04-22", "text": "The Delegate SD-JWT draft that chains AP2 mandates was posted to the IETF as an individual draft.", "claimIds": ["clm-ap2-109"] },
+    { "date": "2026-04-28", "text": "v0.2 released with open and closed Checkout and Payment Mandates; the same day Google donated AP2 to the FIDO Alliance.", "claimIds": ["clm-ap2-027", "clm-ap2-031", "clm-ap2-012"] },
+    { "date": "2026-04-29", "text": "Last commit on the AP2 main branch; 63 community pull requests opened since then, none merged.", "claimIds": ["clm-ap2-028", "clm-ap2-030"] },
+    { "date": "2026-05-19", "text": "Google said it would begin bringing AP2 to Google products in the coming months, starting with Gemini Spark.", "claimIds": ["clm-ap2-169"] },
+    { "date": "2026-05-27", "text": "On issue 268 a specification author wrote that further iterations had officially moved to FIDO.", "claimIds": ["clm-ap2-024", "clm-ap2-114"] },
+    { "date": "2026-08-24", "text": "arXiv:2608.23858 catalogued 48 threats to AP2 v0.2, eight of them in the High band.", "claimIds": ["clm-ap2-163"] },
+    { "date": "2026-08-25", "text": "UCP renamed its AP2 extension dev.ucp.common.payment.ap2_mandate and aligned it with AP2 v0.2.", "claimIds": ["clm-ap2-171", "clm-ap2-146"] },
+    { "date": "2026-09-04", "text": "A third-party Internet-Draft binding delivery evidence to AP2 mandates reached -01; its abstract still names v0.1 objects.", "claimIds": ["clm-ap2-141", "clm-ap2-142"] }
+  ]
+}

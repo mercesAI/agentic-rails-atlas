@@ -1,0 +1,115 @@
+---
+slug: ap2
+order: 7
+name: AP2
+bubbleLabel: AP2
+monogram: AP2
+tagline: Signed purchase mandates
+intro: "Signed mandates that prove what a user authorized an agent to buy. Version 0.2 has Checkout and Payment Mandates, each closed (exact values) or open (constraints). Created at Google, donated to the FIDO Alliance on 2026-04-28, and carried inside UCP as an extension; live use is unverified."
+family: authorization-intent
+layerPrimary: intent-authorization
+layersSecondary:
+  - payment-credential
+  - checkout-orders
+  - post-purchase-disputes
+rails:
+  - rail-agnostic
+stewards:
+  - "FIDO Alliance (Payments Technical Working Group and Agentic Authentication Technical Working Group)"
+  - "Google (code samples and SDK in google-agentic-commerce/AP2)"
+governance: "Google donated AP2 to the FIDO Alliance on 2026-04-28. Specification work continues in FIDO working groups, while Google keeps the samples and SDK on GitHub. FIDO has published no AP2 deliverable, and no commit has landed on the repository's main branch since 2026-04-29."
+license:
+  spec: "Apache-2.0 (repository license, which covers the docs and schemas)"
+  code: Apache-2.0
+status: draft
+statusNote: "v0.2 is a published specification with JSON Schemas, a Python SDK and samples. Production use of mandates is unverified anywhere, including inside UCP."
+firstAnnounced: "2025-09-16"
+latestVersion:
+  label: "v0.2.0 (specification titled Agentic Payment Protocol v0.2)"
+  date: "2026-04-28"
+lastVerified: "2026-10-11"
+transports:
+  - "Transport-agnostic: runs inside a commerce protocol"
+  - "UCP extension dev.ucp.common.payment.ap2_mandate"
+  - "A2A (the reference samples)"
+  - "OpenID4VP over the Digital Credentials API (delegation step)"
+buildsOn:
+  - SD-JWT (RFC 9901)
+  - SD-JWT VC
+  - Delegate SD-JWT (individual draft)
+  - RFC 7800 cnf
+  - OpenID4VP 1.0
+  - W3C Digital Credentials API
+  - JWS with ES256
+  - ISO 4217
+composesWith:
+  - ucp
+  - x402
+  - mastercard-agent-pay
+personas:
+  - consumer
+  - wallet-cp
+  - issuer
+  - merchant-enterprise
+  - agent-dev
+  - compliance
+disambiguation:
+  - "AP2 is the Agent Payments Protocol, created at Google and now developed in FIDO Alliance working groups. The v0.2 specification document is titled Agentic Payment Protocol."
+  - "AP2 is not A2A (Agent2Agent). A2A is one transport that the AP2 samples use."
+  - "In AP2, MPP means Merchant Payment Processor, a role. It is not the Machine Payments Protocol from Stripe and Tempo."
+  - "AP2's Trusted Agent Provider is a delegation model. It is not Visa's Trusted Agent Protocol (TAP)."
+  - "The packages named ap2 on PyPI and npm belong to third parties, not to Google."
+mainFlow: ap2-human-present
+stateMachine: ap2-mandate-lifecycle
+diagrams:
+  - ap2-context
+  - ap2-data-model
+  - ap2-v01-v02-model
+  - ap2-mandate-chain
+  - ap2-constraint-evaluation
+  - ap2-human-not-present
+  - ap2-failure-unresolved-constraint
+  - ap2-failure-invalid-credential
+  - ap2-failure-mandates-not-supported
+  - ap2-dispute-verification
+  - ap2-openid4vp-delegation
+  - ap2-in-ucp
+  - ap2-a2a-x402-embedding
+  - ap2-composition
+playground:
+  status: coming-next
+  note: "A mandate builder: a v0.1 and v0.2 toggle, open and closed Checkout and Payment Mandates built from the schema field names, a constraint evaluator (try a cart that breaks payment.amount_range or checkout.allowed_merchants), signing with ephemeral ES256 keys with a visible teaching-simplification label wherever the SD-JWT machinery is reduced, and a binding verifier that recomputes checkout_hash, transaction_id and sd_hash. Simulation only, no real funds."
+keyFacts:
+  - label: Steward
+    value: "FIDO Alliance working groups for the specification; Google for the GitHub samples and SDK"
+    claimIds: [clm-ap2-022, clm-ap2-023, clm-ap2-017]
+  - label: Governance
+    value: "Donated to FIDO on 2026-04-28; the Agentic Authentication group was new that day, the Payments group already existed; no FIDO deliverable published"
+    claimIds: [clm-ap2-012, clm-ap2-019, clm-ap2-018, clm-ap2-021]
+  - label: License
+    value: "Apache-2.0"
+    claimIds: [clm-ap2-005]
+  - label: First announced
+    value: "2025-09-16, with more than 60 organizations named as collaborators"
+    claimIds: [clm-ap2-007, clm-ap2-008]
+  - label: Latest version
+    value: "v0.2.0, released 2026-04-28; main idle since 2026-04-29"
+    claimIds: [clm-ap2-027, clm-ap2-028, clm-ap2-029]
+  - label: Status
+    value: "Specified with samples; production use unverified anywhere, including inside UCP"
+    claimIds: [clm-ap2-139, clm-ap2-164]
+  - label: Transports
+    value: "Transport-agnostic inside a commerce protocol; UCP extension; A2A in the samples; OpenID4VP for delegation"
+    claimIds: [clm-ap2-104, clm-ap2-106, clm-ap2-105, clm-ap2-099]
+  - label: Rails
+    value: "None of its own: authorization evidence on top of cards, bank transfers or stablecoins"
+    claimIds: [clm-ap2-002]
+  - label: Builds on
+    value: "SD-JWT VC, Delegate SD-JWT draft, RFC 7800 cnf, OpenID4VP, Digital Credentials API, ES256"
+    claimIds: [clm-ap2-108, clm-ap2-065, clm-ap2-100, clm-ap2-111]
+  - label: Composes with
+    value: "UCP (native extension), x402 (a2a-x402, targets v0.1), Mastercard Verifiable Intent (same vct values)"
+    claimIds: [clm-ap2-106, clm-ap2-149, clm-ap2-152]
+---
+
+Body in progress.
