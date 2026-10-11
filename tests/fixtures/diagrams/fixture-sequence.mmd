@@ -1,0 +1,20 @@
+sequenceDiagram
+  accTitle: Fixture: labels with colons quotes and braces
+  accDescr: Sequence diagram: Fixture: labels with colons quotes and braces. 3 participants: Agent: client v2, Resource server api, and Facilitator 1. 6 steps, 1 crossing a trust boundary, 2 failure branches. Based on x402 fixture (2026-10-11). Step 1: Agent: client v2 to Resource server api: GET /weather?city=Paris. Step 2: Resource server api to Agent: client v2: 402 Payment Required: accepts: [...]. This step crosses a trust boundary. Step 3: Agent: client v2 to Resource server api: Retry with PAYMENT-SIGNATURE header 100 of price. If signature invalid: bad sig: Server responds 402 again no funds move. If end: Request times out timeout. Step 4: Resource server api to Facilitator 1: POST /settle. Step 5: Facilitator 1 to Resource server api: Settlement result txHash. Step 6: Resource server api to Agent: client v2: 200 OK.
+  autonumber
+  participant p_client_agent as Agent: client#59; v2
+  participant p_end as Resource server #123;api#125;
+  participant p_facilitator as Facilitator #quot;#35;1#quot;
+  p_client_agent->>p_end: GET /weather?city=Paris
+  p_end-->>p_client_agent: 402 Payment Required: #123;accepts: #91;...#93;#125;
+  Note over p_end,p_client_agent: Crosses a trust boundary
+  alt Expected path
+    p_client_agent->>p_end: Retry with PAYMENT-SIGNATURE header#59; 100#37; of price
+  else signature invalid: #quot;bad sig#quot;
+    Note over p_client_agent,p_end: Server responds 402 again#59; no funds move
+  else end​
+    Note over p_client_agent,p_end: Request times out #35;timeout
+  end
+  p_end->>p_facilitator: POST /settle
+  p_facilitator-->>p_end: Settlement result #lt;txHash#gt;
+  p_end-->>p_client_agent: 200 OK

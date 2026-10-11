@@ -27,6 +27,7 @@ describe('escapeMermaidText', () => {
     expect(escapeMermaidText('402: Payment Required')).toBe('402: Payment Required');
     expect(escapeMermaidText(':start')).toBe('#58;start');
     expect(escapeMermaidText('end:')).toBe('end#58;');
+    expect(escapeMermaidText('a: b', { colons: true })).toBe('a#58; b');
   });
   it('collapses newlines and never returns empty text', () => {
     expect(escapeMermaidText('a\nb\r\n c')).toBe('a b c');
@@ -59,6 +60,8 @@ describe('isResponseStep', () => {
   it('treats a reversal of the previous step as a response', () => {
     expect(isResponseStep(step(2, 'b', 'a', 'Token'), step(1, 'a', 'b', 'Ask'))).toBe(true);
     expect(isResponseStep(step(2, 'b', 'c', 'Forward'), step(1, 'a', 'b', 'Ask'))).toBe(false);
+    // A retry after a response is a new request, not an answer.
+    expect(isResponseStep(step(3, 'a', 'b', 'Retry'), step(2, 'b', 'a', '402'), true)).toBe(false);
   });
 });
 
@@ -89,7 +92,7 @@ describe('flowToSequenceDiagram', () => {
   it('wraps failures in alt and else blocks', () => {
     const alt = lines.findIndex((l) => l.trim() === 'alt Expected path');
     expect(alt).toBeGreaterThan(0);
-    expect(lines[alt + 1]).toContain('Retry with PAYMENT-SIGNATURE header#59; 100#37; of price');
+    expect(lines[alt + 1]).toContain('p_client_agent->>p_end: Retry with PAYMENT-SIGNATURE header#59; 100#37; of price');
     expect(out).toContain('else signature invalid: #quot;bad sig#quot;');
     expect(out).toContain('Note over p_client_agent,p_end: Server responds 402 again#59; no funds move');
     expect(out).toContain('else end​');
@@ -123,7 +126,7 @@ describe('stateMachineToStateDiagram', () => {
     expect(out).toContain('s_ready --> s_completed : complete#59; payment token accepted');
     expect(out).toContain('s_completed --> [*]');
     expect(out).toContain('s_canceled --> [*]');
-    expect(out).toContain('note right of s_completed : Order created: id returned#59; done');
+    expect(out).toContain('note right of s_completed : Order created#58; id returned#59; done');
   });
   it('uses the first state when none is marked initial', () => {
     const m = { ...machine, states: machine.states.map((s) => ({ ...s, initial: false })) };

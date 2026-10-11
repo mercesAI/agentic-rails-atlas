@@ -34,12 +34,14 @@ const ENTITY: Record<string, string> = {
  * spaces. Colons are left alone: Mermaid reads everything after the first
  * colon as text. A leading or trailing colon is still escaped to be safe.
  */
-export function escapeMermaidText(text: string): string {
+export function escapeMermaidText(text: string, options: { colons?: boolean } = {}): string {
   let out = '';
   // Entity codes are decoded by Mermaid, so the '#' inside our own codes must
   // not be escaped twice: map character by character.
   for (const ch of text.replace(/[\r\n\t]+/g, ' ')) out += ENTITY[ch] ?? ch;
   out = out.replace(/\s{2,}/g, ' ').trim();
+  // State diagram notes end their text at a colon, so they escape every colon.
+  if (options.colons) out = out.replace(/:/g, '#58;');
   if (out.startsWith(':')) out = `#58;${out.slice(1)}`;
   if (out.endsWith(':')) out = `${out.slice(0, -1)}#58;`;
   // Mermaid treats "end" as a keyword in some positions; a lone "end" label is padded.
@@ -49,7 +51,12 @@ export function escapeMermaidText(text: string): string {
 
 /** Accessible title and description lines accept plain text only; keep them single-line and separator-free. */
 function accText(text: string): string {
-  return text.replace(/[\r\n\t]+/g, ' ').replace(/[;#%{}]/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  return text
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/[;#%{}<>"`]/g, ' ')
+    .replace(/\s+([.,:])/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
 /** Builds stable, collision-free Mermaid identifiers from arbitrary ids. */
@@ -72,12 +79,13 @@ const RESPONSE_START = /^(\d{3}\b|return|returns|returned|respond|responds|respo
 
 /**
  * A step is drawn as a response (dashed arrow) when its label starts with a
- * status code or a return or respond verb, or when it reverses the previous
- * step (from is the previous step's to, and to is the previous step's from).
+ * status code or a return or respond verb, or when it answers the previous
+ * step: it reverses it (from is the previous step's to, and to is the previous
+ * step's from) and the previous step was itself a request.
  */
-export function isResponseStep(step: FlowStep, prev?: FlowStep): boolean {
+export function isResponseStep(step: FlowStep, prev?: FlowStep, prevWasResponse = false): boolean {
   if (RESPONSE_START.test(step.label.trim())) return true;
-  return !!prev && step.from === prev.to && step.to === prev.from;
+  return !!prev && !prevWasResponse && step.from === prev.to && step.to === prev.from;
 }
 
 export interface SequenceOptions {
@@ -112,10 +120,12 @@ export function flowToSequenceDiagram(flow: Flow, options: SequenceOptions = {})
     declare(s.to, s.to);
   }
   let prev: FlowStep | undefined;
+  let prevWasResponse = false;
   for (const s of steps) {
     const from = pid(s.from);
     const to = pid(s.to);
-    const arrow = isResponseStep(s, prev) ? '-->>' : '->>';
+    const response = isResponseStep(s, prev, prevWasResponse);
+    const arrow = response ? '-->>' : '->>';
     const message = `  ${from}${arrow}${to}: ${escapeMermaidText(s.label)}`;
     const over = from === to ? from : `${from},${to}`;
     const failures = withFailures ? (s.failures ?? []) : [];
@@ -133,6 +143,7 @@ export function flowToSequenceDiagram(flow: Flow, options: SequenceOptions = {})
       if (s.crossesTrustBoundary) lines.push(`  Note over ${over}: Crosses a trust boundary`);
     }
     prev = s;
+    prevWasResponse = response;
   }
   return `${lines.join('\n')}\n`;
 }
@@ -167,7 +178,7 @@ export function stateMachineToStateDiagram(machine: StateMachine, options: State
   }
   for (const s of machine.states) if (s.terminal) lines.push(`  ${sid(s.id)} --> [*]`);
   for (const s of machine.states) {
-    if (s.note) lines.push(`  note right of ${sid(s.id)} : ${escapeMermaidText(s.note)}`);
+    if (s.note) lines.push(`  note right of ${sid(s.id)} : ${escapeMermaidText(s.note, { colons: true })}`);
   }
   return `${lines.join('\n')}\n`;
 }

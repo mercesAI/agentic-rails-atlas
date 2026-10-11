@@ -129,7 +129,7 @@ export function parseArgs(argv: string[]): { flags: Set<string>; values: Map<str
   }
   return { flags, values, rest };
 }
-const VALUE_FLAGS = new Set(['protocol', 'only', 'root', 'host', 'limit', 'concurrency']);
+const VALUE_FLAGS = new Set(['protocol', 'only', 'root', 'host', 'limit', 'concurrency', 'dir', 'out', 'source']);
 
 /** True when the module is the process entry point. */
 export function isMain(moduleUrl: string): boolean {
