@@ -1,0 +1,122 @@
+{
+ "protocol": "ucp",
+ "items": [
+  {
+   "q": "Is UCP the same as Google's Universal Cart?",
+   "a": "No. UCP is the open Universal Commerce Protocol. Universal Cart is a Google shopping product, announced on 2026-05-19, that uses UCP for checkout.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-005"
+   ]
+  },
+  {
+   "q": "Does Google become the merchant of record?",
+   "a": "No. In the spec and in Google's FAQ the business is the merchant of record and keeps financial liability and the order. Microsoft says the same for Copilot Checkout.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-006",
+    "clm-ucp-163"
+   ]
+  },
+  {
+   "q": "Is AP2 another name for UCP?",
+   "a": "No. AP2 is an optional extension inside UCP, dev.ucp.common.payment.ap2_mandate since v2026-08-25. UCP says where the AP2 signatures go and AP2 defines the mandate formats. Live use of AP2 mandates in UCP is unverified as of 2026-10-11.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-193",
+    "clm-ucp-030",
+    "clm-ucp-197"
+   ]
+  },
+  {
+   "q": "Does UCP process payments?",
+   "a": "No. The platform gets an opaque token from a credential provider and passes it to the business, which charges it through its own PSP. Credentials flow one way.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-104",
+    "clm-ucp-105",
+    "clm-ucp-050"
+   ]
+  },
+  {
+   "q": "Can an agent buy without the buyer pressing buy?",
+   "a": "Not in the base protocol. Without the AP2 extension, the agent must hand the checkout to a trusted, deterministic UI where the buyer places the order.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-097"
+   ]
+  },
+  {
+   "q": "Are UCP capabilities versioned independently since 2026-08-25?",
+   "a": "Only third-party ones. The release notes speak of independent capability versioning, but the normative spec ties every dev.ucp capability to the release date; vendor extensions version on their own.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-034",
+    "clm-ucp-032",
+    "clm-ucp-033"
+   ]
+  },
+  {
+   "q": "Is ES256 the only signature algorithm?",
+   "a": "No. Every implementation must be able to verify ES256, and ES384 and EdDSA are optional.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-134"
+   ]
+  },
+  {
+   "q": "Does Microsoft support UCP today?",
+   "a": "Microsoft's page uses the future tense: Merchant Center will support UCP. Copilot Checkout already requires a UCP-compliant feed.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-181",
+    "clm-ucp-180"
+   ]
+  },
+  {
+   "q": "Where does a business publish its profile?",
+   "a": "At /.well-known/ucp. The platform publishes its own profile at the URL it names in the UCP-Agent header.",
+   "claimIds": [
+    "clm-ucp-054",
+    "clm-ucp-088"
+   ]
+  },
+  {
+   "q": "What happens when a checkout needs something the API cannot collect?",
+   "a": "The business returns requires_escalation with a continue_url and a message whose severity is requires_buyer_input or requires_buyer_review, and the platform opens continue_url for the buyer.",
+   "claimIds": [
+    "clm-ucp-098",
+    "clm-ucp-099",
+    "clm-ucp-228"
+   ]
+  },
+  {
+   "q": "Does Google take a fee?",
+   "a": "Google told The Register it does not plan to take a cut (reported). The merchant pays its own PSP as usual, and reports say Google and Microsoft checkouts carry no additional fee for now.",
+   "claimIds": [
+    "clm-ucp-188",
+    "clm-ucp-190",
+    "clm-ucp-191"
+   ]
+  },
+  {
+   "q": "Who governs UCP?",
+   "a": "A Governing Council with permanent seats for Google and Shopify, an elected seat for Stripe and 2 open seats; Google holds the proxy vote for open seats until December 2028. There is no foundation.",
+   "claimIds": [
+    "clm-ucp-007",
+    "clm-ucp-008",
+    "clm-ucp-010",
+    "clm-ucp-011"
+   ]
+  },
+  {
+   "q": "Has any paper studied UCP?",
+   "a": "Yes, two arXiv papers name it: 2606.05043 (Strabo) models UCP checkout, and 2602.06345 studies replay and context binding in UCP and AP2.",
+   "misconception": true,
+   "claimIds": [
+    "clm-ucp-213",
+    "clm-ucp-214"
+   ]
+  }
+ ]
+}

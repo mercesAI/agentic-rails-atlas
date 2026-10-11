@@ -1,0 +1,156 @@
+{
+ "protocol": "ucp",
+ "questions": [
+  {
+   "id": "ucp-q1",
+   "question": "Where does a business publish its UCP profile?",
+   "options": [
+    "/.well-known/agent-card.json",
+    "/.well-known/ucp",
+    "/ucp/v1/profile",
+    "/.well-known/openid-configuration"
+   ],
+   "answer": 1,
+   "explanation": "Businesses publish at /.well-known/ucp; platforms publish at the URL they name in UCP-Agent.",
+   "claimIds": [
+    "clm-ucp-054"
+   ]
+  },
+  {
+   "id": "ucp-q2",
+   "question": "Who is the merchant of record in a UCP checkout on Google AI Mode?",
+   "options": [
+    "Google",
+    "The platform",
+    "The business",
+    "The credential provider"
+   ],
+   "answer": 2,
+   "explanation": "The business keeps financial liability and the order; Google is not the merchant of record.",
+   "claimIds": [
+    "clm-ucp-006"
+   ]
+  },
+  {
+   "id": "ucp-q3",
+   "question": "What does a business compute when a request arrives with UCP-Agent?",
+   "options": [
+    "A price quote",
+    "The capability intersection at the highest shared version",
+    "A payment mandate",
+    "An OAuth token"
+   ],
+   "answer": 1,
+   "explanation": "It keeps capabilities both list, picks the highest common version and prunes orphaned extensions.",
+   "claimIds": [
+    "clm-ucp-090"
+   ]
+  },
+  {
+   "id": "ucp-q4",
+   "question": "What must accompany status requires_escalation?",
+   "options": [
+    "An order id",
+    "A continue_url and an escalation-severity message",
+    "A payment mandate",
+    "A 3DS action"
+   ],
+   "answer": 1,
+   "explanation": "The business must provide continue_url and at least one requires_buyer_input or requires_buyer_review message.",
+   "claimIds": [
+    "clm-ucp-098"
+   ]
+  },
+  {
+   "id": "ucp-q5",
+   "question": "What is the name of the AP2 extension in v2026-08-25?",
+   "options": [
+    "dev.ucp.shopping.ap2_mandate",
+    "dev.ucp.common.payment.ap2_mandate",
+    "com.google.ap2",
+    "dev.ucp.common.ap2_mandates"
+   ],
+   "answer": 1,
+   "explanation": "It was renamed from dev.ucp.shopping.ap2_mandate when payment extensions moved to common.",
+   "claimIds": [
+    "clm-ucp-030"
+   ]
+  },
+  {
+   "id": "ucp-q6",
+   "question": "How does Update Checkout behave?",
+   "options": [
+    "It patches only the fields sent",
+    "It is a full replacement of the resource",
+    "It appends line items",
+    "It is not allowed after create"
+   ],
+   "answer": 1,
+   "explanation": "PUT replaces the whole checkout, so omitted fields are removed.",
+   "claimIds": [
+    "clm-ucp-096"
+   ]
+  },
+  {
+   "id": "ucp-q7",
+   "question": "Which algorithm must every UCP verifier support?",
+   "options": [
+    "EdDSA",
+    "ES384",
+    "ES256",
+    "RS256"
+   ],
+   "answer": 2,
+   "explanation": "ES256 is the baseline; ES384 and EdDSA are optional.",
+   "claimIds": [
+    "clm-ucp-134"
+   ]
+  },
+  {
+   "id": "ucp-q8",
+   "question": "What default lifetime does a checkout get when expires_at is not sent?",
+   "options": [
+    "15 minutes",
+    "1 hour",
+    "6 hours",
+    "24 hours"
+   ],
+   "answer": 2,
+   "explanation": "expires_at defaults to 6 hours after creation.",
+   "claimIds": [
+    "clm-ucp-071"
+   ]
+  },
+  {
+   "id": "ucp-q9",
+   "question": "How does UCP handle replay protection?",
+   "options": [
+    "Signature timestamps only",
+    "A signed Idempotency-Key stored by the business",
+    "A blockchain nonce",
+    "Session cookies"
+   ],
+   "answer": 1,
+   "explanation": "Replay protection lives at the business through signed idempotency keys, stored at least 24 hours.",
+   "claimIds": [
+    "clm-ucp-136",
+    "clm-ucp-137"
+   ]
+  },
+  {
+   "id": "ucp-q10",
+   "question": "In which direction do payment credentials flow?",
+   "options": [
+    "Business to platform",
+    "Platform to business only",
+    "Both ways",
+    "PSP to platform"
+   ],
+   "answer": 1,
+   "explanation": "Credentials flow platform to business only and must not be echoed back.",
+   "claimIds": [
+    "clm-ucp-105"
+   ]
+  }
+ ]
+}

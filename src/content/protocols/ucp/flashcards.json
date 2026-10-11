@@ -1,0 +1,136 @@
+{
+ "protocol": "ucp",
+ "cards": [
+  {
+   "id": "ucp-f1",
+   "front": "/.well-known/ucp",
+   "back": "Path of the business profile: ucp metadata (version, services, capabilities, payment_handlers) plus a top-level keys array.",
+   "claimIds": [
+    "clm-ucp-054",
+    "clm-ucp-055",
+    "clm-ucp-058"
+   ]
+  },
+  {
+   "id": "ucp-f2",
+   "front": "UCP-Agent",
+   "back": "Request header naming the platform profile, profile=\"...\", in RFC 8941 dictionary syntax; meta ucp-agent over MCP.",
+   "claimIds": [
+    "clm-ucp-088",
+    "clm-ucp-089"
+   ]
+  },
+  {
+   "id": "ucp-f3",
+   "front": "Capability intersection",
+   "back": "Keep capabilities both sides list, pick the highest shared version, drop the rest, prune orphaned extensions until stable.",
+   "claimIds": [
+    "clm-ucp-090"
+   ]
+  },
+  {
+   "id": "ucp-f4",
+   "front": "supported_versions",
+   "back": "Optional, business-only map from older releases to leaf profile URIs.",
+   "claimIds": [
+    "clm-ucp-057"
+   ]
+  },
+  {
+   "id": "ucp-f5",
+   "front": "requires_escalation",
+   "back": "Checkout status for buyer input or review; continue_url is required.",
+   "claimIds": [
+    "clm-ucp-098"
+   ]
+  },
+  {
+   "id": "ucp-f6",
+   "front": "continue_url",
+   "back": "Absolute HTTPS handoff URL to the business UI; the platform must open it on escalation.",
+   "claimIds": [
+    "clm-ucp-099"
+   ]
+  },
+  {
+   "id": "ucp-f7",
+   "front": "complete_in_progress",
+   "back": "Complete accepted for async processing; no order yet; no new update or complete.",
+   "claimIds": [
+    "clm-ucp-100",
+    "clm-ucp-101"
+   ]
+  },
+  {
+   "id": "ucp-f8",
+   "front": "Payment handler",
+   "back": "A spec written by a credential provider, such as com.google.pay, that the platform executes to get a token.",
+   "claimIds": [
+    "clm-ucp-051",
+    "clm-ucp-053"
+   ]
+  },
+  {
+   "id": "ucp-f9",
+   "front": "Credential types",
+   "back": "token, pan and network_token (number plus cryptogram).",
+   "claimIds": [
+    "clm-ucp-075",
+    "clm-ucp-076"
+   ]
+  },
+  {
+   "id": "ucp-f10",
+   "front": "ap2.merchant_authorization",
+   "back": "Detached JWS over the JCS-canonical checkout without ap2, added by the business when AP2 is negotiated.",
+   "claimIds": [
+    "clm-ucp-083",
+    "clm-ucp-139"
+   ]
+  },
+  {
+   "id": "ucp-f11",
+   "front": "ap2.checkout_mandate",
+   "back": "SD-JWT with key binding, required on complete, containing the full signed checkout.",
+   "claimIds": [
+    "clm-ucp-084",
+    "clm-ucp-112"
+   ]
+  },
+  {
+   "id": "ucp-f12",
+   "front": "Security locked",
+   "back": "Session state once AP2 is in the intersection: no fallback to unprotected checkout.",
+   "claimIds": [
+    "clm-ucp-109"
+   ]
+  },
+  {
+   "id": "ucp-f13",
+   "front": "Idempotency-Key",
+   "back": "Signed replay protection: 128-bit entropy, stored 24 hours (48 recommended), 409 on payload mismatch.",
+   "claimIds": [
+    "clm-ucp-137",
+    "clm-ucp-132"
+   ]
+  },
+  {
+   "id": "ucp-f14",
+   "front": "capabilities_incompatible",
+   "back": "Empty intersection, returned as HTTP 200 with a UCP error response and optional continue_url.",
+   "claimIds": [
+    "clm-ucp-094"
+   ]
+  },
+  {
+   "id": "ucp-f15",
+   "front": "Identity linking",
+   "back": "OAuth 2.0 authorization code with PKCE S256; scopes derived from capabilities; three access levels.",
+   "claimIds": [
+    "clm-ucp-116",
+    "clm-ucp-117",
+    "clm-ucp-120"
+   ]
+  }
+ ]
+}
