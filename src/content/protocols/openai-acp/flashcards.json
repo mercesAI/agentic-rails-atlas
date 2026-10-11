@@ -1,0 +1,137 @@
+{
+  "protocol": "openai-acp",
+  "cards": [
+    {
+      "id": "openai-acp-f1",
+      "front": "Allowance",
+      "back": "Required limits on a delegated token: reason one_time, max_amount, currency, checkout_session_id, merchant_id, expires_at.",
+      "claimIds": [
+        "clm-openai-acp-076",
+        "clm-openai-acp-077"
+      ]
+    },
+    {
+      "id": "openai-acp-f2",
+      "front": "POST /agentic_commerce/delegate_payment",
+      "back": "Delegate Payment endpoint at a PSP or vault; returns a vault token usable only within the allowance.",
+      "claimIds": [
+        "clm-openai-acp-099"
+      ]
+    },
+    {
+      "id": "openai-acp-f3",
+      "front": "vt_",
+      "back": "Prefix of the vault token id returned by Delegate Payment with HTTP 201.",
+      "claimIds": [
+        "clm-openai-acp-079"
+      ]
+    },
+    {
+      "id": "openai-acp-f4",
+      "front": "Shared Payment Token",
+      "back": "Stripe's product, the first Delegate Payment compatible implementation; not part of the ACP spec.",
+      "claimIds": [
+        "clm-openai-acp-049",
+        "clm-openai-acp-050"
+      ]
+    },
+    {
+      "id": "openai-acp-f5",
+      "front": "Merchant of record in ACP",
+      "back": "The merchant, never OpenAI; it handles refunds and chargebacks.",
+      "claimIds": [
+        "clm-openai-acp-045",
+        "clm-openai-acp-046"
+      ]
+    },
+    {
+      "id": "openai-acp-f6",
+      "front": "API-Version",
+      "back": "Required header carrying a dated version such as 2026-04-17.",
+      "claimIds": [
+        "clm-openai-acp-025"
+      ]
+    },
+    {
+      "id": "openai-acp-f7",
+      "front": "Idempotency-Key",
+      "back": "Required on every POST since 2026-04-17; keys kept at least 24 hours.",
+      "claimIds": [
+        "clm-openai-acp-035",
+        "clm-openai-acp-109"
+      ]
+    },
+    {
+      "id": "openai-acp-f8",
+      "front": "Merchant-Signature",
+      "back": "Webhook header t=<unix_seconds>,v1=<64_hex>; HMAC-SHA256; 300-second tolerance.",
+      "claimIds": [
+        "clm-openai-acp-135",
+        "clm-openai-acp-136"
+      ]
+    },
+    {
+      "id": "openai-acp-f9",
+      "front": "order_create and order_update",
+      "back": "ACP order webhook event types (OpenAI docs say order_created and order_updated).",
+      "claimIds": [
+        "clm-openai-acp-156",
+        "clm-openai-acp-157"
+      ]
+    },
+    {
+      "id": "openai-acp-f10",
+      "front": "/.well-known/acp.json",
+      "back": "Unauthenticated discovery document listing versions, transports and services.",
+      "claimIds": [
+        "clm-openai-acp-118",
+        "clm-openai-acp-083"
+      ]
+    },
+    {
+      "id": "openai-acp-f11",
+      "front": "dev.acp.tokenized.card",
+      "back": "Reverse-DNS name of the tokenized card payment handler.",
+      "claimIds": [
+        "clm-openai-acp-061"
+      ]
+    },
+    {
+      "id": "openai-acp-f12",
+      "front": "Eleven checkout statuses",
+      "back": "Five original, authentication_required from 2025-12-12, five more from 2026-01-30.",
+      "claimIds": [
+        "clm-openai-acp-120",
+        "clm-openai-acp-121",
+        "clm-openai-acp-122"
+      ]
+    },
+    {
+      "id": "openai-acp-f13",
+      "front": "MCP binding tools",
+      "back": "create_, get_, update_, complete_ and cancel_checkout_session.",
+      "claimIds": [
+        "clm-openai-acp-128"
+      ]
+    },
+    {
+      "id": "openai-acp-f14",
+      "front": "TSC",
+      "back": "Up to 7 seats appointed by OpenAI and Stripe; members OpenAI, Stripe and Meta.",
+      "claimIds": [
+        "clm-openai-acp-011",
+        "clm-openai-acp-012",
+        "clm-openai-acp-013"
+      ]
+    },
+    {
+      "id": "openai-acp-f15",
+      "front": "2026-03-24",
+      "back": "OpenAI let merchants use their own checkout and extended ACP to product discovery.",
+      "claimIds": [
+        "clm-openai-acp-177",
+        "clm-openai-acp-178"
+      ]
+    }
+  ]
+}

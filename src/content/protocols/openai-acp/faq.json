@@ -1,0 +1,125 @@
+{
+  "protocol": "openai-acp",
+  "items": [
+    {
+      "q": "Is ACP the same as IBM's Agent Communication Protocol?",
+      "a": "No. This ACP is the Agentic Commerce Protocol from OpenAI and Stripe. IBM's Agent Communication Protocol merged into A2A under the Linux Foundation (announced 2025-08-29), and the PyPI package acp-sdk belongs to it. Many 2025 papers on MCP, ACP, A2A and ANP mean IBM's protocol.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-226",
+        "clm-openai-acp-227",
+        "clm-openai-acp-230"
+      ]
+    },
+    {
+      "q": "Is ACP Virtuals' Agent Commerce Protocol, ERC-8183 or the Agent Client Protocol?",
+      "a": "No. Virtuals' Agent Commerce Protocol is the commerce layer of its on-chain agent economy, ERC-8183 is an on-chain job escrow standard that also calls itself the Agentic Commerce Protocol, and the Agent Client Protocol connects code editors to agents.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-228",
+        "clm-openai-acp-202",
+        "clm-openai-acp-229"
+      ]
+    },
+    {
+      "q": "Is OpenAI the merchant of record when I buy through ChatGPT?",
+      "a": "No. The merchant is merchant of record, its name appears on the card statement, and it handles refunds and chargebacks. ACP lets agents embed commerce without becoming the merchant of record.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-045",
+        "clm-openai-acp-046",
+        "clm-openai-acp-233"
+      ]
+    },
+    {
+      "q": "Is the Shared Payment Token part of ACP?",
+      "a": "No. ACP defines a generic Delegate Payment endpoint that returns a vault token. Stripe's SPT is a Stripe product that OpenAI calls the first compatible implementation; spt appears in the schema only as an example credential type.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-050",
+        "clm-openai-acp-049",
+        "clm-openai-acp-058"
+      ]
+    },
+    {
+      "q": "Can I still check out inside ChatGPT the way it launched in 2025?",
+      "a": "Not in the 2025 form. On 2026-03-24 OpenAI said the first Instant Checkout lacked flexibility and let merchants use their own checkout. In ChatGPT apps, external checkout is generally available and the payment sheet is a private beta for select marketplace partners. A March 2026 report that it was moving to apps is secondary only, and no primary source gives a shutdown date.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-177",
+        "clm-openai-acp-224",
+        "clm-openai-acp-183",
+        "clm-openai-acp-184",
+        "clm-openai-acp-175"
+      ]
+    },
+    {
+      "q": "Is signing mandatory for Delegate Payment?",
+      "a": "Only in one place. RFC section 2.2 says the client must sign; the same RFC's header list says recommended, and the OpenAPI file marks the Signature header optional. On checkout, signatures are recommended.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-142",
+        "clm-openai-acp-091"
+      ]
+    },
+    {
+      "q": "Which version should I implement?",
+      "a": "2026-04-17 is the latest dated folder. There are no GitHub releases or tags, and released folders were edited after release, so pin a commit and validate against its JSON Schema.",
+      "claimIds": [
+        "clm-openai-acp-027",
+        "clm-openai-acp-028",
+        "clm-openai-acp-041"
+      ]
+    },
+    {
+      "q": "Why do the examples send items with a quantity when my validator rejects them?",
+      "a": "Because the examples drifted. Since 2026-01-30 the schema requires line_items of Item objects without a quantity field. The RFC and OpenAPI examples still send items with id and quantity; the repository's examples file follows the schema.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-054",
+        "clm-openai-acp-216",
+        "clm-openai-acp-237"
+      ]
+    },
+    {
+      "q": "Does ACP prove that the buyer approved a purchase?",
+      "a": "No. ACP has no mandates or signed consent. The allowance limits what a token can do, and the buyer's confirmation lives in the agent interface.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-212",
+        "clm-openai-acp-232"
+      ]
+    },
+    {
+      "q": "Are ACP and UCP converging?",
+      "a": "No source supports that. Both define merchant-hosted checkout sessions, five status names match, and each has a well-known discovery document, but no bridge or mapping exists. Stripe supports both.",
+      "misconception": true,
+      "claimIds": [
+        "clm-openai-acp-205",
+        "clm-openai-acp-206",
+        "clm-openai-acp-208",
+        "clm-openai-acp-189"
+      ]
+    },
+    {
+      "q": "What does selling through ChatGPT cost a merchant?",
+      "a": "OpenAI said in 2025 that merchants pay a small fee on completed purchases and has not published a rate. A 4 percent figure for Shopify merchants is a secondary report only. ACP itself has no protocol fee, and the merchant's normal PSP fees apply.",
+      "claimIds": [
+        "clm-openai-acp-192",
+        "clm-openai-acp-194",
+        "clm-openai-acp-196"
+      ]
+    },
+    {
+      "q": "Do the OpenAI docs and the ACP spec agree?",
+      "a": "Not everywhere. They differ on feed paths, webhook event names, the completion status code, the idempotency conflict code and the TLS version. Use the spec for ACP and OpenAI's docs for what ChatGPT expects.",
+      "claimIds": [
+        "clm-openai-acp-115",
+        "clm-openai-acp-157",
+        "clm-openai-acp-220",
+        "clm-openai-acp-219",
+        "clm-openai-acp-132"
+      ]
+    }
+  ]
+}

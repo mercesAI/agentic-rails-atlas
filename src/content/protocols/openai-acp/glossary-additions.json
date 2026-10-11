@@ -1,0 +1,200 @@
+[
+  {
+    "id": "api-version",
+    "term": "API-Version header",
+    "aliases": [
+      "API-Version"
+    ],
+    "plain": "The ACP request header that names the dated protocol version a client speaks, such as 2026-04-17.",
+    "ste": "The header that gives the version date of ACP that the client uses.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-checkout"
+    ]
+  },
+  {
+    "id": "delegate-authentication",
+    "term": "Delegate Authentication",
+    "aliases": [
+      "delegated authentication"
+    ],
+    "plain": "ACP endpoints, added in 2026-04-17, that run 3-D Secure 2 fingerprinting, challenges and results on behalf of an agent.",
+    "ste": "ACP endpoints that do 3-D Secure checks for the agent.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-delegate-auth"
+    ]
+  },
+  {
+    "id": "intent-trace",
+    "term": "Intent trace",
+    "aliases": [
+      "intent_trace"
+    ],
+    "plain": "An optional object on an ACP cancel request with a reason code, such as shipping_cost, that says why the buyer did not finish.",
+    "ste": "Data that tells the merchant why the buyer stopped the purchase.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-intent-traces"
+    ]
+  },
+  {
+    "id": "seller-backed-handler",
+    "term": "Seller-backed payment handler",
+    "aliases": [
+      "seller-backed handler"
+    ],
+    "plain": "An ACP payment handler for value the merchant holds, such as a saved card, gift card, points or store credit, so no card moves to the agent.",
+    "ste": "A payment method that the merchant keeps, for example a gift card or points.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-seller-backed"
+    ]
+  },
+  {
+    "id": "acp-discovery-document",
+    "term": "ACP discovery document",
+    "aliases": [
+      "acp.json",
+      "/.well-known/acp.json"
+    ],
+    "plain": "The unauthenticated JSON file at /.well-known/acp.json that lists a seller's ACP versions, transports and services.",
+    "ste": "A public file on the server of the seller. It gives the ACP versions and services.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-discovery"
+    ]
+  },
+  {
+    "id": "feed-api",
+    "term": "Feed API",
+    "aliases": [
+      "product feed API"
+    ],
+    "plain": "The ACP 2026-04-17 API, hosted by the agent, that merchants call to push product and variant data.",
+    "ste": "An API on the agent side. The merchant uses it to send product data.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-openapi-feed-20260417"
+    ]
+  },
+  {
+    "id": "merchant-signature",
+    "term": "Merchant-Signature",
+    "aliases": [
+      "Merchant-Signature header"
+    ],
+    "plain": "The header on ACP order webhooks that carries a Unix timestamp and an HMAC-SHA256 signature of the raw body.",
+    "ste": "The header that has the time and the HMAC signature of an order message.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-openapi-webhook-20260417"
+    ]
+  },
+  {
+    "id": "order-webhook",
+    "term": "Order webhook",
+    "aliases": [
+      "order_create",
+      "order_update"
+    ],
+    "plain": "A signed message from the merchant to the agent about an ACP order, with event type order_create or order_update.",
+    "ste": "A message from the merchant to the agent about the status of an order.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-openapi-webhook-20260417"
+    ]
+  },
+  {
+    "id": "instant-checkout",
+    "term": "Instant Checkout",
+    "aliases": [
+      "ChatGPT Instant Checkout"
+    ],
+    "plain": "ChatGPT's 2025 in-chat purchase feature that launched ACP; OpenAI scaled it back in March 2026 in favor of merchant checkout.",
+    "ste": "The 2025 ChatGPT function that let a buyer pay in the chat. OpenAI made it smaller in 2026.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-buy-it",
+      "src-openai-product-discovery"
+    ]
+  },
+  {
+    "id": "specification-enhancement-proposal",
+    "term": "Specification Enhancement Proposal",
+    "aliases": [
+      "SEP"
+    ],
+    "plain": "The ACP change process for major changes: a TSC sponsor, a 7-business-day public review and a simple majority vote.",
+    "ste": "A formal request to change the ACP specification.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-governance"
+    ]
+  },
+  {
+    "id": "payment-sheet",
+    "term": "ChatGPT payment sheet",
+    "aliases": [
+      "payment sheet"
+    ],
+    "plain": "An Apps SDK checkout surface in ChatGPT, in private beta for select marketplace partners, that sends a payment token to the merchant's MCP server.",
+    "ste": "A payment window in ChatGPT apps. Only some partners can use it.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-apps-monetization"
+    ]
+  },
+  {
+    "id": "adjustment",
+    "term": "Order adjustment",
+    "aliases": [
+      "adjustments"
+    ],
+    "plain": "An ACP order entry for a change after purchase, such as a refund, return, exchange or dispute, with status pending, completed or failed.",
+    "ste": "A change to an order after the purchase, for example a refund.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-schema-checkout-20260417"
+    ]
+  },
+  {
+    "id": "allowance",
+    "term": "Allowance",
+    "aliases": [
+      "ACP allowance"
+    ],
+    "plain": "The required limits on an ACP delegated token: one-time use, a maximum amount and currency, one merchant, one checkout session and an expiry.",
+    "ste": "The limits of a token: one use, a maximum amount, one merchant, one session and an end time.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-schema-delegate-payment-20260417"
+    ]
+  }
+]

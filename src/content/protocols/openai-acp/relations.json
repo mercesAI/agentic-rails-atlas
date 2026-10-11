@@ -1,0 +1,51 @@
+[
+  {
+    "from": "openai-acp",
+    "to": "ucp",
+    "type": "competes-with",
+    "note": "Both define merchant-hosted agent checkout sessions; five status names match and both publish well-known discovery documents, but no bridge or mapping exists. Stripe supports both.",
+    "sources": [
+      "src-ucp-checkout-schema",
+      "src-stripe-agentic-commerce",
+      "src-openai-acp-rfcs-dir"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "stripe-mpp",
+    "type": "same-steward",
+    "note": "Stripe co-maintains ACP and runs MPP; MPP accepts cards through the same Shared Payment Token family that implements ACP Delegate Payment.",
+    "sources": [
+      "src-stripe-mpp-docs",
+      "src-openai-commerce-docs"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "visa-tap",
+    "type": "compatible-with",
+    "note": "No documented protocol link. Stripe says it might use Visa Intelligent Commerce tokens under SPT card payments, so Visa agent tokens can sit under an ACP payment.",
+    "sources": [
+      "src-fee-stripe-spt-docs"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "mastercard-agent-pay",
+    "type": "compatible-with",
+    "note": "No documented protocol link. Stripe says it might use Mastercard Agent Pay tokens under SPT card payments.",
+    "sources": [
+      "src-fee-stripe-spt-docs"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "ap2",
+    "type": "complements",
+    "note": "ACP has no mandates or signed user intent; AP2 mandates or Verifiable Intent could add that layer, but no adopted extension exists.",
+    "sources": [
+      "src-openai-acp-rfcs-dir",
+      "src-vi-protocols"
+    ]
+  }
+]

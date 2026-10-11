@@ -1,0 +1,590 @@
+{
+  "cells": [
+    {
+      "protocol": "openai-acp",
+      "dimension": "primary-job",
+      "value": "Agent checkout against a merchant-hosted API, with a scoped delegated card token",
+      "detail": "The agent creates, updates and completes a checkout session; Delegate Payment swaps a card for a vault token bound by an allowance.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-rfc-delegate-payment"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "layers-covered",
+      "value": "Checkout and orders, payment credential handoff, discovery and feeds, post-purchase order events",
+      "detail": "No agent identity, reputation or user mandate layer.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-changelog-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "stewards",
+      "value": "OpenAI and Stripe (founding maintainers); TSC: OpenAI, Stripe, Meta",
+      "detail": "Meta joined 2026-04-24.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-acp-maintainers"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "governance-model",
+      "value": "Company-led TSC of up to 7 seats appointed by the founders; SEPs by simple majority; founders' block-only veto",
+      "detail": "No foundation; one is a stated long-term goal.",
+      "sources": [
+        "src-openai-acp-governance"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "license-spec-and-code",
+      "value": "Apache-2.0",
+      "detail": "Contributions under a corporate or individual CLA.",
+      "sources": [
+        "src-openai-acp-license",
+        "src-openai-acp-cla-signatories"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "first-announced",
+      "value": "2025-09-29",
+      "detail": "With ChatGPT Instant Checkout and Stripe SPTs.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-stripe-acp-launch"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "latest-version-and-date",
+      "value": "2026-04-17 (dated folder)",
+      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18.",
+      "sources": [
+        "src-openai-acp-changelog-20260417",
+        "src-openai-acp-gh-commits"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "maturity",
+      "value": "Beta spec, Draft RFCs; deployed for feeds in ChatGPT",
+      "detail": "2025 in-chat checkout scaled back in March 2026; payment sheet in private beta.",
+      "sources": [
+        "src-openai-acp-readme",
+        "src-openai-product-discovery",
+        "src-openai-apps-monetization"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "transports",
+      "value": "REST over HTTPS, MCP binding (5 tools), webhooks, feed API and files",
+      "detail": "MCP binding released in 2026-04-17.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-mcp-binding",
+        "src-openai-acp-openapi-feed-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "settlement-rails",
+      "value": "Cards (FPAN or network token) through the merchant's PSP; seller-backed gift cards, points, store credit",
+      "detail": "SPTs can carry Link, wallets, Klarna and Affirm on Stripe.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfc-seller-backed",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "agent-identity-model",
+      "value": "Bilateral bearer key per agent and merchant pair",
+      "detail": "Detached Signature recommended; no registry or key directory.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "user-authorization-model",
+      "value": "Buyer confirms in the agent UI; token limited by an allowance",
+      "detail": "No signed mandate or consent object.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfcs-dir"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Human present",
+      "detail": "Every flow assumes the buyer confirms in session; no delegated standing authority.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "merchant-of-record",
+      "value": "The merchant",
+      "detail": "OpenAI and PSPs are not merchant of record.",
+      "sources": [
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "credential-type",
+      "value": "Single-use vault token (vt_) or Stripe SPT",
+      "detail": "Network tokens can sit under SPTs.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "cryptography",
+      "value": "TLS; HMAC-SHA256 webhooks; optional detached request signatures (Ed25519 or ES256 examples); 3DS2",
+      "detail": "Signature algorithms agreed out of band.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-acp-rfc-checkout"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "replay-protection",
+      "value": "Mandatory Idempotency-Key; one_time allowance; 300-second webhook window",
+      "detail": "Request Timestamp checks only SHOULD.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-openapi-webhook-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "native-spending-controls",
+      "value": "allowance.max_amount and currency per token",
+      "detail": "Plus merchant, session and expiry scoping.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "revocation",
+      "value": "None in the spec",
+      "detail": "Stripe SPTs can be revoked; sessions can be canceled.",
+      "sources": [
+        "src-openai-acp-rfcs-dir",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "refunds-and-disputes",
+      "value": "Merchant handles refunds and chargebacks; order adjustments report refund, return, dispute",
+      "detail": "No dispute protocol.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "privacy-exposure",
+      "value": "Buyer contact, address and risk signals go to the merchant; card data only to the PSP or vault",
+      "detail": "Nothing public.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "discovery-mechanism",
+      "value": "/.well-known/acp.json per seller; push product feeds to the agent",
+      "detail": "No public registry.",
+      "sources": [
+        "src-openai-acp-rfc-discovery",
+        "src-openai-acp-openapi-feed-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Registration required (bilateral onboarding)",
+      "detail": "ChatGPT feeds limited to approved partners.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "decentralization",
+      "value": "Centralized per platform",
+      "detail": "Each agent platform onboards merchants; founders control governance.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "detail": "Only discovery documents and the GitHub repository are public.",
+      "sources": [
+        "src-openai-acp-rfc-discovery",
+        "src-openai-acp-site"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; OpenAI charges merchants \"a small fee\" (rate unpublished); a 4 percent Shopify figure is reported only",
+      "detail": "Merchant PSP fees unchanged; SPT pricing not published (public preview).",
+      "sources": [
+        "src-openai-buy-it",
+        "src-pymnts-4pct",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "who-pays",
+      "value": "Merchant pays platform fee",
+      "detail": "Card economics otherwise unchanged.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "builds-on-standards",
+      "value": "REST, JSON Schema, OpenAPI, OpenRPC, EMV 3DS2, network tokens, HMAC-SHA256, RFC 8615, MCP, CommonMark",
+      "detail": "No VCs, DIDs, RFC 9421 or chains.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-mcp-binding",
+        "src-openai-acp-rfcs-dir"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "composes-with",
+      "value": "Stripe SPT; Visa and Mastercard agent tokens under SPTs; UCP side by side",
+      "detail": "No documented link to x402, ERC-8004, TAP or AP2.",
+      "sources": [
+        "src-fee-stripe-spt-docs",
+        "src-stripe-agentic-commerce",
+        "src-openai-acp-rfcs-dir"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "No official SDK; OpenAI and Stripe hosted services",
+      "detail": "Svix publishes unofficial types; package.json name not on npm.",
+      "sources": [
+        "src-svix-acp-types",
+        "src-openai-acp-npm-404"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "adoption-evidence",
+      "value": "Named partners, no volume data",
+      "detail": "Seven retailers for discovery; Copilot, PayPal, Walmart announcements; no GMV published.",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-ms-copilot-checkout",
+        "src-paypal-acp"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "published-security-research",
+      "value": "Little: one formal model covering ACP among four protocols",
+      "detail": "No CVEs or advisories; an audit-trail critique.",
+      "sources": [
+        "src-arxiv-2609-00060",
+        "src-openai-acp-gh-advisories",
+        "src-arxiv-2607-19436"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "regulatory-touchpoints",
+      "value": "Card rules, PCI DSS, SCA via 3DS, consumer protection; AI transparency on the surface",
+      "detail": "Merchant of record keeps tax and compliance.",
+      "sources": [
+        "src-openai-commerce-docs",
+        "src-policy-eu-rts-sca",
+        "src-policy-eu-ai-omnibus"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "biggest-open-question",
+      "value": "Does ACP checkout survive beyond feeds, and who besides ChatGPT runs it in production?",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-ms-agentic-commerce"
+      ],
+      "confidence": "verified"
+    }
+  ],
+  "radar": [
+    {
+      "protocol": "openai-acp",
+      "axis": "openness",
+      "value": 3,
+      "justification": "Apache-2.0 spec in a public repository with a CLA, but the founders appoint the TSC and keep a veto.",
+      "sources": [
+        "src-openai-acp-license",
+        "src-openai-acp-governance"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "decentralization",
+      "value": 1,
+      "justification": "Bilateral onboarding per platform and founder-controlled governance; no permissionless path.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-acp-rfc-checkout"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18.",
+      "sources": [
+        "src-openai-acp-readme",
+        "src-openai-acp-gh-commits"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Large named partners for feeds, but no published volume and a scaled-back checkout product.",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "human-not-present",
+      "value": 1,
+      "justification": "Built around a buyer confirming in session; tokens are one-time and session bound.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "Merchant handles chargebacks under card rules and reports adjustments; no dispute protocol.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-commerce-docs"
+      ]
+    }
+  ],
+  "controlsCells": [
+    {
+      "protocol": "openai-acp",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "Bilateral bearer key plus a recommended detached Signature and Timestamp with algorithms agreed out of band; no agent identity scheme.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "No registry in ACP. Each platform runs its own merchant and partner onboarding, such as ChatGPT's approved-partner application.",
+      "sources": [
+        "src-openai-commerce-docs",
+        "src-openai-acp-site"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "The buyer confirms in the agent interface (a product feature). The spec captures marketing consents and 3DS results but no signed purchase consent.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "allowance.max_amount and currency on every delegated token; Stripe SPT usage_limits.max_amount.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "allowance.merchant_id and allowance.checkout_session_id bind the token to one merchant and one session.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "allowance.expires_at, session expires_at and the expired status.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "revocation",
+      "support": "external",
+      "note": "No revoke endpoint in ACP; Stripe SPTs can be revoked. Agents can cancel open sessions.",
+      "sources": [
+        "src-openai-acp-rfcs-dir",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "step-up-authentication",
+      "support": "native",
+      "note": "authentication_required status, authentication_metadata, authentication_result, Delegate Authentication (3DS2) and capabilities.interventions.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-rfc-delegate-auth"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "Mandatory Idempotency-Key on POST since 2026-04-17, one_time allowance, webhook timestamp window; request Timestamp checks only SHOULD.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "Order with permalink_url and order_create and order_update webhooks; no signed receipt.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Order adjustments include refund, return and dispute; the merchant handles chargebacks as merchant of record; no dispute protocol.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "reputation",
+      "support": "none",
+      "note": "Nothing in the spec.",
+      "sources": [
+        "src-openai-acp-rfcs-dir"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "risk_signals on complete, RiskSignal entries on Delegate Payment, intent_trace reason codes on cancel, Request-Id.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfc-intent-traces"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Merchants can decline any order and agents can cancel sessions; Stripe SPTs can be revoked; no protocol-wide stop.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-fee-stripe-spt-docs"
+      ]
+    }
+  ]
+}

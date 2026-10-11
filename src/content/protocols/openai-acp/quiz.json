@@ -1,0 +1,160 @@
+{
+  "protocol": "openai-acp",
+  "questions": [
+    {
+      "id": "openai-acp-q1",
+      "question": "Who is merchant of record in an ACP purchase made through ChatGPT?",
+      "options": [
+        "OpenAI",
+        "Stripe",
+        "The merchant selling the goods",
+        "The buyer's card issuer"
+      ],
+      "answer": 2,
+      "explanation": "OpenAI's docs say the merchant is merchant of record and handles refunds and chargebacks.",
+      "claimIds": [
+        "clm-openai-acp-045",
+        "clm-openai-acp-046"
+      ]
+    },
+    {
+      "id": "openai-acp-q2",
+      "question": "Which header is required on every ACP POST since version 2026-04-17?",
+      "options": [
+        "Signature",
+        "Idempotency-Key",
+        "Request-Id",
+        "Timestamp"
+      ],
+      "answer": 1,
+      "explanation": "2026-04-17 made Idempotency-Key mandatory on all POSTs; Signature, Timestamp and Request-Id are recommended.",
+      "claimIds": [
+        "clm-openai-acp-035",
+        "clm-openai-acp-091"
+      ]
+    },
+    {
+      "id": "openai-acp-q3",
+      "question": "Which allowance reason does ACP define?",
+      "options": [
+        "recurring",
+        "one_time",
+        "subscription",
+        "open"
+      ],
+      "answer": 1,
+      "explanation": "one_time is the only defined reason.",
+      "claimIds": [
+        "clm-openai-acp-077"
+      ]
+    },
+    {
+      "id": "openai-acp-q4",
+      "question": "Which of these is NOT a required Allowance field?",
+      "options": [
+        "merchant_id",
+        "checkout_session_id",
+        "buyer_email",
+        "expires_at"
+      ],
+      "answer": 2,
+      "explanation": "The allowance requires reason, max_amount, currency, checkout_session_id, merchant_id and expires_at.",
+      "claimIds": [
+        "clm-openai-acp-076"
+      ]
+    },
+    {
+      "id": "openai-acp-q5",
+      "question": "How are ACP versions published?",
+      "options": [
+        "GitHub releases with semver tags",
+        "Dated spec folders with no tags",
+        "npm package versions",
+        "IETF drafts"
+      ],
+      "answer": 1,
+      "explanation": "Versions are dated folders; the repository has no releases or tags.",
+      "claimIds": [
+        "clm-openai-acp-028"
+      ]
+    },
+    {
+      "id": "openai-acp-q6",
+      "question": "Which status signals that a merchant requires 3DS?",
+      "options": [
+        "requires_escalation",
+        "authentication_required",
+        "pending_approval",
+        "in_progress"
+      ],
+      "answer": 1,
+      "explanation": "The merchant sets authentication_required and must include authentication_metadata.",
+      "claimIds": [
+        "clm-openai-acp-101"
+      ]
+    },
+    {
+      "id": "openai-acp-q7",
+      "question": "What does the spec return when the same Idempotency-Key arrives with a different body?",
+      "options": [
+        "409 idempotency_in_flight",
+        "400 idempotency_key_required",
+        "422 idempotency_conflict",
+        "200 with Idempotent-Replayed"
+      ],
+      "answer": 2,
+      "explanation": "The spec uses 422 idempotency_conflict; OpenAI's docs say 409.",
+      "claimIds": [
+        "clm-openai-acp-108",
+        "clm-openai-acp-219"
+      ]
+    },
+    {
+      "id": "openai-acp-q8",
+      "question": "How are ACP order webhooks authenticated?",
+      "options": [
+        "Bearer token",
+        "RFC 9421 HTTP Message Signatures",
+        "HMAC-SHA256 in Merchant-Signature",
+        "Mutual TLS only"
+      ],
+      "answer": 2,
+      "explanation": "Merchants sign with HMAC-SHA256 over timestamp, a dot and the raw body.",
+      "claimIds": [
+        "clm-openai-acp-135"
+      ]
+    },
+    {
+      "id": "openai-acp-q9",
+      "question": "What did OpenAI announce on 2026-03-24?",
+      "options": [
+        "A foundation for ACP",
+        "Merchants can use their own checkout and ACP extends to product discovery",
+        "ACP merges with UCP",
+        "A 4 percent fee"
+      ],
+      "answer": 1,
+      "explanation": "OpenAI said the first Instant Checkout lacked flexibility and focused ACP on discovery.",
+      "claimIds": [
+        "clm-openai-acp-177",
+        "clm-openai-acp-178"
+      ]
+    },
+    {
+      "id": "openai-acp-q10",
+      "question": "Where does an ACP seller publish its discovery document?",
+      "options": [
+        "/.well-known/ucp",
+        "/.well-known/acp.json",
+        "/acp/discovery",
+        "/.well-known/agent.json"
+      ],
+      "answer": 1,
+      "explanation": "Discovery lives at /.well-known/acp.json; UCP uses /.well-known/ucp.",
+      "claimIds": [
+        "clm-openai-acp-118",
+        "clm-openai-acp-208"
+      ]
+    }
+  ]
+}
