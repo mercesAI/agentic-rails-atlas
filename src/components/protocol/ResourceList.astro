@@ -1,0 +1,46 @@
+---
+/** Section F: resources grouped with "start here" first; badge, type, date, note and build-time GitHub metadata. */
+import ExternalLink from '../ui/ExternalLink.astro';
+import type { Resource } from '../../lib/schemas';
+import { githubMeta } from './lib/load';
+
+export interface Props {
+  resources: Resource[];
+}
+const TYPE_LABELS: Record<string, string> = {
+  spec: 'Specification', repo: 'Repository', sdk: 'SDK', docs: 'Documentation', announcement: 'Announcement',
+  standard: 'Standards record', analysis: 'Analysis', talk: 'Talk or video', podcast: 'Podcast', tutorial: 'Tutorial',
+  tool: 'Tool or explorer', dataset: 'Dataset', community: 'Community',
+};
+const BADGE_LABELS: Record<string, string> = { official: 'Official', partner: 'Partner', community: 'Community', academic: 'Academic' };
+const resources = [...Astro.props.resources].sort((a, b) => Number(Boolean(b.startHere)) - Number(Boolean(a.startHere)));
+const nf = new Intl.NumberFormat('en-US');
+---
+<ul class="resource-list">
+  {resources.map((r) => {
+    const gh = githubMeta(r.github);
+    return (
+      <li class="resource" data-start-here={r.startHere ? 'true' : undefined}>
+        <p class="resource__title">
+          {r.startHere && <span class="resource__star" title="Start here"><span aria-hidden="true">*</span><span class="sr-only">Start here: </span></span>}
+          <ExternalLink href={r.url}>{r.title}</ExternalLink>
+        </p>
+        <p class="resource__meta">
+          <span class="resource__badge" data-badge={r.badge}>{BADGE_LABELS[r.badge]}</span>
+          <span>{TYPE_LABELS[r.type] ?? r.type}</span>
+          <span>{r.publisher}</span>
+          {r.date && <time datetime={r.date}>{r.date}</time>}
+        </p>
+        <p class="resource__note">{r.note}</p>
+        {gh && (gh.stars !== undefined || gh.lastCommit || gh.latestTag) && (
+          <p class="resource__gh">
+            GitHub snapshot:
+            {gh.stars !== undefined && <> {nf.format(gh.stars)} stars.</>}
+            {gh.lastCommit && <> Last commit <time datetime={gh.lastCommit}>{gh.lastCommit}</time>.</>}
+            {gh.latestTag && <> Latest tag <code>{gh.latestTag}</code>.</>}
+          </p>
+        )}
+      </li>
+    );
+  })}
+</ul>

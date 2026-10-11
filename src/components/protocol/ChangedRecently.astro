@@ -1,0 +1,33 @@
+---
+/** "What changed recently" callout: facts.changedRecently entries from the 6 months before lastVerified. */
+import Callout from '../ui/Callout.astro';
+import Cite from '../ui/Cite.astro';
+import type { FactsFile } from '../../lib/schemas';
+
+export interface Props {
+  items: FactsFile['changedRecently'];
+  lastVerified: string;
+}
+const { items, lastVerified } = Astro.props;
+const end = Date.parse(`${lastVerified}T00:00:00Z`);
+const start = new Date(end);
+start.setUTCMonth(start.getUTCMonth() - 6);
+const from = start.toISOString().slice(0, 10);
+const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+const recent = sorted.filter((i) => i.date >= from);
+const shown = recent.length ? recent : sorted.slice(0, 3);
+---
+<Callout kind="changed" title={`What changed recently (${from} to ${lastVerified})`}>
+  {recent.length === 0 && <p>No dated change is recorded in this window. The latest recorded changes follow.</p>}
+  {shown.length === 0 ? (
+    <p>No recent change is recorded yet.</p>
+  ) : (
+    <ul class="changed-list">
+      {shown.map((i) => (
+        <li>
+          <time datetime={i.date}>{i.date}</time> {i.text} <Cite ids={i.claimIds.join(' ')} />
+        </li>
+      ))}
+    </ul>
+  )}
+</Callout>

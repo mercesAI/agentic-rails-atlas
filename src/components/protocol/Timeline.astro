@@ -1,0 +1,36 @@
+---
+/** Section M: single-lane vertical timeline, newest last, each event dated, sourced and with a confidence. */
+import Cite from '../ui/Cite.astro';
+import ConfidenceBadge from '../ui/ConfidenceBadge.astro';
+import type { TimelineEvent } from '../../lib/schemas';
+
+export interface Props {
+  events: TimelineEvent[];
+}
+const KIND_LABELS: Record<string, string> = {
+  announce: 'Announcement',
+  release: 'Release',
+  governance: 'Governance',
+  launch: 'Launch',
+  pilot: 'Pilot',
+  security: 'Security',
+  policy: 'Policy',
+  market: 'Market',
+  prehistory: 'Prehistory',
+};
+const events = [...Astro.props.events].sort((a, b) => a.date.localeCompare(b.date));
+---
+<ol class="timeline">
+  {events.map((e) => (
+    <li class="timeline__item" data-kind={e.kind}>
+      <span class="timeline__dot" aria-hidden="true"></span>
+      <div class="timeline__head">
+        <time datetime={e.date} class="timeline__date">{e.date}</time>
+        <span class="timeline__kind">{KIND_LABELS[e.kind] ?? e.kind}</span>
+        <ConfidenceBadge confidence={e.confidence} compact />
+      </div>
+      <p class="timeline__title">{e.title} <Cite ids={e.sources.join(' ')} /></p>
+      {e.detail && <p class="timeline__detail">{e.detail}</p>}
+    </li>
+  ))}
+</ol>

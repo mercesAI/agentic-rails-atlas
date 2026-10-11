@@ -1,0 +1,14 @@
+---
+/** "Not to be confused with" callout from meta.disambiguation (ATLAS_PROMPT.md Appendix D). */
+import Callout from '../ui/Callout.astro';
+
+export interface Props {
+  notes?: string[];
+}
+const { notes = [] } = Astro.props;
+---
+{notes.length > 0 && (
+  <Callout kind="disambiguation">
+    {notes.length === 1 ? <p>{notes[0]}</p> : <ul>{notes.map((n) => <li>{n}</li>)}</ul>}
+  </Callout>
+)}

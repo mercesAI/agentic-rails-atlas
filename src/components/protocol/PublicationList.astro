@@ -1,0 +1,71 @@
+---
+/**
+ * Section G: publications whose `protocols` include this slug, grouped by
+ * relation and theme; grey literature in its own list; BibTeX copy buttons.
+ */
+import ExternalLink from '../ui/ExternalLink.astro';
+import type { Publication } from '../../lib/schemas';
+
+export interface Props {
+  publications: Publication[];
+  name: string;
+  lastVerified: string;
+}
+const { publications, name, lastVerified } = Astro.props;
+const GROUPS = [
+  { id: 'direct', title: 'Directly about this protocol' },
+  { id: 'related', title: 'Closely related mechanisms' },
+  { id: 'foundation', title: 'Foundations' },
+  { id: 'security', title: 'Security' },
+  { id: 'economics', title: 'Economics and markets' },
+  { id: 'law', title: 'Law and governance' },
+] as const;
+const has = (p: Publication, words: string[]) => p.themes.some((t) => words.some((w) => t.toLowerCase().includes(w)));
+const groupOf = (p: Publication): string => {
+  if (p.relation === 'direct') return 'direct';
+  if (has(p, ['security', 'attack', 'threat', 'privacy'])) return 'security';
+  if (has(p, ['economic', 'market', 'pricing', 'micropayment-economics'])) return 'economics';
+  if (has(p, ['law', 'legal', 'governance', 'policy', 'regulation'])) return 'law';
+  return p.relation === 'foundation' ? 'foundation' : 'related';
+};
+const sortPubs = (a: Publication, b: Publication) => b.year - a.year || a.title.localeCompare(b.title);
+const papers = publications.filter((p) => p.relation !== 'grey');
+const grey = publications.filter((p) => p.relation === 'grey').sort(sortPubs);
+const grouped = GROUPS.map((g) => ({ ...g, items: papers.filter((p) => groupOf(p) === g.id).sort(sortPubs) })).filter((g) => g.items.length);
+const hasDirect = papers.some((p) => p.relation === 'direct');
+const authors = (a: string[]) => (a.length > 3 ? `${a.slice(0, 3).join(', ')} and others` : a.join(', '));
+---
+{!hasDirect && (
+  <p class="pub-none">
+    As of {lastVerified}, no verified paper names {name} directly. The closest work follows.
+  </p>
+)}
+{publications.length === 0 && <p>No verified publication is tagged with this protocol yet.</p>}
+{[...grouped, ...(grey.length ? [{ id: 'grey', title: 'Grey literature: central banks, standards drafts and white papers', items: grey }] : [])].map((g) => (
+  <div class="pub-group" data-group={g.id}>
+    <h3 id={`g-publications-${g.id}`}>{g.title}</h3>
+    <ol class="pub-list">
+      {g.items.map((p) => (
+        <li class="pub" id={p.id}>
+          <p class="pub__title"><ExternalLink href={p.url}>{p.title}</ExternalLink></p>
+          <p class="pub__meta">
+            {authors(p.authors)}. {p.year}.{p.venue && <> <em>{p.venue}</em>.</>}
+            {' '}<span class="pub__flag">{p.peerReviewed ? 'Peer reviewed' : 'Not peer reviewed'}</span>
+            {p.arxiv && <> <a href={`https://arxiv.org/abs/${p.arxiv}`} rel="noopener noreferrer external">arXiv {p.arxiv}<span class="sr-only"> (open access, external link)</span></a></>}
+            {p.doi && <> <a href={`https://doi.org/${p.doi}`} rel="noopener noreferrer external">DOI {p.doi}<span class="sr-only"> (external link)</span></a></>}
+          </p>
+          <p class="pub__summary">{p.summary}</p>
+          <p class="pub__why"><strong>Why it matters here:</strong> {p.whyItMatters}</p>
+          <p class="pub__verified">Metadata verified {p.verifiedAt} through {p.verifiedVia}.</p>
+          <div class="pub__bib">
+            <button type="button" class="btn btn--ghost no-print" data-copy-target={`bib-${p.id}`}>Copy BibTeX<span class="sr-only"> for {p.title}</span></button>
+            <details>
+              <summary>Show BibTeX</summary>
+              <pre id={`bib-${p.id}`}><code>{p.bibtex}</code></pre>
+            </details>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+))}

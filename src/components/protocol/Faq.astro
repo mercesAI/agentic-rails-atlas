@@ -1,0 +1,17 @@
+---
+/** Section Q: questions as details elements; misconceptions are labeled. */
+import Cite from '../ui/Cite.astro';
+
+export interface Props {
+  items: { q: string; a: string; misconception?: boolean; claimIds: string[] }[];
+}
+const { items } = Astro.props;
+---
+<div class="faq">
+  {items.map((it) => (
+    <details class="faq__item" data-misconception={it.misconception ? 'true' : undefined}>
+      <summary>{it.misconception && <span class="faq__tag">Misconception</span>}{it.q}</summary>
+      <div class="faq__a"><p>{it.a} <Cite ids={it.claimIds.join(' ')} /></p></div>
+    </details>
+  ))}
+</div>

@@ -1,0 +1,42 @@
+---
+/** Section E: persona cards (role, goals, pains, implements, must trust, questions, first steps, metrics, story). */
+import Cite from '../ui/Cite.astro';
+import type { Persona, PersonasFile } from '../../lib/schemas';
+
+export interface Props {
+  personas: PersonasFile['personas'];
+  catalogue: Map<string, Persona>;
+}
+const { personas, catalogue } = Astro.props;
+---
+<div class="persona-grid">
+  {personas.map((p) => {
+    const global = catalogue.get(p.persona);
+    return (
+      <article class="persona-card" aria-labelledby={`persona-${p.persona}`}>
+        <header class="persona-card__head">
+          <h3 id={`persona-${p.persona}`}>{global?.name ?? p.persona}</h3>
+          <p class="persona-card__role">{p.role} <Cite ids={p.sources.join(' ')} /></p>
+        </header>
+        <div class="persona-card__cols">
+          <div><h4>Goals</h4><ul>{p.goals.map((g) => <li>{g}</li>)}</ul></div>
+          <div><h4>Pains</h4><ul>{p.pains.map((g) => <li>{g}</li>)}</ul></div>
+          <div><h4>Implements</h4><ul>{p.implements.map((g) => <li>{g}</li>)}</ul></div>
+          <div><h4>Must trust</h4><ul>{p.mustTrust.map((g) => <li>{g}</li>)}</ul></div>
+        </div>
+        <details class="persona-card__more">
+          <summary>Questions, first steps, metrics and a day in the life</summary>
+          <h4>Questions they ask</h4>
+          <ul>{p.questions.map((g) => <li>{g}</li>)}</ul>
+          <h4>First three steps</h4>
+          <ol>{p.firstSteps.map((g) => <li>{g}</li>)}</ol>
+          <h4>Metrics they care about</h4>
+          <ul>{p.metrics.map((g) => <li>{g}</li>)}</ul>
+          <h4>A day in the life</h4>
+          <p class="persona-card__story">{p.story}</p>
+        </details>
+        <p class="persona-card__link"><a href={`/personas/${p.persona}/`}>All protocols from this seat</a></p>
+      </article>
+    );
+  })}
+</div>

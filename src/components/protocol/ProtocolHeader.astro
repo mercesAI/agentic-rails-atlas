@@ -1,0 +1,61 @@
+---
+/**
+ * Protocol page header (ARCHITECTURE.md Section 5): monogram, name, tagline,
+ * stewards, status, latest version, "State as of" with freshness, rails and
+ * layer chips, reading-mode switch, jump chips for every section. The root
+ * carries transition:name bubble-<slug> so the home bubble morphs into it.
+ */
+import Monogram from '../ui/Monogram.astro';
+import StatusDot from '../ui/StatusDot.astro';
+import FreshnessBadge from '../ui/FreshnessBadge.astro';
+import Chip from '../ui/Chip.astro';
+import ReadingModeSwitch from '../islands/ReadingModeSwitch';
+import { LAYER_LABELS, SECTION_IDS, SECTION_TITLES, type ProtocolMeta } from '../../lib/schemas';
+import { RAIL_LABELS } from './labels';
+
+export interface Props {
+  meta: ProtocolMeta;
+}
+const { meta } = Astro.props;
+const layers = [meta.layerPrimary, ...meta.layersSecondary.filter((l) => l !== meta.layerPrimary)];
+---
+<header class="proto-header" data-family={meta.family} transition:name={`bubble-${meta.slug}`}>
+  <div class="proto-header__top">
+    <Monogram label={meta.monogram} family={meta.family} size="lg" />
+    <div class="proto-header__titles">
+      <p class="proto-header__eyebrow">Protocol {meta.order} of 8</p>
+      <h1 class="proto-header__name">{meta.name}</h1>
+      <p class="proto-header__tagline">{meta.tagline}</p>
+    </div>
+  </div>
+  <dl class="proto-header__facts">
+    <div><dt>Stewards</dt><dd>{meta.stewards.join(', ')}</dd></div>
+    <div><dt>Status</dt><dd><StatusDot status={meta.status} note={meta.statusNote} />{meta.statusNote && <span class="proto-header__note"> {meta.statusNote}</span>}</dd></div>
+    <div><dt>Latest version</dt><dd>{meta.latestVersion.label}, <time datetime={meta.latestVersion.date}>{meta.latestVersion.date}</time></dd></div>
+    <div><dt>State as of</dt><dd><time datetime={meta.lastVerified}>{meta.lastVerified}</time> <FreshnessBadge date={meta.lastVerified} /></dd></div>
+  </dl>
+  <div class="proto-header__chips">
+    <ul class="chip-row" aria-label="Rails">
+      {meta.rails.map((r) => <li><Chip rail={r}>{RAIL_LABELS[r]}</Chip></li>)}
+    </ul>
+    <ul class="chip-row" aria-label="Layers">
+      {layers.map((l, i) => <li><Chip family={i === 0 ? meta.family : undefined}>{LAYER_LABELS[l]}{i === 0 && <span class="sr-only"> (primary layer)</span>}</Chip></li>)}
+    </ul>
+  </div>
+  <div class="proto-header__mode no-print">
+    <span class="proto-header__mode-label" id="mode-label">Reading mode</span>
+    <ReadingModeSwitch client:load />
+  </div>
+  <nav class="jump no-print" aria-label="Jump to section">
+    <ul class="jump__list">
+      {SECTION_IDS.map((id) => (
+        <li>
+          <a class="jump__chip" href={`#${id}`} title={SECTION_TITLES[id]} data-jump={id}>
+            <span aria-hidden="true">{id.charAt(0).toUpperCase()}</span>
+            <span class="sr-only">{id.charAt(0).toUpperCase()}. {SECTION_TITLES[id]}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>

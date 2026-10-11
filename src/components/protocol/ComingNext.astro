@@ -1,0 +1,13 @@
+---
+/** Card shown in section O when the playground is not ready yet. */
+export interface Props {
+  name: string;
+  note?: string;
+}
+const { name, note } = Astro.props;
+---
+<div class="coming-next">
+  <p class="coming-next__label"><span class="coming-next__mark" aria-hidden="true"></span>Coming next</p>
+  <p>{note ?? `A client-side simulation of ${name} is planned for this section.`}</p>
+  <p class="coming-next__fine">Every playground on this site is a simulation: no real funds, no wallet connection, keys generated in your browser on test chain identifiers or fixture data.</p>
+</div>

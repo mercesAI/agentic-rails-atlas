@@ -1,0 +1,33 @@
+---
+/** Section E: responsibility table. Rows are steps or objects, columns are personas; marks are words, not colors. */
+import type { Persona, PersonasFile } from '../../lib/schemas';
+import { PERSONA_MARK_LABELS } from './labels';
+
+export interface Props {
+  table: PersonasFile['responsibilities'];
+  catalogue: Map<string, Persona>;
+}
+const { table, catalogue } = Astro.props;
+---
+<div class="table-wrap resp-table" role="region" aria-labelledby="resp-caption" tabindex="0">
+  <table>
+    <caption id="resp-caption">Who does what</caption>
+    <thead>
+      <tr>
+        <th scope="col">Step or object</th>
+        {table.columns.map((c) => <th scope="col">{catalogue.get(c)?.name ?? c}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {table.rows.map((r) => (
+        <tr>
+          <th scope="row">{r.step}</th>
+          {table.columns.map((c) => {
+            const mark = r.marks[c] ?? '';
+            return <td data-mark={mark || undefined}>{mark ? PERSONA_MARK_LABELS[mark] ?? mark : <span class="sr-only">No role</span>}</td>;
+          })}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

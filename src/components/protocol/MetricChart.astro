@@ -1,0 +1,114 @@
+---
+/**
+ * Small plain-SVG line chart for section L (ecosystem.chart). Labeled axes,
+ * a source line, one palette from tokens (the four family fills in fixed
+ * order, starting with the protocol's own family), dash patterns and marker
+ * shapes as a second channel, a legend for two or more series and a table view.
+ */
+import { FAMILIES, type EcosystemFile, type Family } from '../../lib/schemas';
+
+export interface Props {
+  chart: NonNullable<EcosystemFile['chart']>;
+  family: Family;
+}
+const { chart, family } = Astro.props;
+const FILL_VAR: Record<Family, string> = {
+  'identity-trust': 'var(--family-identity-fill)',
+  'authorization-intent': 'var(--family-authorization-fill)',
+  'checkout-orders': 'var(--family-checkout-fill)',
+  'payment-execution': 'var(--family-payment-fill)',
+};
+const order = [family, ...FAMILIES.filter((f) => f !== family)];
+const DASHES = ['', '6 4', '2 4', '10 4 2 4'];
+
+const W = 640;
+const H = 300;
+const m = { top: 20, right: 24, bottom: 48, left: 64 };
+const iw = W - m.left - m.right;
+const ih = H - m.top - m.bottom;
+const series = chart.series.slice(0, 4).map((s, i) => ({
+  ...s,
+  color: FILL_VAR[order[i] ?? family],
+  dash: DASHES[i] ?? '',
+  points: [...s.points].sort((a, b) => a.date.localeCompare(b.date)),
+}));
+const all = series.flatMap((s) => s.points);
+const t = (d: string) => Date.parse(`${d}T00:00:00Z`);
+const tMin = all.length ? Math.min(...all.map((p) => t(p.date))) : 0;
+const tMax = all.length ? Math.max(...all.map((p) => t(p.date))) : 1;
+const vMax = all.length ? Math.max(...all.map((p) => p.value), 0) : 1;
+const niceMax = (() => {
+  if (vMax <= 0) return 1;
+  const mag = 10 ** Math.floor(Math.log10(vMax));
+  const step = [1, 2, 2.5, 5, 10].find((s) => s * mag * 4 >= vMax) ?? 10;
+  return step * mag * 4;
+})();
+const x = (d: string) => m.left + (tMax === tMin ? iw / 2 : ((t(d) - tMin) / (tMax - tMin)) * iw);
+const y = (v: number) => m.top + ih - (v / niceMax) * ih;
+const fmt = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
+const yTicks = [0, 1, 2, 3, 4].map((i) => (niceMax / 4) * i);
+const dates = [...new Set(all.map((p) => p.date))].sort();
+const xTicks = dates.length <= 4 ? dates : [dates[0]!, dates[Math.floor(dates.length / 2)]!, dates[dates.length - 1]!];
+const titleId = `chart-${chart.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+---
+<figure class="metric-chart">
+  <figcaption id={titleId} class="metric-chart__title">{chart.title} <span class="metric-chart__unit">({chart.unit})</span></figcaption>
+  {series.length > 1 && (
+    <ul class="metric-chart__legend">
+      {series.map((s) => (
+        <li><svg width="28" height="10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke={s.color} stroke-width="2" stroke-dasharray={s.dash} /></svg>{s.label}</li>
+      ))}
+    </ul>
+  )}
+  <svg viewBox={`0 0 ${W} ${H}`} class="metric-chart__svg" role="img" aria-labelledby={titleId}>
+    {yTicks.map((v) => (
+      <g>
+        <line x1={m.left} x2={W - m.right} y1={y(v)} y2={y(v)} class="metric-chart__grid" />
+        <text x={m.left - 8} y={y(v)} text-anchor="end" dominant-baseline="central" class="metric-chart__tick">{fmt.format(v)}</text>
+      </g>
+    ))}
+    <line x1={m.left} x2={W - m.right} y1={m.top + ih} y2={m.top + ih} class="metric-chart__axis" />
+    {xTicks.map((d) => (
+      <text x={x(d)} y={m.top + ih + 18} text-anchor="middle" class="metric-chart__tick">{d}</text>
+    ))}
+    <text x={m.left + iw / 2} y={H - 6} text-anchor="middle" class="metric-chart__axis-label">Date</text>
+    <text transform={`translate(14 ${m.top + ih / 2}) rotate(-90)`} text-anchor="middle" class="metric-chart__axis-label">{chart.unit}</text>
+    {series.map((s, i) => (
+      <g>
+        {s.points.length > 1 && (
+          <polyline
+            points={s.points.map((p) => `${x(p.date)},${y(p.value)}`).join(' ')}
+            fill="none"
+            stroke={s.color}
+            stroke-width="2"
+            stroke-dasharray={s.dash}
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+        )}
+        {s.points.map((p) =>
+          i % 2 === 0 ? (
+            <circle cx={x(p.date)} cy={y(p.value)} r="4.5" fill={s.color} class="metric-chart__mark"><title>{s.label}, {p.date}: {fmt.format(p.value)} {chart.unit}</title></circle>
+          ) : (
+            <rect x={x(p.date) - 4.5} y={y(p.value) - 4.5} width="9" height="9" fill={s.color} class="metric-chart__mark"><title>{s.label}, {p.date}: {fmt.format(p.value)} {chart.unit}</title></rect>
+          ),
+        )}
+        {series.length <= 4 && s.points.length > 0 && (
+          <text x={Math.min(x(s.points[s.points.length - 1]!.date) + 8, W - m.right)} y={y(s.points[s.points.length - 1]!.value) - 10} text-anchor="end" class="metric-chart__direct">{fmt.format(s.points[s.points.length - 1]!.value)}</text>
+        )}
+      </g>
+    ))}
+  </svg>
+  <p class="metric-chart__source">Source: {chart.sourceLine}</p>
+  <details class="metric-chart__table">
+    <summary>Show the data as a table</summary>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Series</th><th scope="col">Date</th><th scope="col">Value ({chart.unit})</th></tr></thead>
+        <tbody>
+          {series.flatMap((s) => s.points.map((p) => <tr><td>{s.label}</td><td>{p.date}</td><td>{p.value.toLocaleString('en-US')}</td></tr>))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+</figure>

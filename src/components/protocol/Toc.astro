@@ -1,0 +1,33 @@
+---
+/**
+ * Sticky left table of contents with read progress. The page script
+ * (lib/reader.ts) marks the section in view (aria-current) and read sections
+ * (data-read), stored in atlas:read:<slug>.
+ */
+import { SECTION_IDS, SECTION_TITLES } from '../../lib/schemas';
+
+export interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+<nav class="toc no-print" aria-labelledby="toc-h" data-toc={slug}>
+  <h2 id="toc-h" class="rail-title">On this page</h2>
+  <p class="toc__progress">
+    <span class="toc__bar" aria-hidden="true"><span class="toc__fill" data-toc-fill></span></span>
+    <span data-toc-count>0 of {SECTION_IDS.length} sections read</span>
+  </p>
+  <ol class="toc__list">
+    {SECTION_IDS.map((id) => (
+      <li>
+        <a href={`#${id}`} class="toc__link" data-toc-link={id}>
+          <span class="toc__dot" aria-hidden="true"></span>
+          <span class="toc__letter">{id.charAt(0).toUpperCase()}</span>
+          <span class="toc__title">{SECTION_TITLES[id]}</span>
+          <span class="sr-only toc__read-label" data-read-label></span>
+        </a>
+      </li>
+    ))}
+  </ol>
+  <button type="button" class="link-btn toc__reset" data-toc-reset>Clear read marks</button>
+</nav>

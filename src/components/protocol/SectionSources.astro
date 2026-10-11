@@ -1,0 +1,39 @@
+---
+/**
+ * Right-rail list of the sources cited in the section in view. One list per
+ * section is rendered at build time; the page script shows the active one.
+ */
+import { SECTION_IDS, SECTION_TITLES, type SectionId } from '../../lib/schemas';
+import { getPageContext, numberFor } from '../../lib/citations';
+
+export interface Props {
+  page: string;
+  sectionSources: Record<SectionId, string[]>;
+}
+const { page, sectionSources } = Astro.props;
+const ctx = getPageContext(page);
+const lists = SECTION_IDS.map((id) => {
+  const ids = sectionSources[id] ?? [];
+  const items = ctx
+    ? ids.map((sid) => ({ n: numberFor(sid, ctx), title: ctx.sources.get(sid)?.title ?? sid })).sort((a, b) => a.n - b.n)
+    : [];
+  return { id, items };
+});
+---
+<section class="sec-sources" aria-labelledby="sec-sources-h" data-section-sources-root>
+  <h2 id="sec-sources-h" class="rail-title">Sources in this section</h2>
+  {lists.map(({ id, items }, i) => (
+    <div data-section-sources={id} hidden={i !== 0}>
+      <p class="sec-sources__name">{id.charAt(0).toUpperCase()}. {SECTION_TITLES[id]}</p>
+      {items.length === 0 ? (
+        <p class="sec-sources__empty">No sources cited in this section.</p>
+      ) : (
+        <ol class="sec-sources__list">
+          {items.map((it) => (
+            <li><a href={`#src-${it.n}`} data-cite-ref={it.n}><span class="sec-sources__n">[{it.n}]</span> {it.title}</a></li>
+          ))}
+        </ol>
+      )}
+    </div>
+  ))}
+</section>

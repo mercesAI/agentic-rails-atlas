@@ -1,0 +1,27 @@
+---
+/** Right-rail summary card. The sourced key facts table lives in section A. */
+import StatusDot from '../ui/StatusDot.astro';
+import FreshnessBadge from '../ui/FreshnessBadge.astro';
+import { FAMILY_LABELS, LAYER_LABELS, type ProtocolMeta } from '../../lib/schemas';
+import { RAIL_LABELS } from './labels';
+
+export interface Props {
+  meta: ProtocolMeta;
+}
+const { meta } = Astro.props;
+---
+<section class="kf-card" aria-labelledby="kf-card-h" data-family={meta.family}>
+  <h2 id="kf-card-h" class="rail-title">Key facts</h2>
+  <dl class="kf-card__list">
+    <div><dt>Stewards</dt><dd>{meta.stewards.join(', ')}</dd></div>
+    <div><dt>Status</dt><dd><StatusDot status={meta.status} note={meta.statusNote} /></dd></div>
+    <div><dt>Latest version</dt><dd>{meta.latestVersion.label} <span class="kf-card__date">({meta.latestVersion.date})</span></dd></div>
+    <div><dt>First announced</dt><dd>{meta.firstAnnounced}</dd></div>
+    <div><dt>Family</dt><dd>{FAMILY_LABELS[meta.family]}</dd></div>
+    <div><dt>Primary layer</dt><dd>{LAYER_LABELS[meta.layerPrimary]}</dd></div>
+    <div><dt>Rails</dt><dd>{meta.rails.map((r) => RAIL_LABELS[r]).join(', ')}</dd></div>
+    <div><dt>License</dt><dd>{meta.license.spec}{meta.license.code ? `; code ${meta.license.code}` : ''}</dd></div>
+  </dl>
+  <p class="kf-card__fresh"><FreshnessBadge date={meta.lastVerified} /></p>
+  <p class="kf-card__more"><a href="#a-tldr">Sourced key facts table</a></p>
+</section>

@@ -1,0 +1,59 @@
+---
+/** Section N: SDK snippets labeled with SDK name, version and side, linked to their docs; plus local labs. */
+import { Code } from 'astro:components';
+import { bundledLanguages } from 'shiki';
+import Cite from '../ui/Cite.astro';
+import ExternalLink from '../ui/ExternalLink.astro';
+
+interface Snippet {
+  title: string;
+  sdk: string;
+  version: string;
+  language: string;
+  side: string;
+  code: string;
+  docsUrl: string;
+  note?: string;
+  sources: string[];
+}
+export interface Props {
+  snippets: Snippet[];
+  labs: { title: string; path: string; status: 'ready' | 'planned' }[];
+}
+const { snippets, labs } = Astro.props;
+const SIDE_LABELS: Record<string, string> = { client: 'Client side', server: 'Server side', contract: 'Contract', cli: 'Command line', other: 'Other' };
+type Lang = keyof typeof bundledLanguages;
+const langOf = (l: string): Lang | 'plaintext' => {
+  const k = l.toLowerCase();
+  return k in bundledLanguages ? (k as Lang) : 'plaintext';
+};
+---
+<div class="code-blocks">
+  {snippets.map((s) => (
+    <figure class="code-block">
+      <figcaption class="code-block__head">
+        <span class="code-block__title">{s.title}</span>
+        <span class="code-block__labels">
+          <span class="code-block__label">{s.sdk} {s.version}</span>
+          <span class="code-block__label">{SIDE_LABELS[s.side] ?? s.side}</span>
+          <span class="code-block__label">{s.language}</span>
+        </span>
+      </figcaption>
+      <Code code={s.code} lang={langOf(s.language)} themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
+      <p class="code-block__foot">
+        {s.note && <>{s.note} </>}
+        <ExternalLink href={s.docsUrl}>{s.sdk} documentation</ExternalLink> <Cite ids={s.sources.join(' ')} />
+      </p>
+    </figure>
+  ))}
+  {labs.length > 0 && (
+    <div class="labs">
+      <h3 id="n-code-labs">Local labs</h3>
+      <ul>
+        {labs.map((l) => (
+          <li><strong>{l.title}</strong>: <code>{l.path}</code> ({l.status === 'ready' ? 'ready' : 'planned'})</li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>

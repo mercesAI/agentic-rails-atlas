@@ -1,0 +1,17 @@
+---
+/** Section R: open questions with context and sources. */
+import Cite from '../ui/Cite.astro';
+
+export interface Props {
+  items: { question: string; context: string; sources: string[] }[];
+}
+const { items } = Astro.props;
+---
+<ol class="open-q">
+  {items.map((it) => (
+    <li class="open-q__item">
+      <p class="open-q__q">{it.question}</p>
+      <p class="open-q__ctx">{it.context} {it.sources.length > 0 && <Cite ids={it.sources.join(' ')} />}</p>
+    </li>
+  ))}
+</ol>

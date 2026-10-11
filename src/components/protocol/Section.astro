@@ -1,0 +1,28 @@
+---
+/**
+ * One lettered section of the protocol page (ARCHITECTURE.md Section 5).
+ * Always renders <section id data-section aria-labelledby> and the lettered h2,
+ * even when its data file is missing, so the coverage checker reports gaps.
+ */
+import { SECTION_TITLES, type SectionId } from '../../lib/schemas';
+import InProgress from './InProgress.astro';
+
+export interface Props {
+  id: SectionId;
+  /** Path of the missing data file; renders the "in progress" placeholder instead of the slot. */
+  missing?: string | false | null;
+  class?: string;
+}
+const { id, missing, class: className } = Astro.props;
+const letter = id.charAt(0).toUpperCase();
+---
+<section
+  id={id}
+  data-section
+  aria-labelledby={`${id}-h`}
+  class:list={['psec', className]}
+  data-state={missing ? 'in-progress' : undefined}
+>
+  <h2 id={`${id}-h`} class="psec__h"><span class="psec__letter">{letter}.</span> {SECTION_TITLES[id]}</h2>
+  {missing ? <InProgress file={missing} /> : <slot />}
+</section>

@@ -1,0 +1,57 @@
+---
+/**
+ * Footer numbered source list. Item N carries id="src-N" so `<Cite>` markers
+ * and the citation drawer can link to it. Unknown ids still get a numbered row.
+ */
+import ExternalLink from '../ui/ExternalLink.astro';
+import { getPageContext } from '../../lib/citations';
+
+export interface Props {
+  page: string;
+}
+const { page } = Astro.props;
+const ctx = getPageContext(page);
+const order = ctx?.order ?? [];
+const TYPE_LABELS: Record<string, string> = {
+  spec: 'Specification',
+  repo: 'Repository',
+  docs: 'Documentation',
+  announcement: 'Announcement',
+  standard: 'Standard',
+  paper: 'Paper',
+  news: 'News',
+  analysis: 'Analysis',
+  dataset: 'Dataset',
+  video: 'Video',
+  other: 'Other',
+};
+---
+<section class="source-list" id="sources" aria-labelledby="sources-h">
+  <h2 id="sources-h">Sources</h2>
+  {order.length === 0 ? (
+    <p>No sources are attached to this page yet.</p>
+  ) : (
+    <ol class="source-list__items">
+      {order.map((id, i) => {
+        const s = ctx?.sources.get(id);
+        return (
+          <li id={`src-${i + 1}`} data-source-id={id}>
+            {s ? (
+              <>
+                <ExternalLink href={s.url}>{s.title}</ExternalLink>
+                <span class="source-list__meta">
+                  {s.publisher}. {TYPE_LABELS[s.type] ?? s.type}{s.primary ? ', primary source' : ''}.
+                  {s.published && <> Published <time datetime={s.published}>{s.published}</time>.</>}
+                  {' '}Accessed <time datetime={s.accessed}>{s.accessed}</time>.
+                  {s.archiveUrl && <> <a href={s.archiveUrl} rel="noopener noreferrer external">Archived copy<span class="sr-only"> (external link)</span></a>.</>}
+                </span>
+              </>
+            ) : (
+              <span class="source-list__missing">Source record <code>{id}</code> is missing from the registry.</span>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  )}
+</section>
