@@ -22,3 +22,16 @@ Corrections to the seed facts in `ATLAS_PROMPT.md`, from `ATLAS_FOLLOWUP.md` Sec
 | 2.1.16 | STE rule 2.2 "then simplify" | "then make it clear" | research/ste.md | STE guide |
 | 2.2 | 13 unsupported items | verified, tagged reported, or removed per item | see follow-up | per item |
 | 2.3 | 7 internal inconsistencies | fixed per item (proofOfPayment off-chain; a2a-x402 targets AP2 v0.1; constraint key prefixes; closed Payment Mandate fields from schema; orbit links; MPP mention agreement) | see follow-up | per item |
+
+## Found during research (session 2), beyond the follow-up
+
+| # | Earlier text said | Correct | Source | Files |
+|---|---|---|---|---|
+| R1 | Scenario 3 (follow-up wording): "a Google Pay handler that returns a network token" | Google's UCP FAQ says UCP checkout on Google surfaces uses only `PAN_ONLY` for Google Pay `allowed_auth_methods`; a network-token path through that handler is not documented for Google surfaces | developers.google.com/merchant/ucp/faq | scenarios/shopper-in-gemini, ucp |
+| R2 | UCP capabilities versioned independently since 2026-08-25 | core `dev.ucp.*` capabilities carry the release date; only third-party extensions version independently | UCP v2026-08-25 schemas | ucp |
+| R3 | UCP ES256 "mandatory" | verifiers must support ES256; ES384 and EdDSA optional | UCP spec | ucp |
+| R4 | "No paper names UCP"; "no UCP conference talk" | arXiv 2606.05043 models UCP checkout and 2602.06345 names UCP in its abstract; UCP sessions at the W3C and GS1 workshop on 2026-09-08 | arXiv; workshop page | ucp section G and F |
+| R5 | UCP "converging with ACP" | no source supports convergence; only "no bridge" is supported | ucp dossier | ucp, openai-acp |
+| R6 | Follow-up 2.1.13: only npm `x402` and `x402-express` are V1 legacy | six npm legacy packages are V1 (`x402`, `x402-axios`, `x402-express`, `x402-fetch`, `x402-hono`, `x402-next`); PyPI `x402` 2.x is V2 | x402 repo `typescript/packages/legacy/` | x402 |
+| R7 | Follow-up Appendix B: PayAI 1,000 free settlements per month | the cited secondary source says 1,000 free in total; unverified on PayAI's page | Wavect 2026-07-12 | x402 costs |
+| R8 | "No AP2 podcast found" | The Agent Factory Podcast episode on agent payments (Google Cloud Tech, 2025-09) linked from the AP2 README | AP2 README | ap2 resources |
