@@ -22,6 +22,12 @@ export interface Props {
   generatedFrom?: string;
   /** Heading level for the title. */
   level?: 3 | 4;
+  /**
+   * Keep the SVG in an inert <template> until the figure nears the viewport
+   * (default true). Mermaid SVGs hold thousands of nodes; this keeps the live
+   * DOM small. Printing and no-JS fall back to the inline SVG.
+   */
+  lazy?: boolean;
 }
 
 const SVGS = import.meta.glob<string>('/src/generated/diagrams/*.svg', { query: '?raw', import: 'default' });
@@ -37,6 +43,7 @@ const caption = p.caption ?? meta?.caption;
 const alt = p.alt ?? meta?.alt;
 const sot = p.sourceOfTruth ?? meta?.sourceOfTruth;
 const Level = p.level === 4 ? 'h4' : 'h3';
+const lazy = p.lazy ?? true;
 
 const load = async (key: string, table: Record<string, () => Promise<string>>) => {
   const fn = table[key];
@@ -53,8 +60,29 @@ const domId = `diagram-${p.id}`;
 <figure class="diagram-figure" id={domId} data-diagram={p.id} data-rendered={rendered ? 'true' : 'false'}>
   <Level class="diagram-figure__title" id={`${domId}-title`}>{title}</Level>
   {rendered ? (
-    <div class="diagram-figure__canvas" role="img" aria-labelledby={`${domId}-title`} aria-describedby={caption ? `${domId}-cap` : undefined}>
-      {light && dark ? (
+    <div
+      class="diagram-figure__canvas"
+      role="img"
+      aria-labelledby={`${domId}-title`}
+      aria-describedby={caption ? `${domId}-cap` : undefined}
+      data-lazy-diagram={lazy ? '' : undefined}
+    >
+      {lazy ? (
+        <>
+          <template>
+            {light && dark ? (
+              <>
+                <div class="diagram" data-theme-variant="light" set:html={light} />
+                <div class="diagram" data-theme-variant="dark" set:html={dark} />
+              </>
+            ) : (
+              <div class="diagram" set:html={light ?? dark} />
+            )}
+          </template>
+          <p class="diagram-figure__loading">Diagram loads when it scrolls into view.</p>
+          <noscript><p class="diagram-figure__note">Turn on JavaScript to see this diagram, or read the text alternative below.</p></noscript>
+        </>
+      ) : light && dark ? (
         <>
           <div class="diagram" data-theme-variant="light" set:html={light} />
           <div class="diagram" data-theme-variant="dark" set:html={dark} />
@@ -84,3 +112,34 @@ const domId = `diagram-${p.id}`;
     </p>
   </figcaption>
 </figure>
+
+<script>
+  // Swaps each lazy diagram's <template> into the live DOM near the viewport, and all of them before printing.
+  const reveal = (el: Element) => {
+    const tpl = el.querySelector(':scope > template');
+    if (!(tpl instanceof HTMLTemplateElement)) return;
+    el.replaceChildren(tpl.content.cloneNode(true));
+    el.removeAttribute('data-lazy-diagram');
+  };
+  const revealAll = () => document.querySelectorAll('[data-lazy-diagram]').forEach(reveal);
+  let io: IntersectionObserver | undefined;
+  document.addEventListener('astro:page-load', () => {
+    io?.disconnect();
+    const items = document.querySelectorAll('[data-lazy-diagram]');
+    if (!items.length) return;
+    if (!('IntersectionObserver' in window)) return revealAll();
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            reveal(e.target);
+            io?.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: '800px 0px' },
+    );
+    items.forEach((el) => io?.observe(el));
+  });
+  window.addEventListener('beforeprint', revealAll);
+</script>
