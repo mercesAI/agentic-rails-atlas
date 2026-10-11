@@ -311,9 +311,58 @@ Mastercard describes four capabilities (credentialing with VI, permissioning wit
 
 ## Transports
 
+- **Agent to merchant web traffic:** ordinary HTTPS requests carrying RFC 9421 `Signature-Input` and `Signature` headers (Web Bot Auth pattern); verification can happen at the CDN or in the merchant backend [src-mcap-dev-level1] [src-mcap-cloudflare-blog] [src-mcap-rfc9421].
+- **Card data at Level 1 and 2:** existing HTML checkout forms; tokens are typed into card number, expiry and security code fields [src-mcap-dev-level1] [src-mcap-dev-mvct].
+- **Level 3:** merchant agentic API endpoints that receive tokens and intent objects in the request body; Mastercard gives no endpoint paths [src-mcap-dev-level3].
+- **Network:** standard card authorization messages through acquirer, network and issuer; the network adds agent information for issuers (stated by Stripe for agentic network tokens; Mastercard says transactions are recognizable to all parties) [src-mcap-stripe-spt-2026] [src-mcap-launch-2025]. No public field or data element name for the agent flag was found.
+- **Via other protocols:** Stripe SPTs (usable under OpenAI's ACP and Stripe's own flows) and PayPal's wallet [src-mcap-stripe-spt-2026] [src-mcap-paypal-2025].
+- **VI:** transport-agnostic by design; "Transport protocols" are out of scope, and SD-JWT compact form is chosen partly because it fits in HTTP headers and payment message fields [src-mcap-vi-readme] [src-mcap-vi-rationale]. VI suggests carriage through UCP's AP2 mandate fields and ACP extensions but defines no binding [src-mcap-vi-landscape].
+- **Developer tooling:** the Mastercard Developers MCP server runs over stdio (`npx -y @mastercard/developers-mcp`) or as a remote server, and reads `llms.txt` files from developer.mastercard.com; it is a documentation tool, not a payment transport [src-mcap-toolkit-readme] [src-mcap-toolkit-api] [src-mcap-dev-toolkit-doc].
+
 ## Cryptography and standards used
 
+| Standard | Use | Source |
+|---|---|---|
+| Network tokenization (Mastercard) | Agentic Tokens "build upon proven tokenization capabilities"; Mastercard pages read say "tokenization", not MDES | [src-mcap-launch-2025] [src-mcap-latam-2025] |
+| DSRP cryptogram | Named for Level 3 Mastercard payloads | [src-mcap-dev-level3] |
+| DTVC | One-time security code with Virtual Card Tokens | [src-mcap-dev-mvct] |
+| Mastercard Payment Passkeys (FIDO) | Consumer authentication in regional live transactions | [src-mcap-latam-2026] [src-mcap-europe-2026] |
+| RFC 9421 HTTP Message Signatures (February 2024) | Agent request signing; Ed25519 in examples; `ecdsa-p256-sha256` also listed | [src-mcap-rfc9421] [src-mcap-dev-level1] |
+| JWT (RFC 7519), OIDC ID Token | `mastercardIdToken` | [src-mcap-dev-level2] |
+| SD-JWT (RFC 9901, November 2025) | VI credential format for every layer | [src-mcap-vi-spec] [src-mcap-rfc9901] |
+| JWS, JWK, JWA (RFC 7515 to 7518) | Signatures and keys | [src-mcap-vi-spec] |
+| RFC 7800 `cnf` | Key binding from L1 to L2 to L3 | [src-mcap-vi-spec] [src-mcap-rfc7800] |
+| ES256 (P-256, SHA-256) | The only VI signing algorithm; EdDSA planned as optional later | [src-mcap-vi-spec] [src-mcap-vi-rationale] |
+| SHA-256 | `sd_hash`, `checkout_hash`, `conditional_transaction_id`, `_sd_alg` `sha-256` | [src-mcap-vi-format] |
+| ISO 4217, ISO 20022 | Amount minor units; recurrence frequency codes | [src-mcap-vi-constraints] |
+
+VI uses no novel cryptography ("Built on SD-JWT, JWS, JWK, and RFC 7800") [src-mcap-vi-readme]. The design rationale says VI credentials are not WebAuthn credentials, although the same P-256 hardware can hold both [src-mcap-vi-rationale].
+
 ## Security model and published attacks or CVEs
+
+**Program level.** Mastercard's security claims are that only registered and verified agents transact, card numbers never reach agents, tokens can be single-use or scoped, agent traffic is signed and nonce-protected, consumers authenticate with passkeys, and every party can see that an agent was involved [src-mcap-launch-2025] [src-mcap-dev-level1] [src-mcap-latam-2026]. The 2026-09-30 probability score exists to estimate "the likelihood that a transaction was initiated by an AI agent", which implies that agent involvement is not always reliably marked in today's authorization traffic [src-mcap-trust-2026]. No security audit, bug bounty scope, CVE or published attack specific to Agent Pay was found as of 2026-10-11.
+
+**VI threat model** (`spec/security-model.md`) [src-mcap-vi-security]
+
+| Attack | Defense in the spec |
+|---|---|
+| Credential replay | `nonce`, `aud`, short L3 lifetime; verifiers track seen nonces |
+| Cross-merchant replay and budget overrun | Stateful network tracking per L2 mandate pair (lookup by `sd_hash`); cannot be done cryptographically |
+| Constraint stripping | L2 signature covers all constraints |
+| Checkout-payment mismatch | `checkout_hash` and `transaction_id` binding |
+| Algorithm confusion (`none`, `HS256`) | ES256 only; reject other `alg` values |
+| Clock skew abuse | 300 second skew recommended; 60 seconds suggested for high security |
+| Disclosure withholding | `delegate_payload` reveals that mandates exist |
+| Type confusion | identify mandates by `vct`, check `typ` per layer |
+| Split-agent attack | `cnf.jwk` must be identical across a mandate pair |
+
+**Known limitations stated by VI itself:** no credential revocation protocol in v0.1 (JWKS key removal and short lifetimes are the interim tools; RFC 9701 Token Status Lists are named as a future option); `sub` is always visible and links transactions for about a year; a constrained agent can still leak intent through side channels; open-ended `mandate.payment.recurrence`; PERMISSIVE default mode; `checkout_jwt` format and signing are implementation-defined; the reference implementation uses fixed deterministic keys suitable only for testing [src-mcap-vi-security].
+
+**Published issues against VI (third party, open on 2026-10-11):**
+- Issue #29 (2026-07-17): the L2 format lists each mandate digest in both `_sd` and `delegate_payload`; RFC 9901 says "The same digest value MUST NOT appear more than once in the SD-JWT" and verifiers must reject such credentials; the reporter says `@sd-jwt/core` 0.20.0 rejects every VI L2 credential. The duplicate listing is visible in the spec's own section 11 examples [src-mcap-vi-issue29] [src-mcap-rfc9901] [src-mcap-vi-format]. No maintainer response or fix as of 2026-10-11.
+- Issues #12 to #17 (2026-03-27, filed by users labeling them "Ant") ask about trust model, keys, chargeback liability and intent revocation; issue #15 carries an inline answer signed "[CY]" saying the merchant is liable after verifying L3 against L2 and that liability shift work for the Acceptance Framework is ongoing; the responder's affiliation is not stated [src-mcap-vi-issue15] [src-mcap-vi-issues].
+
+**Academic analysis:** no paper analyzes Agent Pay or VI directly. arXiv 2609.00060 (2026-08-30) models x402, MPP, ACP and AP2 in Tamarin, not Agent Pay. arXiv 2609.27452 (2026-09-23), "Issuer-Sovereign Agentic Payments", is the closest topical paper (see Publications).
 
 ## Controls
 
