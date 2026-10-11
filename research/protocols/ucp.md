@@ -549,3 +549,77 @@ All URLs returned HTTP 200 to `curl -sSIL` on 2026-10-11 except where noted (the
 
 An arXiv abstract search for "Universal Commerce Protocol" returned 2 results on 2026-10-11 (2606.05043 and 2602.06345). The seed statement "no paper names UCP" is corrected.
 
+## Seed audit
+
+| Seed fact (ATLAS_PROMPT 5.5 or ATLAS_FOLLOWUP) | Result | Source |
+| --- | --- | --- |
+| Launched 2026-01-11 at NRF | Confirmed (Google NRF remarks and developer blog dated 2026-01-11; release v2026-01-11) | [src-ucp-google-nrf] [src-ucp-google-dev-blog] |
+| Co-developed with Shopify, Etsy, Wayfair, Target, Walmart; 20+ endorsers at launch | Confirmed | [src-ucp-google-dev-blog] |
+| ucp.dev lists 21 co-developers and 51 endorsers | Confirmed as of 2026-10-11 (21 unique co-developers across 3 verticals; 51 endorsers) | [src-ucp-site] |
+| Apache-2.0, "UCP Authors" | Confirmed | [src-ucp-gh-repo] [src-ucp-governance] |
+| Dated tags v2026-01-11, v2026-01-23, v2026-04-08, v2026-08-25 (latest) | Confirmed; v2026-08-25 is the latest on 2026-10-11. The v2026-01-11 GitHub release object was created 2026-01-23 | [src-ucp-gh-releases] |
+| Docs under `/latest/` and `/draft/` | Confirmed; `versions.json` aliases `latest` to 2026-08-25 | [src-ucp-site-versions] |
+| Capabilities versioned independently since 2026-08-25 | Corrected: core `dev.ucp.*` capabilities declare the release date; only third-party extensions version independently (release notes do say "independent capability versioning") | [src-ucp-overview] [src-ucp-release-20260825] |
+| GC of 5 seats, Google and Shopify permanent, Stripe added 2026-04-28, 2 open | Confirmed (2026-04-28 also added 2 more elected open seats) | [src-ucp-governance] [src-ucp-announcements] [src-ucp-maintainers] |
+| Google proxy vote for open seats until December 2028; holds ucp.dev | Confirmed ("Dec 2028"; Google is custodian of the domain) | [src-ucp-governance] |
+| Shopping TC: Amazon, Meta, Microsoft, Salesforce, Stripe joined 2026-04-24 | Confirmed by announcement; roster detail conflicts (Greg Smith listed as Amazon in the announcement and as Google in MAINTAINERS.md) | [src-ucp-announcements] [src-ucp-maintainers] |
+| Food TC 2026-07-16, Lodging TC 2026-08-11, Payments TC 2026-09-02; no foundation | Confirmed | [src-ucp-announcements] [src-ucp-governance] |
+| Roles Platform, Business (MoR), Credential Provider, PSP | Confirmed | [src-ucp-glossary] |
+| Profile at `/.well-known/ucp` with `ucp { version, services, capabilities, payment_handlers, supported_versions }` and a JWK set | Confirmed with refinements: `supported_versions` is business-only and optional; keys are top-level `keys[]` | [src-ucp-schema-profile] |
+| Transports rest (OpenAPI), mcp (OpenRPC), a2a (Agent Card), embedded (OpenRPC) | Confirmed | [src-ucp-overview] |
+| `UCP-Agent: profile="..."` or `meta["ucp-agent"]` over MCP | Confirmed | [src-ucp-overview] |
+| Intersection, highest common version, prune orphaned extensions | Confirmed (exact-version intersection; repeat pruning) | [src-ucp-overview] |
+| Schema URL host must match reverse-DNS name, provenance not trust | Confirmed | [src-ucp-overview] |
+| Capability list (checkout, cart, catalog.search, catalog.lookup, order, permalink; fulfillment, discount, buyer_consent; identity_linking, loyalty, location.*, payment.{ap2_mandate, authentication, split_payments, terms}; drafts common.ask, lodging.booking) | Confirmed; `ask` and `lodging.booking` exist only on `main` (draft); `payment.terms` is the exact name | [src-ucp-overview] [src-ucp-repo-main] |
+| REST endpoints and PUT as full replacement; MCP tool names | Confirmed; also `POST /catalog/product`, `get_product`, cart tools, location tools | [src-ucp-rest-openapi] [src-ucp-mcp-openrpc] [src-ucp-checkout] |
+| Headers `UCP-Agent`, `Idempotency-Key`, `Request-Id` | Confirmed (all three marked required in OpenAPI; `Idempotency-Key` on state-changing operations) | [src-ucp-rest-openapi] |
+| Auth by OAuth, API key, mTLS or RFC 9421 with `Content-Digest` (ES256 mandatory) | Corrected wording: verifiers must support `ES256`; ES384 and EdDSA optional | [src-ucp-signatures] |
+| Web Bot Auth interop since 2026-08-25 | Confirmed (PR #483 merged 2026-07-03, released in v2026-08-25) | [src-ucp-release-20260825] [src-ucp-gh-prs] |
+| Checkout statuses and `continue_url` on escalation; canceled from any state; 6 hour default expiry | Confirmed | [src-ucp-schema-checkout] [src-ucp-checkout] |
+| Handlers authored by credential providers (`com.google.pay`, `dev.shopify.shop_pay`); one-way credentials; split payments need negotiation; credential types token, PAN, network token | Confirmed | [src-ucp-overview] [src-ucp-schema-payment] |
+| AP2: `ap2.merchant_authorization` detached JWS, `ap2.checkout_mandate` SD-JWT+kb, payment mandate in the credential, "security locked" | Confirmed | [src-ucp-ap2-spec] [src-ucp-schema-ap2] |
+| Rename `dev.ucp.shopping.ap2_mandate` to `dev.ucp.common.payment.ap2_mandate` in v2026-08-25 | Confirmed (PR #741, merged 2026-08-25) | [src-ucp-schema-ap2-0408] [src-ucp-schema-ap2] [src-ucp-gh-prs] |
+| Orders: fulfillment events and adjustments; RFC 9421 signed webhooks; identity linking with 3 access levels | Confirmed | [src-ucp-schema-order] [src-ucp-order] [src-ucp-identity-linking] |
+| 2026-02-11 live in US (Etsy, Wayfair) in AI Mode and Gemini | Confirmed (Google blog 2026-02-11, "rolling out now") | [src-ucp-google-feb2026] |
+| 2026-03-19 cart, catalog and loyalty | Reported only (secondary coverage; Google primary not found; the spec merged cart 2026-01-26 and catalog 2026-03-08) | [src-ucp-march-coverage] [src-ucp-gh-prs] |
+| 2026-04-08 release (request signing, signals, OAuth scopes) | Confirmed; identity linking OAuth was cherry-picked into this release on 2026-05-20 | [src-ucp-release-20260408] [src-ucp-gh-prs] |
+| 2026-04-28 AP2 donated to FIDO | Confirmed (Google blog 2026-04-28) | [src-ucp-google-ap2-fido] |
+| 2026-05-19 and 20 Universal Cart, UCP checkout in ads, Canada and Australia then UK | Confirmed (2026-05-19 I/O post; 2026-05-20 GML post: "in the coming months") | [src-ucp-google-universal-cart] [src-ucp-google-gml] |
+| 2026-08-25 release (actions, 3DS2, split payments, WBA interop) | Confirmed | [src-ucp-release-20260825] |
+| September 2026 US Shopify merchants auto-enrolled | Reported (PPC Land 2026-09-23; emails dated 2026-09-22; no primary found) | [src-ucp-ppcland-shopify] |
+| Microsoft supports UCP; Copilot Checkout requires a UCP-compliant feed (FOLLOWUP 2.1.14) | Corrected tense: Microsoft's page says "MMC will support Universal Commerce Protocol (UCP)" and Copilot Checkout requires "a UCP-compliant feed" | [src-ucp-microsoft-page] |
+| Stripe Agentic Commerce Suite and Adyen Agentic support UCP | Partly confirmed: Stripe UCP docs and handler, Adyen UCP tokenization handler confirmed; the Agentic Commerce Suite link is secondary only | [src-ucp-stripe-docs] [src-ucp-adyen-docs] |
+| SDKs `ucp-sdk` (PyPI), `@ucp-js/sdk` (npm), `ucp-schema` (crates.io) | Confirmed | [src-ucp-pypi] [src-ucp-npm] [src-ucp-crates] |
+| No merchant counts published | Confirmed as of 2026-10-11 | [src-ucp-google-faq] |
+| Embeds AP2; MCP and A2A transports; RFC 9421 like TAP; network tokens fit credential types; converging with ACP but no bridge | Confirmed, except "converging with ACP" has no source; only "no bridge" is stated | [src-ucp-ap2-spec] [src-ucp-signatures] |
+| Senator Warren letter in February 2026 | Reported: letter dated 2026-02-03 to Sundar Pichai (eWeek 2026-02-05); senate.gov returned 403 | [src-ucp-eweek-warren] |
+| No paper names UCP | Corrected: arXiv 2606.05043 and 2602.06345 name UCP | [src-ucp-arxiv-260605043] [src-ucp-arxiv-260206345] |
+| FOLLOWUP 2.1.9: AP2 production use unverified anywhere, including inside UCP | Confirmed: no source shows live AP2 mandates in UCP; Google on 2026-05-19 said AP2 would come to Google products "in the coming months" | [src-ucp-google-universal-cart] |
+| FOLLOWUP Scenario 3: Google Pay handler returns a network token; which network's agentic token is not published | Partly corrected: Google's FAQ says UCP on Google AI surfaces supports only `PAN_ONLY` for Google Pay `allowed_auth_methods`, so a network-token path inside the Google Pay handler is not documented for Google surfaces; network identity is not published | [src-ucp-google-faq] |
+| Appendix B fees: no Google cut (The Register 2026-01-12); merchant is MoR so PSP fees apply; Copilot Checkout no additional fee "for now" | Confirmed as reported (The Register, PYMNTS) plus primary FAQ for MoR and PSP | [src-ucp-register] [src-ucp-google-faq] [src-ucp-pymnts-fees] |
+| No UCP conference talk found earlier | Corrected: W3C/GS1 workshop talk by Amit Handa (Google), 2026-09-08 | [src-ucp-w3c-workshop] |
+| Do not get wrong: UCP is not Universal Cart; Google is not MoR; AP2 is an extension inside UCP | Confirmed | [src-ucp-google-universal-cart] [src-ucp-google-faq] [src-ucp-ap2-spec] |
+
+## Blocked sources
+
+- www.warren.senate.gov (press release and news-coverage pages): HTTP 403; used eWeek.
+- searchengineland.com (Shopify enrollment): HTTP 403; used PPC Land.
+- searchenginejournal.com and techwyse.com (March 2026 update): HTTP 403; date kept as reported.
+- fidoalliance.org AP2 donation release: HTTP 403; used Google blog 2026-04-28.
+- w3.org workshop page: HTTP 403; used the w3c.github.io agenda mirror.
+- The W3C slides PDF downloaded but could not be rendered locally (no PDF tools), so only the agenda description is used.
+
+## Conflicts
+
+1. Shopping TC member employer: the 2026-04-24 announcement lists "Greg Smith (Amazon)"; `MAINTAINERS.md` (commit 95b77fd) lists Greg Smith under Google and Jordan Williams under Amazon. MAINTAINERS.md is the current roster; show both.
+2. AP2 extension naming in docs: the ucp.dev "UCP and AP2" page describes a `checkoutSignature` and a CheckoutMandate containing a hash of the checkout; the v2026-08-25 schema and extension spec use `ap2.merchant_authorization` and a checkout mandate containing the full checkout. The schema is primary.
+3. Release notes spelling: v2026-08-25 notes list `ap2_mandates` (plural) among migrated extensions; the schema `name` is `dev.ucp.common.payment.ap2_mandate`. The schema is primary.
+4. Microsoft tense: Microsoft's page reads "MMC will support Universal Commerce Protocol (UCP)"; trade press (search results only, not read) describes UCP feeds in Merchant Center as generally available in the US from April 2026. Microsoft's page is primary; use its tense.
+5. Scenario 3 versus Google FAQ: the follow-up proposes "a Google Pay handler that returns a network token"; the Google FAQ says only `PAN_ONLY` is used for UCP checkout on Google AI surfaces. The FAQ is primary.
+6. Independent capability versioning: release notes say "independent capability versioning"; the normative overview pins `dev.ucp.*` capability versions to the release date. The spec is primary.
+
+## Least certain
+
+1. The 2026-03-19 date for the cart, catalog and identity-linking or loyalty update on Google: only secondary coverage, which itself disagrees on whether loyalty or identity linking was the headline.
+2. The September 2026 Shopify auto-enrollment: secondary only (PPC Land quoting merchant emails); scope and eligibility rules not confirmed by Google or Shopify.
+3. Whether the endorser and co-developer counts on ucp.dev are stable: the homepage lists names, not counts, and the co-developer total depends on deduplicating Google across verticals (21 unique of 23 slots).
