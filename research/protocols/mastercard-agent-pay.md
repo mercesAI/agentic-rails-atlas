@@ -366,9 +366,48 @@ VI uses no novel cryptography ("Built on SD-JWT, JWS, JWK, and RFC 7800") [src-m
 
 ## Controls
 
+Support values follow `ControlSupport` in `src/lib/schemas.ts` (`native`, `partial`, `external`, `none`). "Program" means Agent Pay as Mastercard describes it; "VI" means the open spec.
+
+| Control id | Support | Mechanism | Sources |
+|---|---|---|---|
+| `agent-identity-verification` | native | Registered agents sign requests (RFC 9421, `tag` `Agent-pay-auth`) verified against the Mastercard key directory, at the CDN or merchant | [src-mcap-dev-level1] [src-mcap-cloudflare-blog] |
+| `agent-registration-kya` | native | Registration, security review, certification and trusted agent lists; Skyfire KYA added 2026-09-30 | [src-mcap-dev-rails] [src-mcap-trust-2026] |
+| `user-consent-capture` | native | Consumer authorizes the agent; passkey authentication in live pilots; VI L2 signed by the user's key | [src-mcap-dev-level1] [src-mcap-latam-2026] [src-mcap-vi-spec] |
+| `spending-caps` | native | Program: tokens "can be limited by merchant, amount, or time window"; VI: `mandate.payment.amount_range`, `mandate.payment.budget` | [src-mcap-dev-level1] [src-mcap-vi-constraints] |
+| `merchant-payee-scoping` | native | Merchant-specific tokens; VI `mandate.checkout.allowed_merchants`, `mandate.payment.allowed_payees`; Intent API `srcDpaId` check | [src-mcap-dev-level1] [src-mcap-vi-constraints] [src-mcap-dev-level3] |
+| `time-windows-expiry` | native | Time-limited tokens, signature `created`/`expires`, `orderExpiry`, VI layer lifetimes (L3 at most 1 hour) | [src-mcap-dev-level1] [src-mcap-dev-level3] [src-mcap-vi-format] |
+| `revocation` | partial | Program: no public revocation API for agentic tokens or agents; VI v0.1 has no revocation protocol (JWKS key removal and expiry only) | [src-mcap-vi-security] |
+| `step-up-authentication` | partial | Passkeys at consent; Level 3 guide suggests escalating deferred orders to the consumer; Mastercard says networks and EMVCo are still working on 3DS support for agentic flows | [src-mcap-latam-2026] [src-mcap-dev-level3] [src-mcap-dev-level1] |
+| `replay-protection` | native | Mandatory `nonce` and short expiry on signatures; single-use tokens and DTVC; VI `nonce`, `aud`, one L3 pair per mandate pair | [src-mcap-dev-level1] [src-mcap-dev-mvct] [src-mcap-vi-security] |
+| `receipts-evidence` | partial | VI full-chain verification gives a dispute evidence package; Intent records "as evidence when handling chargebacks"; no receipt object in the program | [src-mcap-vi-security] [src-mcap-dev-level3] |
+| `dispute-support` | partial | Launch release promises "a process to help clarify agentic transactions that may be unfamiliar or unrecognized"; standard chargeback rights apply; no agent-specific reason codes or liability shift published; VI leaves dispute choreography out of scope | [src-mcap-launch-2025] [src-mcap-dev-level1] [src-mcap-vi-security] |
+| `reputation` | none | No public agent reputation score; the probability score rates transactions, not agents | [src-mcap-trust-2026] |
+| `monitoring-signals` | native | Agent-flagged transactions visible to issuers; probability score and risk signals in US testing from 2026-09-30; VI `risk_data` (`device_id`, `ip_address`) at consent | [src-mcap-launch-2025] [src-mcap-trust-2026] [src-mcap-vi-format] |
+| `kill-switch` | external | Issuers keep card-level blocks and declines; no documented control to disable one agent across the network | [src-mcap-vi-security] [src-mcap-vi-spec] |
+
 ## Observability
 
+**Public:**
+- Press releases and newsroom pages with milestone counts (names of banks and partners, never transaction volumes) [src-mcap-europe-2026] [src-mcap-latam-2026] [src-mcap-ap4m-2026].
+- VI repository activity: GitHub API (`/repos/agent-intent/verifiable-intent`), 97 stars, 20 forks, 41 issues and pull requests, last merge 2026-04-20 (as of 2026-10-11) [src-mcap-vi-gh-repo] [src-mcap-vi-issues].
+- Mastercard Developers `llms.txt` index and Checkout Solutions release history [src-mcap-dev-llms] [src-mcap-dev-release-history].
+- npm download counts for `@mastercard/developers-mcp` and `@mastercard/developers-agent-toolkit` (documentation tools only) [src-mcap-npm-mcp] [src-mcap-npm-toolkit].
+- `.well-known` paths: Mastercard's guide points verifiers to `/.well-known/http-message-signatures-directory` on the `Signature-Agent` host, in its ChatGPT example; the Mastercard example host `agentpay-key-directory.mastercard.com` did not resolve on 2026-10-11, and Cloudflare's blog names no Mastercard directory URL. The live Mastercard directory location is therefore unknown [src-mcap-dev-level1] [src-mcap-cloudflare-blog].
+- VI issuer JWKS endpoints are required by the spec, but no public Mastercard JWKS URL for VI was found [src-mcap-vi-spec].
+
+**Private (not observable from outside):** agent registry contents, agentic token issuance counts, authorization message fields that mark agent transactions, probability scores, Intent API records, dispute data. There are no explorers or indexers, because nothing is on a public ledger. AP4M settlement on stablecoin rails is described but no chain addresses or contracts are published [src-mcap-ap4m-2026].
+
+**Event names:** none published. The developer guides name object fields but no webhook or event types for Agent Pay.
+
 ## Compliance touchpoints
+
+- **PCI DSS.** Mastercard says merchants receive only tokens, so "PCI scope remains unchanged" [src-mcap-dev-level1].
+- **PSD2 and SCA (EU).** VI's design rationale presents its amount and payee constraints plus `checkout_hash` as a cryptographic form of dynamic linking, while saying VI "does not replace SCA"; the README says regulatory references are informational and VI makes no compliance claims [src-mcap-vi-rationale] [src-mcap-vi-readme]. European live transactions used passkeys [src-mcap-europe-2026]. Whether a VI Autonomous mandate (user absent at payment time) satisfies SCA is not addressed by any regulator source found.
+- **Regulation E (US).** No Mastercard or regulator document found on how unauthorized-transfer rules apply to agent-initiated card purchases (open question; card credit purchases fall under other rules).
+- **Dispute and liability.** Standard chargeback rights apply; no agent-specific reason codes or liability shift published as of 2026-10-11 [src-mcap-dev-level1] [src-mcap-nevermined-review]. An unattributed inline answer in VI issue #15 says liability shift work for the Acceptance Framework is ongoing [src-mcap-vi-issue15].
+- **Privacy.** Certification requires agents to follow privacy regulations [src-mcap-dev-level1]; VI selective disclosure limits what each party sees, but `sub` and `pan_last_four` are always visible [src-mcap-vi-security].
+- **Regulated pilots.** Santander ran its pilot "within Santander's regulated payment framework" [src-mcap-santander-2026].
+- **Standards bodies.** VI contributed to FIDO (2026-04-28); EMVCo's draft agentic framework (2026-09-01) names VI and plans KYA and Agentic Transaction Indicators [src-mcap-fido-pr] [src-mcap-emvco-news].
 
 ## Ecosystem and SDKs
 
