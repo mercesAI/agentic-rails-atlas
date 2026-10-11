@@ -1,0 +1,14 @@
+---
+import Section from '../Section.astro';
+import OpenQuestions from '../OpenQuestions.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.openQuestions;
+---
+<Section id="r-open-questions" missing={data ? null : `${ctx.contentPath}open-questions.json`}>
+  {data && <OpenQuestions items={data.items} />}
+</Section>

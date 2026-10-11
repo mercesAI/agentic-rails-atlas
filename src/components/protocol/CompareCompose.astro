@@ -1,0 +1,77 @@
+---
+/**
+ * Section P: the writer's "Compare and compose" text (slot), the relations
+ * from relations.json, this protocol's column of compare.json, and links to
+ * the scenarios that use it.
+ */
+import Cite from '../ui/Cite.astro';
+import ConfidenceBadge from '../ui/ConfidenceBadge.astro';
+import type { CompareCell, ProtocolMeta, Relation } from '../../lib/schemas';
+import { getScenarioEntries } from '../../lib/content';
+import { RELATION_LABELS } from './labels';
+
+export interface Props {
+  slug: string;
+  name: string;
+  relations: Relation[];
+  cells: CompareCell[];
+  dimensions: Map<string, string>;
+  protocols: ProtocolMeta[];
+  /** Writer text after the marker in index.mdx, as rendered HTML. */
+  html?: string;
+}
+const { slug, name, relations, cells, dimensions, protocols, html = '' } = Astro.props;
+const names = new Map(protocols.map((p) => [p.slug as string, p.name]));
+const nameOf = (s: string) => names.get(s) ?? s;
+const linkOf = (s: string) => (names.has(s) ? `/p/${s}/` : `/orbit/${s}/`);
+const dimOrder = [...dimensions.keys()];
+const sortedCells = [...cells].sort((a, b) => dimOrder.indexOf(a.dimension) - dimOrder.indexOf(b.dimension));
+const scenarios = (await getScenarioEntries()).filter((s) => s.data.protocols.includes(slug as never)).sort((a, b) => a.data.order - b.data.order);
+const hasSlot = Astro.slots.has('default');
+---
+{hasSlot ? <div class="prose compare-text"><slot /></div> : html.trim() ? <div class="prose compare-text" set:html={html} /> : <p class="in-progress"><span class="in-progress__mark" aria-hidden="true"></span>The written comparison is in progress.</p>}
+<h3 id="p-compare-relations">Relations to other protocols</h3>
+{relations.length === 0 ? (
+  <p>No relation is recorded yet.</p>
+) : (
+  <ul class="relation-list">
+    {relations.map((r) => {
+      const other = r.from === slug ? r.to : r.from;
+      const outward = r.from === slug;
+      return (
+        <li>
+          <span class="relation-list__type">{RELATION_LABELS[r.type] ?? r.type}</span>
+          {outward ? <>{name} to </> : <>from </>}<a href={linkOf(other)}>{nameOf(other)}</a>: {r.note} <Cite ids={r.sources.join(' ')} />
+        </li>
+      );
+    })}
+  </ul>
+)}
+{sortedCells.length > 0 && (
+  <details class="compare-cells">
+    <summary>{name} in the compare matrix ({sortedCells.length} dimensions)</summary>
+    <div class="table-wrap" role="region" aria-label={`${name} compare matrix values`} tabindex="0">
+      <table>
+        <thead><tr><th scope="col">Dimension</th><th scope="col">Value</th><th scope="col">Confidence</th></tr></thead>
+        <tbody>
+          {sortedCells.map((c) => (
+            <tr>
+              <th scope="row">{dimensions.get(c.dimension) ?? c.dimension}</th>
+              <td>{c.value}{c.detail && <span class="compare-cells__detail"> {c.detail}</span>} <Cite ids={c.sources.join(' ')} /></td>
+              <td><ConfidenceBadge confidence={c.confidence} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+)}
+<p class="compare-links">
+  <a href="/compare/">Open the full compare matrix</a>
+  {scenarios.length > 0 && (
+    <>
+      . Scenarios that use {name}:{' '}
+      {scenarios.map((s, i) => <>{i > 0 && ', '}<a href={`/scenarios/${s.data.slug}/`}>{s.data.title}</a></>)}
+    </>
+  )}
+</p>

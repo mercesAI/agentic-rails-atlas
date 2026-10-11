@@ -1,0 +1,47 @@
+---
+import Section from '../Section.astro';
+import InProgress from '../InProgress.astro';
+import Disambiguation from '../Disambiguation.astro';
+import ChangedRecently from '../ChangedRecently.astro';
+import Cite from '../../ui/Cite.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const { meta } = ctx;
+const facts = ctx.loaded.sidecars.facts;
+---
+<Section id="a-tldr">
+  {facts ? (
+    <>
+      <p class="tldr">{facts.tldr}</p>
+      <h3 id="a-tldr-why">Why it exists</h3>
+      <p>{facts.whyItExists}</p>
+      {facts.whatItIsNot.length > 0 && (
+        <>
+          <h3 id="a-tldr-not">What it is not</h3>
+          <ul>{facts.whatItIsNot.map((n) => <li>{n.text} {n.claimIds.length > 0 && <Cite ids={n.claimIds.join(' ')} />}</li>)}</ul>
+        </>
+      )}
+    </>
+  ) : (
+    <>
+      <p class="tldr">{meta.intro}</p>
+      <InProgress file={`${ctx.contentPath}facts.json`} />
+    </>
+  )}
+  <Disambiguation notes={meta.disambiguation} />
+  <div class="table-wrap key-facts" role="region" aria-labelledby="key-facts-caption" tabindex="0">
+    <table>
+      <caption id="key-facts-caption">Key facts as of {meta.lastVerified}</caption>
+      <tbody>
+        {meta.keyFacts.map((k) => (
+          <tr><th scope="row">{k.label}</th><td>{k.value} <Cite ids={k.claimIds.join(' ')} /></td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  {facts && <ChangedRecently items={facts.changedRecently} lastVerified={meta.lastVerified} />}
+</Section>

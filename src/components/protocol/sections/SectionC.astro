@@ -1,0 +1,69 @@
+---
+/** Section C: main flow (FlowPlayer plus generated Mermaid), state machine (explorer plus Mermaid), then meta.diagrams. */
+import Section from '../Section.astro';
+import InProgress from '../InProgress.astro';
+import MermaidDiagram from '../../islands/MermaidDiagram.astro';
+import FlowPlayer from '../../islands/FlowPlayer';
+import StateMachineExplorer from '../../islands/StateMachineExplorer';
+import { describeFlow, describeFlowSteps, describeStateMachine, describeStateTransitions } from '../../../lib/flows/describe';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const { meta, flow, machine } = ctx;
+const sourceIndex = Object.fromEntries(ctx.order.map((id, i) => [id, i + 1]));
+const sot = (ids: string[] | undefined) => {
+  const s = ids?.map((id) => ctx.sources.get(id)).find(Boolean);
+  return s ? { url: s.url, label: s.title } : undefined;
+};
+const flowSot = flow?.steps.find((s) => s.specRef)?.specRef;
+---
+<Section id="c-diagrams">
+  <h3 id="c-diagrams-flow">Main flow{flow && <>: {flow.title}</>}</h3>
+  {flow ? (
+    <>
+      {flow.summary && <p>{flow.summary}</p>}
+      <FlowPlayer client:visible flow={flow} sourceIndex={sourceIndex} />
+      <MermaidDiagram
+        id={flow.id}
+        title={`Sequence diagram: ${flow.title}`}
+        caption={`Generated from the flow definition (spec version ${flow.specVersion}, ${flow.specVersionDate}). The player above uses the same data.`}
+        alt={describeFlow(flow)}
+        altSteps={describeFlowSteps(flow)}
+        sourceOfTruth={flowSot ? { url: flowSot.url, label: flowSot.section ?? 'Specification' } : sot(flow.sources)}
+        generatedFrom={`src/content/flows/${flow.id}.json`}
+        level={4}
+      />
+    </>
+  ) : (
+    <InProgress file={`src/content/flows/${meta.mainFlow}.json`} />
+  )}
+  <h3 id="c-diagrams-states">Lifecycle{machine && <>: {machine.title}</>}</h3>
+  {machine ? (
+    <>
+      <StateMachineExplorer client:visible machine={machine} />
+      <MermaidDiagram
+        id={machine.id}
+        title={`State diagram: ${machine.title}`}
+        caption={`Generated from the state machine definition (spec version ${machine.specVersion}).`}
+        alt={describeStateMachine(machine)}
+        altSteps={describeStateTransitions(machine)}
+        sourceOfTruth={sot(machine.sources)}
+        generatedFrom={`src/content/states/${machine.id}.json`}
+        level={4}
+      />
+    </>
+  ) : (
+    <InProgress file={`src/content/states/${meta.stateMachine}.json`} />
+  )}
+  {meta.diagrams.length > 0 && <h3 id="c-diagrams-more">More diagrams</h3>}
+  {ctx.diagrams.map((d) =>
+    d.meta ? (
+      <MermaidDiagram id={d.id} level={4} generatedFrom={`src/content/diagrams/${d.id}.mmd`} />
+    ) : (
+      <InProgress file={`src/content/diagrams/${d.id}.json`} />
+    ),
+  )}
+</Section>

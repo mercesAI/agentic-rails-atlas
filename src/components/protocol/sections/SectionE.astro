@@ -1,0 +1,21 @@
+---
+import Section from '../Section.astro';
+import PersonaGrid from '../PersonaGrid.astro';
+import ResponsibilityTable from '../ResponsibilityTable.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.protocolPersonas;
+---
+<Section id="e-personas" missing={data ? null : `${ctx.contentPath}personas.json`}>
+  {data && (
+    <>
+      <PersonaGrid personas={data.personas} catalogue={ctx.personas} />
+      <h3 id="e-personas-responsibilities">Responsibilities</h3>
+      <ResponsibilityTable table={data.responsibilities} catalogue={ctx.personas} />
+    </>
+  )}
+</Section>

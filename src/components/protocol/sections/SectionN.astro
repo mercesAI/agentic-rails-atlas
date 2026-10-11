@@ -1,0 +1,14 @@
+---
+import Section from '../Section.astro';
+import CodeBlocks from '../CodeBlocks.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.code;
+---
+<Section id="n-code" missing={data ? null : `${ctx.contentPath}code.json`}>
+  {data && <CodeBlocks snippets={data.snippets} labs={data.labs} />}
+</Section>

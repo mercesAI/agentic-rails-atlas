@@ -1,0 +1,21 @@
+---
+/** Section S: Quiz and Flashcards islands, built from verified claims only (the writers' rule). */
+import Section from '../Section.astro';
+import InProgress from '../InProgress.astro';
+import Quiz from '../../islands/Quiz';
+import Flashcards from '../../islands/Flashcards';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const quiz = ctx.loaded.sidecars.quiz;
+const cards = ctx.loaded.sidecars.flashcards;
+---
+<Section id="s-self-test">
+  <h3 id="s-self-test-quiz">Quiz</h3>
+  {quiz ? <Quiz client:visible slug={ctx.slug} questions={quiz.questions} /> : <InProgress file={`${ctx.contentPath}quiz.json`} />}
+  <h3 id="s-self-test-cards">Flashcards</h3>
+  {cards ? <Flashcards client:visible slug={ctx.slug} cards={cards.cards.map(({ id, front, back }) => ({ id, front, back }))} /> : <InProgress file={`${ctx.contentPath}flashcards.json`} />}
+</Section>

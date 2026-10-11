@@ -1,0 +1,14 @@
+---
+import Section from '../Section.astro';
+import Faq from '../Faq.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.faq;
+---
+<Section id="q-faq" missing={data ? null : `${ctx.contentPath}faq.json`}>
+  {data && <Faq items={data.items} />}
+</Section>

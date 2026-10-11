@@ -1,0 +1,14 @@
+---
+import Section from '../Section.astro';
+import ControlsTable from '../ControlsTable.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.controls;
+---
+<Section id="i-controls" missing={data ? null : `${ctx.contentPath}controls.json`}>
+  {data && <ControlsTable controls={data} />}
+</Section>

@@ -1,0 +1,26 @@
+---
+import Section from '../Section.astro';
+import ThreatTable from '../ThreatTable.astro';
+import MermaidDiagram from '../../islands/MermaidDiagram.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.security;
+const trust = ctx.trustDiagram;
+---
+<Section id="h-security" missing={data ? null : `${ctx.contentPath}security.json`}>
+  {data && <ThreatTable security={data} />}
+  {trust && (
+    <>
+      <h3 id="h-security-boundaries">Trust boundaries</h3>
+      {trust.inSectionC ? (
+        <p>The trust-boundary diagram is shown in section C: <a href={`#diagram-${trust.id}`}>{trust.meta?.title ?? trust.id}</a>.</p>
+      ) : (
+        <MermaidDiagram id={trust.id} level={4} generatedFrom={`src/content/diagrams/${trust.id}.mmd`} />
+      )}
+    </>
+  )}
+</Section>

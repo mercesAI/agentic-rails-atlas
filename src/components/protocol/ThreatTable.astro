@@ -1,0 +1,79 @@
+---
+/** Section H: STRIDE table, attack scenarios, research findings, CVEs. The trust-boundary diagram is placed by SectionH. */
+import Cite from '../ui/Cite.astro';
+import ConfidenceBadge from '../ui/ConfidenceBadge.astro';
+import type { SecurityFile } from '../../lib/schemas';
+import { MITIGATION_LABELS, STRIDE_LABELS } from './labels';
+
+export interface Props {
+  security: SecurityFile;
+}
+const { security } = Astro.props;
+const STRIDE_ORDER = ['S', 'T', 'R', 'I', 'D', 'E'];
+const threats = [...security.threats].sort((a, b) => STRIDE_ORDER.indexOf(a.stride) - STRIDE_ORDER.indexOf(b.stride));
+---
+<p>{security.summary}</p>
+<div class="table-wrap threat-table" role="region" aria-labelledby="threat-caption" tabindex="0">
+  <table>
+    <caption id="threat-caption">STRIDE threats ({threats.length})</caption>
+    <thead>
+      <tr><th scope="col">STRIDE</th><th scope="col">Threat</th><th scope="col">Spec mitigation</th><th scope="col">Implementer notes</th></tr>
+    </thead>
+    <tbody>
+      {threats.map((t) => (
+        <tr>
+          <td><abbr class="stride" title={STRIDE_LABELS[t.stride]}>{t.stride}</abbr><span class="sr-only"> {STRIDE_LABELS[t.stride]}</span></td>
+          <th scope="row">
+            <span class="threat__title">{t.title}</span>
+            <span class="threat__desc">{t.description} <Cite ids={t.sources.join(' ')} /></span>
+            {t.preconditions.length > 0 && <span class="threat__pre">Preconditions: {t.preconditions.join('; ')}.</span>}
+            <span class="threat__impact">Impact: {t.impact}</span>
+          </th>
+          <td><span class="mitig" data-mitigated={t.mitigatedBySpec}><span class="mitig__mark" aria-hidden="true"></span>{MITIGATION_LABELS[t.mitigatedBySpec]}</span></td>
+          <td>{t.implementerNotes}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+{security.scenarios.length > 0 && (
+  <>
+    <h3 id="h-security-scenarios">Attack scenarios</h3>
+    <div class="scenario-cards">
+      {security.scenarios.map((s) => (
+        <article class="scenario-card" aria-labelledby={`h-scn-${s.id}`}>
+          <h4 id={`h-scn-${s.id}`}>{s.title} <Cite ids={s.sources.join(' ')} /></h4>
+          <p><strong>Preconditions:</strong> {s.preconditions.join('; ')}.</p>
+          <ol>{s.steps.map((st) => <li>{st}</li>)}</ol>
+          <p><strong>Impact:</strong> {s.impact}</p>
+        </article>
+      ))}
+    </div>
+  </>
+)}
+<h3 id="h-security-research">Published research findings</h3>
+{security.research.length === 0 ? (
+  <p>No published research finding is recorded yet.</p>
+) : (
+  <ul class="finding-list">
+    {[...security.research].sort((a, b) => b.date.localeCompare(a.date)).map((r) => (
+      <li>
+        <time datetime={r.date}>{r.date}</time> <strong>{r.title}</strong>: {r.finding}
+        {r.publicationId && <> (<a href={`#${r.publicationId}`}>paper in section G</a>)</>} <Cite ids={r.sources.join(' ')} />
+      </li>
+    ))}
+  </ul>
+)}
+<h3 id="h-security-cves">CVEs and advisories</h3>
+{security.cves.length === 0 ? (
+  <p>No CVE or advisory is recorded for this protocol as of the last verification.</p>
+) : (
+  <ul class="finding-list">
+    {[...security.cves].sort((a, b) => b.date.localeCompare(a.date)).map((c) => (
+      <li>
+        <code>{c.id}</code> <time datetime={c.date}>{c.date}</time>{c.severity && <> severity {c.severity}</>}: {c.summary}
+        {' '}<ConfidenceBadge confidence={c.confidence} /> <Cite ids={c.sources.join(' ')} />
+      </li>
+    ))}
+  </ul>
+)}

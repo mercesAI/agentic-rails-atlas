@@ -1,0 +1,40 @@
+---
+/** Section K: 0 to 5 observability score with reasons; public versus private signals; what an indexer could capture. */
+import Cite from '../ui/Cite.astro';
+import type { ObservabilityFile } from '../../lib/schemas';
+
+export interface Props {
+  obs: ObservabilityFile;
+}
+const { obs } = Astro.props;
+---
+<div class="obs-score">
+  <p class="obs-score__value"><span class="obs-score__num">{obs.score}</span> of 5 <span class="sr-only">observability score</span></p>
+  <span class="obs-score__meter" aria-hidden="true">
+    {[1, 2, 3, 4, 5].map((i) => <span class="obs-score__seg" data-on={i <= obs.score ? 'true' : undefined}></span>)}
+  </span>
+  <ul class="obs-score__reasons">{obs.scoreReasons.map((r) => <li>{r}</li>)}</ul>
+</div>
+<h3 id="k-observability-public">Publicly observable</h3>
+<div class="table-wrap" role="region" aria-labelledby="obs-public-caption" tabindex="0">
+  <table>
+    <caption id="obs-public-caption">Public signals</caption>
+    <thead><tr><th scope="col">What</th><th scope="col">Where</th><th scope="col">How</th></tr></thead>
+    <tbody>
+      {obs.public.map((p) => (
+        <tr><th scope="row">{p.what}</th><td><code>{p.where}</code></td><td>{p.how} <Cite ids={p.sources.join(' ')} /></td></tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<h3 id="k-observability-private">Private by design</h3>
+<ul>{obs.private.map((p) => <li><strong>{p.what}.</strong> {p.why}</li>)}</ul>
+<h3 id="k-observability-indexer">What an indexer or monitor could capture</h3>
+<ul class="indexer-list">
+  {obs.indexerCaptures.map((c) => (
+    <li>
+      <strong>{c.signal}</strong> from {c.from}: {c.identifiers.map((id, i) => <>{i > 0 && ', '}<code>{id}</code></>)}
+      {c.sources.length > 0 && <> <Cite ids={c.sources.join(' ')} /></>}
+    </li>
+  ))}
+</ul>

@@ -1,0 +1,95 @@
+---
+/** Section L: stewards, implementers, SDKs, dated metrics, costs and an optional chart. */
+import Section from '../Section.astro';
+import MetricChart from '../MetricChart.astro';
+import Cite from '../../ui/Cite.astro';
+import ConfidenceBadge from '../../ui/ConfidenceBadge.astro';
+import ExternalLink from '../../ui/ExternalLink.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.ecosystem;
+const STATUS: Record<string, string> = { announced: 'Announced', pilot: 'Pilot', beta: 'Beta', live: 'Live', unknown: 'Unknown' };
+const REGISTRY: Record<string, string> = { npm: 'npm', pypi: 'PyPI', crates: 'crates.io', go: 'Go', rubygems: 'RubyGems', maven: 'Maven', other: 'Other' };
+const nf = new Intl.NumberFormat('en-US');
+const costs = Array.isArray(data?.costs) ? data.costs : [];
+---
+<Section id="l-ecosystem" missing={data ? null : `${ctx.contentPath}ecosystem.json`}>
+  {data && (
+    <>
+      <h3 id="l-ecosystem-stewards">Stewards</h3>
+      <ul>{data.stewards.map((s) => <li><strong>{s.name}</strong>: {s.role} <Cite ids={s.sources.join(' ')} /></li>)}</ul>
+      <h3 id="l-ecosystem-implementers">Implementers and deployments</h3>
+      {data.implementers.length === 0 ? <p>No implementer is recorded yet.</p> : (
+        <div class="table-wrap" role="region" aria-labelledby="impl-caption" tabindex="0">
+          <table>
+            <caption id="impl-caption">Implementers ({data.implementers.length})</caption>
+            <thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+              {data.implementers.map((i) => (
+                <tr><th scope="row">{i.name}</th><td>{i.role} <Cite ids={i.sources.join(' ')} /></td><td>{STATUS[i.status]}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {data.sdks.length > 0 && (
+        <>
+          <h3 id="l-ecosystem-sdks">SDKs and packages</h3>
+          <ul class="sdk-list">
+            {data.sdks.map((s) => (
+              <li><span class="sdk-list__reg">{REGISTRY[s.registry]}</span> <ExternalLink href={s.url}><code>{s.name}</code></ExternalLink>{s.version && <> version <code>{s.version}</code></>}{s.note && <>: {s.note}</>}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      <h3 id="l-ecosystem-metrics">Metrics</h3>
+      {data.metrics.length === 0 ? <p>No dated metric is recorded yet.</p> : (
+        <div class="table-wrap" role="region" aria-labelledby="metrics-caption" tabindex="0">
+          <table>
+            <caption id="metrics-caption">Metrics, each with its date and definition</caption>
+            <thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">As of</th><th scope="col">Definition and caveats</th></tr></thead>
+            <tbody>
+              {data.metrics.map((m) => (
+                <tr data-disputed={m.disputed ? 'true' : undefined}>
+                  <th scope="row">{m.metric}</th>
+                  <td class="num">{typeof m.value === 'number' ? nf.format(m.value) : m.value} {m.unit}</td>
+                  <td><time datetime={m.asOf}>{m.asOf}</time></td>
+                  <td>
+                    {m.definition} <Cite ids={m.sources.join(' ')} />
+                    {m.caveat && <span class="metric-caveat"> Caveat: {m.caveat}</span>}
+                    {m.disputed && <span class="metric-caveat"> Disputed{m.disputeSources && m.disputeSources.length > 0 && <> <Cite ids={m.disputeSources.join(' ')} /></>}.</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <h3 id="l-ecosystem-costs">Costs</h3>
+      {costs.length === 0 ? <p>No dated cost figure is recorded yet.</p> : (
+        <div class="table-wrap" role="region" aria-labelledby="costs-caption" tabindex="0">
+          <table>
+            <caption id="costs-caption">Costs, who pays them, and how sure we are</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">Value</th><th scope="col">Who pays</th><th scope="col">As of</th><th scope="col">Confidence and caveat</th></tr></thead>
+            <tbody>
+              {costs.map((c) => (
+                <tr>
+                  <th scope="row">{c.item}</th>
+                  <td>{c.value} <Cite ids={c.sources.join(' ')} /></td>
+                  <td>{c.whoPays}</td>
+                  <td><time datetime={c.asOf}>{c.asOf}</time></td>
+                  <td><ConfidenceBadge confidence={c.confidence} /> {c.caveat}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {data.chart && data.chart.series.length > 0 && <MetricChart chart={data.chart} family={ctx.meta.family} />}
+    </>
+  )}
+</Section>

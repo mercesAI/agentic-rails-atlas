@@ -1,0 +1,14 @@
+---
+import Section from '../Section.astro';
+import ComplianceTable from '../ComplianceTable.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.compliance;
+---
+<Section id="j-compliance" missing={data ? null : `${ctx.contentPath}compliance.json`}>
+  {data && <ComplianceTable compliance={data} />}
+</Section>

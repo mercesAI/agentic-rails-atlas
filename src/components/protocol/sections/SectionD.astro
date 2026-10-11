@@ -1,0 +1,35 @@
+---
+/** Section D: ste.mdx inside SteView, a side-by-side comparison with section B, and the STE check report. */
+import Section from '../Section.astro';
+import SteView from '../../ste/SteView.astro';
+import SteCompare from '../../ste/SteCompare.astro';
+import { mdxParagraphToText, practitionerParagraphs } from '../lib/split-body';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const ste = ctx.loaded.ste;
+const standard = practitionerParagraphs(ctx.loaded.entry.body, 2);
+const firstDesc = /<SteDescription\b[^>]*>([\s\S]*?)<\/SteDescription>/.exec(ste?.body ?? '')?.[1] ?? '';
+const steParas = firstDesc
+  .split(/\n\s*\n/)
+  .map((b) => mdxParagraphToText(b))
+  .filter(Boolean)
+  .slice(0, 3);
+---
+<Section id="d-ste" missing={ste ? null : `${ctx.contentPath}ste.mdx`}>
+  <SteView protocol={ctx.slug}>
+    <slot />
+  </SteView>
+  {standard.length > 0 && steParas.length > 0 && (
+    <details class="ste-side" data-ste-compare>
+      <summary>Compare with the practitioner text side by side</summary>
+      <SteCompare standardLabel="Practitioner text (section B)">
+        <Fragment slot="standard">{standard.map((p) => <p>{p}</p>)}</Fragment>
+        {steParas.map((p) => <p>{p}</p>)}
+      </SteCompare>
+    </details>
+  )}
+</Section>

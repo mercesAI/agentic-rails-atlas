@@ -1,0 +1,14 @@
+---
+import Section from '../Section.astro';
+import ObservabilityPanel from '../ObservabilityPanel.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.observability;
+---
+<Section id="k-observability" missing={data ? null : `${ctx.contentPath}observability.json`}>
+  {data && <ObservabilityPanel obs={data} />}
+</Section>

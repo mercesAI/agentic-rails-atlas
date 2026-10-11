@@ -1,0 +1,14 @@
+---
+import Section from '../Section.astro';
+import PublicationList from '../PublicationList.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+---
+<Section id="g-publications">
+  <PublicationList publications={ctx.publications} name={ctx.meta.name} lastVerified={ctx.meta.lastVerified} />
+  <p class="section-foot"><a href="/library/">Search every paper and resource in the library</a></p>
+</Section>

@@ -1,0 +1,86 @@
+---
+/**
+ * Mermaid diagram rendered at build time (ARCHITECTURE.md Section 6).
+ * Inlines both theme variants from src/generated/diagrams/<id>.{light,dark}.svg;
+ * CSS shows the one matching the theme. Caption, a "text alternative"
+ * disclosure and a "source of truth" link. When the SVG is missing, shows the
+ * .mmd source in a <pre> with a "not rendered" note; never fails the build.
+ * Named an island for the contract; it ships no JavaScript.
+ */
+import { getDiagramMeta } from '../../lib/content';
+
+export interface Props {
+  id: string;
+  title?: string;
+  caption?: string;
+  /** Text alternative paragraph. */
+  alt?: string;
+  /** Text alternative as an ordered list (flow steps, transitions). */
+  altSteps?: string[];
+  sourceOfTruth?: { url: string; label: string };
+  /** Repository path of the data the diagram is generated from. */
+  generatedFrom?: string;
+  /** Heading level for the title. */
+  level?: 3 | 4;
+}
+
+const SVGS = import.meta.glob<string>('/src/generated/diagrams/*.svg', { query: '?raw', import: 'default' });
+const MMD = {
+  ...import.meta.glob<string>('/src/generated/mermaid/*.mmd', { query: '?raw', import: 'default' }),
+  ...import.meta.glob<string>('/src/content/diagrams/*.mmd', { query: '?raw', import: 'default' }),
+};
+
+const p = Astro.props;
+const meta = p.caption && p.alt ? null : await getDiagramMeta(p.id).catch(() => null);
+const title = p.title ?? meta?.title ?? p.id;
+const caption = p.caption ?? meta?.caption;
+const alt = p.alt ?? meta?.alt;
+const sot = p.sourceOfTruth ?? meta?.sourceOfTruth;
+const Level = p.level === 4 ? 'h4' : 'h3';
+
+const load = async (key: string, table: Record<string, () => Promise<string>>) => {
+  const fn = table[key];
+  return fn ? await fn().catch(() => null) : null;
+};
+const light = await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS);
+const dark = await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS);
+const rendered = Boolean(light || dark);
+const mmd = rendered
+  ? null
+  : (await load(`/src/generated/mermaid/${p.id}.mmd`, MMD)) ?? (await load(`/src/content/diagrams/${p.id}.mmd`, MMD));
+const domId = `diagram-${p.id}`;
+---
+<figure class="diagram-figure" id={domId} data-diagram={p.id} data-rendered={rendered ? 'true' : 'false'}>
+  <Level class="diagram-figure__title" id={`${domId}-title`}>{title}</Level>
+  {rendered ? (
+    <div class="diagram-figure__canvas" role="img" aria-labelledby={`${domId}-title`} aria-describedby={caption ? `${domId}-cap` : undefined}>
+      {light && dark ? (
+        <>
+          <div class="diagram" data-theme-variant="light" set:html={light} />
+          <div class="diagram" data-theme-variant="dark" set:html={dark} />
+        </>
+      ) : (
+        <div class="diagram" set:html={light ?? dark} />
+      )}
+    </div>
+  ) : (
+    <div class="diagram-figure__missing">
+      <p class="diagram-figure__note">Not rendered yet. Run <code>pnpm diagrams</code>. The Mermaid source follows.</p>
+      {mmd ? <pre tabindex="0"><code>{mmd}</code></pre> : <p class="diagram-figure__note">No Mermaid source found for <code>{p.id}</code>.</p>}
+    </div>
+  )}
+  <figcaption>
+    {caption && <p id={`${domId}-cap`} class="diagram-figure__caption">{caption}</p>}
+    <details class="diagram-figure__alt">
+      <summary>Text alternative</summary>
+      {alt && <p>{alt}</p>}
+      {p.altSteps && p.altSteps.length > 0 && <ol>{p.altSteps.map((s) => <li>{s}</li>)}</ol>}
+      {!alt && !(p.altSteps && p.altSteps.length) && <p>Text alternative in progress.</p>}
+    </details>
+    <p class="diagram-figure__sot">
+      Source of truth:{' '}
+      {sot ? <a href={sot.url} rel="noopener noreferrer external">{sot.label}<span class="sr-only"> (external link)</span></a> : 'not recorded'}
+      {p.generatedFrom && <> Generated from <code>{p.generatedFrom}</code>.</>}
+    </p>
+  </figcaption>
+</figure>

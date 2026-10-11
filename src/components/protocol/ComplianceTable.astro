@@ -1,0 +1,42 @@
+---
+/** Section J: jurisdiction rows grouped by topic, with the "not legal advice" note once. */
+import Cite from '../ui/Cite.astro';
+import ConfidenceBadge from '../ui/ConfidenceBadge.astro';
+import { ComplianceTopic, Jurisdiction, type ComplianceFile } from '../../lib/schemas';
+import { COMPLIANCE_TOPIC_LABELS, JURISDICTION_LABELS } from './labels';
+
+export interface Props {
+  compliance: ComplianceFile;
+}
+const { compliance } = Astro.props;
+const topics = ComplianceTopic.options;
+const jurisdictions = Jurisdiction.options;
+const groups = topics
+  .map((t) => ({
+    topic: t,
+    rows: compliance.rows
+      .filter((r) => r.topic === t)
+      .sort((a, b) => jurisdictions.indexOf(a.jurisdiction) - jurisdictions.indexOf(b.jurisdiction)),
+  }))
+  .filter((g) => g.rows.length);
+---
+<p class="legal-note"><strong>Not legal advice.</strong> This is a study summary of public rules as of the dates cited. Ask counsel about your situation.</p>
+<p>{compliance.summary}</p>
+<div class="table-wrap compliance-table" role="region" aria-labelledby="compliance-caption" tabindex="0">
+  <table>
+    <caption id="compliance-caption">Rules by topic and jurisdiction</caption>
+    <thead><tr><th scope="col">Jurisdiction</th><th scope="col">What applies</th><th scope="col">Confidence</th></tr></thead>
+    {groups.map((g) => (
+      <tbody>
+        <tr class="compliance-table__topic"><th scope="colgroup" colspan="3">{COMPLIANCE_TOPIC_LABELS[g.topic]}</th></tr>
+        {g.rows.map((r) => (
+          <tr>
+            <th scope="row">{JURISDICTION_LABELS[r.jurisdiction]}</th>
+            <td>{r.text} <Cite ids={r.sources.join(' ')} /></td>
+            <td><ConfidenceBadge confidence={r.confidence} /></td>
+          </tr>
+        ))}
+      </tbody>
+    ))}
+  </table>
+</div>

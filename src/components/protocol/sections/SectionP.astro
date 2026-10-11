@@ -1,0 +1,22 @@
+---
+/** Section P: text after the "Compare and compose" marker (or compare.mdx), plus relations and compare data. */
+import Section from '../Section.astro';
+import CompareCompose from '../CompareCompose.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+  html: string;
+}
+const { ctx, html } = Astro.props;
+const hasCompareMdx = Astro.slots.has('default');
+---
+<Section id="p-compare">
+  {hasCompareMdx ? (
+    <CompareCompose slug={ctx.slug} name={ctx.meta.name} relations={ctx.relations} cells={ctx.compareCells} dimensions={ctx.compareDimensions} protocols={ctx.protocols}>
+      <slot />
+    </CompareCompose>
+  ) : (
+    <CompareCompose slug={ctx.slug} name={ctx.meta.name} relations={ctx.relations} cells={ctx.compareCells} dimensions={ctx.compareDimensions} protocols={ctx.protocols} html={html} />
+  )}
+</Section>

@@ -1,0 +1,48 @@
+---
+/** Section I: native support per control, gaps, control points and an implementer checklist. */
+import Cite from '../ui/Cite.astro';
+import { CONTROL_IDS, CONTROL_LABELS, type ControlsFile } from '../../lib/schemas';
+import { CONTROL_POINT_LABELS, SUPPORT_LABELS } from './labels';
+
+export interface Props {
+  controls: ControlsFile;
+}
+const { controls } = Astro.props;
+const cells = [...controls.native].sort((a, b) => CONTROL_IDS.indexOf(a.control) - CONTROL_IDS.indexOf(b.control));
+---
+<p>{controls.summary}</p>
+<div class="table-wrap controls-table" role="region" aria-labelledby="controls-caption" tabindex="0">
+  <table>
+    <caption id="controls-caption">Native controls (support levels: native, partial, external, none)</caption>
+    <thead><tr><th scope="col">Control</th><th scope="col">Support</th><th scope="col">Note</th></tr></thead>
+    <tbody>
+      {cells.map((c) => (
+        <tr>
+          <th scope="row">{CONTROL_LABELS[c.control]}</th>
+          <td><span class="support" data-support={c.support}><span class="support__mark" aria-hidden="true"></span>{SUPPORT_LABELS[c.support]}</span></td>
+          <td>{c.note} <Cite ids={c.sources.join(' ')} /></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<p class="controls-link"><a href="/controls/">Compare these controls across all eight protocols</a></p>
+<h3 id="i-controls-gaps">Gaps</h3>
+<ul class="gap-list">
+  {controls.gaps.map((g) => <li><strong>{g.title}.</strong> {g.description} <Cite ids={g.sources.join(' ')} /></li>)}
+</ul>
+<h3 id="i-controls-points">Where an independent controls layer can act</h3>
+<dl class="control-points">
+  {controls.controlPoints.map((p) => (
+    <div>
+      <dt>{CONTROL_POINT_LABELS[p.point]}</dt>
+      <dd><strong>{p.what}</strong> {p.how} {p.sources.length > 0 && <Cite ids={p.sources.join(' ')} />}</dd>
+    </div>
+  ))}
+</dl>
+<h3 id="i-controls-checklist">Implementer checklist</h3>
+<ul class="checklist">
+  {controls.checklist.map((c) => (
+    <li><span class="checklist__box" aria-hidden="true"></span><span><strong>{c.item}</strong> {c.why} {c.sources && c.sources.length > 0 && <Cite ids={c.sources.join(' ')} />}</span></li>
+  ))}
+</ul>

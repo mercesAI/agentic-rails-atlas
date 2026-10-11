@@ -1,0 +1,19 @@
+---
+import Section from '../Section.astro';
+import ResourceList from '../ResourceList.astro';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const data = ctx.loaded.sidecars.resources;
+---
+<Section id="f-resources" missing={data ? null : `${ctx.contentPath}resources.json`}>
+  {data && (
+    <>
+      <p class="section-lede">{data.resources.length} resources. Starred entries are the best places to start.</p>
+      <ResourceList resources={data.resources} />
+    </>
+  )}
+</Section>

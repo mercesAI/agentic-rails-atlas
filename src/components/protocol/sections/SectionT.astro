@@ -1,0 +1,17 @@
+---
+/** Section T: per-section notes stored in this browser (atlas:notes). */
+import Section from '../Section.astro';
+import NotesPanel from '../../islands/NotesPanel';
+import { SECTION_IDS, SECTION_TITLES } from '../../../lib/schemas';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const sections = SECTION_IDS.map((id) => ({ id, title: `${id.charAt(0).toUpperCase()}. ${SECTION_TITLES[id]}` }));
+---
+<Section id="t-notes" class="notes-section">
+  <NotesPanel client:visible scope={ctx.slug} name={ctx.meta.name} sections={sections} />
+  <p class="section-foot no-print"><a href="/notes/">All your notes across the atlas</a></p>
+</Section>

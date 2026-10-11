@@ -1,0 +1,26 @@
+---
+/** Section O: the playground island inside PlaygroundFrame when ready, otherwise the ComingNext card. */
+import Section from '../Section.astro';
+import ComingNext from '../ComingNext.astro';
+import PlaygroundFrame from '../../islands/PlaygroundFrame';
+import type { ProtocolPageContext } from '../lib/load';
+
+export interface Props {
+  ctx: ProtocolPageContext;
+}
+const { ctx } = Astro.props;
+const { meta } = ctx;
+const available = Object.keys(import.meta.glob('/src/playgrounds/*/Playground.tsx')).some((k) => k.includes(`/${meta.slug}/`));
+const ready = meta.playground.status === 'ready' && available;
+const specVersion = ctx.flow?.specVersion ?? meta.latestVersion.label;
+---
+<Section id="o-playground">
+  {ready ? (
+    <>
+      {meta.playground.note && <p>{meta.playground.note}</p>}
+      <PlaygroundFrame client:visible slug={meta.slug} specVersion={specVersion} title={`${meta.name} playground`} />
+    </>
+  ) : (
+    <ComingNext name={meta.name} note={meta.playground.note} />
+  )}
+</Section>
