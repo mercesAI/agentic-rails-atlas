@@ -1,0 +1,79 @@
+---
+slug: mcp
+name: MCP (Model Context Protocol)
+category: agent-communication
+starred: true
+oneLiner: An open JSON-RPC protocol that lets LLM applications connect to servers that offer tools, resources and prompts.
+steward: Agentic AI Foundation (AAIF), a Linux Foundation directed fund formed 2025-12-09, with Anthropic contributing MCP
+status: Live
+relations:
+  - to: x402
+    type: complements
+    note: x402 defines an MCP transport (payment required in a tool result, payment and settlement carried in _meta) and ships an @x402/mcp package.
+  - to: stripe-mpp
+    type: complements
+    note: The MPP specs repository defines a JSON-RPC and MCP transport for the Payment authentication scheme.
+  - to: openai-acp
+    type: complements
+    note: The 2026-04-17 ACP release added an MCP transport binding whose tools map to the REST checkout operations.
+  - to: ucp
+    type: complements
+    note: UCP lists MCP as a transport, specifies Streamable HTTP for it and signs MCP requests with the same RFC 9421 rules.
+  - to: erc-8004
+    type: compatible-with
+    note: ERC-8004 registration files accept an MCP service entry, and feedback can reference an MCP tool, prompt or resource.
+  - to: ap2
+    type: compatible-with
+    note: AP2 samples run merchant, credentials provider and processor roles as MCP servers; the AP2 FAQ says an SDK and MCP server are being worked on.
+  - to: visa-tap
+    type: compatible-with
+    note: Visa publishes MCP server and client packages for its Intelligent Commerce APIs; TAP itself does not depend on MCP.
+  - to: mastercard-agent-pay
+    type: compatible-with
+    note: Mastercard ships a Developers MCP server package; it is not specific to Agent Pay.
+sources:
+  - src-gloss-mcp-spec
+  - src-gloss-aaif-lf
+  - src-x402-transport-mcp-v2
+  - src-x402-npm-downloads
+  - src-stripe-mpp-mcp-transport
+  - src-openai-acp-mcp-binding
+  - src-openai-acp-openrpc-20260417
+  - src-openai-acp-changelog-20260417
+  - src-ucp-mcp-openrpc
+  - src-ucp-signatures
+  - src-erc-8004-spec
+  - src-ap2-faq
+  - src-ap2-repo
+  - src-x402-ap2-repo
+  - src-visa-ai-repo
+  - src-visa-mcp-server
+  - src-mcap-npm-mcp
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+MCP standardizes how an AI application talks to a server that offers capabilities. The client usually lives inside a chat product or coding agent, and the server exposes tools the client can call, resources it can read and prompts it can insert. Messages are JSON-RPC 2.0 between hosts, clients and servers, carried over stdio or Streamable HTTP. <Cite ids="src-gloss-mcp-spec" />
+
+## Status
+
+MCP is live and uses dated specification revisions; the atlas reads revision 2025-11-25. <Cite ids="src-gloss-mcp-spec" /> On 2025-12-09 the Linux Foundation announced the Agentic AI Foundation (AAIF), with Anthropic contributing MCP alongside Block's goose and OpenAI's AGENTS.md. The founding platinum members were Amazon Web Services, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft and OpenAI. <Cite ids="src-gloss-aaif-lf" />
+
+## How it relates to the eight
+
+For agentic payments MCP is the plumbing that other rails ride on. Several of the eight define how their messages travel inside MCP calls.
+
+- [x402](/p/x402/) defines an MCP transport: a tool result with `isError: true` carries the `PaymentRequired` data, the client retries with payment in `_meta["x402/payment"]`, and settlement comes back in `_meta["x402/payment-response"]`. <Cite ids="src-x402-transport-mcp-v2" /> The project publishes an `@x402/mcp` package. <Cite ids="src-x402-npm-downloads" />
+- [MPP](/p/stripe-mpp/) has a draft JSON-RPC and MCP transport for its Payment authentication scheme, with capability advertisement and payment data placed in MCP's `_meta`. <Cite ids="src-stripe-mpp-mcp-transport" />
+- [ACP](/p/openai-acp/) added an MCP transport binding in its 2026-04-17 release; its OpenRPC file defines MCP tools that map one to one to the REST checkout operations, with authentication handled at the MCP server level. <Cite ids="src-openai-acp-changelog-20260417 src-openai-acp-mcp-binding src-openai-acp-openrpc-20260417" />
+- [UCP](/p/ucp/) lists MCP as a transport with an OpenRPC schema, specifies Streamable HTTP rather than SSE, and applies the same RFC 9421 signature rules to MCP POST requests. <Cite ids="src-ucp-mcp-openrpc src-ucp-signatures" />
+- [ERC-8004](/p/erc-8004/) registration files accept an `MCP` service entry with endpoint and version, and feedback entries may name an MCP tool, prompt or resource. <Cite ids="src-erc-8004-spec" />
+- [AP2](/p/ap2/) samples run merchant, credentials provider and payment processor roles as MCP servers, and the AP2 FAQ says an SDK and an MCP server are being worked on. <Cite ids="src-ap2-repo src-x402-ap2-repo src-ap2-faq" />
+- For [Visa TAP](/p/visa-tap/), Visa publishes MCP client and token manager packages for its Intelligent Commerce APIs; TAP itself does not depend on MCP. <Cite ids="src-visa-ai-repo src-visa-mcp-server" />
+- For [Mastercard Agent Pay](/p/mastercard-agent-pay/), Mastercard ships the `@mastercard/developers-mcp` server package, which is a general developer tool rather than an Agent Pay component. <Cite ids="src-mcap-npm-mcp" />
+
+## Status history
+
+- 2025-11-25: specification revision 2025-11-25 released. <Cite ids="src-gloss-mcp-spec" />
+- 2025-12-09: MCP joins the Agentic AI Foundation under the Linux Foundation. <Cite ids="src-gloss-aaif-lf" />

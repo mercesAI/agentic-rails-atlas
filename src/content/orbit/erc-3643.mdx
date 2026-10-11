@@ -1,0 +1,81 @@
+---
+slug: erc-3643
+name: ERC-3643 and ONCHAINID
+category: agent-identity
+starred: true
+oneLiner: A Final Ethereum token standard for permissioned (regulated) tokens whose holders need an ONCHAINID identity contract carrying claims signed by trusted issuers.
+steward: ERC3643 Association (ERC3643 ASBL, Luxembourg); reference implementation in the ERC-3643 GitHub organization, originally built by Tokeny Solutions as T-REX; ONCHAINID maintained in the onchain-id GitHub organization
+status: Final ERC; reference implementation live
+latestVersion:
+  label: "4.1.6 highest stable release (archived T-REX repository); the ERC-3643 organization marks 4.1.3 as latest (2025-06-12)"
+  date: "2024-10-18"
+relations:
+  - to: erc-8004
+    type: complements
+    note: Different layers (token compliance versus agent identity and reputation). ERC-8226 composes them; neither spec references the other.
+sources:
+  - src-erc-3643-spec
+  - src-erc-3643-repo
+  - src-trex-repo
+  - src-onchainid-identity
+  - src-onchainid-structs
+  - src-eip-issue-734
+  - src-eip-issue-735
+  - src-eip-725
+  - src-erc3643-association
+  - src-erc-8226
+  - src-erc-8004-spec
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+ERC-3643, titled "T-REX - Token for Regulated EXchanges", is an ERC-20 compatible token standard that checks the identity of the sender and the receiver on every transfer. It is Final, was created on 2021-07-09 by Joachim Lebrun, Tony Malghem, Kevin Thizy, Luc Falempin and Adam Boudjemaa, and requires EIP-20 and EIP-173. <Cite ids="src-erc-3643-spec" />
+
+A token is connected to an Identity Registry that maps each wallet to an ONCHAINID identity contract and a country code. The call `isVerified(address)` passes only when that identity holds the claim topics listed in the Claim Topics Registry, signed by issuers listed in the Trusted Issuers Registry. A Compliance contract answers `canTransfer(_from, _to, _amount)` on each transfer, so offering rules (investor caps, country limits and similar modules) sit next to the identity check. In ERC-3643 the word "Agent" names an operator role that the token owner appoints to register identities, mint, burn and freeze. <Cite ids="src-erc-3643-spec" />
+
+ONCHAINID is the identity half. Its `Identity.sol` contract descends from the ERC-734 Key Manager and ERC-735 Claim Holder proposals, which exist only as closed GitHub issues 734 and 735 in the `ethereum/EIPs` repository; issue 734 points to the LSP6 Key Manager and issue 735 carries the status "Discussion". ERC-725 is still Draft. <Cite ids="src-onchainid-identity src-eip-issue-734 src-eip-issue-735 src-eip-725" />
+
+In `Identity.sol`, keys have purposes (1 MANAGEMENT, 2 ACTION, 3 CLAIM signer, 4 ENCRYPTION) and types (1 ECDSA, 2 RSA), and only purpose-3 keys may call `addClaim`. A claim has `topic`, `scheme`, `issuer`, `signature`, `data` and `uri`. The issuer signs the hash of the identity address, topic and data, and a verifier checks a third-party claim through the issuer contract's `isClaimValid`, which lets the issuer side revoke it. <Cite ids="src-onchainid-identity src-onchainid-structs" />
+
+## Status
+
+ERC-3643 is a Final, Standards Track ERC. <Cite ids="src-erc-3643-spec" /> The reference implementation `ERC-3643/ERC-3643` is GPL-3.0, not archived, and was last pushed on 2026-08-28; it marks `4.1.3` as "latest" (release published 2025-06-12) with `4.2.0-beta1` as a pre-release. <Cite ids="src-erc-3643-repo" /> The original `TokenySolutions/T-REX` repository is archived (last push 2025-10-28); its `4.1.6` release of 2024-10-18 is the highest stable version number. <Cite ids="src-trex-repo" /> The standard is stewarded by the ERC3643 Association, a Luxembourg ASBL. <Cite ids="src-erc3643-association" />
+
+## How it relates to the eight
+
+Compared with [ERC-8004](/p/erc-8004/) the two standards answer different questions. ERC-3643 asks "may this wallet hold or receive this regulated token?" and answers with issuer-attested, revocable claims checked on every transfer. ERC-8004 asks "who is this agent, where are its services, and what do others say about it?" and answers with a permissionless ERC-721 registration, an off-chain registration file and open feedback. Neither covers the other's job: ERC-3643 has no notion of an agent as a service, endpoint or feedback subject, and ERC-8004 has no issuer-attested compliance and no mandate or delegation model. <Cite ids="src-erc-3643-spec src-erc-8004-spec" />
+
+| Dimension | ERC-3643 plus ONCHAINID | ERC-8004 |
+|---|---|---|
+| Status | Final ERC (created 2021-07-09); stewarded by the ERC3643 Association | Draft ERC (created 2025-08-13); community effort |
+| Access model | Permissioned: the holder must be in the Identity Registry and pass `isVerified`, which needs the required claim topics from trusted issuers | Permissionless: any address calls `register()` and receives an ERC-721 agent id |
+| Trust signal | Issuer-signed claims on the holder's ONCHAINID, checked through `isClaimValid`, revocable by the issuer side | Open feedback from any address except owner and operators; validator responses 0 to 100 in a Validation Registry that is specified but not officially deployed |
+| Scope | Transfer compliance for one token | Discovery and trust registry for agents and their services |
+| Who writes | Token agents register identities; CLAIM keys add claims; MANAGEMENT keys manage keys; the token owner manages issuers and topics | Owner or operator writes URI and metadata; any third party writes feedback; a named validator responds |
+| Upgradeability | T-REX contracts behind proxies that point to `TREXImplementationAuthority`; ONCHAINID identities can be proxies | UUPS proxies at CREATE2 addresses; one EOA holds the upgrade right on Ethereum and Base as of 2026-10-11 |
+| Data location | Claims on-chain in the identity contract; `data` may be a hash and `uri` may point off-chain | Registration file off-chain (IPFS, HTTPS) or a data URI; feedback value and tags on-chain; detail files off-chain |
+| Missing | No agent, service endpoint or feedback concept | No issuer-attested compliance and no mandate model |
+
+Sources for the table: <Cite ids="src-erc-3643-spec src-erc-3643-repo src-onchainid-identity src-erc-8004-spec" />
+
+## If you come from T-REX
+
+A `ClaimIssuer` you trust plays the part of the trusted reviewer list you pass to ERC-8004's `getSummary`. Claim topics map loosely to ERC-8004 feedback tags: both are labels a reader filters on, but tags are free text written by anyone. The ERC-8004 "Identity Registry" shares a name with the T-REX Identity Registry but is a different thing, an ERC-721 directory of agents rather than an allowlist that maps wallets to identities. The T-REX "Agent" role (an operator appointed by the token owner) is also unrelated to an ERC-8004 agent (the AI service itself). <Cite ids="src-erc-3643-spec src-onchainid-identity src-erc-8004-spec" />
+
+## The bridge: ERC-8226
+
+The only standard found that joins the two worlds is [ERC-8226 "Regulated Agent Mandate"](https://eips.ethereum.org/EIPS/eip-8226), a Draft created on 2026-04-12. It treats ERC-3643 or ERC-7943 as the token-compliance layer and ERC-8004 as the agent-identity layer, and adds a mandate layer between them. <Cite ids="src-erc-8226" /> No ERC3643 Association statement about AI agents or ERC-8004 was found in the pages searched on 2026-10-11; that is an absence of evidence only. <Cite ids="src-erc3643-association" />
+
+## Status history
+
+- 2017-10-02: ERC-734 Key Manager header date (GitHub issue 734). <Cite ids="src-eip-issue-734" />
+- 2017-10-09: ERC-735 Claim Holder proposed as GitHub issue 735. <Cite ids="src-eip-issue-735" />
+- 2021-07-09: ERC-3643 created. <Cite ids="src-erc-3643-spec" />
+- 2024-10-18: T-REX `4.1.6` stable release published. <Cite ids="src-trex-repo" />
+- 2025-01-16: T-REX `4.2.0-beta2` pre-release. <Cite ids="src-trex-repo" />
+- 2025-02-05: T-REX `4.1.7-beta1` pre-release. <Cite ids="src-trex-repo" />
+- 2025-06-12: the ERC-3643 organization repository publishes `4.1.3` (marked latest) and `4.2.0-beta1`. <Cite ids="src-erc-3643-repo" />
+- 2025-10-28: last push to `TokenySolutions/T-REX` before archiving (the archive date itself is not exposed). <Cite ids="src-trex-repo" />
+- 2026-04-12: ERC-8226 created, naming ERC-3643 as a token-compliance layer for agents. <Cite ids="src-erc-8226" />
+- 2026-08-28: last push to `ERC-3643/ERC-3643` as of 2026-10-11. <Cite ids="src-erc-3643-repo" />

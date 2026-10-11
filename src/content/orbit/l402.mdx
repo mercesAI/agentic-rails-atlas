@@ -1,0 +1,72 @@
+---
+slug: l402
+name: L402 and the Lightning Network
+category: machine-payments
+starred: true
+oneLiner: An HTTP 402 authentication scheme from Lightning Labs in which a server returns a Lightning invoice plus a bearer token, and the client proves payment by presenting the token with the invoice preimage.
+steward: Lightning Labs (lightninglabs/L402 repository); proposed to the Lightning bLIP process as bLIP-0026, still an open pull request
+status: Live (Lightning Labs); bLIP-0026 PR open
+latestVersion:
+  label: bLIP-0026 draft protocol version 0 (PR head rewrite); Lightning Labs repository text at commit 592203a (2026-03-20)
+  date: "2026-02-25"
+relations:
+  - to: x402
+    type: competes-with
+    note: Both are HTTP 402 payment schemes for APIs and agents. The x402 exact scheme on lnbtc reuses the preimage-as-proof idea without a macaroon; no source says L402 is an ancestor of x402.
+  - to: stripe-mpp
+    type: competes-with
+    note: MPP also uses the HTTP 402 challenge pattern, and its specs repository defines Lightning charge and session methods (Lightspark authors) that do not use L402 tokens.
+sources:
+  - src-x402-l402-repo
+  - src-orbit-l402-repo-history
+  - src-orbit-l402-blip-pr
+  - src-orbit-l402-blip-head
+  - src-x402-blip-0026
+  - src-orbit-l402-docs
+  - src-orbit-l402-aperture
+  - src-x402-scheme-exact-lnbtc
+  - src-orbit-l402-mpp-lightning
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+L402 is an earlier HTTP 402 payment design on Lightning. A client requests a paid resource, and the server answers `402 Payment Required` with a `WWW-Authenticate: L402` challenge that carries a credential and a BOLT11 Lightning invoice. The client pays the invoice, which reveals the payment preimage, and then sends `Authorization: L402 <credential>:<preimage>`. Because the credential commits to the invoice's payment hash, the server can check the preimage against that hash without a database lookup. <Cite ids="src-x402-l402-repo src-orbit-l402-blip-head" />
+
+The credential is a bearer token, so it can be reused for later requests or handed to another agent or wallet. Lightning Labs' builder's guide now describes L402 as built with a focus on agentic commerce. <Cite ids="src-orbit-l402-docs" />
+
+## From LSAT to L402
+
+The protocol began as LSAT ("Lightning Service Authentication Token"). The repository's first commit is dated 2020-02-06, and its 2020 README describes LSAT as macaroon-based authentication and paid APIs for Lightning Labs services. A documentation rewrite merged on 2023-04-20 replaced "LSAT" with "L402" throughout the specification. <Cite ids="src-orbit-l402-repo-history" /> Both the repository and bLIP-0026 keep a backwards-compatibility rule: servers and clients should accept `LSAT` wherever `L402` appears. <Cite ids="src-x402-l402-repo src-orbit-l402-blip-head" />
+
+## Two specification texts
+
+The original Lightning Labs specification, which is also the repository text today, fixes the credential as a macaroon. The challenge reads `L402 macaroon="...", invoice="..."`, and caveats on the macaroon narrow what the token may access (target services, capabilities, and constraints such as expiry). <Cite ids="src-x402-l402-repo" />
+
+bLIP-0026, as rewritten by Olaoluwa Osuntokun on 2026-02-25, makes L402 token-format agnostic. The challenge becomes `L402 version="0", token="...", invoice="..."`, any token that commits to the preimage is allowed, and macaroons become the RECOMMENDED format rather than a requirement. <Cite ids="src-orbit-l402-blip-head src-orbit-l402-blip-pr" /> The bLIP is pull request #26 in `lightning/blips`, and it was still open and unmerged on 2026-10-11. <Cite ids="src-orbit-l402-blip-pr" />
+
+Lightning Labs aligned its repository with that rewrite on 2026-03-10 and returned to the `macaroon=` header format on 2026-03-20, saying the header changes would be proposed again later. <Cite ids="src-orbit-l402-repo-history src-orbit-l402-blip-pr" /> In short: macaroons are optional in the bLIP-0026 draft (2026-02-25) and required in the Lightning Labs repository text (2026-03-20).
+
+## Rail and limits
+
+L402 rides on the Lightning Network, Bitcoin's payment-channel network, so payments are in bitcoin (sats). Payment must happen over Lightning: when a reviewer on the bLIP thread raised this limit, Osuntokun replied on 2026-03-11 that a card-accepting variant might be possible but does not fit the vision being pursued. <Cite ids="src-orbit-l402-blip-pr" /> Neither spec text defines a refund or dispute process; the preimage is the proof of payment. <Cite ids="src-x402-l402-repo src-orbit-l402-blip-head" />
+
+## Status
+
+L402 is live as a deployed protocol through Lightning Labs' Aperture reverse proxy, whose `v0.5.0` release came out on 2026-03-25. <Cite ids="src-orbit-l402-aperture" /> The `lightninglabs/L402` repository was last pushed on 2026-06-09. <Cite ids="src-orbit-l402-repo-history" /> The bLIP-0026 header reads "Active" with a created date of 2023-06-06, but the pull request that carries it is not merged. <Cite ids="src-orbit-l402-blip-head src-orbit-l402-blip-pr" />
+
+## How it relates to the eight
+
+Several of the eight now carry Lightning as a payment method without L402's token layer. The [x402](/p/x402/) `exact` scheme has an `lnbtc` binding that reuses the idea of a preimage as proof of payment but carries it in x402's own payment header with no macaroon. <Cite ids="src-x402-scheme-exact-lnbtc" /> The [MPP](/p/stripe-mpp/) specs repository includes Lightning charge and session method drafts authored by Lightspark, which do not mention L402 or macaroons. <Cite ids="src-orbit-l402-mpp-lightning" /> Neither spec claims descent from L402, so the two are best read as parallel HTTP 402 designs, not as a lineage.
+
+## Status history
+
+- 2020-02-06: first commit of the LSAT specification repository (repository created 2020-02-07). <Cite ids="src-orbit-l402-repo-history" />
+- 2023-04-20: documentation rewrite renames LSAT to L402 in the specification. <Cite ids="src-orbit-l402-repo-history" />
+- 2023-06-06: bLIP-0026 "L402: The Lightning HTTP 402 Protocol" created (PR #26 opened 2023-06-07). <Cite ids="src-orbit-l402-blip-head src-orbit-l402-blip-pr" />
+- 2023-07-05: Aperture `v0.2-beta` release. <Cite ids="src-orbit-l402-aperture" />
+- 2026-02-25: bLIP-0026 rewritten with a token-agnostic `token=` parameter and `version="0"`. <Cite ids="src-orbit-l402-blip-pr src-orbit-l402-blip-head" />
+- 2026-03-10: Lightning Labs repository aligned with the bLIP rewrite and adds an agent-oriented spec (`agent-spec.md`). <Cite ids="src-orbit-l402-repo-history" />
+- 2026-03-11: Lightning Labs says development will continue in its standalone L402 repository. <Cite ids="src-orbit-l402-blip-pr" />
+- 2026-03-20: repository returns to the `macaroon=` header format; agent spec kept. <Cite ids="src-orbit-l402-repo-history" />
+- 2026-03-25: Aperture `v0.5.0` release. <Cite ids="src-orbit-l402-aperture" />

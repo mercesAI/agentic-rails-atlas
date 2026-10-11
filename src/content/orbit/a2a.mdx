@@ -1,0 +1,55 @@
+---
+slug: a2a
+name: A2A (Agent2Agent)
+category: agent-communication
+starred: true
+oneLiner: An open protocol for agents to find each other through Agent Cards and hand off tasks over JSON-RPC, gRPC or HTTP bindings.
+steward: A2A Project at the Linux Foundation
+status: Live
+relations:
+  - to: ap2
+    type: complements
+    note: AP2 describes itself as an open extension for A2A, and its samples run merchant, credentials provider and processor agents over A2A.
+  - to: x402
+    type: complements
+    note: The a2a-x402 extension v0.1 and the x402 A2A transport carry x402 payment states inside A2A task messages.
+  - to: ucp
+    type: complements
+    note: UCP's checkout capability has an A2A binding; businesses using it publish an agent card endpoint.
+  - to: erc-8004
+    type: compatible-with
+    note: ERC-8004 registration files can point to an A2A agent card, and feedback can reference A2A skills, contextId and taskId.
+sources:
+  - src-gloss-a2a-spec
+  - src-ibm-acp-a2a
+  - src-arxiv-2505-02279
+  - src-ap2-site
+  - src-ap2-repo
+  - src-ap2-a2a-x402-v01
+  - src-x402-a2a-repo
+  - src-x402-transport-a2a-v2
+  - src-ucp-a2a
+  - src-erc-8004-spec
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+A2A gives an agent a published Agent Card, a JSON document that describes its skills, endpoints and security schemes, plus a task model that a client agent drives across a network boundary. Tasks carry messages and artifacts and move through states such as `input-required`. The public Agent Card is served at `/.well-known/agent-card.json`, and the specification separates the application protocol from its JSON-RPC, gRPC and HTTP transport bindings. <Cite ids="src-gloss-a2a-spec" />
+
+A2A is often compared with MCP: MCP connects one application to the tools and data it uses, while A2A connects agents to other agents. <Cite ids="src-arxiv-2505-02279" />
+
+## Status
+
+A2A is live and published as a Linux Foundation project. <Cite ids="src-gloss-a2a-spec" /> On 2025-08-29 the LF AI and Data Foundation announced that IBM's Agent Communication Protocol (not OpenAI's ACP) was joining forces with A2A. <Cite ids="src-ibm-acp-a2a" />
+
+## How it relates to the eight
+
+In the payments orbit A2A is a transport and a container for extensions.
+
+- [AP2](/p/ap2/) calls itself an open extension for A2A (and for MCP and UCP), and its Python samples run merchant, credentials provider and payment processor agents that talk over A2A. <Cite ids="src-ap2-site src-ap2-repo" />
+- For [x402](/p/x402/), the `a2a-x402` repository defines the x402 Payments Extension v0.1 with the extension URI `https://github.com/google-a2a/a2a-x402/v0.1` and the payment states `payment-required`, `payment-submitted` and `payment-completed`. <Cite ids="src-ap2-a2a-x402-v01 src-x402-a2a-repo" /> x402 v2 carries a matching A2A transport that signals payment with the task state `input-required` and `x402.payment.status` metadata. <Cite ids="src-x402-transport-a2a-v2" />
+- [UCP](/p/ucp/) defines an A2A binding for its checkout capability, and businesses that support it publish an agent card endpoint. <Cite ids="src-ucp-a2a" />
+- [ERC-8004](/p/erc-8004/) registration files can list an `A2A` service that points to an agent card, and feedback entries can reference A2A skills, `contextId` and `taskId`. <Cite ids="src-erc-8004-spec" />
+
+No direct A2A binding was found in the cloned specs of ACP, MPP, Visa TAP or Mastercard Agent Pay.
