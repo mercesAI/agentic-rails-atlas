@@ -1,0 +1,10 @@
+{
+  "id": "multi-agent-shops-with-visa-card-context",
+  "protocol": "multi",
+  "type": "composition",
+  "title": "An agent shops with a Visa card: actors and protocol boundaries",
+  "caption": "Visa Intelligent Commerce holds the consumer's consent, the agent-specific token and the transaction confirmations. TAP carries the agent's signatures to the merchant: agent-browser-auth while browsing, agent-payer-auth at checkout with two signed body objects. The CDN verifies header signatures against Visa's key store; the merchant verifies the body objects; card authorization runs on ordinary card rails outside TAP. On 2026-10-11 the key store held one RSA sandbox key, so the specification's example keys cannot be resolved there.",
+  "alt": "Flowchart. The consumer chats with the AI agent and approves a Payment Instruction with a passkey in Visa Intelligent Commerce. The agent enrolls the card, creates the instruction, retrieves credentials and later sends a confirmation to Visa Intelligent Commerce. The agent sends browsing requests tagged agent-browser-auth and a checkout request tagged agent-payer-auth with the agenticConsumer and agenticPaymentContainer objects to the merchant's CDN. The CDN fetches the key by keyid from Visa's key store at mcp.visa.com/.well-known/jwks, a dashed line, and forwards verified requests to the merchant website. The merchant verifies the body objects and the credential hash, then sends a card authorization to the acquirer, Visa network and issuer, which sits outside TAP.",
+  "sourceOfTruth": { "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications", "label": "Visa Trusted Agent Protocol specification (unversioned, read 2026-10-11)" },
+  "sources": ["src-visa-tap-spec", "src-visa-tap-cf-blog", "src-visa-tap-jwks", "src-visa-vic-dev", "src-visa-ai-vic-client"]
+}

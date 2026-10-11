@@ -1,0 +1,91 @@
+---
+slug: agent-shops-with-visa-card
+order: 5
+title: An agent shops on a merchant website with a Visa card
+summary: An agent browses a merchant site with TAP agent-browser-auth signatures, gets a passkey-approved Payment Instruction and an agent-specific token from Visa Intelligent Commerce, then checks out with an agent-payer-auth signature and the agenticConsumer and agenticPaymentContainer objects. A CDN verifies the signatures at the edge. Visa's public key directory held only an RSA sandbox key on 2026-10-11, and the specification's examples cannot verify.
+protocols:
+  - visa-tap
+flow: multi-agent-shops-with-visa-card
+personas:
+  - consumer
+  - agent-dev
+  - merchant-enterprise
+  - cdn-security
+  - issuer
+  - fraud-risk
+  - controls-builder
+lastVerified: "2026-10-11"
+---
+
+## The situation
+
+A consumer asks an AI agent to buy one item from a merchant's own website and pay with a Visa card already linked to the agent. The agent browses like a person would, but it signs every request so that the merchant's CDN can tell it apart from an unknown bot. The consumer is present at one moment only: to approve the purchase with a passkey.
+
+Two Visa layers work together here. The Trusted Agent Protocol (TAP) lets the agent prove its identity by signing its web requests, and it does not move money by itself.<Cite ids="clm-visa-tap-001 clm-visa-tap-002" /> Visa presents TAP as an enhancement to Visa Intelligent Commerce (VIC), which holds the consumer's consent, the limits and the agent-specific token.<Cite ids="clm-visa-tap-007 clm-visa-tap-129" />
+
+Parts of this run live today. Visa says live European agent purchases used TAP and the Agent Directory, at merchant websites rather than test storefronts.<Cite ids="clm-visa-tap-159 clm-visa-tap-181" /> Cloudflare and Akamai support TAP at the infrastructure level.<Cite ids="clm-visa-tap-152" /> No count of merchants that verify TAP signatures is published, and the specification page has no version number or date.<Cite ids="clm-visa-tap-133 clm-visa-tap-023" />
+
+## Actors
+
+- **Consumer**, who approves the Payment Instruction with a passkey.
+- **AI agent**, an Agent Provider: a certified AI platform onboarded to the payment scheme.<Cite ids="clm-visa-tap-031" />
+- **Visa Intelligent Commerce**, which enrolls the card, holds instructions and returns credentials.
+- **Visa key store**, the public JWK Set that verifiers use.<Cite ids="clm-visa-tap-069" />
+- **CDN**, a Site Protection Provider in front of the merchant site.<Cite ids="clm-visa-tap-033" />
+- **Merchant**, which may verify signatures itself or let the CDN do it.<Cite ids="clm-visa-tap-035" />
+- **Acquirer, network and issuer**, on ordinary card rails.
+
+## Step by step
+
+1. **Ask (no protocol).** The consumer names the item and the merchant.
+2. **Enroll the card (VIC).** The agent enrolls the card with `POST /vacp/v1/cards`, as Visa's VIC API client names the call.<Cite ids="clm-visa-tap-143" /> VIC provisions an agent-specific token after step-up verification of the cardholder and setup of a passkey.<Cite ids="clm-visa-tap-140" />
+3. **Browse with a signature (TAP).** The agent sends RFC 9421 `Signature-Input` and `Signature` headers.<Cite ids="clm-visa-tap-037" /> The signature covers at least `@authority` and `@path` and carries `created`, `expires`, `keyid`, `alg`, `nonce` and `tag`.<Cite ids="clm-visa-tap-038 clm-visa-tap-039" /> For browsing the tag is `agent-browser-auth`.<Cite ids="clm-visa-tap-040" />
+4. **Fetch the key (TAP).** The CDN resolves `keyid` against Visa's key store. On 2026-10-11 that JWK Set held one 2048-bit RSA key and no Ed25519 key.<Cite ids="clm-visa-tap-071" /> The key carried a certificate for `vic-oauth-jwe.visa.com` from a Visa sandbox issuing CA.<Cite ids="clm-visa-tap-072" /> Visa has not published how production agent keys are distributed.<Cite ids="clm-visa-tap-074" />
+5. **Verify at the edge (TAP).** The CDN checks, in order, the tag, the minimum fields, the time window, the nonce, the key and the signature.<Cite ids="clm-visa-tap-075" /> The window is at most 8 minutes.<Cite ids="clm-visa-tap-043" />
+6. **Forward (TAP).** The CDN passes the request on as a verified agent.<Cite ids="clm-visa-tap-085" />
+7. **Product page (TAP).** The merchant returns product details, availability and the final cost after taxes and shipping.<Cite ids="clm-visa-tap-237" /> It may show a simpler agent-specific page.<Cite ids="clm-visa-tap-234" />
+8. **Create a Payment Instruction (VIC).** The agent calls `POST /vacp/v1/instructions`.<Cite ids="clm-visa-tap-142" />
+9. **Approve with a passkey (VIC).** The consumer authenticates the instruction with a passkey before the agent can retrieve credentials.<Cite ids="clm-visa-tap-141" />
+10. **Get credentials (VIC).** The agent calls `POST /vacp/v1/instructions/{instructionId}/credentials`.<Cite ids="clm-visa-tap-142" />
+11. **Check out with the payer tag (TAP).** The agent signs with `agent-payer-auth`.<Cite ids="clm-visa-tap-040" /> VIC payments start as guest checkout with key entry, so the agent fills the merchant's card form.<Cite ids="clm-visa-tap-144" /> The body carries `agenticConsumer` (`nonce`, `idToken`, `contextualData`, `kid`, `alg`, `signature`) and `agenticPaymentContainer` (`nonce`, `kid`, `alg`, `signature`).<Cite ids="clm-visa-tap-047 clm-visa-tap-056" /> For key-entered guest checkout the container carries a payment credential hash.<Cite ids="clm-visa-tap-059" /> Both objects use the header's key and nonce.<Cite ids="clm-visa-tap-078" />
+12. **Verify the payer signature (TAP).** The CDN repeats the header checks for the payer tag.<Cite ids="clm-visa-tap-075" />
+13. **Verify the body (TAP).** The merchant verifies each object over all fields in the order received except the signature.<Cite ids="clm-visa-tap-079" /> If its own hash of the key-entered card data does not match, it should decline.<Cite ids="clm-visa-tap-060" />
+14. **Authorize (card rails).** The merchant authorizes through its acquirer; TAP plays no part in this step.<Cite ids="clm-visa-tap-002" />
+15. **Confirm (no protocol).** The merchant returns the order result; TAP defines no receipt.<Cite ids="clm-visa-tap-130" />
+16. **Report (VIC).** The agent calls `POST /vacp/v1/instructions/{instructionId}/confirmations`.<Cite ids="clm-visa-tap-142" />
+
+## Which protocol does what
+
+| Steps | Protocol | Object or message | Spec version |
+|---|---|---|---|
+| 2, 8 to 10, 16 | VIC (Visa) | `/vacp/v1/cards`, `/vacp/v1/instructions` and its sub-paths | visa/ai client, 2026-09-30 |
+| 3 to 7 | TAP | `Signature-Input` with `tag="agent-browser-auth"`, JWK Set | unversioned page, read 2026-10-11 |
+| 11 to 13 | TAP | `tag="agent-payer-auth"`, `agenticConsumer`, `agenticPaymentContainer` | unversioned page, read 2026-10-11 |
+| 14 | Card rails | authorization | outside TAP |
+
+Two warnings for implementers. The specification's header examples reuse a Web Bot Auth draft test vector that signs a different base.<Cite ids="clm-visa-tap-114" /> Its browsing and checkout examples show the same signature under different tags, and its example window is 3,600 seconds, so the examples cannot verify.<Cite ids="clm-visa-tap-116 clm-visa-tap-115" /> TAP publishes no test vectors.<Cite ids="clm-visa-tap-064" />
+
+## Where controls apply
+
+- **Before authorization.** VIC holds consent: the consumer approves each Payment Instruction with a passkey.<Cite ids="clm-visa-tap-141" /> Spending limits and step-up also sit in VIC, invisible to the merchant in the TAP request.<Cite ids="clm-visa-tap-129" />
+- **At signing.** TAP allows extra signature fields beyond the minimum.<Cite ids="clm-visa-tap-046" /> The minimum leaves out `@method`, the query string and a content digest, so an agent platform that adds them narrows what a stolen signature could be reused for.<Cite ids="clm-visa-tap-117" />
+- **At the edge.** The CDN is the natural verifier.<Cite ids="clm-visa-tap-035" /> Nonce checks work only if the verifier keeps an 8-minute record.<Cite ids="clm-visa-tap-077" /> The sample CDN proxy checks only `/product/` paths and skips the tag and window checks, so a controls layer should not copy it.<Cite ids="clm-visa-tap-088 clm-visa-tap-100" />
+- **At settlement.** Issuer and network risk decisions apply to the token, and Visa says TAP feeds telemetry into its fraud and risk models.<Cite ids="clm-visa-tap-122" />
+- **After the fact.** VIC confirmations and commerce signals support disputes.<Cite ids="clm-visa-tap-130" /> TAP has no revocation list or key status endpoint.<Cite ids="clm-visa-tap-128" />
+
+## What is observable from outside
+
+The key store is public and cacheable for an hour, so anyone can watch keys appear or disappear.<Cite ids="clm-visa-tap-073" /> Visa newsroom releases name adopting merchants and issuers with dates.<Cite ids="clm-visa-tap-160 clm-visa-tap-180" /> Everything else is private. TAP is off-chain and defines no events or explorers.<Cite ids="clm-visa-tap-132" /> Signature headers reach only the CDN, the merchant and the path between them.<Cite ids="src-visa-tap-spec" /> On Cloudflare the zone owner can read `cf.bot_management.signed_agent`, which needs an Enterprise plan with Bot Management.<Cite ids="clm-visa-tap-134" /> The consumer object sends the consumer's IP address, device data, country and postal code to the merchant.<Cite ids="clm-visa-tap-136" />
+
+## What can go wrong
+
+- **Untagged request.** Without a TAP tag the request was not signed by a trusted agent; the merchant treats it as any other bot.<Cite ids="clm-visa-tap-041" />
+- **Stale or replayed signature.** A bad window, a reused nonce, a missing key or a failed signature each lead to a block.<Cite ids="clm-visa-tap-076" /> A passkey approval that takes longer than the window forces a fresh signature.
+- **Unresolvable key.** With only an RSA sandbox key at the public URL, a verifier that relies on it cannot check an Ed25519 signature like the specification's examples.<Cite ids="clm-visa-tap-071 clm-visa-tap-044" />
+- **Tampered body.** The header signature does not cover the body.<Cite ids="clm-visa-tap-095" /> A payment container that fails its checks should not be used for payment.<Cite ids="clm-visa-tap-081" /> A consumer object that fails may still be used, at the merchant's risk.<Cite ids="clm-visa-tap-080" />
+- **Who bears the loss.** Worldpay wrote that no liability shift for agentic transactions exists yet.<Cite ids="clm-visa-tap-169" /> It says properly authenticated, tokenized agent transactions follow existing tokenized-transaction rules.<Cite ids="clm-visa-tap-170" />
+
+## Variants
+
+- **Encrypted payload instead of key entry.** A merchant that onboards its public key to the scheme can receive an encrypted payload holding the token, expiry, cardholder name and dynamic data.<Cite ids="clm-visa-tap-231 clm-visa-tap-061" /> No form fill is needed.
+- **Pay-per-access with a browsing IOU.** When the merchant answers with HTTP 402, the container can carry a `browsingIOU` instead.<Cite ids="clm-visa-tap-063" /> TAP defines neither the 402 format nor how the IOU is settled.<Cite ids="clm-visa-tap-084" />

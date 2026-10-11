@@ -1,0 +1,26 @@
+flowchart LR
+  CO["Consumer"]
+  subgraph AZ["Agent side"]
+    AG["AI agent (Agent Provider)"]
+  end
+  subgraph VZ["Visa"]
+    VIC["Visa Intelligent Commerce: cards, Payment Instructions, credentials, confirmations"]
+    KS["Key store: mcp.visa.com/.well-known/jwks"]
+  end
+  subgraph MZ["Merchant zone"]
+    CDN["CDN (Site Protection Provider)"]
+    MW["Merchant website and backend"]
+  end
+  subgraph PZ["Card rails"]
+    AQ["Acquirer, Visa network, issuer"]
+  end
+  CO -- "asks; approves instruction with a passkey" --> VIC
+  CO -- "chat" --> AG
+  AG -- "1 enroll card, instruction, credentials (VIC)" --> VIC
+  AG -- "2 browse: tag agent-browser-auth (TAP)" --> CDN
+  AG -- "3 checkout: tag agent-payer-auth plus agenticConsumer and agenticPaymentContainer (TAP)" --> CDN
+  CDN -. "fetch key by keyid" .-> KS
+  CDN -- "4 verified requests" --> MW
+  MW -- "5 verify body objects and credential hash (TAP)" --> MW
+  MW -- "6 card authorization (outside TAP)" --> AQ
+  AG -- "7 confirmation (VIC)" --> VIC
