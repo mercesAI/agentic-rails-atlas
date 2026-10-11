@@ -1,0 +1,502 @@
+{
+  "sources": [
+    {
+      "id": "src-fee-payai-pricing-docs",
+      "url": "https://docs.payai.network/x402/facilitators/pricing",
+      "title": "Facilitator Pricing (PayAI documentation)",
+      "publisher": "PayAI",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-10-11",
+      "notes": "Read 2026-10-11: cost-plus pricing live since 2026-09-21; each settlement costs on-chain gas plus 30 percent, paid in credits at $0.001 each, rounded up to 0.01 credit; 1,000 free credits per receiving wallet (lifetime, not monthly), about 650 Solana or 430 Base settlements; some older wallets keep a legacy 10,000-credit allowance; testnet free. Says the authoritative live table is facilitator.payai.network/pricing."
+    },
+    {
+      "id": "src-fee-payai-facilitator-home",
+      "url": "https://facilitator.payai.network/",
+      "title": "PayAI x402 Facilitator home page (plans)",
+      "publisher": "PayAI",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-10-11",
+      "notes": "Read 2026-10-11: plan cards still show Free Forever with 1,000 settlements total, and Pay As You Go at $0.001 per settlement. Older than the cost-plus model in the pricing docs; both shown, docs treated as current."
+    },
+    {
+      "id": "src-fee-payai-home-faq",
+      "url": "https://payai.network/",
+      "title": "PayAI home page FAQ: What does PayAI cost?",
+      "publisher": "PayAI",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-10-11",
+      "notes": "Read 2026-10-11: per-settlement fee, never a percentage; gas plus 30 percent in $0.001 credits, about 1.5 credits on Solana mainnet and 2.3 on Base at current rates."
+    },
+    {
+      "id": "src-fee-thirdweb-pricing",
+      "url": "https://thirdweb.com/pricing",
+      "title": "thirdweb pricing",
+      "publisher": "thirdweb",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-10-11",
+      "notes": "Read 2026-10-11: x402 transaction fees, 0.3 percent on each transaction executed through the facilitator, on all paid plans shown."
+    },
+    {
+      "id": "src-fee-shopify-agentic-ecp",
+      "url": "https://ecommerce-platforms.com/articles/shopify-agentic-plan",
+      "title": "Shopify agentic plan",
+      "publisher": "Ecommerce Platforms",
+      "type": "analysis",
+      "primary": false,
+      "accessed": "2026-10-11",
+      "published": "2026-07-29",
+      "notes": "From ATLAS_FOLLOWUP Appendix B; not re-fetched on 2026-10-11."
+    },
+    {
+      "id": "src-fee-stripe-spt-docs",
+      "url": "https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens",
+      "title": "Shared payment tokens (Stripe Docs; seller and agent variants)",
+      "publisher": "Stripe",
+      "type": "docs",
+      "primary": true,
+      "notes": "Read 2026-10-11: page labeled 'Public preview'; no SPT price schedule shown. Same URL as src-stripe-spt in the openai-acp dossier (visa-tap uses that id for a Stripe blog post, so a new id is used here).",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-x402-fee-cdp",
+      "url": "https://docs.cdp.coinbase.com/x402/core-concepts/facilitator",
+      "title": "CDP x402 facilitator: pricing and supported networks",
+      "publisher": "Coinbase Developer Platform",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-10-11",
+      "notes": "Read 2026-10-11: first 1,000 on-chain facilitator transactions each month free, then $0.001 per on-chain transaction; verification always free; Solana upto uses two on-chain transactions."
+    },
+    {
+      "id": "src-x402-fee-wavect",
+      "url": "https://wavect.io/de/blog/x402-payments-comparison-2026/",
+      "title": "x402 payments comparison 2026",
+      "publisher": "Wavect",
+      "type": "analysis",
+      "primary": false,
+      "published": "2026-07-12",
+      "accessed": "2026-10-11",
+      "notes": "German-language comparison, reviewed 2026-09-02; PayAI 1,000 settlements free in total then $0.001; thirdweb 0.3 percent facilitator fee; self-hosted pays gas, RPC, operations and compliance."
+    },
+    {
+      "id": "src-x402-fee-spark-gas",
+      "url": "https://www.spark.money/tools/stablecoin-transfer-cost-comparison",
+      "title": "Stablecoin transfer cost comparison",
+      "publisher": "Spark",
+      "type": "dataset",
+      "primary": false,
+      "accessed": "2026-10-11",
+      "notes": "Costs reflect mid-2026 conditions per the page; normal-congestion ranges used."
+    },
+    {
+      "id": "src-x402-fee-circle",
+      "url": "https://developers.circle.com/gateway/nanopayments",
+      "title": "Circle Gateway Nanopayments docs",
+      "publisher": "Circle",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-10-11",
+      "notes": "Read 2026-10-11: payments from $0.000001 USDC; off-chain authorizations at zero gas; bulk settlement; no fee schedule listed."
+    },
+    {
+      "id": "src-x402-circle-nanopayments",
+      "url": "https://www.circle.com/blog/nanopayments-powered-by-circle-gateway-is-now-live-on-mainnet",
+      "title": "Nanopayments powered by Circle Gateway is now live on mainnet",
+      "publisher": "Circle",
+      "type": "announcement",
+      "primary": true,
+      "published": "2026-04-29",
+      "accessed": "2026-10-10"
+    },
+    {
+      "id": "src-stripe-mpp-tempo-fees",
+      "url": "https://tempo.xyz/developers/docs/protocol/fees",
+      "title": "Tempo docs: Fees",
+      "publisher": "Tempo Labs",
+      "type": "docs",
+      "primary": true,
+      "notes": "No native token; fees in USD TIP-20 stablecoins via Fee AMM; bounded dynamic base fee (T7); 50,000-gas transfer cap about 0.0006 USD, quiet floor about 0.00003 USD; fees accrue to the proposing validator.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-stripe-mpp-stripe-docs",
+      "url": "https://docs.stripe.com/payments/machine/mpp",
+      "title": "Stripe docs: MPP (Machine Payments Protocol)",
+      "publisher": "Stripe",
+      "type": "docs",
+      "primary": true,
+      "notes": "Labeled Frontier; minimum 0.50 USD for SPT card payments and 0.01 USDC for stablecoins; networkId from Stripe profile; crypto deposit addresses with network=tempo; hostedFeePayer with mppx 0.9.2 or later, live mode, not with Connect; Stripe-Version 2026-07-29.preview.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-stripe-mpp-stripe-stablecoin",
+      "url": "https://docs.stripe.com/crypto/stablecoin-payments",
+      "title": "Stripe docs: Stablecoin payments",
+      "publisher": "Stripe",
+      "type": "docs",
+      "primary": true,
+      "notes": "USDC on Tempo, Ethereum, Solana, Polygon, Base; 10,000 USD per-transaction customer limit; no disputes; refunds in stablecoin. The page read on 2026-10-11 states no percentage fee.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-stripe-mpp-yahoo-fee",
+      "url": "https://finance.yahoo.com/news/stripe-charges-1-5-stablecoin-145737023.html",
+      "title": "Stripe Charges 1.5% for Stablecoin Transfers That Cost $0.0002 On-Chain",
+      "publisher": "Yahoo Finance (Anas Hassan)",
+      "type": "news",
+      "primary": false,
+      "published": "2025-12-10",
+      "notes": "Reports a 1.5 percent fee for Stripe stablecoin payment processing; does not mention MPP.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-openai-buy-it",
+      "url": "https://openai.com/index/buy-it-in-chatgpt/",
+      "title": "Buy it in ChatGPT: Instant Checkout and the Agentic Commerce Protocol",
+      "publisher": "OpenAI",
+      "type": "announcement",
+      "primary": true,
+      "published": "2025-09-29",
+      "archiveUrl": "https://web.archive.org/web/20261007012440/https://openai.com/index/buy-it-in-chatgpt/",
+      "notes": "openai.com returned HTTP 403; text read from the Wayback Machine snapshot.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-pymnts-4pct",
+      "url": "https://www.pymnts.com/news/ecommerce/2026/shopify-merchants-to-pay-4percent-fee-on-sales-made-through-chatgpt-checkout",
+      "title": "Shopify Merchants to Pay 4% Fee on ChatGPT Checkout Sales",
+      "publisher": "PYMNTS",
+      "type": "news",
+      "primary": false,
+      "published": "2026-01-21",
+      "notes": "Reports The Information, citing a Shopify spokesperson.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-ucp-register",
+      "url": "https://www.theregister.com/2026/01/12/google_gemini_agentic_ai_shopping_protocol/",
+      "title": "Google Gemini agentic shopping protocol (The Register)",
+      "publisher": "The Register",
+      "type": "news",
+      "primary": false,
+      "accessed": "2026-10-11",
+      "published": "2026-01-12",
+      "notes": "Google statement: does not plan to take a cut."
+    },
+    {
+      "id": "src-ucp-google-faq",
+      "url": "https://developers.google.com/merchant/ucp/faq",
+      "title": "Frequently Asked Questions, Google UCP Guide",
+      "publisher": "Google",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-10-11",
+      "notes": "MoR, PSP must process Google tokens, PAN_ONLY, Google/UCP user agent, Google-UCP-Prober/1.0."
+    },
+    {
+      "id": "src-nevermined-vic",
+      "url": "https://nevermined.ai/blog/visa-intelligent-commerce-review",
+      "title": "Visa Intelligent Commerce Review",
+      "publisher": "Nevermined",
+      "type": "analysis",
+      "primary": false,
+      "published": "2026-08-19",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-mcap-nevermined-review",
+      "url": "https://nevermined.ai/blog/mastercard-agent-pay-review",
+      "title": "Mastercard Agent Pay review",
+      "publisher": "Nevermined",
+      "type": "analysis",
+      "primary": false,
+      "accessed": "2026-10-11",
+      "published": "2026-08-28",
+      "notes": "Vendor blog; Nevermined is itself listed as an AP4M participant (conflict of interest)."
+    },
+    {
+      "id": "src-mcc-2026",
+      "url": "https://merchantcostconsulting.com/?p=8876",
+      "title": "Merchant Cost Consulting article on agentic commerce fees",
+      "publisher": "Merchant Cost Consulting",
+      "type": "analysis",
+      "primary": false,
+      "published": "2026-05-01",
+      "accessed": "2026-10-11",
+      "notes": "Blocked (403) on 2026-10-11; summary from ATLAS_FOLLOWUP.md Appendix B."
+    },
+    {
+      "id": "src-quicknode-register",
+      "url": "https://erc-8004.quicknode.com/tutorials/register-agent",
+      "title": "Register an agent (ERC-8004 tutorial)",
+      "publisher": "QuickNode",
+      "type": "docs",
+      "primary": false,
+      "published": "2026-05-05",
+      "notes": "Page undated; ABI note says verified against commit 0463311 on 2026-04-26; date 2026-05-05 from ATLAS_FOLLOWUP Appendix B.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-cobo-8004",
+      "url": "https://www.cobo.com/post/erc-8004-on-chain-identity-standard-for-ai-agents-the-future-of-agentic-wallets",
+      "title": "ERC-8004: On-chain identity standard for AI agents",
+      "publisher": "Cobo",
+      "type": "analysis",
+      "primary": false,
+      "published": "2026-04-28",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-erc-8004-gas-probe",
+      "url": "https://basescan.org/address/0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
+      "title": "Gas estimates for register and giveFeedback via eth_estimateGas on Ethereum and Base",
+      "publisher": "Atlas research (cast estimate through public RPCs)",
+      "type": "dataset",
+      "primary": true,
+      "notes": "2026-10-11, from 0x...DeaDBeef, agentId 1: giveFeedback minimal 155,185 gas, with tag1 starred plus endpoint plus IPFS URI 178,504 gas; register(string) with a 67-character IPFS URI 203,412 gas; identical on ethereum-rpc.publicnode.com and mainnet.base.org. cast gas-price: Ethereum 66,744,950 wei, Base 6,000,000 wei. Estimates, not mined transactions; Base L1 data fee not included.",
+      "accessed": "2026-10-11"
+    },
+    {
+      "id": "src-x402-fee-spark-lightning",
+      "url": "https://www.spark.money/research/lightning-routing-fee-market-equilibrium",
+      "title": "Lightning routing fee market equilibrium",
+      "publisher": "Spark",
+      "type": "analysis",
+      "primary": false,
+      "published": "2026-10-08",
+      "accessed": "2026-10-11",
+      "notes": "Secondary research on Lightning routing fees (context for lnbtc and L402). HTTP 200 on 2026-10-11."
+    }
+  ],
+  "rows": [
+    {
+      "protocol": "x402",
+      "fact": "Coinbase CDP facilitator: the first 1,000 on-chain facilitator transactions each month are free, then $0.001 per on-chain transaction; verification is free. exact and EVM upto use one on-chain transaction per payment, Solana upto uses two, batch-settlement claims many vouchers in one transaction.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Fees count on-chain transactions, not payment requests; gas is separate and depends on who pays it.",
+      "sources": [
+        "src-x402-fee-cdp"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "fact": "PayAI facilitator: since 2026-09-21 each settlement costs the network gas plus 30 percent, paid in credits at $0.001 per credit (about 1.5 credits on Solana mainnet and 2.3 on Base at rates shown 2026-10-11). Free allowance: 1,000 credits per receiving wallet, lifetime, not monthly.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Corrects the follow-up seed (\"$0.001 per settlement after the first 1,000\" per month). PayAI's facilitator home page still shows the older plan (1,000 settlements total free, then $0.001 per settlement); the pricing docs say the live table is authoritative. Rates are recomputed daily.",
+      "sources": [
+        "src-fee-payai-pricing-docs",
+        "src-fee-payai-home-faq",
+        "src-fee-payai-facilitator-home"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "fact": "thirdweb facilitator: 0.3 percent fee on each x402 transaction executed through its facilitator.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Percentage fee, unlike the per-settlement fees of CDP and PayAI; plan fees and RPC charges are separate.",
+      "sources": [
+        "src-fee-thirdweb-pricing"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "fact": "Self-hosted facilitator: no facilitator fee; the operator pays gas, RPC, operations and compliance.",
+      "asOf": "2026-07-12",
+      "confidence": "reported",
+      "caveat": "Secondary comparison article.",
+      "sources": [
+        "src-x402-fee-wavect"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "fact": "USDC transfer gas, approximate: about $0.005 to $0.01 on Base, $0.001 to $0.005 on Solana, $1 to $5 on Ethereum L1, under normal congestion.",
+      "asOf": "2026-07-01",
+      "confidence": "reported",
+      "caveat": "Secondary tool with mid-2026 conditions (month precision); gas prices vary by orders of magnitude.",
+      "sources": [
+        "src-x402-fee-spark-gas"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "fact": "Circle Gateway Nanopayments: payments from $0.000001 USDC, off-chain authorizations at zero gas, bulk settlement; no per-transaction fee or fee schedule published.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Absence of a published fee is not a statement that use is free.",
+      "sources": [
+        "src-x402-fee-circle",
+        "src-x402-circle-nanopayments"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "fact": "Tempo network fees: no native gas token; fees paid in USD TIP-20 stablecoins through a Fee AMM; a 50,000-gas transfer costs at most about $0.0006, with a quiet-period floor near $0.00003.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Fees go to the proposing validator; values depend on Tempo's base fee parameters.",
+      "sources": [
+        "src-stripe-mpp-tempo-fees"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "fact": "Stripe MPP minimum amounts: 0.50 USD for card payments through Shared Payment Tokens; 0.01 USDC for stablecoin payments. hostedFeePayer: true (mppx 0.9.2 or later, live mode) makes Stripe pay customers' Tempo network fees.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Minimums, not fees. No MPP-specific price schedule is published.",
+      "sources": [
+        "src-stripe-mpp-stripe-docs"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "fact": "Stripe stablecoin payments: 1.5 percent per transaction was reported at launch; the docs list a $10,000 per-transaction customer limit, no disputes and refunds in stablecoin.",
+      "asOf": "2025-12-10",
+      "confidence": "reported",
+      "caveat": "The current Stripe docs page states no percentage; whether the fee applies to MPP charges is unverified.",
+      "sources": [
+        "src-stripe-mpp-yahoo-fee",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "fact": "Stripe Shared Payment Tokens are in public preview; no SPT pricing is published.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Corrects the follow-up seed, which said private preview.",
+      "sources": [
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "fact": "OpenAI: merchants pay a small fee on completed purchases through Instant Checkout; no rate published.",
+      "asOf": "2025-09-29",
+      "confidence": "verified",
+      "caveat": "OpenAI has not published the percentage.",
+      "sources": [
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "fact": "Shopify merchants pay 4 percent on ChatGPT checkout sales, on top of Shopify fees (The Information, via a Shopify spokesperson).",
+      "asOf": "2026-01-21",
+      "confidence": "reported",
+      "caveat": "Secondary report; not published by OpenAI or in Shopify terms read here.",
+      "sources": [
+        "src-pymnts-4pct"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "fact": "Shopify Agentic Storefronts: a per-channel fee set in Shopify Admin on top of payment processing (US Shopify Payments from 2.9 percent plus 30 cents); rate not public.",
+      "asOf": "2026-07-29",
+      "confidence": "reported",
+      "caveat": "Secondary article; verify against Shopify terms.",
+      "sources": [
+        "src-fee-shopify-agentic-ecp"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "fact": "Google told The Register it does not plan to take a cut of agentic checkout sales; the merchant stays merchant of record and its PSP must process Google's tokens, so normal PSP fees apply.",
+      "asOf": "2026-01-12",
+      "confidence": "reported",
+      "caveat": "The no-cut statement is secondary; merchant-of-record and PSP facts are in Google's FAQ (primary).",
+      "sources": [
+        "src-ucp-register",
+        "src-ucp-google-faq"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "fact": "Google and Microsoft Copilot checkout were reported as charging no additional fee for now.",
+      "asOf": "2026-01-21",
+      "confidence": "reported",
+      "caveat": "Secondary report; 'for now' signals possible change.",
+      "sources": [
+        "src-pymnts-4pct"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "fact": "Visa Intelligent Commerce and TAP: sandbox free; production pricing by contacting Visa; no published interchange, token fee, 3DS rule or liability allocation specific to agents.",
+      "asOf": "2026-08-19",
+      "confidence": "reported",
+      "caveat": "Secondary review; evidence of absence. Treat agent card payments as standard tokenized card-not-present economics until Visa publishes otherwise.",
+      "sources": [
+        "src-nevermined-vic"
+      ]
+    },
+    {
+      "protocol": "mastercard-agent-pay",
+      "fact": "Mastercard Agent Pay: no self-service price table; interchange, tokenization fees and liability not publicly addressed.",
+      "asOf": "2026-08-28",
+      "confidence": "reported",
+      "caveat": "Secondary review by a firm that participates in Agent Pay for Machines (conflict of interest).",
+      "sources": [
+        "src-mcap-nevermined-review"
+      ]
+    },
+    {
+      "protocol": "market",
+      "fact": "Card networks in general: no new agentic interchange categories or dates disclosed; the author expects new network fee categories (opinion).",
+      "asOf": "2026-05-01",
+      "confidence": "reported",
+      "caveat": "Secondary opinion; page blocked to curl on 2026-10-11.",
+      "sources": [
+        "src-mcc-2026"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "fact": "ERC-8004 has no protocol fee; registration costs gas only, described as dollars on Ethereum mainnet and pennies on Base, Mantle, BNB and Avalanche; updating agentURI is another transaction.",
+      "asOf": "2026-05-05",
+      "confidence": "verified",
+      "caveat": "QuickNode docs, a vendor tutorial; costs move with gas prices.",
+      "sources": [
+        "src-quicknode-register"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "fact": "Registration about $1 to $5 on Ethereum mainnet and about $0.20 on L2s (secondary estimate).",
+      "asOf": "2026-04-28",
+      "confidence": "reported",
+      "caveat": "At 2026-10-11 gas prices the measured gas implies cents on mainnet; see the measured rows.",
+      "sources": [
+        "src-cobo-8004"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "fact": "Measured gas: register(string) about 203,412 gas; first giveFeedback from a new client about 155,185 gas (empty fields) to 178,504 gas (tag, endpoint and IPFS URI), by eth_estimateGas on Ethereum and Base.",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Atlas measurement (estimate, not a mined transaction). At about 0.067 gwei on Ethereum that day, 178,504 gas is about 0.000012 ETH; L2 data fees are extra. No published figure exists from the authors.",
+      "sources": [
+        "src-erc-8004-gas-probe"
+      ]
+    },
+    {
+      "protocol": "market",
+      "fact": "Lightning routing (L402 context): median base fee about 1 sat and proportional fee about 100 to 143 ppm; a 3-hop 100,000-sat payment costs about 26 to 33 sats.",
+      "asOf": "2026-10-08",
+      "confidence": "reported",
+      "caveat": "Secondary research; no protocol fee for L402 itself.",
+      "sources": [
+        "src-x402-fee-spark-lightning"
+      ]
+    }
+  ]
+}
