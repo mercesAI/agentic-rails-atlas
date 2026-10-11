@@ -1,0 +1,87 @@
+---
+slug: visa-intelligent-commerce
+name: Visa Intelligent Commerce
+category: card-wallet-commerce
+starred: true
+oneLiner: Visa's program and API platform for agent-initiated card payments (tokenized credentials for agents, passkey-confirmed payment instructions and transaction signals back to Visa), with the Trusted Agent Protocol as one component.
+steward: Visa (company)
+status: Mixed
+relations:
+  - to: visa-tap
+    type: same-steward
+    note: TAP is the agent identity component of Visa Intelligent Commerce; a Visa-associated key implies participation in the program.
+  - to: stripe-mpp
+    type: complements
+    note: Visa authored the MPP card payment method, and Intelligent Commerce Connect accepts MPP payments.
+  - to: openai-acp
+    type: compatible-with
+    note: Intelligent Commerce Connect accepts ACP payments; no wire binding is published.
+  - to: ucp
+    type: compatible-with
+    note: Visa is a listed UCP endorser, and Intelligent Commerce Connect accepts UCP.
+  - to: x402
+    type: compatible-with
+    note: Visa is an x402 Foundation Premier member; the TAP release says Visa is collaborating with Coinbase on x402 interoperability.
+  - to: mastercard-agent-pay
+    type: competes-with
+    note: Rival network program for agent card payments with its own token and directory.
+sources:
+  - src-visa-vic-pr
+  - src-visa-vic-dev
+  - src-visa-ai-repo
+  - src-visa-ai-vic-client
+  - src-visa-vic-ref-agent
+  - src-visa-tap-pr
+  - src-visa-tap-spec
+  - src-visa-dec18
+  - src-visa-ar-eu
+  - src-visa-ar-global
+  - src-visa-icc
+  - src-visa-jun10
+  - src-visa-eu-live
+  - src-visa-mpp-card
+  - src-stripe-mpp-card-charge
+  - src-x402-lf-july
+  - src-ucp-site
+  - src-orbit-circle-arc-mainnet
+  - src-orbit-crossmint-launch
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+Visa Intelligent Commerce (VIC) is the commercial layer around Visa's agent protocols. Visa unveiled it on 2025-04-30 under the heading "Find and Buy with AI", pitching AI-ready cards: tokenized Visa credentials that a user can hand to an AI agent without exposing the card number. <Cite ids="src-visa-vic-pr" />
+
+A user enrolls a card, an agent creates a purchase instruction that the user confirms (Visa Payment Passkeys are the confirmation method Visa names in Europe), and the agent then requests credentials for that instruction. <Cite ids="src-visa-vic-dev src-visa-ar-eu" /> Visa's open-source `visa/ai` toolkit shows the shape of the API: enrollment through `POST /vacp/v1/cards`, then create, update, cancel, credential and confirmation calls under `/vacp/v1/instructions`. The confirmation call reports the outcome back to Visa as a "signal" that Visa says helps resolve disputes. <Cite ids="src-visa-ai-vic-client src-visa-vic-dev" />
+
+## TAP inside VIC
+
+[Visa TAP](/p/visa-tap/) sits inside VIC. TAP is the signature scheme an agent uses to identify itself to a merchant website; VIC supplies the onboarding of agents, the tokens and the payment instructions that the TAP payment container refers to. The TAP specification says a public key associated with Visa implies that the agent takes part in, and complies with, the VIC program requirements. A merchant that verifies TAP is therefore relying on Visa's agent onboarding, which is not public. <Cite ids="src-visa-tap-spec src-visa-tap-pr" />
+
+## Programs around the API
+
+- **Agentic Ready** prepares issuers and merchants to accept agent transactions. It launched in Europe on 2026-03-17 with 21 named early issuers, and Visa announced a global expansion on 2026-04-29. <Cite ids="src-visa-ar-eu src-visa-ar-global" /> On 2026-07-02 Visa said 31 European issuers had completed live agent purchases with merchants such as lastminute.com, and that every Agentic Ready transaction in Europe used Visa Payment Passkeys, supporting Strong Customer Authentication. <Cite ids="src-visa-eu-live" />
+- **Intelligent Commerce Connect** (pilot, announced 2026-04-08) is an on-ramp for businesses that accepts agent payments arriving through TAP, MPP, ACP or UCP, and can handle orchestration and PCI compliance for enablers. <Cite ids="src-visa-icc" />
+- **Agentic Directory and Agent Score** (announced 2026-06-10): the directory is described as a list of Visa-verified agents and merchants, and Agent Score rates how ready a merchant site is for agents (it scores sites, not agents). The same release calls the directory an "Agentic Registry" in its subheadline. No public list or endpoint was found. <Cite ids="src-visa-jun10" />
+
+## Status
+
+Separate what is live from what is announced. Live: the sandbox API (free in sandbox, production fees by contact), the `visa/ai` toolkit (MIT, last commit 2026-09-30), Agentic Ready transactions in Europe, and partner products such as Crossmint's Agentic Cards API (2026-06-02). <Cite ids="src-visa-vic-dev src-visa-ai-repo src-visa-eu-live src-orbit-crossmint-launch" /> Visa reported "hundreds" of agent-initiated transactions with partners by 2025-12-18. <Cite ids="src-visa-dec18" /> Pilot or announced: Intelligent Commerce Connect, the Agentic Directory and Agent Score. <Cite ids="src-visa-icc src-visa-jun10" />
+
+No agent-specific liability shift, interchange rate or 3-D Secure rule had been published as of 2026-10-11. Visa's reference agent (`visa/vic-reference-agent`) carries an evaluation-only license despite being described as open source. <Cite ids="src-visa-vic-ref-agent" />
+
+## How it relates to the eight
+
+Visa extends VIC beyond its own protocol. It authored the card payment method for [MPP](/p/stripe-mpp/) (`draft-card-charge-00`, where TAP headers are optional) and published a card spec and `mpp-card` SDK built on VIC and TAP on 2026-03-18. <Cite ids="src-stripe-mpp-card-charge src-visa-mpp-card" /> It is a Premier member of the x402 Foundation, and the TAP release says Visa is collaborating with Coinbase on [x402](/p/x402/) interoperability. <Cite ids="src-x402-lf-july src-visa-tap-pr" /> Visa is listed as a [UCP](/p/ucp/) endorser and is a founding validator of Circle's Arc chain. <Cite ids="src-ucp-site src-orbit-circle-arc-mainnet" /> Mastercard's counterpart program is [Agent Pay](/p/mastercard-agent-pay/); both networks use the phrase "agentic token" for different constructs.
+
+## Status history
+
+- 2025-04-30: VIC unveiled ("Find and Buy with AI"). <Cite ids="src-visa-vic-pr" />
+- 2025-10-14: Trusted Agent Protocol launched as part of VIC, developed with Cloudflare. <Cite ids="src-visa-tap-pr" />
+- 2025-12-18: Visa reports hundreds of agent-initiated transactions with partners. <Cite ids="src-visa-dec18" />
+- 2026-03-17: Agentic Ready launched in Europe (21 early issuers). <Cite ids="src-visa-ar-eu" />
+- 2026-03-18: Visa card spec and SDK for MPP. <Cite ids="src-visa-mpp-card" />
+- 2026-04-08: Intelligent Commerce Connect announced (pilot). <Cite ids="src-visa-icc" />
+- 2026-04-29: Agentic Ready global expansion. <Cite ids="src-visa-ar-global" />
+- 2026-06-10: Agentic Directory and Agent Score announced. <Cite ids="src-visa-jun10" />
+- 2026-07-02: 31 European issuers complete live agent purchases. <Cite ids="src-visa-eu-live" />

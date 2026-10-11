@@ -1,0 +1,50 @@
+---
+slug: npci-upi-agentic
+name: NPCI UPI agentic payments
+category: card-wallet-commerce
+starred: true
+oneLiner: Pilots in which AI assistants (first ChatGPT, then Claude) pay Indian merchants over UPI, using UPI Reserve Pay so the user approves one spending limit for a merchant and the agent then completes several debits within it.
+steward: National Payments Corporation of India (NPCI, operator of UPI), with Razorpay as payment aggregator and OpenAI and Anthropic as AI platform partners
+status: Pilot
+latestVersion:
+  label: Claude pilot
+  date: "2026-02-20"
+relations:
+  - to: ap2
+    type: competes-with
+    note: A different mechanism for the same job (user-approved, capped agent spending); neither references the other.
+sources:
+  - src-orbit-npci-chatgpt-pilot
+  - src-orbit-npci-claude-pilot
+  - src-orbit-npci-reserve-pay
+  - src-orbit-npci-techcrunch
+  - src-orbit-npci-registry-report
+lastVerified: "2026-10-11"
+---
+
+## What it is
+
+UPI is India's real-time account-to-account payment system, run by NPCI. Its agentic pilots do not add a new protocol on the wire; they reuse two UPI features that let a user hand bounded authority to someone else. <Cite ids="src-orbit-npci-chatgpt-pilot" />
+
+UPI Reserve Pay, which Razorpay describes as built on NPCI's Single Block Multi Debit (SBMD) framework, lets a user block an amount for a merchant once (with the UPI PIN) and then allows several debits against that block without another PIN prompt. <Cite ids="src-orbit-npci-reserve-pay" /> UPI Circle lets a primary user delegate UPI payments to a secondary user within limits. <Cite ids="src-orbit-npci-chatgpt-pilot src-orbit-npci-techcrunch" /> Together they give an AI agent a pre-authorized, capped and merchant-scoped budget.
+
+## The pilots
+
+The first pilot was announced on 2025-10-09 by Razorpay, NPCI and OpenAI as "Agentic Payments" on ChatGPT, described as being in the pilot stage. Razorpay's banking partners were Axis Bank and Airtel Payments Bank, and NPCI's growth executive director was quoted in the release. <Cite ids="src-orbit-npci-chatgpt-pilot" /> Bigbasket was among the first merchants, and TechCrunch reported Vi mobile recharges as another. <Cite ids="src-orbit-npci-techcrunch" /> Razorpay's newsroom page carries a 2025-10-30 publication timestamp, while the joint announcement and news coverage are dated 2025-10-09; this page uses 2025-10-09 for the announcement. <Cite ids="src-orbit-npci-chatgpt-pilot" />
+
+On 2026-02-20, at the India AI Impact Summit, Razorpay and NPCI brought the same model to Anthropic's Claude. Users can order food, groceries and essentials from Zomato, Swiggy and Zepto inside the conversation, approving one spending limit per merchant through Reserve Pay, and Razorpay said this pilot runs with a small group of users. <Cite ids="src-orbit-npci-claude-pilot" /> Razorpay's 2026-03-12 blog post offers Reserve Pay to merchants through early access, with agentic payments as one use. <Cite ids="src-orbit-npci-reserve-pay" />
+
+## Status
+
+Both deployments are pilots. What is not yet public is a national rulebook. From July to September 2026 outlets reported that NPCI was preparing a framework for agent payments on UPI, with an AI-agent registry and phased rollout, expected around Global Fintech Fest 2026; reported caps differ between outlets and are not rules. <Cite ids="src-orbit-npci-registry-report" /> No NPCI circular or press release confirming the framework, limits or liability was found on 2026-10-11, so the framework is reported only.
+
+## How it relates to the eight
+
+UPI agentic payments are closest in spirit to [AP2](/p/ap2/) mandates and to card-network agentic tokens: a user-approved, capped, merchant-scoped authority that the agent spends. The difference is that the scope is enforced by the payment system itself (the blocked amount in the user's bank account) rather than by a signed credential or a token's controls. <Cite ids="src-orbit-npci-reserve-pay" /> The ChatGPT pilot is an OpenAI partnership, but the releases do not say it uses [ACP](/p/openai-acp/). <Cite ids="src-orbit-npci-chatgpt-pilot" />
+
+## Status history
+
+- 2025-10-09: Razorpay, NPCI and OpenAI announce the ChatGPT agentic payments pilot on UPI. <Cite ids="src-orbit-npci-chatgpt-pilot" />
+- 2026-02-20: Razorpay and NPCI announce the Claude pilot (Zomato, Swiggy, Zepto). <Cite ids="src-orbit-npci-claude-pilot" />
+- 2026-03-12: Razorpay describes Reserve Pay as built on NPCI's SBMD framework. <Cite ids="src-orbit-npci-reserve-pay" />
+- 2026-09: NPCI agent registry and framework reported around Global Fintech Fest 2026 (reported, not confirmed by NPCI). <Cite ids="src-orbit-npci-registry-report" />
