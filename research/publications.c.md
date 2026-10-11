@@ -5,7 +5,7 @@ Generated 2026-10-11 by the part-c research agent. Output file: `research/public
 ## Counts
 
 - Verified and published: 55.
-- By group: verifiable compute 7 (4 seed, 3 new); micropayments and payment channels 8 (all seed); card payment security 9 (all seed); economics and law 8 (all seed); protocol analyses and recent papers 8 (3 from the protocol dossiers, 5 new); grey literature 15 (14 seed items, counting the three IETF drafts separately, plus none new).
+- By group: verifiable compute 7 (4 seed, 3 new); micropayments and payment channels 8 (all seed); card payment security 9 (all seed); economics and law 8 (all seed); protocol analyses and recent papers 8 (3 from the protocol dossiers, 5 new); grey literature 15 (15 of the 16 seed items, counting the three IETF drafts separately; no new grey items).
 - Seed entries in scope: 45 (4 + 8 + 9 + 8 + 16 grey items). Verified 44. Unverified 1 (Mastercard Trust Framework white paper, see below).
 - Peer-reviewed with a confirmed venue: 20. Preprints and reports: 20. Grey literature: 15.
 - By relation: foundation 22, related 16, grey 15, direct 2.

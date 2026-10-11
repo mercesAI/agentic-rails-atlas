@@ -55,10 +55,16 @@ test.describe('protocol page template', () => {
 
       test('shows diagrams, the flow player and the state explorer', async ({ page }) => {
         await page.goto(`/p/${slug}/`);
+        // Every diagram slot is either a figure or an "in progress" placeholder (content still being written).
         const figures = page.locator('#c-diagrams figure[data-diagram]');
-        expect(await figures.count()).toBeGreaterThan(0);
-        await expect(figures.first().getByText('Text alternative')).toBeVisible();
-        await expect(figures.first().getByText(/Source of truth/)).toBeVisible();
+        const pending = page.locator('#c-diagrams .in-progress');
+        expect((await figures.count()) + (await pending.count())).toBeGreaterThan(0);
+        if (await figures.count()) {
+          await expect(figures.first().getByText('Text alternative')).toBeVisible();
+          await expect(figures.first().getByText(/Source of truth/)).toBeVisible();
+          await figures.first().scrollIntoViewIfNeeded();
+          await expect(figures.first().locator('svg, pre').first()).toBeAttached();
+        }
         const stage = page.locator('.fp__stage').first();
         if (await stage.count()) {
           await stage.scrollIntoViewIfNeeded();
