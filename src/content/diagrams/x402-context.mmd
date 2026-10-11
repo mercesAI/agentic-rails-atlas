@@ -1,0 +1,34 @@
+flowchart LR
+  subgraph CZ["Client trust zone"]
+    AG["Client or agent"]
+    WK["Wallet key"]
+    SC["spendControls and policies"]
+  end
+  subgraph SZ["Seller trust zone"]
+    RS["Resource server"]
+    MW["x402 middleware"]
+  end
+  subgraph FZ["Facilitator trust zone"]
+    FV["POST /verify"]
+    FS["POST /settle"]
+    FSUP["GET /supported"]
+  end
+  subgraph NZ["Network"]
+    TK["Token contract or Lightning node"]
+  end
+  subgraph DZ["Discovery (public)"]
+    BZ["Bazaar /discovery/resources"]
+    XS["x402scan"]
+  end
+  AG -- "1 request, 4 retry with PAYMENT-SIGNATURE" --> MW
+  MW -- "2 402 + PAYMENT-REQUIRED" --> AG
+  SC --- AG
+  WK -- "3 sign EIP-712" --> AG
+  MW --> RS
+  MW -- "5 verify" --> FV
+  MW -- "7 settle" --> FS
+  FV -. "read only" .-> TK
+  FS -- "broadcast, pays gas" --> TK
+  MW -. "startup" .-> FSUP
+  AG -. "find paid resources" .-> BZ
+  AG -. "browse" .-> XS

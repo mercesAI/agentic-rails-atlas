@@ -1,0 +1,74 @@
+classDiagram
+  class PaymentRequired {
+    number x402Version
+    string error
+    ResourceInfo resource
+    PaymentRequirements[] accepts
+    object extensions
+  }
+  class ResourceInfo {
+    string url
+    string description
+    string mimeType
+    string serviceName
+    string[] tags
+    string iconUrl
+  }
+  class PaymentRequirements {
+    string scheme
+    string network
+    string amount
+    string asset
+    string payTo
+    number maxTimeoutSeconds
+    object extra
+  }
+  class PaymentPayload {
+    number x402Version
+    ResourceInfo resource
+    PaymentRequirements accepted
+    object payload
+    object extensions
+  }
+  class ExactEvmPayload {
+    string signature
+    Authorization authorization
+  }
+  class Authorization {
+    string from
+    string to
+    string value
+    string validAfter
+    string validBefore
+    string nonce
+  }
+  class Extension {
+    object info
+    object schema
+  }
+  class VerifyResponse {
+    boolean isValid
+    string invalidReason
+    string payer
+  }
+  class SettleResponse {
+    boolean success
+    string errorReason
+    string payer
+    string transaction
+    string network
+    string amount
+  }
+  class SupportedResponse {
+    SupportedKind[] kinds
+    string[] extensions
+    object signers
+  }
+  PaymentRequired --> ResourceInfo : resource
+  PaymentRequired --> "1..*" PaymentRequirements : accepts
+  PaymentRequired --> "0..*" Extension : extensions
+  PaymentPayload --> PaymentRequirements : accepted
+  PaymentPayload --> ExactEvmPayload : payload
+  ExactEvmPayload --> Authorization : authorization
+  PaymentPayload ..> VerifyResponse : POST /verify
+  PaymentPayload ..> SettleResponse : POST /settle

@@ -1,0 +1,63 @@
+sequenceDiagram
+  accTitle: x402 V2 over HTTP: exact scheme, authorization payment flow
+  accDescr: Sequence diagram: x402 V2 over HTTP: exact scheme, authorization payment flow. 4 participants: Client (agent), Resource server, Facilitator, and Base Sepolia. 13 steps, 4 crossing a trust boundary, 10 failure branches. Based on x402 v2.0 (2025-12-09). Step 1: Client (agent) to Resource server: GET /weather (no payment header). Step 2: Resource server to Client (agent): 402 Payment Required with PAYMENT-REQUIRED. If A route has no registered scheme: Since @x402/core 2.25.0 the SDK throws an error instead of answering 402 with an empty accepts list. Step 3: Client (agent) to Client (agent): Choose an accepts entry, check limits, sign EIP-712. If Amount is above the spend cap or the asset is not allowed: The SDK rejects the entry if no entry is left, no payment is created. If The entry names a paymentFlow the client does not recognize: The client must skip that entry. Step 4: Client (agent) to Resource server: Retry GET /weather with PAYMENT-SIGNATURE. If The header is malformed: The server answers 400 (invalid payment). Step 5: Resource server to Facilitator: POST /verify. This step crosses a trust boundary. If The facilitator is unreachable or times out: See the facilitator-down flow: the Express middleware answers 502 and the handler does not run. Step 6: Facilitator to Base Sepolia: Read balance and nonce state, simulate. This step crosses a trust boundary. Step 7: Facilitator to Resource server: Return VerifyResponse isValid true. If isValid is false (for example expired window, wrong recipient, used nonce, low balance): The server answers 402 and the handler does not run. See the failure flows. Step 8: Resource server to Resource server: Run the handler. If The handler fails: The server does not settle, so the client is not charged (an SDK hook, settleOnCancel, can change this). Step 9: Resource server to Facilitator: POST /settle. This step crosses a trust boundary. If The settle call times out: The outcome is indeterminate: the transfer may still confirm, so the server must reconcile before it retries. Step 10: Facilitator to Base Sepolia: Broadcast transferWithAuthorization. This step crosses a trust boundary. If The nonce was consumed in the meantime or the balance dropped: The transaction reverts the facilitator returns success false. Step 11: Base Sepolia to Facilitator: Return transaction receipt. Step 12: Facilitator to Resource server: Return SettleResponse success true. If errorReason is settlement_pending: Non-terminal: the transaction was broadcast but not confirmed. The response carries the hash, and the server reconciles before it decides. Step 13: Resource server to Client (agent): 200 OK with PAYMENT-RESPONSE.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_facilitator as Facilitator
+  participant p_chain as Base Sepolia
+  p_client->>p_server: GET /weather (no payment header)
+  alt Expected path
+    p_server-->>p_client: 402 Payment Required with PAYMENT-REQUIRED
+  else A route has no registered scheme
+    Note over p_server,p_client: Since @x402/core 2.25.0 the SDK throws an error instead of answering 402 with an empty accepts list.
+  end
+  alt Expected path
+    p_client->>p_client: Choose an accepts entry, check limits, sign EIP-712
+  else Amount is above the spend cap or the asset is not allowed
+    Note over p_client: The SDK rejects the entry#59; if no entry is left, no payment is created.
+  else The entry names a paymentFlow the client does not recognize
+    Note over p_client: The client must skip that entry.
+  end
+  alt Expected path
+    p_client->>p_server: Retry GET /weather with PAYMENT-SIGNATURE
+  else The header is malformed
+    Note over p_client,p_server: The server answers 400 (invalid payment).
+  end
+  alt Expected path
+    p_server->>p_facilitator: POST /verify
+    Note over p_server,p_facilitator: Crosses a trust boundary
+  else The facilitator is unreachable or times out
+    Note over p_server,p_facilitator: See the facilitator-down flow: the Express middleware answers 502 and the handler does not run.
+  end
+  p_facilitator->>p_chain: Read balance and nonce state, simulate
+  Note over p_facilitator,p_chain: Crosses a trust boundary
+  alt Expected path
+    p_facilitator-->>p_server: Return VerifyResponse isValid true
+  else isValid is false (for example expired window, wrong recipient, used nonce, low balance)
+    Note over p_facilitator,p_server: The server answers 402 and the handler does not run. See the failure flows.
+  end
+  alt Expected path
+    p_server->>p_server: Run the handler
+  else The handler fails
+    Note over p_server: The server does not settle, so the client is not charged (an SDK hook, settleOnCancel, can change this).
+  end
+  alt Expected path
+    p_server->>p_facilitator: POST /settle
+    Note over p_server,p_facilitator: Crosses a trust boundary
+  else The settle call times out
+    Note over p_server,p_facilitator: The outcome is indeterminate: the transfer may still confirm, so the server must reconcile before it retries.
+  end
+  alt Expected path
+    p_facilitator->>p_chain: Broadcast transferWithAuthorization
+    Note over p_facilitator,p_chain: Crosses a trust boundary
+  else The nonce was consumed in the meantime or the balance dropped
+    Note over p_facilitator,p_chain: The transaction reverts#59; the facilitator returns success false.
+  end
+  p_chain-->>p_facilitator: Return transaction receipt
+  alt Expected path
+    p_facilitator-->>p_server: Return SettleResponse success true
+  else errorReason is settlement_pending
+    Note over p_facilitator,p_server: Non-terminal: the transaction was broadcast but not confirmed. The response carries the hash, and the server reconciles before it decides.
+  end
+  p_server-->>p_client: 200 OK with PAYMENT-RESPONSE

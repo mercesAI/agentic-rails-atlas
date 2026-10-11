@@ -1,0 +1,141 @@
+{
+  "id": "x402-escrow-auth-capture",
+  "protocol": "x402",
+  "specVersion": "v2.0",
+  "specVersionDate": "2025-12-09",
+  "title": "x402 alternative path: escrow flow with the auth-capture scheme",
+  "summary": "The client authorizes a maximum. A first settle places a hold on an escrow contract, the resource runs, and a second settle captures the actual amount (or voids the hold). Refunds can follow until the refund deadline, and the client can reclaim an untouched hold after the capture deadline.",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    },
+    {
+      "id": "facilitator",
+      "label": "Facilitator",
+      "kind": "facilitator"
+    },
+    {
+      "id": "chain",
+      "label": "AuthCaptureEscrow (EVM)",
+      "kind": "chain"
+    }
+  ],
+  "sources": [
+    "src-x402-scheme-auth-capture",
+    "src-x402-scheme-auth-capture-evm",
+    "src-x402-spec-v2",
+    "src-x402-gh-pr-1425"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "POST /jobs (no payment)",
+      "detail": "The client asks for metered work whose final price is not known yet."
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "client",
+      "label": "402 with an auth-capture entry",
+      "detail": "The accepts entry names scheme auth-capture, a maximum amount (1.00 USDC here), paymentFlow escrow, the operator type, and two absolute deadlines: captureDeadline and refundDeadline.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"accepts\": [\n    {\n      \"scheme\": \"auth-capture\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"1000000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\",\n        \"paymentFlow\": \"escrow\",\n        \"operatorType\": \"delegated\",\n        \"captureAuthorizer\": \"0xFAC1000000000000000000000000000000000FAC\",\n        \"captureDeadline\": 1791806400,\n        \"refundDeadline\": 1792324800,\n        \"assetTransferMethod\": \"eip3009\",\n        \"...\": \"fee and authorizer fields omitted\"\n      }\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/auth-capture/scheme_auth_capture_evm.md",
+        "section": "PaymentRequirements"
+      }
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with PAYMENT-SIGNATURE (one authorization)",
+      "detail": "The client signs exactly one ERC-3009 or Permit2 authorization for the maximum, naming a collector contract as recipient, plus a salt that fixes the payment identity.",
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/auth-capture/scheme_auth_capture_evm.md",
+        "section": "PaymentPayload"
+      }
+    },
+    {
+      "n": 4,
+      "from": "server",
+      "to": "facilitator",
+      "label": "POST /settle (authorize: place the hold)",
+      "detail": "Escrow ordering is settle, resource, settle. The first settle is the pre-resource check: it reserves the funds on the escrow contract.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "6.1 Payment Flow Models"
+      }
+    },
+    {
+      "n": 5,
+      "from": "facilitator",
+      "to": "chain",
+      "label": "authorize on AuthCaptureEscrow",
+      "detail": "The default EVM deployment is the base/commerce-payments v1.1 AuthCaptureEscrow contract.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "server",
+      "label": "Run the job and meter it",
+      "detail": "The work costs 0.75 USDC in this example."
+    },
+    {
+      "n": 7,
+      "from": "server",
+      "to": "facilitator",
+      "label": "POST /settle (payload.type capture)",
+      "detail": "The second settle names the operation on the payload: capture for the actual amount, or void to release the hold. Capture, void and refund are server operations; the client does not sign them.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"accepted\": {\n    \"scheme\": \"auth-capture\",\n    \"...\": \"...\"\n  },\n  \"payload\": {\n    \"type\": \"capture\",\n    \"amount\": \"750000\",\n    \"paymentInfo\": {\n      \"...\": \"operator, payer, receiver, token, maxAmount, expiries, fee bounds, salt\"\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/auth-capture/scheme_auth_capture_evm.md",
+        "section": "capture"
+      },
+      "failures": [
+        {
+          "condition": "The server never captures",
+          "outcome": "After captureDeadline the client can call reclaim directly on the escrow contract."
+        },
+        {
+          "condition": "The buyer is unhappy later",
+          "outcome": "The server can relay refund until refundDeadline."
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "from": "facilitator",
+      "to": "chain",
+      "label": "capture 0.75 USDC",
+      "detail": "The escrow pays the captured amount to the receiver. The rest of the hold can be voided in the same settle.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 9,
+      "from": "server",
+      "to": "client",
+      "label": "200 OK with PAYMENT-RESPONSE",
+      "detail": "The server returns the result and the settlement details."
+    }
+  ]
+}

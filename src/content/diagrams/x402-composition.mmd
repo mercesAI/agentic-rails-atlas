@@ -1,0 +1,11 @@
+flowchart LR
+  X["x402"]
+  AP2["AP2 mandates"] -- "a2a-x402 extension (targets AP2 v0.1)" --> X
+  E8["ERC-8004 registries"] -- "x402Support, agentWallet, proofOfPayment" --- X
+  MPP["Stripe MPP"] -- "exact maps to charge, mppx serves both" --- X
+  TAP["Visa TAP"] -- "browsingIOU answers a 402" --- X
+  X -- "transport" --> MCP["MCP _meta"]
+  X -- "transport" --> A2A["A2A metadata"]
+  L4["L402 (earlier 402 design on Lightning)"] -. "same status code, different design" .- X
+  X -- "rail for" --> CN["Circle Nanopayments"]
+  X -- "rail for" --> MG["Cloudflare Monetization Gateway beta"]

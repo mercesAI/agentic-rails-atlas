@@ -1,0 +1,27 @@
+flowchart LR
+  subgraph C["Client side"]
+    c1["Signs an altered payTo or amount"]
+    c2["Overspends under upto or with no cap"]
+  end
+  subgraph W["Wire and edge"]
+    w1["402 response altered in transit"]
+    w2["Signed header captured and replayed"]
+    w3["Large headers dropped by intermediaries"]
+  end
+  subgraph S["Resource server"]
+    s1["Route-matching bypass (encoded paths)"]
+    s2["Handler runs, settle fails"]
+    s3["Cross-resource substitution"]
+  end
+  subgraph F["Facilitator"]
+    f1["Duplicate settlement race"]
+    f2["Refuses or censors payments"]
+    f3["Sees resource metadata (privacy)"]
+  end
+  subgraph N["Chain and data"]
+    n1["Wash and farmed volume"]
+  end
+  w1 --> c1
+  w2 --> F
+  s3 --> S
+  F --> n1

@@ -1,0 +1,10 @@
+{
+  "id": "x402-transport-placement",
+  "protocol": "x402",
+  "type": "architecture",
+  "title": "Where the payment objects sit in HTTP, MCP and A2A",
+  "caption": "The same three objects (PaymentRequired, PaymentPayload, SettleResponse) ride in headers over HTTP, in the _meta field of an MCP tool call, and in task metadata over A2A. The facilitator API underneath stays HTTP.",
+  "alt": "Three columns. HTTP: 402 with the PAYMENT-REQUIRED header, then the PAYMENT-SIGNATURE header, then the PAYMENT-RESPONSE header. MCP: a tool result with isError true and PaymentRequired in structuredContent, then the _meta key x402/payment, then the _meta key x402/payment-response. A2A: a task in input-required with metadata x402.payment.required, then message metadata x402.payment.payload, then metadata x402.payment.receipts. All three lead to the facilitator API, which is HTTP in every case.",
+  "sourceOfTruth": { "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2", "label": "x402 specs/transports-v2 (http.md, mcp.md, a2a.md)" },
+  "sources": ["src-x402-transport-http-v2", "src-x402-transport-mcp-v2", "src-x402-transport-a2a-v2", "src-x402-spec-v2"]
+}

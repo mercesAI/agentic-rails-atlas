@@ -1,0 +1,27 @@
+sequenceDiagram
+  accTitle: x402 alternative path: escrow flow with the auth-capture scheme
+  accDescr: Sequence diagram: x402 alternative path: escrow flow with the auth-capture scheme. 4 participants: Client (agent), Resource server, Facilitator, and AuthCaptureEscrow (EVM). 9 steps, 4 crossing a trust boundary, 2 failure branches. Based on x402 v2.0 (2025-12-09). Step 1: Client (agent) to Resource server: POST /jobs (no payment). Step 2: Resource server to Client (agent): 402 with an auth-capture entry. Step 3: Client (agent) to Resource server: Retry with PAYMENT-SIGNATURE (one authorization). Step 4: Resource server to Facilitator: POST /settle (authorize: place the hold). This step crosses a trust boundary. Step 5: Facilitator to AuthCaptureEscrow (EVM): authorize on AuthCaptureEscrow. This step crosses a trust boundary. Step 6: Resource server to Resource server: Run the job and meter it. Step 7: Resource server to Facilitator: POST /settle (payload.type capture). This step crosses a trust boundary. If The server never captures: After captureDeadline the client can call reclaim directly on the escrow contract. If The buyer is unhappy later: The server can relay refund until refundDeadline. Step 8: Facilitator to AuthCaptureEscrow (EVM): capture 0.75 USDC. This step crosses a trust boundary. Step 9: Resource server to Client (agent): 200 OK with PAYMENT-RESPONSE.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_facilitator as Facilitator
+  participant p_chain as AuthCaptureEscrow (EVM)
+  p_client->>p_server: POST /jobs (no payment)
+  p_server-->>p_client: 402 with an auth-capture entry
+  p_client->>p_server: Retry with PAYMENT-SIGNATURE (one authorization)
+  p_server->>p_facilitator: POST /settle (authorize: place the hold)
+  Note over p_server,p_facilitator: Crosses a trust boundary
+  p_facilitator->>p_chain: authorize on AuthCaptureEscrow
+  Note over p_facilitator,p_chain: Crosses a trust boundary
+  p_server->>p_server: Run the job and meter it
+  alt Expected path
+    p_server->>p_facilitator: POST /settle (payload.type capture)
+    Note over p_server,p_facilitator: Crosses a trust boundary
+  else The server never captures
+    Note over p_server,p_facilitator: After captureDeadline the client can call reclaim directly on the escrow contract.
+  else The buyer is unhappy later
+    Note over p_server,p_facilitator: The server can relay refund until refundDeadline.
+  end
+  p_facilitator->>p_chain: capture 0.75 USDC
+  Note over p_facilitator,p_chain: Crosses a trust boundary
+  p_server-->>p_client: 200 OK with PAYMENT-RESPONSE

@@ -1,0 +1,121 @@
+{
+  "id": "x402-failure-replayed-nonce",
+  "protocol": "x402",
+  "specVersion": "v2.0",
+  "specVersionDate": "2025-12-09",
+  "title": "x402 failure: a used authorization is sent again (replayed nonce)",
+  "summary": "A captured PAYMENT-SIGNATURE is sent a second time after it settled. The nonce is already used on the token contract, so verification fails and a second settlement is impossible.",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    },
+    {
+      "id": "facilitator",
+      "label": "Facilitator",
+      "kind": "facilitator"
+    },
+    {
+      "id": "chain",
+      "label": "Base Sepolia",
+      "kind": "chain"
+    }
+  ],
+  "sources": [
+    "src-x402-spec-v2",
+    "src-x402-sdk-eip3009-utils",
+    "src-x402-sdk-evm-errors"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with PAYMENT-SIGNATURE",
+      "detail": "Someone sends a PAYMENT-SIGNATURE that already paid for an earlier request, hoping to get the resource again.",
+      "payload": {
+        "format": "http",
+        "content": "GET /weather HTTP/1.1\nHost: api.example.com\nPAYMENT-SIGNATURE: eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20vd2VhdGhlciIsImRlc2NyaXB0aW9uIjoiQ3VycmVudCB3ZWF0aGVyIGZvciBvbmUgY2l0eSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRlZCI6eyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweEIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJtYXhUaW1lb3V0U2Vjb25kcyI6NjAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0sInBheWxvYWQiOnsic2lnbmF0dXJlIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZDFiIiwiYXV0aG9yaXphdGlvbiI6eyJmcm9tIjoiMHhBMTFDRTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBBMTFDIiwidG8iOiIweEIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJ2YWx1ZSI6IjEwMDAwIiwidmFsaWRBZnRlciI6IjE3OTE3MTk5OTUiLCJ2YWxpZEJlZm9yZSI6IjE3OTE3MjAwNjAiLCJub25jZSI6IjB4NWU1ZTVlNWU3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYyJ9fSwiZXh0ZW5zaW9ucyI6e319\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"x402Version\": 2,\n  \"resource\": {\n    \"url\": \"https://api.example.com/weather\",\n    \"description\": \"Current weather for one city\",\n    \"mimeType\": \"application/json\"\n  },\n  \"accepted\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  },\n  \"payload\": {\n    \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n    \"authorization\": {\n      \"from\": \"0xA11CE0000000000000000000000000000000A11C\",\n      \"to\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"value\": \"10000\",\n      \"validAfter\": \"1791719995\",\n      \"validBefore\": \"1791720060\",\n      \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n    }\n  },\n  \"extensions\": {}\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/http.md",
+        "section": "Payment Payload Transmission"
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "facilitator",
+      "label": "POST /verify",
+      "detail": "The server forwards the payload together with its own copy of the requirements.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"paymentPayload\": {\n    \"x402Version\": 2,\n    \"resource\": {\n      \"url\": \"https://api.example.com/weather\",\n      \"description\": \"Current weather for one city\",\n      \"mimeType\": \"application/json\"\n    },\n    \"accepted\": {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    },\n    \"payload\": {\n      \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n      \"authorization\": {\n        \"from\": \"0xA11CE0000000000000000000000000000000A11C\",\n        \"to\": \"0xB0B0000000000000000000000000000000000B0B\",\n        \"value\": \"10000\",\n        \"validAfter\": \"1791719995\",\n        \"validBefore\": \"1791720060\",\n        \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n      }\n    },\n    \"extensions\": {}\n  },\n  \"paymentRequirements\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "7.1 POST /verify"
+      }
+    },
+    {
+      "n": 3,
+      "from": "facilitator",
+      "to": "chain",
+      "label": "Read authorizationState(from, nonce)",
+      "detail": "The TypeScript facilitator asks the token contract whether this payer already used this nonce.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "10.1 Replay Attack Prevention"
+      }
+    },
+    {
+      "n": 4,
+      "from": "chain",
+      "to": "facilitator",
+      "label": "Return true (nonce used)",
+      "detail": "EIP-3009 tokens record every used nonce and refuse to reuse it, so even a direct settlement attempt would revert."
+    },
+    {
+      "n": 5,
+      "from": "facilitator",
+      "to": "server",
+      "label": "Return isValid false (nonce already used)",
+      "detail": "The TypeScript facilitator reports invalid_exact_evm_nonce_already_used. The spec does not list a separate code for this case.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, TypeScript facilitator reason string (spec version v2.0 flow).\n{\n  \"isValid\": false,\n  \"invalidReason\": \"invalid_exact_evm_nonce_already_used\",\n  \"payer\": \"0xA11CE0000000000000000000000000000000A11C\"\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "9. Error Handling"
+      }
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "client",
+      "label": "402 with a fresh PAYMENT-REQUIRED",
+      "detail": "The server refuses the request and does not run the handler. A server that caches access per payment can also deduplicate with the payment-identifier extension.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nPAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQQVlNRU5ULVNJR05BVFVSRSBoZWFkZXIgaXMgcmVxdWlyZWQiLCJyZXNvdXJjZSI6eyJ1cmwiOiJodHRwczovL2FwaS5leGFtcGxlLmNvbS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJDdXJyZW50IHdlYXRoZXIgZm9yIG9uZSBjaXR5IiwibWltZVR5cGUiOiJhcHBsaWNhdGlvbi9qc29uIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4QjBCMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMEIwQiIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImV4dGVuc2lvbnMiOnt9fQ==\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"x402Version\": 2,\n  \"error\": \"PAYMENT-SIGNATURE header is required\",\n  \"resource\": {\n    \"url\": \"https://api.example.com/weather\",\n    \"description\": \"Current weather for one city\",\n    \"mimeType\": \"application/json\"\n  },\n  \"accepts\": [\n    {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    }\n  ],\n  \"extensions\": {}\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/http.md",
+        "section": "Error Handling"
+      }
+    }
+  ]
+}

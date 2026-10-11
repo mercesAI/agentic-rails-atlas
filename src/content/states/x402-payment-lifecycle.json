@@ -1,0 +1,182 @@
+{
+  "id": "x402-payment-lifecycle",
+  "protocol": "x402",
+  "title": "x402 payment lifecycle (V2, all three payment flows)",
+  "specVersion": "v2.0",
+  "sources": [
+    "src-x402-spec-v2",
+    "src-x402-transport-http-v2",
+    "src-x402-scheme-auth-capture",
+    "src-x402-docs-facilitator-concept"
+  ],
+  "states": [
+    {
+      "id": "unpaid",
+      "label": "Unpaid request",
+      "initial": true,
+      "note": "No PAYMENT-SIGNATURE header."
+    },
+    {
+      "id": "payment-required",
+      "label": "Payment required (402)",
+      "note": "PAYMENT-REQUIRED header sent with the accepts list."
+    },
+    {
+      "id": "payload-received",
+      "label": "Payload received",
+      "note": "PAYMENT-SIGNATURE decoded; the flow comes from extra.paymentFlow."
+    },
+    {
+      "id": "verified",
+      "label": "Verified",
+      "note": "authorization flow only. /verify is read-only."
+    },
+    {
+      "id": "held",
+      "label": "Committed before execution",
+      "note": "upfront: settled. escrow: deposit or hold placed."
+    },
+    {
+      "id": "executed",
+      "label": "Handler executed"
+    },
+    {
+      "id": "settle-pending",
+      "label": "Settlement pending",
+      "note": "errorReason settlement_pending; transaction hash present."
+    },
+    {
+      "id": "settled",
+      "label": "Settled",
+      "note": "success true; PAYMENT-RESPONSE carries the transaction hash."
+    },
+    {
+      "id": "rejected",
+      "label": "Rejected",
+      "terminal": true,
+      "note": "400 for a malformed payload, 402 for a failed payment, 502 when the facilitator is unreachable."
+    },
+    {
+      "id": "responded",
+      "label": "Responded 200",
+      "terminal": true
+    },
+    {
+      "id": "voided",
+      "label": "Voided or reclaimed",
+      "terminal": true,
+      "note": "auth-capture escrow only."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "unpaid",
+      "to": "payment-required",
+      "trigger": "Server sends 402",
+      "apiCall": "HTTP 402 + PAYMENT-REQUIRED",
+      "specRef": "transports-v2/http.md"
+    },
+    {
+      "from": "payment-required",
+      "to": "payload-received",
+      "trigger": "Client retries with a signed payload",
+      "apiCall": "PAYMENT-SIGNATURE header",
+      "specRef": "transports-v2/http.md"
+    },
+    {
+      "from": "payload-received",
+      "to": "rejected",
+      "trigger": "Malformed payload or unsupported scheme, network or flow",
+      "apiCall": "HTTP 400",
+      "specRef": "transports-v2/http.md"
+    },
+    {
+      "from": "payload-received",
+      "to": "verified",
+      "trigger": "authorization flow: facilitator returns isValid true",
+      "apiCall": "POST /verify",
+      "specRef": "x402-specification-v2.md 7.1"
+    },
+    {
+      "from": "payload-received",
+      "to": "rejected",
+      "trigger": "isValid false or facilitator unreachable",
+      "apiCall": "POST /verify",
+      "specRef": "x402-specification-v2.md 9"
+    },
+    {
+      "from": "payload-received",
+      "to": "held",
+      "trigger": "upfront or escrow flow: first settle succeeds",
+      "apiCall": "POST /settle",
+      "specRef": "x402-specification-v2.md 6.1"
+    },
+    {
+      "from": "verified",
+      "to": "executed",
+      "trigger": "Handler runs",
+      "specRef": "x402-specification-v2.md 6.1"
+    },
+    {
+      "from": "held",
+      "to": "executed",
+      "trigger": "Handler runs",
+      "specRef": "x402-specification-v2.md 6.1"
+    },
+    {
+      "from": "executed",
+      "to": "settled",
+      "trigger": "authorization flow: settle succeeds, or escrow: capture succeeds",
+      "apiCall": "POST /settle",
+      "specRef": "x402-specification-v2.md 7.2"
+    },
+    {
+      "from": "executed",
+      "to": "settle-pending",
+      "trigger": "Settle broadcast but not confirmed, or timed out",
+      "apiCall": "POST /settle",
+      "specRef": "x402-specification-v2.md 9"
+    },
+    {
+      "from": "settle-pending",
+      "to": "settled",
+      "trigger": "Server reconciles on chain and finds the transfer",
+      "specRef": "x402-specification-v2.md 9"
+    },
+    {
+      "from": "settle-pending",
+      "to": "rejected",
+      "trigger": "Reconciliation shows no transfer and one retry fails",
+      "apiCall": "POST /settle",
+      "specRef": "x402-specification-v2.md 9"
+    },
+    {
+      "from": "executed",
+      "to": "rejected",
+      "trigger": "Settle fails (for example insufficient_funds)",
+      "apiCall": "HTTP 402 + PAYMENT-RESPONSE success false",
+      "specRef": "transports-v2/http.md"
+    },
+    {
+      "from": "executed",
+      "to": "voided",
+      "trigger": "escrow: server voids the hold, or the client reclaims after captureDeadline",
+      "apiCall": "POST /settle with payload.type void",
+      "specRef": "schemes/auth-capture/scheme_auth_capture.md"
+    },
+    {
+      "from": "settled",
+      "to": "responded",
+      "trigger": "Server returns the resource",
+      "apiCall": "HTTP 200 + PAYMENT-RESPONSE",
+      "specRef": "transports-v2/http.md"
+    },
+    {
+      "from": "executed",
+      "to": "responded",
+      "trigger": "upfront: payment already settled, server returns the resource",
+      "apiCall": "HTTP 200 + PAYMENT-RESPONSE",
+      "specRef": "x402-specification-v2.md 6.1"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "x402-v1-v2-headers",
+  "protocol": "x402",
+  "type": "comparison",
+  "title": "V1 versus V2 wire format",
+  "caption": "V2 moved the payment requirements from the 402 body into a header, renamed every header, switched network names to CAIP-2 ids and renamed the price field. Both values of x402Version still exist, so check which one a server speaks.",
+  "alt": "Two rows. V1: a 402 response with a JSON body PaymentRequirementsResponse, a retry with the X-PAYMENT header, and an X-PAYMENT-RESPONSE header; networks are names such as base-sepolia and the price field is maxAmountRequired. V2: a 402 response with a PAYMENT-REQUIRED header, a retry with PAYMENT-SIGNATURE, and a PAYMENT-RESPONSE header; networks are CAIP-2 ids such as eip155:84532, the price field is amount, ResourceInfo is a separate object and extensions exist. An arrow labeled migration guide points from V1 to V2.",
+  "sourceOfTruth": { "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/docs/guides/migration-v1-to-v2.mdx", "label": "x402 docs: migration guide V1 to V2" },
+  "sources": ["src-x402-migration-guide", "src-x402-transport-http-v1", "src-x402-transport-http-v2", "src-x402-spec-v1", "src-x402-spec-v2"]
+}

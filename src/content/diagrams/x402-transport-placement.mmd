@@ -1,0 +1,14 @@
+flowchart TB
+  subgraph HT["HTTP"]
+    h1["402 + PAYMENT-REQUIRED header"] --> h2["PAYMENT-SIGNATURE header"] --> h3["PAYMENT-RESPONSE header"]
+  end
+  subgraph MC["MCP tool call"]
+    m1["Tool result isError true, PaymentRequired in structuredContent"] --> m2["_meta key x402/payment"] --> m3["_meta key x402/payment-response"]
+  end
+  subgraph AA["A2A task"]
+    a1["input-required, metadata x402.payment.required"] --> a2["message metadata x402.payment.payload"] --> a3["metadata x402.payment.receipts"]
+  end
+  FA["Facilitator API is HTTP in every case: /verify, /settle, /supported"]
+  h3 --> FA
+  m3 --> FA
+  a3 --> FA

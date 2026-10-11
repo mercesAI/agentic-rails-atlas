@@ -1,0 +1,113 @@
+{
+  "id": "x402-failure-facilitator-down",
+  "protocol": "x402",
+  "specVersion": "v2.0",
+  "specVersionDate": "2025-12-09",
+  "title": "x402 failure: the facilitator is down or times out",
+  "summary": "If verify cannot reach the facilitator, the server answers 502 and the handler does not run. If settle times out, the outcome is indeterminate and the server must reconcile on chain before it retries.",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    },
+    {
+      "id": "facilitator",
+      "label": "Facilitator",
+      "kind": "facilitator"
+    },
+    {
+      "id": "chain",
+      "label": "Base Sepolia",
+      "kind": "chain"
+    }
+  ],
+  "sources": [
+    "src-x402-spec-v2",
+    "src-x402-sdk-facilitator-client",
+    "src-x402-sdk-express",
+    "src-x402-docs-facilitator-concept"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with PAYMENT-SIGNATURE",
+      "detail": "The client sends a valid signed payment.",
+      "payload": {
+        "format": "http",
+        "content": "GET /weather HTTP/1.1\nHost: api.example.com\nPAYMENT-SIGNATURE: eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20vd2VhdGhlciIsImRlc2NyaXB0aW9uIjoiQ3VycmVudCB3ZWF0aGVyIGZvciBvbmUgY2l0eSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRlZCI6eyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweEIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJtYXhUaW1lb3V0U2Vjb25kcyI6NjAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0sInBheWxvYWQiOnsic2lnbmF0dXJlIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZDFiIiwiYXV0aG9yaXphdGlvbiI6eyJmcm9tIjoiMHhBMTFDRTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBBMTFDIiwidG8iOiIweEIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJ2YWx1ZSI6IjEwMDAwIiwidmFsaWRBZnRlciI6IjE3OTE3MTk5OTUiLCJ2YWxpZEJlZm9yZSI6IjE3OTE3MjAwNjAiLCJub25jZSI6IjB4NWU1ZTVlNWU3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYyJ9fSwiZXh0ZW5zaW9ucyI6e319\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"x402Version\": 2,\n  \"resource\": {\n    \"url\": \"https://api.example.com/weather\",\n    \"description\": \"Current weather for one city\",\n    \"mimeType\": \"application/json\"\n  },\n  \"accepted\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  },\n  \"payload\": {\n    \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n    \"authorization\": {\n      \"from\": \"0xA11CE0000000000000000000000000000000A11C\",\n      \"to\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"value\": \"10000\",\n      \"validAfter\": \"1791719995\",\n      \"validBefore\": \"1791720060\",\n      \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n    }\n  },\n  \"extensions\": {}\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/http.md",
+        "section": "Payment Payload Transmission"
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "facilitator",
+      "label": "POST /verify (no answer)",
+      "detail": "The facilitator does not answer. The TypeScript HTTPFacilitatorClient gives up after its timeout, 90 seconds by default.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "7.1 POST /verify"
+      }
+    },
+    {
+      "n": 3,
+      "from": "server",
+      "to": "client",
+      "label": "502 Bad Gateway",
+      "detail": "The @x402/express middleware turns a facilitator boundary failure into HTTP 502. The handler does not run and nothing moves on chain. The client can retry later; its signature stays valid until validBefore.",
+      "payload": {
+        "format": "http",
+        "content": "// Illustrative example, @x402/express behavior (spec version v2.0 flow).\nHTTP/1.1 502 Bad Gateway\nContent-Type: application/json\n\n{\"error\":\"facilitator request timed out\"}",
+        "illustrative": true
+      }
+    },
+    {
+      "n": 4,
+      "from": "server",
+      "to": "facilitator",
+      "label": "POST /settle (times out)",
+      "detail": "Variant: verify worked and the handler ran, but the settle call times out. The facilitator may already have broadcast the transfer.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "9. Error Handling"
+      },
+      "failures": [
+        {
+          "condition": "The facilitator answers settlement_pending",
+          "outcome": "Non-terminal. The response carries the broadcast hash; the server checks it on chain and retries at most once."
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "chain",
+      "label": "Reconcile: look up the transaction",
+      "detail": "With a settlement_pending hash, or with the payer and nonce, the server checks on chain whether the transfer confirmed before it retries or refuses. Retrying blindly cannot double charge with EIP-3009 because the nonce is single use, but it can mislead the server about the outcome.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version v2.0. settlement_pending must carry a non-empty transaction.\n{\n  \"success\": false,\n  \"errorReason\": \"settlement_pending\",\n  \"transaction\": \"0x9f9f9f9f0123456789abcdef0123456789abcdef0123456789abcdefdeadbeefaaaaaaaa\",\n  \"network\": \"eip155:84532\",\n  \"payer\": \"0xA11CE0000000000000000000000000000000A11C\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "9. Error Handling"
+      }
+    }
+  ]
+}

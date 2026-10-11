@@ -1,0 +1,140 @@
+{
+  "id": "x402-upfront-lightning",
+  "protocol": "x402",
+  "specVersion": "v2.0",
+  "specVersionDate": "2025-12-09",
+  "title": "x402 alternative path: upfront flow with the exact scheme on Lightning",
+  "summary": "Lightning has no way to pull a signed authorization later, so the lnbtc binding uses the upfront flow: the client pays a BOLT11 invoice first, sends the preimage, the facilitator settles by checking the preimage, and only then does the server run the handler. There is no /verify call and no refund path.",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    },
+    {
+      "id": "facilitator",
+      "label": "Facilitator",
+      "kind": "facilitator"
+    },
+    {
+      "id": "ln",
+      "label": "Lightning Network",
+      "kind": "chain"
+    }
+  ],
+  "sources": [
+    "src-x402-scheme-exact-lnbtc",
+    "src-x402-spec-v2",
+    "src-x402-gh-pr-2861"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "GET /article/A",
+      "detail": "The client asks for a paid article.",
+      "payload": {
+        "format": "http",
+        "content": "GET /article/A HTTP/1.1\nHost: api.example.com",
+        "illustrative": true
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "client",
+      "label": "402 with a fresh BOLT11 invoice",
+      "detail": "The server mints a new invoice for this exact request. The requirements name the lnbtc network, asset BTC, an amount in millisatoshis (25000 is 25 satoshis), payTo as the node key, paymentFlow upfront, and a requestHash that binds the invoice to the request.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"resource\": {\n    \"url\": \"https://api.example.com/article/A\"\n  },\n  \"accepts\": [\n    {\n      \"scheme\": \"exact\",\n      \"network\": \"lnbtc:000000000019d6689c085ae165831e93\",\n      \"amount\": \"25000\",\n      \"asset\": \"BTC\",\n      \"payTo\": \"02c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff\",\n      \"maxTimeoutSeconds\": 300,\n      \"extra\": {\n        \"assetTransferMethod\": \"bolt11\",\n        \"paymentFlow\": \"upfront\",\n        \"requestHash\": \"7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b7b\",\n        \"requestBindingProfile\": \"http:1\",\n        \"requestBindingParams\": {\n          \"headers\": []\n        },\n        \"invoice\": \"lnbc250n1p...illustrative...\"\n      }\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_lnbtc.md",
+        "section": "PaymentRequirements"
+      }
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "ln",
+      "label": "Pay the invoice",
+      "detail": "The client pays the invoice over Lightning and receives the 32-byte preimage as proof.",
+      "crossesTrustBoundary": true,
+      "failures": [
+        {
+          "condition": "The invoice expired (maxTimeoutSeconds equals the invoice expiry)",
+          "outcome": "The payment fails; the client requests a new 402."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with PAYMENT-SIGNATURE (preimage)",
+      "detail": "The payload carries only the preimage; there is no macaroon.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"accepted\": {\n    \"scheme\": \"exact\",\n    \"network\": \"lnbtc:000000000019d6689c085ae165831e93\",\n    \"...\": \"...\"\n  },\n  \"payload\": {\n    \"preimage\": \"000000000000000000000000000000000000000000000000000000000000002a\"\n  }\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_lnbtc.md",
+        "section": "PaymentPayload"
+      }
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "facilitator",
+      "label": "POST /settle (no /verify)",
+      "detail": "The upfront ordering is settle, resource, respond. The facilitator checks that SHA-256 of the preimage equals the invoice payment hash, that the invoice was signed by payTo, and records the payment hash in a replay store atomically.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
+        "section": "6.1 Payment Flow Models"
+      },
+      "failures": [
+        {
+          "condition": "The preimage does not match, or the payment hash was already recorded",
+          "outcome": "Settle fails and the handler does not run. A replay is refused."
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "facilitator",
+      "to": "server",
+      "label": "Return SettleResponse success true",
+      "detail": "Validity is established by settle itself."
+    },
+    {
+      "n": 7,
+      "from": "server",
+      "to": "server",
+      "label": "Run the handler",
+      "detail": "The client has already paid. If the handler fails now, the client is charged and the protocol defines no refund.",
+      "failures": [
+        {
+          "condition": "The handler fails after settlement",
+          "outcome": "The client paid for nothing; any remedy is the server's own arrangement."
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "from": "server",
+      "to": "client",
+      "label": "200 OK with PAYMENT-RESPONSE",
+      "detail": "The server returns the article and the settlement result."
+    }
+  ]
+}

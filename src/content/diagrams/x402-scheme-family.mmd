@@ -1,0 +1,17 @@
+flowchart TB
+  subgraph EX["exact (since 2025-02, before launch)"]
+    ex1["Client signs the exact amount"] --> ex2["One transfer after the handler"]
+    ex3["Lightning lnbtc: paid upfront (2026-09-23)"]
+  end
+  subgraph UT["upto (2026-03-04)"]
+    ut1["Client signs a ceiling"] --> ut2["Server settles the metered amount, at most the ceiling"]
+    ut3["Zero charge: no transaction"]
+  end
+  subgraph BS["batch-settlement (2026-04-15, was deferred)"]
+    bs1["Deposit opens a channel"] --> bs2["Cumulative voucher per request, served at once"] --> bs3["Claims and one settle later, many vouchers"]
+    bs4["cloudflare:402: credit, billed later by Cloudflare"]
+  end
+  subgraph AC["auth-capture (2026-05-13)"]
+    ac1["Authorize: hold before the handler"] --> ac2["Capture or void after"] --> ac3["Refund until refundDeadline, reclaim after captureDeadline"]
+  end
+  EX ~~~ UT ~~~ BS ~~~ AC

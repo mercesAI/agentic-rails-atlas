@@ -1,0 +1,12 @@
+flowchart TB
+  subgraph V1["V1 (x402Version 1, legacy npm packages)"]
+    direction LR
+    A1["402 + JSON body PaymentRequirementsResponse"] --> B1["Retry with X-PAYMENT header"] --> C1["X-PAYMENT-RESPONSE header"]
+    D1["network: base-sepolia, price: maxAmountRequired"]
+  end
+  subgraph V2["V2 (x402Version 2, @x402 packages and PyPI x402 2.x)"]
+    direction LR
+    A2["402 + PAYMENT-REQUIRED header"] --> B2["Retry with PAYMENT-SIGNATURE header"] --> C2["PAYMENT-RESPONSE header"]
+    D2["network: eip155:84532, price: amount, ResourceInfo split out, extensions"]
+  end
+  V1 -. "migration guide" .-> V2

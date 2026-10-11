@@ -1,0 +1,13 @@
+sequenceDiagram
+  accTitle: x402 failure: the authorization expired (validBefore in the past)
+  accDescr: Sequence diagram: x402 failure: the authorization expired (validBefore in the past). 3 participants: Client (agent), Resource server, and Facilitator. 5 steps, 1 crossing a trust boundary. Based on x402 v2.0 (2025-12-09). Step 1: Client (agent) to Resource server: Retry with PAYMENT-SIGNATURE. Step 2: Resource server to Facilitator: POST /verify. This step crosses a trust boundary. Step 3: Facilitator to Resource server: Return isValid false (valid_before). Step 4: Resource server to Client (agent): 402 with a fresh PAYMENT-REQUIRED. Step 5: Client (agent) to Client (agent): Sign again with a new window and nonce.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_facilitator as Facilitator
+  p_client->>p_server: Retry with PAYMENT-SIGNATURE
+  p_server->>p_facilitator: POST /verify
+  Note over p_server,p_facilitator: Crosses a trust boundary
+  p_facilitator-->>p_server: Return isValid false (valid_before)
+  p_server-->>p_client: 402 with a fresh PAYMENT-REQUIRED
+  p_client->>p_client: Sign again with a new window and nonce

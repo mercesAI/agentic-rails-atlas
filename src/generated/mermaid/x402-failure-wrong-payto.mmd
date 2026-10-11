@@ -1,0 +1,13 @@
+sequenceDiagram
+  accTitle: x402 failure: the signed recipient does not match payTo
+  accDescr: Sequence diagram: x402 failure: the signed recipient does not match payTo. 3 participants: Client (agent), Resource server, and Facilitator. 5 steps, 1 crossing a trust boundary. Based on x402 v2.0 (2025-12-09). Step 1: Client (agent) to Client (agent): Sign to an unexpected address. Step 2: Client (agent) to Resource server: Retry with PAYMENT-SIGNATURE. Step 3: Resource server to Facilitator: POST /verify. This step crosses a trust boundary. Step 4: Facilitator to Resource server: Return isValid false (recipient mismatch). Step 5: Resource server to Client (agent): 402 with a fresh PAYMENT-REQUIRED.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_facilitator as Facilitator
+  p_client->>p_client: Sign to an unexpected address
+  p_client->>p_server: Retry with PAYMENT-SIGNATURE
+  p_server->>p_facilitator: POST /verify
+  Note over p_server,p_facilitator: Crosses a trust boundary
+  p_facilitator-->>p_server: Return isValid false (recipient mismatch)
+  p_server-->>p_client: 402 with a fresh PAYMENT-REQUIRED

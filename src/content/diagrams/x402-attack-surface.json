@@ -1,0 +1,10 @@
+{
+  "id": "x402-attack-surface",
+  "protocol": "x402",
+  "type": "architecture",
+  "title": "x402 attack surface",
+  "caption": "Where published attacks and SDK advisories land. The signature protects amount and recipient, the nonce stops replay, but the protocol leaves payTo checks, budgets, delivery guarantees, privacy of metadata and facilitator honesty to the parties. Details and sources are in section H.",
+  "alt": "Five groups. Client side: signing an altered payTo or amount, and overspending under upto or without a cap. Wire and edge: a 402 response altered in transit, a captured signed header replayed, and large headers dropped by intermediaries. Resource server: route-matching bypass with encoded paths, a handler that runs while the settle fails, and cross-resource substitution. Facilitator: a duplicate settlement race, refusing or censoring payments, and seeing resource metadata. Chain and data: wash and farmed volume. An altered 402 leads to a wrong payTo signature, a replayed header targets the facilitator, and facilitator settlements feed the volume data.",
+  "sourceOfTruth": { "url": "https://arxiv.org/abs/2605.11781", "label": "Five Attacks on x402, plus the papers and advisories in section H" },
+  "sources": ["src-x402-arxiv-2605-11781", "src-x402-arxiv-2605-30998", "src-x402-arxiv-2607-19545", "src-x402-arxiv-2604-11430", "src-x402-arxiv-2607-12575", "src-x402-core-changelog", "src-x402-ghsa-2026", "src-x402-scheme-batch-cf"]
+}

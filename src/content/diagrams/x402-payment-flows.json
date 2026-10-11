@@ -1,0 +1,10 @@
+{
+  "id": "x402-payment-flows",
+  "protocol": "x402",
+  "type": "flowchart",
+  "title": "Payment flow variants: authorization, upfront, escrow",
+  "caption": "extra.paymentFlow decides when money moves relative to the handler. Authorization puts the risk of a failed settle on the seller, upfront puts the risk of a failed handler on the buyer, and escrow holds funds first and charges the real amount after. At least one check always runs before the handler.",
+  "alt": "Three rows. Authorization, the default: POST /verify, which is read only, then the handler runs, then POST /settle, then 200 with PAYMENT-RESPONSE. Upfront: POST /settle, then the handler runs, then 200 with PAYMENT-RESPONSE. Escrow: POST /settle to place a deposit or hold, then the handler runs, then a second POST /settle for the final charge, capture or void, then 200 with PAYMENT-RESPONSE.",
+  "sourceOfTruth": { "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md", "label": "x402 specification v2, section 6.1 Payment Flow Models" },
+  "sources": ["src-x402-spec-v2", "src-x402-scheme-exact-lnbtc", "src-x402-scheme-auth-capture"]
+}

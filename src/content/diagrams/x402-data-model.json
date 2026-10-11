@@ -1,0 +1,10 @@
+{
+  "id": "x402-data-model",
+  "protocol": "x402",
+  "type": "data-model",
+  "title": "x402 V2 core objects",
+  "caption": "The V2 types from the specification. PaymentRequired travels in PAYMENT-REQUIRED, PaymentPayload in PAYMENT-SIGNATURE and SettleResponse in PAYMENT-RESPONSE. The payload object is scheme specific; the exact EVM form with an EIP-3009 authorization is shown.",
+  "alt": "Class diagram. PaymentRequired has x402Version, error, a ResourceInfo resource, one or more PaymentRequirements in accepts, and extensions. ResourceInfo has url, description, mimeType, serviceName, tags and iconUrl. PaymentRequirements has scheme, network, amount, asset, payTo, maxTimeoutSeconds and extra. PaymentPayload has x402Version, resource, the accepted PaymentRequirements, a scheme payload and extensions. The exact EVM payload has a signature and an authorization with from, to, value, validAfter, validBefore and nonce. Each extension has info and schema. Verify returns VerifyResponse with isValid, invalidReason and payer. Settle returns SettleResponse with success, errorReason, payer, transaction, network and amount. GET /supported returns kinds, extensions and signers.",
+  "sourceOfTruth": { "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md", "label": "x402 specification v2, section 5 Types" },
+  "sources": ["src-x402-spec-v2", "src-x402-scheme-exact-evm"]
+}

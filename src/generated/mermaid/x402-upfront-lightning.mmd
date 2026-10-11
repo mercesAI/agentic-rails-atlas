@@ -1,0 +1,30 @@
+sequenceDiagram
+  accTitle: x402 alternative path: upfront flow with the exact scheme on Lightning
+  accDescr: Sequence diagram: x402 alternative path: upfront flow with the exact scheme on Lightning. 4 participants: Client (agent), Resource server, Facilitator, and Lightning Network. 8 steps, 2 crossing a trust boundary, 3 failure branches. Based on x402 v2.0 (2025-12-09). Step 1: Client (agent) to Resource server: GET /article/A. Step 2: Resource server to Client (agent): 402 with a fresh BOLT11 invoice. Step 3: Client (agent) to Lightning Network: Pay the invoice. This step crosses a trust boundary. If The invoice expired (maxTimeoutSeconds equals the invoice expiry): The payment fails the client requests a new 402. Step 4: Client (agent) to Resource server: Retry with PAYMENT-SIGNATURE (preimage). Step 5: Resource server to Facilitator: POST /settle (no /verify). This step crosses a trust boundary. If The preimage does not match, or the payment hash was already recorded: Settle fails and the handler does not run. A replay is refused. Step 6: Facilitator to Resource server: Return SettleResponse success true. Step 7: Resource server to Resource server: Run the handler. If The handler fails after settlement: The client paid for nothing any remedy is the server's own arrangement. Step 8: Resource server to Client (agent): 200 OK with PAYMENT-RESPONSE.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_facilitator as Facilitator
+  participant p_ln as Lightning Network
+  p_client->>p_server: GET /article/A
+  p_server-->>p_client: 402 with a fresh BOLT11 invoice
+  alt Expected path
+    p_client->>p_ln: Pay the invoice
+    Note over p_client,p_ln: Crosses a trust boundary
+  else The invoice expired (maxTimeoutSeconds equals the invoice expiry)
+    Note over p_client,p_ln: The payment fails#59; the client requests a new 402.
+  end
+  p_client->>p_server: Retry with PAYMENT-SIGNATURE (preimage)
+  alt Expected path
+    p_server->>p_facilitator: POST /settle (no /verify)
+    Note over p_server,p_facilitator: Crosses a trust boundary
+  else The preimage does not match, or the payment hash was already recorded
+    Note over p_server,p_facilitator: Settle fails and the handler does not run. A replay is refused.
+  end
+  p_facilitator-->>p_server: Return SettleResponse success true
+  alt Expected path
+    p_server->>p_server: Run the handler
+  else The handler fails after settlement
+    Note over p_server: The client paid for nothing#59; any remedy is the server#39;s own arrangement.
+  end
+  p_server-->>p_client: 200 OK with PAYMENT-RESPONSE

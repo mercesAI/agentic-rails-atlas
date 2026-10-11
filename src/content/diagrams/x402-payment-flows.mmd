@@ -1,0 +1,14 @@
+flowchart LR
+  subgraph AU["authorization (default)"]
+    direction LR
+    a1["POST /verify (read only)"] --> a2["Handler runs"] --> a3["POST /settle"] --> a4["200 + PAYMENT-RESPONSE"]
+  end
+  subgraph UP["upfront"]
+    direction LR
+    u1["POST /settle"] --> u2["Handler runs"] --> u3["200 + PAYMENT-RESPONSE"]
+  end
+  subgraph ES["escrow"]
+    direction LR
+    e1["POST /settle (deposit or hold)"] --> e2["Handler runs"] --> e3["POST /settle (final charge, capture or void)"] --> e4["200 + PAYMENT-RESPONSE"]
+  end
+  AU ~~~ UP ~~~ ES

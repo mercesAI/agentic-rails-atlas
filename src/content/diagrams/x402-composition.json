@@ -1,0 +1,10 @@
+{
+  "id": "x402-composition",
+  "protocol": "x402",
+  "type": "composition",
+  "title": "How x402 composes with the other protocols",
+  "caption": "x402 is the payment step. AP2 can carry it as a payment method through a2a-x402 (whose embedding targets AP2 v0.1 mandates), ERC-8004 can record that an agent accepts it and attach proof of payment to feedback, Stripe MPP can serve it on the same route, and Visa TAP has its own object for answering a 402. L402 is an earlier, separate HTTP 402 design.",
+  "alt": "x402 sits in the center. AP2 mandates connect to x402 through the a2a-x402 extension, which targets AP2 v0.1. ERC-8004 registries connect through x402Support, agentWallet and proofOfPayment. Stripe MPP connects because x402 exact maps to MPP charge and mppx serves both. Visa TAP connects through a browsingIOU object that answers a 402. x402 uses MCP _meta and A2A metadata as transports. L402 is linked with a dotted line labeled same status code, different design. x402 is the rail for Circle Nanopayments and the Cloudflare Monetization Gateway beta.",
+  "sourceOfTruth": { "url": "https://github.com/google-agentic-commerce/a2a-x402/blob/125db5526a965d2325459d1a9df2e274a7e42396/spec/v0.2/spec.md", "label": "a2a-x402 v0.2 spec, plus the linked relation sources" },
+  "sources": ["src-x402-a2a-spec", "src-x402-erc-8004", "src-x402-erc8004-bp", "src-x402-mpp-vs-x402", "src-visa-tap-spec", "src-x402-blip-0026", "src-x402-circle-nanopayments", "src-x402-cf-mg-beta"]
+}
