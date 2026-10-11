@@ -1,0 +1,86 @@
+{
+  "protocol": "ap2",
+  "score": 1,
+  "scoreReasons": [
+    "AP2 defines no registry, explorer, event stream or .well-known path of its own.",
+    "Mandates, receipts and risk_data are private between the parties, and selective disclosure deliberately limits what each sees.",
+    "Support is publicly visible only where a UCP merchant lists dev.ucp.common.payment.ap2_mandate in /.well-known/ucp.",
+    "The specification, schemas and GitHub activity are public, which is how adoption signals can be tracked."
+  ],
+  "public": [
+    {
+      "what": "UCP merchants that accept AP2",
+      "where": "/.well-known/ucp on each business domain",
+      "how": "capabilities list includes dev.ucp.common.payment.ap2_mandate; signing keys in keys[].",
+      "sources": [
+        "src-ap2-ucp-ext"
+      ]
+    },
+    {
+      "what": "Specification, schemas and samples",
+      "where": "github.com/google-agentic-commerce/AP2 and ap2-protocol.org",
+      "how": "Schema $id URLs under https://ap2-protocol.org/schemas/.",
+      "sources": [
+        "src-ap2-repo",
+        "src-ap2-schema-types"
+      ]
+    },
+    {
+      "what": "Repository activity",
+      "where": "GitHub API",
+      "how": "Commits on main, issues and pull requests; main idle since 2026-04-29.",
+      "sources": [
+        "src-ap2-gh-commits",
+        "src-ap2-gh-issues-since"
+      ]
+    },
+    {
+      "what": "Self-reported deployments",
+      "where": "GitHub issues",
+      "how": "For example issue 345, which publishes its own /.well-known/ap2.json, a path AP2 does not define.",
+      "sources": [
+        "src-ap2-issue-345"
+      ]
+    }
+  ],
+  "private": [
+    {
+      "what": "Open and closed mandates",
+      "why": "Exchanged only between agent, Credential Provider, merchant, processor and network."
+    },
+    {
+      "what": "Payment and Checkout Receipts",
+      "why": "Signed JWTs returned to the parties, never published."
+    },
+    {
+      "what": "risk_data and undisclosed constraints",
+      "why": "Selective disclosure keeps them from verifiers that do not need them."
+    }
+  ],
+  "indexerCaptures": [
+    {
+      "signal": "AP2 support among UCP merchants",
+      "from": "Crawling /.well-known/ucp profiles",
+      "identifiers": [
+        "dev.ucp.common.payment.ap2_mandate",
+        "keys[] kid values"
+      ],
+      "sources": [
+        "src-ap2-ucp-ext"
+      ]
+    },
+    {
+      "signal": "Specification and SDK activity",
+      "from": "GitHub API on google-agentic-commerce/AP2 and a2a-x402",
+      "identifiers": [
+        "commit SHA",
+        "tag v0.2.0",
+        "issue numbers"
+      ],
+      "sources": [
+        "src-ap2-gh-commits",
+        "src-ap2-gh-releases"
+      ]
+    }
+  ]
+}

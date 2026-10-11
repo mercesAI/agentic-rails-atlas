@@ -1,0 +1,269 @@
+{
+  "protocol": "ap2",
+  "summary": "AP2 is a controls protocol at heart: consent capture, spending caps, merchant and payee scoping, time windows and signed receipts are native. What it lacks is revocation, step-up, agent registration and consume-once replay tracking. The best places for an independent controls layer are the agent signer (before a closed mandate is signed), the Credential Provider (before a token is issued) and the evidence store after the purchase.",
+  "native": [
+    {
+      "protocol": "ap2",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The agent proves possession of the key in cnf; who the agent is belongs to the commerce protocol layer.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-implementation"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "agent-registration-kya",
+      "support": "none",
+      "note": "No registry or know-your-agent step; under the Trusted Agent Provider model verifiers keep their own list of trusted providers.",
+      "sources": [
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "user-consent-capture",
+      "support": "native",
+      "note": "A non-agentic Trusted Surface shows the Mandate Content and authenticates the user before signing.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-flows"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "payment.amount_range per payment and payment.budget across recurring uses.",
+      "sources": [
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "checkout.allowed_merchants, checkout.line_items, payment.allowed_payees, payment.allowed_pisps and payment.allowed_payment_instruments.",
+      "sources": [
+        "src-ap2-schema-open-checkout",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "iat and exp on every mandate, payment.execution_date windows and payment.agent_recurrence frequency.",
+      "sources": [
+        "src-ap2-schema-open-payment",
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "revocation",
+      "support": "none",
+      "note": "No mandate revocation in v0.2; only short exp and agent-side mandate management.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "v0.2 specifies no step-up; a failed check falls back through unresolved_constraint to a user-approved closed mandate. v0.1 had 3DS2 and OTP challenges.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-spec-v01"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "checkout_hash, transaction_id, sd_hash, cnf and the one-presentation-at-a-time rule; consume-once tracking is left to verifiers.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-spec-v02",
+        "src-ap2-pub-2602-06345"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "Signed Payment and Checkout Receipts whose reference is the hash of the closed mandate.",
+      "sources": [
+        "src-ap2-schema-receipts"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Dispute verification steps are defined; retention, retrieval and adjudication are out of scope.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "reputation",
+      "support": "none",
+      "note": "Not addressed.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "risk_data from the Trusted Surface; no event or telemetry format.",
+      "sources": [
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Credential Providers, networks or processors may reject overlapping mandates or invalidate tokens; card networks keep their own controls.",
+      "sources": [
+        "src-ap2-security"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "title": "No revocation",
+      "description": "An open mandate is valid until exp; there is no revoke message or status list.",
+      "sources": [
+        "src-ap2-implementation"
+      ]
+    },
+    {
+      "title": "No step-up in v0.2",
+      "description": "Only the unresolved_constraint fallback; no challenge messages are defined.",
+      "sources": [
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "title": "No consume-once rule",
+      "description": "Verifiers are not told to record accepted mandates; issue 346 reports the samples never do.",
+      "sources": [
+        "src-ap2-pub-2602-06345",
+        "src-ap2-gh-issues-since"
+      ]
+    },
+    {
+      "title": "Stateful constraints without an owner",
+      "description": "payment.budget and payment.agent_recurrence need presentation history, and nobody is assigned to keep it.",
+      "sources": [
+        "src-ap2-payment-mandate-doc"
+      ]
+    },
+    {
+      "title": "Pre-authorization context unprotected",
+      "description": "Mandates cover the final checkout, not the inputs that shaped the agent's choice.",
+      "sources": [
+        "src-ap2-pub-2608-23858",
+        "src-ap2-pub-2609-11757"
+      ]
+    }
+  ],
+  "controlPoints": [
+    {
+      "point": "before-authorization",
+      "what": "Narrow the open mandate: merchants, line items, amount range, budget, short exp.",
+      "how": "Trusted Surface templates and policy that refuse wide constraints.",
+      "sources": [
+        "src-ap2-schema-open-payment",
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "point": "at-signing",
+      "what": "Decide whether the agent may close an open mandate for this checkout.",
+      "how": "A deterministic signer that evaluates constraints itself and refuses overlapping presentations.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "point": "at-settlement",
+      "what": "Refuse or scope the payment credential.",
+      "how": "Credential Provider and network checks, token invalidation, budget tracking.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-security"
+      ]
+    },
+    {
+      "point": "after-the-fact",
+      "what": "Prove what was approved.",
+      "how": "Store the open, closed and receipt tuple and run the dispute verification steps.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-agent-authorization"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "item": "Reject any constraint type you do not recognize.",
+      "why": "The spec requires unknown constraints to fail.",
+      "sources": [
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "item": "Compare checkout_hash with the hash of your latest checkout_jwt before completing.",
+      "why": "It is the binding that stops a stale or altered checkout.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "item": "Record the hash of every accepted closed mandate and refuse repeats.",
+      "why": "Consume-once behavior is not specified.",
+      "sources": [
+        "src-ap2-pub-2602-06345"
+      ]
+    },
+    {
+      "item": "Keep the agent signing key out of the model's reach.",
+      "why": "Anyone with the key in cnf can close the open mandate.",
+      "sources": [
+        "src-ap2-implementation"
+      ]
+    },
+    {
+      "item": "Set exp to the shortest time the task needs.",
+      "why": "Expiry is the only way an open mandate ends.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-implementation"
+      ]
+    },
+    {
+      "item": "Sign checkouts with ECDSA (ES256) and include entropy.",
+      "why": "Resolves both sides of the issue 268 conflict.",
+      "sources": [
+        "src-ap2-issue-268"
+      ]
+    },
+    {
+      "item": "Store mandates and receipts for your dispute window.",
+      "why": "AP2 leaves retention out of scope.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    }
+  ]
+}
