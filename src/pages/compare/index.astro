@@ -1,0 +1,104 @@
+---
+/**
+ * /compare/: the compare matrix (Appendix A dimensions plus "Who pays"), a
+ * pick-two diff and a six-axis radar with an accessible table. Renders with
+ * any subset of protocols; protocols without cells read "in progress".
+ */
+import Page from '../../layouts/Page.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import Cite from '../../components/ui/Cite.astro';
+import CompareMatrix from '../../components/crosscut/CompareMatrix';
+import PickTwoDiff from '../../components/crosscut/PickTwoDiff';
+import RadarChart from '../../components/crosscut/RadarChart';
+import { loadCompare, loadProtocolInfos, registerSources } from '../../components/crosscut/lib/load';
+import { RADAR_AXIS_LABELS, RADAR_MAX, type RadarEntry } from '../../components/crosscut/lib/radar';
+import { C_RADAR_AXES } from '../../components/crosscut/lib/constants';
+import '../../components/crosscut/crosscut.css';
+
+const page = Astro.url.pathname;
+const protocols = await loadProtocolInfos();
+const compare = await loadCompare();
+const radar = compare.radar as RadarEntry[];
+const numbers = await registerSources(page, [
+  ...compare.cells.flatMap((c) => c.sources),
+  ...radar.flatMap((r) => r.sources),
+]);
+const covered = new Set(compare.cells.map((c) => c.protocol));
+const inProgress = protocols.filter((p) => !covered.has(p.slug));
+const radarBy = (slug: string, axis: string) => radar.find((r) => r.protocol === slug && r.axis === axis);
+const radarProtocols = protocols.filter((p) => radar.some((r) => r.protocol === p.slug));
+const counts = { verified: 0, reported: 0, unverified: 0 };
+for (const c of compare.cells) counts[c.confidence] += 1;
+---
+<Page
+  title="Compare"
+  eyebrow="Cross-cutting"
+  lede="The eight protocols side by side on the same dimensions. Every cell carries a value, a confidence and its sources. A cell may read “not published” when the source shows that nothing is public."
+  prose={false}
+  wide
+>
+  <p class="cc-intro">
+    {compare.dimensions.length} dimensions, {compare.cells.length} filled cells ({counts.verified} verified, {counts.reported} reported, {counts.unverified} unverified).
+    {inProgress.length > 0 && <> In progress: {inProgress.map((p) => p.short).join(', ')}. Their columns read “in progress” until their pages are merged.</>}
+    {' '}Select a citation marker to open the source details.
+  </p>
+
+  <section class="cc-section" aria-labelledby="matrix-h">
+    <h2 id="matrix-h">Matrix</h2>
+    <CompareMatrix client:visible protocols={protocols} dimensions={compare.dimensions} cells={compare.cells} numbers={numbers} />
+  </section>
+
+  <section class="cc-section" aria-labelledby="diff-h">
+    <h2 id="diff-h">Pick two</h2>
+    <p>Choose two protocols. Rows whose values differ are marked. The comparison is textual, so “same” means the same wording, not a judgment that the designs are equivalent.</p>
+    <PickTwoDiff client:visible protocols={protocols} dimensions={compare.dimensions} cells={compare.cells} numbers={numbers} />
+  </section>
+
+  <section class="cc-section" aria-labelledby="radar-h">
+    <h2 id="radar-h">Radar</h2>
+    <p>
+      Six axes scored 0 to {RADAR_MAX}: {C_RADAR_AXES.map((a) => RADAR_AXIS_LABELS[a].toLowerCase()).join(', ')}. Scores are editorial judgments made from the cited sources, not measurements. Hover or focus a point to read its justification; the table below has the same values with citations.
+    </p>
+    <RadarChart client:visible protocols={protocols} entries={radar} />
+    {radarProtocols.length > 0 && (
+      <div class="cc-frame" style="margin-top:1.25rem" role="region" aria-labelledby="radar-table-cap" tabindex="0">
+        <table class="cc-table">
+          <caption id="radar-table-cap">Radar values and justifications (0 to {RADAR_MAX})</caption>
+          <thead>
+            <tr>
+              <th scope="col">Protocol</th>
+              {C_RADAR_AXES.map((a) => <th scope="col" class="cc-cell">{RADAR_AXIS_LABELS[a]}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {radarProtocols.map((p) => (
+              <tr>
+                <th scope="row">{p.short}</th>
+                {C_RADAR_AXES.map((a) => {
+                  const r = radarBy(p.slug, a);
+                  return r ? (
+                    <td class="cc-cell">
+                      <div class="cc-cell__value">{r.value} of {RADAR_MAX}</div>
+                      <div class="cc-cell__detail">{r.justification} <Cite ids={r.sources.join(' ')} /></div>
+                    </td>
+                  ) : (
+                    <td class="cc-cell cc-cell--empty">Not rated</td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </section>
+
+  <section class="cc-section" aria-labelledby="method-h">
+    <h2 id="method-h">How to read this page</h2>
+    <p>
+      Each protocol writer fills its own column from the protocol's claims and sources, and a separate reviewer reads the matrix for overclaims. Confidence follows the site rule: verified means a primary source was read, reported means reputable secondary sources only, unverified is shown with a badge. See the <a href="/methodology/">methodology</a> for counts and gaps, the <a href="/controls/">controls map</a> for control-by-control support and the <a href="/stack/">stack</a> for layers.
+    </p>
+  </section>
+
+  <SourceList page={page} />
+</Page>
