@@ -1,0 +1,10 @@
+{
+  "id": "multi-metered-inference-context",
+  "protocol": "multi",
+  "type": "composition",
+  "title": "Metered inference: actors and protocol boundaries",
+  "caption": "The MPP session lives between the agent and the inference server; only channel operations (open, topUp, settle, close and the forced-close path) reach the Tempo chain, while vouchers stay off chain in the server's accounting. The x402 upto and batch-settlement schemes are the comparable usage-based designs, shown for comparison only.",
+  "alt": "Flowchart. On the agent side, the client agent uses a wallet key or a delegated authorizedSigner to sign the open transaction and vouchers. The agent requests inference and gets a 402 challenge for the tempo method and session intent. It sends an open credential; the server broadcasts the open to the channel escrow on Tempo. The agent then sends vouchers off chain, which the server records in its accounting as spent and acceptedCumulative. The agent sends a topUp credential, and the server broadcasts topUp, settle and close to the escrow. If the server stops answering, the agent calls requestClose on the escrow, waits out the grace period and calls withdraw. Two x402 alternatives sit to the side for comparison: upto, a Permit2 ceiling that the server settles for the metered charge, and batch-settlement, a channel with a deposit, cumulative vouchers and batched claims.",
+  "sourceOfTruth": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "label": "Tempo session method, draft-tempo-session-00" },
+  "sources": ["src-stripe-mpp-tempo-session", "src-stripe-mpp-core-01", "src-x402-scheme-upto-evm", "src-x402-scheme-batch-evm"]
+}

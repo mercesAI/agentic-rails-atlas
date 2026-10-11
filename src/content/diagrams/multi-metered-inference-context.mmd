@@ -1,0 +1,27 @@
+flowchart LR
+  subgraph AZ["Agent side"]
+    AG["Client agent"]
+    WK["Wallet key or authorizedSigner"]
+  end
+  subgraph SZ["Seller trust zone"]
+    API["Inference API: 402 challenge, stream, receipts"]
+    ACC["Server accounting: spent, acceptedCumulative"]
+  end
+  subgraph TZ["Tempo chain (public)"]
+    ESC["Channel escrow: open, topUp, settle, close, requestClose, withdraw"]
+  end
+  subgraph XZ["x402 alternatives (not used here)"]
+    UP["upto: Permit2 ceiling, server settles the metered charge"]
+    BS["batch-settlement: channel deposit, cumulative vouchers, batched claims"]
+  end
+  AG -- "1 request, 402 tempo session" --> API
+  WK -. "signs open tx and vouchers" .-> AG
+  AG -- "2 open credential" --> API
+  API -- "3 broadcast open" --> ESC
+  AG -- "4 vouchers, off chain" --> API
+  API --- ACC
+  AG -- "5 topUp credential" --> API
+  API -- "6 topUp, settle, close" --> ESC
+  AG -. "forced close: requestClose, wait, withdraw" .-> ESC
+  AG -. "compare" .-> UP
+  AG -. "compare" .-> BS

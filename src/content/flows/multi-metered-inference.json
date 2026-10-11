@@ -1,0 +1,226 @@
+{
+  "id": "multi-metered-inference",
+  "protocol": "multi",
+  "title": "Metered inference: an MPP session on Tempo with vouchers, a top-up and a cooperative close",
+  "summary": "An agent streams tokens from an inference API priced per unit. The server answers with an MPP challenge for the tempo method and the session intent; the agent opens a payment channel with a deposit, pays with off-chain cumulative vouchers as tokens arrive, tops up when the deposit runs low, and closes cooperatively. A forced close with a grace period is the fallback when the server stops answering.",
+  "specVersion": "MPP core draft-httpauth-payment-01; Tempo session draft-tempo-session-00 (v2 text merged 2026-06-25)",
+  "specVersionDate": "2026-06-25",
+  "actors": [
+    { "id": "client", "label": "Client agent", "kind": "agent" },
+    { "id": "server", "label": "Inference API server", "kind": "server" },
+    { "id": "escrow", "label": "Tempo channel escrow (TIP-20 precompile in v2)", "kind": "chain" }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "POST /v1/chat/completions with Accept-Payment",
+      "protocol": "stripe-mpp",
+      "detail": "The agent sends the request with no credential. An Accept-Payment header can state that it prefers tempo/session; the server's challenge still decides.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version draft-httpauth-payment-01.\nPOST /v1/chat/completions HTTP/1.1\nHost: api.llm-service.example\nAccept: text/event-stream\nAccept-Payment: tempo/session, tempo/charge;q=0.5\nContent-Type: application/json",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md", "section": "Challenge Negotiation with Accept-Payment" }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "client",
+      "label": "402 with WWW-Authenticate: Payment, method tempo, intent session",
+      "protocol": "stripe-mpp",
+      "detail": "The challenge carries id, realm, method, intent, expires and a base64url request. For a session the amount is a price per unit; unitType, suggestedDeposit, recipient and methodDetails (escrowContract, chainId, sessionProtocol) complete it. Session is defined by the Tempo method, not by a standardized MPP intent.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version draft-tempo-session-00.\nHTTP/1.1 402 Payment Required\nCache-Control: no-store\nWWW-Authenticate: Payment id=\"kM9xPqWvT2nJrHsY4aDfEb\",\n  realm=\"api.llm-service.example\",\n  method=\"tempo\",\n  intent=\"session\",\n  expires=\"2026-10-11T12:05:00Z\",\n  request=\"eyJhbW91bnQiOiIyNSIs...\"\n\n# decoded request\n{\n  \"amount\": \"25\",\n  \"unitType\": \"llm_token\",\n  \"suggestedDeposit\": \"10000000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0x742d...fe00\",\n  \"methodDetails\": { \"escrowContract\": \"0x9d13...Fa70\", \"chainId\": 4217, \"sessionProtocol\": \"v2\" }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Request Schema" },
+      "controlPoint": "Before authorization: check recipient against an allowlist, the price per unit against a ceiling, and the expected cost (amount times units) against the task budget.",
+      "observable": "Private: the challenge travels only between client and server over TLS."
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "client",
+      "label": "Choose a deposit, sign the open transaction and a zero voucher",
+      "protocol": "stripe-mpp",
+      "detail": "The agent picks a deposit (it may deposit less or more than suggestedDeposit), generates a salt, derives channelId, signs a Tempo transaction that opens the channel, and signs an EIP-712 voucher for cumulativeAmount 0 to prove control of the signing key.",
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Open Payload" },
+      "controlPoint": "At signing: the deposit is the hard cap on exposure, because vouchers cannot exceed it; a delegated authorizedSigner key can sign vouchers without holding the funds."
+    },
+    {
+      "n": 4,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with Authorization: Payment, action open",
+      "protocol": "stripe-mpp",
+      "detail": "The credential echoes the challenge and carries the payload: action open, type transaction, channelId, the v2 descriptor, the signed transaction, cumulativeAmount 0 and the voucher signature.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version draft-tempo-session-00 (decoded credential).\n{\n  \"challenge\": { \"id\": \"kM9xPqWvT2nJrHsY4aDfEb\", \"realm\": \"api.llm-service.example\", \"method\": \"tempo\", \"intent\": \"session\", \"request\": \"eyJ...\", \"expires\": \"2026-10-11T12:05:00Z\" },\n  \"payload\": {\n    \"action\": \"open\",\n    \"type\": \"transaction\",\n    \"channelId\": \"0x6d0f...8e9f\",\n    \"descriptor\": { \"payer\": \"0x1111...1111\", \"payee\": \"0x742d...fe00\", \"operator\": \"0x0000...0000\", \"token\": \"0x20c0000000000000000000000000000000000000\", \"salt\": \"0xaaaa...aaaa\", \"authorizedSigner\": \"0x0000...0000\", \"expiringNonceHash\": \"0xbbbb...bbbb\" },\n    \"transaction\": \"0x76f901...\",\n    \"cumulativeAmount\": \"0\",\n    \"signature\": \"0xabcd...\"\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Open Payload" },
+      "failures": [
+        { "condition": "The challenge id is unknown, used or expired", "outcome": "402 with a fresh challenge and a matching problem type such as invalid-challenge or payment-expired." }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "escrow",
+      "label": "Broadcast the open transaction",
+      "protocol": "stripe-mpp",
+      "detail": "The server broadcasts the signed transaction, adding a fee payer signature only if its challenge offered feePayer true; otherwise the client's transaction pays its own fee in a USD TIP-20 token. The server then verifies the channel against the descriptor.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Open Verification" },
+      "observable": "Public: the open call and the deposit on Tempo mainnet (chain 4217); payer, payee and token are visible."
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "client",
+      "label": "200, stream starts, Payment-Receipt in headers",
+      "protocol": "stripe-mpp",
+      "detail": "Every paid response carries a Payment-Receipt. A session receipt adds challengeId, channelId, acceptedCumulative and spent, plus optional units; its reference is the channelId. For a stream the receipt is in the initial headers and again at the end.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version draft-tempo-session-00 (decoded Payment-Receipt).\n{ \"method\": \"tempo\", \"intent\": \"session\", \"status\": \"success\", \"timestamp\": \"2026-10-11T12:00:30Z\",\n  \"reference\": \"0x6d0f...8e9f\", \"challengeId\": \"kM9xPqWvT2nJrHsY4aDfEb\", \"channelId\": \"0x6d0f...8e9f\",\n  \"acceptedCumulative\": \"0\", \"spent\": \"0\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Receipt Generation" },
+      "controlPoint": "After the fact: keep every receipt; spent and acceptedCumulative let the agent reconcile what it was charged against what it received."
+    },
+    {
+      "n": 7,
+      "from": "client",
+      "to": "server",
+      "label": "Voucher per unit batch (action voucher, HEAD allowed)",
+      "protocol": "stripe-mpp",
+      "detail": "As tokens arrive the agent signs EIP-712 vouchers whose cumulativeAmount only rises; each voucher states a running total, not a delta. Vouchers go to the same resource URI, can ride on HEAD requests, and cost no fee because they stay off chain.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version draft-tempo-session-00 (decoded credential payload).\n{ \"action\": \"voucher\", \"channelId\": \"0x6d0f...8e9f\", \"descriptor\": { \"payer\": \"0x1111...1111\", \"payee\": \"0x742d...fe00\", \"...\": \"...\" },\n  \"cumulativeAmount\": \"250000\", \"signature\": \"0x1234...cdef\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Voucher Payload" },
+      "controlPoint": "At signing: the agent's wallet can refuse a voucher whose total exceeds the task budget, even if the deposit allows more.",
+      "observable": "Private: vouchers stay off chain until the server settles.",
+      "failures": [
+        { "condition": "The voucher total exceeds the deposit", "outcome": "Rejected (session/amount-exceeds-deposit)." },
+        { "condition": "The increase is below minVoucherDelta", "outcome": "Rejected (session/delta-too-small)." },
+        { "condition": "The voucher is signed by the wrong key", "outcome": "Rejected (session/signer-mismatch)." }
+      ]
+    },
+    {
+      "n": 8,
+      "from": "server",
+      "to": "client",
+      "label": "SSE event payment-need-voucher",
+      "protocol": "stripe-mpp",
+      "detail": "When the authorized balance runs out the server must stop metered delivery and emit payment-need-voucher with acceptedCumulative, channelId, deposit and requiredCumulative. If requiredCumulative exceeds deposit, the agent must top up before it can sign a new voucher.",
+      "payload": {
+        "format": "text",
+        "content": "# Illustrative example, spec version draft-tempo-session-00.\nevent: payment-need-voucher\ndata: {\"channelId\":\"0x6d0f...8e9f\",\"requiredCumulative\":\"10000025\",\"acceptedCumulative\":\"10000000\",\"deposit\":\"10000000\"}",
+        "illustrative": true
+      },
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Insufficient Balance During Streaming" },
+      "failures": [
+        { "condition": "No voucher arrives within the server's timeout (for example 60 seconds)", "outcome": "The server should close the stream; the agent has paid only for what its vouchers covered." }
+      ]
+    },
+    {
+      "n": 9,
+      "from": "client",
+      "to": "server",
+      "label": "Top up (action topUp)",
+      "protocol": "stripe-mpp",
+      "detail": "The agent signs a topUp transaction and sends it with channelId, descriptor and additionalDeposit. A topUp needs a challenge; outside a live stream the agent can get one with a HEAD request.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version draft-tempo-session-00 (decoded credential payload).\n{ \"action\": \"topUp\", \"type\": \"transaction\", \"channelId\": \"0x6d0f...8e9f\", \"descriptor\": { \"...\": \"...\" },\n  \"transaction\": \"0x76f901...\", \"additionalDeposit\": \"5000000\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "TopUp Payload" },
+      "controlPoint": "Before authorization: a top-up is a new spending decision; a controls layer can require it to fit a per-task or per-day budget.",
+      "failures": [
+        { "condition": "The challenge id is unknown or expired", "outcome": "Rejected with problem type challenge-not-found." }
+      ]
+    },
+    {
+      "n": 10,
+      "from": "server",
+      "to": "escrow",
+      "label": "Broadcast topUp; settle when the server chooses",
+      "protocol": "stripe-mpp",
+      "detail": "The server broadcasts the topUp and the new deposit is usable at once. Separately, the server may call settle at any time (periodically, by threshold or for gas reasons) to claim the gap between the newest voucher and what is already settled. The server pays the fees for settle and close.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Settlement Timing" },
+      "controlPoint": "At settlement: TIP-20 policy allow and block lists on Tempo apply to the token transfers.",
+      "observable": "Public: topUp and settle calls on chain; only settled amounts appear, not each voucher."
+    },
+    {
+      "n": 11,
+      "from": "client",
+      "to": "server",
+      "label": "Close (action close) with the final voucher",
+      "protocol": "stripe-mpp",
+      "detail": "When the task ends the agent sends action close with channelId, descriptor and a final voucher whose cumulativeAmount covers at least what was spent.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version draft-tempo-session-00 (decoded credential payload).\n{ \"action\": \"close\", \"channelId\": \"0x6d0f...8e9f\", \"descriptor\": { \"...\": \"...\" },\n  \"cumulativeAmount\": \"12500000\", \"signature\": \"0xabcd...\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Close Payload" }
+    },
+    {
+      "n": 12,
+      "from": "server",
+      "to": "escrow",
+      "label": "close: capture max(spent, settled), refund the rest",
+      "protocol": "stripe-mpp",
+      "detail": "In a cooperative close the server captures max(spent, settledOnChain), never more than delivered service and never more than the close voucher or the deposit, and the rest of the deposit returns to the payer.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Cooperative Close" },
+      "observable": "Public: the close transaction, the captured amount and the refund.",
+      "failures": [
+        { "condition": "The server never closes (forced close)", "outcome": "The agent calls requestClose on chain; a grace period of at least 15 minutes starts in which the server can still settle or close; the spec advises waiting at least 16 minutes before withdraw, which returns all unsettled funds." },
+        { "condition": "The agent tops up while a close request is pending", "outcome": "The topUp cancels the close request and emits CloseRequestCancelled." },
+        { "condition": "A close voucher equal to the settled amount (mppx before 0.4.11, CVE-2026-34209)", "outcome": "The vulnerable server accepted it, letting anyone close or grief a channel for free; fixed in 0.4.11." }
+      ]
+    },
+    {
+      "n": 13,
+      "from": "server",
+      "to": "client",
+      "label": "Final receipt with txHash (SSE payment-receipt event)",
+      "protocol": "stripe-mpp",
+      "detail": "The stream ends with a payment-receipt event carrying the final acceptedCumulative, spent and the close txHash.",
+      "payload": {
+        "format": "text",
+        "content": "# Illustrative example, spec version draft-tempo-session-00.\nevent: payment-receipt\ndata: {\"method\":\"tempo\",\"intent\":\"session\",\"status\":\"success\",\"reference\":\"0x6d0f...8e9f\",\"channelId\":\"0x6d0f...8e9f\",\"acceptedCumulative\":\"12500000\",\"spent\":\"12500000\",\"txHash\":\"0x1a2b...7890\"}",
+        "illustrative": true
+      },
+      "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Receipt Generation" },
+      "controlPoint": "After the fact: reconcile receipts against the close transaction; force-close idle channels.",
+      "observable": "Private: the receipt; its txHash points to the public close transaction."
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-tempo-session",
+    "src-stripe-mpp-core-01",
+    "src-stripe-mpp-blog-sessions",
+    "src-x402-scheme-upto-evm",
+    "src-x402-scheme-batch-evm"
+  ]
+}
