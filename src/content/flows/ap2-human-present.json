@@ -116,7 +116,7 @@
       "detail": "The agent assembles the unsigned content of a closed Checkout Mandate and a closed Payment Mandate and hands it to a Trusted Surface. The surface is external under the User Credential model or internal under the Trusted Agent Provider model.",
       "payload": {
         "format": "json",
-        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n{\n  \"checkout_mandate_content\": {\n    \"vct\": \"mandate.checkout.1\",\n    \"checkout_jwt\": \"eyJhbGciOiJFUzI1NiIs...\",\n    \"checkout_hash\": \"Nv3Wq...X8\"\n  },\n  \"payment_mandate_content\": {\n    \"vct\": \"mandate.payment.1\",\n    \"transaction_id\": \"Nv3Wq...X8\",\n    \"payee\": {\n      \"id\": \"merchant_1\",\n      \"name\": \"Example Outdoor Store\",\n      \"website\": \"https://outdoor.example\"\n    },\n    \"payment_amount\": {\n      \"amount\": 27999,\n      \"currency\": \"USD\"\n    },\n    \"payment_instrument\": {\n      \"id\": \"pi_7f3c\",\n      \"type\": \"card\",\n      \"description\": \"Card ending 4242\"\n    }\n  }\n}",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# The outer keys (..._mandate_content) are labels for this page, not AP2 fields; each inner object is one Mandate Content payload.\n{\n  \"checkout_mandate_content\": {\n    \"vct\": \"mandate.checkout.1\",\n    \"checkout_jwt\": \"eyJhbGciOiJFUzI1NiIs...\",\n    \"checkout_hash\": \"Nv3Wq...X8\"\n  },\n  \"payment_mandate_content\": {\n    \"vct\": \"mandate.payment.1\",\n    \"transaction_id\": \"Nv3Wq...X8\",\n    \"payee\": {\n      \"id\": \"merchant_1\",\n      \"name\": \"Example Outdoor Store\",\n      \"website\": \"https://outdoor.example\"\n    },\n    \"payment_amount\": {\n      \"amount\": 27999,\n      \"currency\": \"USD\"\n    },\n    \"payment_instrument\": {\n      \"id\": \"pi_7f3c\",\n      \"type\": \"card\",\n      \"description\": \"Card ending 4242\"\n    }\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -151,7 +151,7 @@
       "detail": "The surface signs mandate.checkout.1 and mandate.payment.1. The hash of checkout_jwt appears in both (checkout_hash and transaction_id), which links them for good. Under the Trusted Agent Provider model the key belongs to the agent provider and must stay out of the agent's reach.",
       "payload": {
         "format": "sd-jwt",
-        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate as an SD-JWT signed with user_sk (Trusted Surface).\n# transaction_id equals checkout_hash: both are the hash of checkout_jwt.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791720000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"a8b7c6d5\",\n    \"sd_hash\": \"uixo...0Ck\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosure\": [\n    \"FW6M...Idw\",\n    {\n      \"vct\": \"mandate.payment.1\",\n      \"transaction_id\": \"Nv3Wq...X8\",\n      \"payee\": {\n        \"id\": \"merchant_1\",\n        \"name\": \"Example Outdoor Store\"\n      },\n      \"payment_amount\": {\n        \"amount\": 27999,\n        \"currency\": \"USD\"\n      },\n      \"payment_instrument\": {\n        \"id\": \"pi_7f3c\",\n        \"type\": \"card\",\n        \"description\": \"Card ending 4242\"\n      }\n    }\n  ]\n}",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate as an SD-JWT signed with user_sk (Trusted Surface).\n# transaction_id equals checkout_hash: both are the hash of checkout_jwt.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791720000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"a8b7c6d5\",\n    \"sd_hash\": \"uixo...0Ck\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosures\": [\n    \"FW6M...Idw\",\n    {\n      \"vct\": \"mandate.payment.1\",\n      \"transaction_id\": \"Nv3Wq...X8\",\n      \"payee\": {\n        \"id\": \"merchant_1\",\n        \"name\": \"Example Outdoor Store\"\n      },\n      \"payment_amount\": {\n        \"amount\": 27999,\n        \"currency\": \"USD\"\n      },\n      \"payment_instrument\": {\n        \"id\": \"pi_7f3c\",\n        \"type\": \"card\",\n        \"description\": \"Card ending 4242\"\n      }\n    }\n  ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": false,
@@ -288,7 +288,8 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/payment_receipt.json"
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/payment_receipt.json",
+        "section": "Payment Receipt schema; flows.md Human Present, Phase 2 step 9"
       }
     },
     {
@@ -304,7 +305,8 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/checkout_receipt.json"
+        "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/checkout_receipt.json",
+        "section": "Checkout Receipt schema; flows.md Human Present, Phase 2 step 9"
       }
     }
   ],

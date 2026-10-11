@@ -4,32 +4,168 @@
   "title": "AP2 v0.2 mandate lifecycle (open and closed mandates, presentation and receipts)",
   "specVersion": "v0.2",
   "states": [
-    { "id": "content", "label": "Mandate Content drafted", "initial": true, "note": "Unsigned content built by the Shopping Agent: closed (exact checkout and payment) or open (constraints plus the agent key in cnf)." },
-    { "id": "open-signed", "label": "Open mandate signed", "note": "vct mandate.checkout.open.1 or mandate.payment.open.1, signed by the user or a trusted agent provider. Bound to the agent key, not to a transaction." },
-    { "id": "closed-signed", "label": "Closed mandate signed", "note": "vct mandate.checkout.1 or mandate.payment.1. Bound to one checkout through checkout_hash and transaction_id; agent-signed closed mandates carry sd_hash over the open parent." },
-    { "id": "presented", "label": "Presented to a verifier", "note": "Merchant, Credential Provider, Network or processor. The agent must not present another closed mandate from the same open mandate until it holds an error receipt." },
-    { "id": "accepted", "label": "Accepted (receipt status Success)", "note": "Signed Payment or Checkout Receipt whose reference is the hash of the closed mandate." },
-    { "id": "rejected-retryable", "label": "Rejected, fallback possible", "note": "unresolved_constraint or mandates_not_supported: a signal to fall back to a user-approved closed mandate or a non-agentic flow." },
-    { "id": "rejected-terminal", "label": "Rejected, terminal", "terminal": true, "note": "invalid_credential or invalid_mandate." },
-    { "id": "scope-reduced", "label": "Open mandate narrowed or used up", "note": "The agent stores the open, closed and receipt tuple and reduces the open mandate's scope; payment.budget and payment.agent_recurrence allow bounded reuse." },
-    { "id": "completed", "label": "Purchase evidence stored", "terminal": true, "note": "Both mandates and both receipts can later be checked by a dispute verifier." },
-    { "id": "expired", "label": "Expired", "terminal": true, "note": "exp passed. v0.2 defines no revocation, so expiry is the only built-in end for an open mandate." }
+    {
+      "id": "content",
+      "label": "Mandate Content drafted",
+      "initial": true,
+      "note": "Unsigned content built by the Shopping Agent: closed (exact checkout and payment) or open (constraints plus the agent key in cnf)."
+    },
+    {
+      "id": "open-signed",
+      "label": "Open mandate signed",
+      "note": "vct mandate.checkout.open.1 or mandate.payment.open.1, signed by the user or a trusted agent provider. Bound to the agent key, not to a transaction."
+    },
+    {
+      "id": "closed-signed",
+      "label": "Closed mandate signed",
+      "note": "vct mandate.checkout.1 or mandate.payment.1. Bound to one checkout through checkout_hash and transaction_id; agent-signed closed mandates carry sd_hash over the open parent."
+    },
+    {
+      "id": "presented",
+      "label": "Presented to a verifier",
+      "note": "Merchant, Credential Provider, Network or processor. The agent must not present another closed mandate from the same open mandate until it holds an error receipt."
+    },
+    {
+      "id": "accepted",
+      "label": "Accepted (receipt status Success)",
+      "note": "Signed Payment or Checkout Receipt whose reference is the hash of the closed mandate."
+    },
+    {
+      "id": "rejected-retryable",
+      "label": "Rejected, fallback possible",
+      "note": "unresolved_constraint or mandates_not_supported: a signal to fall back to a user-approved closed mandate or a non-agentic flow."
+    },
+    {
+      "id": "rejected-terminal",
+      "label": "Rejected, terminal",
+      "terminal": true,
+      "note": "invalid_credential or invalid_mandate."
+    },
+    {
+      "id": "scope-reduced",
+      "label": "Open mandate narrowed or used up",
+      "note": "The agent stores the open, closed and receipt tuple and reduces the open mandate's scope; payment.budget and payment.agent_recurrence allow bounded reuse."
+    },
+    {
+      "id": "completed",
+      "label": "Purchase evidence stored",
+      "terminal": true,
+      "note": "Both mandates and both receipts can later be checked by a dispute verifier."
+    },
+    {
+      "id": "expired",
+      "label": "Expired",
+      "terminal": true,
+      "note": "exp passed. v0.2 defines no revocation, so expiry is the only built-in end for an open mandate."
+    }
   ],
   "transitions": [
-    { "from": "content", "to": "open-signed", "trigger": "User approves constraints on the Trusted Surface", "apiCall": "Trusted Surface signs with user_sk (or OpenID4VP transaction_data type delegate)", "specRef": "flows.md Human Not Present, Phase 1a step 4" },
-    { "from": "content", "to": "closed-signed", "trigger": "User approves the exact checkout on the Trusted Surface", "apiCall": "Trusted Surface signs mandate.checkout.1 and mandate.payment.1 with user_sk", "specRef": "flows.md Human Present, Phase 2 step 3" },
-    { "from": "open-signed", "to": "closed-signed", "trigger": "Agent finds a checkout that fits the constraints", "apiCall": "Agent signs a key-binding JWT with the key in cnf (sd_hash over the open mandate)", "specRef": "flows.md Human Not Present, Phase 2 step 2" },
-    { "from": "closed-signed", "to": "presented", "trigger": "Agent presents the mandate chain", "apiCall": "Payment Mandate to the Credential Provider; Checkout Mandate with the token to the Merchant", "specRef": "agent_authorization.md Action Authorization" },
-    { "from": "presented", "to": "accepted", "trigger": "Verifier checks chain, bindings and constraints", "apiCall": "Receipt JWT with status Success", "specRef": "specification.md Verification" },
-    { "from": "presented", "to": "rejected-retryable", "trigger": "Constraint cannot be confirmed, unknown constraint, or mandates not used", "apiCall": "Receipt JWT with status Error, error unresolved_constraint or mandates_not_supported", "specRef": "agent_authorization.md Errors" },
-    { "from": "presented", "to": "rejected-terminal", "trigger": "Signature or chain fails, or the mandate does not approve the action", "apiCall": "Receipt JWT with status Error, error invalid_credential or invalid_mandate", "specRef": "agent_authorization.md Errors" },
-    { "from": "rejected-retryable", "to": "content", "trigger": "Fallback: user brought back to approve a closed mandate", "apiCall": "New request to the Trusted Surface", "specRef": "flows.md introduction" },
-    { "from": "rejected-retryable", "to": "open-signed", "trigger": "Agent may try a different closed mandate from the same open mandate", "apiCall": "Error receipt held by the agent", "specRef": "specification.md Autonomous (Human Not Present)" },
-    { "from": "accepted", "to": "scope-reduced", "trigger": "Success receipt for an agent-signed mandate", "apiCall": "Agent stores open, closed and receipt tuple", "specRef": "agent_authorization.md Action Authorization" },
-    { "from": "accepted", "to": "completed", "trigger": "Both receipts returned", "apiCall": "Payment Receipt from the processor, Checkout Receipt from the Merchant", "specRef": "flows.md Human Present, Phase 2 step 9" },
-    { "from": "scope-reduced", "to": "closed-signed", "trigger": "Budget or recurrence still allows another purchase", "apiCall": "payment.budget and payment.agent_recurrence evaluated against earlier presentations", "specRef": "payment_mandate.md Budget, Agent Recurrence" },
-    { "from": "open-signed", "to": "expired", "trigger": "exp reached before use", "apiCall": "exp (Unix epoch) on the mandate", "specRef": "payment_mandate.json exp" },
-    { "from": "scope-reduced", "to": "expired", "trigger": "exp reached", "apiCall": "exp (Unix epoch) on the mandate", "specRef": "payment_mandate.json exp" }
+    {
+      "from": "content",
+      "to": "open-signed",
+      "trigger": "User approves constraints on the Trusted Surface",
+      "apiCall": "Trusted Surface signs with user_sk (or OpenID4VP transaction_data type delegate)",
+      "specRef": "flows.md Human Not Present, Phase 1a step 4"
+    },
+    {
+      "from": "content",
+      "to": "closed-signed",
+      "trigger": "User approves the exact checkout on the Trusted Surface",
+      "apiCall": "Trusted Surface signs mandate.checkout.1 and mandate.payment.1 with user_sk",
+      "specRef": "flows.md Human Present, Phase 2 step 3"
+    },
+    {
+      "from": "open-signed",
+      "to": "closed-signed",
+      "trigger": "Agent finds a checkout that fits the constraints",
+      "apiCall": "Agent signs a key-binding JWT with the key in cnf (sd_hash over the open mandate)",
+      "specRef": "flows.md Human Not Present, Phase 2 step 2"
+    },
+    {
+      "from": "closed-signed",
+      "to": "presented",
+      "trigger": "Agent presents the mandate chain",
+      "apiCall": "Payment Mandate to the Credential Provider; Checkout Mandate with the token to the Merchant",
+      "specRef": "agent_authorization.md Action Authorization"
+    },
+    {
+      "from": "presented",
+      "to": "accepted",
+      "trigger": "Verifier checks chain, bindings and constraints",
+      "apiCall": "Receipt JWT with status Success",
+      "specRef": "specification.md Verification"
+    },
+    {
+      "from": "presented",
+      "to": "rejected-retryable",
+      "trigger": "Constraint cannot be confirmed, unknown constraint, or mandates not used",
+      "apiCall": "Receipt JWT with status Error, error unresolved_constraint or mandates_not_supported",
+      "specRef": "agent_authorization.md Errors"
+    },
+    {
+      "from": "presented",
+      "to": "rejected-terminal",
+      "trigger": "Signature or chain fails, or the mandate does not approve the action",
+      "apiCall": "Receipt JWT with status Error, error invalid_credential or invalid_mandate",
+      "specRef": "agent_authorization.md Errors"
+    },
+    {
+      "from": "rejected-retryable",
+      "to": "content",
+      "trigger": "Fallback: user brought back to approve a closed mandate",
+      "apiCall": "New request to the Trusted Surface",
+      "specRef": "flows.md introduction"
+    },
+    {
+      "from": "rejected-retryable",
+      "to": "open-signed",
+      "trigger": "Agent may try a different closed mandate from the same open mandate",
+      "apiCall": "Error receipt held by the agent",
+      "specRef": "specification.md Autonomous (Human Not Present)"
+    },
+    {
+      "from": "accepted",
+      "to": "scope-reduced",
+      "trigger": "Success receipt for an agent-signed mandate",
+      "apiCall": "Agent stores open, closed and receipt tuple",
+      "specRef": "agent_authorization.md Action Authorization"
+    },
+    {
+      "from": "accepted",
+      "to": "completed",
+      "trigger": "Both receipts returned",
+      "apiCall": "Payment Receipt from the processor, Checkout Receipt from the Merchant",
+      "specRef": "flows.md Human Present, Phase 2 step 9"
+    },
+    {
+      "from": "scope-reduced",
+      "to": "closed-signed",
+      "trigger": "Budget or recurrence still allows another purchase",
+      "apiCall": "payment.budget and payment.agent_recurrence evaluated against earlier presentations",
+      "specRef": "payment_mandate.md Budget, Agent Recurrence"
+    },
+    {
+      "from": "open-signed",
+      "to": "expired",
+      "trigger": "exp reached before use",
+      "apiCall": "exp (Unix epoch) on the mandate",
+      "specRef": "open_payment_mandate.json and open_checkout_mandate.json exp"
+    },
+    {
+      "from": "scope-reduced",
+      "to": "expired",
+      "trigger": "exp reached",
+      "apiCall": "exp (Unix epoch) on the mandate",
+      "specRef": "open_payment_mandate.json and open_checkout_mandate.json exp"
+    }
   ],
-  "sources": ["src-ap2-agent-authorization", "src-ap2-flows", "src-ap2-spec-v02", "src-ap2-schema-receipts", "src-ap2-schema-payment", "src-ap2-implementation", "src-ap2-payment-mandate-doc"]
+  "sources": [
+    "src-ap2-agent-authorization",
+    "src-ap2-flows",
+    "src-ap2-spec-v02",
+    "src-ap2-schema-receipts",
+    "src-ap2-schema-payment",
+    "src-ap2-implementation",
+    "src-ap2-payment-mandate-doc"
+  ]
 }
