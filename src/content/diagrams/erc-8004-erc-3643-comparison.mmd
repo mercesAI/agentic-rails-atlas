@@ -1,0 +1,24 @@
+flowchart LR
+  subgraph T["ERC-3643 plus ONCHAINID (Final)"]
+    TI["Trusted ClaimIssuer"]
+    OID["Holder ONCHAINID: claims"]
+    TIR["T-REX Identity Registry: wallet to identity and country"]
+    CMP["Compliance: canTransfer"]
+    TIR2["Trusted Issuers and Claim Topics registries"]
+    TI -- "signs claim" --> OID
+    TIR -- "isVerified" --> OID
+    TIR2 --> TIR
+    CMP --> TIR
+  end
+  subgraph E["ERC-8004 (Draft)"]
+    EIR["Identity Registry: open ERC-721 agent ids"]
+    ERR["Reputation Registry: open feedback"]
+    TRL["Reader's trusted reviewer list"]
+    ERR --> EIR
+    TRL -- "getSummary filter" --> ERR
+  end
+  TI -. "plays the part of" .-> TRL
+  TIR -. "same name, different thing" .-> EIR
+  B["ERC-8226 mandate (Draft)"]
+  B -- "agent identity" --> EIR
+  B -- "token compliance" --> CMP

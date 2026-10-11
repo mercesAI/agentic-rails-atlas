@@ -1,0 +1,29 @@
+sequenceDiagram
+  accTitle: ERC-8004 validation flow (specified, not officially deployed)
+  accDescr: Sequence diagram: ERC-8004 validation flow (specified, not officially deployed). 4 participants: Agent owner or operator, Request data host, Validation Registry (specified, not officially deployed), and Validator contract or service. 5 steps, 4 crossing a trust boundary, 4 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner or operator to Request data host: Store request data. This step crosses a trust boundary. Step 2: Agent owner or operator to Validation Registry (specified, not officially deployed): validationRequest(validatorAddress, agentId, requestURI, requestHash). This step crosses a trust boundary. If The requestHash was used before: Reverts with exists in the reference code the first owner to submit a hash occupies it. If validatorAddress is zero: Reverts with bad validator. Step 3: Validator contract or service to Request data host: Fetch and check the work. This step crosses a trust boundary. Step 4: Validator contract or service to Validation Registry (specified, not officially deployed): validationResponse(requestHash, response, responseURI, responseHash, soft ). This step crosses a trust boundary. If The caller is not the named validator: Reverts with not validator. If response is above 100: Reverts with resp 100. Step 5: Validator contract or service to Validation Registry (specified, not officially deployed): validationResponse(requestHash, response,..., hard ).
+  autonumber
+  participant p_owner as Agent owner or operator
+  participant p_store as Request data host
+  participant p_validation as Validation Registry (specified, not officially deployed)
+  participant p_validator as Validator contract or service
+  p_owner->>p_store: Store request data
+  Note over p_owner,p_store: Crosses a trust boundary
+  alt Expected path
+    p_owner->>p_validation: validationRequest(validatorAddress, agentId, requestURI, requestHash)
+    Note over p_owner,p_validation: Crosses a trust boundary
+  else The requestHash was used before
+    Note over p_owner,p_validation: Reverts with #quot;exists#quot; in the reference code#59; the first owner to submit a hash occupies it.
+  else validatorAddress is zero
+    Note over p_owner,p_validation: Reverts with #quot;bad validator#quot;.
+  end
+  p_validator->>p_store: Fetch and check the work
+  Note over p_validator,p_store: Crosses a trust boundary
+  alt Expected path
+    p_validator->>p_validation: validationResponse(requestHash, response, responseURI, responseHash, #quot;soft#quot;)
+    Note over p_validator,p_validation: Crosses a trust boundary
+  else The caller is not the named validator
+    Note over p_validator,p_validation: Reverts with #quot;not validator#quot;.
+  else response is above 100
+    Note over p_validator,p_validation: Reverts with #quot;resp#gt;100#quot;.
+  end
+  p_validator->>p_validation: validationResponse(requestHash, response, ..., #quot;hard#quot;)

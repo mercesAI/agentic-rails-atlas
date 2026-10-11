@@ -1,0 +1,39 @@
+flowchart LR
+  subgraph OZ["Owner zone"]
+    OW["Agent owner"]
+    OP["Operators (ERC-721 approvals)"]
+    AW["Agent wallet"]
+  end
+  subgraph CH["Chain (per-chain singletons)"]
+    IR["Identity Registry (ERC-721)"]
+    RR["Reputation Registry"]
+    VR["Validation Registry (specified, not officially deployed)"]
+  end
+  subgraph OFF["Off-chain files"]
+    RF["Registration file (IPFS, HTTPS, data URI)"]
+    WK["/.well-known/agent-registration.json"]
+    FF["Feedback and response files"]
+  end
+  subgraph CZ["Clients"]
+    CL["Client or client agent"]
+    RS["Responder or aggregator"]
+  end
+  subgraph IX["Readers"]
+    EX["Indexers and explorers"]
+  end
+  UK["Registry owner (one EOA, upgrade key)"]
+  PAY["Payment rail, for example x402"]
+  OW -- "register, setAgentURI" --> IR
+  OP -- "setAgentURI, setMetadata" --> IR
+  AW -- "signs AgentWalletSet" --> OW
+  IR -. "agentURI points to" .-> RF
+  OW -. "publishes" .-> WK
+  CL -- "giveFeedback, revokeFeedback" --> RR
+  RS -- "appendResponse" --> RR
+  CL -. "uploads" .-> FF
+  OW -. "validationRequest" .-> VR
+  RR -- "reads owner and operators" --> IR
+  UK -- "can upgrade" --> CH
+  EX -. "events" .-> CH
+  EX -. "fetch" .-> OFF
+  CL -- "pays agent wallet" --> PAY

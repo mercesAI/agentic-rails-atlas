@@ -1,0 +1,27 @@
+flowchart TB
+  subgraph B1["Boundary 1: owner and Identity Registry"]
+    W1["Wallet signature: no nonce, 5-minute window"]
+    W2["Operators act like the owner"]
+  end
+  subgraph B2["Boundary 2: chain and off-chain files"]
+    F1["HTTPS file changes without an event"]
+    F2["Capabilities not guaranteed"]
+  end
+  subgraph B3["Boundary 3: clients and Reputation Registry"]
+    R1["Any address rates, Sybil clusters"]
+    R2["proofOfPayment never checked on-chain"]
+    R3["Unbounded reads"]
+  end
+  subgraph B4["Boundary 4: upgrade key"]
+    U1["One EOA owns all proxies on Ethereum and Base"]
+  end
+  subgraph B5["Boundary 5: validation (specified)"]
+    V1["Later response can lower a pass"]
+    V2["requestHash first come, first served"]
+  end
+  RD["Reader or client agent: must filter and verify"]
+  B1 --> RD
+  B2 --> RD
+  B3 --> RD
+  B4 --> RD
+  B5 --> RD

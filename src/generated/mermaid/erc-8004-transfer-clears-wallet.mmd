@@ -1,0 +1,19 @@
+sequenceDiagram
+  accTitle: ERC-8004 alternative path: a transfer clears the agent wallet
+  accDescr: Sequence diagram: ERC-8004 alternative path: a transfer clears the agent wallet. 5 participants: Previous owner, New owner, Identity Registry, Paying client, and New owner wallet. 4 steps, 2 crossing a trust boundary, 1 failure branch. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Previous owner to Identity Registry: transferFrom(old, new, agentId). This step crosses a trust boundary. Step 2: Paying client to Identity Registry: getAgentWallet(agentId). If The payer cached the old wallet: It may pay the previous owner ERC-8004 cannot stop a payment it does not carry. Step 3: New owner to New owner wallet: Sign AgentWalletSet. This step crosses a trust boundary. Step 4: New owner to Identity Registry: setAgentWallet(...).
+  autonumber
+  participant p_old as Previous owner
+  participant p_new as New owner
+  participant p_identity as Identity Registry
+  participant p_payer as Paying client
+  participant p_wallet as New owner wallet
+  p_old->>p_identity: transferFrom(old, new, agentId)
+  Note over p_old,p_identity: Crosses a trust boundary
+  alt Expected path
+    p_payer->>p_identity: getAgentWallet(agentId)
+  else The payer cached the old wallet
+    Note over p_payer,p_identity: It may pay the previous owner#59; ERC-8004 cannot stop a payment it does not carry.
+  end
+  p_new->>p_wallet: Sign AgentWalletSet
+  Note over p_new,p_wallet: Crosses a trust boundary
+  p_new->>p_identity: setAgentWallet(...)

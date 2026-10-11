@@ -1,0 +1,26 @@
+sequenceDiagram
+  accTitle: ERC-8004 revoking feedback and appending responses
+  accDescr: Sequence diagram: ERC-8004 revoking feedback and appending responses. 4 participants: Client, Agent owner, Data aggregator, and Reputation Registry. 5 steps, 3 crossing a trust boundary, 3 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Client to Reputation Registry: giveFeedback(4242, 20, 0, successRate,...). This step crosses a trust boundary. Step 2: Agent owner to Reputation Registry: appendResponse(4242, client, 1, responseURI, responseHash). This step crosses a trust boundary. If responseURI is empty: Reverts with Empty URI. If feedbackIndex is 0 or past the last index: Reverts with index must be 0 or index out of bounds. Step 3: Data aggregator to Reputation Registry: appendResponse(..., spam tag). This step crosses a trust boundary. Step 4: Client to Reputation Registry: revokeFeedback(4242, 1). If The entry is already revoked: Reverts with Already revoked. Step 5: Reputation Registry to Client: Return FeedbackRevoked.
+  autonumber
+  participant p_client as Client
+  participant p_agent as Agent owner
+  participant p_aggregator as Data aggregator
+  participant p_reputation as Reputation Registry
+  p_client->>p_reputation: giveFeedback(4242, 20, 0, #quot;successRate#quot;, ...)
+  Note over p_client,p_reputation: Crosses a trust boundary
+  alt Expected path
+    p_agent->>p_reputation: appendResponse(4242, client, 1, responseURI, responseHash)
+    Note over p_agent,p_reputation: Crosses a trust boundary
+  else responseURI is empty
+    Note over p_agent,p_reputation: Reverts with #quot;Empty URI#quot;.
+  else feedbackIndex is 0 or past the last index
+    Note over p_agent,p_reputation: Reverts with #quot;index must be #gt; 0#quot; or #quot;index out of bounds#quot;.
+  end
+  p_aggregator->>p_reputation: appendResponse(..., spam tag)
+  Note over p_aggregator,p_reputation: Crosses a trust boundary
+  alt Expected path
+    p_client->>p_reputation: revokeFeedback(4242, 1)
+  else The entry is already revoked
+    Note over p_client,p_reputation: Reverts with #quot;Already revoked#quot;.
+  end
+  p_reputation-->>p_client: Return FeedbackRevoked

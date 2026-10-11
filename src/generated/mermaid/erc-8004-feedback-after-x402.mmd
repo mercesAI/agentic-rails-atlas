@@ -1,0 +1,37 @@
+sequenceDiagram
+  accTitle: ERC-8004 feedback with proof of payment after an x402 payment
+  accDescr: Sequence diagram: ERC-8004 feedback with proof of payment after an x402 payment. 6 participants: Client agent, Seller agent (x402 server), x402 facilitator, IPFS or HTTPS host, Reputation Registry, and Indexer or reader. 8 steps, 5 crossing a trust boundary, 5 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Client agent to Seller agent (x402 server): Pay for a call with x402. This step crosses a trust boundary. Step 2: Seller agent (x402 server) to x402 facilitator: Verify and settle. This step crosses a trust boundary. Step 3: Seller agent (x402 server) to Client agent: Return 200 with PAYMENT-RESPONSE. Step 4: Client agent to IPFS or HTTPS host: Upload feedback file with proofOfPayment. This step crosses a trust boundary. Step 5: Client agent to Client agent: Compute feedbackHash. Step 6: Client agent to Reputation Registry: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash). This step crosses a trust boundary. If The caller is the owner or an operator of the agent: Reverts with Self-feedback not allowed. If valueDecimals is above 18: Reverts with too many decimals. If The agentId does not exist: Reverts with ERC721NonexistentToken. Step 7: Reputation Registry to Indexer or reader: Return NewFeedback event. Step 8: Indexer or reader to IPFS or HTTPS host: Fetch the file and check the proof. This step crosses a trust boundary. If The file is gone or its hash does not match: The on-chain value still counts in getSummary only off-chain scoring can discount it. If The txHash does not exist or pays someone else: Nothing on-chain flags it the reader must reject it.
+  autonumber
+  participant p_client as Client agent
+  participant p_seller as Seller agent (x402 server)
+  participant p_facilitator as x402 facilitator
+  participant p_ipfs as IPFS or HTTPS host
+  participant p_reputation as Reputation Registry
+  participant p_indexer as Indexer or reader
+  p_client->>p_seller: Pay for a call with x402
+  Note over p_client,p_seller: Crosses a trust boundary
+  p_seller->>p_facilitator: Verify and settle
+  Note over p_seller,p_facilitator: Crosses a trust boundary
+  p_seller-->>p_client: Return 200 with PAYMENT-RESPONSE
+  p_client->>p_ipfs: Upload feedback file with proofOfPayment
+  Note over p_client,p_ipfs: Crosses a trust boundary
+  p_client->>p_client: Compute feedbackHash
+  alt Expected path
+    p_client->>p_reputation: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash)
+    Note over p_client,p_reputation: Crosses a trust boundary
+  else The caller is the owner or an operator of the agent
+    Note over p_client,p_reputation: Reverts with #quot;Self-feedback not allowed#quot;.
+  else valueDecimals is above 18
+    Note over p_client,p_reputation: Reverts with #quot;too many decimals#quot;.
+  else The agentId does not exist
+    Note over p_client,p_reputation: Reverts with ERC721NonexistentToken.
+  end
+  p_reputation-->>p_indexer: Return NewFeedback event
+  alt Expected path
+    p_indexer->>p_ipfs: Fetch the file and check the proof
+    Note over p_indexer,p_ipfs: Crosses a trust boundary
+  else The file is gone or its hash does not match
+    Note over p_indexer,p_ipfs: The on-chain value still counts in getSummary#59; only off-chain scoring can discount it.
+  else The txHash does not exist or pays someone else
+    Note over p_indexer,p_ipfs: Nothing on-chain flags it#59; the reader must reject it.
+  end

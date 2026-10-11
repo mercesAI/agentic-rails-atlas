@@ -1,0 +1,26 @@
+flowchart TB
+  E["ERC-8004 registries"]
+  X["x402"]
+  M["Stripe MPP discovery draft"]
+  A2A["A2A agent card (service entry)"]
+  AP2["AP2"]
+  NONE["Visa TAP, OpenAI ACP, Google UCP, Mastercard Agent Pay: no documented relation"]
+  subgraph C["Companion ERCs"]
+    E8122["ERC-8122 minimal registry"]
+    E8217["ERC-8217 NFT binding"]
+    E8126["ERC-8126 verification (Final)"]
+    E8183["ERC-8183 job escrow"]
+    E8226["ERC-8226 regulated mandate"]
+  end
+  T["ERC-3643 regulated tokens"]
+  X -- "x402Support, agentWallet payee, proofOfPayment" --- E
+  M -. "cites, future anchoring" .-> E
+  E -- "lists" --> A2A
+  A2A -. "AP2 extends A2A" .- AP2
+  E -.- NONE
+  E8122 -.- E
+  E8217 --> E
+  E8126 -- "requires" --> E
+  E8183 -- "hooks for reputation and validation" --> E
+  E8226 -- "agent identity layer" --> E
+  E8226 -- "token compliance" --> T

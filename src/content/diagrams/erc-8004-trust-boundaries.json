@@ -1,0 +1,21 @@
+{
+  "id": "erc-8004-trust-boundaries",
+  "protocol": "erc-8004",
+  "type": "architecture",
+  "title": "ERC-8004 trust boundaries and attack surface",
+  "caption": "Where the threats in section H enter. Mutable HTTPS files, free feedback from fresh addresses, the single upgrade key, unchecked proofOfPayment, a reusable wallet signature inside its window, and validator answers that can be lowered. Status of the upgrade key as read on 2026-10-11.",
+  "alt": "Flowchart of boundaries. Boundary 1, owner to Identity Registry: wallet-binding signature has no nonce and is reusable for 5 minutes; operators share owner powers. Boundary 2, chain to off-chain file: HTTPS registration files can change without an event; capabilities are not guaranteed. Boundary 3, clients to Reputation Registry: any address can rate; Sybil clusters; proofOfPayment is never checked on-chain. Boundary 4, registry owner to all proxies: one externally owned account can upgrade on Ethereum and Base. Boundary 5, validator to Validation Registry (specified): later responses can lower a pass; requestHash is first come first served. Readers sit outside and must filter.",
+  "sourceOfTruth": {
+    "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+    "label": "ERC-8004 Draft text (2026-01-25), ethereum/ERCs commit b1f2bd8"
+  },
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-identity-sol",
+    "src-erc-8004-reputation-sol",
+    "src-erc-8004-validation-sol",
+    "src-erc-8004-onchain-probe",
+    "src-erc-8004-issue-28",
+    "src-erc-8004-pr-51"
+  ]
+}

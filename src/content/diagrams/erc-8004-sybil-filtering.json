@@ -1,0 +1,17 @@
+{
+  "id": "erc-8004-sybil-filtering",
+  "protocol": "erc-8004",
+  "type": "flowchart",
+  "title": "Sybil reviewers and filtering by trusted clients",
+  "caption": "One operator funds many fresh addresses and rates its own agent. getSummary refuses an empty reviewer list, so the reader must pick reviewers; with a trusted list the Sybil cluster drops out. The study arXiv:2606.26028 measured coordinated Sybil behavior among 59.2% to 90.6% of reviewers on three chains (data to 2026-05-13).",
+  "alt": "Flowchart. On the left, two honest clients who paid the agent and wrote feedback with proof of payment. In the middle, one operator controlling five fresh addresses, all giving high scores to agent A, plus the owner address, which is refused. All entries reach the Reputation Registry. A reader calling getSummary with an empty list gets a revert. A reader calling getSummary with only the trusted clients gets a summary from the two honest entries. An off-chain scorer can also weight entries that carry a verifiable proofOfPayment.",
+  "sourceOfTruth": {
+    "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+    "label": "ERC-8004 Draft text (2026-01-25), ethereum/ERCs commit b1f2bd8"
+  },
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-reputation-sol",
+    "src-pub-2606-26028"
+  ]
+}

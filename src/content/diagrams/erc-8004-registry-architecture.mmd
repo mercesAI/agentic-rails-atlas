@@ -1,0 +1,22 @@
+flowchart LR
+  subgraph ON["On-chain storage"]
+    I["Identity Registry: agentId, owner, agentURI, metadata (agentWallet)"]
+    R["Reputation Registry: value, valueDecimals, tag1, tag2, isRevoked"]
+    V["Validation Registry (specified): requestHash, validator, response, tag"]
+  end
+  subgraph EV["Events only"]
+    NF["NewFeedback: endpoint, feedbackURI, feedbackHash"]
+    RA["ResponseAppended: responseURI, responseHash"]
+  end
+  subgraph OF["Off-chain"]
+    RF["Registration file: services, x402Support, active, registrations"]
+    FF["Feedback file: MUST fields, mcp, a2a, oasf, proofOfPayment"]
+    RSP["Response files"]
+    VE["Validation request and evidence"]
+  end
+  I -- "agentURI" --> RF
+  RF -- "registrations: agentId, agentRegistry" --> I
+  R --> NF
+  NF -- "feedbackURI + hash" --> FF
+  RA --> RSP
+  V -. "requestURI, responseURI" .-> VE

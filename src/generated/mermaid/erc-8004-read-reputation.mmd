@@ -1,0 +1,22 @@
+sequenceDiagram
+  accTitle: ERC-8004 reading reputation with a trusted reviewer list
+  accDescr: Sequence diagram: ERC-8004 reading reputation with a trusted reviewer list. 3 participants: Reader (client agent or app), Reputation Registry, and Feedback file hosts. 6 steps, 1 crossing a trust boundary, 2 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Reader (client agent or app) to Reputation Registry: getSummary(agentId, [],, ). If clientAddresses is empty: Reverts with clientAddresses required. Step 2: Reader (client agent or app) to Reputation Registry: getClients(agentId). Step 3: Reader (client agent or app) to Reputation Registry: getSummary(agentId, trustedClients, starred, ). Step 4: Reputation Registry to Reader (client agent or app): Return count, summaryValue, summaryValueDecimals. Step 5: Reader (client agent or app) to Reputation Registry: readAllFeedback(agentId, trustedClients, tag1, tag2, false). If The agent has very many entries: The loop grows with every entry large reads can hit RPC gas limits, so indexers read events instead. Step 6: Reader (client agent or app) to Feedback file hosts: Fetch feedback files. This step crosses a trust boundary.
+  autonumber
+  participant p_reader as Reader (client agent or app)
+  participant p_reputation as Reputation Registry
+  participant p_ipfs as Feedback file hosts
+  alt Expected path
+    p_reader->>p_reputation: getSummary(agentId, #91;#93;, #quot;#quot;, #quot;#quot;)
+  else clientAddresses is empty
+    Note over p_reader,p_reputation: Reverts with #quot;clientAddresses required#quot;.
+  end
+  p_reader->>p_reputation: getClients(agentId)
+  p_reader->>p_reputation: getSummary(agentId, trustedClients, #quot;starred#quot;, #quot;#quot;)
+  p_reputation-->>p_reader: Return count, summaryValue, summaryValueDecimals
+  alt Expected path
+    p_reader->>p_reputation: readAllFeedback(agentId, trustedClients, tag1, tag2, false)
+  else The agent has very many entries
+    Note over p_reader,p_reputation: The loop grows with every entry#59; large reads can hit RPC gas limits, so indexers read events instead.
+  end
+  p_reader->>p_ipfs: Fetch feedback files
+  Note over p_reader,p_ipfs: Crosses a trust boundary

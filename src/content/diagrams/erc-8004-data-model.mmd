@@ -1,0 +1,73 @@
+classDiagram
+  class AgentIdentity {
+    uint256 agentId
+    address owner
+    string agentURI
+    bytes agentWallet
+  }
+  class MetadataEntry {
+    string metadataKey
+    bytes metadataValue
+  }
+  class RegistrationFile {
+    string type
+    string name
+    string description
+    string image
+    Service[] services
+    bool x402Support
+    bool active
+    Registration[] registrations
+    string[] supportedTrust
+  }
+  class Service {
+    string name
+    string endpoint
+    string version
+  }
+  class Registration {
+    uint256 agentId
+    string agentRegistry
+  }
+  class FeedbackRecord {
+    int128 value
+    uint8 valueDecimals
+    string tag1
+    string tag2
+    bool isRevoked
+  }
+  class FeedbackFile {
+    string agentRegistry
+    uint256 agentId
+    string clientAddress
+    string createdAt
+    number value
+    number valueDecimals
+    object mcp
+    object a2a
+    object oasf
+  }
+  class ProofOfPayment {
+    string fromAddress
+    string toAddress
+    string chainId
+    string txHash
+  }
+  class ValidationRecord {
+    bytes32 requestHash
+    address validatorAddress
+    uint256 agentId
+    uint8 response
+    bytes32 responseHash
+    string tag
+    uint256 lastUpdate
+  }
+  AgentIdentity --> RegistrationFile : agentURI
+  AgentIdentity --> "0..*" MetadataEntry : metadata
+  RegistrationFile --> "0..*" Service : services
+  RegistrationFile --> "1..*" Registration : registrations
+  Registration ..> AgentIdentity : names
+  AgentIdentity --> "0..*" FeedbackRecord : per client and index
+  FeedbackRecord ..> FeedbackFile : feedbackURI in event
+  FeedbackFile --> "0..1" ProofOfPayment : proofOfPayment
+  AgentIdentity --> "0..*" ValidationRecord : specified only

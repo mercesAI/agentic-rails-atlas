@@ -1,0 +1,53 @@
+sequenceDiagram
+  accTitle: ERC-8004 registration and wallet binding
+  accDescr: Sequence diagram: ERC-8004 registration and wallet binding. 5 participants: Agent owner, File host (IPFS or HTTPS), Identity Registry, Service domain, and New agent wallet. 10 steps, 8 crossing a trust boundary, 8 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner to File host (IPFS or HTTPS): Publish registration file. This step crosses a trust boundary. If The file is unreachable or not valid JSON: Nothing fails on-chain explorers and clients mark the agent as unreachable or invalid. Step 2: Agent owner to Identity Registry: register(agentURI). This step crosses a trust boundary. If The metadata array uses the key agentWallet: Reverts with reserved key. Step 3: Identity Registry to Agent owner: Return events Transfer, MetadataSet, Registered. Step 4: Agent owner to File host (IPFS or HTTPS): Write agentId into registrations. This step crosses a trust boundary. Step 5: Agent owner to Identity Registry: setAgentURI(agentId, newURI). This step crosses a trust boundary. If The caller is neither owner nor operator: Reverts with Not authorized. Step 6: Agent owner to Service domain: Serve /.well-known/agent-registration.json. This step crosses a trust boundary. Step 7: Agent owner to New agent wallet: Ask the new wallet to sign AgentWalletSet. This step crosses a trust boundary. If The wallet is a smart contract wallet: It does not sign with ECDSA the registry calls its ERC-1271 isValidSignature instead. Step 8: New agent wallet to Agent owner: Return signature. This step crosses a trust boundary. Step 9: Agent owner to Identity Registry: setAgentWallet(agentId, newWallet, deadline, signature). This step crosses a trust boundary. If newWallet is the zero address: Reverts with bad wallet. If The deadline has passed: Reverts with expired. If The deadline is more than 5 minutes ahead: Reverts with deadline too far. If Neither ECDSA nor ERC-1271 validates the signature: Reverts with invalid wallet sig. Step 10: Identity Registry to Agent owner: Return MetadataSet(agentWallet).
+  autonumber
+  participant p_owner as Agent owner
+  participant p_host as File host (IPFS or HTTPS)
+  participant p_identity as Identity Registry
+  participant p_domain as Service domain
+  participant p_wallet as New agent wallet
+  alt Expected path
+    p_owner->>p_host: Publish registration file
+    Note over p_owner,p_host: Crosses a trust boundary
+  else The file is unreachable or not valid JSON
+    Note over p_owner,p_host: Nothing fails on-chain#59; explorers and clients mark the agent as unreachable or invalid.
+  end
+  alt Expected path
+    p_owner->>p_identity: register(agentURI)
+    Note over p_owner,p_identity: Crosses a trust boundary
+  else The metadata array uses the key agentWallet
+    Note over p_owner,p_identity: Reverts with #quot;reserved key#quot;.
+  end
+  p_identity-->>p_owner: Return events Transfer, MetadataSet, Registered
+  p_owner->>p_host: Write agentId into registrations
+  Note over p_owner,p_host: Crosses a trust boundary
+  alt Expected path
+    p_owner->>p_identity: setAgentURI(agentId, newURI)
+    Note over p_owner,p_identity: Crosses a trust boundary
+  else The caller is neither owner nor operator
+    Note over p_owner,p_identity: Reverts with #quot;Not authorized#quot;.
+  end
+  p_owner->>p_domain: Serve /.well-known/agent-registration.json
+  Note over p_owner,p_domain: Crosses a trust boundary
+  alt Expected path
+    p_owner->>p_wallet: Ask the new wallet to sign AgentWalletSet
+    Note over p_owner,p_wallet: Crosses a trust boundary
+  else The wallet is a smart contract wallet
+    Note over p_owner,p_wallet: It does not sign with ECDSA#59; the registry calls its ERC-1271 isValidSignature instead.
+  end
+  p_wallet-->>p_owner: Return signature
+  Note over p_wallet,p_owner: Crosses a trust boundary
+  alt Expected path
+    p_owner->>p_identity: setAgentWallet(agentId, newWallet, deadline, signature)
+    Note over p_owner,p_identity: Crosses a trust boundary
+  else newWallet is the zero address
+    Note over p_owner,p_identity: Reverts with #quot;bad wallet#quot;.
+  else The deadline has passed
+    Note over p_owner,p_identity: Reverts with #quot;expired#quot;.
+  else The deadline is more than 5 minutes ahead
+    Note over p_owner,p_identity: Reverts with #quot;deadline too far#quot;.
+  else Neither ECDSA nor ERC-1271 validates the signature
+    Note over p_owner,p_identity: Reverts with #quot;invalid wallet sig#quot;.
+  end
+  p_identity-->>p_owner: Return MetadataSet(agentWallet)

@@ -1,0 +1,17 @@
+{
+  "id": "erc-8004-registry-architecture",
+  "protocol": "erc-8004",
+  "type": "architecture",
+  "title": "What lives on-chain and what lives off-chain",
+  "caption": "The chain stores very little: a token, its URI, metadata bytes, and per feedback only value, decimals, two tags and a revoked flag. Endpoint, feedbackURI and feedbackHash exist on-chain only in events. The registration file, feedback files with proofOfPayment, and validation evidence live off-chain.",
+  "alt": "Flowchart with two columns. On-chain storage: Identity Registry with tokenId as agentId, owner, agentURI and metadata including agentWallet; Reputation Registry with value, valueDecimals, tag1, tag2 and isRevoked per client and feedbackIndex; Validation Registry, specified, with requestHash, validator, response, responseHash, tag and lastUpdate. Events only: NewFeedback carries endpoint, feedbackURI and feedbackHash. Off-chain: registration file with services and registrations; feedback file with proofOfPayment; response files; validation request and evidence files. Arrows show the agentURI pointing to the registration file, feedbackURI in the event pointing to the feedback file, and the registrations list pointing back to the agentId.",
+  "sourceOfTruth": {
+    "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",
+    "label": "ERC-8004 Draft text (2026-01-25), ethereum/ERCs commit b1f2bd8"
+  },
+  "sources": [
+    "src-erc-8004-spec",
+    "src-erc-8004-reputation-sol",
+    "src-erc-8004-identity-sol"
+  ]
+}

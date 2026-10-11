@@ -1,0 +1,24 @@
+sequenceDiagram
+  accTitle: ERC-8004 failure: wallet binding with a bad deadline
+  accDescr: Sequence diagram: ERC-8004 failure: wallet binding with a bad deadline. 3 participants: Agent owner, New agent wallet, and Identity Registry. 5 steps, 4 crossing a trust boundary, 2 failure branches. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner to New agent wallet: Request AgentWalletSet with a 30-minute deadline. This step crosses a trust boundary. Step 2: Agent owner to Identity Registry: setAgentWallet(...). This step crosses a trust boundary. If deadline is more than 5 minutes after the block time: Reverts with deadline too far. No state changes. Step 3: Agent owner to New agent wallet: Request a new signature with a 4-minute deadline. This step crosses a trust boundary. Step 4: Agent owner to Identity Registry: Submit after 6 minutes. This step crosses a trust boundary. If block time is after the deadline: Reverts with expired. The wallet keeps its previous value. Step 5: Agent owner to Identity Registry: Retry with a fresh signature.
+  autonumber
+  participant p_owner as Agent owner
+  participant p_wallet as New agent wallet
+  participant p_identity as Identity Registry
+  p_owner->>p_wallet: Request AgentWalletSet with a 30-minute deadline
+  Note over p_owner,p_wallet: Crosses a trust boundary
+  alt Expected path
+    p_owner->>p_identity: setAgentWallet(...)
+    Note over p_owner,p_identity: Crosses a trust boundary
+  else deadline is more than 5 minutes after the block time
+    Note over p_owner,p_identity: Reverts with #quot;deadline too far#quot;. No state changes.
+  end
+  p_owner->>p_wallet: Request a new signature with a 4-minute deadline
+  Note over p_owner,p_wallet: Crosses a trust boundary
+  alt Expected path
+    p_owner->>p_identity: Submit after 6 minutes
+    Note over p_owner,p_identity: Crosses a trust boundary
+  else block time is after the deadline
+    Note over p_owner,p_identity: Reverts with #quot;expired#quot;. The wallet keeps its previous value.
+  end
+  p_owner->>p_identity: Retry with a fresh signature

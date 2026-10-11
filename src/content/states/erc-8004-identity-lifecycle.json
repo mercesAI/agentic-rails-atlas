@@ -1,0 +1,29 @@
+{
+  "id": "erc-8004-identity-lifecycle",
+  "protocol": "erc-8004",
+  "title": "ERC-8004 agent identity lifecycle (Identity Registry)",
+  "specVersion": "Draft (text of 2026-01-25); contracts 2.0.0",
+  "sources": ["src-erc-8004-spec", "src-erc-8004-identity-sol", "src-erc-8004-bp-registration"],
+  "states": [
+    { "id": "unregistered", "label": "Not registered", "initial": true, "note": "No token id yet." },
+    { "id": "registered-no-uri", "label": "Registered, no URI", "note": "register() with no argument; Registered carries an empty agentURI." },
+    { "id": "registered", "label": "Registered with URI, wallet = owner", "note": "agentWallet defaults to the owner address at mint." },
+    { "id": "wallet-verified", "label": "Wallet verified", "note": "agentWallet set to another address by setAgentWallet with a signature from that address." },
+    { "id": "wallet-cleared", "label": "Wallet cleared", "note": "agentWallet is the zero address after unsetAgentWallet or a transfer." },
+    { "id": "declared-inactive", "label": "Declared inactive (off-chain only)", "note": "active is false in the registration file. The registry has no such state and no burn function, so the token persists." }
+  ],
+  "transitions": [
+    { "from": "unregistered", "to": "registered-no-uri", "trigger": "Mint without a URI", "apiCall": "register()", "specRef": "ERCS/erc-8004.md Registration" },
+    { "from": "unregistered", "to": "registered", "trigger": "Mint with a URI", "apiCall": "register(agentURI) or register(agentURI, metadata)", "specRef": "ERCS/erc-8004.md Registration" },
+    { "from": "registered-no-uri", "to": "registered", "trigger": "Owner or operator sets the URI", "apiCall": "setAgentURI(agentId, newURI)", "specRef": "ERCS/erc-8004.md Update agentURI" },
+    { "from": "registered", "to": "registered", "trigger": "File moved or edited", "apiCall": "setAgentURI(agentId, newURI)", "specRef": "ERCS/erc-8004.md Update agentURI" },
+    { "from": "registered", "to": "wallet-verified", "trigger": "New wallet signs AgentWalletSet within 5 minutes", "apiCall": "setAgentWallet(agentId, newWallet, deadline, signature)", "specRef": "ERCS/erc-8004.md On-chain metadata" },
+    { "from": "wallet-verified", "to": "wallet-cleared", "trigger": "Owner or operator clears the wallet", "apiCall": "unsetAgentWallet(agentId)", "specRef": "ERCS/erc-8004.md On-chain metadata" },
+    { "from": "registered", "to": "wallet-cleared", "trigger": "Token transferred to a new owner", "apiCall": "ERC-721 transferFrom or safeTransferFrom", "specRef": "ERCS/erc-8004.md On-chain metadata" },
+    { "from": "wallet-verified", "to": "wallet-cleared", "trigger": "Token transferred to a new owner", "apiCall": "ERC-721 transferFrom or safeTransferFrom", "specRef": "ERCS/erc-8004.md On-chain metadata" },
+    { "from": "wallet-cleared", "to": "wallet-verified", "trigger": "Current owner binds a wallet again", "apiCall": "setAgentWallet(agentId, newWallet, deadline, signature)", "specRef": "ERCS/erc-8004.md On-chain metadata" },
+    { "from": "registered", "to": "declared-inactive", "trigger": "Owner publishes a file with active false", "apiCall": "setAgentURI(agentId, newURI) or an HTTPS file edit", "specRef": "ERCS/erc-8004.md Agent URI and Agent Registration File" },
+    { "from": "wallet-verified", "to": "declared-inactive", "trigger": "Owner publishes a file with active false", "apiCall": "setAgentURI(agentId, newURI) or an HTTPS file edit", "specRef": "ERCS/erc-8004.md Agent URI and Agent Registration File" },
+    { "from": "declared-inactive", "to": "registered", "trigger": "Owner publishes a file with active true", "apiCall": "setAgentURI(agentId, newURI)", "specRef": "ERCS/erc-8004.md Agent URI and Agent Registration File" }
+  ]
+}

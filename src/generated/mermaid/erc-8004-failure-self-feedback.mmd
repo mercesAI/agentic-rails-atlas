@@ -1,0 +1,18 @@
+sequenceDiagram
+  accTitle: ERC-8004 failure: self-feedback and the fresh-address loophole
+  accDescr: Sequence diagram: ERC-8004 failure: self-feedback and the fresh-address loophole. 4 participants: Agent owner, Fresh address controlled by the owner, Reputation Registry, and Reader with a trusted list. 4 steps, 2 crossing a trust boundary, 1 failure branch. Based on erc-8004 Draft (text of 2026-01-25) (2026-01-25). Step 1: Agent owner to Reputation Registry: giveFeedback(4242, 100, 0, starred,...). This step crosses a trust boundary. If The caller owns or operates agent 4242: Reverts with Self-feedback not allowed. Step 2: Fresh address controlled by the owner to Reputation Registry: giveFeedback from a fresh address. This step crosses a trust boundary. Step 3: Reputation Registry to Reader with a trusted list: Return NewFeedback. Step 4: Reader with a trusted list to Reputation Registry: getSummary(4242, trustedClients, starred, ).
+  autonumber
+  participant p_owner as Agent owner
+  participant p_sock as Fresh address controlled by the owner
+  participant p_reputation as Reputation Registry
+  participant p_reader as Reader with a trusted list
+  alt Expected path
+    p_owner->>p_reputation: giveFeedback(4242, 100, 0, #quot;starred#quot;, ...)
+    Note over p_owner,p_reputation: Crosses a trust boundary
+  else The caller owns or operates agent 4242
+    Note over p_owner,p_reputation: Reverts with #quot;Self-feedback not allowed#quot;.
+  end
+  p_sock->>p_reputation: giveFeedback from a fresh address
+  Note over p_sock,p_reputation: Crosses a trust boundary
+  p_reputation-->>p_reader: Return NewFeedback
+  p_reader->>p_reputation: getSummary(4242, trustedClients, #quot;starred#quot;, #quot;#quot;)

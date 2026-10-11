@@ -1,0 +1,26 @@
+flowchart LR
+  subgraph H["Honest clients"]
+    C1["Client 1 (paid, proofOfPayment)"]
+    C2["Client 2 (paid, proofOfPayment)"]
+  end
+  subgraph S["One operator, many addresses"]
+    OWN["Owner address"]
+    S1["Fresh address 1"]
+    S2["Fresh address 2"]
+    S3["Fresh address 3 to N"]
+  end
+  RR["Reputation Registry: agent A"]
+  C1 -- "value 60" --> RR
+  C2 -- "value 70" --> RR
+  S1 -- "value 100" --> RR
+  S2 -- "value 100" --> RR
+  S3 -- "value 100" --> RR
+  OWN -. "Self-feedback not allowed" .-x RR
+  Q1["getSummary with empty list"]
+  Q2["getSummary with trusted list: Client 1, Client 2"]
+  Q3["Off-chain scorer: weight by verified payment"]
+  RR --> Q1
+  Q1 --> E1["Revert: clientAddresses required"]
+  RR --> Q2
+  Q2 --> E2["count 2, mean 65"]
+  RR --> Q3
