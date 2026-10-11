@@ -747,9 +747,37 @@ Compared with the eight protocols, UPI agentic payments are closest in spirit to
 - 2026-08-04: injunction vacated and case remanded.
 
 **Relations to the eight.**
-- visa-tap, mastercard-agent-pay: complements. Not parties to the case; the dispute is about unidentified agent access, which signed agent identification at the merchant edge is designed to address. Context only, no source links the case to either program.
-- Other six: no documented relation.
+- None documented. Context for the site: the dispute concerns agent access that the site could not tell apart from its user, the gap that signed agent identification (Visa TAP, Mastercard Agent Pay, Web Bot Auth) targets; no source links the case to those programs, so show this as editorial context, not a relation.
 
 **Sources.** src-orbit-amazon-perplexity-ca9; src-orbit-amazon-perplexity-dockets; src-orbit-amazon-perplexity-geekwire; src-orbit-amazon-perplexity-decrypt; src-orbit-amazon-perplexity-jonesday.
 
 ---
+
+## Item index (for `OrbitMeta`, lastVerified 2026-10-11)
+
+| slug | category | starred | status label | latest version (date) |
+|---|---|---|---|---|
+| `erc-3643` | agent-identity | yes | Final ERC; reference implementation live | 4.1.6 stable in T-REX (2024-10-18); 4.1.3 marked latest in ERC-3643 org (2025-06-12) |
+| `erc-8226` | agent-identity | no | Draft | ERCs commit f4df3d0 (2026-10-09) |
+| `l402` | machine-payments | yes | Live (Lightning Labs); bLIP-0026 PR open | bLIP-0026 version 0 draft (2026-02-25) |
+| `interledger` | machine-payments | no | Live; Web Monetization is a CG draft; no agent program found | open-payments 7.4.0 (2026-03-11) |
+| `circle` | machine-payments | no | Live | Arc public mainnet (2026-09-16) |
+| `coinbase-agent-products` | machine-payments | no | Live | Base MCP (2026-05-26, reported) |
+| `cloudflare-agent-payments` | machine-payments | no | Mixed (closed beta, announced, unverified launch) | Monetization Gateway closed beta (2026-09-30) |
+| `tempo` | machine-payments | no | Live | node 1.16.0 (2026-10-06) |
+| `kite-ai` | machine-payments | no | Live | mainnet (2026-04-30) |
+| `nevermined` | machine-payments | no | Live | none |
+| `crossmint` | machine-payments | no | Live | public launch (2026-06-02) |
+| `x402r-a402` | machine-payments | no | x402r live SDK; A402 paper only | @x402r/sdk 0.2.1; arXiv 2603.01179 (2026-03-01) |
+| `visa-intelligent-commerce` | card-wallet-commerce | yes | Mixed | European issuer phase (2026-07-02) |
+| `amex-ace` | card-wallet-commerce | no | Announced | announcement (2026-04-14) |
+| `paypal-agentic` | card-wallet-commerce | no | Live | none |
+| `stripe-acs` | card-wallet-commerce | no | Live | Stripe-Version 2026-09-30.preview |
+| `adyen-agentic` | card-wallet-commerce | no | Limited availability (US) | announcement (2026-06-16) |
+| `klarna-app` | card-wallet-commerce | no | Live | launch (2025-12-15) |
+| `microsoft-copilot-checkout` | card-wallet-commerce | no | Live (US) | launch (2026-01-08) |
+| `perplexity-instant-buy` | card-wallet-commerce | no | Live (US) | launch (2025-11-25) |
+| `google-universal-cart` | card-wallet-commerce | no | Announced; rollout not verified | announcement (2026-05-19) |
+| `shopify-agentic-storefronts` | card-wallet-commerce | no | Mixed (ChatGPT live; others early access) | admin page update (2026-05-11) |
+| `npci-upi-agentic` | card-wallet-commerce | yes | Pilot | Claude pilot (2026-02-20) |
+| `amazon-v-perplexity` | legal-policy | no | Injunction vacated; remanded | Ninth Circuit opinion (2026-08-04) |
