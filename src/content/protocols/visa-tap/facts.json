@@ -1,0 +1,24 @@
+{
+  "protocol": "visa-tap",
+  "tldr": "Visa TAP lets a merchant recognize an approved AI agent. The agent signs each request with RFC 9421, tagged for browsing or paying, and may add signed consumer and payment objects. It identifies agents; it moves no money.",
+  "whyItExists": "Merchants block most automated traffic because they cannot tell a shopping agent acting for a real cardholder from a scraper or a fraud bot, and IP addresses or user-agent strings prove nothing. TAP gives an agent that Visa has onboarded a key, and asks it to sign every request with a short-lived signature that says whether it is browsing or paying. A merchant, or the CDN in front of it, checks the signature against Visa's key directory and can then let the agent through, recognize the returning shopper and receive payment data in a signed container.",
+  "whatItIsNot": [
+    { "text": "Not an IETF standard. TAP is a Visa specification published under Visa's own revocable Product Terms, and Visa alone changes it.", "claimIds": ["clm-visa-tap-003", "clm-visa-tap-013", "clm-visa-tap-014"] },
+    { "text": "Not a payment rail. TAP identifies the agent and carries payment data; the money moves through Visa Intelligent Commerce tokens and ordinary card processing.", "claimIds": ["clm-visa-tap-002", "clm-visa-tap-140"] },
+    { "text": "Not the Web Bot Auth working group draft. TAP predates the 2026-09-01 draft and differs from it: its own tags, no Signature-Agent header, a mandatory nonce and Visa's own key directory.", "claimIds": ["clm-visa-tap-106", "clm-visa-tap-108", "clm-visa-tap-109", "clm-visa-tap-111", "clm-visa-tap-112"] },
+    { "text": "Not the same \"agentic token\" as Mastercard's. Visa's agent credentials are agentic network tokens in Visa Intelligent Commerce; Mastercard Agentic Tokens are a separate Agent Pay product on another network.", "claimIds": ["clm-visa-tap-201", "clm-visa-tap-200"] },
+    { "text": "Not a consent or spending-limit system. Passkey-approved instructions, step-up and limits live in Visa Intelligent Commerce, not in TAP.", "claimIds": ["clm-visa-tap-129", "clm-visa-tap-141"] },
+    { "text": "Not mandatory for merchants. A merchant can accept Visa credentials without adopting TAP or registering with Visa.", "claimIds": ["clm-visa-tap-034"] },
+    { "text": "Not an open source project. The sample repository's LICENSE.md binds users to Visa's terms, even though the source files carry MIT-style headers.", "claimIds": ["clm-visa-tap-019", "clm-visa-tap-020"] }
+  ],
+  "changedRecently": [
+    { "date": "2026-04-29", "text": "Visa expanded its Agentic Ready program to Asia Pacific and Latin America, live with more than 20 partners in the UK and Europe.", "claimIds": ["clm-visa-tap-179"] },
+    { "date": "2026-06-10", "text": "Visa announced the Agentic Directory of agents and merchants it has verified, and Agent Score for site readiness.", "claimIds": ["clm-visa-tap-156", "clm-visa-tap-157", "clm-visa-tap-158"] },
+    { "date": "2026-07-01", "text": "Cloudflare began treating signed agents as verified bots, split by Direct or Intermediary access.", "claimIds": ["clm-visa-tap-135"] },
+    { "date": "2026-07-02", "text": "Visa named 31 European issuers whose cardholders' agents completed live purchases at merchant websites, with merchants enabled through TAP.", "claimIds": ["clm-visa-tap-180", "clm-visa-tap-181", "clm-visa-tap-159"] },
+    { "date": "2026-07-03", "text": "eDreams ODIGEO said it uses TAP and the Agentic Directory to recognize verified agents on four travel brands (reported).", "claimIds": ["clm-visa-tap-161"] },
+    { "date": "2026-07-15", "text": "A community pull request asked to make the sample merchant verifier conform to RFC 9421; nothing has been merged since 2025-10-28.", "claimIds": ["clm-visa-tap-027", "clm-visa-tap-026"] },
+    { "date": "2026-08-12", "text": "Tempo announced TAP request attestation in the mppx SDK, with both TAP tags and an 8-minute lifetime.", "claimIds": ["clm-visa-tap-163", "clm-visa-tap-162"] },
+    { "date": "2026-09-01", "text": "The IETF Web Bot Auth working group posted draft -00. TAP does not conform to it.", "claimIds": ["clm-visa-tap-104", "clm-visa-tap-108"] }
+  ]
+}

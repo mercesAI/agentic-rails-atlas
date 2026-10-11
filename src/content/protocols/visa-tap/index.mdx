@@ -1,0 +1,113 @@
+---
+slug: visa-tap
+order: 3
+name: Visa Trusted Agent Protocol
+bubbleLabel: Visa TAP
+monogram: TAP
+tagline: Signed agent requests for card checkout
+intro: "A Visa specification that lets a merchant's site tell an approved AI agent from an unknown bot. The agent signs each web request with RFC 9421 HTTP Message Signatures, tagged for browsing or for paying, and can attach signed consumer and payment objects at checkout. Built with Cloudflare as part of Visa Intelligent Commerce, it identifies agents and moves no money by itself."
+family: identity-trust
+layerPrimary: identity-trust
+layersSecondary:
+  - payment-credential
+  - checkout-orders
+rails:
+  - card
+stewards:
+  - Visa
+governance: "Proprietary Visa specification published on the Visa Developer Center, not a standards-body document. Visa changes it alone, and licensees must apply each Visa update within six months and at least once a year. Visa says it will align with the IETF, the OpenID Foundation and EMVCo."
+license:
+  spec: "Visa Developer Center Terms of Use plus the TAP Product Terms dated 2025-10-10: revocable, no modification, full conformance to the current version"
+  code: "Sample repository bound to the same terms by LICENSE.md, while its source files carry MIT-style headers (unresolved conflict); GitHub reports no recognized license"
+status: mixed
+statusNote: "The specification has been public since 2025-10-14 with no version number. Visa reported live agent purchases at named European merchants on 2026-07-02, yet its overview page still says TAP is in development and deployment and may not be available in all markets."
+firstAnnounced: "2025-10-14"
+latestVersion:
+  label: "Unversioned specification (launched 2025-10-14); sample code last changed 2025-10-28"
+  date: "2025-10-14"
+lastVerified: "2026-10-11"
+transports:
+  - "HTTP request headers (Signature-Input and Signature, RFC 9421)"
+  - "HTTP request body (agenticConsumer and agenticPaymentContainer objects)"
+  - "Key retrieval over HTTPS (JWKS at https://mcp.visa.com/.well-known/jwks)"
+buildsOn:
+  - RFC 9421 HTTP Message Signatures
+  - JWT (RFC 7519) and JWS (RFC 7515)
+  - OpenID Connect ID Token claims
+  - JWK and JWKS
+  - Ed25519 and PS256
+  - HTTP 402 (browsingIOU)
+composesWith:
+  - stripe-mpp
+  - x402
+  - openai-acp
+  - ucp
+personas:
+  - cdn-security
+  - merchant-enterprise
+  - ai-platform
+  - issuer
+  - network
+  - fraud-risk
+disambiguation:
+  - "TAP here means Visa's Trusted Agent Protocol. AP2 uses an unrelated Trusted Agent Provider delegation model."
+  - "TAP is not the IETF Web Bot Auth draft. TAP launched on 2025-10-14, the working group draft appeared on 2026-09-01, and the two use different tags and key discovery."
+  - "\"Agentic token\" names different products at Visa and Mastercard. Visa's are agent-specific network tokens in Visa Intelligent Commerce; Mastercard Agentic Tokens belong to Agent Pay."
+mainFlow: visa-tap-browse-and-checkout
+stateMachine: visa-tap-request-verification
+diagrams:
+  - visa-tap-context
+  - visa-tap-data-model
+  - visa-tap-signature-base
+  - visa-tap-browsing-verification
+  - visa-tap-checkout-verification
+  - visa-tap-cdn-decision-tree
+  - visa-tap-vs-web-bot-auth
+  - visa-tap-failure-untagged-request
+  - visa-tap-failure-expired-window
+  - visa-tap-failure-replayed-nonce
+  - visa-tap-browsing-iou
+  - visa-tap-vic-token-passkey
+  - visa-tap-composition
+playground:
+  status: coming-next
+  note: "An RFC 9421 signature builder and verifier with ephemeral WebCrypto Ed25519 keys: choose the covered components and the tag, see the signature base, check the 8-minute window and nonce replay, change a header and watch verification fail, inspect the consumer and payment objects field by field, and compare a TAP request with a Web Bot Auth request. Simulation only, no real cards or keys."
+keyFacts:
+  - label: Steward
+    value: "Visa, developed with Cloudflare; presented as an enhancement to Visa Intelligent Commerce"
+    claimIds: [clm-visa-tap-001, clm-visa-tap-005, clm-visa-tap-007]
+  - label: Governance
+    value: "Proprietary Visa specification, not an IETF standard; Visa says it will align with the IETF, the OpenID Foundation and EMVCo"
+    claimIds: [clm-visa-tap-003, clm-visa-tap-010, clm-visa-tap-011]
+  - label: License
+    value: "TAP Product Terms (2025-10-10): revocable, no modification, full conformance, updates within six months"
+    claimIds: [clm-visa-tap-012, clm-visa-tap-013, clm-visa-tap-014, clm-visa-tap-016]
+  - label: First announced
+    value: "2025-10-14, with 12 early feedback partners"
+    claimIds: [clm-visa-tap-004, clm-visa-tap-006]
+  - label: Latest version
+    value: "No version number or date on the specification; sample repository has six commits, the last on 2025-10-28"
+    claimIds: [clm-visa-tap-023, clm-visa-tap-024, clm-visa-tap-025]
+  - label: Status
+    value: "Live purchases at named European merchants (2026-07-02); overview page still says development and deployment"
+    claimIds: [clm-visa-tap-159, clm-visa-tap-160, clm-visa-tap-009]
+  - label: Transports
+    value: "RFC 9421 headers on HTTP requests; signed JSON objects in the request body"
+    claimIds: [clm-visa-tap-037, clm-visa-tap-090]
+  - label: Rails
+    value: "Card (Visa network); TAP itself moves no money"
+    claimIds: [clm-visa-tap-002, clm-visa-tap-011]
+  - label: Key directory
+    value: "https://mcp.visa.com/.well-known/jwks; on 2026-10-11 it held one RSA sandbox key and no Ed25519 key"
+    claimIds: [clm-visa-tap-069, clm-visa-tap-071, clm-visa-tap-072]
+  - label: Builds on
+    value: "RFC 9421, JWT and JWS, OpenID Connect ID Token claims, JWKS, Ed25519 and PS256"
+    claimIds: [clm-visa-tap-037, clm-visa-tap-050, clm-visa-tap-044, clm-visa-tap-045]
+  - label: Composes with
+    value: "Stripe MPP (Visa's card method), x402 (browsingIOU answers a 402), OpenAI ACP and UCP (accepted by Intelligent Commerce Connect)"
+    claimIds: [clm-visa-tap-183, clm-visa-tap-186, clm-visa-tap-063, clm-visa-tap-154]
+---
+
+## Compare and compose
+
+Placeholder.
