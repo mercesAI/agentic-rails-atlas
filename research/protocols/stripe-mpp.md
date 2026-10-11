@@ -69,3 +69,104 @@ Sources: [src-stripe-mpp-ietf-ryan] [src-stripe-mpp-ietf-current]. The Datatrack
 
 - **Seed key dates, checked.** Several seed dates are SDK or blog dates rather than spec dates: "2026-05-12 subscriptions" is the mpp.dev blog post and `mppx` 0.6.20 (Tempo subscriptions); the subscription intent spec merged 2026-07-29 [src-stripe-mpp-blog-index] [src-stripe-mpp-npm-mppx] [src-stripe-mpp-gh-pr-230]. "2026-06-08 x402 exact support" is the blog post "EVM and x402 support"; `mppx` 0.6.29 with "EVM charge support with x402 exact compatibility" was published 2026-06-02 [src-stripe-mpp-blog-index] [src-stripe-mpp-mppx-changelog]. "2026-06-17 session v2" is the blog post; the spec text merged 2026-06-25 [src-stripe-mpp-blog-sessions] [src-stripe-mpp-gh-pr-278]. "2026-08-12 identity support" is the blog post; the code merged 2026-08-04 (mppx PR #732) and first shipped in npm 0.8.17 on 2026-08-10 [src-stripe-mpp-blog-identity] [src-stripe-mpp-gh-mppx-pr-732]. "2026-08-25 Payment-Authorization" matches the spec merge; `mppx` added the `requiresAuth` server option in 0.9.0 (2026-08-27) [src-stripe-mpp-gh-pr-328] [src-stripe-mpp-mppx-changelog]. "2026-03-24 to 2026-09-08 new methods" matches the merge dates above.
 - **`mppx` release train.** npm package created 2026-02-12; 0.1.0 on 2026-02-13; 0.4.11 (CVE fixes) 2026-03-26; 0.5.12 (`paymentPreferences` emitting `Accept-Payment`) 2026-04-11; 0.6.0 (breaking: `Accept-Payment` only same-origin by default in browsers) 2026-04-21; 0.8.18 (Coinbase x402 interop tests) 2026-08-21; 0.9.0 (dual MPP and x402 wrappers for Express, Hono, Next.js and MCP) 2026-08-27; 0.9.2 (minimum for Stripe `hostedFeePayer`) 2026-09-02; 0.12.0 (`hostedFeePayer` allowed in Stripe test mode, applied only in live mode) 2026-09-29; latest 0.13.4 on 2026-10-08. The seed's "around 0.13" is confirmed [src-stripe-mpp-npm-mppx] [src-stripe-mpp-mppx-changelog].
+
+## Actors and roles
+
+| Role | Definition and duties | Source |
+| --- | --- | --- |
+| Client | Requests a resource, receives the 402 challenge, fulfills payment through the named method, retries with a credential. MUST check amount, recipient, currency and validity window before paying, and MUST NOT rely on `description`. Browser wallets SHOULD show the origin and ask for explicit confirmation. | [src-stripe-mpp-core-01] |
+| Server (resource server) | Issues challenges, binds the challenge `id` to its parameters, verifies and settles credentials, returns `Payment-Receipt`. MUST NOT perform side effects for unpaid requests and MUST NOT require user accounts for payment. | [src-stripe-mpp-core-01] |
+| Payment method (rail) | Registered lowercase identifier with its own `request` and `payload` schemas, verification and settlement procedure. Maintained by the rail (for example Visa for `card`, Lightspark for `lightning`). | [src-stripe-mpp-core-01] [src-stripe-mpp-governance] |
+| Payment network | External settlement system (Tempo chain, Stripe, card networks, Lightning). Shown as a third party in the subscription and session flows. | [src-stripe-mpp-intent-subscription] [src-stripe-mpp-tempo-session] |
+| Payer, payee, authorized signer, operator (Tempo session) | Payer funds the escrow; payee withdraws; `authorizedSigner` may sign vouchers for the payer (zero address means the payer); v2 adds an optional payee-side `operator`. | [src-stripe-mpp-tempo-session] |
+| Fee payer (Tempo) | When `methodDetails.feePayer` is `true` the server co-signs the Tempo transaction and pays fees; Stripe's `hostedFeePayer` makes Stripe the fee payer for live-mode Tempo deposit-address integrations. | [src-stripe-mpp-tempo-session] [src-stripe-mpp-stripe-docs] |
+| Client Enabler and Server Enabler (`card`) | Client Enabler (vault provider, token service provider or issuer-side PSP) provisions an encrypted network token and cryptogram; Server Enabler (PSP or acquirer) decrypts and authorizes through the card network. | [src-stripe-mpp-card-charge] |
+| Stripe Business Network Profile | The merchant identity (`profile_...`) placed in `methodDetails.networkId` for the `stripe` method; both client and server need Stripe accounts. | [src-stripe-mpp-stripe-charge] [src-stripe-mpp-stripe-docs] |
+| Registry and aggregator | Discovery crawlers that index `/openapi.json` documents carrying `x-payment-info`; MPPscan and the mpp.dev directory are examples. | [src-stripe-mpp-discovery] [src-stripe-mpp-mppscan] [src-stripe-mpp-directory-api] |
+
+## Core objects with exact field names
+
+### Challenge (`WWW-Authenticate: Payment`)
+
+| Field | Type | Required | Meaning | File path |
+| --- | --- | --- | --- | --- |
+| `id` | string | yes | Challenge identifier, non-empty; bound to the other parameters; echoed unchanged | `specs/core/draft-httpauth-payment-01.md` |
+| `realm` | string | yes | Protection space (RFC 9110) | same |
+| `method` | string | yes | Payment method identifier, lowercase ASCII letters | same |
+| `intent` | string | yes | Registered intent (`charge`, `session`, `subscription`) | same |
+| `request` | string | yes | base64url (no padding) of JCS-canonical (RFC 8785) JSON, method-defined | same |
+| `digest` | string | no | RFC 9530 content digest of the request body; SHOULD be present for POST, PUT, PATCH | same |
+| `expires` | string | no (SHOULD) | RFC 3339 expiry; clients MUST NOT pay expired challenges | same |
+| `description` | string | no | Display only; excluded from binding | same |
+| `header` | string | no | Only allowed value `Payment-Authorization`; selects the credential field | same |
+| `opaque` | string | no | base64url JCS JSON flat string map of server correlation data; echoed unchanged; bound | same |
+
+Recommended HMAC-SHA256 binding input: `realm|method|intent|request|expires|digest|opaque`, with `header` inserted before `opaque` when present; the result is base64url without padding [src-stripe-mpp-core-01]. Size: servers SHOULD keep challenges under 8 KB; clients MUST handle at least 4 KB [src-stripe-mpp-core-01].
+
+### Credential (`Authorization: Payment <base64url>` or `Payment-Authorization: Payment <base64url>`)
+
+| Field | Type | Required | Meaning | File path |
+| --- | --- | --- | --- | --- |
+| `challenge` | object | yes | Echo of `id`, `realm`, `method`, `intent`, `request`, plus `description`, `opaque`, `digest`, `expires`, `header` when present | `specs/core/draft-httpauth-payment-01.md` |
+| `source` | string | no | Payer identifier, DID format RECOMMENDED (for Tempo `did:pkh:eip155:4217:0x...`) | core; `specs/methods/tempo/draft-tempo-charge-00.md` |
+| `payload` | object | yes | Method-specific proof | core |
+
+### Receipt (`Payment-Receipt: <base64url>`)
+
+| Field | Type | Required | Meaning | File path |
+| --- | --- | --- | --- | --- |
+| `status` | string | yes | Always `"success"`; receipts only on 2xx | core |
+| `method` | string | yes | Method used | core |
+| `timestamp` | string | yes | RFC 3339 settlement time | core |
+| `reference` | string | yes | Method reference: tx hash (`tempo`), PaymentIntent id `pi_...` (`stripe`), Server Enabler authorization reference (`card`), `channelId` (Tempo session) | core; method specs |
+| `subscriptionId` | string | subscription | base64url server-issued id, returned on activation | `specs/intents/draft-payment-intent-subscription-00.md` |
+| `challengeId` | string | `card` | Challenge fulfilled (card receipts) | `specs/methods/card/draft-card-charge-00.md` |
+| `externalId` | string | no | Echo of merchant reference | method specs |
+
+### Shared intent request fields
+
+| Intent | Required | Optional | File path |
+| --- | --- | --- | --- |
+| `charge` | `amount` (base units, string), `currency` (ISO 4217 lowercase, token address, or method-defined) | `recipient`, `description`, `externalId`, `methodDetails` | `specs/intents/draft-payment-intent-charge-00.md` |
+| `subscription` | `amount`, `currency`, `periodUnit` (`day`, `week`, `month`), `periodCount` (positive integer string) | `recipient`, `subscriptionExpires`, `description`, `externalId`, `methodDetails` | `specs/intents/draft-payment-intent-subscription-00.md` |
+| `session` (Tempo, experimental) | `amount` (price per unit), `currency` (TIP-20 address), `recipient` | `unitType` (for example `llm_token`), `suggestedDeposit`; `methodDetails.escrowContract` (required), `channelId`, `minVoucherDelta`, `chainId` (default 4217), `operator`, `sessionProtocol` (`v1` or `v2`), `sessionSnapshot` | `specs/methods/tempo/draft-tempo-session-00.md` |
+
+`expires` never appears inside `request`; it travels only as the auth-param [src-stripe-mpp-intent-charge] [src-stripe-mpp-tempo-session].
+
+### Method-specific objects (selected)
+
+| Method and intent | `methodDetails` fields | `payload` fields | Source |
+| --- | --- | --- | --- |
+| `tempo` charge | `chainId` (spec default 42431), `feePayer`, `memo` (bytes32, forces `transferWithMemo`), `splits`, `supportedModes` (`pull`, `push`) | `type` = `transaction` (`signature`: RLP signed tx), `hash` (`hash`), or `proof` (`signature`: EIP-712 zero-amount proof; proof domain versions 1, 2 add `realm`, 3 adds `account`) | [src-stripe-mpp-tempo-charge] |
+| `tempo` session | see table above | `action` = `open` (`type`, `channelId`, `transaction`, `authorizedSigner`, `descriptor` for v2, `cumulativeAmount`, `signature`), `topUp`, `voucher` (`channelId`, `cumulativeAmount`, `signature`), `close` | [src-stripe-mpp-tempo-session] |
+| `tempo` subscription | `accessKey` (`accessKeyAddress`, `keyType` = `p256`, `secp256k1` or `webAuthn`), `chainId`; request also requires `subscriptionExpires` and `recipient`; `periodUnit` only `day` or `week` | `type` = `keyAuthorization`, `signature` | [src-stripe-mpp-tempo-subscription] |
+| `stripe` charge | `networkId` (Business Network Profile), `paymentMethodTypes` (for example `card`, `link`), `metadata` | `spt` (`spt_...`), `externalId` | [src-stripe-mpp-stripe-charge] |
+| `stripe` subscription | `networkId`, `paymentMethodTypes`, `metadata`; `recipient` MUST NOT be sent | `paymentMethod`, `customer` | [src-stripe-mpp-stripe-subscription] |
+| `card` charge | `acceptedNetworks`, `merchantName`, `encryptionJwk` or `jwksUri` plus `kid`, `billingRequired` | `encryptedPayload` (JWE, RSA-OAEP), `network`, `panLastFour`, `panExpirationMonth`, `panExpirationYear`, `billingAddress`, `cardholderFullName`, `paymentAccountReference`; inside the JWE: `token` (`paymentToken`, `tokenExpirationMonth`, `tokenExpirationYear`, `eci`) and `dynamicData` (`dynamicDataValue`, `dynamicDataType`, `dynamicDataExpiration`) | [src-stripe-mpp-card-charge] |
+
+### Payment method identifiers
+
+| Id | Rail | Spec author org | Intents in `mpp-specs` | Source |
+| --- | --- | --- | --- | --- |
+| `tempo` | Tempo TIP-20 | Tempo Labs | charge, session, subscription | [src-stripe-mpp-tempo-charge] [src-stripe-mpp-tempo-session] [src-stripe-mpp-tempo-subscription] |
+| `stripe` | Stripe SPT | Stripe and Tempo Labs | charge, subscription | [src-stripe-mpp-stripe-charge] [src-stripe-mpp-stripe-subscription] |
+| `card` | Card network tokens | Visa | charge | [src-stripe-mpp-card-charge] |
+| `lightning` | BOLT11 | Lightspark | charge, session | [src-stripe-mpp-lightning] |
+| `evm` | ERC-20 on any EVM chain | Coinbase, MegaETH Labs, Monad Foundation; session by OKG | charge, session | [src-stripe-mpp-evm] |
+| `solana` | SOL and SPL | Solana Foundation; Moonsong Labs (session) | charge, session | [src-stripe-mpp-solana] |
+| `stellar` | SEP-41 tokens | Stellar Development Foundation | charge (session documented on mpp.dev as spec in progress) | [src-stripe-mpp-stellar] [src-stripe-mpp-docs-methods] |
+| `hedera` | Hedera Token Service | Hedera / Hashgraph | charge, session | [src-stripe-mpp-hedera] |
+| `usdc` | Circle USDC | Circle Internet Group | charge | [src-stripe-mpp-usdc] |
+| `nearintents` | NEAR Intents 1Click | Near One | charge | [src-stripe-mpp-nearintents] |
+| `xrpl` | XRP Ledger | Ripple | charge, session | [src-stripe-mpp-xrpl] |
+| `monad`, `redotpay` | Monad ERC-20; RedotPay | (docs only) | charge | [src-stripe-mpp-docs-methods] |
+
+The seed's method list is confirmed, with two additions documented on mpp.dev but without a spec file in `mpp-specs` (`monad`, `redotpay`), and with `hedera` and `usdc` specified but without an mpp.dev method page [src-stripe-mpp-docs-methods] [src-stripe-mpp-specs-repo]. The seed's description of `evm` as "Permit2, EIP-3009 and more" was not checked field by field and is left out.
+
+### Problem types (RFC 9457, base `https://paymentauth.org/problems/`)
+
+`payment-required` (402), `payment-insufficient` (402), `payment-expired` (402), `verification-failed` (402), `method-unsupported` (400), `malformed-credential` (402), `invalid-challenge` (402), `bad-request` (400), `invalid-payload` (402), `internal-payment-error` (500), `payment-action-required` (402) [src-stripe-mpp-core-01]. Tempo session adds `session/invalid-signature`, `session/signer-mismatch`, `session/amount-exceeds-deposit`, `session/delta-too-small`, `session/channel-not-found` (410), `session/channel-finalized` (410), `session/challenge-not-found`, `session/insufficient-balance` [src-stripe-mpp-tempo-session].
+
+### Registered headers
+
+`Accept-Payment`, `Payment-Authorization` and `Payment-Receipt` are requested as permanent header fields; the "Payment" scheme in the HTTP Authentication Scheme Registry; two new registries "HTTP Payment Methods" and "HTTP Payment Intents", both Specification Required [src-stripe-mpp-core-01]. These are requests inside a draft, not completed IANA registrations. Tempo v2 sessions also use `Payment-Session-Snapshot` and `Payment-Session` response headers [src-stripe-mpp-tempo-session].
