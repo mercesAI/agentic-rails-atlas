@@ -9,7 +9,7 @@ export interface GlossaryStub {
 }
 
 /** A term is full when it has a plain definition, an STE definition and at least one source. */
-export function isFullTerm(t: Partial<GlossaryTerm>): t is GlossaryTerm {
+export function isFullTerm(t: Partial<GlossaryTerm>): boolean {
   return Boolean(t.plain?.trim() && t.ste?.trim() && t.sources && t.sources.length > 0);
 }
 

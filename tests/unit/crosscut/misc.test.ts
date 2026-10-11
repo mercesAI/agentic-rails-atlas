@@ -69,17 +69,17 @@ describe('radar geometry', () => {
   it('places a full value on the rim and missing axes at the center', () => {
     const pts = radarPoints([{ protocol: 'x', axis: 'openness', value: 5, justification: '', sources: [] }], 100, 100, 50);
     expect(pts).toHaveLength(6);
-    expect(pts[0].x).toBeCloseTo(100);
-    expect(pts[0].y).toBeCloseTo(50);
-    expect(pts[1].entry).toBeNull();
-    expect(pts[1].x).toBeCloseTo(100);
+    expect(pts[0]?.x).toBeCloseTo(100);
+    expect(pts[0]?.y).toBeCloseTo(50);
+    expect(pts[1]?.entry).toBeNull();
+    expect(pts[1]?.x).toBeCloseTo(100);
     expect(pathFrom(pts).endsWith('Z')).toBe(true);
     expect(gridRings(0, 0, 10)).toHaveLength(5);
   });
 });
 
 describe('stack layout', () => {
-  const [p] = buildProtocolInfos([
+  const p = buildProtocolInfos([
     {
       slug: 'erc-8004',
       name: 'ERC-8004',
@@ -89,7 +89,7 @@ describe('stack layout', () => {
       layersSecondary: ['discovery', 'reputation-feedback'],
       lastVerified: '2026-10-11',
     },
-  ]);
+  ])[0]!;
   it('marks primary and secondary coverage', () => {
     expect(coverageOf(p, 'identity-trust')).toBe('primary');
     expect(coverageOf(p, 'discovery')).toBe('secondary');

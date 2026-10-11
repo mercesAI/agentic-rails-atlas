@@ -84,6 +84,8 @@ export default function ControlsMap({ controls, protocols, cells, numbers, layer
           </li>
         ))}
       </ul>
+      {/* Focusable so keyboard users can scroll the wide table (WCAG 2.1.1). */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
       <div className="cc-frame" role="region" aria-labelledby={`${uid}-cap`} tabIndex={0}>
         <table className="cc-table">
           <caption id={`${uid}-cap`}>

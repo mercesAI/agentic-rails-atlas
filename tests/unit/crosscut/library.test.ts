@@ -76,7 +76,7 @@ describe('buildLibrary', () => {
   it('de-duplicates resources and unions protocols', () => {
     const r = items.filter((i) => i.id === 'res-x402-repo');
     expect(r).toHaveLength(1);
-    expect(r[0].protocols).toEqual(['x402', 'stripe-mpp']);
+    expect(r[0]?.protocols).toEqual(['x402', 'stripe-mpp']);
   });
   it('types publications and marks grey literature', () => {
     expect(items.find((i) => i.id === 'pub-doe-2025-agents')?.type).toBe('peer-reviewed');

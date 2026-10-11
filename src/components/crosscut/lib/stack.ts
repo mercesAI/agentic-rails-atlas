@@ -62,7 +62,11 @@ export function spanLinks(blocks: SpanBlock[]): [SpanBlock, SpanBlock][] {
   const out: [SpanBlock, SpanBlock][] = [];
   for (const list of byP.values()) {
     const sorted = [...list].sort((a, b) => a.rowIndex - b.rowIndex);
-    for (let i = 1; i < sorted.length; i++) out.push([sorted[i - 1], sorted[i]]);
+    for (let i = 1; i < sorted.length; i++) {
+      const a = sorted[i - 1];
+      const b = sorted[i];
+      if (a && b) out.push([a, b]);
+    }
   }
   return out;
 }

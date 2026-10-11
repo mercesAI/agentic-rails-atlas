@@ -82,6 +82,8 @@ export default function PickTwoDiff({ protocols, dimensions, cells, numbers }: P
           ? 'Pick two different protocols to see differences.'
           : `${sum.different} dimensions differ, ${sum.same} read the same, ${sum.missing} have an entry on one side only. Values are compared as text, so read the details before you draw a conclusion.`}
       </p>
+      {/* Focusable so keyboard users can scroll the wide table (WCAG 2.1.1). */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
       <div className="cc-frame" role="region" aria-labelledby={`${uid}-cap`} tabIndex={0}>
         <table className="cc-table cc-diff-table">
           <caption id={`${uid}-cap`}>

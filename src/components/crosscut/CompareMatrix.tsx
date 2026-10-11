@@ -101,6 +101,8 @@ export default function CompareMatrix({ protocols, dimensions, cells, numbers }:
         Showing {rows.length} of {dimensions.length} dimensions for {visibleProtocols.length} of {protocols.length} protocols.
         {groupSel.size === 0 ? ' No group filter applied.' : ''}
       </p>
+      {/* Focusable so keyboard users can scroll the wide table (WCAG 2.1.1). */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
       <div className="cc-frame" role="region" aria-labelledby={`${uid}-cap`} tabIndex={0}>
         <table className="cc-table">
           <caption id={`${uid}-cap`}>

@@ -11,7 +11,7 @@ import {
 } from '../../../src/components/crosscut/lib/compare';
 import { buildProtocolInfos, citeLabel } from '../../../src/components/crosscut/lib/protocols';
 
-const dims = [
+const dims: { id: string; label: string }[] = [
   { id: 'primary-job', label: 'Primary job' },
   { id: 'transports', label: 'Transports' },
   { id: 'who-pays', label: 'Who pays (short)' },
@@ -35,9 +35,9 @@ const idx = indexCells(cells);
 
 describe('compare grouping', () => {
   it('maps known dimensions and falls back to Other', () => {
-    expect(groupOf(dims[0]).id).toBe('overview');
-    expect(groupOf(dims[2]).id).toBe('economics');
-    expect(groupOf(dims[3]).id).toBe('other');
+    expect(groupOf(dims[0]!).id).toBe('overview');
+    expect(groupOf(dims[2]!).id).toBe('economics');
+    expect(groupOf(dims[3]!).id).toBe('other');
     expect(groupOf({ id: 'x', label: 'X', group: 'mechanics' }).id).toBe('mechanics');
   });
   it('lists groups in display order', () => {
@@ -78,7 +78,7 @@ describe('protocol infos and cite labels', () => {
     const infos = buildProtocolInfos([]);
     expect(infos).toHaveLength(8);
     expect(infos.every((p) => !p.hasPage)).toBe(true);
-    expect(infos[1].short).toBe('x402');
+    expect(infos[1]?.short).toBe('x402');
   });
   it('sorts and de-duplicates footer numbers', () => {
     expect(citeLabel(['src-b', 'src-a', 'src-b'], { 'src-a': 3, 'src-b': 1 })).toBe('[1, 3]');
