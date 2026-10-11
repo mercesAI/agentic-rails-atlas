@@ -367,11 +367,64 @@ No state machine: a cart exists or returns 404 (`rfc.cart.md`) [src-openai-acp-r
 
 ## Security model and published attacks or CVEs
 
+### Trust model
+
+- **Bilateral onboarding.** Each agent and merchant pair shares a bearer token (an API key per the OpenAPI `bearerFormat`). There is no agent registry, no public key directory and no agent identity standard in ACP; signature algorithms and keys are agreed out of band [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-delegate-payment-20260417]. OpenAI also tells merchants to allowlist its published egress IP ranges [src-openai-commerce-docs].
+- **Merchant decides.** The merchant accepts or declines each order with its own fraud stack; the agent may pass `risk_signals` (checkout) and `RiskSignal` entries (delegate payment) [src-openai-acp-schema-checkout-20260417] [src-openai-acp-schema-delegate-payment-20260417].
+- **Credential scope.** The Allowance binds the vault token to one merchant, one checkout session, a maximum amount, a currency and an expiry, for one use. Enforcement is done by the PSP or vault, not by cryptography visible to the merchant [src-openai-acp-rfc-delegate-payment].
+- **PCI scope.** OpenAI says the feed and checkout specs carry no cardholder data, using a PSP's Delegated Payment implementation may avoid PCI scope changes, while direct integration with the Delegate Payment endpoints handles cardholder data and is likely in PCI scope; OpenAI may ask for an attestation of compliance (AOC) [src-openai-commerce-docs]. The governance FAQ gives "exposes agents directly to raw payment credentials" as an example of a change the founders could veto [src-openai-acp-governance].
+- **User confirmation.** OpenAI's launch post says users confirm each step and that tokens are authorized only for specific amounts and merchants [src-openai-buy-it]. The spec has no signed user consent artifact.
+- **Markdown injection guard.** Since 2026-04-17, markdown content must be CommonMark 0.31.2 without raw HTML; servers must reject raw HTML and agents must render with raw HTML disabled or sanitized [src-openai-acp-rfc-checkout].
+- **Replay and duplicates.** Idempotency rules prevent double side effects; webhook HMAC with a 300-second window limits webhook replay. Request `Timestamp` checks are only SHOULD [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-webhook-20260417].
+
+### Published attacks, CVEs and analyses
+
+- **No CVEs or GitHub security advisories** exist for the ACP repository (GitHub API returned 0 advisories on 2026-10-11). ACP is a specification with no official SDK, so CVEs would attach to implementations [src-openai-acp-gh-advisories].
+- **Formal analysis (arXiv 2609.00060, 2026-08-30).** Jiang and co-authors model x402, MPP, ACP and AP2 in Tamarin and report 86 verification cases, 46 reproduced known or calibration cases and 40 previously undocumented formal-consistency findings across the four protocols, consolidated into 18 shared principles. The abstract does not break the findings down by protocol, so ACP-specific findings are not stated here [src-arxiv-2609-00060].
+- **Protocol-level attacks (arXiv 2607.21824, 2026-07-23).** Louck reports 33 structural vulnerabilities across "three leading platforms" with deterministic exploitation; the abstract does not name ACP or the platforms [src-arxiv-2607-21824].
+- **Audit trail gap (arXiv 2607.19436, 2026-07-21).** Srivastava states that protocols such as AP2 and ACP do not provide interoperable, tamper-evident auditability [src-arxiv-2607-19436].
+- **Verifiable Intent view.** The Mastercard-led Verifiable Intent repository says SPTs authorize payment execution while VI credentials prove user authorization, and proposes carrying VI credentials through ACP's extension mechanism; it says adoption design would need coordination with ACP's maintainers [src-vi-protocols].
+
 ## Controls
+
+Status per control id from `CONTROL_IDS` (native = defined in the ACP spec; partial = defined in part or only as SHOULD; product = provided by a vendor product, not the spec; gap = absent).
+
+| Control id | Status | Evidence |
+| --- | --- | --- |
+| `agent-identity-verification` | partial | Bearer token plus RECOMMENDED detached `Signature` and `Timestamp`; algorithms out of band; no agent identity scheme [src-openai-acp-rfc-checkout] |
+| `agent-registration-kya` | gap (product) | No registry in the spec; each platform runs its own merchant application (for ChatGPT, approved partners apply at chatgpt.com/merchants) [src-openai-commerce-docs] [src-openai-acp-site] |
+| `user-consent-capture` | partial | Buyer confirms in the agent UI (product claim); spec captures `marketing_consents` and `authentication_result`, but no signed purchase consent [src-openai-buy-it] [src-openai-acp-schema-checkout-20260417] |
+| `spending-caps` | native | `allowance.max_amount` and `currency` on Delegate Payment; Stripe SPT `usage_limits.max_amount` [src-openai-acp-schema-delegate-payment-20260417] [src-stripe-spt] |
+| `merchant-payee-scoping` | native | `allowance.merchant_id` and `allowance.checkout_session_id`; SPT `seller_details` [src-openai-acp-schema-delegate-payment-20260417] [src-stripe-spt] |
+| `time-windows-expiry` | native | `allowance.expires_at`; session `expires_at`; status `expired`; SPT `usage_limits.expires_at` [src-openai-acp-schema-delegate-payment-20260417] [src-openai-acp-schema-checkout-20260417] |
+| `revocation` | gap in spec (product) | No revoke endpoint in ACP; Stripe SPTs can be revoked (`/v1/shared_payment/issued_tokens/{id}/revoke`) [src-stripe-spt] |
+| `step-up-authentication` | native | `authentication_required` status, `authentication_metadata`, `authentication_result`, Delegate Authentication (3DS2), `capabilities.interventions` [src-openai-acp-rfc-checkout] [src-openai-acp-rfc-delegate-auth] |
+| `replay-protection` | native (partial for requests) | Mandatory `Idempotency-Key` on POSTs; webhook timestamp window 300 s; request `Timestamp` only SHOULD; `allowance.reason` `one_time` [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-webhook-20260417] |
+| `receipts-evidence` | partial | `order` with `permalink_url`, `order_create` and `order_update` webhooks, `client_reference_id`; no signed receipt [src-openai-acp-openapi-webhook-20260417] [src-openai-acp-schema-checkout-20260417] |
+| `dispute-support` | partial | `adjustments[]` types include `refund`, `return`, `dispute` (covers chargebacks); merchant handles chargebacks as merchant of record; no dispute protocol [src-openai-acp-schema-checkout-20260417] [src-openai-commerce-docs] |
+| `reputation` | gap | Nothing in the spec |
+| `monitoring-signals` | partial | `risk_signals` on complete and delegate payment, `intent_trace` reason codes on cancel, `Request-Id` [src-openai-acp-schema-checkout-20260417] [src-openai-acp-rfc-intent-traces] |
+| `kill-switch` | gap in spec (product) | Merchants can decline any order; agents can cancel sessions; Stripe SPT revocation; no protocol-wide kill switch [src-openai-acp-rfc-checkout] [src-stripe-spt] |
 
 ## Observability
 
+- **Public:** the GitHub repository (spec, changelog, PRs, CLA list, governance); `https://www.agenticcommerce.dev`; each seller's optional `/.well-known/acp.json` (unauthenticated, cacheable for an hour) [src-openai-acp-gh-repo] [src-openai-acp-rfc-discovery].
+- **Private (between the parties):** checkout sessions, delegate payment tokens, order webhooks, feeds. No explorer, indexer or public registry of ACP merchants exists; the ACP site FAQ says discovery mechanisms were still being worked on [src-openai-acp-site].
+- **Event names:** ACP webhooks `order_create`, `order_update` at `/agentic_checkout/webhooks/order_events` [src-openai-acp-openapi-webhook-20260417]. OpenAI's production checklist calls them `order_created` and `order_updated`, and its FAQ says `ORDER_UPDATE` [src-openai-commerce-docs]. Stripe SPT events: `shared_payment.issued_token.requires_action`, `shared_payment.issued_token.active`, `shared_payment.issued_token.used`, `shared_payment.issued_token.deactivated`, `shared_payment.granted_token.deactivated` [src-stripe-spt].
+- **Headers useful for tracing:** `Request-Id` (echoed), `Idempotency-Key` (echoed), `Idempotent-Replayed` [src-openai-acp-rfc-checkout].
+- **Endpoints:** merchant `/checkout_sessions`, `/checkout_sessions/{checkout_session_id}`, `/complete`, `/cancel`, `/carts`, `/carts/{id}`, `/carts/{id}/cancel`; PSP `/agentic_commerce/delegate_payment`; authentication provider `/delegate_authentication`, `/delegate_authentication/{authentication_session_id}`, `/authenticate`; agent `/agentic_checkout/webhooks/order_events`, `/feeds`, `/feeds/{id}`, `/feeds/{id}/products`; well-known `/.well-known/acp.json` [src-openai-acp-openapi-checkout-20260417] [src-openai-acp-openapi-cart-20260417] [src-openai-acp-openapi-delegate-payment-20260417] [src-openai-acp-openapi-delegate-auth-20260417] [src-openai-acp-openapi-feed-20260417].
+- **Metrics:** no official volume, merchant count or transaction data is published by OpenAI, Stripe or the project (see Metrics).
+
 ## Compliance touchpoints
+
+- **PCI DSS.** Direct Delegate Payment integration is reserved for PSPs and PCI DSS Level 1 merchants with their own vaults; OpenAI may require an AOC; full PAN and CVC must not be logged [src-openai-commerce-docs] [src-openai-acp-rfc-delegate-payment]. In the ChatGPT payment sheet beta, PCI DSS Level 1 merchants can receive raw card data through the ACP Delegate Payment endpoint [src-openai-apps-monetization].
+- **Merchant of record.** The merchant remains merchant of record and system of record for orders, payments, taxes and compliance, including sales tax and refunds or chargebacks [src-openai-acp-rfc-checkout] [src-openai-commerce-docs].
+- **Strong customer authentication and 3DS.** 3DS2 support (Delegate Authentication, `requires_3ds`, `authentication_result`) gives a path for issuer authentication where required; the spec does not name PSD2 or any regulation [src-openai-acp-rfc-delegate-auth].
+- **Marketing consent.** `marketing_consent_options` with `privacy_policy_url` and `marketing_consents` (`opted_in`) let sellers record opt-ins; consent is captured only at completion [src-openai-acp-changelog-20260417]. The spec does not name GDPR, CAN-SPAM or TCPA.
+- **Prohibited products.** OpenAI's policy for ChatGPT excludes, among others, adult content, age-restricted products (alcohol, nicotine, gambling), weapons and prescription-only medications [src-openai-commerce-docs]. ACP itself has an `age_verification_required` and `region_restricted` message code [src-openai-acp-schema-checkout-20260417].
+- **Data minimization.** OpenAI's launch post says only the information needed for the order is shared with the merchant, with the user's permission [src-openai-buy-it]. RFC-AC asks implementers to redact addresses as policy requires [src-openai-acp-rfc-checkout].
+- **Regions.** Stripe SPTs are available to agents, customers and sellers in the US, Canada and listed European countries (33 country codes plus US in the docs list) [src-stripe-spt]. Instant Checkout launched for US users and US Etsy sellers [src-openai-buy-it].
+- **Terms.** Using Stripe SPTs requires agreeing to Stripe's agentic commerce preview service terms [src-stripe-spt].
 
 ## Ecosystem and SDKs
 
