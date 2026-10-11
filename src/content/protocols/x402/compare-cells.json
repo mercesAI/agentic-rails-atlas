@@ -1,0 +1,622 @@
+{
+  "cells": [
+    {
+      "protocol": "x402",
+      "dimension": "primary-job",
+      "value": "Pay-per-request payments over HTTP 402",
+      "detail": "The server prices a request in a 402 response, the client signs a payment, a facilitator verifies and settles it.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "layers-covered",
+      "value": "Settlement rails and payment credential; discovery through Bazaar; refunds only in auth-capture",
+      "detail": "No identity, intent or checkout layer.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-ext-bazaar",
+        "src-x402-scheme-auth-capture"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "stewards",
+      "value": "x402 Foundation (Linux Foundation); TSC: Coinbase, Cloudflare, Stripe",
+      "detail": "Originated at Coinbase Developer Platform.",
+      "sources": [
+        "src-x402-lf-july",
+        "src-x402-tsc",
+        "src-x402-whitepaper"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "governance-model",
+      "value": "Foundation under an LF Projects technical charter",
+      "detail": "TSC with one vote per representative and majority decisions; 75 percent supermajority for Core Principles.",
+      "sources": [
+        "src-x402-charter"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "license-spec-and-code",
+      "value": "Apache-2.0",
+      "detail": "No separate docs license found; contributions need GPG-signed commits.",
+      "sources": [
+        "src-x402-license",
+        "src-x402-contributing"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "first-announced",
+      "value": "2025-05-06",
+      "detail": "Whitepaper and npm launch.",
+      "sources": [
+        "src-x402-whitepaper",
+        "src-x402-npm-legacy"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "latest-version-and-date",
+      "value": "Spec v2.0 (2025-12-09); @x402/core 2.28.0 (2026-09-29)",
+      "detail": "V2 launched 2025-12-11.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-npm-core",
+        "src-x402-gh-pr-705"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "maturity",
+      "value": "Live (V2 since 2025-12-11)",
+      "detail": "upto, batch-settlement, auth-capture and Lightning are 2026 additions with uneven SDK coverage.",
+      "sources": [
+        "src-x402-gh-pr-705",
+        "src-x402-sdk-features"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "transports",
+      "value": "HTTP headers, MCP _meta, A2A task metadata",
+      "detail": "The facilitator API is HTTP in every case.",
+      "sources": [
+        "src-x402-transport-http-v2",
+        "src-x402-transport-mcp-v2",
+        "src-x402-transport-a2a-v2"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "settlement-rails",
+      "value": "EVM chains, Solana, Lightning and other CAIP-2 networks; credit-backed cloudflare:402",
+      "detail": "Fiat ids such as ach:us appear only as examples of the id format.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-docs-networks",
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "agent-identity-model",
+      "value": "None in the core; optional extensions",
+      "detail": "sign-in-with-x (CAIP-122), auth-hints (OAuth 2.0 with DPoP), RFC 9421 agent signatures in cloudflare:402.",
+      "sources": [
+        "src-x402-ext-siwx",
+        "src-x402-ext-auth-hints",
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "user-authorization-model",
+      "value": "The client signature on each payment",
+      "detail": "No user mandate object; AP2 mandates can carry x402 through a2a-x402.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-a2a-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Both",
+      "detail": "Built for unattended clients with SDK spend controls; @x402/paywall serves humans; AP2 ships human-present and human-not-present x402 samples.",
+      "sources": [
+        "src-x402-sdk-spendcontrols",
+        "src-x402-ap2-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "merchant-of-record",
+      "value": "The resource server",
+      "detail": "In cloudflare:402 the network (Cloudflare) is merchant of record.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "credential-type",
+      "value": "Signed payment authorization",
+      "detail": "EIP-3009 or Permit2 signatures, ERC-7710 delegations, a partially signed Solana transaction, or a Lightning preimage.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-scheme-exact-svm",
+        "src-x402-scheme-exact-lnbtc"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "cryptography",
+      "value": "EIP-712 typed-data signatures; Ed25519 for RFC 9421 and Solana; SHA-256 preimages on Lightning",
+      "detail": "Smart wallets through ERC-1271 and ERC-6492.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-scheme-batch-cf",
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-core-changelog"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "replay-protection",
+      "value": "Single-use nonce plus a validity window, enforced by the token contract",
+      "detail": "Replay stores for Lightning payment hashes; cumulative vouchers in batch-settlement.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-scheme-batch-evm"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "native-spending-controls",
+      "value": "None in the protocol; SDK default of $1 per payment",
+      "detail": "Budgets are out of scope in the spec; upto signs a ceiling.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-sdk-spendcontrols"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "revocation",
+      "value": "None for a signed exact payment before it expires",
+      "detail": "auth-capture adds void and client reclaim; channels allow timed withdrawal.",
+      "sources": [
+        "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "refunds-and-disputes",
+      "value": "No refunds in exact; no dispute process",
+      "detail": "auth-capture refunds; third-party x402r for refunds and arbitration.",
+      "sources": [
+        "src-x402-scheme-exact",
+        "src-x402-scheme-auth-capture",
+        "src-x402-docs-devtools"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "privacy-exposure",
+      "value": "Settlements are public on chain; resource metadata reaches the facilitator",
+      "detail": "Header contents stay private between client, server and facilitator.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-arxiv-2604-11430",
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "discovery-mechanism",
+      "value": "Bazaar extension and GET /discovery/resources",
+      "detail": "Public CDP Bazaar; x402scan reads /openapi.json and /.well-known/x402.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-cdp-bazaar",
+        "src-x402scan-discovery"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Permissionless",
+      "detail": "Anyone can run a facilitator; cloudflare:402 needs the signature agent registered with Cloudflare.",
+      "sources": [
+        "src-x402-docs-facilitator-concept",
+        "src-x402-ext-http-sig"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "decentralization",
+      "value": "Open and permissionless, concentrated in practice",
+      "detail": "Most payments go through one facilitator.",
+      "sources": [
+        "src-x402-docs-facilitator-concept",
+        "src-x402-cdp-welcome",
+        "src-x402-arxiv-2607-19545"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "observability-score",
+      "value": "3 of 5",
+      "detail": "Public settlements and endpoints, but payments look like ordinary transfers and headers stay private.",
+      "sources": [
+        "src-x402-erc8004-bp",
+        "src-x402-cdp-bazaar",
+        "src-x402scan-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; facilitator fee plus gas",
+      "detail": "CDP: 1,000 free on-chain transactions a month, then $0.001 each; verification free (as of 2026-10-11). The facilitator pays gas on the EVM exact path and as Solana fee payer.",
+      "sources": [
+        "src-x402-fee-cdp",
+        "src-x402-scheme-exact-evm",
+        "src-x402-scheme-exact-svm"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "who-pays",
+      "value": "Facilitator pays gas; seller pays the facilitator fee",
+      "detail": "On Solana the merchant can sponsor as fee payer; cloudflare:402 is billed by Cloudflare.",
+      "sources": [
+        "src-x402-docs-facilitator-concept",
+        "src-x402-scheme-exact-svm",
+        "src-x402-fee-cdp"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "builds-on-standards",
+      "value": "HTTP 402, EIP-712, EIP-3009, Permit2, ERC-7710, CAIP-2, CAIP-122, RFC 9421, BOLT11",
+      "detail": "Plus ERC-8021 builder codes.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-evm",
+        "src-x402-ext-siwx",
+        "src-x402-ext-http-sig",
+        "src-x402-scheme-exact-lnbtc"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "composes-with",
+      "value": "AP2 (a2a-x402), ERC-8004, Stripe MPP, Visa TAP",
+      "detail": "No link found with OpenAI ACP or UCP.",
+      "sources": [
+        "src-x402-a2a-spec",
+        "src-x402-erc-8004",
+        "src-x402-mpp-vs-x402",
+        "src-visa-tap-spec",
+        "src-x402-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "@x402 TypeScript 2.28.0, PyPI x402 2.25.0, Go module v2",
+      "detail": "Java in the repository but unpublished; legacy V1 npm packages still downloaded.",
+      "sources": [
+        "src-x402-npm-core",
+        "src-x402-pypi",
+        "src-x402-go-changelog",
+        "src-x402-java"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "adoption-evidence",
+      "value": "Real but contested",
+      "detail": "x402.org showed $24.24M over 30 days (last updated 2026-08-25); Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21).",
+      "sources": [
+        "src-x402-site",
+        "src-x402-forkast-visa",
+        "src-x402-arxiv-2607-12575"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "published-security-research",
+      "value": "Yes: several 2026 papers and two high-severity advisories",
+      "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis; GHSA-3j63-5h8p-gf7c and GHSA-qr2g-p6q7-w82m.",
+      "sources": [
+        "src-x402-arxiv-2605-11781",
+        "src-x402-arxiv-2605-30998",
+        "src-x402-arxiv-2607-19545",
+        "src-x402-ghsa-2025",
+        "src-x402-ghsa-2026"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "regulatory-touchpoints",
+      "value": "Stablecoin, money transmission and sanctions rules fall on facilitators and sellers",
+      "detail": "No KYC or sanctions layer in the protocol; the CDP facilitator runs OFAC and KYT checks.",
+      "sources": [
+        "src-x402-cdp-facilitator",
+        "src-x402-fee-cdp",
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "x402",
+      "dimension": "biggest-open-question",
+      "value": "How much activity is real commerce, and can payment and delivery be made atomic?",
+      "sources": [
+        "src-x402-arxiv-2607-12575",
+        "src-x402-arxiv-2603-01179"
+      ],
+      "confidence": "verified"
+    }
+  ],
+  "radar": [
+    {
+      "protocol": "x402",
+      "axis": "openness",
+      "value": 5,
+      "justification": "Apache-2.0 code and specs in a public repository, governed by a Linux Foundation project; anyone can implement or run a facilitator.",
+      "sources": [
+        "src-x402-license",
+        "src-x402-charter",
+        "src-x402-docs-facilitator-concept"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "axis": "decentralization",
+      "value": 3,
+      "justification": "Permissionless facilitation and many networks, but one facilitator carries most volume and three companies form the TSC.",
+      "sources": [
+        "src-x402-cdp-welcome",
+        "src-x402-tsc",
+        "src-x402-arxiv-2607-19545"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "axis": "maturity",
+      "value": 4,
+      "justification": "V2 live since 2025-12-11 with frequent SDK releases and three contract audits; several schemes are 2026 additions.",
+      "sources": [
+        "src-x402-gh-pr-705",
+        "src-x402-npm-core",
+        "src-x402-repo"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "axis": "adoption-evidence",
+      "value": 3,
+      "justification": "Measurable on-chain activity and live products, but volume figures are contested and partly manufactured.",
+      "sources": [
+        "src-x402-forkast-visa",
+        "src-x402-arxiv-2607-12575",
+        "src-x402-cf-mg-beta"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "axis": "human-not-present",
+      "value": 4,
+      "justification": "Designed for unattended clients that pay per request with SDK spend controls; no user mandate object of its own.",
+      "sources": [
+        "src-x402-sdk-spendcontrols",
+        "src-x402-spec-v2"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "axis": "dispute-support",
+      "value": 1,
+      "justification": "No dispute process and no refund in exact; auth-capture adds refunds and reclaim.",
+      "sources": [
+        "src-x402-scheme-exact",
+        "src-x402-scheme-auth-capture"
+      ]
+    }
+  ],
+  "controlsCells": [
+    {
+      "protocol": "x402",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "Identity is optional and separate from payment: sign-in-with-x (CAIP-122 wallet proof), auth-hints (OAuth 2.0 with DPoP) and RFC 9421 agent signatures in cloudflare:402.",
+      "sources": [
+        "src-x402-ext-siwx",
+        "src-x402-ext-auth-hints",
+        "src-x402-scheme-batch-cf"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "No registry in x402. ERC-8004 can record that an agent accepts x402; cloudflare:402 needs the signature agent registered with Cloudflare.",
+      "sources": [
+        "src-x402-erc-8004",
+        "src-x402-ext-http-sig",
+        "src-x402-scheme-batch-cf"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "The protocol has no consent object. The browser paywall asks a human in the UI; agents rely on mandates from other protocols such as AP2.",
+      "sources": [
+        "src-x402-sdk-spendcontrols",
+        "src-x402-repo",
+        "src-x402-a2a-spec"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "spending-caps",
+      "support": "partial",
+      "note": "Budgets are out of scope in the spec. The TypeScript client applies spendControls by default (default assets only, $1 per payment); upto signs a ceiling.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-sdk-spendcontrols",
+        "src-x402-scheme-upto-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "The signature covers payTo and the amount; upto also names the one facilitator allowed to settle.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-scheme-upto-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "validAfter, validBefore, Permit2 deadline, maxTimeoutSeconds and Lightning invoice expiry bound every authorization.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-lnbtc"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "revocation",
+      "support": "partial",
+      "note": "A signed exact authorization cannot be recalled before it expires. auth-capture adds void and client reclaim after captureDeadline; batch-settlement channels allow timed withdrawal.",
+      "sources": [
+        "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "The specification defines no step-up or challenge beyond the 402 itself.",
+      "sources": [
+        "src-x402-spec-v2"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Single-use 32-byte nonces enforced by EIP-3009 tokens, Permit2 nonces, cumulative vouchers, and replay stores for Lightning payment hashes.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-scheme-batch-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "PAYMENT-RESPONSE carries the transaction hash; the optional offer-receipt extension signs offers and receipts (TypeScript only).",
+      "sources": [
+        "src-x402-transport-http-v2",
+        "src-x402-ext-offer-receipt",
+        "src-x402-sdk-features"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "dispute-support",
+      "support": "none",
+      "note": "No dispute process. exact has no refund; auth-capture adds refunds, and third parties such as x402r add arbitration.",
+      "sources": [
+        "src-x402-scheme-exact",
+        "src-x402-scheme-auth-capture",
+        "src-x402-docs-devtools"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "reputation",
+      "support": "external",
+      "note": "None in x402. ERC-8004 feedback can carry proofOfPayment for an x402 payment.",
+      "sources": [
+        "src-x402-erc-8004",
+        "src-x402-erc8004-bp"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Settlements are public on chain but look like ordinary transfers; /supported, Bazaar and x402scan are public; header contents are private.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-erc8004-bp",
+        "src-x402-cdp-bazaar",
+        "src-x402scan-repo"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "No protocol kill switch. Clients stop by policy or spendControls; servers stop by removing routes; facilitators can refuse to settle.",
+      "sources": [
+        "src-x402-sdk-spendcontrols",
+        "src-x402-docs-facilitator-concept"
+      ]
+    }
+  ]
+}
