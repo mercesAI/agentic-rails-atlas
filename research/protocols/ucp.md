@@ -547,7 +547,7 @@ All URLs returned HTTP 200 to `curl -sSIL` on 2026-10-11 except where noted (the
 | arXiv:2307.13854 | WebArena: A Realistic Web Environment for Building Autonomous Agents | Shuyan Zhou et al. | 2023-07-25 | Context | export.arxiv.org API |
 | DOI 10.1162/154247603322493212 | Platform Competition in Two-Sided Markets | Jean-Charles Rochet, Jean Tirole | 2003-06 | Foundations | doi.org CSL-JSON |
 
-An arXiv abstract search for "Universal Commerce Protocol" returned 2 results on 2026-10-11 (2606.05043 and 2602.06345). The seed statement "no paper names UCP" is corrected.
+An arXiv abstract search for "Universal Commerce Protocol" returned 2 results on 2026-10-11 (2606.05043 and 2602.06345). The seed statement "no paper names UCP" is corrected. Context papers verified [src-ucp-arxiv-context]; foundations [src-ucp-doi-rochet-tirole].
 
 ## Seed audit
 
