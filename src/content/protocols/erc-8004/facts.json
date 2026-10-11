@@ -3,22 +3,120 @@
   "tldr": "ERC-8004 is a Draft Ethereum standard that gives AI agents an ERC-721 identity pointing to a registration file, plus a public feedback registry. It moves no money. A validation registry is specified but not officially deployed.",
   "whyItExists": "An agent that wants to be hired by strangers needs a name others can look up, a list of where to reach it, and some record of how it behaved. Platform directories hold that data in one company's database. ERC-8004 puts the minimum on public chains instead: a transferable identity token, a pointer to a file that lists the agent's services, and a log where any client can leave a score with tags. Anyone can read it and build their own ranking on top, and payment stays with other protocols such as x402.",
   "whatItIsNot": [
-    { "text": "Not Final. ERC-8004 is a Draft: it moved to Review on 2025-10-08 and an EIP editor returned it to Draft on 2026-01-13, where it still is, even though registries run on 25 mainnets.", "claimIds": ["clm-erc-8004-002", "clm-erc-8004-005", "clm-erc-8004-006", "clm-erc-8004-185"] },
-    { "text": "Not a payment protocol. The specification calls payments orthogonal and the registries have no payable function; x402 or any other rail moves the money.", "claimIds": ["clm-erc-8004-017", "clm-erc-8004-159"] },
-    { "text": "Not three deployed registries. The Validation Registry is specified, but the contracts README lists no address for it on any chain.", "claimIds": ["clm-erc-8004-083", "clm-erc-8004-084"] },
-    { "text": "Not a quality signal by itself. Agent counts are token ids, free to mint and full of placeholders; one study found only 3% to 15% of agents with a valid file and a live endpoint.", "claimIds": ["clm-erc-8004-157", "clm-erc-8004-153"] },
-    { "text": "Not gated feedback any more. The agent-signed feedbackAuth was removed (contracts 2025-11-12, specification 2026-01-07); any address except the owner and operators can rate an agent.", "claimIds": ["clm-erc-8004-090", "clm-erc-8004-183"] },
-    { "text": "Not know-your-agent or KYC. Registration is permissionless and nothing checks who runs an agent.", "claimIds": ["clm-erc-8004-118"] },
-    { "text": "Not ERC-8183 or ERC-8126. ERC-8183 is job escrow with an evaluator and ERC-8126 is a separate verification standard; both build around ERC-8004.", "claimIds": ["clm-erc-8004-133", "clm-erc-8004-134"] },
-    { "text": "Not the ERC-3643 Identity Registry. The T-REX registry maps wallets to issuer-attested identities for token transfers; the ERC-8004 one is an open ERC-721 agent directory.", "claimIds": ["clm-erc-8004-177", "clm-erc-8004-178"] }
+    {
+      "text": "Not Final. ERC-8004 is a Draft: it moved to Review on 2025-10-08 and an EIP editor returned it to Draft on 2026-01-13, where it still is, even though registries are listed on 25 mainnets in the contracts README.",
+      "claimIds": [
+        "clm-erc-8004-002",
+        "clm-erc-8004-005",
+        "clm-erc-8004-006",
+        "clm-erc-8004-185",
+        "clm-erc-8004-221"
+      ]
+    },
+    {
+      "text": "Not a payment protocol. The specification calls payments orthogonal and the registries have no payable function; x402 or any other rail moves the money.",
+      "claimIds": [
+        "clm-erc-8004-017",
+        "clm-erc-8004-159"
+      ]
+    },
+    {
+      "text": "Not three deployed registries. The Validation Registry is specified, but the contracts README lists no address for it on any chain.",
+      "claimIds": [
+        "clm-erc-8004-083",
+        "clm-erc-8004-084"
+      ]
+    },
+    {
+      "text": "Not a quality signal by itself. Agent counts are token ids, free to mint and full of placeholders; one study found only 3% to 15% of agents with a valid file and a live endpoint.",
+      "claimIds": [
+        "clm-erc-8004-157",
+        "clm-erc-8004-153"
+      ]
+    },
+    {
+      "text": "Not gated feedback any more. The agent-signed feedbackAuth was removed (contracts 2025-11-12, specification 2026-01-07); any address except the owner and operators can rate an agent.",
+      "claimIds": [
+        "clm-erc-8004-090",
+        "clm-erc-8004-183"
+      ]
+    },
+    {
+      "text": "Not know-your-agent or KYC. Registration is permissionless and nothing checks who runs an agent.",
+      "claimIds": [
+        "clm-erc-8004-118"
+      ]
+    },
+    {
+      "text": "Not ERC-8183 or ERC-8126. ERC-8183 is job escrow with an evaluator and ERC-8126 is a separate verification standard; both build around ERC-8004.",
+      "claimIds": [
+        "clm-erc-8004-133",
+        "clm-erc-8004-134"
+      ]
+    },
+    {
+      "text": "Not the ERC-3643 Identity Registry. The T-REX registry maps wallets to issuer-attested identities for token transfers; the ERC-8004 one is an open ERC-721 agent directory.",
+      "claimIds": [
+        "clm-erc-8004-177",
+        "clm-erc-8004-178"
+      ]
+    }
   ],
   "changedRecently": [
-    { "date": "2026-04-12", "text": "ERC-8226 (Regulated Agent Mandate) was created as a Draft. It names ERC-8004 as the agent identity layer and adds a mandate layer for regulated tokens.", "claimIds": ["clm-erc-8004-137", "clm-erc-8004-138"] },
-    { "date": "2026-04-14", "text": "The Graph launched Agent0 subgraphs indexing ERC-8004 events on Base, BNB Chain, Ethereum, Monad and Polygon.", "claimIds": ["clm-erc-8004-121", "clm-erc-8004-122"] },
-    { "date": "2026-06-02", "text": "ERC-8126 (AI Agent Verification) reached Final, while ERC-8004, which it requires, stays Draft.", "claimIds": ["clm-erc-8004-134"] },
-    { "date": "2026-06-24", "text": "An empirical study (arXiv:2606.26028) found 3% to 15% of agents live and a majority of reviewers showing coordinated Sybil behavior, in data to 2026-05-13.", "claimIds": ["clm-erc-8004-153", "clm-erc-8004-154"] },
-    { "date": "2026-08-15", "text": "Robinhood Chain became the 25th mainnet in the contracts README, after 0G on 2026-06-11.", "claimIds": ["clm-erc-8004-102", "clm-erc-8004-099"] },
-    { "date": "2026-09-26", "text": "The CSOAI census read 505,635 agent ids on Ethereum, Base and BSC and found 13,210 that declare an http(s) MCP, A2A or web endpoint.", "claimIds": ["clm-erc-8004-148", "clm-erc-8004-150"] },
-    { "date": "2026-10-11", "text": "On-chain reads show one externally owned account owning all three registry proxies on Ethereum and Base; who holds it is not published.", "claimIds": ["clm-erc-8004-106", "clm-erc-8004-107"] }
+    {
+      "date": "2026-04-12",
+      "text": "ERC-8226 (Regulated Agent Mandate) was created as a Draft. It names ERC-8004 as the agent identity layer and adds a mandate layer for regulated tokens.",
+      "claimIds": [
+        "clm-erc-8004-137",
+        "clm-erc-8004-138"
+      ]
+    },
+    {
+      "date": "2026-04-14",
+      "text": "The Graph launched Agent0 subgraphs indexing ERC-8004 events on Base, BNB Chain, Ethereum, Monad and Polygon.",
+      "claimIds": [
+        "clm-erc-8004-121",
+        "clm-erc-8004-122"
+      ]
+    },
+    {
+      "date": "2026-06-02",
+      "text": "ERC-8126 (AI Agent Verification) reached Final, while ERC-8004, which it requires, stays Draft.",
+      "claimIds": [
+        "clm-erc-8004-134"
+      ]
+    },
+    {
+      "date": "2026-06-24",
+      "text": "An empirical study (arXiv:2606.26028) found 3% to 15% of agents live and a majority of reviewers showing coordinated Sybil behavior, in data to 2026-05-13.",
+      "claimIds": [
+        "clm-erc-8004-153",
+        "clm-erc-8004-154"
+      ]
+    },
+    {
+      "date": "2026-08-15",
+      "text": "Robinhood Chain became the 25th mainnet in the contracts README, after 0G on 2026-06-11.",
+      "claimIds": [
+        "clm-erc-8004-102",
+        "clm-erc-8004-099"
+      ]
+    },
+    {
+      "date": "2026-09-26",
+      "text": "The CSOAI census read 505,635 agent ids on Ethereum, Base and BSC and found 13,210 that declare an http(s) MCP, A2A or web endpoint.",
+      "claimIds": [
+        "clm-erc-8004-148",
+        "clm-erc-8004-150"
+      ]
+    },
+    {
+      "date": "2026-10-11",
+      "text": "On-chain reads show one externally owned account owning all three registry proxies on Ethereum and Base; who holds it is not published.",
+      "claimIds": [
+        "clm-erc-8004-106",
+        "clm-erc-8004-107"
+      ]
+    }
   ]
 }

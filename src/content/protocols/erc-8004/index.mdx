@@ -148,7 +148,7 @@ Validators are addresses or contracts named in a validation request, and only th
 
 An agent is named globally by two values. The first, agentRegistry, has the form namespace, chain id and registry address joined by colons, with `eip155` as the namespace for EVM chains; the second is the agentId.<Cite ids="clm-erc-8004-022 clm-erc-8004-023" /> The text says ids are assigned incrementally, and the deployed code starts at 0: the first agent on Ethereum mainnet has id 0.<Cite ids="clm-erc-8004-024" />
 
-The registration file is what agentURI resolves to. Its `type` is a fixed URI ending in `#registration-v1`, followed by a name, description and image for NFT apps, a services list, two booleans (`x402Support` and `active`), a registrations list and an optional supportedTrust list.<Cite ids="clm-erc-8004-044 clm-erc-8004-045" /> Each service has a name and an endpoint, with a recommended version; the example names web, A2A, MCP, OASF, ENS (Ethereum Name Service), DID (decentralized identifier) and email.<Cite ids="clm-erc-8004-046 clm-erc-8004-047" /> Each registrations entry carries an agentId and an agentRegistry, which binds the file back to one or more on-chain identities.<Cite ids="clm-erc-8004-048" /> The text gives the structure as an example, not as a JSON Schema, so "required" is partly a reading of that example.<Cite ids="clm-erc-8004-051" /> An agent may also prove that it controls an HTTPS service domain by serving a matching registrations entry at `/.well-known/agent-registration.json` on that domain.<Cite ids="clm-erc-8004-050" />
+The registration file is what agentURI resolves to. Its `type` is a fixed URI ending in `#registration-v1`, followed by a name, description and image for NFT apps, a services list, two booleans (`x402Support` and `active`), a registrations list and an optional supportedTrust list.<Cite ids="clm-erc-8004-044 clm-erc-8004-045" /> Each service has a name and an endpoint, with a recommended version; the example names web, A2A, MCP, OASF (Open Agentic Schema Framework), ENS (Ethereum Name Service), DID (decentralized identifier) and email.<Cite ids="clm-erc-8004-046 clm-erc-8004-047" /> Each registrations entry carries an agentId and an agentRegistry, which binds the file back to one or more on-chain identities.<Cite ids="clm-erc-8004-048" /> The text gives the structure as an example, not as a JSON Schema, so "required" is partly a reading of that example.<Cite ids="clm-erc-8004-051" /> An agent may also prove that it controls an HTTPS service domain by serving a matching registrations entry at `/.well-known/agent-registration.json` on that domain.<Cite ids="clm-erc-8004-050" />
 
 On-chain metadata is a key and bytes value store per agent.<Cite ids="clm-erc-8004-027 clm-erc-8004-032" /> One key, `agentWallet`, is reserved: you cannot set it through the generic setter or at registration.<Cite ids="clm-erc-8004-034" />
 
@@ -293,7 +293,7 @@ The main sequence in section C covers registration and wallet binding, the two c
 
 1. The owner writes the registration file and hosts it on IPFS or HTTPS, or encodes it as a base64 data URI to keep it fully on-chain.<Cite ids="clm-erc-8004-043" />
 2. The owner calls one of the three register functions on the Identity Registry. The registry mints the token to the caller and sets the agent wallet to the caller.<Cite ids="clm-erc-8004-026 clm-erc-8004-035" />
-3. The transaction emits a Transfer event, a MetadataSet event for the agent wallet, one MetadataSet per extra metadata entry, and a Registered event with the new agentId.<Cite ids="clm-erc-8004-028 clm-erc-8004-029" />
+3. The transaction emits a Transfer event, a Registered event with the new agentId, a MetadataSet event for the agent wallet and one MetadataSet per extra metadata entry. The deployed code also emits an ERC-4906 MetadataUpdate event when a URI is set; the text does not fix the order of these events.<Cite ids="clm-erc-8004-028 clm-erc-8004-029 clm-erc-8004-223" />
 4. If the file was written before the id was known, the owner adds the agentId to its registrations list and calls setAgentURI, which emits URIUpdated.<Cite ids="clm-erc-8004-048 clm-erc-8004-030" />
 5. Optionally, the owner serves `/.well-known/agent-registration.json` on each service domain that differs from the file's own domain.<Cite ids="clm-erc-8004-050" />
 6. To receive payments at a different address, the new wallet signs an EIP-712 typed message that names the agent, the wallet, the owner and a deadline; a contract wallet answers an ERC-1271 check instead.<Cite ids="clm-erc-8004-036 clm-erc-8004-037" />
@@ -366,7 +366,7 @@ ERC-8004 makes data public and comparable; it does not make it true. The text sa
 
 Files are the second soft spot. An HTTPS registration file can change with no on-chain event, and only content-addressed URIs pin what an agent claimed.<Cite ids="clm-erc-8004-111" /> Wallet binding is tighter: the signature names the agent, the wallet, the owner and a short deadline under a chain-bound domain. It has no nonce, though, so it can be replayed for the same tuple inside its window.<Cite ids="clm-erc-8004-037 clm-erc-8004-194" />
 
-The third is the contracts themselves. All three registries are UUPS (Universal Upgradeable Proxy Standard) proxies that only the contract owner can upgrade.<Cite ids="clm-erc-8004-105" /> On 2026-10-11 that owner, on Ethereum and on Base, was the address 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, which has no contract code: it is a single externally owned account, not a multisig contract.<Cite ids="clm-erc-8004-106" /> Who holds that key is not published, while the project's own upgrade notes advise a multisig or timelock for production.<Cite ids="clm-erc-8004-107 clm-erc-8004-200" /> No CVE, GitHub advisory or named audit firm's report was found; a community audit in an open pull request reports one high, three medium and three low findings.<Cite ids="clm-erc-8004-112 clm-erc-8004-113 clm-erc-8004-114" /> Section H has the full threat table.
+The third is the contracts themselves. All three registries are UUPS (Universal Upgradeable Proxy Standard) proxies that only the contract owner can upgrade.<Cite ids="clm-erc-8004-105" /> On 2026-10-11 that owner, on Ethereum and on Base, was the address 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, which has no contract code: it is a single externally owned account, not a multisig contract.<Cite ids="clm-erc-8004-106" /> Who holds that key is not published, while the project's own upgrade notes advise a multisig or timelock for production.<Cite ids="clm-erc-8004-107 clm-erc-8004-200" /> No CVE (Common Vulnerabilities and Exposures) entry, GitHub advisory or named audit firm's report was found; a community audit in an open pull request reports one high, three medium and three low findings.<Cite ids="clm-erc-8004-112 clm-erc-8004-113 clm-erc-8004-114" /> Section H has the full threat table.
 
 ### Versioning and governance
 
@@ -379,13 +379,13 @@ Deployments use the same two proxy addresses on every listed mainnet, created wi
 | Listed in README | Mainnets added | Count so far |
 | --- | --- | --- |
 | 2026-01-29 | Ethereum | 1 |
-| 2026-03-06 | Base, Abstract, Arbitrum, Avalanche, BSC, Celo, Gnosis, GOAT Network, Linea, Mantle, MegaETH, Metis, Monad, Optimism, Polygon, Scroll, SKALE Base, Soneium, Taiko, XLayer | 21 |
+| 2026-03-06 | Base, Abstract, Arbitrum, Avalanche, BSC (BNB Smart Chain), Celo, Gnosis, GOAT Network, Linea, Mantle, MegaETH, Metis, Monad, Optimism, Polygon, Scroll, SKALE Base, Soneium, Taiko, XLayer | 21 |
 | 2026-04-08 | Billions | 22 |
 | 2026-04-09 | Injective | 23 |
 | 2026-06-11 | 0G | 24 |
 | 2026-08-15 | Robinhood Chain | 25 |
 
-The list was unchanged on 2026-10-11: 25 mainnets including Ethereum, 24 besides it.<Cite ids="clm-erc-8004-099" /> Explorers count more networks than that, which suggests community deployments outside the official list.<Cite ids="clm-erc-8004-147" />
+The list was unchanged on 2026-10-11: 25 mainnets including Ethereum, 24 besides it.<Cite ids="clm-erc-8004-099" /> A listing is not proof of a working registry. On 2026-10-11 the Soneium proxies still ran the 1.0.0 placeholder, where register reverts, and Billions could not be reached on public RPCs; the other 23 returned version 2.0.0.<Cite ids="clm-erc-8004-221" /> Upgrade control also differs by chain: on BSC a Safe multisig owns the Identity and Reputation proxies.<Cite ids="clm-erc-8004-222" /> Explorers count more networks than that, which suggests community deployments outside the official list.<Cite ids="clm-erc-8004-147" />
 
 <Mode spec>
 
@@ -396,7 +396,7 @@ The list was unchanged on 2026-10-11: 25 mainnets including Ethereum, 24 besides
 | `endpoints[]` | `services[]` | spec 2026-01-25 |
 | `score` (`uint8`, 0 to 100) | `value` (`int128`) plus `valueDecimals` (`uint8`, 0 to 18) | spec 2026-01-25; contracts January 2026 |
 | `averageScore` in `getSummary` | `summaryValue`, `summaryValueDecimals` | spec 2026-01-25 |
-| `bytes32` tags | `string` tags | contracts 2025-11-12 |
+| `bytes32` tags | `string` tags | contracts 2025-11-12; spec 2026-01-07 |
 | `feedbackAuth` (agent-signed permission to rate) | removed; any address except owner and operators may rate | contracts 2025-11-12; spec 2026-01-07 |
 | `agentWallet` as an endpoints entry | reserved metadata key set by `setAgentWallet` | spec 2026-01-07 |
 | `tokenURI` | called `agentURI` | spec 2026-01-07 |
@@ -420,7 +420,7 @@ Stripe's MPP (Machine Payments Protocol) discovery draft cites ERC-8004 and call
 
 ### Limitations and open issues
 
-- **Count is not quality.** 8004scan reported 561,576 or more registered agents, 682,170 feedback entries and 496,805 unique wallets on 2026-10-11.<Cite ids="clm-erc-8004-145 clm-erc-8004-146" /> Those are token ids, free to mint and full of placeholders.<Cite ids="clm-erc-8004-157" /> The CSOAI census of 2026-09-26 read 505,635 ids on three chains and found 13,210 whose file declares an http(s) MCP, A2A or web endpoint, with 231,014 files not fetched.<Cite ids="clm-erc-8004-148 clm-erc-8004-150" /> An empirical study (arXiv:2606.26028, data to 2026-05-13) found only 3% (Ethereum), 4% (BSC) and 15% (Base) of agents with a valid file and a live endpoint.<Cite ids="clm-erc-8004-153" />
+- **Count is not quality.** 8004scan reported 561,576 or more registered agents, 682,170 feedback entries and 496,805 unique wallets on 2026-10-11.<Cite ids="clm-erc-8004-145 clm-erc-8004-146" /> Those are token ids, free to mint and full of placeholders.<Cite ids="clm-erc-8004-157" /> The CSOAI census of 2026-09-26 read 505,635 ids on three chains and found at least 13,210 whose file declares an http(s) MCP, A2A or web endpoint; 231,014 files were not fetched.<Cite ids="clm-erc-8004-148 clm-erc-8004-150" /> An empirical study (arXiv:2606.26028, data to 2026-05-13) found only 3% (Ethereum), 4% (BSC) and 15% (Base) of agents with a valid file and a live endpoint.<Cite ids="clm-erc-8004-153" />
 - **Reviewers are mostly Sybils in measured data.** The same study saw coordinated Sybil behavior among 73.5%, 59.2% and 90.6% of reviewers on those chains.<Cite ids="clm-erc-8004-154" /> After removing it, most rated agents on BSC and Base had no valid feedback left.<Cite ids="clm-erc-8004-210" />
 - **Values do not compare.** A value means whatever its tags say, getSummary averages whatever matches, and the study concludes that the registry cannot work as a trust signal as deployed.<Cite ids="clm-erc-8004-067 clm-erc-8004-155" />
 - **Validation is unfinished.** The README calls that part of the text still under discussion with the TEE community and lists no address.<Cite ids="clm-erc-8004-083 clm-erc-8004-084" /> A contract answers at the scripted Validation address on Ethereum and Base, but it is not listed or announced, so treat the registry as not officially deployed.<Cite ids="clm-erc-8004-086" />
@@ -455,11 +455,11 @@ The comparison that matters most for tokenization teams is with ERC-3643 (T-REX,
 
 | Dimension | ERC-3643 plus ONCHAINID | ERC-8004 |
 | --- | --- | --- |
-| Status and governance | Final ERC (2021-07-09), ERC3643 Association | Draft ERC (2025-08-13), community effort, no association |
+| Status and governance | Final ERC (created 2021-07-09), ERC3643 Association | Draft ERC (2025-08-13), community effort, no association |
 | Access model | Permissioned: a holder's wallet must be in the Identity Registry and pass `isVerified`, which needs required claim topics from trusted issuers | Permissionless: any address calls `register()` and gets an ERC-721 agent id |
 | Trust signal | Issuer-signed claims on the holder's ONCHAINID (`topic`, `scheme`, `issuer`, `signature`, `data`, `uri`), checked with `isClaimValid` | Open feedback from any address except owner and operators; validator responses 0 to 100 in a registry that is not officially deployed |
 | Scope | Transfer compliance for one token, checked by the Compliance contract (`canTransfer`) | Discovery and trust registry for agents and their services (`services`, `supportedTrust`) |
-| Who writes | Token agents register identities; CLAIM-purpose keys add claims; MANAGEMENT keys manage keys; the token owner sets trusted issuers and claim topics | Owner or operator writes URI, metadata and wallet; any third party writes feedback; anyone appends responses; a named validator responds |
+| Who writes | Identity Registry agents register identities; `addClaim` accepts a CLAIM (purpose 3) or MANAGEMENT (purpose 1) key or the identity itself; MANAGEMENT keys manage keys; the owners of the issuer and topic registries set trusted issuers and claim topics | Owner or operator writes URI, metadata and wallet; any third party writes feedback; anyone appends responses; a named validator responds |
 | Upgradeability | T-REX proxies point to `TREXImplementationAuthority`; ONCHAINID identities can be proxies | UUPS proxies at CREATE2 addresses; one externally owned account holds the upgrade right on Ethereum and Base (2026-10-11), holder not published |
 | Data location | Claims stored on-chain in the identity contract; `data` may be a hash and `uri` may point off-chain | Registration file off-chain or in a data URI; feedback value and tags on-chain; detail files referenced only in events |
 | License | Text CC0; reference code GPL-3.0 | Text CC0; contracts MIT per file headers |

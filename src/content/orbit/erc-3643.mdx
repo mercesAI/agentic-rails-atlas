@@ -36,7 +36,7 @@ A token is connected to an Identity Registry that maps each wallet to an ONCHAIN
 
 ONCHAINID is the identity half. Its `Identity.sol` contract descends from the ERC-734 Key Manager and ERC-735 Claim Holder proposals, which exist only as closed GitHub issues 734 and 735 in the `ethereum/EIPs` repository; issue 734 points to the LSP6 Key Manager and issue 735 carries the status "Discussion". ERC-725 is still Draft. <Cite ids="src-onchainid-identity src-eip-issue-734 src-eip-issue-735 src-eip-725" />
 
-In `Identity.sol`, keys have purposes (1 MANAGEMENT, 2 ACTION, 3 CLAIM signer, 4 ENCRYPTION) and types (1 ECDSA, 2 RSA), and only purpose-3 keys may call `addClaim`. A claim has `topic`, `scheme`, `issuer`, `signature`, `data` and `uri`. The issuer signs the hash of the identity address, topic and data, and a verifier checks a third-party claim through the issuer contract's `isClaimValid`, which lets the issuer side revoke it. <Cite ids="src-onchainid-identity src-onchainid-structs" />
+In `Identity.sol`, keys have purposes (1 MANAGEMENT, 2 ACTION, 3 CLAIM signer, 4 ENCRYPTION) and types (1 ECDSA, 2 RSA), and `addClaim` accepts a purpose-3 (CLAIM) key, a purpose-1 (MANAGEMENT) key, which passes every purpose check, or the identity itself. A claim has `topic`, `scheme`, `issuer`, `signature`, `data` and `uri`. The issuer signs the hash of the identity address, topic and data, and a verifier checks a third-party claim through the issuer contract's `isClaimValid`, which lets the issuer side revoke it. <Cite ids="src-onchainid-identity src-onchainid-structs" />
 
 ## Status
 
@@ -52,7 +52,7 @@ Compared with [ERC-8004](/p/erc-8004/) the two standards answer different questi
 | Access model | Permissioned: the holder must be in the Identity Registry and pass `isVerified`, which needs the required claim topics from trusted issuers | Permissionless: any address calls `register()` and receives an ERC-721 agent id |
 | Trust signal | Issuer-signed claims on the holder's ONCHAINID, checked through `isClaimValid`, revocable by the issuer side | Open feedback from any address except owner and operators; validator responses 0 to 100 in a Validation Registry that is specified but not officially deployed |
 | Scope | Transfer compliance for one token | Discovery and trust registry for agents and their services |
-| Who writes | Token agents register identities; CLAIM keys add claims; MANAGEMENT keys manage keys; the token owner manages issuers and topics | Owner or operator writes URI and metadata; any third party writes feedback; a named validator responds |
+| Who writes | Identity Registry agents register identities; CLAIM or MANAGEMENT keys (or the identity itself) add claims; MANAGEMENT keys manage keys; the token owner manages issuers and topics | Owner or operator writes URI and metadata; any third party writes feedback; a named validator responds |
 | Upgradeability | T-REX contracts behind proxies that point to `TREXImplementationAuthority`; ONCHAINID identities can be proxies | UUPS proxies at CREATE2 addresses; one EOA holds the upgrade right on Ethereum and Base as of 2026-10-11 |
 | Data location | Claims on-chain in the identity contract; `data` may be a hash and `uri` may point off-chain | Registration file off-chain (IPFS, HTTPS) or a data URI; feedback value and tags on-chain; detail files off-chain |
 | Missing | No agent, service endpoint or feedback concept | No issuer-attested compliance and no mandate model |

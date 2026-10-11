@@ -82,11 +82,11 @@
     {
       "from": "identity",
       "to": "owner",
-      "label": "Return events Transfer, MetadataSet, Registered",
-      "detail": "One Transfer event, one MetadataSet for agentWallet (the owner address), one MetadataSet per extra entry, and Registered(agentId, agentURI, owner). The owner reads the new agentId from the Registered log.",
+      "label": "Return events Transfer, MetadataUpdate, Registered, MetadataSet",
+      "detail": "A deployed registration with a URI logs Transfer, MetadataUpdate (ERC-4906, only when a URI is set), Registered(agentId, agentURI, owner), then MetadataSet for agentWallet (the owner address) and one MetadataSet per extra entry. The specification lists these events but does not fix their order. The owner reads the new agentId from the Registered log.",
       "payload": {
         "format": "text",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nTransfer(from=0x0, to=0x0E0E...0E0E, tokenId=4242)\nMetadataSet(agentId=4242, metadataKey=\"agentWallet\", metadataValue=0x0E0E...0E0E)\nRegistered(agentId=4242, agentURI=\"ipfs://bafy...agent\", owner=0x0E0E...0E0E)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25 (log order of the deployed contracts 2.0.0).\nTransfer(from=0x0, to=0x0E0E...0E0E, tokenId=4242)\nMetadataUpdate(tokenId=4242)\nRegistered(agentId=4242, agentURI=\"ipfs://bafy...agent\", owner=0x0E0E...0E0E)\nMetadataSet(agentId=4242, metadataKey=\"agentWallet\", metadataValue=0x0E0E...0E0E)",
         "illustrative": true
       },
       "specRef": {
@@ -116,7 +116,7 @@
       "from": "owner",
       "to": "identity",
       "label": "setAgentURI(agentId, newURI)",
-      "detail": "With a content-addressed file the URI changes, so the owner points the token at the new file. The registry emits URIUpdated(agentId, newURI, updatedBy).",
+      "detail": "With a content-addressed file the URI changes, so the owner points the token at the new file. The deployed registry emits MetadataUpdate (ERC-4906) and then URIUpdated(agentId, newURI, updatedBy).",
       "payload": {
         "format": "solidity",
         "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).setAgentURI(4242, \"ipfs://bafy...agent-v2\")\n// emits URIUpdated(4242, \"ipfs://bafy...agent-v2\", msg.sender)",
@@ -242,6 +242,7 @@
   "sources": [
     "src-erc-8004-spec",
     "src-erc-8004-identity-sol",
-    "src-erc-8004-onchain-probe"
+    "src-erc-8004-onchain-probe",
+    "src-erc-8004-chain-probe-verifier"
   ]
 }

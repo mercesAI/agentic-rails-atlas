@@ -123,9 +123,9 @@
       "id": "erc-8004-t8",
       "stride": "S",
       "title": "Wallet signature replay within its window",
-      "description": "The AgentWalletSet typed data has no nonce. Inside its deadline the same signature can be submitted again for the same agent, wallet and owner.",
+      "description": "The AgentWalletSet typed data has no nonce. Inside its deadline the same signature can be submitted again for the same agent, wallet and owner, but only by the owner or an approved operator, because setAgentWallet checks the caller.",
       "preconditions": [
-        "An operator unset the wallet and an observer resubmits the old signature before the deadline"
+        "The owner or an approved operator resubmits the old signature before the deadline, for example after another operator called unsetAgentWallet"
       ],
       "impact": "A wallet the owner just removed can be set again for up to 5 minutes.",
       "mitigatedBySpec": "partial",
@@ -190,7 +190,7 @@
       "preconditions": [
         "A client trusts the services list"
       ],
-      "impact": "Clients call malicious or dead endpoints; the census found only 13,210 of 505,635 ids declaring an http(s) endpoint (2026-09-26).",
+      "impact": "Clients call malicious or dead endpoints; the census found at least 13,210 of 505,635 ids declaring an http(s) endpoint, with 231,014 files not fetched (2026-09-26).",
       "mitigatedBySpec": "partial",
       "implementerNotes": "Use the /.well-known domain proof, probe endpoints, and require trust models beyond discovery for valuable tasks.",
       "sources": [

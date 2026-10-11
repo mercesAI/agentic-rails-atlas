@@ -24,6 +24,8 @@ classDiagram
     string name
     string endpoint
     string version
+    string[] skills
+    string[] domains
   }
   class Registration {
     uint256 agentId
@@ -65,7 +67,7 @@ classDiagram
   AgentIdentity --> RegistrationFile : agentURI
   AgentIdentity --> "0..*" MetadataEntry : metadata
   RegistrationFile --> "0..*" Service : services
-  RegistrationFile --> "1..*" Registration : registrations
+  RegistrationFile --> "0..*" Registration : registrations
   Registration ..> AgentIdentity : names
   AgentIdentity --> "0..*" FeedbackRecord : per client and index
   FeedbackRecord ..> FeedbackFile : feedbackURI in event
