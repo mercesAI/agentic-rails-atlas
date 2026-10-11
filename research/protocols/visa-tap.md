@@ -434,3 +434,166 @@ No agent-specific interchange, token fee, 3DS rule or liability allocation for T
 - **Liability.** No agent-specific liability shift (Worldpay, 2026-07-30) [src-worldpay-liability].
 - **Open questions in the repository.** What standing a payment instruction has after its agent is revoked (#26); commit-time authorization semantics (#8); transaction receipt signing (#16) [src-visa-tap-gh-meta].
 - **Key store content.** The published JWKS holds one sandbox-CA RSA key, which does not match the Ed25519 examples; how production agent keys are distributed is not public [src-visa-tap-jwks].
+
+## Resources (20 or more)
+
+HTTP status from `curl -sSIL -A 'Mozilla/5.0'` on 2026-10-11 is given in the Note when it was not 200 (403 and 429 are bot blocks; the pages exist).
+
+| Title | URL | Publisher | Date | Type | Badge | Note | Start here |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Trusted Agent Protocol overview | https://developer.visa.com/capabilities/trusted-agent-protocol/overview | Visa | undated | docs | official | Agent intent, consumer recognition, payment information; links the spec and sample | yes |
+| Getting Started with Visa's Trusted Agent Protocol | https://developer.visa.com/capabilities/trusted-agent-protocol/docs | Visa | undated | docs | official | Short merchant orientation | yes |
+| Trusted Agent Protocol merchant specifications | https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications | Visa | undated, no version | spec | official | Field tables, verification steps, ID Token, key retrieval | yes |
+| Trusted Agent Protocol Product Terms | https://developer.visa.com/capabilities/trusted-agent-protocol/product-terms | Visa | 2025-10-10 | docs | official | License conditions | no |
+| visa/trusted-agent-protocol | https://github.com/visa/trusted-agent-protocol | Visa | 2025-10-13 | repo | official | Sample agent, merchant, CDN proxy, registry; not normative | no |
+| Visa Introduces Trusted Agent Protocol | https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.21716.html | Visa | 2025-10-14 | announcement | official | Launch, partners, standards alignment | no |
+| Securing agentic commerce: helping AI Agents transact with Visa and Mastercard | https://blog.cloudflare.com/secure-agentic-commerce/ | Cloudflare | 2025-10-24 | engineering | partner | Edge verification steps for TAP and Agent Pay | yes |
+| Forget IPs: using cryptography to verify bot and agent traffic | https://blog.cloudflare.com/web-bot-auth/ | Cloudflare | 2025-05-15 | engineering | partner | Web Bot Auth primer that TAP builds on | no |
+| The age of agents: cryptographically recognizing agent traffic | https://blog.cloudflare.com/signed-agents/ | Cloudflare | 2025-08-28 | engineering | partner | Signed agents program | no |
+| Verified bots (signed agents are now Verified) | https://developers.cloudflare.com/bots/concepts/bot/verified-bots/ | Cloudflare | updated 2026-10-08 | docs | partner | 2026-07-01 taxonomy change | no |
+| RFC 9421 HTTP Message Signatures | https://www.rfc-editor.org/rfc/rfc9421 | IETF | 2024-02 | standard | standard | The signature mechanism | yes |
+| RFC 9530 Digest Fields | https://www.rfc-editor.org/rfc/rfc9530 | IETF | 2024-02 | standard | standard | `Content-Digest`, which TAP does not require | no |
+| draft-ietf-webbotauth-httpsig-protocol | https://datatracker.ietf.org/doc/draft-ietf-webbotauth-httpsig-protocol/ | IETF Web Bot Auth WG | 2026-09-01 (-00) | standard | standard | Compare tags, `Signature-Agent`, directory | no |
+| Visa Intelligent Commerce overview | https://developer.visa.com/capabilities/visa-intelligent-commerce/overview | Visa | undated | docs | official | Tokens, passkeys, instructions, signals; fees note | yes |
+| visa/ai (formerly visa/mcp) | https://github.com/visa/ai | Visa | 2025-11-05 created | repo | official | VIC MCP and API clients, endpoint paths | no |
+| draft-card-charge-00 (MPP card method) | https://github.com/tempoxyz/mpp-specs/blob/main/specs/methods/card/draft-card-charge-00.md | Visa in tempoxyz/mpp-specs | 2026-01-05 first commit | spec | official | TAP headers optional in MPP card flow | no |
+| MPP identity: request attestation with TAP | https://mpp.dev/advanced/identity | Tempo | 2026-08-12 (blog) | docs | partner | `mppx` TAP signer and verifier | no |
+| Deep Dive: The role of Visa's Trusted Agent Protocol | https://www.fintechwrapup.com/p/deep-dive-the-role-of-visas-trusted | Fintech Wrap Up | 2025-10-19 | newsletter | community | Flow diagrams | no |
+| Visa Trusted Agent Protocol Explained | https://atxp.ai/blog/visa-trusted-agent-protocol-explained | ATXP | 2026-03-30 | tutorial | community | VIC versus TAP | no |
+| Visa just launched a protocol to secure the AI shopping boom | https://venturebeat.com/ai/visa-just-launched-a-protocol-to-secure-the-ai-shopping-boom-heres-what-it | VentureBeat | 2025-10-14 | long-form | community | Merchant implications; HTTP 429 to curl | no |
+| Visa Launches Trusted Agent, an Agentic Commerce Protocol | https://www.digitaltransactions.net/visa-launches-trusted-agent-an-agentic-commerce-protocol/ | Digital Transactions | 2025-10-14 | newsletter | community | Trade analysis | no |
+| Visa Trusted Agent Protocol (TAP) Explained | https://eco.com/support/en/articles/14845482-visa-trusted-agent-protocol-tap-explained | Eco | 2026 | tutorial | community | Key directory model | no |
+| How Visa is Preparing for the Agentic Commerce Era | https://www.retailtouchpoints.com/topics/digital-commerce/how-visa-is-preparing-for-the-agentic-commerce-era | Retail Touchpoints (Retail Remix, Rob Cameron of Visa) | 2026 | podcast | community | Visa executive on TAP; HTTP 403 to curl | no |
+| Visa, Mastercard in agentic commerce | https://www.digitalcommerce360.com/2026/04/02/visa-mastercard-in-agentic-commerce/ | Digital Commerce 360 | 2026-04-02 | talk | community | Video and article; HTTP 403 to curl | no |
+| Agentic Commerce: The Threat Landscape | https://corporate.visa.com/en/sites/visa-perspectives/security-trust/the-threats-landscape-of-agentic-commerce.html | Visa | 2025-11-20 | analysis | official | Bot-fraud figures, TAP's role | no |
+| Agentic commerce liability is still being written | https://worldpay.com/insights/articles/agentic-commerce-liability-is-still-being-written | Worldpay | 2026-07-30 | long-form | community | No liability shift yet | no |
+| Worldpay collaborates with Visa and Cloudflare to advance TAP | https://www.worldpay.com/en/news/worldpay-collaborates-visa-and-cloudflare-advance-trusted-agent | Worldpay | 2025-10-14 | announcement | partner | Acquirer view at launch | no |
+| Akamai and Visa join forces to secure the next era of agentic commerce | https://www.akamai.com/newsroom/press-release/akamai-and-visa-join-forces-to-secure-the-next-era-of-agentic-commerce | Akamai | 2025-12-17 | announcement | partner | TAP on Akamai Cloud | no |
+| The Agentic Payments Map | https://www.fintechbrainfood.com/p/the-agentic-payments-map | Fintech Brainfood (Simon Taylor) | 2026-02-01 | newsletter | community | All eight protocols by problem | no |
+| Agentic commerce and the battleground for new payments infrastructure | https://bankunderground.co.uk/2026/05/21/agentic-commerce-and-the-battleground-for-new-payments-infrastructure/ | Bank Underground (Bank of England staff blog) | 2026-05-21 | long-form | community | Cross-protocol view | no |
+| Agentic payments protocols compared | https://crossmint.com/learn/agentic-payments-protocols-compared | Crossmint | 2026-03-12 | long-form | community | Readiness matrix | no |
+| awesome-agentic-payments | https://github.com/bitrefill/awesome-agentic-payments | Bitrefill | 2026 | repo | community | Curated list | no |
+
+## Publications (verified IDs)
+
+The seed said no paper names TAP. That is corrected: RAILS (arXiv 2606.08790) names Visa's Trusted Agent Protocol in its full text (checked in the arXiv HTML on 2026-10-11). All arXiv IDs below were checked against `export.arxiv.org` on 2026-10-11; DOIs through `doi.org` CSL JSON.
+
+| ID | Title (verified) | Authors | First version or year | Relevance |
+| --- | --- | --- | --- | --- |
+| arXiv 2606.08790 | RAILS: Verification-Native Clearing For Agentic Commerce | Adrian de Valois-Franklin, Alex Bogdan | 2026-06-07 | Names TAP as Visa's edge attestation layer |
+| arXiv 2501.09674 | Authenticated Delegation and Authorized AI Agents | Tobin South, Samuele Marro, Thomas Hardjono, Robert Mahari and 4 others | 2025-01-16 | Delegated agent credentials (OAuth/OIDC) |
+| arXiv 2406.12137 | IDs for AI Systems | Alan Chan, Noam Kolt, Peter Wills, Usman Anwar and 6 others | 2024-06-17 | Agent identifiers |
+| arXiv 2501.10114 | Infrastructure for AI Agents | Alan Chan, Kevin Wei, Sihao Huang, Nitarshan Rajkumar and 4 others | 2025-01-17 | Attribution and interaction infrastructure |
+| arXiv 2406.07647 | FP-Inconsistent: Measurement and Analysis of Fingerprint Inconsistencies in Evasive Bot Traffic | Hari Venugopalan, Shaoor Munir, Shuaib Ahmed, Tangbaihe Wang and 2 others | 2024-06-11 | Why fingerprint bot detection fails |
+| arXiv 2505.19301 | A Novel Zero-Trust Identity Framework for Agentic AI: Decentralized Authentication and Fine-Grained Access Control | Ken Huang, Vineeth Sai Narajala, John Yeoh, Jason Ross and 5 others | 2025-05-25 | Agent identity framework |
+| arXiv 2609.27452 | Issuer-Sovereign Agentic Payments | Dishant Sharma, Rajneesh Kaushal, Ashu Kanaujia | 2026-09-23 | Issuer-side control versus network or provider controls |
+| arXiv 2510.25819 | Identity Management for Agentic AI | Tobin South, Subramanya Nagabhushanaradhya, Ayesha Dissanayaka and 18 others | 2025-10-29 | Discusses Web Bot Auth |
+| arXiv 2609.11152 | terms.txt: A Consent and Compensation Protocol for Agentic Web Access | Rajarshi Chowdhury | 2026-09-10 | Discusses Web Bot Auth |
+| arXiv 2604.23280 | AI Identity: Standards, Gaps, and Research Directions for AI Agents | Takumi Otsuka, Kentaroh Toyoda, Alex Leung | 2026-04-25 | Survey of agent identity standards |
+| arXiv 2609.00060 | A Formal Analysis of Agent Payment Protocols | Ke Jiang, Mohan Yu, Yuan Chang, Mohit Kumar Jangid and 3 others | 2026-08-30 | Tamarin models of x402, MPP, ACP, AP2; TAP not modeled |
+| DOI 10.1515/popets-2018-0026 | Privacy Pass: Bypassing Internet Challenges Anonymously | Davidson, Goldberg, Sullivan, Tankersley, Valsorda | 2018 (PoPETs) | Bot-challenge alternative from the CDN world |
+| DOI 10.1007/978-3-642-14577-3_27 | Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication | Murdoch, Anderson | 2010 (FC 2010, LNCS) | Earlier network-run authentication layer and its liability design |
+
+Sources: [src-pub-2606-08790] [src-pub-2501-09674] [src-pub-2406-12137] [src-pub-2501-10114] [src-pub-2406-07647] [src-pub-2505-19301] [src-pub-2609-27452] [src-pub-2510-25819] [src-pub-2609-11152] [src-pub-2604-23280] [src-pub-2609-00060] [src-pub-privacypass] [src-pub-murdoch-2010].
+
+## Seed audit
+
+One row per seed fact of ATLAS_PROMPT.md Section 5.3 and per ATLAS_FOLLOWUP.md Section 2 item that touches TAP.
+
+| Seed fact | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| Bubble intro: lets a merchant tell a trusted agent from a bad bot | confirmed | src-visa-tap-spec, src-visa-tap-pr | |
+| Bubble intro: agent signs each request with HTTP Message Signatures and can attach signed consumer and payment objects at checkout | confirmed | src-visa-tap-spec | Consumer object is also allowed while browsing |
+| Bubble intro: built with Cloudflare as part of VIC | confirmed | src-visa-tap-pr, src-visa-tap-overview | |
+| Launched 2025-10-14, developed with Cloudflare | confirmed | src-visa-tap-pr | |
+| VIC unveiled 2025-04-30 | confirmed | src-visa-vic-pr | Visa release "Find and Buy with AI" |
+| Early feedback partners (12 names) | confirmed | src-visa-tap-pr | All 12 names match |
+| No version number | confirmed | src-visa-tap-spec | No date on the spec page either |
+| Repo has 6 commits (2025-10-12 to 2025-10-28) and no tags | confirmed | src-visa-tap-gh-meta | Also no releases; no merges since |
+| Product Terms dated 2025-10-10 | confirmed | src-visa-tap-terms | |
+| License: revocable, no modification, full conformance, updates within 6 months | confirmed | src-visa-tap-terms | Also "at least annually"; no Solution Approval needed for production |
+| Sample files carry MIT-style headers (ambiguity) | confirmed | src-visa-tap-repo-license | 37 files; logged in conflicts |
+| TAP is not an IETF document; Visa will align with IETF, OpenID Foundation, EMVCo | confirmed | src-visa-tap-pr | |
+| RFC 9421 with `Signature-Input` and `Signature` | confirmed | src-visa-tap-spec, src-rfc9421 | |
+| Minimum covered components `"@authority"` and `"@path"` | confirmed | src-visa-tap-spec | |
+| Parameters `created`, `expires` (at most 8 minutes apart), `keyid`, `alg`, `nonce` (session identifier reused across signatures and objects), `tag` | confirmed | src-visa-tap-spec | First example spells `keyId` |
+| Tags `agent-browser-auth` and `agent-payer-auth`; neither tag means not a trusted agent | confirmed | src-visa-tap-spec | |
+| Key directory `https://mcp.visa.com/.well-known/jwks` [verify contents] | corrected | src-visa-tap-jwks | Live: one RSA key (sandbox CA, CN vic-oauth-jwe.visa.com), no `alg`/`use`, no Ed25519 key |
+| Examples use Ed25519 for message signatures and PS256 for signed objects | confirmed | src-visa-tap-spec | Example values are copied from the Web Bot Auth test vector and cannot verify as shown |
+| `agenticConsumer` fields `nonce`, `idToken`, `contextualData { countryCode, zip, ipAddress, deviceData }`, `kid`, `alg`, `signature` | confirmed | src-visa-tap-spec | JSON example spells `IdToken` |
+| ID token: OIDC-compatible JWT with obfuscated email and phone plus display masks | confirmed | src-visa-tap-spec | `typ` `JWT+ext.id_token`; PS256 preferred |
+| `agenticPaymentContainer`: `nonce`, `kid`, `alg`, `signature`, optional `paymentCredentialsHash`, `cardMetadata`, encrypted `payload`, `browsingIOU` | confirmed | src-visa-tap-spec | Processing section calls the hash `credentialHash` |
+| Roles: Agent Provider, Checkout Enabler, Merchant, Site Protection Provider, Payment Scheme | confirmed | src-visa-tap-spec | Spec also lists Consumer, Identity Provider, Key Store |
+| CDN verification steps (Cloudflare 2025-10-24) | confirmed | src-visa-tap-cf-blog | Post's own example uses `tag="web-bot-auth"` |
+| VIC link: agent-specific token after step-up and a Visa Payment Passkey | confirmed | src-visa-vic-dev | |
+| VIC link: passkey-signed purchase instructions with limits and expiry | partly confirmed | src-visa-vic-dev, src-visa-ai-vic-client | Passkey-authenticated Payment Instructions confirmed; "limits and expiry" not stated on the page read |
+| VIC link: credential retrieval scoped to a merchant; confirmations as dispute evidence [verify endpoint names] | confirmed | src-visa-ai-vic-client, src-visa-vic-dev | `POST /vacp/v1/instructions/{instructionId}/credentials`, `.../confirmations` |
+| Web Bot Auth WG draft -00 dated 2026-09-01 with `Signature-Agent`, `tag="web-bot-auth"`, JWK-thumbprint `keyid`, `/.well-known/http-message-signatures-directory` | confirmed | src-wba-draft | -00 is the current revision on 2026-10-11 |
+| TAP aligned in spirit but does not conform to the WG draft | confirmed | src-visa-tap-spec, src-wba-draft | Differences tabulated under Cryptography |
+| 2025-09-04 Visa MCP server and acceptance toolkit pilot | confirmed | src-visa-mcp-server | Both in pilot |
+| 2025-12-17 Akamai support | confirmed | src-akamai-pr, src-visa-dec18 | |
+| 2025-12-18 hundreds of agent-initiated transactions | confirmed | src-visa-dec18 | VIC transactions, not TAP-specific |
+| 2026-03-17 Agentic Ready in Europe (21 issuers) | confirmed | src-visa-ar-eu | 21 named early issuing partners |
+| 2026-03-18 Visa card spec and SDK for MPP (TAP headers optional) | corrected | src-visa-mpp-card, src-mpp-card-draft | March post: built on VIC and TAP. "Optional" is the `draft-card-charge-00` wording (see conflicts on its date) |
+| 2026-04-08 Intelligent Commerce Connect pilot (TAP, MPP, ACP, UCP) | confirmed | src-visa-icc | |
+| 2026-04-29 Agentic Ready goes global | confirmed | src-visa-ar-global | Expansion to Asia Pacific and Latin America; CEMEA followed (reported 2026-05-20) |
+| 2026-06-10 Agentic Directory and Agent Score | confirmed | src-visa-jun10 | Subheadline calls it "Agentic Registry" |
+| 2026-07-02 31 European issuers complete live agent purchases | confirmed | src-visa-eu-live | 31 names counted; text says "over 30" |
+| 2026-07-03 eDreams ODIGEO adopts TAP | confirmed (reported) | src-edreams-pymnts | Business Wire original blocked |
+| CDNs Cloudflare and Akamai | confirmed | src-visa-eu-live | |
+| Stripe Shared Payment Tokens add VIC tokens (2026-03-03) | confirmed | src-stripe-spt | |
+| Repositories: `visa/mcp` (MIT) | corrected | src-visa-ai-repo | Now `visa/ai`; MIT confirmed |
+| `visa/vic-reference-agent` (proprietary) | confirmed | src-visa-vic-ref-agent | GitHub description says "Open source", license says evaluation only |
+| No public count of merchants that verify TAP [verify] | confirmed | src-visa-eu-live | Only four merchants named |
+| Malicious bot-initiated transactions up 25% in six months | confirmed | src-visa-threats | Dated 2025-11-20; US 40% |
+| Relation x402: Visa premier x402 Foundation member; `browsingIOU` | confirmed | src-x402-lf-july, src-visa-tap-spec | `browsingIOU` is not x402 wire format |
+| Relation MPP: Visa authored the MPP `card` method | confirmed | src-mpp-card-draft | |
+| Relation ACP: Visa says TAP complements it | confirmed | src-visa-tap-pr | |
+| Relation UCP: UCP's own RFC 9421 signing is closer to the IETF draft | confirmed | src-ucp-signatures | |
+| Relation Mastercard: same Web Bot Auth pattern with a different directory | confirmed | src-visa-tap-cf-blog | |
+| Cloudflare signed agents merged into Verified Bots on 2026-07-01 | confirmed | src-cf-verified-bots | |
+| Security: minimum coverage omits `@method`, `@query` and a content digest | confirmed | src-visa-tap-spec | |
+| Security: nonce tracking optional | confirmed | src-visa-tap-spec | |
+| Security: sample code deviates from RFC 9421 | confirmed | src-visa-tap-cdn-proxy, src-visa-tap-merchant-verifier, src-visa-tap-agent-app | |
+| Security: spec example breaks its 8-minute window | confirmed | src-visa-tap-spec | 3,600 seconds |
+| Security: consumer object exposes IP, device data, location, hashed contact details | confirmed | src-visa-tap-spec | |
+| One Visa-controlled key directory; revocable proprietary license | confirmed | src-visa-tap-spec, src-visa-tap-terms | |
+| No agent-specific liability shift (Worldpay 2026-07-30) | confirmed | src-worldpay-liability | |
+| Publications: no paper names TAP | corrected | src-pub-2606-08790 | RAILS names TAP |
+| Publications seed IDs (2501.09674, 2406.12137, 2501.10114, 2406.07647, 2505.19301, 2609.27452, Privacy Pass DOI, Murdoch and Anderson FC 2010) | confirmed | src-pub-* | Titles match |
+| Do not get wrong: Visa specification under proprietary terms, not an IETF standard | confirmed | src-visa-tap-terms, src-visa-tap-pr | |
+| Do not get wrong: identifies agents, does not move money by itself | confirmed | src-visa-tap-spec | Payment travels through VIC tokens and card rails |
+| Follow-up 2.1.3: Web Bot Auth is not the basis of TAP | confirmed | src-wba-draft, src-visa-tap-pr | Draft -00 is 2026-09-01, TAP 2025-10-14; TAP's examples even reuse WBA test values |
+| Follow-up 2.1.12: March spec uses VIC tokens and TAP; "optional" from `draft-card-charge-00` dated 2026-10-05 | corrected | src-mpp-card-draft | The sentence exists in every version since the file's first commit 2026-01-05; 2026-10-05 is the repo snapshot date, not a draft date |
+| Follow-up 2.2: RFC 9421 February 2024 | confirmed | src-rfc9421 | |
+| Follow-up 2.2: RFC 9530 February 2024 | confirmed | src-rfc9530 | |
+| Follow-up 2.2: do not say "MDES" | confirmed | src-visa-tap-spec | No Visa TAP source uses the term; Visa's token service is VTS |
+| Follow-up 2.3.7: TAP page and Orbit Web Bot Auth card must agree | noted | src-wba-draft | Use the comparison table in this dossier for both |
+
+## Blocked sources
+
+- investor.visa.com Akamai release: HTTP 403; used Akamai's release and Visa's 2025-12-18 release.
+- businesswire.com eDreams ODIGEO release (2026-07-03): HTTP/2 error and 403; used PYMNTS coverage (reported).
+- merchantcostconsulting.com/?p=8876: 403; used the Appendix B summary (reported).
+- mastercard.com agentic token framework story: 403; developer.mastercard.com renders client-side; used search excerpts (reported).
+- Appendix A pages that refuse curl (Retail Touchpoints 403, VentureBeat 429, Digital Commerce 360 403) are listed with their status in Resources.
+All logged in `research/blocked.md`.
+
+## Conflicts
+
+Also appended to `research/conflicts.md`.
+
+1. **License of the sample code.** Source files carry "© 2025 Visa." plus MIT-style permission text; `LICENSE.md` binds users to the Visa Developer Center Terms and the TAP Product Terms. Primary: `LICENSE.md` and the Product Terms (the overview and spec pages say the same) [src-visa-tap-repo-license] [src-visa-tap-terms].
+2. **Date of the "TAP headers optional" text.** ATLAS_FOLLOWUP.md 2.1.12 dates it to `draft-card-charge-00` "dated 2026-10-05". The draft has no date field; GitHub history shows the sentence in every version of the file from its first commit (2026-01-05) through the repo head (2026-10-05). Primary: the GitHub file history [src-mpp-card-draft].
+3. **Cloudflare example tag.** The Cloudflare post lists the tag check as `agent-browser-auth` or `agent-payer-auth`, but its example request carries `tag="web-bot-auth"`. Primary: the Visa spec (TAP tags) [src-visa-tap-cf-blog] [src-visa-tap-spec].
+4. **Directory name.** "Agentic Directory" (2026-06-10 body), "Agentic Registry" (same release's subheadline), "Agent Directory" (2026-07-02 release). Primary: the 2026-06-10 release body [src-visa-jun10] [src-visa-eu-live].
+5. **Where identifiers travel.** The repository README says merchants receive identifiers "via query parameters"; the spec puts the objects in the request body (and also tells Checkout Enablers to pass query parameters through). Primary: the spec [src-visa-tap-repo] [src-visa-tap-spec].
+6. **"Open" versus proprietary.** Visa's 2025-12-18 release calls TAP "an open framework" and `visa/vic-reference-agent`'s GitHub description says "Open source", while both carry revocable, no-modification licenses. Primary: the license texts [src-visa-dec18] [src-visa-vic-ref-agent] [src-visa-tap-terms].
+7. **Key store contents.** The spec examples use an Ed25519 `keyid` and say keys are at `https://mcp.visa.com/.well-known/jwks`; the live JWKS holds a single RSA key without that `kid`. Primary: the live fetch for what is published; the spec for what is intended [src-visa-tap-jwks] [src-visa-tap-spec].
+8. **Liability.** A secondary explainer (stellagent.ai, April 2026) says TAP-approved transactions can shift chargeback liability to Visa; Worldpay (2026-07-30) says no liability shift exists yet. No Visa source states a shift. Kept Worldpay's statement; the stellagent claim is not used.
+
+## Least certain
+
+1. **What the Visa JWKS is for.** The one key at `https://mcp.visa.com/.well-known/jwks` has a certificate named `vic-oauth-jwe.visa.com` from a sandbox CA. It may serve VIC token encryption or OAuth rather than TAP agent signatures, and Visa may distribute production agent keys some other way (for example to CDN partners). No source says which.
+2. **eDreams ODIGEO adoption (2026-07-03).** Only secondary coverage was readable; the Business Wire original was blocked.
+3. **Merchant Cost Consulting fee opinion (2026-05-01).** The page was blocked; the claim rests on the ATLAS_FOLLOWUP Appendix B summary.
