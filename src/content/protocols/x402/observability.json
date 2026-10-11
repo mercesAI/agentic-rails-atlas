@@ -1,0 +1,35 @@
+{
+  "protocol": "x402",
+  "score": 3,
+  "scoreReasons": [
+    "Every on-chain settlement is public, with a transaction hash returned to the client, but an exact EIP-3009 payment looks like an ordinary token Transfer plus AuthorizationUsed, so nothing marks it as x402.",
+    "The x402 contracts (Permit2 proxies, batch settlement) emit named events at the same address on every supported EVM chain, which makes those paths easy to index.",
+    "Facilitator capabilities (GET /supported) and the Bazaar resource catalog are public HTTP endpoints, and x402scan publishes an explorer and API.",
+    "The richest data (requirements, resource URLs, amounts before settlement, vouchers, screening decisions) stays in headers and facilitator logs, and credit-backed cloudflare:402 commitments never reach a chain.",
+    "Public volume counters exist but are contested and were not visibly updated after 2026-08-25."
+  ],
+  "public": [
+    { "what": "Exact EIP-3009 settlements", "where": "The token contract on each chain", "how": "Transfer and AuthorizationUsed events; the transaction hash also arrives in PAYMENT-RESPONSE.", "sources": ["src-x402-scheme-exact-evm", "src-x402-erc8004-bp", "src-x402-transport-http-v2"] },
+    { "what": "Permit2 and batch-settlement contracts", "where": "x402ExactPermit2Proxy 0x402085c248EeA27D92E8b30b2C58ed07f9E20001, x402UptoPermit2Proxy 0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002, x402BatchSettlement 0x4020074e9dF2ce1deE5A9C1b5c3f541D02a10003", "how": "Same addresses on every supported EVM chain; batch channels emit ChannelCreated, Deposited, Claimed, Settled, Refunded, WithdrawInitiated, WithdrawFinalized and ChannelClosed.", "sources": ["src-x402-contracts"] },
+    { "what": "Facilitator capabilities", "where": "GET /supported (for example https://x402.org/facilitator/supported)", "how": "Lists kinds (x402Version, scheme, network), extensions and signer addresses per CAIP-2 family.", "sources": ["src-x402-spec-v2", "src-x402-facilitator-supported"] },
+    { "what": "Resource catalog", "where": "GET /discovery/resources and GET /discovery/search; CDP instance at api.cdp.coinbase.com/platform/v2/x402/discovery/resources", "how": "Public listings of resources with accepts entries and lastUpdated; no API key needed on the CDP instance; no category data.", "sources": ["src-x402-spec-v2", "src-x402-cdp-bazaar"] },
+    { "what": "Explorer and registry", "where": "https://www.x402scan.com and its API routes (buyers, facilitators, merchants, origins, registry, resources, send, wallets)", "how": "Operated by Merit Systems; discovery reads /openapi.json with x-payment-info, then /.well-known/x402, and trusts runtime 402 behavior over static metadata.", "sources": ["src-x402scan-repo", "src-x402scan-discovery"] },
+    { "what": "Agent key directories", "where": "/.well-known/http-message-signatures-directory", "how": "RFC 9421 public keys for signature agents in cloudflare:402 and the http-message-signatures extension.", "sources": ["src-x402-scheme-batch-cf", "src-x402-ext-http-sig"] },
+    { "what": "Attribution codes", "where": "Settlement calldata", "how": "builder-code appends an ERC-8021 Schema 2 suffix naming app, wallet or facilitator, and service.", "sources": ["src-x402-ext-builder-code"] },
+    { "what": "Project counters and advisories", "where": "x402.org, GitHub Security Advisories, the repository", "how": "30-day counters (contested), GHSA advisories, Cantina audit reports, changelogs.", "sources": ["src-x402-site", "src-x402-ghsa-2025", "src-x402-ghsa-2026", "src-x402-repo"] }
+  ],
+  "private": [
+    { "what": "PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE contents", "why": "They travel only between client, server and facilitator, including resource URLs, descriptions and amounts." },
+    { "what": "Facilitator logs, KYT and OFAC decisions, pending settlement stores", "why": "Operational data of each facilitator; nothing obliges publication." },
+    { "what": "Batch-settlement vouchers before a claim", "why": "Cumulative vouchers live in server storage until the server claims them on chain." },
+    { "what": "cloudflare:402 credit commitments and billing identity", "why": "Credit-backed payments never reach a chain; Cloudflare maps signature identities to accounts." },
+    { "what": "Who controls a paying wallet", "why": "Nothing on chain links a wallet to an agent or a person, which is the root of the volume dispute." }
+  ],
+  "indexerCaptures": [
+    { "signal": "Exact EIP-3009 settlements", "from": "Token Transfer and AuthorizationUsed events, joined with known facilitator signer addresses from /supported", "identifiers": ["authorizer address", "nonce", "transaction hash", "facilitator signer"], "sources": ["src-x402-scheme-exact-evm", "src-x402-spec-v2"] },
+    { "signal": "Permit2 proxy settlements", "from": "x402ExactPermit2Proxy and x402UptoPermit2Proxy events at their fixed addresses", "identifiers": ["proxy address", "from", "to", "amount", "asset"], "sources": ["src-x402-contracts", "src-x402-scheme-exact-evm"] },
+    { "signal": "Payment channel lifecycle", "from": "x402BatchSettlement events", "identifiers": ["channelId", "sender", "receiver", "token"], "sources": ["src-x402-contracts"] },
+    { "signal": "Seller and resource catalog", "from": "GET /discovery/resources on public Bazaar instances and x402scan registry routes", "identifiers": ["resource URL", "payTo", "scheme", "network"], "sources": ["src-x402-cdp-bazaar", "src-x402scan-repo"] },
+    { "signal": "App and facilitator attribution", "from": "ERC-8021 builder-code suffix in settlement calldata", "identifiers": ["app code (a)", "wallet or facilitator code (w)", "service code (s)"], "sources": ["src-x402-ext-builder-code"] }
+  ]
+}

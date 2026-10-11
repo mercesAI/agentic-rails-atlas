@@ -1,0 +1,72 @@
+{
+  "protocol": "x402",
+  "snippets": [
+    {
+      "title": "Pay for a request with @x402/fetch (client)",
+      "sdk": "@x402/fetch with @x402/evm",
+      "version": "2.28.0",
+      "language": "typescript",
+      "side": "client",
+      "code": "import { wrapFetchWithPaymentFromConfig } from \"@x402/fetch\";\nimport { ExactEvmScheme } from \"@x402/evm\";\nimport { privateKeyToAccount } from \"viem/accounts\";\n\nconst account = privateKeyToAccount(\"0xYourPrivateKey\");\n\nconst fetchWithPayment = wrapFetchWithPaymentFromConfig(fetch, {\n  schemes: [\n    {\n      network: \"eip155:8453\", // Base mainnet\n      client: new ExactEvmScheme(account),\n    },\n  ],\n});\n\nconst response = await fetchWithPayment(\"https://api.example.com/paid-endpoint\", {\n  method: \"GET\",\n});",
+      "docsUrl": "https://github.com/x402-foundation/x402/tree/main/typescript/packages/http/fetch",
+      "note": "From the package README quick start. On a 402 the wrapper decodes PAYMENT-REQUIRED, signs with the registered scheme and retries with PAYMENT-SIGNATURE. Never put a real key in code; the atlas playground uses ephemeral keys on fake chains.",
+      "sources": [
+        "src-x402-readme-fetch"
+      ]
+    },
+    {
+      "title": "Lower the default spend cap (client)",
+      "sdk": "@x402/fetch (x402ClientConfig)",
+      "version": "2.28.0",
+      "language": "typescript",
+      "side": "client",
+      "code": "const fetchWithPayment = wrapFetchWithPaymentFromConfig(fetch, {\n  schemes: [{ network: \"eip155:8453\", client: new ExactEvmScheme(account) }],\n  // Default: only known assets, \"$1\" per payment. false disables all limits.\n  spendControls: { maxAmountPerPayment: \"$0.10\" },\n});",
+      "docsUrl": "https://github.com/x402-foundation/x402/blob/main/typescript/packages/core/src/client/x402Client.ts",
+      "note": "Built from the x402ClientConfig and SpendControls type definitions in x402Client.ts (DEFAULT_MAX_AMOUNT_PER_PAYMENT is \"$1\"), not copied from a README.",
+      "sources": [
+        "src-x402-sdk-spendcontrols"
+      ]
+    },
+    {
+      "title": "Charge for a route with @x402/express (server)",
+      "sdk": "@x402/express with @x402/evm and @x402/core",
+      "version": "2.28.0",
+      "language": "typescript",
+      "side": "server",
+      "code": "import express from \"express\";\nimport { paymentMiddleware, x402ResourceServer } from \"@x402/express\";\nimport { ExactEvmScheme } from \"@x402/evm/exact/server\";\nimport { HTTPFacilitatorClient } from \"@x402/core/server\";\n\nconst app = express();\nconst facilitatorClient = new HTTPFacilitatorClient({ url: \"https://x402.org/facilitator\" });\nconst resourceServer = new x402ResourceServer(facilitatorClient)\n  .register(\"eip155:84532\", new ExactEvmScheme());\n\napp.use(\n  paymentMiddleware(\n    {\n      \"GET /protected-route\": {\n        accepts: [\n          { scheme: \"exact\", price: \"$0.10\", network: \"eip155:84532\", payTo: \"0xYourEvmAddress\" },\n        ],\n        description: \"Access to premium content\",\n      },\n    },\n    resourceServer,\n  ),\n);\n\napp.get(\"/protected-route\", (req, res) => {\n  res.json({ message: \"This content is behind a paywall\" });\n});",
+      "docsUrl": "https://github.com/x402-foundation/x402/tree/main/typescript/packages/http/express",
+      "note": "Shortened from the README quick start (the README also registers a Solana scheme). The x402.org facilitator serves testnets only.",
+      "sources": [
+        "src-x402-readme-express"
+      ]
+    },
+    {
+      "title": "Create a payment payload in Python (client)",
+      "sdk": "x402 (PyPI)",
+      "version": "2.25.0",
+      "language": "python",
+      "side": "client",
+      "code": "from x402 import x402Client\nfrom x402.mechanisms.evm.exact import ExactEvmScheme\n\nclient = x402Client()\nclient.register(\"eip155:*\", ExactEvmScheme(signer=my_signer))\n\n# Create payment from 402 response\npayload = await client.create_payment_payload(payment_required)",
+      "docsUrl": "https://github.com/x402-foundation/x402/tree/main/python/x402",
+      "note": "From the Python README (async client). PyPI x402 2.x implements V2.",
+      "sources": [
+        "src-x402-readme-python",
+        "src-x402-pypi"
+      ]
+    },
+    {
+      "title": "Register a scheme on a Python resource server",
+      "sdk": "x402 (PyPI)",
+      "version": "2.25.0",
+      "language": "python",
+      "side": "server",
+      "code": "from x402 import x402ResourceServer\nfrom x402.http import HTTPFacilitatorClient\nfrom x402.mechanisms.evm.exact import ExactEvmServerScheme\n\nfacilitator = HTTPFacilitatorClient(url=\"https://x402.org/facilitator\")\nserver = x402ResourceServer(facilitator)\nserver.register(\"eip155:*\", ExactEvmServerScheme())\nserver.initialize()",
+      "docsUrl": "https://github.com/x402-foundation/x402/tree/main/python/x402",
+      "note": "First lines of the Python README server example; the README continues with ResourceConfig and framework middleware.",
+      "sources": [
+        "src-x402-readme-python"
+      ]
+    }
+  ],
+  "labs": []
+}

@@ -1,0 +1,460 @@
+{
+  "protocol": "x402",
+  "stewards": [
+    {
+      "name": "x402 Foundation (x402 a Series of LF Projects, LLC)",
+      "role": "Governs the protocol under a technical charter adopted 2026-03-31; Linux Foundation project since 2026.",
+      "sources": [
+        "src-x402-charter",
+        "src-x402-lf-april",
+        "src-x402-lf-july"
+      ]
+    },
+    {
+      "name": "Technical Steering Committee: Coinbase, Cloudflare, Stripe",
+      "role": "Votes on technical decisions; named in TSC.md on 2026-05-12.",
+      "sources": [
+        "src-x402-tsc",
+        "src-x402-gh-pr-2253"
+      ]
+    },
+    {
+      "name": "Coinbase Developer Platform",
+      "role": "Originated x402 and wrote the 2025-05-06 whitepaper; runs the largest facilitator.",
+      "sources": [
+        "src-x402-whitepaper",
+        "src-x402-cdp-welcome"
+      ]
+    }
+  ],
+  "implementers": [
+    {
+      "name": "Coinbase CDP facilitator",
+      "role": "Facilitator on Base, Polygon, Arbitrum, World and Solana with KYT and OFAC screening.",
+      "status": "live",
+      "sources": [
+        "src-x402-fee-cdp",
+        "src-x402-cdp-facilitator"
+      ]
+    },
+    {
+      "name": "Facilitators listed in the x402 docs (PayAI, Corbits, Dexter, Fireblocks, Polygon, Celo, NEAR x402 Facilitator, T54 XRPL and others)",
+      "role": "Independent verify and settle services; the docs say the list is not exhaustive.",
+      "status": "unknown",
+      "sources": [
+        "src-x402-docs-facilitators"
+      ]
+    },
+    {
+      "name": "Cloudflare Monetization Gateway",
+      "role": "Closed beta that settles USDC on Base through Coinbase's facilitator; US sellers and buyers only.",
+      "status": "beta",
+      "sources": [
+        "src-x402-cf-mg-beta"
+      ]
+    },
+    {
+      "name": "Cloudflare Agents SDK and AI Gateway",
+      "role": "withX402 and paidTool for agents and MCP servers since 2025-09-23; AI Gateway accepts PAYMENT-METHOD: x402.",
+      "status": "live",
+      "sources": [
+        "src-x402-cf-blog-foundation",
+        "src-x402-cf-changelog"
+      ]
+    },
+    {
+      "name": "Circle Nanopayments (Circle Gateway)",
+      "role": "Gas-free USDC payments from $0.000001 using EIP-3009 inside the x402 flow, batched settlement.",
+      "status": "live",
+      "sources": [
+        "src-x402-circle-nanopayments",
+        "src-x402-fee-circle"
+      ]
+    },
+    {
+      "name": "Stripe machine payments preview",
+      "role": "Charges agents in USDC on Base through x402 (reported).",
+      "status": "beta",
+      "sources": [
+        "src-x402-stripe-coverage"
+      ]
+    },
+    {
+      "name": "Coinbase Agentic Wallets",
+      "role": "Agent wallets reported to transact through x402.",
+      "status": "announced",
+      "sources": [
+        "src-x402-agentic-wallets-coverage"
+      ]
+    },
+    {
+      "name": "x402scan (Merit Systems)",
+      "role": "Explorer, registry and public API for x402 activity.",
+      "status": "live",
+      "sources": [
+        "src-x402scan-repo"
+      ]
+    },
+    {
+      "name": "Google a2a-x402 and AP2 samples",
+      "role": "A2A extension and human-present and human-not-present x402 samples.",
+      "status": "pilot",
+      "sources": [
+        "src-x402-a2a-repo",
+        "src-x402-ap2-repo"
+      ]
+    }
+  ],
+  "sdks": [
+    {
+      "registry": "npm",
+      "name": "@x402/core",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/core",
+      "note": "V2 core types, client and resource server."
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/evm",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/evm"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/svm",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/svm"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/fetch",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/fetch"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/axios",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/axios"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/express",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/express"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/hono",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/hono"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/next",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/next"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/fastify",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/fastify"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/paywall",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/paywall",
+      "note": "Browser paywall for humans."
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/extensions",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/extensions"
+    },
+    {
+      "registry": "npm",
+      "name": "@x402/mcp",
+      "version": "2.28.0",
+      "url": "https://www.npmjs.com/package/@x402/mcp"
+    },
+    {
+      "registry": "npm",
+      "name": "x402",
+      "version": "1.2.0",
+      "url": "https://www.npmjs.com/package/x402",
+      "note": "Legacy V1 package (unscoped); x402-axios, x402-express, x402-fetch, x402-hono and x402-next are V1 too."
+    },
+    {
+      "registry": "pypi",
+      "name": "x402",
+      "version": "2.25.0",
+      "url": "https://pypi.org/project/x402/",
+      "note": "V2 Python SDK, not legacy. Extras httpx, requests, fastapi, flask, svm."
+    },
+    {
+      "registry": "go",
+      "name": "github.com/x402-foundation/x402/go/v2",
+      "version": "2.28.0",
+      "url": "https://github.com/x402-foundation/x402/tree/main/go",
+      "note": "Go 1.24; covers evm and svm."
+    },
+    {
+      "registry": "other",
+      "name": "Java module (java/)",
+      "version": "1.0.0-SNAPSHOT",
+      "url": "https://github.com/x402-foundation/x402/tree/main/java",
+      "note": "In the repository; no published artifact found."
+    }
+  ],
+  "metrics": [
+    {
+      "id": "x402-gh-stars",
+      "metric": "GitHub stars, x402-foundation/x402",
+      "value": 6701,
+      "unit": "stars",
+      "asOf": "2026-10-10",
+      "definition": "Stars on the canonical repository.",
+      "sources": [
+        "src-x402-gh-repo"
+      ],
+      "caveat": "Interest, not usage."
+    },
+    {
+      "id": "x402-npm-core",
+      "metric": "npm downloads of @x402/core, last 30 days",
+      "value": 1492519,
+      "unit": "downloads",
+      "asOf": "2026-10-10",
+      "definition": "npm registry download count for the V2 core package.",
+      "sources": [
+        "src-x402-npm-downloads"
+      ],
+      "caveat": "Includes CI installs; the legacy V1 package x402 had 2,007,353 in the same window."
+    },
+    {
+      "id": "x402-site-30d-tx",
+      "metric": "x402.org 30-day transactions",
+      "value": "75.41M",
+      "unit": "transactions",
+      "asOf": "2026-08-25",
+      "definition": "Self-reported counter on x402.org; the page displayed this on 2026-10-10 with \"Last updated: 2026-08-25\".",
+      "sources": [
+        "src-x402-site"
+      ],
+      "caveat": "Raw count, not adjusted for wash activity; appears not updated since at least mid August 2026.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-cryptobriefing",
+        "src-x402-forkast-visa",
+        "src-x402-arxiv-2607-12575"
+      ]
+    },
+    {
+      "id": "x402-site-30d-vol",
+      "metric": "x402.org 30-day volume",
+      "value": "$24.24M",
+      "unit": "USD",
+      "asOf": "2026-08-25",
+      "definition": "Self-reported counter on x402.org, read on 2026-10-10.",
+      "sources": [
+        "src-x402-site"
+      ],
+      "caveat": "The same figure was reported for mid August 2026 by Crypto Briefing.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-cryptobriefing",
+        "src-x402-forkast-visa"
+      ]
+    },
+    {
+      "id": "x402-visa-artemis-adjusted",
+      "metric": "Adjusted x402 volume (Visa and Artemis)",
+      "value": "$15.0M across 109.6M transactions",
+      "unit": "USD and transactions",
+      "asOf": "2026-04-21",
+      "definition": "Cumulative data to 2026-04-21 after removing activity Artemis classes as non-organic; unadjusted $135.7M and 178.3M operations; average $0.14.",
+      "sources": [
+        "src-x402-forkast-visa"
+      ],
+      "caveat": "Secondary report of a Visa and Artemis chart; Visa's Cuy Sheffield separately cited about $19M across about 134M.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-visa-coverage"
+      ]
+    },
+    {
+      "id": "x402-artemis-gamed",
+      "metric": "Share of transactions flagged as gamed (Artemis)",
+      "value": 63.94,
+      "unit": "percent (average)",
+      "asOf": "2026-02-07",
+      "definition": "Average share flagged between 2025-11-09 and 2026-02-07; peak 90.21 percent.",
+      "sources": [
+        "src-x402-4pillars"
+      ],
+      "caveat": "Secondary analysis; the detection logic is not published.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-site"
+      ]
+    },
+    {
+      "id": "x402-base-settlements-paper",
+      "metric": "Settlements on Base (academic count)",
+      "value": 136708672,
+      "unit": "settlements",
+      "asOf": "2026-07-14",
+      "definition": "Settlements over a 280 day window, from arXiv:2607.12575.",
+      "sources": [
+        "src-x402-arxiv-2607-12575"
+      ],
+      "caveat": "The paper argues settlement counts are not adoption because they can be manufactured almost for free."
+    },
+    {
+      "id": "x402-v2-launch-payments",
+      "metric": "Payments before V2 (self-reported)",
+      "value": "over 100M",
+      "unit": "payments",
+      "asOf": "2025-12-11",
+      "definition": "Claim in the V2 launch post.",
+      "sources": [
+        "src-x402-v2-launch"
+      ],
+      "caveat": "Raw self-reported count.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-forkast-visa",
+        "src-x402-arxiv-2607-12575"
+      ]
+    },
+    {
+      "id": "x402-solana-share",
+      "metric": "Solana share of x402 volume",
+      "value": "nearly 65",
+      "unit": "percent",
+      "asOf": "2026-04-02",
+      "definition": "Linux Foundation statement for 2026 to date.",
+      "sources": [
+        "src-x402-lf-april"
+      ],
+      "caveat": "About 70 percent of monthly volume was reported for mid August 2026, while Base held about 90 percent of adjusted transactions in Visa and Artemis data; volume share and transaction share differ.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-cryptobriefing",
+        "src-x402-visa-coverage"
+      ]
+    },
+    {
+      "id": "x402-cumulative-press",
+      "metric": "Cumulative transactions (press)",
+      "value": "120M to 187M",
+      "unit": "transactions",
+      "asOf": "2026-09-15",
+      "definition": "Range across trackers reported by Crypto Briefing.",
+      "sources": [
+        "src-x402-cryptobriefing"
+      ],
+      "caveat": "Trackers disagree.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-cryptobriefing"
+      ]
+    },
+    {
+      "id": "x402-foundation-members",
+      "metric": "x402 Foundation members",
+      "value": 40,
+      "unit": "organizations",
+      "asOf": "2026-07-14",
+      "definition": "Members at the operational launch, 17 of them Premier.",
+      "sources": [
+        "src-x402-lf-july"
+      ],
+      "caveat": "The listed names count 39 or 40 depending on one combined entry."
+    }
+  ],
+  "costs": [
+    {
+      "item": "CDP facilitator settlement fee",
+      "value": "First 1,000 on-chain transactions each month free, then $0.001 per on-chain transaction",
+      "whoPays": "Resource server (the facilitator customer)",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Counts on-chain transactions, not payment requests; prices change without notice.",
+      "sources": [
+        "src-x402-fee-cdp"
+      ]
+    },
+    {
+      "item": "CDP facilitator verification",
+      "value": "Free",
+      "whoPays": "Nobody",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Applies to /verify calls.",
+      "sources": [
+        "src-x402-fee-cdp"
+      ]
+    },
+    {
+      "item": "On-chain transactions per payment (CDP)",
+      "value": "exact and EVM upto: one; Solana upto: two; batch-settlement: one claim covers many vouchers",
+      "whoPays": "Facilitator pays gas, recovered through its fee",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Deposits, refunds and withdrawals in batch-settlement count as one transaction each.",
+      "sources": [
+        "src-x402-fee-cdp"
+      ]
+    },
+    {
+      "item": "Other facilitators",
+      "value": "PayAI $0.001 per settlement after 1,000 free settlements; thirdweb 0.3 percent; self-hosted pays only gas and operations",
+      "whoPays": "Resource server",
+      "asOf": "2026-07-12",
+      "confidence": "reported",
+      "caveat": "Secondary comparison; PayAI's free allowance is described as 1,000 in total, not per month; verify on vendor pages.",
+      "sources": [
+        "src-x402-fee-wavect"
+      ]
+    },
+    {
+      "item": "Gas for a USDC transfer",
+      "value": "Base about $0.005 to $0.01; Solana about $0.001 to $0.005; Ethereum L1 about $1 to $5",
+      "whoPays": "Facilitator on the exact EVM path and as Solana fee payer, or the merchant when it sponsors",
+      "asOf": "2026-10-11",
+      "confidence": "reported",
+      "caveat": "Secondary mid-2026 estimate under normal congestion.",
+      "sources": [
+        "src-x402-fee-spark-gas",
+        "src-x402-scheme-exact-svm"
+      ]
+    },
+    {
+      "item": "Circle Nanopayments",
+      "value": "Payments from $0.000001 USDC; no per-transaction fee schedule published",
+      "whoPays": "Not stated (buyers sign off-chain at zero gas)",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Who pays the batch settlement gas is not stated.",
+      "sources": [
+        "src-x402-fee-circle"
+      ]
+    },
+    {
+      "item": "Protocol fee",
+      "value": "None",
+      "whoPays": "Nobody",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "x402 itself charges nothing; costs are facilitator fees and gas. cloudflare:402 is credit billed by Cloudflare as merchant of record under its own terms.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-batch-cf"
+      ]
+    }
+  ]
+}
