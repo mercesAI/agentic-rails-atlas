@@ -1,0 +1,128 @@
+{
+  "protocol": "openai-acp",
+  "score": 1,
+  "scoreReasons": [
+    "All checkout, Delegate Payment, webhook and feed traffic is bilateral HTTPS between agent, merchant and PSP; nothing is written to a public ledger.",
+    "The only standard public artifact per seller is the optional /.well-known/acp.json discovery document, which lists versions, transports and services but no volume.",
+    "There is no public registry or explorer of ACP merchants or agents, and the ACP site says discovery mechanisms were still being developed.",
+    "The project is transparent about the spec: the GitHub repository shows commits, SEPs, the CLA list and governance.",
+    "No official transaction volume, GMV or merchant count has been published."
+  ],
+  "public": [
+    {
+      "what": "Seller discovery documents",
+      "where": "https://<seller>/.well-known/acp.json",
+      "how": "Unauthenticated GET; protocol.version, supported_versions, api_base_url, transports, capabilities.services; cacheable for at least an hour.",
+      "sources": [
+        "src-openai-acp-rfc-discovery",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "what": "Specification activity and governance",
+      "where": "github.com/agentic-commerce-protocol/agentic-commerce-protocol",
+      "how": "Commits, pull requests, SEPs, changelog files, MAINTAINERS.md and legal/cla/SIGNATORIES.md.",
+      "sources": [
+        "src-openai-acp-gh-repo",
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-cla-signatories"
+      ]
+    },
+    {
+      "what": "Product announcements and partner lists",
+      "where": "OpenAI, Stripe, PayPal and Microsoft newsrooms; OpenAI developer docs",
+      "how": "Named retailers, PSPs and platforms with dates; no volumes.",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-openai-apps-monetization",
+        "src-stripe-acs-launch"
+      ]
+    },
+    {
+      "what": "Security advisories",
+      "where": "GitHub security advisories for the repository",
+      "how": "None published as of 2026-10-11.",
+      "sources": [
+        "src-openai-acp-gh-advisories"
+      ]
+    }
+  ],
+  "private": [
+    {
+      "what": "Checkout sessions, totals and buyer data",
+      "why": "Bilateral REST or MCP calls between the agent and the merchant."
+    },
+    {
+      "what": "Delegated tokens and allowances",
+      "why": "Held by the PSP or vault; ACP defines no token status or public log."
+    },
+    {
+      "what": "Order webhooks (order_create, order_update) and adjustments",
+      "why": "Sent from merchant to agent over HTTPS with a shared HMAC secret."
+    },
+    {
+      "what": "Product feeds pushed to /feeds",
+      "why": "Sent from merchant to agent; OpenAI uses its own /product_feeds paths."
+    },
+    {
+      "what": "Stripe SPT events",
+      "why": "shared_payment.issued_token.* and shared_payment.granted_token.deactivated go only to the Stripe accounts involved."
+    }
+  ],
+  "indexerCaptures": [
+    {
+      "signal": "Which sellers support ACP and which versions",
+      "from": "Crawling /.well-known/acp.json on known merchant domains",
+      "identifiers": [
+        "protocol.version",
+        "supported_versions",
+        "api_base_url",
+        "capabilities.services",
+        "transports"
+      ],
+      "sources": [
+        "src-openai-acp-rfc-discovery",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "signal": "Spec change velocity and governance moves",
+      "from": "GitHub commits and pull requests, changelog folder, SIGNATORIES.md",
+      "identifiers": [
+        "commit sha",
+        "SEP number",
+        "spec folder date",
+        "CLA signatory"
+      ],
+      "sources": [
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-cla-signatories"
+      ]
+    },
+    {
+      "signal": "Order lifecycle for one platform (private monitor)",
+      "from": "The agent platform's own webhook receiver at /agentic_checkout/webhooks/order_events",
+      "identifiers": [
+        "order id",
+        "checkout_session_id",
+        "event type order_create or order_update",
+        "adjustment type"
+      ],
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417"
+      ]
+    },
+    {
+      "signal": "Token lifecycle for one Stripe account (private monitor)",
+      "from": "Stripe webhooks",
+      "identifiers": [
+        "shared_payment.issued_token.used",
+        "shared_payment.issued_token.deactivated",
+        "shared_payment.granted_token.deactivated"
+      ],
+      "sources": [
+        "src-fee-stripe-spt-docs"
+      ]
+    }
+  ]
+}

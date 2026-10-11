@@ -1,0 +1,67 @@
+{
+  "protocol": "openai-acp",
+  "snippets": [
+    {
+      "title": "Validate schemas and examples with the repository scripts",
+      "sdk": "ACP specification repository (no official SDK)",
+      "version": "0.1.0 (package.json at commit 7fdd78d)",
+      "language": "bash",
+      "side": "cli",
+      "code": "git clone https://github.com/agentic-commerce-protocol/agentic-commerce-protocol.git\ncd agentic-commerce-protocol\npnpm install\n# compile every JSON Schema in every dated folder\npnpm run validate:json-schema\n# check examples against the schemas\npnpm run validate:all",
+      "docsUrl": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/package.json",
+      "note": "Script names are the ones in package.json. Run your own request bodies through the same schemas before you ship.",
+      "sources": [
+        "src-openai-acp-package-json",
+        "src-openai-acp-workflows"
+      ]
+    },
+    {
+      "title": "Create a checkout session (agent, REST)",
+      "sdk": "ACP REST binding (curl)",
+      "version": "2026-04-17",
+      "language": "bash",
+      "side": "client",
+      "code": "curl -X POST https://merchant.example.com/checkout_sessions \\\n  -H \"Authorization: Bearer $MERCHANT_API_KEY\" \\\n  -H \"API-Version: 2026-04-17\" \\\n  -H \"Idempotency-Key: $(uuidgen)\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"currency\":\"usd\",\"line_items\":[{\"id\":\"item_123\"}],\"capabilities\":{\"interventions\":{\"supported\":[\"3ds\"]}}}'",
+      "docsUrl": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/spec/2026-04-17/openapi/openapi.agentic_checkout.yaml",
+      "note": "Body follows the 2026-04-17 JSON Schema and the repository examples file (line_items with ids), not the RFC examples that still send items with a quantity.",
+      "sources": [
+        "src-openai-acp-openapi-checkout-20260417",
+        "src-openai-acp-examples-20260417"
+      ]
+    },
+    {
+      "title": "Verify a Merchant-Signature order webhook (agent platform)",
+      "sdk": "Node.js node:crypto (implements the ACP webhook signature rule)",
+      "version": "Node.js 22; ACP 2026-04-17",
+      "language": "typescript",
+      "side": "server",
+      "code": "import { createHmac, timingSafeEqual } from \"node:crypto\";\n\n// header: \"t=<unix_seconds>,v1=<64_hex>\"; rawBody: the exact bytes received\nexport function verifyMerchantSignature(header: string, rawBody: string, secret: string, toleranceSec = 300): boolean {\n  const parts = Object.fromEntries(header.split(\",\").map((p) => p.split(\"=\", 2)));\n  const t = Number(parts.t);\n  if (!Number.isFinite(t) || !/^[0-9a-f]{64}$/.test(parts.v1 ?? \"\")) return false;\n  if (Math.abs(Date.now() / 1000 - t) > toleranceSec) return false;\n  const expected = createHmac(\"sha256\", secret).update(`${t}.${rawBody}`).digest(\"hex\");\n  return timingSafeEqual(Buffer.from(expected, \"hex\"), Buffer.from(parts.v1, \"hex\"));\n}",
+      "docsUrl": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml",
+      "note": "Written for this atlas from the signature rule in the webhook OpenAPI file (HMAC-SHA256 over timestamp, a dot and the raw body; 300-second tolerance). Uses only Node.js built-ins; answer 401 when it returns false.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417"
+      ]
+    },
+    {
+      "title": "Create a checkout session over MCP (agent)",
+      "sdk": "ACP MCP binding (JSON-RPC 2.0)",
+      "version": "2026-04-17",
+      "language": "json",
+      "side": "client",
+      "code": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"create_checkout_session\",\n    \"arguments\": {\n      \"meta\": { \"api_version\": \"2026-04-17\", \"idempotency_key\": \"idem_550e8400\" },\n      \"payload\": { \"currency\": \"usd\", \"line_items\": [{ \"id\": \"item_123\" }], \"capabilities\": {} }\n    }\n  }\n}",
+      "docsUrl": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/docs/mcp-binding.md",
+      "note": "Shape from the binding document and the 2026-04-17 MCP examples file. Always send idempotency_key, although the binding still marks it optional.",
+      "sources": [
+        "src-openai-acp-mcp-binding",
+        "src-openai-acp-openrpc-20260417"
+      ]
+    }
+  ],
+  "labs": [
+    {
+      "title": "ACP checkout state machine and allowance simulator",
+      "path": "src/playgrounds/openai-acp/",
+      "status": "planned"
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "protocol": "openai-acp",
+  "stewards": [
+    {
+      "name": "OpenAI",
+      "role": "Founding maintainer, TSC seat 1; runs ChatGPT, the main ACP agent surface.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-acp-maintainers"
+      ]
+    },
+    {
+      "name": "Stripe",
+      "role": "Founding maintainer, TSC seat 2; co-developer; Shared Payment Token is the first compatible Delegate Payment implementation.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "name": "Meta",
+      "role": "TSC seat 3 since 2026-04-24; CLA signed 2026-03-19.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-acp-cla-signatories"
+      ]
+    }
+  ],
+  "implementers": [
+    {
+      "name": "ChatGPT product discovery (OpenAI)",
+      "role": "Agent surface ingesting merchant feeds through ACP; Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot and Wayfair named on 2026-03-24.",
+      "status": "live",
+      "sources": [
+        "src-openai-product-discovery"
+      ]
+    },
+    {
+      "name": "ChatGPT apps external checkout (OpenAI)",
+      "role": "Users finish on the merchant's own checkout; generally available.",
+      "status": "live",
+      "sources": [
+        "src-openai-apps-monetization"
+      ]
+    },
+    {
+      "name": "ChatGPT payment sheet (OpenAI)",
+      "role": "In-chat payment for select marketplace partners; PSPs Adyen, Checkout.com, Fiserv, PayPal, Stripe, Worldpay.",
+      "status": "beta",
+      "sources": [
+        "src-openai-apps-monetization"
+      ]
+    },
+    {
+      "name": "ChatGPT Instant Checkout, 2025 form (OpenAI)",
+      "role": "In-chat ACP checkout launched with US Etsy sellers on 2025-09-29; scaled back in March 2026.",
+      "status": "unknown",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-product-discovery"
+      ]
+    },
+    {
+      "name": "Stripe (Shared Payment Tokens, Agentic Commerce Suite)",
+      "role": "Delegate Payment implementation and seller tooling for ACP or UCP.",
+      "status": "beta",
+      "sources": [
+        "src-fee-stripe-spt-docs",
+        "src-stripe-agentic-commerce",
+        "src-stripe-acs-launch"
+      ]
+    },
+    {
+      "name": "PayPal",
+      "role": "Announced it will adopt ACP and run an ACP server for its merchants; CLA signed 2026-04-16.",
+      "status": "announced",
+      "sources": [
+        "src-paypal-acp",
+        "src-openai-acp-cla-signatories"
+      ]
+    },
+    {
+      "name": "Microsoft Copilot Checkout",
+      "role": "Launched 2026-01-08 saying it adopts open standards like ACP; later merchant page requires a UCP-compliant feed.",
+      "status": "unknown",
+      "sources": [
+        "src-ms-copilot-checkout",
+        "src-ms-agentic-commerce"
+      ]
+    },
+    {
+      "name": "Walmart",
+      "role": "Announced Instant Checkout plans on 2025-10-14; by 2026-03-24 described as a Walmart app in ChatGPT with its own payments.",
+      "status": "announced",
+      "sources": [
+        "src-walmart-openai",
+        "src-openai-product-discovery"
+      ]
+    },
+    {
+      "name": "Shopify (Shopify Catalog)",
+      "role": "Product data reaches ChatGPT through Shopify Catalog; purchases complete on the merchant store.",
+      "status": "live",
+      "sources": [
+        "src-openai-product-discovery"
+      ]
+    },
+    {
+      "name": "Salesforce",
+      "role": "Named feed provider for ACP.",
+      "status": "live",
+      "sources": [
+        "src-openai-product-discovery"
+      ]
+    },
+    {
+      "name": "Corporate CLA signatories (Adyen, Wix, commercetools, OpenCommerce Network, Affirm, Agentic Commerce Inc.)",
+      "role": "Contributors under the CLA; signing is not evidence of a live integration.",
+      "status": "unknown",
+      "sources": [
+        "src-openai-acp-cla-signatories"
+      ]
+    }
+  ],
+  "sdks": [
+    {
+      "registry": "npm",
+      "name": "agentic-commerce-protocol",
+      "version": "0.2.0",
+      "url": "https://www.npmjs.com/package/agentic-commerce-protocol",
+      "note": "Unofficial type definitions published by Svix; there is no official ACP SDK."
+    },
+    {
+      "registry": "other",
+      "name": "@agentic-commerce-protocol/specification (package.json only)",
+      "version": "0.1.0",
+      "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/package.json",
+      "note": "Repository validation scripts; not published on npm (404 on 2026-10-11)."
+    },
+    {
+      "registry": "pypi",
+      "name": "acp-sdk",
+      "url": "https://pypi.org/project/acp-sdk/",
+      "note": "Not ACP: this is IBM's Agent Communication Protocol SDK. Listed only to prevent confusion."
+    }
+  ],
+  "metrics": [
+    {
+      "id": "acp-gh-stars",
+      "metric": "GitHub stars, agentic-commerce-protocol/agentic-commerce-protocol",
+      "value": 1570,
+      "unit": "stars",
+      "asOf": "2026-10-11",
+      "definition": "Stars on the specification repository.",
+      "sources": [
+        "src-openai-acp-gh-repo"
+      ],
+      "caveat": "Interest, not adoption."
+    },
+    {
+      "id": "acp-gh-forks",
+      "metric": "GitHub forks",
+      "value": 253,
+      "unit": "forks",
+      "asOf": "2026-10-11",
+      "definition": "Forks of the specification repository.",
+      "sources": [
+        "src-openai-acp-gh-repo"
+      ],
+      "caveat": "Interest, not adoption."
+    },
+    {
+      "id": "acp-cla-signatories",
+      "metric": "Corporate CLA signatories",
+      "value": 10,
+      "unit": "organizations",
+      "asOf": "2026-06-03",
+      "definition": "Companies listed in legal/cla/SIGNATORIES.md, including OpenAI and Stripe.",
+      "sources": [
+        "src-openai-acp-cla-signatories"
+      ],
+      "caveat": "Signing a CLA does not mean a live integration."
+    },
+    {
+      "id": "acp-tsc-seats",
+      "metric": "TSC seats filled",
+      "value": "3 of up to 7",
+      "unit": "seats",
+      "asOf": "2026-04-24",
+      "definition": "Organizations on the Technical Steering Committee.",
+      "sources": [
+        "src-openai-acp-governance"
+      ]
+    },
+    {
+      "id": "acp-commits-after-release",
+      "metric": "Commits after the 2026-04-17 release",
+      "value": 18,
+      "unit": "commits",
+      "asOf": "2026-10-11",
+      "definition": "Commits on main from 2026-04-24 to 2026-07-18; none after.",
+      "sources": [
+        "src-openai-acp-gh-commits"
+      ]
+    },
+    {
+      "id": "acp-discovery-retailers",
+      "metric": "Retailers named as integrated into ACP for discovery",
+      "value": 7,
+      "unit": "retailers",
+      "asOf": "2026-03-24",
+      "definition": "Named list in OpenAI's announcement.",
+      "sources": [
+        "src-openai-product-discovery"
+      ],
+      "caveat": "A named list, not a total count."
+    },
+    {
+      "id": "acp-shopify-ai-merchants",
+      "metric": "Shopify merchants selling through AI tools (ChatGPT, Gemini, Copilot)",
+      "value": "around a dozen",
+      "unit": "merchants",
+      "asOf": "2026-03-03",
+      "definition": "Remark attributed to Shopify's president at an investor conference.",
+      "sources": [
+        "src-retailsystems-pivot"
+      ],
+      "caveat": "Reported through trade press; not a primary figure.",
+      "disputed": true,
+      "disputeSources": [
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "id": "acp-chatgpt-weekly-users",
+      "metric": "ChatGPT weekly users at launch",
+      "value": "more than 700 million",
+      "unit": "people per week",
+      "asOf": "2025-09-29",
+      "definition": "OpenAI's own figure in the launch post.",
+      "sources": [
+        "src-openai-buy-it"
+      ],
+      "caveat": "Context only; not an ACP usage metric."
+    },
+    {
+      "id": "acp-volume",
+      "metric": "ACP transaction volume or GMV",
+      "value": "not published",
+      "unit": "n/a",
+      "asOf": "2026-10-11",
+      "definition": "No official volume, GMV or merchant count from OpenAI, Stripe or the project.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-product-discovery"
+      ],
+      "caveat": "Absence of data."
+    }
+  ],
+  "costs": [
+    {
+      "item": "ChatGPT Instant Checkout platform fee",
+      "value": "\"A small fee on completed purchases\"; no rate published",
+      "whoPays": "Merchant",
+      "asOf": "2025-09-29",
+      "confidence": "verified",
+      "caveat": "OpenAI's own wording; free for users; whether it applies after the March 2026 change is not stated.",
+      "sources": [
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "item": "Reported fee for Shopify merchants on ChatGPT checkout sales",
+      "value": "4 percent of the sale, on top of Shopify fees",
+      "whoPays": "Merchant (Shopify)",
+      "asOf": "2026-01-21",
+      "confidence": "reported",
+      "caveat": "PYMNTS relaying The Information and a Shopify spokesperson; not published by OpenAI. The same report said Google and Microsoft charged no extra fee for now.",
+      "sources": [
+        "src-pymnts-4pct"
+      ]
+    },
+    {
+      "item": "Shopify Agentic Storefronts channel fee",
+      "value": "Set per channel in Shopify Admin; rate not public",
+      "whoPays": "Merchant (Shopify)",
+      "asOf": "2026-07-29",
+      "confidence": "reported",
+      "caveat": "Secondary article; not checked against Shopify terms.",
+      "sources": [
+        "src-fee-shopify-agentic-ecp"
+      ]
+    },
+    {
+      "item": "ACP protocol",
+      "value": "No protocol fee; Apache-2.0; no fee for TSC or working group seats",
+      "whoPays": "Nobody",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Costs come from platforms and PSPs, not the spec.",
+      "sources": [
+        "src-openai-acp-license",
+        "src-openai-acp-governance"
+      ]
+    },
+    {
+      "item": "Stripe Shared Payment Token",
+      "value": "Not published (public preview)",
+      "whoPays": "Not published",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Absence of a price on Stripe's SPT page; preview terms apply.",
+      "sources": [
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "item": "Card processing",
+      "value": "The merchant's normal PSP fees",
+      "whoPays": "Merchant",
+      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "caveat": "Card economics are unchanged because the merchant charges the payment.",
+      "sources": [
+        "src-openai-commerce-docs"
+      ]
+    }
+  ]
+}
