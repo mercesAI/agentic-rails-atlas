@@ -48,3 +48,6 @@ Several agents share the session scratchpad. Put your temporary files in a subfo
 
 ## Git safety
 Many agents commit to `main` at the same time. Stage files by explicit path only; never use `git commit -a`, `git add -A` or `git add .`. Never rewrite or move history: no `git reset`, `git rebase`, `git commit --amend`, `git update-ref`, `git push --force`, `git checkout -- <file>` on files you do not own, or `git stash`. If you commit something by mistake, leave it and say so in your final reply.
+
+## Source ids of other protocols
+Never copy a Source record whose id is prefixed with another protocol's slug into your `sources.json`. Cite the id; it resolves from that protocol's sidecar in the merged registry. A re-declared copy can silently replace the owner's record.
