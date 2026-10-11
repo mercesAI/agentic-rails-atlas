@@ -115,8 +115,778 @@ keyFacts:
     claimIds: [clm-openai-acp-049, clm-openai-acp-164, clm-openai-acp-205]
 ---
 
-Draft in progress.
+<Mode eli5>
+
+Imagine you ask a friend to buy a jacket for you from a shop. Your friend does not own the shop and does not keep your money. The friend asks the shop for the price, the shipping options and the tax, and the shop writes all of it on a little order slip. Your friend shows you the slip, and you say yes.
+
+You do not hand your friend your bank card. Instead, a trusted bank clerk holds your card and gives your friend a one-time voucher. The voucher says: good for this one shop, for this one order, for no more than this amount, until tonight. Your friend gives the voucher to the shop, and the shop cashes it with its own bank.
+
+The shop is still the shop. It sends the jacket, it answers if something goes wrong, and it handles a return. Later it sends your friend short notes: order received, jacket shipped.
+
+That is ACP. Your friend is a chat assistant such as ChatGPT, the shop runs its own small ordering service, and the clerk is a payment company such as Stripe. In 2026 the chat assistant mostly uses the same rules to learn what shops sell, and you often finish the purchase on the shop's own page.
+
+</Mode>
+
+ACP answers one question: how does an AI surface run a purchase against a merchant without becoming the store? The merchant hosts a small REST (representational state transfer) API (application programming interface) for checkout sessions and stays system of record for orders, payments, taxes and compliance.<Cite ids="clm-openai-acp-044" /> The agent creates a session, updates it with an address and a shipping choice, and gets back the merchant's authoritative lines, totals and messages each time.<Cite ids="clm-openai-acp-092 clm-openai-acp-093" /> To pay, the agent asks a payment service provider (PSP) to swap the buyer's card for a vault token that only works for one merchant, one session, one use, a maximum amount and a deadline.<Cite ids="clm-openai-acp-076 clm-openai-acp-077 clm-openai-acp-099" /> The agent sends that token on complete, the merchant charges it through its own PSP, and the response must carry an order.<Cite ids="clm-openai-acp-095" /> OpenAI is never the merchant of record.<Cite ids="clm-openai-acp-045" /> What ACP does not give you: a signed proof of what the user wanted, an agent identity scheme, or a public registry of agents.<Cite ids="clm-openai-acp-212 clm-openai-acp-140" /> Those live in other layers or in bilateral onboarding.
+
+### Problem and design goals
+
+The Agentic Commerce Protocol (ACP) is an open standard from OpenAI and Stripe for running checkout between an AI agent, a buyer and a business.<Cite ids="clm-openai-acp-001" /> It was announced on 2025-09-29 together with Instant Checkout in ChatGPT, and Stripe introduced its Shared Payment Token (SPT) the same day.<Cite ids="clm-openai-acp-007 clm-openai-acp-008" /> The README lets agents embed commerce without becoming the merchant of record.<Cite ids="clm-openai-acp-233" />
+
+The design goals follow from that split of roles. The merchant keeps its catalog, prices, tax logic, fraud rules and PSP; the agent only renders what the merchant returns.<Cite ids="clm-openai-acp-044 clm-openai-acp-093" /> Card data should not reach the merchant's checkout API, so a separate Delegate Payment call turns it into a scoped token.<Cite ids="clm-openai-acp-099 clm-openai-acp-151" /> The project's mission document asks for a protocol that stays neutral across agents, PSPs, sellers, transports and payment methods.<Cite ids="clm-openai-acp-244" />
+
+Two facts frame everything that follows. First, ACP is a specification with no official SDK (software development kit): there are schemas, RFC (request for comments) style documents and examples, and the reference implementations are OpenAI's and Stripe's hosted services.<Cite ids="clm-openai-acp-190" /> Second, the product that launched it changed. On 2026-03-24 OpenAI said the first Instant Checkout lacked the flexibility it wanted, let merchants use their own checkout, and extended ACP to product discovery through feeds.<Cite ids="clm-openai-acp-177 clm-openai-acp-178" /> Read every ACP claim with the question: is this the spec, or what ChatGPT runs today?
+
+### Actors and roles
+
+Four roles appear in the spec. The buyer confirms each step in the agent's interface.<Cite ids="clm-openai-acp-232" /> The agent, which the RFC text calls ChatGPT unless noted, calls the merchant's endpoints and hosts the receiver for order webhooks.<Cite ids="clm-openai-acp-047" /> The merchant hosts the checkout API, decides whether to accept each order, charges the payment and handles refunds and chargebacks as merchant of record.<Cite ids="clm-openai-acp-044 clm-openai-acp-046" /> The Delegate Payment server, a PSP or vault, turns a card into a token usable only within its allowance.<Cite ids="clm-openai-acp-099" />
+
+OpenAI's documentation reserves direct Delegate Payment integration for PSPs and for PCI DSS (Payment Card Industry Data Security Standard) Level 1 merchants with their own vaults.<Cite ids="clm-openai-acp-048" /> OpenAI calls Stripe's SPT the first implementation compatible with that delegated payment spec.<Cite ids="clm-openai-acp-049" /> So with Stripe, the token the merchant receives is an SPT, created and governed by Stripe's rules, not by ACP.<Cite ids="clm-openai-acp-050" />
+
+Newer documents add supporting roles. Since 2026-01-16 a merchant can name its own 3-D Secure (3DS) authentication provider, and `adyen` joined the provider list.<Cite ids="clm-openai-acp-031" /> The discovery RFC lets a seller platform, for example `acp.stripe.com`, host the discovery document for many sellers.<Cite ids="clm-openai-acp-051" /> And the Feed API reverses the usual direction: the agent hosts it and merchants push product data to it.<Cite ids="clm-openai-acp-113" />
+
+### Core objects
+
+The checkout session is the center of the protocol. A 2026-04-17 session requires an id, the negotiated capabilities, a status, a currency, line items, fulfillment options, totals, messages and links.<Cite ids="clm-openai-acp-052" /> Amounts are integers in minor currency units, and totals are typed: items base amount, discounts, subtotal, fulfillment, tax, fee, tip, store credit, total and more.<Cite ids="clm-openai-acp-065 clm-openai-acp-066" /> Fulfillment options come in four types: shipping, digital, pickup and local delivery, the last two from 2026-01-30.<Cite ids="clm-openai-acp-067" />
+
+The create request needs only line items, a currency and the agent's capabilities.<Cite ids="clm-openai-acp-053" /> Here the files disagree with each other. Since 2026-01-30 an Item has only `id`, `name` and `unit_amount`, with no quantity field. Yet the RFC and OpenAPI request examples still send `items` with an id and a quantity, which do not validate against the schema.<Cite ids="clm-openai-acp-054 clm-openai-acp-216" /> The repository's own examples file sends `line_items` with an id only, which matches the schema.<Cite ids="clm-openai-acp-237" /> Earlier versions, 2025-09-29 to 2026-01-16, used `items` with a required quantity.<Cite ids="clm-openai-acp-055" /> Build from the JSON Schema of the version you claim.
+
+Payment handlers say how the merchant accepts money. Every handler has a reverse-DNS name such as `dev.acp.tokenized.card`, a version, schema URLs, a PSP and two flags: whether the credential must come through Delegate Payment and whether PCI DSS data flows.<Cite ids="clm-openai-acp-060 clm-openai-acp-061" /> Seller-backed handlers cover a saved card, a gift card, points and store credit, and they keep card data away from the agent.<Cite ids="clm-openai-acp-062 clm-openai-acp-063" /> The complete request carries `payment_data` with a handler id and an instrument whose credential holds a type and a token.<Cite ids="clm-openai-acp-056 clm-openai-acp-057" /> The schema gives `spt` and `wallet_token` only as example credential types.<Cite ids="clm-openai-acp-058" />
+
+Delegate Payment has its own small schema. The request requires the card, an allowance, risk signals and metadata, with an optional billing address.<Cite ids="clm-openai-acp-075" /> The allowance requires a reason, a maximum amount, a currency, a checkout session id, a merchant id and an expiry, and the only reason defined is `one_time`.<Cite ids="clm-openai-acp-076 clm-openai-acp-077" /> Only cards are accepted, as a funding PAN (primary account number) or a network token.<Cite ids="clm-openai-acp-078" /> The answer is a vault token whose id starts with `vt_`.<Cite ids="clm-openai-acp-079" />
+
+Messages carry business problems inside a normal response. An error message has a code such as `out_of_stock`, `payment_declined` or `requires_3ds`, and since 2026-04-17 a `resolution` that tells the agent whether it can recover or must ask the buyer.<Cite ids="clm-openai-acp-068 clm-openai-acp-069" /> HTTP-level errors are flat objects with a type, a code, a message and an optional parameter path.<Cite ids="clm-openai-acp-070" /> Completion creates an Order, which needs only an id, the session id and a permalink URL.<Cite ids="clm-openai-acp-072" />
+
+<Mode spec>
+
+**Field tables.** Spec version 2026-04-17, read from `spec/2026-04-17/json-schema/` at commit 7fdd78d (the snapshot was edited after release, most recently on 2026-06-15). Names are copied from the schema; descriptions are paraphrased.
+
+<FieldTable caption="CheckoutSession (CheckoutSessionBase), returned by every checkout endpoint" specVersion="2026-04-17" fields={[
+  {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Session identifier chosen by the merchant.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "status",
+    "type": "string enum (11 values)",
+    "required": true,
+    "description": "Session state; see Lifecycle and states.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "currency",
+    "type": "string",
+    "required": true,
+    "description": "ISO 4217 settlement currency.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "capabilities",
+    "type": "Capabilities",
+    "required": true,
+    "description": "Negotiated payment handlers, interventions and extensions.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "line_items",
+    "type": "array of LineItem",
+    "required": true,
+    "description": "The authoritative lines with per-line totals.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "fulfillment_options",
+    "type": "array (shipping, digital, pickup, local_delivery)",
+    "required": true,
+    "description": "Options the merchant offers.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "totals",
+    "type": "array of Total",
+    "required": true,
+    "description": "Cart-level totals in minor units.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "messages",
+    "type": "array of MessageInfo, MessageWarning, MessageError",
+    "required": true,
+    "description": "Information, warnings and errors to show the buyer.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "links",
+    "type": "array of Link",
+    "required": true,
+    "description": "Policy and support links (terms, privacy, returns and more).",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "buyer",
+    "type": "Buyer",
+    "required": false,
+    "description": "Buyer contact data; email is its only required field.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "fulfillment_details",
+    "type": "FulfillmentDetails",
+    "required": false,
+    "description": "Name, phone, email and address for delivery.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "selected_fulfillment_options",
+    "type": "array of SelectedFulfillmentOption",
+    "required": false,
+    "description": "The buyer choices: type, option_id, item_ids.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "authentication_metadata",
+    "type": "AuthenticationMetadata",
+    "required": false,
+    "description": "3DS data; the RFC requires it when status is authentication_required.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "expires_at",
+    "type": "string (RFC 3339)",
+    "required": false,
+    "description": "When the session expires.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "continue_url",
+    "type": "string",
+    "required": false,
+    "description": "URL to resume the purchase on the merchant side.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "protocol",
+    "type": "ProtocolVersion",
+    "required": false,
+    "description": "The ACP version of the response.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "order",
+    "type": "Order",
+    "required": false,
+    "description": "Present after completion.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  }
+]} />
+
+<FieldTable caption="CheckoutSessionCreateRequest (POST /checkout_sessions)" specVersion="2026-04-17" fields={[
+  {
+    "name": "line_items",
+    "type": "array of Item (at least 1)",
+    "required": true,
+    "description": "Items to buy; each Item has id (required), name and unit_amount, and no quantity field.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "currency",
+    "type": "string",
+    "required": true,
+    "description": "Requested currency.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "capabilities",
+    "type": "Capabilities",
+    "required": true,
+    "description": "What the agent supports, for example the interventions it can run.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "buyer",
+    "type": "Buyer",
+    "required": false,
+    "description": "Buyer data, if already known.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "fulfillment_details",
+    "type": "FulfillmentDetails",
+    "required": false,
+    "description": "Address and contact for delivery.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "affiliate_attribution",
+    "type": "AffiliateAttribution",
+    "required": false,
+    "description": "First-touch attribution; provider is required.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "discounts",
+    "type": "DiscountsRequest",
+    "required": false,
+    "description": "Discount codes (discount extension).",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "locale, timezone, quote_id, metadata, order_notes",
+    "type": "string or object",
+    "required": false,
+    "description": "Localization, quote reference, metadata and buyer notes.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  }
+]} />
+
+<FieldTable caption="CheckoutSessionCompleteRequest (POST /checkout_sessions/{checkout_session_id}/complete)" specVersion="2026-04-17" fields={[
+  {
+    "name": "payment_data",
+    "type": "PaymentData",
+    "required": true,
+    "description": "The chosen handler and credential.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "payment_data.handler_id",
+    "type": "string",
+    "required": false,
+    "description": "Id of a handler the merchant returned on the session.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "payment_data.instrument.type",
+    "type": "string",
+    "required": true,
+    "description": "Instrument type, for example card.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "payment_data.instrument.credential.type",
+    "type": "string",
+    "required": true,
+    "description": "Credential type, for example spt or wallet_token; not a fixed enum.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "payment_data.instrument.credential.token",
+    "type": "string",
+    "required": true,
+    "description": "The token value, for example a vault token.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "payment_data.billing_address",
+    "type": "Address",
+    "required": false,
+    "description": "Billing address.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "authentication_result",
+    "type": "AuthenticationResult",
+    "required": false,
+    "description": "3DS outcome; required by the RFC when the session is authentication_required.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "risk_signals",
+    "type": "RiskSignals",
+    "required": false,
+    "description": "ip_address, user_agent, accept_language, session_id, device_fingerprint.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "buyer, affiliate_attribution, marketing_consents, order_notes",
+    "type": "various",
+    "required": false,
+    "description": "Buyer data, last-touch attribution, consent opt-ins and notes.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  }
+]} />
+
+<FieldTable caption="PaymentHandler (capabilities.payment.handlers[])" specVersion="2026-04-17" fields={[
+  {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Merchant-defined id that payment_data.handler_id refers to.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "name",
+    "type": "string",
+    "required": true,
+    "description": "Reverse-DNS handler name, for example dev.acp.tokenized.card.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "version",
+    "type": "string",
+    "required": true,
+    "description": "Handler version, YYYY-MM-DD.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "spec, config_schema, instrument_schemas",
+    "type": "string, string, array of string",
+    "required": true,
+    "description": "URLs of the handler spec and its schemas.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "requires_delegate_payment",
+    "type": "boolean",
+    "required": true,
+    "description": "The credential must come through Delegate Payment.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "requires_pci_compliance",
+    "type": "boolean",
+    "required": true,
+    "description": "The handler routes PCI DSS sensitive data.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "psp",
+    "type": "string",
+    "required": true,
+    "description": "Payment service provider identifier.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "config",
+    "type": "object",
+    "required": true,
+    "description": "Handler configuration.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  },
+  {
+    "name": "display_name, display_order",
+    "type": "string, integer",
+    "required": false,
+    "description": "UI label and an advisory sort order (added 2026-04-17).",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.agentic_checkout.json"
+  }
+]} />
+
+<FieldTable caption="DelegatePaymentRequest and Allowance (POST /agentic_commerce/delegate_payment)" specVersion="2026-04-17" fields={[
+  {
+    "name": "payment_method",
+    "type": "PaymentMethodCard",
+    "required": true,
+    "description": "The card: type card, card_number_type fpan or network_token, number, display_card_funding_type, metadata.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "allowance",
+    "type": "Allowance",
+    "required": true,
+    "description": "The limits the vault token carries.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "allowance.reason",
+    "type": "string enum: one_time",
+    "required": true,
+    "description": "Only one-time use is defined.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "allowance.max_amount",
+    "type": "integer",
+    "required": true,
+    "description": "Maximum charge in minor units.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "allowance.currency",
+    "type": "string",
+    "required": true,
+    "description": "Lowercase ISO 4217 code.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "allowance.checkout_session_id",
+    "type": "string",
+    "required": true,
+    "description": "The one session the token is bound to.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "allowance.merchant_id",
+    "type": "string",
+    "required": true,
+    "description": "The one merchant allowed to use the token.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "allowance.expires_at",
+    "type": "string (RFC 3339)",
+    "required": true,
+    "description": "Expiry time.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "risk_signals",
+    "type": "array of RiskSignal",
+    "required": true,
+    "description": "type card_testing, score, action blocked, manual_review or authorized; may be empty since 2026-04-17.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "metadata",
+    "type": "object",
+    "required": true,
+    "description": "Request metadata.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "billing_address",
+    "type": "Address",
+    "required": false,
+    "description": "Billing address.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  }
+]} />
+
+<FieldTable caption="DelegatePaymentResponse (HTTP 201)" specVersion="2026-04-17" fields={[
+  {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "The vault token, prefixed vt_.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "created",
+    "type": "string (RFC 3339)",
+    "required": true,
+    "description": "Creation time.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  },
+  {
+    "name": "metadata",
+    "type": "object",
+    "required": true,
+    "description": "Response metadata.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/json-schema/schema.delegate_payment.json"
+  }
+]} />
+
+Illustrative example, spec version 2026-04-17: a create request that validates against the JSON Schema (note `line_items` with ids only, not the `items` with a quantity that the RFC examples show).
+
+```json
+{
+  "currency": "usd",
+  "line_items": [{ "id": "item_123" }],
+  "capabilities": {
+    "interventions": { "supported": ["3ds", "address_verification"] }
+  },
+  "fulfillment_details": {
+    "name": "Ada Example",
+    "email": "ada@example.com",
+    "address": {
+      "name": "Ada Example",
+      "line_one": "1 Example Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "US",
+      "postal_code": "94131"
+    }
+  }
+}
+```
+
+**Total types** (`Total.type`): `items_base_amount`, `items_discount`, `subtotal`, `discount`, `fulfillment`, `tax`, `fee`, `gift_wrap`, `tip`, `store_credit`, `total`, `amount_refunded`.
+
+**MessageError codes**: `missing`, `invalid`, `out_of_stock`, `payment_declined`, `requires_sign_in`, `requires_3ds`, `low_stock`, `quantity_exceeded`, `coupon_invalid`, `coupon_expired`, `minimum_not_met`, `maximum_exceeded`, `region_restricted`, `age_verification_required`, `approval_required`, `unsupported`, `not_found`, `conflict`, `rate_limited`, `expired`, `intervention_required`. **resolution**: `recoverable`, `requires_buyer_input`, `requires_buyer_review`.
+
+</Mode>
+
+### Message flow step by step
+
+The main sequence in section C plays the REST checkout of version 2026-04-17 with a tokenized card handler.<Cite ids="clm-openai-acp-092 clm-openai-acp-061" />
+
+1. Optionally, the agent reads `/.well-known/acp.json`, which needs no authentication and lists the versions, transports and services the seller supports.<Cite ids="clm-openai-acp-118 clm-openai-acp-083" /> Payment handlers are not in it; they come back per session.<Cite ids="clm-openai-acp-119" />
+2. The agent sends `POST /checkout_sessions` with a bearer token, `API-Version` and an `Idempotency-Key`; signature, timestamp and request id headers are recommended.<Cite ids="clm-openai-acp-091" /> The merchant answers 201 with the full session, including its payment handlers and the intersection of supported interventions.<Cite ids="clm-openai-acp-092 clm-openai-acp-107" />
+3. The agent posts updates (address, shipping choice) to `POST /checkout_sessions/{checkout_session_id}` and gets the full authoritative state back with 200 each time.<Cite ids="clm-openai-acp-093" />
+4. When the chosen handler requires it, the agent calls `POST /agentic_commerce/delegate_payment` with the card and an allowance, and gets a vault token with 201.<Cite ids="clm-openai-acp-099 clm-openai-acp-079" /> OpenAI sets the maximum amount and the expiry from what the user chose to buy.<Cite ids="clm-openai-acp-100" />
+5. The agent sends `POST /checkout_sessions/{checkout_session_id}/complete` with `payment_data`. The merchant charges through its PSP and must return status completed with an order.<Cite ids="clm-openai-acp-095" />
+6. Later, the merchant posts `order_create` and then `order_update` events to the agent's webhook, signed with `Merchant-Signature`.<Cite ids="clm-openai-acp-156 clm-openai-acp-135" />
+
+Failures come in two kinds. Business failures arrive as messages in a normal session response, so an out-of-stock line or a declined payment does not change the HTTP status.<Cite ids="clm-openai-acp-068" /> Protocol failures use HTTP errors. Since 2026-04-17 a missing idempotency key is 400 `idempotency_key_required`, the same key with a different body is 422 `idempotency_conflict`, and a key still in flight is 409 `idempotency_in_flight`.<Cite ids="clm-openai-acp-035 clm-openai-acp-108" /> Servers keep keys for at least 24 hours, never cache a 5xx against a key, and mark replays with `Idempotent-Replayed: true`.<Cite ids="clm-openai-acp-109 clm-openai-acp-110" /> A missing or unsupported version should return the list of supported versions.<Cite ids="clm-openai-acp-071" />
+
+Two alternative paths matter in practice. If the merchant wants 3DS it sets the status to `authentication_required` and adds `authentication_metadata`; completing without an `authentication_result` then fails with code `requires_3ds`.<Cite ids="clm-openai-acp-101 clm-openai-acp-102" /> The agent can run 3DS itself or through the Delegate Authentication endpoints.<Cite ids="clm-openai-acp-103" /> A buyer who walks away leads to `POST .../cancel`, which may carry an intent trace with a reason code such as `shipping_cost`; a session already completed or canceled answers 405.<Cite ids="clm-openai-acp-097 clm-openai-acp-098 clm-openai-acp-086" />
+
+<Mode spec>
+
+<FieldTable caption="Checkout request headers (RFC section 3.1; 2026-04-17)" specVersion="2026-04-17" fields={[
+  {
+    "name": "Authorization",
+    "type": "Bearer token",
+    "required": true,
+    "description": "Bilateral API key between agent and merchant.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md"
+  },
+  {
+    "name": "API-Version",
+    "type": "YYYY-MM-DD",
+    "required": true,
+    "description": "The version the client speaks; the server validates it.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md"
+  },
+  {
+    "name": "Idempotency-Key",
+    "type": "string",
+    "required": true,
+    "description": "Required on every POST since 2026-04-17.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md"
+  },
+  {
+    "name": "Content-Type",
+    "type": "application/json",
+    "required": true,
+    "description": "JSON bodies.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md"
+  },
+  {
+    "name": "Signature",
+    "type": "base64url string",
+    "required": false,
+    "description": "Recommended detached signature over canonical JSON.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md"
+  },
+  {
+    "name": "Timestamp",
+    "type": "RFC 3339",
+    "required": false,
+    "description": "Recommended; freshness checks are only SHOULD.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md"
+  },
+  {
+    "name": "Request-Id",
+    "type": "string",
+    "required": false,
+    "description": "Recommended correlation id, echoed by the server.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/rfcs/rfc.agentic_checkout.md"
+  }
+]} />
+
+Illustrative example, spec version 2026-04-17: the complete call with a delegated token. Values are placeholders.
+
+```http
+POST /checkout_sessions/cs_123/complete HTTP/1.1
+Host: merchant.example.com
+Authorization: Bearer <merchant-issued-api-key>
+API-Version: 2026-04-17
+Idempotency-Key: idem_7f3c2a
+Content-Type: application/json
+
+{
+  "payment_data": {
+    "handler_id": "card_tokenized",
+    "instrument": {
+      "type": "card",
+      "credential": { "type": "spt", "token": "vt_01EXAMPLE" }
+    }
+  }
+}
+```
+
+**Status codes in the 2026-04-17 spec.** Create 201; update, retrieve and cancel 200; retrieve 404 when unknown; cancel 405 on a final session; complete 200 in the OpenAPI file (OpenAI's checklist says 201); idempotency 400, 409 and 422 as above.
+
+</Mode>
+
+### Lifecycle and states
+
+A session moves through a status field. Version 2025-09-29 defined five values: `not_ready_for_payment`, `ready_for_payment`, `in_progress`, `completed` and `canceled`.<Cite ids="clm-openai-acp-120" /> `authentication_required` first appears in the 2025-12-12 schema, and 2026-01-30 added `incomplete`, `requires_escalation`, `pending_approval`, `complete_in_progress` and `expired`, for eleven values.<Cite ids="clm-openai-acp-121 clm-openai-acp-122" />
+
+Six of those eleven values are missing from the checkout RFC's status list, which still names only the original five; of the six, only `authentication_required` gets behavior in the RFC text.<Cite ids="clm-openai-acp-123" /> The state machine in section C therefore marks those transitions as inferred from names, not from spec text. In practice a session sits in `not_ready_for_payment` until address and fulfillment choices are complete, moves to `ready_for_payment`, and ends in `completed` with an order or in `canceled`.<Cite ids="clm-openai-acp-095 clm-openai-acp-097" />
+
+After checkout the order has its own lifecycle. Its defined status values are created, confirmed, manual_review, processing, shipped, completed and canceled, after a post-release edit on 2026-05-01.<Cite ids="clm-openai-acp-127" /> Fulfillments track shipping states from pending to delivered, and adjustments for refunds, returns and disputes have the states pending, completed and failed.<Cite ids="clm-openai-acp-245 clm-openai-acp-246 clm-openai-acp-073" />
+
+The delegated token has no status field at all. The allowance says what it may do, but ACP defines no error code for a PSP to return when a token is used outside it.<Cite ids="clm-openai-acp-239" /> Stripe's SPT, by contrast, has the statuses active, requires_action and deactivated, and it is deactivated when it is consumed, expires or is revoked.<Cite ids="clm-openai-acp-124 clm-openai-acp-125" />
+
+<Mode spec>
+
+**Checkout status values by version** (`CheckoutSession.status`):
+
+| Version | Values |
+| --- | --- |
+| 2025-09-29 | `not_ready_for_payment`, `ready_for_payment`, `completed`, `canceled`, `in_progress` |
+| 2025-12-12, 2026-01-16 | the five above plus `authentication_required` |
+| 2026-01-30, 2026-04-17 | `incomplete`, `not_ready_for_payment`, `requires_escalation`, `authentication_required`, `ready_for_payment`, `pending_approval`, `complete_in_progress`, `completed`, `canceled`, `in_progress`, `expired` |
+
+<FieldTable caption="Order and order webhook (WebhookEvent)" specVersion="2026-04-17" fields={[
+  {
+    "name": "type (event)",
+    "type": "string: order_create or order_update",
+    "required": true,
+    "description": "Event name; an open string in the spec.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "data.type",
+    "type": "const order",
+    "required": false,
+    "description": "Discriminator.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "data.id",
+    "type": "string",
+    "required": true,
+    "description": "Merchant order id.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "data.checkout_session_id",
+    "type": "string",
+    "required": true,
+    "description": "Session that produced the order.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "data.permalink_url",
+    "type": "string",
+    "required": true,
+    "description": "Customer-facing order page.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "data.status",
+    "type": "string",
+    "required": false,
+    "description": "Defined values created, confirmed, manual_review, processing, shipped, completed, canceled.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "data.fulfillments",
+    "type": "array of Fulfillment",
+    "required": false,
+    "description": "Carrier, tracking and events.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "data.adjustments",
+    "type": "array of Adjustment",
+    "required": false,
+    "description": "refund, credit, return, exchange, price_adjustment, cancellation, dispute.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  },
+  {
+    "name": "Merchant-Signature (header)",
+    "type": "t=<unix_seconds>,v1=<64_hex>",
+    "required": true,
+    "description": "HMAC-SHA256 over timestamp, a dot and the raw body; 300-second recommended tolerance.",
+    "specRef": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.agentic_checkout_webhook.yaml"
+  }
+]} />
+
+Illustrative example, spec version 2026-04-17: a signed order event. The signature value is a placeholder.
+
+```http
+POST /agentic_checkout/webhooks/order_events HTTP/1.1
+Merchant-Signature: t=1791720000,v1=<64 hex characters of HMAC-SHA256>
+Content-Type: application/json
+
+{
+  "type": "order_update",
+  "data": {
+    "type": "order",
+    "id": "ord_123",
+    "checkout_session_id": "cs_123",
+    "permalink_url": "https://merchant.example.com/orders/ord_123",
+    "status": "shipped"
+  }
+}
+```
+
+</Mode>
+
+### Security and trust model (summary)
+
+<Mode eli5>
+
+The voucher is the strong part: it works for one shop, one order, one time, up to one amount, until a deadline. The weak parts are around it. The shop and the assistant trust each other because they swapped a password in advance. Nothing proves that you, the person, really asked for this purchase, apart from the assistant's own screen where you said yes.
+
+</Mode>
+
+The core guarantee is the allowance. A delegated token is bound to one merchant and one checkout session, capped by a maximum amount in one currency, valid for one use and until an expiry.<Cite ids="clm-openai-acp-147 clm-openai-acp-146 clm-openai-acp-077" /> Enforcement is the PSP's job, not cryptography the merchant can check.<Cite ids="clm-openai-acp-099 clm-openai-acp-239" />
+
+Everything else rests on bilateral trust. Agent and merchant authenticate each other with bearer tokens exchanged out of band, and the spec has no agent registry or public key directory.<Cite ids="clm-openai-acp-140" /> Request signatures are detached signatures over canonical JSON with algorithms agreed out of band, and they are recommended, not required, on checkout.<Cite ids="clm-openai-acp-133 clm-openai-acp-091" /> On Delegate Payment the RFC says the client must sign in one section, while its own header list says recommended and the OpenAPI file marks the header optional.<Cite ids="clm-openai-acp-142" /> Request freshness is only a SHOULD.<Cite ids="clm-openai-acp-240" /> OpenAI adds an operational control: merchants allowlist its published egress IP ranges.<Cite ids="clm-openai-acp-141" />
+
+Webhooks are better specified. The merchant signs each order event with HMAC-SHA256 (hash-based message authentication code) over the timestamp, a dot and the raw body, and receivers reject failures with 401 inside a recommended 300-second window.<Cite ids="clm-openai-acp-135 clm-openai-acp-136" /> Markdown in messages must be CommonMark without raw HTML, which closes one injection path into the agent's interface.<Cite ids="clm-openai-acp-074" /> No CVE (Common Vulnerabilities and Exposures) entry or GitHub advisory exists for the repository, and a 2026 Tamarin model covers ACP among four payment protocols.<Cite ids="clm-openai-acp-143 clm-openai-acp-144" /> Section H has the threat table and section I the controls.
+
+### Versioning and governance
+
+Versions are dates. The client sends one in the required `API-Version` header, and the released versions are 2025-09-29, 2025-12-12, 2026-01-16, 2026-01-30 and 2026-04-17.<Cite ids="clm-openai-acp-025 clm-openai-acp-026" /> There are no GitHub releases and no Git tags: a version is a dated folder of schemas, OpenAPI files and a changelog, and 2026-04-17 was promoted by a pull request on that day.<Cite ids="clm-openai-acp-028 clm-openai-acp-027" /> Dated folders are not frozen. The 2026-01-30 checkout schema changed six times in February 2026, and the 2026-04-17 folder changed on 2026-05-01 and 2026-06-15.<Cite ids="clm-openai-acp-041" /> Pin a commit, not only a version string.
+
+Each version changed real fields. 2025-12-12 renamed `fulfillment_address` to `fulfillment_details` and replaced `fulfillment_option_id` with `selected_fulfillment_options`, based on lessons from URBN and Etsy adapters.<Cite ids="clm-openai-acp-029 clm-openai-acp-030" /> 2026-01-30 added capability negotiation and payment handlers, which replaced `payment_provider.supported_payment_methods`.<Cite ids="clm-openai-acp-032 clm-openai-acp-033" /> 2026-04-17 added carts, the Feed API, Delegate Authentication, discovery and the MCP (Model Context Protocol) binding.<Cite ids="clm-openai-acp-034" /> Eighteen commits followed until 2026-07-18, and nothing has landed since.<Cite ids="clm-openai-acp-038 clm-openai-acp-039" /> The package name in `package.json` is not published on npm.<Cite ids="clm-openai-acp-043" />
+
+Governance changed on 2026-03-10.<Cite ids="clm-openai-acp-010" /> A Technical Steering Committee (TSC) has up to seven seats, one per organization, and OpenAI and Stripe as founding maintainers appoint and remove its members.<Cite ids="clm-openai-acp-011 clm-openai-acp-012" /> Meta took seat 3 on 2026-04-24, so the TSC had three members on 2026-10-11.<Cite ids="clm-openai-acp-014 clm-openai-acp-013" /> Major changes go through Specification Enhancement Proposals (SEPs) with a sponsor, a 7-business-day public review and a simple majority vote.<Cite ids="clm-openai-acp-015" /> The founders keep a veto on SEPs that can only block, never force, and must be explained in writing.<Cite ids="clm-openai-acp-017" /> Contributions need a contributor license agreement (CLA); the corporate signatories are Stripe, OpenAI, Adyen, Wix, commercetools, OpenCommerce Network, Affirm, Meta, Agentic Commerce Inc. (Catalog) and PayPal.<Cite ids="clm-openai-acp-021 clm-openai-acp-022" /> The list names OpenCommerce Network Inc., not nekuda, although a nekuda GitHub user is among its authorized users.<Cite ids="clm-openai-acp-023" /> There is no foundation yet; the governance document states moving to one as a long-term goal.<Cite ids="clm-openai-acp-018" />
+
+### Extensibility
+
+ACP grows in four ways. Capability negotiation lets the agent declare what it supports and the seller answer with the intersection.<Cite ids="clm-openai-acp-107" /> Payment handlers add payment methods by name without schema changes to the session.<Cite ids="clm-openai-acp-061" /> The extensions framework adds optional features, and so far only one extension uses it: discount, identified by the name `discount`.<Cite ids="clm-openai-acp-089" /> Affiliate attribution and marketing consent are fields defined by their own RFCs, not framework extensions.<Cite ids="clm-openai-acp-087 clm-openai-acp-088" />
+
+Transports are the fourth axis. The MCP binding maps the five checkout operations to the tools `create_checkout_session`, `get_checkout_session`, `update_checkout_session`, `complete_checkout_session` and `cancel_checkout_session`.<Cite ids="clm-openai-acp-128" /> It runs JSON-RPC 2.0 over MCP Streamable HTTP with `meta`, `id` and `payload` arguments, moves authorization into MCP server configuration and returns ACP errors under JSON-RPC code -32000.<Cite ids="clm-openai-acp-129 clm-openai-acp-130" /> Note the drift: the binding keeps the idempotency key optional and an error type that REST removed in 2026-04-17.<Cite ids="clm-openai-acp-218" />
+
+The Feed API reverses the call direction. Merchants push products to the agent with `POST /feeds` and `PATCH /feeds/{id}/products`, or send `metadata.json` plus `products.jsonl` files that replace the whole set.<Cite ids="clm-openai-acp-113 clm-openai-acp-114" /> A Product needs an id and variants, and each Variant needs an id and a title.<Cite ids="clm-openai-acp-085" /> Carts give single-seller estimates with no status and no payment data, and turning a cart into a checkout was deferred.<Cite ids="clm-openai-acp-112 clm-openai-acp-243" />
+
+### How it composes with the other seven
+
+ACP is a checkout and credential handoff protocol, so it pairs with whatever sits under the token and beside the agent. Stripe's SPT is the main bridge: Stripe says it might use Mastercard Agent Pay and Visa Intelligent Commerce tokens for SPT card payments, so network agent tokens can sit underneath an ACP purchase.<Cite ids="clm-openai-acp-164 clm-openai-acp-214" /> The same SPT family pays for cards in Stripe's MPP (Machine Payments Protocol) integration.<Cite ids="clm-openai-acp-210" /> ACP has no documented relation to x402, ERC-8004 or Visa TAP (Trusted Agent Protocol), and no AP2 (Agent Payments Protocol) mandates.<Cite ids="clm-openai-acp-203 clm-openai-acp-201 clm-openai-acp-204 clm-openai-acp-212" /> UCP (Universal Commerce Protocol) is the closest sibling, with no bridge between the two.<Cite ids="clm-openai-acp-205" /> The section "Compare and compose" below goes further.
+
+### Limitations and open issues
+
+- **No proof of user intent.** The allowance limits what a token can do, not why; nothing in ACP lets a merchant or issuer verify that a user approved this purchase.<Cite ids="clm-openai-acp-212 clm-openai-acp-138" />
+- **Bilateral trust.** Each agent and merchant pair swaps bearer keys, with no registry and signatures only recommended.<Cite ids="clm-openai-acp-140 clm-openai-acp-091" />
+- **Undefined states.** Six of eleven checkout statuses are absent from the RFC's status list.<Cite ids="clm-openai-acp-123" />
+- **Spec drift.** Examples send `items` with a quantity that the schema rejects, and the checkout RFC still says version 2026-01-16. The OpenAPI file calls the request `Signature` an HMAC for webhooks. The changelog lists the order status delivered where the schema says completed, and a 2026-01-30 note deprecates a version 2026-01-22 that has no folder.<Cite ids="clm-openai-acp-216 clm-openai-acp-217 clm-openai-acp-223 clm-openai-acp-221 clm-openai-acp-222" /> The changelog also describes a decimal quantity that only the oldest schema has.<Cite ids="clm-openai-acp-241" />
+- **Docs versus spec.** OpenAI's documentation uses `/product_feeds` paths, webhook names `order_created` and `order_updated`, 201 on completion, 409 for an idempotency conflict and TLS (Transport Layer Security) 1.2 or later. The spec says `/feeds`, `order_create` and `order_update`, 200, 422 and TLS 1.3.<Cite ids="clm-openai-acp-115 clm-openai-acp-157 clm-openai-acp-220 clm-openai-acp-219 clm-openai-acp-132" />
+- **Mutable releases and a quiet repository.** Released folders were edited, and no commit landed between 2026-07-18 and 2026-10-11.<Cite ids="clm-openai-acp-041 clm-openai-acp-039" />
+- **Concentrated governance.** The founders appoint the TSC and hold a veto.<Cite ids="clm-openai-acp-012 clm-openai-acp-017" />
+- **No adoption numbers.** OpenAI, Stripe and the project publish no transaction volume, GMV (gross merchandise value) or merchant count.<Cite ids="clm-openai-acp-199" />
+
+<Mode spec>
+
+**OpenAI documentation versus the ACP spec (2026-10-11).** The spec is primary for ACP; OpenAI's docs are primary for what ChatGPT expects.
+
+| Topic | ACP spec 2026-04-17 | OpenAI docs |
+| --- | --- | --- |
+| Feed paths | `/feeds`, `/feeds/{id}`, `/feeds/{id}/products` | `/product_feeds...`, plus a promotions API |
+| Webhook event names | `order_create`, `order_update` | `order_created`, `order_updated` |
+| Complete status code | 200 (OpenAPI) | 201 Created |
+| Idempotency conflict | 422 `idempotency_conflict` | 409 |
+| TLS | 1.3 MUST (RFC section 7) | 1.2 or later on port 443 |
+
+</Mode>
+
+### What changed in 2025 and 2026
+
+- 2025-09-29: ACP and Instant Checkout launched; US ChatGPT users could buy from US Etsy sellers, single items only, with over a million Shopify merchants announced as coming soon.<Cite ids="clm-openai-acp-007 clm-openai-acp-167 clm-openai-acp-168" /> OpenAI said merchants pay a small fee on completed purchases.<Cite ids="clm-openai-acp-192" />
+- 2025-10-14 and 2025-10-28: Walmart announced Instant Checkout plans, and PayPal said it will adopt ACP and run an ACP server for its merchants.<Cite ids="clm-openai-acp-170 clm-openai-acp-171" />
+- 2025-12-11: Stripe launched its Agentic Commerce Suite.<Cite ids="clm-openai-acp-172" />
+- 2025-12-12, 2026-01-16 and 2026-01-30: three spec versions brought fulfillment details, authentication providers, capability negotiation and payment handlers.<Cite ids="clm-openai-acp-029 clm-openai-acp-031 clm-openai-acp-032" />
+- 2026-01-08: Microsoft launched Copilot Checkout and said it adopts open standards like ACP.<Cite ids="clm-openai-acp-173" />
+- 2026-01-21: a trade report said Shopify merchants would pay OpenAI 4 percent on ChatGPT checkout sales (reported, not published by OpenAI).<Cite ids="clm-openai-acp-194" />
+- 2026-03-10: the TSC governance model; the same month trade press quoted an OpenAI spokesperson saying Instant Checkout was moving to apps (reported).<Cite ids="clm-openai-acp-010 clm-openai-acp-175" />
+- 2026-03-24: OpenAI scaled back in-chat checkout and expanded ACP to product discovery with Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot and Wayfair.<Cite ids="clm-openai-acp-177 clm-openai-acp-179" /> No primary source gives a shutdown date for the 2025 form, and OpenAI's developer docs still describe the three flows Instant Checkout needs.<Cite ids="clm-openai-acp-225" />
+- 2026-04-17 and 2026-04-24: version 2026-04-17, then Meta's TSC seat.<Cite ids="clm-openai-acp-027 clm-openai-acp-014" />
+- 2026-10-11: in ChatGPT apps, external checkout is generally available, and the payment sheet is a private beta for select marketplace partners with six listed PSPs.<Cite ids="clm-openai-acp-183 clm-openai-acp-184 clm-openai-acp-186" />
 
 ## Compare and compose
 
-Draft in progress.
+UCP is the closest sibling and the most misread relation. Both define a checkout session hosted by the merchant, five status names are identical, UCP says `ready_for_complete` where ACP says `ready_for_payment`, and each publishes a well-known discovery document (`/.well-known/acp.json` versus `/.well-known/ucp`).<Cite ids="clm-openai-acp-206 clm-openai-acp-207 clm-openai-acp-208" /> No bridge or mapping specification exists in either repository, and no source supports calling the two converging.<Cite ids="clm-openai-acp-205" /> Stripe supports both for sellers and sits on the UCP Tech Council while co-maintaining ACP.<Cite ids="clm-openai-acp-189 clm-openai-acp-209" /> Microsoft announced Copilot Checkout with ACP, while its later merchant page asks for a UCP-compliant feed.<Cite ids="clm-openai-acp-173 clm-openai-acp-174" />
+
+Stripe's SPT is where ACP meets the card networks. It is Stripe's product, not the ACP spec, with its own usage limits, statuses and revocation.<Cite ids="clm-openai-acp-050 clm-openai-acp-161 clm-openai-acp-148" /> Underneath, Stripe says it might use Visa Intelligent Commerce and Mastercard Agent Pay tokens, so those network programs can carry an ACP payment without ACP knowing.<Cite ids="clm-openai-acp-164" /> Visa TAP has no documented link to ACP: TAP signs agent requests at the merchant edge, while ACP agents authenticate with bilateral bearer keys.<Cite ids="clm-openai-acp-204" />
+
+AP2 answers the question ACP leaves open. ACP has no mandates and no signed proof of user intent beyond scoped tokens and the agent's own confirmation screen.<Cite ids="clm-openai-acp-212" /> The Verifiable Intent project proposes carrying its credentials through ACP's extension mechanism, which remains a proposal, not an adopted extension.<Cite ids="clm-openai-acp-213" />
+
+Stripe MPP and x402 sit in a different lane. Stripe lists x402 with MPP for machine payments and ACP with UCP for selling through agents, and the shared piece is the SPT that MPP accepts for card payments.<Cite ids="clm-openai-acp-203 clm-openai-acp-210" /> ERC-8004 has no documented relation; mind the name clash with ERC-8183, an on-chain escrow standard that also calls itself the Agentic Commerce Protocol.<Cite ids="clm-openai-acp-201 clm-openai-acp-202" />
