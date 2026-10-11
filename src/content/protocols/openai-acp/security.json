@@ -1,0 +1,277 @@
+{
+  "protocol": "openai-acp",
+  "summary": "ACP's one strong control is the allowance: a delegated token works for one merchant, one session, one use, up to a maximum amount and until an expiry, enforced by the PSP. Everything else is bilateral trust. Agents and merchants share bearer keys, request signatures are only recommended on checkout and contradictory on Delegate Payment, request freshness is a SHOULD, and nothing records that the buyer approved the purchase. Order webhooks are well specified with HMAC and a 300-second window. No CVE or GitHub advisory exists, the published research models ACP formally but reports findings only in aggregate, and the practical risks sit in implementations: key handling, card data at PSPs, content injection into the agent and drift between snapshots.",
+  "threats": [
+    {
+      "id": "openai-acp-t1",
+      "stride": "S",
+      "title": "Stolen bearer key impersonates an agent",
+      "description": "Agents and merchants authenticate with a bilateral bearer key. Anyone holding the key can create and complete sessions as that agent.",
+      "preconditions": [
+        "The key leaks from logs, config or a compromised service",
+        "Request signatures are not enforced by the merchant"
+      ],
+      "impact": "Fraudulent orders charged to tokens the attacker obtained elsewhere, or reconnaissance of prices and stock.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Require the detached Signature and Timestamp on every request even though they are only recommended, rotate keys, and allowlist the agent platform's egress IP ranges.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "id": "openai-acp-t2",
+      "stride": "S",
+      "title": "Forged order webhook",
+      "description": "An attacker posts fake order_update events to the agent's webhook to show false shipping, refunds or cancellations to the buyer.",
+      "preconditions": [
+        "The receiver skips Merchant-Signature verification",
+        "Or the shared secret leaked"
+      ],
+      "impact": "Buyer misinformed; support load; possible social engineering.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Verify HMAC-SHA256 over the timestamp, a dot and the raw body, reject outside 300 seconds, compare in constant time.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-changelog-20260417"
+      ]
+    },
+    {
+      "id": "openai-acp-t3",
+      "stride": "T",
+      "title": "Allowance set above the approved total",
+      "description": "The agent sets max_amount higher than what the buyer confirmed, for example to absorb later changes, so a merchant can charge more than approved.",
+      "preconditions": [
+        "Agent bug or policy that pads the allowance",
+        "Merchant changes totals after confirmation"
+      ],
+      "impact": "Buyer charged more than approved; dispute.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Set max_amount to the confirmed total and start a new session when totals change. Stripe tells agents to set max_amount to the transaction total.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "id": "openai-acp-t4",
+      "stride": "T",
+      "title": "Totals changed between confirmation and complete",
+      "description": "The merchant returns new totals on complete or adds fees after the buyer confirmed.",
+      "preconditions": [
+        "No signed record of the confirmed cart",
+        "Allowance larger than the new total"
+      ],
+      "impact": "Charge differs from what the buyer saw.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Compare the totals in the complete response with the confirmed totals and cancel when they differ; keep the allowance tight.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "id": "openai-acp-t5",
+      "stride": "R",
+      "title": "No proof of what the buyer approved",
+      "description": "ACP carries no signed user consent. After a dispute, neither merchant nor issuer can prove the buyer approved this purchase.",
+      "preconditions": [
+        "A buyer disputes an agent purchase"
+      ],
+      "impact": "Chargeback outcomes depend on logs of the agent platform and merchant.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Keep confirmation logs with session id, totals and timestamps; consider Verifiable Intent or AP2-style mandates outside ACP.",
+      "sources": [
+        "src-openai-acp-rfcs-dir",
+        "src-vi-protocols",
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "id": "openai-acp-t6",
+      "stride": "I",
+      "title": "Card data exposure through direct Delegate Payment",
+      "description": "PCI DSS Level 1 merchants and PSPs that host Delegate Payment receive raw card numbers and CVC.",
+      "preconditions": [
+        "Logging of request bodies",
+        "Weak vault controls"
+      ],
+      "impact": "Card data breach and PCI DSS findings.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Never log full card numbers or CVC; OpenAI may ask for an attestation of compliance before enabling production access.",
+      "sources": [
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "id": "openai-acp-t7",
+      "stride": "I",
+      "title": "Buyer data shared beyond need",
+      "description": "Checkout sends names, addresses, emails and risk signals such as IP address and device fingerprint to the merchant.",
+      "preconditions": [
+        "Agent sends risk_signals and buyer fields by default"
+      ],
+      "impact": "Over-sharing of personal data; consent and data protection exposure.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Send only the fields the merchant needs; OpenAI says it shares only what the order requires with the user's permission.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "id": "openai-acp-t8",
+      "stride": "E",
+      "title": "Markdown or content injection into the agent interface",
+      "description": "A merchant message or line item description carries raw HTML or instructions that the agent renders or follows.",
+      "preconditions": [
+        "Agent renders merchant content without sanitizing",
+        "Model reads merchant text as instructions"
+      ],
+      "impact": "Interface spoofing or prompt injection steering the purchase.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Since 2026-04-17 markdown must be CommonMark without raw HTML; render with raw HTML disabled and treat merchant text as data, not instructions.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-changelog-20260417"
+      ]
+    },
+    {
+      "id": "openai-acp-t9",
+      "stride": "D",
+      "title": "Idempotency abuse and retry storms",
+      "description": "Clients retry with new keys or flood with in-flight duplicates, creating duplicate sessions or exhausting the merchant.",
+      "preconditions": [
+        "Client bugs or a malicious agent",
+        "No rate limits"
+      ],
+      "impact": "Duplicate orders or degraded service.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Require Idempotency-Key, return 409 with Retry-After for in-flight keys and 422 for changed bodies; rate limit per key and per agent.",
+      "sources": [
+        "src-openai-acp-rfc-checkout"
+      ]
+    },
+    {
+      "id": "openai-acp-t10",
+      "stride": "R",
+      "title": "Replayed checkout requests",
+      "description": "Request timestamps are only SHOULD, so a captured signed request may be replayed later if the server does not check freshness.",
+      "preconditions": [
+        "Attacker captures a request",
+        "Server skips Timestamp checks"
+      ],
+      "impact": "Duplicate side effects where idempotency keys differ.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Check Timestamp freshness and keep idempotency keys at least 24 hours.",
+      "sources": [
+        "src-openai-acp-rfc-checkout"
+      ]
+    },
+    {
+      "id": "openai-acp-t11",
+      "stride": "T",
+      "title": "Version and schema drift exploited",
+      "description": "Agents and merchants validate against different snapshots or examples, so fields such as items versus line_items are dropped or misread.",
+      "preconditions": [
+        "Released folders edited after release",
+        "Examples do not match the schema"
+      ],
+      "impact": "Wrong quantities or failed orders; inconsistent behavior across merchants.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Pin a commit, validate against the JSON Schema, and test the docs-versus-spec differences explicitly.",
+      "sources": [
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-rfc-checkout"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "openai-acp-s1",
+      "title": "Padded allowance meets a changed cart",
+      "preconditions": [
+        "Agent sets max_amount above the confirmed total",
+        "Merchant adds a fee after confirmation"
+      ],
+      "steps": [
+        "Buyer confirms 100 dollars",
+        "Agent requests a token with max_amount 150 dollars",
+        "Merchant returns a total of 130 dollars on complete",
+        "PSP accepts the charge because it is inside the allowance"
+      ],
+      "impact": "Buyer pays 30 dollars more than approved; the only remedy is a refund or a dispute.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfc-checkout"
+      ]
+    },
+    {
+      "id": "openai-acp-s2",
+      "title": "Leaked agent key used for fake orders",
+      "preconditions": [
+        "Agent bearer key leaks",
+        "Merchant accepts requests without signatures or IP allowlisting"
+      ],
+      "steps": [
+        "Attacker creates sessions with the leaked key",
+        "Attacker completes them with tokens from stolen cards issued elsewhere",
+        "Merchant ships goods"
+      ],
+      "impact": "Fraud losses on the merchant, which is merchant of record.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "id": "openai-acp-s3",
+      "title": "Replayed webhook marks an order refunded",
+      "preconditions": [
+        "Agent receiver checks the HMAC but not the timestamp window"
+      ],
+      "steps": [
+        "Attacker captures an old order_update with a refund adjustment",
+        "Attacker replays it hours later",
+        "Agent shows the buyer a second refund"
+      ],
+      "impact": "Confusion and support cost; fixed by enforcing the 300-second tolerance.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417"
+      ]
+    }
+  ],
+  "research": [
+    {
+      "title": "A Formal Analysis of Agent Payment Protocols",
+      "date": "2026-08-30",
+      "finding": "Tamarin models of x402, MPP, ACP and AP2: 86 verification cases and 40 previously undocumented formal-consistency findings across the four protocols, not broken down by protocol in the abstract.",
+      "publicationId": "pub-jiang-2026-formal",
+      "sources": [
+        "src-arxiv-2609-00060"
+      ]
+    },
+    {
+      "title": "Building Trust in Autonomous Commerce: A Verifiable Global Event Timeline",
+      "date": "2026-07-21",
+      "finding": "Says protocols such as AP2 and ACP lack interoperable, tamper-evident audit trails.",
+      "publicationId": "pub-srivastava-2026-timeline",
+      "sources": [
+        "src-arxiv-2607-19436"
+      ]
+    },
+    {
+      "title": "Protocol-Level Attacks on Agentic Commerce Platforms",
+      "date": "2026-07-23",
+      "finding": "Reports 33 structural vulnerabilities across three leading platforms; the abstract does not name ACP.",
+      "publicationId": "pub-louck-2026-protocollevel",
+      "sources": [
+        "src-arxiv-2607-21824"
+      ]
+    }
+  ],
+  "cves": [],
+  "trustBoundaryDiagram": "openai-acp-context"
+}

@@ -1,0 +1,288 @@
+{
+  "protocol": "openai-acp",
+  "summary": "ACP natively scopes a delegated token by amount, currency, merchant, session, single use and expiry, supports 3DS step-up and makes idempotency mandatory. It leaves agent identity, registration, user consent, revocation, reputation and disputes to platforms, PSPs or other protocols. The best places for an independent controls layer are the agent before it sets the allowance, the PSP when the token is charged, and the merchant edge where bearer keys and signatures are checked.",
+  "native": [
+    {
+      "protocol": "openai-acp",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "Bilateral bearer key plus a recommended detached Signature and Timestamp with algorithms agreed out of band; no agent identity scheme.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "No registry in ACP. Each platform runs its own merchant and partner onboarding, such as ChatGPT's approved-partner application.",
+      "sources": [
+        "src-openai-commerce-docs",
+        "src-openai-acp-site"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "The buyer confirms in the agent interface (a product feature). The spec captures marketing consents and 3DS results but no signed purchase consent.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "allowance.max_amount and currency on every delegated token; Stripe SPT usage_limits.max_amount.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "allowance.merchant_id and allowance.checkout_session_id bind the token to one merchant and one session.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "allowance.expires_at, session expires_at and the expired status.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "revocation",
+      "support": "external",
+      "note": "No revoke endpoint in ACP; Stripe SPTs can be revoked. Agents can cancel open sessions.",
+      "sources": [
+        "src-openai-acp-rfcs-dir",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "step-up-authentication",
+      "support": "native",
+      "note": "authentication_required status, authentication_metadata, authentication_result, Delegate Authentication (3DS2) and capabilities.interventions.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-rfc-delegate-auth"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "Mandatory Idempotency-Key on POST since 2026-04-17, one_time allowance, webhook timestamp window; request Timestamp checks only SHOULD.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "Order with permalink_url and order_create and order_update webhooks; no signed receipt.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Order adjustments include refund, return and dispute; the merchant handles chargebacks as merchant of record; no dispute protocol.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "reputation",
+      "support": "none",
+      "note": "Nothing in the spec.",
+      "sources": [
+        "src-openai-acp-rfcs-dir"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "risk_signals on complete, RiskSignal entries on Delegate Payment, intent_trace reason codes on cancel, Request-Id.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfc-intent-traces"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Merchants can decline any order and agents can cancel sessions; Stripe SPTs can be revoked; no protocol-wide stop.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-fee-stripe-spt-docs"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "title": "No signed user consent",
+      "description": "The allowance limits a token but nothing proves the buyer approved the purchase; disputes rely on platform logs.",
+      "sources": [
+        "src-openai-acp-rfcs-dir",
+        "src-vi-protocols"
+      ]
+    },
+    {
+      "title": "No standard allowance errors",
+      "description": "ACP defines no error codes for a charge outside the allowance, so declines differ by PSP.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfc-delegate-payment"
+      ]
+    },
+    {
+      "title": "Weak request authentication",
+      "description": "Signatures are recommended on checkout and contradictory on Delegate Payment; freshness is a SHOULD.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-acp-openapi-delegate-payment-20260417"
+      ]
+    },
+    {
+      "title": "No revocation in the spec",
+      "description": "A delegated token cannot be revoked through ACP; only vendor products such as Stripe SPT offer it.",
+      "sources": [
+        "src-fee-stripe-spt-docs"
+      ]
+    }
+  ],
+  "controlPoints": [
+    {
+      "point": "before-authorization",
+      "what": "Decide whether the agent may buy and how much",
+      "how": "Policy on the agent platform that sets max_amount to the confirmed total and blocks categories or merchants.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "point": "at-signing",
+      "what": "Issue the delegated token",
+      "how": "The PSP validates the allowance, risk signals and the request signature before returning a vault token.",
+      "sources": [
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "point": "at-edge",
+      "what": "Accept or reject the agent at the merchant API",
+      "how": "Bearer key checks, detached signature and timestamp checks, egress IP allowlisting, idempotency enforcement.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "point": "at-settlement",
+      "what": "Charge the token",
+      "how": "The merchant PSP enforces merchant_id, checkout_session_id, max_amount, currency, single use and expires_at.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "point": "after-the-fact",
+      "what": "Review orders and disputes",
+      "how": "Order webhooks with adjustments, intent traces on cancels, and platform confirmation logs.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-rfc-intent-traces"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "item": "Set allowance.max_amount to the total the buyer confirmed, not a padded value.",
+      "why": "The PSP will accept any charge inside the allowance.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "item": "Send an Idempotency-Key on every POST, including over MCP.",
+      "why": "Required in REST since 2026-04-17; the MCP binding still lets it be optional.",
+      "sources": [
+        "src-openai-acp-changelog-20260417",
+        "src-openai-acp-mcp-binding"
+      ]
+    },
+    {
+      "item": "Require and verify the detached Signature and Timestamp.",
+      "why": "The spec only recommends them.",
+      "sources": [
+        "src-openai-acp-rfc-checkout"
+      ]
+    },
+    {
+      "item": "Verify Merchant-Signature with a 300-second window and constant-time comparison.",
+      "why": "Prevents forged and replayed order events.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417"
+      ]
+    },
+    {
+      "item": "Validate payloads against a pinned commit of the JSON Schema.",
+      "why": "Examples and released folders drift.",
+      "sources": [
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "item": "Never log full card numbers or CVC.",
+      "why": "Delegate Payment carries cardholder data in PCI DSS scope.",
+      "sources": [
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "item": "Render merchant markdown with raw HTML disabled.",
+      "why": "Required since 2026-04-17 and limits injection.",
+      "sources": [
+        "src-openai-acp-rfc-checkout"
+      ]
+    },
+    {
+      "item": "Keep the buyer confirmation record with session id and totals.",
+      "why": "ACP has no signed consent for disputes.",
+      "sources": [
+        "src-openai-buy-it"
+      ]
+    }
+  ]
+}

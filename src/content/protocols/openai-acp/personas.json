@@ -1,0 +1,397 @@
+{
+  "protocol": "openai-acp",
+  "personas": [
+    {
+      "persona": "ai-platform",
+      "role": "Runs the agent surface: calls merchants' checkout APIs, obtains delegated tokens, hosts the order webhook receiver and, since 2026-04-17, the Feed API.",
+      "goals": [
+        "Let buyers complete purchases without leaving the conversation",
+        "Onboard many merchants on one contract",
+        "Keep card data out of the model and the merchant API"
+      ],
+      "pains": [
+        "Each merchant needs its own bearer key and onboarding",
+        "Merchants implement different versions and drift from the examples",
+        "Six checkout statuses have no RFC definition"
+      ],
+      "implements": [
+        "Checkout client for create, update, complete and cancel",
+        "Delegate Payment call with an allowance per purchase",
+        "Merchant-Signature verification on /agentic_checkout/webhooks/order_events",
+        "Feed API endpoints for pushed products"
+      ],
+      "mustTrust": [
+        "The merchant to return authoritative totals and honor its own messages",
+        "The PSP to enforce the allowance",
+        "The merchant's webhook secret handling"
+      ],
+      "questions": [
+        "Which API-Version does this merchant support?",
+        "Should we accept both order_create and order_created?",
+        "How do we show a requires_escalation session?"
+      ],
+      "firstSteps": [
+        "Read the 2026-04-17 JSON Schema and OpenAPI files",
+        "Run the repository validation script against your own payloads",
+        "Integrate one merchant end to end with Idempotency-Key on every POST"
+      ],
+      "metrics": [
+        "Checkout completion rate",
+        "Share of sessions ending in messages with resolution requires_buyer_input",
+        "Webhook signature failures",
+        "Time from create to completed"
+      ],
+      "story": "Priya leads checkout on an assistant app. A buyer asks for a lamp, and her client creates a session at the merchant with a fresh idempotency key. The merchant returns not_ready_for_payment and a message that the address is missing. The assistant asks, sends an update, and the session turns ready_for_payment. After the buyer confirms 84 dollars, Priya's service asks the PSP for a token capped at exactly that amount, bound to this merchant and session, valid for fifteen minutes. Completion returns an order link. Two days later a signed order_update says shipped, and her receiver rejects a replayed copy that arrives outside the 300-second window.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "persona": "merchant-smb",
+      "role": "Sells through agent surfaces with as little integration as possible, usually through a platform or PSP rather than a hand-built ACP server.",
+      "goals": [
+        "Appear in ChatGPT product results",
+        "Keep using the existing checkout and PSP",
+        "Avoid PCI DSS scope changes"
+      ],
+      "pains": [
+        "Approval for ChatGPT feeds is limited to approved partners",
+        "Fees are not published by OpenAI",
+        "Unclear which platform covers which protocol"
+      ],
+      "implements": [
+        "A product feed through a provider such as Shopify Catalog, Salesforce or Stripe",
+        "External checkout on the merchant site"
+      ],
+      "mustTrust": [
+        "The platform or PSP to implement ACP correctly",
+        "OpenAI to rank products fairly"
+      ],
+      "questions": [
+        "Do I need to build anything, or does my platform cover ACP?",
+        "What does a sale through ChatGPT cost me?",
+        "Who handles a chargeback?"
+      ],
+      "firstSteps": [
+        "Ask your commerce platform whether it sends your catalog to ChatGPT",
+        "Check that your product data has ids, variants, prices and availability",
+        "Read OpenAI's prohibited products list"
+      ],
+      "metrics": [
+        "Orders from AI surfaces",
+        "Feed errors",
+        "Refund and chargeback rate on agent orders"
+      ],
+      "story": "Tomas runs a small outdoor gear shop on a hosted platform. In 2025 he read that ChatGPT would let buyers check out in chat and waited for his platform to switch it on. In March 2026 the plan changed: OpenAI now pulls product data through feeds, and buyers finish on his own store. His platform already sends the catalog, so he fixes missing variant titles and stale prices, since a feed product needs ids and variants. Orders still arrive through his normal checkout and PSP. When a buyer disputes a tent, Tomas answers the chargeback himself, because he remains merchant of record.",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-openai-commerce-docs",
+        "src-openai-acp-schema-feed-20260417",
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "persona": "merchant-enterprise",
+      "role": "Builds and runs its own ACP server: checkout endpoints, order webhooks, discovery and feeds, often across several agent surfaces.",
+      "goals": [
+        "One integration for several agent platforms",
+        "Keep pricing, tax and fraud logic authoritative",
+        "Reuse existing order management"
+      ],
+      "pains": [
+        "Released spec folders change after release",
+        "OpenAI docs and the spec disagree on status codes and names",
+        "UCP asks for a similar but different integration"
+      ],
+      "implements": [
+        "/checkout_sessions endpoints with idempotency storage for 24 hours or more",
+        "Payment handlers and PSP charging of vault tokens",
+        "Signed order_create and order_update webhooks",
+        "/.well-known/acp.json"
+      ],
+      "mustTrust": [
+        "Agents to render totals and messages as returned",
+        "The PSP to reject out-of-allowance charges",
+        "Bearer keys to stay secret on both sides"
+      ],
+      "questions": [
+        "Which version should we pin, and at which commit?",
+        "Do we run ACP and UCP side by side?",
+        "How do we map our order states to the ACP order status list?"
+      ],
+      "firstSteps": [
+        "Pin a commit of spec/2026-04-17 and validate your examples against it",
+        "Implement idempotency exactly as RFC section 6 says",
+        "Add the docs-versus-spec differences to your test suite"
+      ],
+      "metrics": [
+        "Conversion by agent surface",
+        "Idempotency conflicts and replays",
+        "Chargebacks on agent orders",
+        "Latency of create and complete"
+      ],
+      "story": "Lena's team at a home goods retailer built an ACP server in a sprint. The hard part was not the endpoints but the drift: the RFC examples sent items with a quantity that their schema validator rejected, so they followed the JSON Schema and the repository's examples file. They store every idempotency key for 48 hours and return 422 on a changed body, while their client library also tolerates 409 because OpenAI's checklist says so. A month later they publish acp.json and start a UCP adapter, reusing the same order service but a separate checkout layer.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-examples-20260417",
+        "src-openai-commerce-docs",
+        "src-openai-acp-rfc-discovery"
+      ]
+    },
+    {
+      "persona": "psp",
+      "role": "Hosts Delegate Payment or a compatible token product (Stripe SPT), vaults the card, enforces the allowance and processes the merchant charge.",
+      "goals": [
+        "Issue tokens that only work inside the allowance",
+        "Keep merchants out of PCI DSS scope",
+        "Offer agentic payments to existing merchants"
+      ],
+      "pains": [
+        "ACP defines no error codes for allowance violations",
+        "Signing rules for Delegate Payment contradict each other",
+        "Network token support varies"
+      ],
+      "implements": [
+        "POST /agentic_commerce/delegate_payment returning vt_ tokens",
+        "Allowance checks at charge time",
+        "Risk signals such as card_testing scores"
+      ],
+      "mustTrust": [
+        "The agent to set max_amount to what the buyer approved",
+        "The agent's bearer key and signature handling"
+      ],
+      "questions": [
+        "Do we require the detached Signature even though the OpenAPI marks it optional?",
+        "Which decline code do we return for an expired token?",
+        "Can network agent tokens sit under our token?"
+      ],
+      "firstSteps": [
+        "Implement the Delegate Payment schema with all six allowance fields",
+        "Decide and publish your signature policy",
+        "Map allowance failures to clear decline codes"
+      ],
+      "metrics": [
+        "Token issuance volume",
+        "Declines by allowance rule",
+        "Fraud rate on delegated tokens"
+      ],
+      "story": "Marco works on a PSP's agentic team. His service receives Delegate Payment calls from an agent platform: a network token, an allowance of 120 dollars for one merchant and one checkout session, expiring in thirty minutes. He returns a vault token and stores the limits next to it. An hour later the merchant tries to charge it for 140 dollars after adding gift wrap without a new confirmation. His engine declines it, but ACP gives him no standard code, so he documents his own and tells the merchant to start a new session. He also requires the detached signature on every request, since RFC section 2.2 says the client must sign.",
+      "sources": [
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-openapi-delegate-payment-20260417"
+      ]
+    },
+    {
+      "persona": "consumer",
+      "role": "Buys through an AI assistant and sees the merchant, not the assistant, as the seller.",
+      "goals": [
+        "Buy quickly without typing a card number again",
+        "Know who to contact if something goes wrong",
+        "Not be charged more than approved"
+      ],
+      "pains": [
+        "The checkout path changed in 2026 and differs by merchant",
+        "No signed record of what was approved",
+        "Unclear fees and ranking"
+      ],
+      "implements": [
+        "Confirming the purchase in the assistant interface"
+      ],
+      "mustTrust": [
+        "The assistant to show the merchant's real totals",
+        "The merchant to fulfill and refund",
+        "The token to be limited to the approved amount"
+      ],
+      "questions": [
+        "Who is the seller here?",
+        "Can the assistant charge me again?",
+        "Where do I ask for a refund?"
+      ],
+      "firstSteps": [
+        "Check the merchant name and total before you confirm",
+        "Keep the order link the assistant shows",
+        "Use the merchant's own support for returns"
+      ],
+      "metrics": [
+        "Total charged versus total approved",
+        "Time to refund"
+      ],
+      "story": "Sam asks an assistant for running shoes in size ten. The assistant shows three options from different stores, each with a price from the store itself. Sam picks one and confirms the total, including tax and shipping. The assistant says the purchase is with the store, and the card statement later shows the store's name, not the assistant's. When the shoes are too small, Sam opens the order link and starts a return on the store's site. The refund appears as an adjustment in the order updates the assistant receives. Nothing in the protocol records Sam's confirmation except the assistant's own interface.",
+      "sources": [
+        "src-openai-commerce-docs",
+        "src-openai-buy-it",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "persona": "agent-dev",
+      "role": "Builds an agent or app that calls ACP merchants over REST or MCP, or a ChatGPT app with the payment sheet.",
+      "goals": [
+        "Use one client for many merchants",
+        "Choose between REST and MCP transports",
+        "Handle every message and status"
+      ],
+      "pains": [
+        "MCP binding and REST differ on idempotency",
+        "The Apps SDK complete_checkout tool is not the ACP tool",
+        "No official SDK"
+      ],
+      "implements": [
+        "REST or MCP client for the five checkout operations",
+        "Message handling by resolution",
+        "Retry logic with the same Idempotency-Key"
+      ],
+      "mustTrust": [
+        "Merchants to follow the version they advertise in acp.json"
+      ],
+      "questions": [
+        "Is complete_checkout the same as complete_checkout_session?",
+        "Which statuses are terminal?",
+        "Can I use an unofficial SDK?"
+      ],
+      "firstSteps": [
+        "Read docs/mcp-binding.md and the OpenRPC file",
+        "Generate types from the 2026-04-17 JSON Schema",
+        "Write tests for 400, 409 and 422 idempotency answers"
+      ],
+      "metrics": [
+        "Successful completions per merchant",
+        "Retries and replays",
+        "Unknown status values seen"
+      ],
+      "story": "Ana writes an agent that shops across merchants and prefers MCP. She maps the five ACP tools, passes api_version and an idempotency key in meta, and treats JSON-RPC error -32000 as an ACP error object. Her first bug comes from the ChatGPT payment sheet docs: their complete_checkout tool is an Apps SDK tool, not the ACP binding's complete_checkout_session, so her merchant mock never answered. She also finds that the binding still lets the idempotency key be optional, while REST requires it, so she always sends one. Unknown statuses such as pending_approval go to a holding screen.",
+      "sources": [
+        "src-openai-acp-mcp-binding",
+        "src-openai-apps-monetization",
+        "src-openai-acp-changelog-20260417"
+      ]
+    }
+  ],
+  "responsibilities": {
+    "columns": [
+      "ai-platform",
+      "merchant-smb",
+      "merchant-enterprise",
+      "psp",
+      "consumer",
+      "agent-dev"
+    ],
+    "rows": [
+      {
+        "step": "Publish /.well-known/acp.json",
+        "marks": {
+          "ai-platform": "relies-on",
+          "merchant-smb": "relies-on",
+          "merchant-enterprise": "owns",
+          "psp": "",
+          "consumer": "",
+          "agent-dev": "relies-on"
+        }
+      },
+      {
+        "step": "Create and update the checkout session",
+        "marks": {
+          "ai-platform": "owns",
+          "merchant-smb": "relies-on",
+          "merchant-enterprise": "implements",
+          "psp": "",
+          "consumer": "observes",
+          "agent-dev": "implements"
+        }
+      },
+      {
+        "step": "Return authoritative totals and messages",
+        "marks": {
+          "ai-platform": "relies-on",
+          "merchant-smb": "owns",
+          "merchant-enterprise": "owns",
+          "psp": "",
+          "consumer": "observes",
+          "agent-dev": "relies-on"
+        }
+      },
+      {
+        "step": "Confirm the purchase",
+        "marks": {
+          "ai-platform": "implements",
+          "merchant-smb": "",
+          "merchant-enterprise": "",
+          "psp": "",
+          "consumer": "owns",
+          "agent-dev": "implements"
+        }
+      },
+      {
+        "step": "Set the allowance (max_amount, merchant, session, expiry)",
+        "marks": {
+          "ai-platform": "owns",
+          "merchant-smb": "",
+          "merchant-enterprise": "",
+          "psp": "verifies",
+          "consumer": "relies-on",
+          "agent-dev": "implements"
+        }
+      },
+      {
+        "step": "Issue and vault the token",
+        "marks": {
+          "ai-platform": "relies-on",
+          "merchant-smb": "",
+          "merchant-enterprise": "",
+          "psp": "owns",
+          "consumer": "",
+          "agent-dev": ""
+        }
+      },
+      {
+        "step": "Charge the token inside the allowance",
+        "marks": {
+          "ai-platform": "",
+          "merchant-smb": "relies-on",
+          "merchant-enterprise": "implements",
+          "psp": "verifies",
+          "consumer": "",
+          "agent-dev": ""
+        }
+      },
+      {
+        "step": "Create the order (merchant of record)",
+        "marks": {
+          "ai-platform": "",
+          "merchant-smb": "owns",
+          "merchant-enterprise": "owns",
+          "psp": "",
+          "consumer": "relies-on",
+          "agent-dev": ""
+        }
+      },
+      {
+        "step": "Sign and verify order webhooks",
+        "marks": {
+          "ai-platform": "verifies",
+          "merchant-smb": "",
+          "merchant-enterprise": "implements",
+          "psp": "",
+          "consumer": "",
+          "agent-dev": "implements"
+        }
+      },
+      {
+        "step": "Handle refunds and chargebacks",
+        "marks": {
+          "ai-platform": "observes",
+          "merchant-smb": "owns",
+          "merchant-enterprise": "owns",
+          "psp": "implements",
+          "consumer": "relies-on",
+          "agent-dev": ""
+        }
+      }
+    ]
+  }
+}
