@@ -1,6 +1,6 @@
 # Mastercard Agent Pay (`mastercard-agent-pay`): research dossier
 
-Accessed 2026-10-11. Research agent output for ATLAS_PROMPT.md Section 5.8 with ATLAS_FOLLOWUP.md corrections 2.1.2, 2.2 (MDES), 2.3.3 and 2.3.6. Inline citations use `[src-...]` ids from `mastercard-agent-pay.sources.json`. Status: in progress; sections below are filled in order.
+Accessed 2026-10-11. Research agent output for ATLAS_PROMPT.md Section 5.8 with ATLAS_FOLLOWUP.md corrections 2.1.2, 2.2 (MDES), 2.3.3 and 2.3.6. Inline citations use `[src-...]` ids from `mastercard-agent-pay.sources.json`. Status: complete as of 2026-10-11 (all sections filled).
 
 ## Identity and governance
 
@@ -549,6 +549,8 @@ No paper names Agent Pay or Verifiable Intent (search of arXiv titles on 2026-10
 | DOI 10.1007/978-3-642-14577-3_27 | Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication | Murdoch, Anderson | FC 2010, LNCS | Earlier network-run authentication layer and liability design | doi.org CSL JSON |
 | DOI 10.1007/978-3-030-84252-9_5 (ePrint 2020/756) | Provable Security Analysis of FIDO2 | Barbosa, Boldyreva, Chen, Warinschi | CRYPTO 2021, LNCS | Passkeys used for Agent Pay consent | doi.org CSL JSON; eprint.iacr.org HTTP 200 |
 | DOI 10.2307/3087474 | Cooperation among Competitors: Some Economics of Payment Card Associations | Rochet, Tirole | RAND Journal of Economics, 2002 | Card network economics (interchange) | Crossref API and doi.org CSL JSON |
+
+Sources: [src-mcap-arxiv-issuer] [src-mcap-arxiv-formal] [src-mcap-doi-chippin] [src-mcap-doi-chipskim] [src-mcap-doi-emvbfv] [src-mcap-usenix-mixup] [src-mcap-doi-relay] [src-mcap-doi-3ds] [src-mcap-doi-fido2] [src-mcap-doi-rochet].
 
 Note: the Rochet and Tirole DOI is 10.2307/3087474 (10.2307/3087478 resolves to a different paper) [src-mcap-doi-rochet].
 
