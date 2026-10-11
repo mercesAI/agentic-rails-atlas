@@ -207,3 +207,42 @@ Notes (no identifier error, but precision):
 | metric over 4,700 percent | | pass | PR, Adobe August 2025 |
 
 Dates wrong: 0. Coverage gap (not an error): `timeline.json` omits three ATLAS_PROMPT 5.3 key dates that the page states elsewhere: 2026-03-17 Agentic Ready Europe (21 issuers, verified), 2026-04-29 Agentic Ready global (in `changedRecently`), 2026-07-01 Cloudflare signed agents into verified bots (in `changedRecently`).
+
+## Check 4: "Do not get wrong" (ATLAS_PROMPT 5.3)
+
+| Item | Where stated | Verdict | Evidence |
+|---|---|---|---|
+| TAP is a Visa specification under proprietary terms, not an IETF standard | A (intro, keyFacts Governance and License, `facts.whatItIsNot[0]`), B (first paragraph "not an IETF (Internet Engineering Task Force) standard"; Versioning and governance), Q (FAQ "Is TAP an IETF standard?" "No...") | pass | rendered `dist/p/visa-tap/index.html` sections `a-tldr`, `b-explanation`, `q-faq`; Product Terms fetched 2026-10-11 |
+| It identifies agents; it does not move money by itself | A (intro "moves no money by itself", keyFacts Rails "TAP itself moves no money", `facts.tldr`, `whatItIsNot[1]`), B (first paragraph "What TAP does not give you: a payment..."), Q (FAQ "Does TAP move money?" "No.") | pass | same |
+
+Failed: 0.
+
+## Check 5: diagrams against the spec
+
+| Diagram | Verdict | Note |
+|---|---|---|
+| Main flow `visa-tap-browse-and-checkout` | pass | Actors (agent, CDN as Site Protection Provider, Visa key store, merchant, acquirer) and order (browse signed, key fetch, checks, forward, checkout with both body objects, object checks, payment processing, authorization) match the spec's Processes sections. Minor: step 4 `specRef.section` "Verification Steps" does not exist in the Cloudflare post |
+| State machine `visa-tap-request-verification` | pass, 1 minor | States and order follow the spec's Verification Steps exactly (tag, minimum fields, timestamps, nonce, key, signature). Minor: `objects-checked -> blocked` on "Payment container invalid or hash mismatch"; the spec says the data "should not be used for processing any payment" and the merchant "should decline the transaction", not that the request is blocked. Suggest a terminal `declined` state or relabel |
+| `visa-tap-cdn-decision-tree` | pass | same order as the spec; nonce branch correctly conditional |
+| `visa-tap-browsing-verification`, `visa-tap-checkout-verification` | pass | signature base text is valid RFC 9421 form |
+| Failure flows (untagged, expired window, replayed nonce) | pass | each maps to a spec condition (no tag; window over 8 minutes; recorded nonce). 403 responses are labeled illustrative; the spec says only "blocked" |
+| `visa-tap-browsing-iou` | pass | 402, retry with `browsingIOU`, match and verify, settlement marked "not specified" |
+| `visa-tap-vic-token-passkey` | 1 minor | Step 4 draws "user -> VIC: Approve with a passkey" after the agent's `POST /vacp/v1/instructions`, with no `specRef`. Visa's VIC page says "The agent requests the user to authenticate the Payment Instruction using their Passkey and provides that instruction to the Visa Intelligent Commerce platform", that is, the passkey result reaches VIC through the agent. Steps 1 and 4 have no `specRef` |
+| `visa-tap-data-model`, `visa-tap-signature-base`, `visa-tap-context`, `visa-tap-composition` | pass | fields match the spec; context "registers key" is supported by Cloudflare ("require agents to register and have their public keys ... in a well-known directory") |
+| `visa-tap-vs-web-bot-auth` | pass | every WBA cell matches draft -00 s5.2 (including "@authority or @target-uri"), s5.2.1, s8.1; TAP cells match the spec |
+
+Diagram issues: 2 minor (state machine payment-failure terminal; VIC passkey step) plus 1 citation nit (main flow step 4 section name).
+
+## Check 6: specified versus deployed, announced versus live, stewardship
+
+| Item | Verdict | Note |
+|---|---|---|
+| Status `mixed` with statusNote contrasting live European purchases (2026-07-02) and the overview's "development and deployment" disclaimer | pass | both sources fetched 2026-10-11 |
+| Live merchants attributed to Visa's release, eDreams marked `reported` (PYMNTS) | pass | |
+| "Hundreds" of transactions labeled as a VIC count, not TAP traffic | pass | |
+| Intelligent Commerce Connect labeled pilot; Agentic Ready Europe as programme | pass | |
+| Key store: specified URL versus observed content (RSA sandbox key, no Ed25519) kept apart | pass | |
+| Sample code versus spec deviations stated as sample drift, not as protocol rules | pass | |
+| Stewardship: Visa sole steward, developed with Cloudflare; MPP "Stripe and Tempo"; x402 Foundation Premier member | pass | |
+| Stewardship of ACP | minor fail | `index.mdx` line 327 "Visa says TAP complements OpenAI's ACP". ATLAS_PROMPT Section 0: ACP is co-maintained by OpenAI and Stripe. Write "ACP (Agentic Commerce Protocol, maintained by OpenAI and Stripe)". The bubble label "OpenAI ACP" in keyFacts and compare cells is allowed |
+| FAQ "Is the sample code open source?" ends "The terms text governs." | minor fail | Unsourced legal conclusion that contradicts the frontmatter "(unresolved conflict)". The Product Terms only say they prevail over the Developer Center Terms of Use. Suggest "Which text governs is not stated; treat the code as covered by Visa's terms until Visa clarifies." |
