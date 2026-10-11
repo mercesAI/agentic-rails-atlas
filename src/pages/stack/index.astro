@@ -1,0 +1,75 @@
+---
+/**
+ * /stack/: the layered architecture with each protocol drawn as a span over
+ * its primary and secondary layers (from protocol frontmatter). React Flow
+ * island plus a static table with the same data.
+ */
+import Page from '../../layouts/Page.astro';
+import StackMap from '../../components/crosscut/StackMap';
+import { loadProtocolInfos } from '../../components/crosscut/lib/load';
+import { coverageOf, layerRows } from '../../components/crosscut/lib/stack';
+import { C_FAMILY_LABELS } from '../../components/crosscut/lib/constants';
+import '../../components/crosscut/crosscut.css';
+
+const protocols = await loadProtocolInfos();
+const placed = protocols.filter((p) => p.layerPrimary);
+const missing = protocols.filter((p) => !p.layerPrimary);
+const rows = layerRows();
+---
+<Page
+  title="Stack"
+  eyebrow="Cross-cutting"
+  lede="Where each protocol sits in the agent commerce stack, from discovery to reputation. A solid tinted block is the protocol's primary layer; dashed blocks are layers it also touches."
+  prose={false}
+  wide
+>
+  <p class="cc-intro">
+    Layers come from each protocol page's frontmatter (primary layer and secondary layers), which the protocol writers set from the specification. Select a block to open the protocol page. Drag to pan; use the buttons to zoom.
+    {missing.length > 0 && <> In progress: {missing.map((p) => p.short).join(', ')}.</>}
+  </p>
+  <ul class="cc-legend" aria-label="Legend">
+    <li><span class="cc-stack-block" data-coverage="primary" style="width:2.5rem;height:1.25rem" aria-hidden="true"></span> Primary layer (solid border, tinted)</li>
+    <li><span class="cc-stack-block" data-coverage="secondary" style="width:2.5rem;height:1.25rem" aria-hidden="true"></span> Secondary layer (dashed border)</li>
+    <li>Border hue shows the family; the family name is also in each block's label and in the table.</li>
+    <li>A dashed connector means the span skips a layer.</li>
+  </ul>
+
+  <section class="cc-section" aria-labelledby="map-h" style="margin-top:1rem">
+    <h2 id="map-h" class="sr-only">Interactive stack map</h2>
+    <StackMap client:only="react" protocols={protocols} />
+    <noscript><p class="cc-note">The interactive map needs JavaScript. The table below has the same data.</p></noscript>
+  </section>
+
+  <section class="cc-section" aria-labelledby="table-h">
+    <h2 id="table-h">Stack as a table</h2>
+    <div class="cc-frame cc-stack-fallback" role="region" aria-labelledby="stack-cap" tabindex="0">
+      <table class="cc-table">
+        <caption id="stack-cap">Layer coverage by protocol (primary, secondary or not covered)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Layer</th>
+            {placed.map((p) => <th scope="col"><a href={`/p/${p.slug}/`}>{p.short}</a></th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">{r.label}</th>
+              {placed.map((p) => {
+                const c = coverageOf(p, r.id);
+                return <td data-coverage={c ?? 'none'}>{c === 'primary' ? 'Primary' : c === 'secondary' ? 'Secondary' : <span class="sr-only">Not covered</span>}</td>;
+              })}
+            </tr>
+          ))}
+          <tr>
+            <th scope="row">Family</th>
+            {placed.map((p) => <td>{p.family ? C_FAMILY_LABELS[p.family] : ''}</td>)}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cc-note" style="margin-top:0.75rem">
+      For how the layers combine in practice, see the <a href="/compare/">compare matrix</a> (“Layers covered” and “Composes with” rows) and the <a href="/controls/">controls map</a>.
+    </p>
+  </section>
+</Page>

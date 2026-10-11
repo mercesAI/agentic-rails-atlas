@@ -1,0 +1,112 @@
+---
+/**
+ * /controls/: the 14 controls by protocol (controls-map.json), the
+ * independent-controls-layer annotation (independentLayerNotes, else derived
+ * from the cells and labeled as such) and each protocol's control points from
+ * its controls.json sidecar.
+ */
+import Page from '../../layouts/Page.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import Cite from '../../components/ui/Cite.astro';
+import ControlsMap from '../../components/crosscut/ControlsMap';
+import { loadControlsMap, loadProtocolInfos, registerSources, safeAll } from '../../components/crosscut/lib/load';
+import { controlsWithoutNative, SUPPORT_TEXT, supportCounts } from '../../components/crosscut/lib/controls';
+import { CONTROL_IDS, CONTROL_LABELS, type ControlsFile } from '../../lib/schemas';
+import { CONTROL_POINT_LABELS } from '../../components/protocol/labels';
+import '../../components/crosscut/crosscut.css';
+
+const page = Astro.url.pathname;
+const protocols = await loadProtocolInfos();
+const map = await loadControlsMap();
+const controls = map?.controls ?? CONTROL_IDS.map((id) => ({ id, label: CONTROL_LABELS[id], description: '' }));
+const cells = map?.cells ?? [];
+const sidecars = (await safeAll('controls')).map((e) => e.data as ControlsFile);
+const short = (slug: string) => protocols.find((p) => p.slug === slug)?.short ?? slug;
+
+const POINTS = ['before-authorization', 'at-signing', 'at-edge', 'at-settlement', 'after-the-fact'] as const;
+const pointRows = POINTS.map((point) => ({
+  point,
+  items: protocols.flatMap((p) => {
+    const sc = sidecars.find((s) => s.protocol === p.slug);
+    return (sc?.controlPoints ?? []).filter((cp) => cp.point === point).map((cp) => ({ p, cp }));
+  }),
+}));
+
+const numbers = await registerSources(page, [
+  ...cells.flatMap((c) => c.sources),
+  ...pointRows.flatMap((r) => r.items.flatMap((i) => i.cp.sources)),
+]);
+
+const covered = new Set(cells.map((c) => c.protocol));
+const noNative = new Set(controlsWithoutNative(cells, controls.map((c) => c.id)));
+const layerNotes: Record<string, { note: string; derived: boolean }> = {};
+for (const ctrl of controls) {
+  const given = map?.independentLayerNotes.filter((n) => n.control === ctrl.id).map((n) => n.note) ?? [];
+  if (given.length) {
+    layerNotes[ctrl.id] = { note: given.join(' '), derived: false };
+    continue;
+  }
+  const row = cells.filter((c) => c.control === ctrl.id);
+  if (row.length === 0) continue;
+  const counts = supportCounts(row);
+  const natives = row.filter((c) => c.support === 'native').map((c) => short(c.protocol));
+  const gaps = row.filter((c) => c.support !== 'native').map((c) => short(c.protocol));
+  layerNotes[ctrl.id] = {
+    derived: true,
+    note: noNative.has(ctrl.id)
+      ? `No covered protocol is native here (${counts.partial} partial, ${counts.external} external, ${counts.none} none), so this control has to come from outside the protocols.`
+      : gaps.length
+        ? `Native in ${natives.join(', ')}. For ${gaps.join(', ')} the control comes from outside the protocol.`
+        : `Native in every covered protocol; an outside layer would only add policy on top.`,
+  };
+}
+const totals = supportCounts(cells);
+---
+<Page
+  title="Controls"
+  eyebrow="Cross-cutting"
+  lede="Fourteen controls that a payer, merchant or platform may need around an agent payment, and how much of each the protocols provide themselves."
+  prose={false}
+  wide
+>
+  <p class="cc-intro">
+    {cells.length} cells across {covered.size} protocols: {totals.native} native, {totals.partial} partial, {totals.external} external, {totals.none} none.
+    {protocols.filter((p) => !covered.has(p.slug)).length > 0 && <> In progress: {protocols.filter((p) => !covered.has(p.slug)).map((p) => p.short).join(', ')}.</>}
+    {' '}“External” means the protocol names another party or standard for the control (a card network, a PSP, a wallet). It is not a judgment that the control is weak.
+  </p>
+
+  <section class="cc-section" aria-labelledby="map-h" style="margin-top:1rem">
+    <h2 id="map-h">Controls map</h2>
+    <ControlsMap client:visible controls={controls} protocols={protocols} cells={cells} numbers={numbers} layerNotes={layerNotes} />
+    {[...noNative].length > 0 && (
+      <p class="cc-note" style="margin-top:1rem">
+        Controls with no native implementation in any covered protocol: {[...noNative].map((id) => CONTROL_LABELS[id as keyof typeof CONTROL_LABELS] ?? id).join(', ')}. These are the clearest openings for an independent controls layer.
+      </p>
+    )}
+  </section>
+
+  <section class="cc-section" aria-labelledby="points-h">
+    <h2 id="points-h">Where an independent controls layer can act</h2>
+    <p>Each protocol page lists the points in its flow where a separate policy engine, wallet guard or monitoring service can see and stop a payment. Here they are side by side, in flow order.</p>
+    {pointRows.map((r) => (
+      <div style="margin-top:1.5rem">
+        <h3 id={`point-${r.point}`} style="font-size:1.1rem">{CONTROL_POINT_LABELS[r.point]}</h3>
+        {r.items.length === 0 ? (
+          <p class="cc-note">No protocol page lists a control point here yet.</p>
+        ) : (
+          <ul class="cc-lib-list">
+            {r.items.map(({ p, cp }) => (
+              <li class="cc-lib-item">
+                <p><strong>{p.short}: {cp.what}</strong></p>
+                <p class="cc-lib-note">{cp.how} {cp.sources.length > 0 && <Cite ids={cp.sources.join(' ')} />}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    ))}
+    <p class="cc-note" style="margin-top:1rem">Support levels: {Object.values(SUPPORT_TEXT).join(', ')}. Protocols without a controls section are not listed.</p>
+  </section>
+
+  <SourceList page={page} />
+</Page>
