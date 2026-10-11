@@ -1,0 +1,199 @@
+{
+  "id": "stripe-mpp-charge",
+  "protocol": "stripe-mpp",
+  "title": "MPP one-time charge over HTTP (tempo method, charge intent)",
+  "summary": "The default MPP path. The server answers an unpaid request with 402 and a WWW-Authenticate: Payment challenge, the client signs a Tempo transfer and retries with Authorization: Payment, and the server verifies, broadcasts and returns 200 with Payment-Receipt.",
+  "specVersion": "draft-httpauth-payment-01 with draft-payment-intent-charge-00 and draft-tempo-charge-00",
+  "specVersionDate": "2026-09-09",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    },
+    {
+      "id": "chain",
+      "label": "Tempo testnet (Moderato)",
+      "kind": "chain"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "GET /v1/forecast (optional Accept-Payment)",
+      "detail": "The client asks for the resource with no credential. It may state the method and intent pairs it can use, with q weights. The server must treat Accept-Payment as a hint only.",
+      "payload": {
+        "format": "http",
+        "content": "GET /v1/forecast HTTP/1.1\nHost: api.example.com\nAccept-Payment: tempo/charge, stripe/charge;q=0.5",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Client Payment Preferences"
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "client",
+      "label": "402 with WWW-Authenticate: Payment",
+      "detail": "The server returns 402 with Cache-Control no-store and one challenge per offer. The id is an HMAC over realm, method, intent, request and expires, so the server can verify it later without storage. The request value is base64url JCS JSON with the amount in base units.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nContent-Type: application/problem+json\nWWW-Authenticate: Payment id=\"kM9xPqWvT2nJrHsY4aDfEb\",\n    realm=\"api.example.com\",\n    method=\"tempo\",\n    intent=\"charge\",\n    expires=\"2026-10-11T12:05:00Z\",\n    request=\"eyJhbW91bnQiOiIxMDAwMCIsLi4ufQ\"\n\n{\"type\":\"https://paymentauth.org/problems/payment-required\",\"title\":\"Payment Required\",\"status\":402,\"challengeId\":\"kM9xPqWvT2nJrHsY4aDfEb\"}\n\n# decoded request (Illustrative example, spec version draft-tempo-charge-00; Moderato testnet, placeholder addresses)\n{\n  \"amount\": \"10000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0xB0B0000000000000000000000000000000000B0B\",\n  \"methodDetails\": { \"chainId\": 42431, \"feePayer\": true }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Challenge (WWW-Authenticate)"
+      },
+      "failures": [
+        {
+          "condition": "Credential needs ordinary authentication too",
+          "outcome": "Server answers 401 first and issues the Payment challenge only after authentication."
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "client",
+      "label": "Decode request and check terms",
+      "detail": "The client decodes request and checks amount, currency, recipient and expires against what it expected. It must not trust description. It then signs a Tempo transaction calling transfer, valid no later than expires; with feePayer true it leaves the fee for the server.",
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-charge-00.md",
+        "section": "Request Schema"
+      },
+      "failures": [
+        {
+          "condition": "Challenge already expired",
+          "outcome": "Client must not pay; it requests a new challenge."
+        },
+        {
+          "condition": "Amount or recipient differ from policy",
+          "outcome": "Client stops; nothing is signed."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with Authorization: Payment",
+      "detail": "The client sends the same request again with the base64url credential: the echoed challenge, an optional DID source and the method payload. An Idempotency-Key is advised for non-idempotent methods.",
+      "payload": {
+        "format": "http",
+        "content": "GET /v1/forecast HTTP/1.1\nHost: api.example.com\nAuthorization: Payment eyJjaGFsbGVuZ2UiOnsiaWQiOi...\n\n# decoded credential (Illustrative example, spec version draft-httpauth-payment-01)\n{\n  \"challenge\": {\n    \"id\": \"kM9xPqWvT2nJrHsY4aDfEb\",\n    \"realm\": \"api.example.com\",\n    \"method\": \"tempo\",\n    \"intent\": \"charge\",\n    \"request\": \"eyJhbW91bnQiOiIxMDAwMCIsLi4ufQ\",\n    \"expires\": \"2026-10-11T12:05:00Z\"\n  },\n  \"payload\": { \"type\": \"transaction\", \"signature\": \"0x76f9...signed transaction bytes\" },\n  \"source\": \"did:pkh:eip155:42431:0x1234567890abcdef1234567890abcdef12345678\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Credentials"
+      },
+      "failures": [
+        {
+          "condition": "Credential sent in a field the challenge did not select",
+          "outcome": "Server must not accept it."
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "server",
+      "label": "Verify binding, expiry and proof",
+      "detail": "The server recomputes the HMAC over the echoed parameters, checks that the id is unused and not expired, decodes the signed transaction and checks token, amount, recipient and validBefore.",
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Challenge Binding"
+      },
+      "failures": [
+        {
+          "condition": "Bad base64url or JSON",
+          "outcome": "402, fresh challenge, malformed-credential"
+        },
+        {
+          "condition": "Unknown or used id",
+          "outcome": "402, fresh challenge, invalid-challenge"
+        },
+        {
+          "condition": "Expired",
+          "outcome": "402, fresh challenge, payment-expired"
+        },
+        {
+          "condition": "Proof invalid",
+          "outcome": "402, fresh challenge, verification-failed"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "chain",
+      "label": "Co-sign fee and broadcast",
+      "detail": "In pull mode the server adds its fee payer signature and broadcasts the transfer. Tempo blocks arrive about every 600 ms with deterministic finality.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-charge-00.md",
+        "section": "Settlement Procedure"
+      },
+      "failures": [
+        {
+          "condition": "Transaction reverts or is not included",
+          "outcome": "402 with a fresh challenge; no receipt."
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "from": "chain",
+      "to": "server",
+      "label": "Transfer confirmed",
+      "detail": "The server reads the receipt of the transaction and records the challenge id as consumed so concurrent retries settle at most once.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Concurrent Request Handling"
+      }
+    },
+    {
+      "n": 8,
+      "from": "server",
+      "to": "client",
+      "label": "200 OK with Payment-Receipt",
+      "detail": "The server returns the resource with Cache-Control private and a base64url receipt whose reference is the Tempo transaction hash. Receipts never appear on error responses.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 200 OK\nCache-Control: private\nPayment-Receipt: eyJzdGF0dXMiOiJzdWNjZXNzIiwi...\nContent-Type: application/json\n\n# decoded receipt (Illustrative example, spec version draft-httpauth-payment-01)\n{\n  \"status\": \"success\",\n  \"method\": \"tempo\",\n  \"timestamp\": \"2026-10-11T12:00:03Z\",\n  \"reference\": \"0x1a2b...7890\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Payment-Receipt Header"
+      },
+      "failures": [
+        {
+          "condition": "Payment valid but policy denies access",
+          "outcome": "403 with no new challenge."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-core-01",
+    "src-stripe-mpp-intent-charge",
+    "src-stripe-mpp-tempo-charge",
+    "src-stripe-mpp-tempo-consensus"
+  ]
+}

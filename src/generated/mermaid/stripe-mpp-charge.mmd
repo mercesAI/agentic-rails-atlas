@@ -1,0 +1,53 @@
+sequenceDiagram
+  accTitle: MPP one-time charge over HTTP (tempo method, charge intent)
+  accDescr: Sequence diagram: MPP one-time charge over HTTP (tempo method, charge intent). 3 participants: Client (agent), Resource server, and Tempo testnet (Moderato). 8 steps, 6 crossing a trust boundary, 10 failure branches. Based on stripe-mpp draft-httpauth-payment-01 with draft-payment-intent-charge-00 and draft-tempo-charge-00 (2026-09-09). Step 1: Client (agent) to Resource server: GET /v1/forecast (optional Accept-Payment). This step crosses a trust boundary. Step 2: Resource server to Client (agent): 402 with WWW-Authenticate: Payment. This step crosses a trust boundary. If Credential needs ordinary authentication too: Server answers 401 first and issues the Payment challenge only after authentication. Step 3: Client (agent) to Client (agent): Decode request and check terms. If Challenge already expired: Client must not pay it requests a new challenge. If Amount or recipient differ from policy: Client stops nothing is signed. Step 4: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary. If Credential sent in a field the challenge did not select: Server must not accept it. Step 5: Resource server to Resource server: Verify binding, expiry and proof. If Bad base64url or JSON: 402, fresh challenge, malformed-credential. If Unknown or used id: 402, fresh challenge, invalid-challenge. If Expired: 402, fresh challenge, payment-expired. If Proof invalid: 402, fresh challenge, verification-failed. Step 6: Resource server to Tempo testnet (Moderato): Co-sign fee and broadcast. This step crosses a trust boundary. If Transaction reverts or is not included: 402 with a fresh challenge no receipt. Step 7: Tempo testnet (Moderato) to Resource server: Transfer confirmed. This step crosses a trust boundary. Step 8: Resource server to Client (agent): 200 OK with Payment-Receipt. This step crosses a trust boundary. If Payment valid but policy denies access: 403 with no new challenge.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_chain as Tempo testnet (Moderato)
+  p_client->>p_server: GET /v1/forecast (optional Accept-Payment)
+  Note over p_client,p_server: Crosses a trust boundary
+  alt Expected path
+    p_server-->>p_client: 402 with WWW-Authenticate: Payment
+    Note over p_server,p_client: Crosses a trust boundary
+  else Credential needs ordinary authentication too
+    Note over p_server,p_client: Server answers 401 first and issues the Payment challenge only after authentication.
+  end
+  alt Expected path
+    p_client->>p_client: Decode request and check terms
+  else Challenge already expired
+    Note over p_client: Client must not pay#59; it requests a new challenge.
+  else Amount or recipient differ from policy
+    Note over p_client: Client stops#59; nothing is signed.
+  end
+  alt Expected path
+    p_client->>p_server: Retry with Authorization: Payment
+    Note over p_client,p_server: Crosses a trust boundary
+  else Credential sent in a field the challenge did not select
+    Note over p_client,p_server: Server must not accept it.
+  end
+  alt Expected path
+    p_server->>p_server: Verify binding, expiry and proof
+  else Bad base64url or JSON
+    Note over p_server: 402, fresh challenge, malformed-credential
+  else Unknown or used id
+    Note over p_server: 402, fresh challenge, invalid-challenge
+  else Expired
+    Note over p_server: 402, fresh challenge, payment-expired
+  else Proof invalid
+    Note over p_server: 402, fresh challenge, verification-failed
+  end
+  alt Expected path
+    p_server->>p_chain: Co-sign fee and broadcast
+    Note over p_server,p_chain: Crosses a trust boundary
+  else Transaction reverts or is not included
+    Note over p_server,p_chain: 402 with a fresh challenge#59; no receipt.
+  end
+  p_chain-->>p_server: Transfer confirmed
+  Note over p_chain,p_server: Crosses a trust boundary
+  alt Expected path
+    p_server-->>p_client: 200 OK with Payment-Receipt
+    Note over p_server,p_client: Crosses a trust boundary
+  else Payment valid but policy denies access
+    Note over p_server,p_client: 403 with no new challenge.
+  end

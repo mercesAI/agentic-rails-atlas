@@ -1,0 +1,16 @@
+sequenceDiagram
+  accTitle: MPP failure: the client pays an expired challenge
+  accDescr: Sequence diagram: MPP failure: the client pays an expired challenge. 2 participants: Client (agent) and Resource server. 6 steps, 4 crossing a trust boundary. Based on stripe-mpp draft-httpauth-payment-01 (2026-09-09). Step 1: Client (agent) to Resource server: GET /v1/forecast. This step crosses a trust boundary. Step 2: Resource server to Client (agent): 402 with challenge. This step crosses a trust boundary. Step 3: Client (agent) to Client (agent): Sign after expires. Step 4: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary. Step 5: Resource server to Resource server: Check expiry. Step 6: Resource server to Client (agent): 402, fresh challenge, payment-expired. This step crosses a trust boundary.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  p_client->>p_server: GET /v1/forecast
+  Note over p_client,p_server: Crosses a trust boundary
+  p_server-->>p_client: 402 with challenge
+  Note over p_server,p_client: Crosses a trust boundary
+  p_client->>p_client: Sign after expires
+  p_client->>p_server: Retry with Authorization: Payment
+  Note over p_client,p_server: Crosses a trust boundary
+  p_server->>p_server: Check expiry
+  p_server-->>p_client: 402, fresh challenge, payment-expired
+  Note over p_server,p_client: Crosses a trust boundary

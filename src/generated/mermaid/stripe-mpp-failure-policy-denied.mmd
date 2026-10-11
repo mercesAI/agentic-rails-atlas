@@ -1,0 +1,15 @@
+sequenceDiagram
+  accTitle: MPP alternative path: paid, but policy denies access (403)
+  accDescr: Sequence diagram: MPP alternative path: paid, but policy denies access (403). 2 participants: Client (agent) and Resource server. 3 steps, 2 crossing a trust boundary, 1 failure branch. Based on stripe-mpp draft-httpauth-payment-01 (2026-09-09). Step 1: Client (agent) to Resource server: Retry with Authorization: Payment. This step crosses a trust boundary. Step 2: Resource server to Resource server: Verify payment, then apply policy. Step 3: Resource server to Client (agent): 403 Forbidden, no challenge. This step crosses a trust boundary. If Rate limited: Server may send Retry-After.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  p_client->>p_server: Retry with Authorization: Payment
+  Note over p_client,p_server: Crosses a trust boundary
+  p_server->>p_server: Verify payment, then apply policy
+  alt Expected path
+    p_server-->>p_client: 403 Forbidden, no challenge
+    Note over p_server,p_client: Crosses a trust boundary
+  else Rate limited
+    Note over p_server,p_client: Server may send Retry-After.
+  end

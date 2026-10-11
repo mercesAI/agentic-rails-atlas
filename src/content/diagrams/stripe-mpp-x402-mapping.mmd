@@ -1,0 +1,22 @@
+flowchart LR
+  subgraph X["x402 V2"]
+    X1["PAYMENT-REQUIRED"]
+    X2["PAYMENT-SIGNATURE"]
+    X3["PAYMENT-RESPONSE"]
+    X4["scheme exact"]
+    X5["scheme upto, batch-settlement"]
+  end
+  subgraph M["MPP"]
+    M1["WWW-Authenticate: Payment"]
+    M2["Authorization: Payment or Payment-Authorization"]
+    M3["Payment-Receipt"]
+    M4["intent charge"]
+    M5["session (per method)"]
+  end
+  X1 --> M1
+  X2 --> M2
+  X3 --> M3
+  X4 --> M4
+  X5 -. "comparable" .-> M5
+  MX["mppx 0.9.0+: one route serves both"] --- X1
+  MX --- M1

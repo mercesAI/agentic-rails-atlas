@@ -1,0 +1,20 @@
+flowchart TB
+  MPP["Stripe MPP (Payment auth scheme)"]
+  X402["x402"]
+  ACP["OpenAI ACP"]
+  SPT["Stripe Shared Payment Tokens"]
+  TAP["Visa TAP"]
+  VIC["Visa Intelligent Commerce"]
+  MC["Mastercard Agent Pay for Machines"]
+  AP2["AP2"]
+  UCP["UCP"]
+  E8004["ERC-8004"]
+  X402 -- "exact maps to charge; mppx serves both" --- MPP
+  MPP -- "stripe method carries" --> SPT
+  ACP -- "agentic checkout uses" --> SPT
+  MPP -- "card method may add TAP headers" --> TAP
+  MPP -- "card tokens from" --> VIC
+  MC -. "Tempo: working on MPP compatibility" .- MPP
+  AP2 -. "complementary, no cross-reference" .- MPP
+  UCP -. "no reference" .- MPP
+  E8004 -. "discovery: future on-chain anchoring" .- MPP

@@ -1,0 +1,99 @@
+{
+  "id": "stripe-mpp-failure-expired-challenge",
+  "protocol": "stripe-mpp",
+  "title": "MPP failure: the client pays an expired challenge",
+  "summary": "The client signs too late. The server sees that expires has passed, answers 402 with a fresh challenge and a payment-expired problem, and settles nothing.",
+  "specVersion": "draft-httpauth-payment-01",
+  "specVersionDate": "2026-09-09",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "GET /v1/forecast",
+      "detail": "Unpaid request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md"
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "client",
+      "label": "402 with challenge",
+      "detail": "Server issues a bound challenge with expires.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Challenge (WWW-Authenticate)"
+      }
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "client",
+      "label": "Sign after expires",
+      "detail": "The agent waits for a human or a slow tool and signs after the expires time. A careful client checks expires first and does not pay.",
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Optional Parameters"
+      }
+    },
+    {
+      "n": 4,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with Authorization: Payment",
+      "detail": "The credential echoes the old expires.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Credentials"
+      }
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "server",
+      "label": "Check expiry",
+      "detail": "Because expires is bound into the id, the client cannot extend it; the server compares it with its clock.",
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Challenge Binding"
+      }
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "client",
+      "label": "402, fresh challenge, payment-expired",
+      "detail": "The server rejects the credential and issues a new challenge. No receipt is sent on an error response. The client must check expires before it signs next time.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nContent-Type: application/problem+json\nWWW-Authenticate: Payment id=\"pT7yHnKmQ2wErXsZ5vCbNl\", realm=\"api.example.com\", method=\"tempo\", intent=\"charge\", expires=\"2026-10-11T12:20:00Z\", request=\"eyJ...\"\n\n{\"type\":\"https://paymentauth.org/problems/payment-expired\",\"title\":\"Payment expired\",\"status\":402}\n\n# Illustrative example, spec version draft-httpauth-payment-01",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Status Codes"
+      }
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-core-01"
+  ]
+}

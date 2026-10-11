@@ -1,0 +1,98 @@
+{
+  "id": "stripe-mpp-mcp-tool-call",
+  "protocol": "stripe-mpp",
+  "title": "MPP over MCP: a paid tool call",
+  "summary": "Over JSON-RPC the challenge arrives as error -32042 with request as a native JSON object; the client retries tools/call with the credential in _meta, and the result carries the receipt in _meta.",
+  "specVersion": "draft-payment-transport-mcp-00",
+  "specVersionDate": "2026-09-09",
+  "actors": [
+    {
+      "id": "client",
+      "label": "MCP client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "MCP server",
+      "kind": "server"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "tools/call premium-analysis",
+      "detail": "A normal tool call with no payment data.",
+      "payload": {
+        "format": "json",
+        "content": "{ \"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/call\", \"params\": { \"name\": \"premium-analysis\" } }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/extensions/transports/draft-payment-transport-mcp-00.md"
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "client",
+      "label": "error -32042 Payment Required",
+      "detail": "error.data holds httpStatus 402, the challenges array and an optional problem object.",
+      "payload": {
+        "format": "json",
+        "content": "# Illustrative example, spec version draft-payment-transport-mcp-00\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"error\": {\n    \"code\": -32042,\n    \"message\": \"Payment Required\",\n    \"data\": {\n      \"httpStatus\": 402,\n      \"challenges\": [\n        { \"id\": \"qB3wErTyU7iOpAsD9fGhJk\", \"realm\": \"api.example.com\", \"method\": \"tempo\", \"intent\": \"charge\",\n          \"request\": { \"amount\": \"1000\", \"currency\": \"usd\" }, \"expires\": \"2026-10-11T12:05:00Z\" }\n      ]\n    }\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/extensions/transports/draft-payment-transport-mcp-00.md"
+      }
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with _meta org.paymentauth/credential",
+      "detail": "The credential is a JSON object under params._meta; servers check both root and nested _meta.",
+      "payload": {
+        "format": "json",
+        "content": "{ \"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/call\", \"params\": { \"name\": \"premium-analysis\", \"_meta\": { \"org.paymentauth/credential\": { \"challenge\": { \"id\": \"qB3wErTyU7iOpAsD9fGhJk\", \"...\": \"...\" }, \"payload\": { \"...\": \"...\" } } } } }\n\n# Illustrative example, spec version draft-payment-transport-mcp-00",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/extensions/transports/draft-payment-transport-mcp-00.md"
+      },
+      "failures": [
+        {
+          "condition": "Verification fails",
+          "outcome": "error -32043 with a fresh challenge and a failure object."
+        },
+        {
+          "condition": "Malformed credential",
+          "outcome": "error -32602."
+        },
+        {
+          "condition": "Processor failure",
+          "outcome": "error -32603."
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "server",
+      "to": "client",
+      "label": "Result with _meta org.paymentauth/receipt",
+      "detail": "The tool result carries the receipt object.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/extensions/transports/draft-payment-transport-mcp-00.md"
+      }
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-mcp-transport"
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "id": "stripe-mpp-session-channel",
+  "protocol": "stripe-mpp",
+  "title": "Tempo session channel lifecycle (cooperative and forced close)",
+  "specVersion": "draft-tempo-session-00",
+  "sources": [
+    "src-stripe-mpp-tempo-session"
+  ],
+  "states": [
+    {
+      "id": "challenged",
+      "label": "Session challenge issued",
+      "initial": true,
+      "note": "402 with intent session; amount is price per unit."
+    },
+    {
+      "id": "open",
+      "label": "Channel open",
+      "note": "Deposit in escrow; no expiry."
+    },
+    {
+      "id": "streaming",
+      "label": "Streaming with vouchers",
+      "note": "Off-chain cumulative EIP-712 vouchers; receipts carry acceptedCumulative and spent."
+    },
+    {
+      "id": "close-requested",
+      "label": "Close requested (grace period)",
+      "note": "At least 15 minutes; server may still settle or close."
+    },
+    {
+      "id": "closed",
+      "label": "Closed and finalized",
+      "terminal": true,
+      "note": "Payee paid, remainder refunded."
+    },
+    {
+      "id": "rejected",
+      "label": "Rejected",
+      "terminal": true,
+      "note": "400 malformed, 402 bad signature or signer, 410 channel not found or finalized."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "challenged",
+      "to": "open",
+      "trigger": "Client sends action open with a signed deposit transaction",
+      "apiCall": "open(payee, token, deposit, salt, authorizedSigner)",
+      "specRef": "Open Payload"
+    },
+    {
+      "from": "challenged",
+      "to": "rejected",
+      "trigger": "Open transaction or voucher signature invalid",
+      "apiCall": "HTTP 402 session/invalid-signature",
+      "specRef": "Rejection and Error Responses"
+    },
+    {
+      "from": "open",
+      "to": "streaming",
+      "trigger": "Client sends rising vouchers to the same URI",
+      "apiCall": "Authorization: Payment action voucher (HEAD allowed)",
+      "specRef": "Voucher Payload"
+    },
+    {
+      "from": "streaming",
+      "to": "streaming",
+      "trigger": "Server claims the newest voucher",
+      "apiCall": "settle(channelId, cumulativeAmount, signature)",
+      "specRef": "Settlement Timing"
+    },
+    {
+      "from": "streaming",
+      "to": "streaming",
+      "trigger": "Deposit runs low",
+      "apiCall": "action topUp; topUp(channelId, additionalDeposit)",
+      "specRef": "TopUp Payload"
+    },
+    {
+      "from": "streaming",
+      "to": "closed",
+      "trigger": "Cooperative close: client sends action close; server captures max(spent, settled)",
+      "apiCall": "close(channelId, cumulativeAmount, signature)",
+      "specRef": "Cooperative Close"
+    },
+    {
+      "from": "streaming",
+      "to": "close-requested",
+      "trigger": "Server stops answering; client starts a forced close",
+      "apiCall": "requestClose(channelId)",
+      "specRef": "Forced Close"
+    },
+    {
+      "from": "close-requested",
+      "to": "streaming",
+      "trigger": "Client tops up, which cancels the close request",
+      "apiCall": "topUp (emits CloseRequestCancelled)",
+      "specRef": "Contract Functions"
+    },
+    {
+      "from": "close-requested",
+      "to": "closed",
+      "trigger": "Server closes during the grace period",
+      "apiCall": "close(channelId, cumulativeAmount, signature)",
+      "specRef": "Forced Close"
+    },
+    {
+      "from": "close-requested",
+      "to": "closed",
+      "trigger": "Grace period over (wait 16 minutes); client withdraws the rest",
+      "apiCall": "withdraw(channelId)",
+      "specRef": "Forced Close"
+    },
+    {
+      "from": "streaming",
+      "to": "rejected",
+      "trigger": "Voucher above deposit, below minVoucherDelta or from the wrong signer",
+      "apiCall": "HTTP 402 session/amount-exceeds-deposit, session/delta-too-small, session/signer-mismatch",
+      "specRef": "Voucher Verification"
+    }
+  ]
+}

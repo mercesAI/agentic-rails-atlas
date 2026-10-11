@@ -1,0 +1,25 @@
+sequenceDiagram
+  accTitle: MPP subscription: activation and one renewal per period
+  accDescr: Sequence diagram: MPP subscription: activation and one renewal per period. 3 participants: Client (agent), Resource server, and Payment network (Tempo or Stripe). 6 steps, 6 crossing a trust boundary, 2 failure branches. Based on stripe-mpp draft-payment-intent-subscription-00 with draft-tempo-subscription-00 (2026-07-29). Step 1: Resource server to Client (agent): 402 with intent= subscription. This step crosses a trust boundary. Step 2: Client (agent) to Resource server: Credential with the grant. This step crosses a trust boundary. Step 3: Resource server to Payment network (Tempo or Stripe): Collect the first period. This step crosses a trust boundary. Step 4: Resource server to Client (agent): 200 with subscriptionId in the receipt. This step crosses a trust boundary. Step 5: Resource server to Payment network (Tempo or Stripe): Next period: one renewal. This step crosses a trust boundary. If Renewal fails: 402 with a fresh challenge. If Cancelled or expired: 402 with a fresh challenge no further renewals. Step 6: Resource server to Client (agent): Serve the period. This step crosses a trust boundary.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_net as Payment network (Tempo or Stripe)
+  p_server-->>p_client: 402 with intent=#quot;subscription#quot;
+  Note over p_server,p_client: Crosses a trust boundary
+  p_client->>p_server: Credential with the grant
+  Note over p_client,p_server: Crosses a trust boundary
+  p_server->>p_net: Collect the first period
+  Note over p_server,p_net: Crosses a trust boundary
+  p_server-->>p_client: 200 with subscriptionId in the receipt
+  Note over p_server,p_client: Crosses a trust boundary
+  alt Expected path
+    p_server->>p_net: Next period: one renewal
+    Note over p_server,p_net: Crosses a trust boundary
+  else Renewal fails
+    Note over p_server,p_net: 402 with a fresh challenge.
+  else Cancelled or expired
+    Note over p_server,p_net: 402 with a fresh challenge#59; no further renewals.
+  end
+  p_server->>p_client: Serve the period
+  Note over p_server,p_client: Crosses a trust boundary

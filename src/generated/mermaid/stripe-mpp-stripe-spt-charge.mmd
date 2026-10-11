@@ -1,0 +1,28 @@
+sequenceDiagram
+  accTitle: MPP charge with the stripe method (Shared Payment Token)
+  accDescr: Sequence diagram: MPP charge with the stripe method (Shared Payment Token). 4 participants: Client (agent), Stripe (client account), Seller server, and Stripe (seller account). 6 steps, 6 crossing a trust boundary, 2 failure branches. Based on stripe-mpp draft-stripe-charge-00 (2026-09-09). Step 1: Seller server to Client (agent): 402 with method= stripe. This step crosses a trust boundary. Step 2: Client (agent) to Stripe (client account): Create a Shared Payment Token. This step crosses a trust boundary. Step 3: Client (agent) to Seller server: Retry with credential payload spt. This step crosses a trust boundary. Step 4: Seller server to Stripe (seller account): Create PaymentIntent (confirm true). This step crosses a trust boundary. If Stripe answers with Idempotent-Replayed for a new challenge: Treat as replay mppx before 0.4.11 missed this (CVE-2026-34210). Step 5: Stripe (seller account) to Seller server: PaymentIntent status. This step crosses a trust boundary. If Any other status: 402 with a fresh challenge. Step 6: Seller server to Client (agent): 200 with Payment-Receipt. This step crosses a trust boundary.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_stripe as Stripe (client account)
+  participant p_server as Seller server
+  participant p_stripeS as Stripe (seller account)
+  p_server-->>p_client: 402 with method=#quot;stripe#quot;
+  Note over p_server,p_client: Crosses a trust boundary
+  p_client->>p_stripe: Create a Shared Payment Token
+  Note over p_client,p_stripe: Crosses a trust boundary
+  p_client->>p_server: Retry with credential payload #123;spt#125;
+  Note over p_client,p_server: Crosses a trust boundary
+  alt Expected path
+    p_server->>p_stripeS: Create PaymentIntent (confirm true)
+    Note over p_server,p_stripeS: Crosses a trust boundary
+  else Stripe answers with Idempotent-Replayed for a new challenge
+    Note over p_server,p_stripeS: Treat as replay#59; mppx before 0.4.11 missed this (CVE-2026-34210).
+  end
+  alt Expected path
+    p_stripeS-->>p_server: PaymentIntent status
+    Note over p_stripeS,p_server: Crosses a trust boundary
+  else Any other status
+    Note over p_stripeS,p_server: 402 with a fresh challenge.
+  end
+  p_server-->>p_client: 200 with Payment-Receipt
+  Note over p_server,p_client: Crosses a trust boundary

@@ -1,0 +1,71 @@
+{
+  "id": "stripe-mpp-failure-policy-denied",
+  "protocol": "stripe-mpp",
+  "title": "MPP alternative path: paid, but policy denies access (403)",
+  "summary": "The payment is valid but the server will not serve the request, for example because the account is blocked. The server returns 403 with no new challenge, which tells the client that paying again will not help.",
+  "specVersion": "draft-httpauth-payment-01",
+  "specVersionDate": "2026-09-09",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with Authorization: Payment",
+      "detail": "A valid credential for an outstanding challenge.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Credentials"
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "server",
+      "label": "Verify payment, then apply policy",
+      "detail": "Verification succeeds. A policy check (rate limit, sanctions screen, account state) then denies access.",
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Status Codes"
+      }
+    },
+    {
+      "n": 3,
+      "from": "server",
+      "to": "client",
+      "label": "403 Forbidden, no challenge",
+      "detail": "Status 403 means the payment was valid but access is denied. Unlike 402 it carries no challenge, so a client must not retry with a new payment. Whether the money is returned is method and merchant policy, not core protocol.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 403 Forbidden\nCache-Control: no-store\n\n# Illustrative example, spec version draft-httpauth-payment-01",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Status Codes"
+      },
+      "failures": [
+        {
+          "condition": "Rate limited",
+          "outcome": "Server may send Retry-After."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-core-01"
+  ]
+}

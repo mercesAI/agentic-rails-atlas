@@ -1,0 +1,134 @@
+{
+  "id": "stripe-mpp-card-charge",
+  "protocol": "stripe-mpp",
+  "title": "MPP charge with the card method (Visa-authored, encrypted network token)",
+  "summary": "The server offers card networks and an RSA key. The client asks its Client Enabler for a network token and cryptogram encrypted to that key, and the server passes the JWE to its Server Enabler, which authorizes on the card network.",
+  "specVersion": "draft-card-charge-00",
+  "specVersionDate": "2026-09-09",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "ce",
+      "label": "Client Enabler",
+      "kind": "psp"
+    },
+    {
+      "id": "server",
+      "label": "Merchant server",
+      "kind": "server"
+    },
+    {
+      "id": "se",
+      "label": "Server Enabler (PSP or acquirer)",
+      "kind": "psp"
+    },
+    {
+      "id": "net",
+      "label": "Card network",
+      "kind": "network"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "server",
+      "to": "client",
+      "label": "402 with method=\"card\"",
+      "detail": "request carries amount, currency, methodDetails.acceptedNetworks, merchantName and the encryption key as encryptionJwk or jwksUri plus kid on the realm origin.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md",
+        "section": "Request Schema"
+      }
+    },
+    {
+      "n": 2,
+      "from": "client",
+      "to": "ce",
+      "label": "Ask for a token for this challenge",
+      "detail": "The client sends its card reference and the full challenge context to its Client Enabler. The spec shows an illustrative endpoint only.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md"
+      }
+    },
+    {
+      "n": 3,
+      "from": "ce",
+      "to": "client",
+      "label": "Encrypted payload",
+      "detail": "The Client Enabler provisions a network token and cryptogram, for example through Visa Intelligent Commerce, and encrypts them as a JWE (RSA-OAEP) for the server key. Neither client nor server can read it.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md",
+        "section": "Credential Schema"
+      }
+    },
+    {
+      "n": 4,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with Authorization: Payment",
+      "detail": "The payload carries encryptedPayload, network and panLastFour with expiry fields. The spec lets the client add Trusted Agent Protocol signature headers for extra assurance.",
+      "payload": {
+        "format": "json",
+        "content": "# decoded credential payload (Illustrative example, spec version draft-card-charge-00; placeholders)\n{\n  \"encryptedPayload\": \"eyJhbGciOiJSU0EtT0FFUC0yNTYi...\",\n  \"network\": \"visa\",\n  \"panLastFour\": \"4242\",\n  \"panExpirationMonth\": \"12\",\n  \"panExpirationYear\": \"2029\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md",
+        "section": "Credential Schema"
+      }
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "se",
+      "label": "Forward encryptedPayload",
+      "detail": "The server passes the opaque JWE to its Server Enabler.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md"
+      }
+    },
+    {
+      "n": 6,
+      "from": "se",
+      "to": "net",
+      "label": "Authorize",
+      "detail": "The Server Enabler decrypts and requests authorization on the network. Card economics and chargeback rules apply as usual.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md"
+      },
+      "failures": [
+        {
+          "condition": "Decline",
+          "outcome": "Server should issue a fresh 402."
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "from": "server",
+      "to": "client",
+      "label": "200 with Payment-Receipt",
+      "detail": "The receipt carries challengeId and the authorization reference.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md",
+        "section": "Receipt"
+      }
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-card-charge",
+    "src-stripe-mpp-visa-card",
+    "src-stripe-mpp-visa-mcp-guide"
+  ]
+}

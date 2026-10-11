@@ -1,0 +1,15 @@
+{
+  "id": "stripe-mpp-anatomy",
+  "protocol": "stripe-mpp",
+  "type": "other",
+  "title": "Challenge, credential and receipt anatomy",
+  "caption": "What each of the three messages carries. The challenge id binds every parameter except description, the credential echoes the challenge, and the receipt appears only on success.",
+  "alt": "Three stacked boxes. Challenge in WWW-Authenticate: Payment with status 402: required id, realm, method, intent and request; optional digest, expires, description, header and opaque; id computed as HMAC-SHA256 over the parameters joined by pipes. Credential in Authorization: Payment as base64url: challenge echo, optional payer DID source, method payload, sent in Payment-Authorization when the challenge set header. Receipt in Payment-Receipt, 2xx only: status success, method, timestamp and reference, with method extras such as subscriptionId, challengeId and channelId.",
+  "sourceOfTruth": {
+    "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+    "label": "Core draft-httpauth-payment-01, sections on challenge, credentials and receipt"
+  },
+  "sources": [
+    "src-stripe-mpp-core-01"
+  ]
+}

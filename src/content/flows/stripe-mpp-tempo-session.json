@@ -1,0 +1,186 @@
+{
+  "id": "stripe-mpp-tempo-session",
+  "protocol": "stripe-mpp",
+  "title": "MPP metered session on Tempo (open, vouchers, top-up, cooperative close)",
+  "summary": "For streaming and per-unit pricing. The client opens an escrow channel with a deposit, then pays with off-chain cumulative vouchers sent to the same URI; the server settles when it likes and closes cooperatively, capturing only what was spent.",
+  "specVersion": "draft-tempo-session-00 (v2 text merged 2026-06-25)",
+  "specVersionDate": "2026-06-25",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    },
+    {
+      "id": "escrow",
+      "label": "Tempo escrow (precompile in v2)",
+      "kind": "chain"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "server",
+      "to": "client",
+      "label": "402 with intent=\"session\"",
+      "detail": "The amount is the price per unit; the request names unitType, suggestedDeposit, recipient and methodDetails.escrowContract, chainId and sessionProtocol.",
+      "payload": {
+        "format": "json",
+        "content": "# decoded request (Illustrative example, spec version draft-tempo-session-00; placeholders)\n{\n  \"amount\": \"25\",\n  \"unitType\": \"llm_token\",\n  \"suggestedDeposit\": \"10000000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0xB0B0000000000000000000000000000000000B0B\",\n  \"methodDetails\": { \"escrowContract\": \"0x9d13...Fa70\", \"chainId\": 42431, \"sessionProtocol\": \"v2\" }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Request Schema"
+      }
+    },
+    {
+      "n": 2,
+      "from": "client",
+      "to": "server",
+      "label": "action open",
+      "detail": "The client signs a transaction that deposits into the escrow and an initial voucher of 0, and sends them with the channelId (and the v2 descriptor).",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Open Payload"
+      }
+    },
+    {
+      "n": 3,
+      "from": "server",
+      "to": "escrow",
+      "label": "Broadcast open",
+      "detail": "The server broadcasts the open transaction, adding a fee payer signature if it offered one, and verifies the channel.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Open Verification"
+      }
+    },
+    {
+      "n": 4,
+      "from": "server",
+      "to": "client",
+      "label": "200, stream begins, receipt",
+      "detail": "Every paid response carries a receipt with channelId, acceptedCumulative and spent.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Receipt Generation"
+      }
+    },
+    {
+      "n": 5,
+      "from": "client",
+      "to": "server",
+      "label": "action voucher (HEAD allowed)",
+      "detail": "As units are consumed the client signs EIP-712 vouchers with a rising cumulativeAmount and sends them to the same URI. Vouchers are off-chain and cost no fee.",
+      "payload": {
+        "format": "json",
+        "content": "# decoded credential payload (Illustrative example, spec version draft-tempo-session-00)\n{ \"action\": \"voucher\", \"channelId\": \"0x6d0f...8e9f\", \"cumulativeAmount\": \"250000\", \"signature\": \"0x1234...cdef\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Voucher Payload"
+      },
+      "failures": [
+        {
+          "condition": "Voucher above deposit",
+          "outcome": "session/amount-exceeds-deposit"
+        },
+        {
+          "condition": "Increase below minVoucherDelta",
+          "outcome": "session/delta-too-small"
+        },
+        {
+          "condition": "Wrong signer",
+          "outcome": "session/signer-mismatch"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "client",
+      "to": "escrow",
+      "label": "action topUp when low",
+      "detail": "When the deposit runs low the client adds funds. A top-up also cancels any pending close request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "TopUp Payload"
+      }
+    },
+    {
+      "n": 7,
+      "from": "server",
+      "to": "escrow",
+      "label": "settle (optional, any time)",
+      "detail": "The server may claim the difference between the newest voucher and what is already settled, periodically or by threshold.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Settlement Timing"
+      }
+    },
+    {
+      "n": 8,
+      "from": "client",
+      "to": "server",
+      "label": "action close",
+      "detail": "The client asks to close with a final voucher.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Close Payload"
+      }
+    },
+    {
+      "n": 9,
+      "from": "server",
+      "to": "escrow",
+      "label": "close",
+      "detail": "The server captures max(spent, settled on chain), never more than delivered service, and the rest returns to the payer. If the server never closes, the client uses requestClose and, after at least 15 minutes, withdraw.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Cooperative Close"
+      },
+      "failures": [
+        {
+          "condition": "Server unresponsive",
+          "outcome": "Forced close: requestClose, grace period of at least 15 minutes, withdraw."
+        }
+      ]
+    },
+    {
+      "n": 10,
+      "from": "server",
+      "to": "client",
+      "label": "Final receipt with txHash",
+      "detail": "For SSE the final receipt also arrives as a payment-receipt event.",
+      "payload": {
+        "format": "text",
+        "content": "event: payment-receipt\ndata: {\"method\":\"tempo\",\"intent\":\"session\",\"status\":\"success\",\"reference\":\"0x6d0f...8e9f\",\"channelId\":\"0x6d0f...8e9f\",\"acceptedCumulative\":\"250000\",\"spent\":\"250000\",\"txHash\":\"0x1a2b...7890\"}\n\n# Illustrative example, spec version draft-tempo-session-00",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md",
+        "section": "Receipt Generation"
+      }
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-tempo-session",
+    "src-stripe-mpp-blog-sessions"
+  ]
+}

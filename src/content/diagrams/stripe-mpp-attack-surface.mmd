@@ -1,0 +1,23 @@
+flowchart LR
+  subgraph CL["Client"]
+    A1["Overpay: malicious server sets amount or recipient"]
+    A2["Leaked credential spent by someone else"]
+  end
+  subgraph NET["Path and intermediaries"]
+    A3["Proxy caches a Payment-Authorization response"]
+    A4["Spoofed discovery data"]
+  end
+  subgraph SV["Server and SDK"]
+    A5["Replay of a consumed id or SPT"]
+    A6["Fee payer drained by padded calldata"]
+    A7["Close voucher equal to settled amount"]
+  end
+  subgraph CH["Channel"]
+    A8["Never-expiring channel left open"]
+    A9["Server unresponsive at close"]
+  end
+  A1 -- "client checks before paying" --> SV
+  A2 -- "TLS, never log credentials" --> SV
+  A3 -- "Cache-Control private or no-store" --> SV
+  A4 -- "402 challenge is authoritative" --> SV
+  A9 -- "forced close after 15 minutes" --> CH

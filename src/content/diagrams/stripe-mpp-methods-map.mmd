@@ -1,0 +1,36 @@
+flowchart LR
+  subgraph IN["Intents"]
+    CH["charge (specs/intents)"]
+    SU["subscription (specs/intents)"]
+    SE["session (per method only)"]
+  end
+  TE["tempo: TIP-20, Tempo Labs"]
+  STR["stripe: SPT, Stripe and Tempo Labs"]
+  CA["card: network tokens, Visa"]
+  LI["lightning: BOLT11, Lightspark"]
+  EV["evm: ERC-20, Coinbase, MegaETH, Monad; OKG"]
+  SO["solana: SOL and SPL, Solana Foundation; Moonsong"]
+  STE["stellar: SEP-41, SDF"]
+  HE["hedera: HTS, Hedera"]
+  US["usdc: Circle"]
+  NE["nearintents: Near One"]
+  XR["xrpl: Ripple"]
+  TE --> CH
+  TE --> SE
+  TE --> SU
+  STR --> CH
+  STR --> SU
+  CA --> CH
+  LI --> CH
+  LI --> SE
+  EV --> CH
+  EV --> SE
+  SO --> CH
+  SO --> SE
+  STE --> CH
+  HE --> CH
+  HE --> SE
+  US --> CH
+  NE --> CH
+  XR --> CH
+  XR --> SE

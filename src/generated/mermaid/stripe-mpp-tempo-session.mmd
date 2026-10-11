@@ -1,0 +1,39 @@
+sequenceDiagram
+  accTitle: MPP metered session on Tempo (open, vouchers, top-up, cooperative close)
+  accDescr: Sequence diagram: MPP metered session on Tempo (open, vouchers, top-up, cooperative close). 3 participants: Client (agent), Resource server, and Tempo escrow (precompile in v2). 10 steps, 10 crossing a trust boundary, 4 failure branches. Based on stripe-mpp draft-tempo-session-00 (v2 text merged 2026-06-25) (2026-06-25). Step 1: Resource server to Client (agent): 402 with intent= session. This step crosses a trust boundary. Step 2: Client (agent) to Resource server: action open. This step crosses a trust boundary. Step 3: Resource server to Tempo escrow (precompile in v2): Broadcast open. This step crosses a trust boundary. Step 4: Resource server to Client (agent): 200, stream begins, receipt. This step crosses a trust boundary. Step 5: Client (agent) to Resource server: action voucher (HEAD allowed). This step crosses a trust boundary. If Voucher above deposit: session/amount-exceeds-deposit. If Increase below minVoucherDelta: session/delta-too-small. If Wrong signer: session/signer-mismatch. Step 6: Client (agent) to Tempo escrow (precompile in v2): action topUp when low. This step crosses a trust boundary. Step 7: Resource server to Tempo escrow (precompile in v2): settle (optional, any time). This step crosses a trust boundary. Step 8: Client (agent) to Resource server: action close. This step crosses a trust boundary. Step 9: Resource server to Tempo escrow (precompile in v2): close. This step crosses a trust boundary. If Server unresponsive: Forced close: requestClose, grace period of at least 15 minutes, withdraw. Step 10: Resource server to Client (agent): Final receipt with txHash. This step crosses a trust boundary.
+  autonumber
+  participant p_client as Client (agent)
+  participant p_server as Resource server
+  participant p_escrow as Tempo escrow (precompile in v2)
+  p_server-->>p_client: 402 with intent=#quot;session#quot;
+  Note over p_server,p_client: Crosses a trust boundary
+  p_client->>p_server: action open
+  Note over p_client,p_server: Crosses a trust boundary
+  p_server->>p_escrow: Broadcast open
+  Note over p_server,p_escrow: Crosses a trust boundary
+  p_server-->>p_client: 200, stream begins, receipt
+  Note over p_server,p_client: Crosses a trust boundary
+  alt Expected path
+    p_client->>p_server: action voucher (HEAD allowed)
+    Note over p_client,p_server: Crosses a trust boundary
+  else Voucher above deposit
+    Note over p_client,p_server: session/amount-exceeds-deposit
+  else Increase below minVoucherDelta
+    Note over p_client,p_server: session/delta-too-small
+  else Wrong signer
+    Note over p_client,p_server: session/signer-mismatch
+  end
+  p_client->>p_escrow: action topUp when low
+  Note over p_client,p_escrow: Crosses a trust boundary
+  p_server->>p_escrow: settle (optional, any time)
+  Note over p_server,p_escrow: Crosses a trust boundary
+  p_client->>p_server: action close
+  Note over p_client,p_server: Crosses a trust boundary
+  alt Expected path
+    p_server->>p_escrow: close
+    Note over p_server,p_escrow: Crosses a trust boundary
+  else Server unresponsive
+    Note over p_server,p_escrow: Forced close: requestClose, grace period of at least 15 minutes, withdraw.
+  end
+  p_server->>p_client: Final receipt with txHash
+  Note over p_server,p_client: Crosses a trust boundary

@@ -1,0 +1,118 @@
+{
+  "id": "stripe-mpp-subscription-renewal",
+  "protocol": "stripe-mpp",
+  "title": "MPP subscription: activation and one renewal per period",
+  "summary": "The client grants a recurring authorization once. The server collects the first period on activation and returns a subscriptionId, then collects at most one renewal per later period, before or with delivery. Any failure returns 402 with a fresh challenge.",
+  "specVersion": "draft-payment-intent-subscription-00 with draft-tempo-subscription-00",
+  "specVersionDate": "2026-07-29",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    },
+    {
+      "id": "net",
+      "label": "Payment network (Tempo or Stripe)",
+      "kind": "network"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "server",
+      "to": "client",
+      "label": "402 with intent=\"subscription\"",
+      "detail": "request carries amount, currency, periodUnit and periodCount; Tempo also needs recipient and subscriptionExpires and allows only day or week.",
+      "payload": {
+        "format": "json",
+        "content": "# decoded request (Illustrative example, spec version draft-tempo-subscription-00; placeholders)\n{\n  \"amount\": \"5000000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0xB0B0000000000000000000000000000000000B0B\",\n  \"periodUnit\": \"week\",\n  \"periodCount\": \"1\",\n  \"subscriptionExpires\": \"2027-01-01T00:00:00Z\",\n  \"methodDetails\": { \"chainId\": 42431, \"accessKey\": { \"accessKeyAddress\": \"0xAcce...55ed\", \"keyType\": \"p256\" } }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-subscription-00.md",
+        "section": "Request Schema"
+      }
+    },
+    {
+      "n": 2,
+      "from": "client",
+      "to": "server",
+      "label": "Credential with the grant",
+      "detail": "On Tempo the payload is a keyAuthorization signature for an access key with limits; on Stripe it is a PaymentMethod and customer.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/intents/draft-payment-intent-subscription-00.md",
+        "section": "Credential Requirements"
+      }
+    },
+    {
+      "n": 3,
+      "from": "server",
+      "to": "net",
+      "label": "Collect the first period",
+      "detail": "The server verifies the grant, collects the first charge and stores durable subscription state.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/intents/draft-payment-intent-subscription-00.md",
+        "section": "Activation"
+      }
+    },
+    {
+      "n": 4,
+      "from": "server",
+      "to": "client",
+      "label": "200 with subscriptionId in the receipt",
+      "detail": "The subscription is active only after these steps succeed. The id alone authorizes nothing later.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/intents/draft-payment-intent-subscription-00.md",
+        "section": "Subscription Identifier"
+      }
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "net",
+      "label": "Next period: one renewal",
+      "detail": "For each later period the server may collect one renewal, before or atomically with delivery. Missed periods do not add up.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/intents/draft-payment-intent-subscription-00.md",
+        "section": "Renewal"
+      },
+      "failures": [
+        {
+          "condition": "Renewal fails",
+          "outcome": "402 with a fresh challenge."
+        },
+        {
+          "condition": "Cancelled or expired",
+          "outcome": "402 with a fresh challenge; no further renewals."
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "client",
+      "label": "Serve the period",
+      "detail": "Access for the period follows the collected renewal.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/intents/draft-payment-intent-subscription-00.md"
+      }
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-intent-subscription",
+    "src-stripe-mpp-tempo-subscription",
+    "src-stripe-mpp-stripe-subscription"
+  ]
+}

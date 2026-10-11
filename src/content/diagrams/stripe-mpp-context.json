@@ -1,0 +1,17 @@
+{
+  "id": "stripe-mpp-context",
+  "protocol": "stripe-mpp",
+  "type": "context",
+  "title": "MPP actors and trust boundaries",
+  "caption": "Four zones: the client holds its keys and policy, the server holds the binding secret and the handler, the rail settles, and discovery is public and advisory. Numbers follow the main flow.",
+  "alt": "Flowchart. The client zone holds the agent, its wallet key, SPT or card enabler, and its policy checks. The client requests a resource from the server middleware, gets 402 with WWW-Authenticate: Payment, pays through the named method, and retries with Authorization: Payment. The server middleware, which holds the HMAC binding secret, verifies and settles through one rail: the Tempo chain and escrow, Stripe PaymentIntents, a card network through enablers, or a Lightning node, then returns 200 with Payment-Receipt. The client may find services through /openapi.json and MPPscan.",
+  "sourceOfTruth": {
+    "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+    "label": "Payment HTTP Authentication Scheme, draft-httpauth-payment-01"
+  },
+  "sources": [
+    "src-stripe-mpp-core-01",
+    "src-stripe-mpp-discovery",
+    "src-stripe-mpp-mppscan"
+  ]
+}

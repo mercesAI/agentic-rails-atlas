@@ -1,0 +1,65 @@
+classDiagram
+  class Challenge {
+    string id
+    string realm
+    string method
+    string intent
+    string request
+    string digest
+    string expires
+    string description
+    string header
+    string opaque
+  }
+  class Request {
+    string amount
+    string currency
+    string recipient
+    string description
+    string externalId
+    object methodDetails
+  }
+  class SubscriptionFields {
+    string periodUnit
+    string periodCount
+    string subscriptionExpires
+  }
+  class Credential {
+    ChallengeEcho challenge
+    string source
+    object payload
+  }
+  class Receipt {
+    string status
+    string method
+    string timestamp
+    string reference
+    string subscriptionId
+  }
+  class SessionPayload {
+    string action
+    string channelId
+    string cumulativeAmount
+    string signature
+  }
+  class SessionReceipt {
+    string challengeId
+    string channelId
+    string acceptedCumulative
+    string spent
+    number units
+    string txHash
+  }
+  class Problem {
+    string type
+    string title
+    number status
+    string detail
+  }
+  Challenge --> Request : request (base64url JCS)
+  Request <|-- SubscriptionFields : subscription intent
+  Credential --> Challenge : echoes
+  Credential --> SessionPayload : payload (tempo session)
+  Receipt <|-- SessionReceipt : tempo session
+  Challenge ..> Problem : 402 body
+  Credential ..> Receipt : 200 Payment-Receipt

@@ -1,0 +1,135 @@
+{
+  "id": "stripe-mpp-stripe-spt-charge",
+  "protocol": "stripe-mpp",
+  "title": "MPP charge with the stripe method (Shared Payment Token)",
+  "summary": "The challenge names the seller profile and accepted payment method types. The client creates a Shared Payment Token scoped to that seller and sends its id; the server creates and confirms a PaymentIntent and returns the PaymentIntent id as the receipt reference.",
+  "specVersion": "draft-stripe-charge-00",
+  "specVersionDate": "2026-09-09",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "stripe",
+      "label": "Stripe (client account)",
+      "kind": "psp"
+    },
+    {
+      "id": "server",
+      "label": "Seller server",
+      "kind": "server"
+    },
+    {
+      "id": "stripeS",
+      "label": "Stripe (seller account)",
+      "kind": "psp"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "server",
+      "to": "client",
+      "label": "402 with method=\"stripe\"",
+      "detail": "request carries amount, currency, methodDetails.networkId (the seller Business Network Profile) and methodDetails.paymentMethodTypes.",
+      "payload": {
+        "format": "json",
+        "content": "# decoded request (Illustrative example, spec version draft-stripe-charge-00; placeholder ids)\n{\n  \"amount\": \"500\",\n  \"currency\": \"usd\",\n  \"methodDetails\": {\n    \"networkId\": \"profile_test_123\",\n    \"paymentMethodTypes\": [\"card\", \"link\"]\n  }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
+        "section": "Request Schema"
+      }
+    },
+    {
+      "n": 2,
+      "from": "client",
+      "to": "stripe",
+      "label": "Create a Shared Payment Token",
+      "detail": "The client collects a payment method, which may prompt 3DS or a biometric check, and creates an SPT with usage limits (currency, maximum amount, expiry) scoped to the seller profile.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
+        "section": "Client Behavior"
+      }
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "server",
+      "label": "Retry with credential payload {spt}",
+      "detail": "The payload carries the token id.",
+      "payload": {
+        "format": "json",
+        "content": "# decoded credential payload (Illustrative example, spec version draft-stripe-charge-00)\n{ \"spt\": \"spt_1QabcDEF...\", \"externalId\": \"order_42\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
+        "section": "Credential Schema"
+      }
+    },
+    {
+      "n": 4,
+      "from": "server",
+      "to": "stripeS",
+      "label": "Create PaymentIntent (confirm true)",
+      "detail": "After checking the challenge id and expiry, the server creates a PaymentIntent with confirm true, the token as shared_payment_granted_token and metadata.challenge_id. The idempotency key combines the challenge id and the SPT. Connect fields come from server configuration, never from the challenge.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
+        "section": "Settlement"
+      },
+      "failures": [
+        {
+          "condition": "Stripe answers with Idempotent-Replayed for a new challenge",
+          "outcome": "Treat as replay; mppx before 0.4.11 missed this (CVE-2026-34210)."
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "stripeS",
+      "to": "server",
+      "label": "PaymentIntent status",
+      "detail": "Only status succeeded produces a receipt.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md"
+      },
+      "failures": [
+        {
+          "condition": "Any other status",
+          "outcome": "402 with a fresh challenge."
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "client",
+      "label": "200 with Payment-Receipt",
+      "detail": "The receipt reference is the PaymentIntent id (pi_...). The payment shows up in the seller Stripe Dashboard like any other.",
+      "payload": {
+        "format": "json",
+        "content": "# decoded receipt (Illustrative example, spec version draft-stripe-charge-00)\n{ \"status\": \"success\", \"method\": \"stripe\", \"timestamp\": \"2026-10-11T12:00:02Z\", \"reference\": \"pi_3Qxyz...\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
+        "section": "Receipt"
+      }
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-stripe-charge",
+    "src-stripe-mpp-ghsa-34210",
+    "src-stripe-mpp-stripe-blog"
+  ]
+}

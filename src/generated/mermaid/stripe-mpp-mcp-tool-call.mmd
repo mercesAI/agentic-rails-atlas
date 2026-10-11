@@ -1,0 +1,22 @@
+sequenceDiagram
+  accTitle: MPP over MCP: a paid tool call
+  accDescr: Sequence diagram: MPP over MCP: a paid tool call. 2 participants: MCP client (agent) and MCP server. 4 steps, 4 crossing a trust boundary, 3 failure branches. Based on stripe-mpp draft-payment-transport-mcp-00 (2026-09-09). Step 1: MCP client (agent) to MCP server: tools/call premium-analysis. This step crosses a trust boundary. Step 2: MCP server to MCP client (agent): error -32042 Payment Required. This step crosses a trust boundary. Step 3: MCP client (agent) to MCP server: Retry with _meta org.paymentauth/credential. This step crosses a trust boundary. If Verification fails: error -32043 with a fresh challenge and a failure object. If Malformed credential: error -32602. If Processor failure: error -32603. Step 4: MCP server to MCP client (agent): Result with _meta org.paymentauth/receipt. This step crosses a trust boundary.
+  autonumber
+  participant p_client as MCP client (agent)
+  participant p_server as MCP server
+  p_client->>p_server: tools/call premium-analysis
+  Note over p_client,p_server: Crosses a trust boundary
+  p_server-->>p_client: error -32042 Payment Required
+  Note over p_server,p_client: Crosses a trust boundary
+  alt Expected path
+    p_client->>p_server: Retry with _meta org.paymentauth/credential
+    Note over p_client,p_server: Crosses a trust boundary
+  else Verification fails
+    Note over p_client,p_server: error -32043 with a fresh challenge and a failure object.
+  else Malformed credential
+    Note over p_client,p_server: error -32602.
+  else Processor failure
+    Note over p_client,p_server: error -32603.
+  end
+  p_server-->>p_client: Result with _meta org.paymentauth/receipt
+  Note over p_server,p_client: Crosses a trust boundary

@@ -1,0 +1,100 @@
+{
+  "id": "stripe-mpp-failure-reused-challenge",
+  "protocol": "stripe-mpp",
+  "title": "MPP failure: a used credential is sent again (replay)",
+  "summary": "A credential that already paid is presented a second time, by the same client or by an attacker who copied it. The id is single use, so the server answers 402 with invalid-challenge and settles nothing.",
+  "specVersion": "draft-httpauth-payment-01",
+  "specVersionDate": "2026-09-09",
+  "actors": [
+    {
+      "id": "client",
+      "label": "Client (agent)",
+      "kind": "agent"
+    },
+    {
+      "id": "server",
+      "label": "Resource server",
+      "kind": "server"
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "client",
+      "to": "server",
+      "label": "GET /v1/forecast",
+      "detail": "Unpaid request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md"
+      }
+    },
+    {
+      "n": 2,
+      "from": "server",
+      "to": "client",
+      "label": "402 with challenge",
+      "detail": "Server issues a bound challenge with expires.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Challenge (WWW-Authenticate)"
+      }
+    },
+    {
+      "n": 3,
+      "from": "client",
+      "to": "server",
+      "label": "First retry pays",
+      "detail": "The first credential is verified and settled; the server marks the id as consumed and returns 200 with a receipt.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Replay Protection"
+      }
+    },
+    {
+      "n": 4,
+      "from": "client",
+      "to": "server",
+      "label": "Same credential again",
+      "detail": "A second request carries the identical credential. Credentials are bearer tokens, so a leaked one looks exactly like this.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Credential Handling"
+      }
+    },
+    {
+      "n": 5,
+      "from": "server",
+      "to": "server",
+      "label": "Look up the id",
+      "detail": "The id is already consumed. The method proof is single use too, so even a stateless server would fail the on-chain check.",
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Replay Protection"
+      }
+    },
+    {
+      "n": 6,
+      "from": "server",
+      "to": "client",
+      "label": "402, fresh challenge, invalid-challenge",
+      "detail": "The server answers with a new challenge and an invalid-challenge problem. Concurrent duplicates must yield at most one settlement, so servers use atomic operations or locks on the id.",
+      "payload": {
+        "format": "http",
+        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nContent-Type: application/problem+json\nWWW-Authenticate: Payment id=\"pT7yHnKmQ2wErXsZ5vCbNl\", realm=\"api.example.com\", method=\"tempo\", intent=\"charge\", expires=\"2026-10-11T12:20:00Z\", request=\"eyJ...\"\n\n{\"type\":\"https://paymentauth.org/problems/invalid-challenge\",\"title\":\"Invalid challenge\",\"status\":402}\n\n# Illustrative example, spec version draft-httpauth-payment-01",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
+        "section": "Status Codes"
+      }
+    }
+  ],
+  "sources": [
+    "src-stripe-mpp-core-01"
+  ]
+}

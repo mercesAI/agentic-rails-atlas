@@ -1,0 +1,34 @@
+flowchart LR
+  subgraph CZ["Client trust zone"]
+    AG["Client or agent"]
+    WK["Wallet key, SPT or card enabler"]
+    PO["Client policy: amount, recipient, expires"]
+  end
+  subgraph SZ["Server trust zone"]
+    MW["Payment middleware (mppx)"]
+    HK["HMAC binding secret"]
+    RS["Resource handler"]
+  end
+  subgraph RZ["Rail (method) zone"]
+    TP["Tempo chain and escrow"]
+    ST["Stripe PaymentIntents"]
+    CN["Card network via enablers"]
+    LN["Lightning node"]
+  end
+  subgraph DZ["Discovery (public, advisory)"]
+    OA["/openapi.json x-payment-info"]
+    SCN["MPPscan and mpp.dev directory"]
+  end
+  AG -- "1 request, 4 retry with Authorization: Payment" --> MW
+  MW -- "2 402 + WWW-Authenticate: Payment" --> AG
+  PO --- AG
+  WK -- "3 pay through the named method" --> AG
+  HK --- MW
+  MW -- "5 verify and settle" --> TP
+  MW -- "5 verify and settle" --> ST
+  MW -- "5 verify and settle" --> CN
+  MW -- "5 verify and settle" --> LN
+  MW -- "6 200 + Payment-Receipt" --> AG
+  MW --> RS
+  AG -. "find paid services" .-> OA
+  AG -. "browse" .-> SCN
