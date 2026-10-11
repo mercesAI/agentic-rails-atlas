@@ -1,0 +1,10 @@
+{
+  "id": "multi-shopper-in-gemini-context",
+  "protocol": "multi",
+  "type": "composition",
+  "title": "A shopper in Gemini: actors and protocol boundaries",
+  "caption": "UCP carries discovery, checkout, payment handler execution and signed order webhooks between Gemini and the merchant. AP2 adds the merchant signature on the checkout and the user-approved closed mandates, carried inside UCP by the AP2 extension; that part is specified, and its live use on Google surfaces is unverified. Google Pay on Google AI surfaces uses only PAN_ONLY, so no network token is shown. The merchant is merchant of record and authorizes through its own PSP.",
+  "alt": "Flowchart. The shopper chats with the Gemini agent, which acts as a UCP platform, and later approves the checkout in a trusted checkout UI that plays the AP2 Trusted Surface role. Gemini reads the merchant's /.well-known/ucp profile and keys, creates a checkout on the merchant's UCP endpoint, and receives the checkout with an ap2.merchant_authorization signature. Gemini hands the checkout to the trusted UI, which runs the Google Pay handler com.google.pay; on Google surfaces this handler uses only PAN_ONLY. The trusted UI produces the closed AP2 mandates, a dashed line marked per spec and live use unverified. Gemini completes the checkout with the token and ap2.checkout_mandate in an RFC 9421 signed request. The merchant authorizes the token with its PSP, which plays the AP2 Merchant Payment Processor role and runs a card authorization with the network and issuer. The merchant then sends RFC 9421 signed order webhooks back to Gemini.",
+  "sourceOfTruth": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md", "label": "UCP AP2 Mandates Extension (v2026-08-25), with the Google UCP FAQ" },
+  "sources": ["src-ucp-overview", "src-ucp-ap2-spec", "src-ucp-order", "src-ucp-google-faq", "src-ap2-spec-v02", "src-ap2-flows"]
+}

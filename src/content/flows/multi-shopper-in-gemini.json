@@ -1,0 +1,236 @@
+{
+  "id": "multi-shopper-in-gemini",
+  "protocol": "multi",
+  "title": "A shopper buys running shoes in Gemini: UCP checkout, an AP2 checkout mandate (per spec), Google Pay, signed order webhooks",
+  "summary": "A shopper asks Gemini for running shoes. Gemini, acting as a UCP platform, reads the merchant's /.well-known/ucp profile, creates a checkout, and completes it with a Google Pay credential obtained through the com.google.pay handler, which on Google AI surfaces uses only PAN_ONLY. The AP2 mandate steps follow the UCP AP2 extension and AP2 v0.2 as specified; their live use on Google surfaces is unverified. The merchant authorizes through its own PSP and sends RFC 9421 signed order webhooks.",
+  "specVersion": "UCP v2026-08-25; AP2 v0.2",
+  "specVersionDate": "2026-08-25",
+  "actors": [
+    { "id": "buyer", "label": "Shopper", "kind": "human" },
+    { "id": "gemini", "label": "Gemini (UCP platform, shopping agent)", "kind": "platform" },
+    { "id": "surface", "label": "Trusted checkout UI (Trusted Surface)", "kind": "trusted-surface" },
+    { "id": "gpay", "label": "Google Pay (credential provider)", "kind": "wallet" },
+    { "id": "merchant", "label": "Merchant (business, merchant of record)", "kind": "merchant" },
+    { "id": "psp", "label": "Merchant PSP (Merchant Payment Processor)", "kind": "psp" },
+    { "id": "network", "label": "Card network and issuer", "kind": "network" }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "buyer",
+      "to": "gemini",
+      "label": "Ask for running shoes",
+      "detail": "The shopper asks Gemini for a pair of running shoes in a size and price range and stays in the conversation. This is a human-present purchase.",
+      "controlPoint": "Before authorization: the platform decides which merchants and capability namespaces it will transact with."
+    },
+    {
+      "n": 2,
+      "from": "gemini",
+      "to": "merchant",
+      "label": "GET /.well-known/ucp (business profile)",
+      "protocol": "ucp",
+      "detail": "Gemini reads the merchant profile: ucp.version, services, capabilities (dev.ucp.shopping.checkout, dev.ucp.shopping.order and, if offered, dev.ucp.common.payment.ap2_mandate), payment_handlers including com.google.pay, and the keys array used to verify the merchant's signatures.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"services\": { \"dev.ucp.shopping\": [ { \"version\": \"2026-08-25\", \"transport\": \"rest\", \"endpoint\": \"https://shoes.example/ucp\" } ] },\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [ { \"version\": \"2026-08-25\" } ],\n      \"dev.ucp.shopping.order\": [ { \"version\": \"2026-08-25\" } ],\n      \"dev.ucp.common.payment.ap2_mandate\": [ { \"version\": \"2026-08-25\" } ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [ { \"id\": \"gpay_1234\", \"version\": \"2024-12-03\" } ]\n    }\n  },\n  \"keys\": [ { \"kty\": \"EC\", \"crv\": \"P-256\", \"kid\": \"shoes-2026\", \"x\": \"...\", \"y\": \"...\" } ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/overview/index.md", "section": "Discovery and negotiation" },
+      "observable": "Public: the profile at /.well-known/ucp is cacheable and shows capabilities, transports, payment handlers and keys.",
+      "failures": [
+        { "condition": "The two profiles share no compatible capability", "outcome": "capabilities_incompatible (returned with HTTP 200 inside a UCP response)." }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "gemini",
+      "to": "merchant",
+      "label": "POST /checkout-sessions with UCP-Agent",
+      "protocol": "ucp",
+      "detail": "Gemini creates a checkout with line_items and its own profile URI in the UCP-Agent header; Google says its requests also carry a User-Agent beginning with Google/UCP. Idempotency-Key is required on state-changing calls. If the capability intersection includes the AP2 extension, the session is locked: neither side may fall back to an unprotected checkout.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version 2026-08-25.\nPOST /ucp/checkout-sessions HTTP/1.1\nHost: shoes.example\nUCP-Agent: profile=\"https://platform.example/ucp-profile\"\nIdempotency-Key: 550e8400-e29b-41d4-a716-446655440000\nRequest-Id: 7f1c...\nContent-Type: application/json\n\n{ \"line_items\": [ { \"item\": { \"id\": \"trail_runner_m10\" }, \"quantity\": 1 } ] }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/rest.md", "section": "Create Checkout" },
+      "controlPoint": "At the edge: the merchant verifies the platform's identity (signature, API key, OAuth or mTLS) and that it may act for the profile named in UCP-Agent; rate limits and SSRF guards on profile fetches.",
+      "observable": "Private to the two parties; the merchant can recognize Google traffic by UCP-Agent and the Google/UCP User-Agent."
+    },
+    {
+      "n": 4,
+      "from": "merchant",
+      "to": "gemini",
+      "label": "Checkout with ap2.merchant_authorization",
+      "protocol": "ucp",
+      "detail": "The merchant returns the checkout (status, line_items, totals, links). With AP2 active it must sign every checkout response: ap2.merchant_authorization is a JWS with detached content over the JCS-canonicalized checkout without the ap2 field.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version 2026-08-25. Signature not real.\n{\n  \"id\": \"chk_123\",\n  \"status\": \"ready_for_complete\",\n  \"currency\": \"USD\",\n  \"line_items\": [ { \"id\": \"li_1\", \"item\": { \"id\": \"trail_runner_m10\", \"title\": \"Trail runner, size 10\", \"price\": 12999 }, \"quantity\": 1 } ],\n  \"totals\": [ { \"type\": \"total\", \"amount\": 13999 } ],\n  \"links\": [ { \"type\": \"terms_of_service\", \"url\": \"https://shoes.example/terms\" } ],\n  \"ap2\": { \"merchant_authorization\": \"eyJhbGciOiJFUzI1NiIsImtpZCI6InNob2VzLTIwMjYifQ..MEUCIQ...\" }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md", "section": "Business Authorization" },
+      "failures": [
+        { "condition": "The signature is missing or does not verify against the merchant's keys", "outcome": "merchant_authorization_missing or merchant_authorization_invalid; the platform must not show the checkout." },
+        { "condition": "The merchant needs buyer input it cannot get through the API", "outcome": "status requires_escalation with continue_url; the shopper finishes on the merchant's site." }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "gemini",
+      "to": "surface",
+      "label": "Verify the merchant signature, hand off to the trusted UI",
+      "protocol": "ap2",
+      "detail": "Gemini verifies ap2.merchant_authorization with a key from the merchant's keys array before showing anything. The checkout then goes to a Trusted Surface, which AP2 v0.2 requires to be non-agentic, so the shopper reviews exactly what the merchant signed.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md", "section": "Roles" },
+      "controlPoint": "At signing: show the latest merchant-signed checkout in a deterministic UI immediately before consent; refuse if the totals or merchant differ from what the shopper asked for."
+    },
+    {
+      "n": 6,
+      "from": "buyer",
+      "to": "surface",
+      "label": "Review and approve; choose Google Pay",
+      "protocol": "ap2",
+      "detail": "The shopper approves the checkout and picks the Google Pay card. In the AP2 human-present flow the user directly approves the closed Checkout and Payment Mandates on the Trusted Surface. The merchant's terms apply and must be accepted during checkout.",
+      "controlPoint": "At signing: explicit human approval of one closed checkout; the Trusted Surface can collect risk_data for the Payment Mandate."
+    },
+    {
+      "n": 7,
+      "from": "surface",
+      "to": "gpay",
+      "label": "Run the com.google.pay handler (PAN_ONLY)",
+      "protocol": "ucp",
+      "detail": "The platform executes the handler that the credential provider authored and the merchant configured, and gets an opaque credential. On Google AI surfaces, UCP checkout supports only PAN_ONLY for Google Pay allowed_auth_methods, so this path returns a card-on-file credential. A network-token (CRYPTOGRAM_3DS) path, or any network's agentic token, is not documented for Google surfaces.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://developers.google.com/merchant/ucp/faq", "section": "Google Pay" },
+      "observable": "Private: the Google Pay token travels platform to merchant to PSP and is never published.",
+      "failures": [
+        { "condition": "The merchant's PSP cannot process Google's tokens", "outcome": "The merchant cannot accept this handler; Google's FAQ makes PSP support a precondition." }
+      ]
+    },
+    {
+      "n": 8,
+      "from": "surface",
+      "to": "surface",
+      "label": "Create the closed mandates (per spec; live use unverified)",
+      "protocol": "ap2",
+      "detail": "Per AP2 v0.2 and the UCP extension: the Checkout Mandate (vct mandate.checkout.1) carries checkout_jwt, the merchant-signed checkout, and checkout_hash; the Payment Mandate (vct mandate.payment.1) carries transaction_id, the hash of checkout_jwt, plus payee, payment_amount and payment_instrument. Under the trusted platform provider model the platform signs with its server key after explicit consent. Google has said it would bring AP2 to its products starting with Gemini Spark; production use of AP2 mandates is unverified anywhere as of 2026-10-11.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version AP2 v0.2 (decoded claims, signatures omitted).\n{\n  \"checkout_mandate\": {\n    \"vct\": \"mandate.checkout.1\",\n    \"checkout_jwt\": \"eyJhbGciOiJFUzI1NiJ9.eyJpZCI6ImNoa18xMjMi...\",\n    \"checkout_hash\": \"NivWhuqfzcvZNapvIEJ2-3tsdQLkiuIcye2g46WVgX8\",\n    \"iat\": 1791720000\n  },\n  \"payment_mandate\": {\n    \"vct\": \"mandate.payment.1\",\n    \"transaction_id\": \"NivWhuqfzcvZNapvIEJ2-3tsdQLkiuIcye2g46WVgX8\",\n    \"payee\": { \"id\": \"merchant_shoes\", \"name\": \"Shoes Example\", \"website\": \"https://shoes.example\" },\n    \"payment_amount\": { \"amount\": 13999, \"currency\": \"USD\" },\n    \"payment_instrument\": { \"id\": \"pi_gpay_5678\", \"type\": \"card\", \"description\": \"Google Pay card ending 5678\" },\n    \"iat\": 1791720000\n  }\n}",
+        "illustrative": true
+      },
+      "specRef": { "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/checkout_mandate.md", "section": "Closed Checkout Mandate" },
+      "controlPoint": "At signing: the mandate binds consent to one checkout hash, so a changed cart cannot reuse it.",
+      "observable": "Private: mandates are exchanged only among agent, credential provider, merchant, processor and network."
+    },
+    {
+      "n": 9,
+      "from": "gemini",
+      "to": "merchant",
+      "label": "POST /checkout-sessions/{id}/complete (signed, with ap2.checkout_mandate)",
+      "protocol": "ucp",
+      "detail": "Gemini completes with exactly one payment instrument: handler_id gpay_1234, type card, and a credential whose token, under the AP2 extension, carries the payment mandate as a composite token. ap2.checkout_mandate holds the SD-JWT with key binding. The request is signed with RFC 9421 and its body bound by Content-Digest.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version 2026-08-25. Tokens and signatures not real.\nPOST /ucp/checkout-sessions/chk_123/complete HTTP/1.1\nHost: shoes.example\nUCP-Agent: profile=\"https://platform.example/ucp-profile\"\nIdempotency-Key: 9b2f...\nContent-Digest: sha-256=:X48E9q...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"ucp-agent\" \"idempotency-key\" \"content-digest\" \"content-type\");keyid=\"platform-2026\"\nSignature: sig1=:6G4i8TS6oUkG...:\nContent-Type: application/json\n\n{\n  \"payment\": { \"instruments\": [ {\n    \"id\": \"pi_gpay_5678\", \"handler_id\": \"gpay_1234\", \"type\": \"card\", \"selected\": true,\n    \"display\": { \"brand\": \"visa\", \"last_digits\": \"5678\" },\n    \"credential\": { \"type\": \"PAYMENT_GATEWAY\", \"token\": \"<Google Pay token with payment mandate>\" }\n  } ] },\n  \"ap2\": { \"checkout_mandate\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~\" }\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md", "section": "Step 3: Submission (complete_checkout)" },
+      "failures": [
+        { "condition": "AP2 was negotiated but ap2.checkout_mandate is missing", "outcome": "mandate_required; the merchant must reject the complete." },
+        { "condition": "The response to complete is lost", "outcome": "Retry with the same Idempotency-Key; during complete_in_progress the platform must not start a new update or complete." }
+      ]
+    },
+    {
+      "n": 10,
+      "from": "merchant",
+      "to": "merchant",
+      "label": "Verify the checkout mandate against the current checkout",
+      "protocol": "ap2",
+      "detail": "The merchant verifies the SD-JWT signature, key binding and expiry, extracts the embedded checkout, checks that the hash of the checkout JWT it sent matches checkout_hash, and keeps the mandate as durable evidence.",
+      "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md", "section": "Business Verification" },
+      "controlPoint": "At the edge: deterministic mandate verification by the merchant before any charge.",
+      "failures": [
+        { "condition": "The mandate is for another checkout, expired or badly signed", "outcome": "mandate_scope_mismatch, mandate_expired or mandate_invalid_signature." }
+      ]
+    },
+    {
+      "n": 11,
+      "from": "merchant",
+      "to": "psp",
+      "label": "Authorize the Google Pay token; processor checks the payment mandate",
+      "protocol": "ap2",
+      "detail": "The merchant passes the token to its own PSP. In AP2 terms the PSP is the Merchant Payment Processor and must verify that the credential is scoped to this checkout, for example by finding the closed Payment Mandate inside it and checking its checkout_jwt hash binding.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/flows.md", "section": "Human Present" },
+      "controlPoint": "At settlement: PSP fraud screening and, if the merchant uses it, 3DS2 through the UCP authentication extension."
+    },
+    {
+      "n": 12,
+      "from": "psp",
+      "to": "network",
+      "label": "Card authorization",
+      "detail": "The PSP decrypts the Google Pay credential and runs an ordinary card authorization with the network and issuer. No agent protocol runs on this hop.",
+      "crossesTrustBoundary": true,
+      "controlPoint": "At settlement: issuer risk decision on the card authorization.",
+      "failures": [
+        { "condition": "The issuer declines", "outcome": "The merchant returns a payment failure in the checkout; no order is created." }
+      ]
+    },
+    {
+      "n": 13,
+      "from": "merchant",
+      "to": "gemini",
+      "label": "completed with order; receipts",
+      "protocol": "ucp",
+      "detail": "Complete returns status completed with the order (id, checkout_id, permalink_url, line_items, fulfillment, totals). Per AP2, the processor returns a signed Payment Receipt and the merchant a signed Checkout Receipt whose reference is the hash of the closed mandate. A completed checkout is immutable and the merchant must send a confirmation email.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, spec version AP2 v0.2 (decoded Checkout Receipt claims).\n{ \"status\": \"Success\", \"iss\": \"https://shoes.example\", \"iat\": 1791720005, \"reference\": \"FzLoxbbtgQGYZxoSM2NJYJtkFTSsdfUBoVEQ12k7JN8\", \"order_id\": \"order_abc123\" }",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/index.md", "section": "Complete Checkout" },
+      "controlPoint": "After the fact: keep the merchant-signed checkout, the mandates and both receipts together as dispute evidence.",
+      "observable": "Private: the order and receipts go only to the platform; Google shows the order on the shopper's My orders page."
+    },
+    {
+      "n": 14,
+      "from": "merchant",
+      "to": "gemini",
+      "label": "Order webhook, RFC 9421 signed",
+      "protocol": "ucp",
+      "detail": "As the order ships or changes, the merchant POSTs full order snapshots to the webhook_url Gemini published in its order capability. Headers follow Standard Webhooks (Webhook-Id, Webhook-Timestamp) and the request is signed with RFC 9421 over a Content-Digest; the platform must reject events whose signer does not match the order's business.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, spec version 2026-08-25. Signature not real.\nPOST /webhooks/ucp/orders HTTP/1.1\nHost: platform.example\nContent-Type: application/json\nUCP-Agent: profile=\"https://shoes.example/.well-known/ucp\"\nWebhook-Id: evt_123\nWebhook-Timestamp: 1791806400\nContent-Digest: sha-256=:X48E9q...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\");keyid=\"shoes-2026\"\nSignature: sig1=:MEUCIQDTxNq8...:\n\n{\"id\":\"order_abc123\",\"checkout_id\":\"chk_123\",\"fulfillment\":{...},...}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/order/index.md", "section": "Order Event Webhook" },
+      "controlPoint": "After the fact: verify webhook signatures, reconcile with GET /orders/{id}, and watch adjustments such as refund, return and dispute.",
+      "observable": "Private: webhooks go only to the platform's webhook_url.",
+      "failures": [
+        { "condition": "The webhook signer is not the order's business", "outcome": "The platform must reject the event." }
+      ]
+    }
+  ],
+  "sources": [
+    "src-ucp-overview",
+    "src-ucp-checkout",
+    "src-ucp-ap2-spec",
+    "src-ucp-order",
+    "src-ucp-signatures",
+    "src-ucp-google-faq",
+    "src-ap2-spec-v02",
+    "src-ap2-flows",
+    "src-ap2-checkout-mandate-doc",
+    "src-ap2-payment-mandate-doc"
+  ]
+}

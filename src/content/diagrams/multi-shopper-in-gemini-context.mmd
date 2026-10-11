@@ -1,0 +1,29 @@
+flowchart LR
+  SH["Shopper (human present)"]
+  subgraph GZ["Google platform zone"]
+    GE["Gemini agent (UCP platform)"]
+    TS["Trusted checkout UI (AP2 Trusted Surface)"]
+  end
+  subgraph CZ["Credential provider"]
+    GP["Google Pay handler com.google.pay, PAN_ONLY on Google surfaces"]
+  end
+  subgraph MZ["Merchant zone (merchant of record)"]
+    PR["/.well-known/ucp profile and keys"]
+    CK["UCP checkout and order endpoints"]
+  end
+  subgraph PZ["Payment processing"]
+    PS["Merchant PSP (AP2 Merchant Payment Processor)"]
+    NW["Card network and issuer"]
+  end
+  SH -- "asks, then approves" --> TS
+  SH -- "chat" --> GE
+  GE -- "1 discover (UCP)" --> PR
+  GE -- "2 create checkout (UCP)" --> CK
+  CK -- "3 checkout plus ap2.merchant_authorization" --> GE
+  GE -- "4 hand off" --> TS
+  TS -- "5 get credential (UCP handler)" --> GP
+  TS -. "6 closed mandates (AP2, per spec; live use unverified)" .-> GE
+  GE -- "7 complete: token plus ap2.checkout_mandate, RFC 9421 signed" --> CK
+  CK -- "8 authorize token" --> PS
+  PS -- "9 card authorization" --> NW
+  CK -- "10 order webhooks, RFC 9421 signed (UCP)" --> GE
