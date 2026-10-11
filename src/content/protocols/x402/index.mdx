@@ -114,3 +114,755 @@ keyFacts:
     claimIds: [clm-x402-210, clm-x402-219, clm-x402-213, clm-x402-242]
 ---
 
+<Mode eli5>
+
+Picture a vending machine on the internet. You press the button for a snack, and instead of the snack the machine shows a price tag: one cent, paid in this kind of money, to this machine. You write a signed note that says "I pay one cent to this machine, and this note is good for the next minute only." You slide the note into the slot and press the button again.
+
+The machine does not count money itself. It hands your note to a helper standing behind it. The helper checks that the signature is really yours, that you have the money, and that nobody used this note before. If all is well, the machine gives you the snack and the helper cashes the note.
+
+The note names the amount and the machine, so the helper cannot change either one. Each note also carries a one-time number and a short expiry, so nobody can use it twice. In the basic version there is no "give me my money back" button, and the machine learns nothing about who you are, only that the note was good.
+
+That is x402. The snack is any web page or online service, the note is a digital signature, and the helper is called a facilitator. Software agents can do all of this on their own, with no account, password or card form.
+
+</Mode>
+
+x402 answers one question: how does a server charge for a single HTTP request without accounts, API keys or invoices? The server replies 402 with a header that lists what it accepts: a scheme, a network, an amount, an asset and a payee address.<Cite ids="clm-x402-093 clm-x402-071" /> The client signs a payment that matches one of those entries and retries the same request with the signature in a header.<Cite ids="clm-x402-094" /> The server never touches a chain itself. It hands the signature to a facilitator, which checks it (verify), lets the server respond, then submits it on-chain (settle).<Cite ids="clm-x402-095 clm-x402-063" /> The client's signature binds the amount and the recipient, so a facilitator cannot redirect funds, and a nonce with a validity window stops replays.<Cite ids="clm-x402-126 clm-x402-127" /> What x402 does not give you: refunds under the exact scheme, a dispute process, or any statement about who the client is.<Cite ids="clm-x402-129 clm-x402-150 clm-x402-152" /> Those live in other layers: the auth-capture scheme, ERC-8004, or your own policy.<Cite ids="clm-x402-130 clm-x402-219" />
+
+### Problem and design goals
+
+x402 is an open payment standard that puts payment inside an ordinary HTTP (Hypertext Transfer Protocol) request and response, using the status code 402 Payment Required.<Cite ids="clm-x402-001" /> Its repository says it aims to cover crypto and fiat networks alike, but the bindings written so far are almost all blockchains, plus Lightning and one credit-backed network run by Cloudflare.<Cite ids="clm-x402-002 clm-x402-123 clm-x402-055 clm-x402-108" /> The design came out of Coinbase Developer Platform (CDP): the whitepaper is dated 2025-05-06 and credits Erik Reppel and five co-authors.<Cite ids="clm-x402-003 clm-x402-004" />
+
+The target is a payment that costs a fraction of a cent and happens on the first request, made by software that cannot fill in a sign-up form. Three design choices follow. First, the price travels in the 402 response, so the client needs no account or API (application programming interface) key in advance.<Cite ids="clm-x402-093" /> Second, the client signs an authorization instead of sending funds, and a principle in the repository says no scheme may let the facilitator or the resource server move funds other than as the client intended.<Cite ids="clm-x402-066" /> Third, chain work goes to a facilitator, which usually pays the gas, so neither side has to run blockchain infrastructure.<Cite ids="clm-x402-191 clm-x402-063" />
+
+The specification is just as clear about what it leaves out. Client-side budget management and session handling are out of scope, so spending limits live in SDKs (software development kits) and wallets, not in the protocol.<Cite ids="clm-x402-147" /> Keep that in mind when you read "agent payments" marketing: x402 moves a signed payment, and every decision about whether to sign it belongs to someone else.
+
+### Actors and roles
+
+x402 has three roles.<Cite ids="clm-x402-063" /> The client is any application or agent that wants a protected resource and can sign a payment. The resource server sells the resource: it publishes requirements, checks payments and serves the response. The facilitator verifies payments and executes them on one or more networks.<Cite ids="clm-x402-063" />
+
+The facilitator is the role newcomers misread most. It does not hold funds and is not a custodian.<Cite ids="clm-x402-064" /> On EVM (Ethereum Virtual Machine) chains it broadcasts the client's signed authorization and pays the gas; on Solana it co-signs the transaction as fee payer.<Cite ids="clm-x402-191" /> On Solana the fee payer can also be the merchant, and the requirements name it in the extra object.<Cite ids="clm-x402-067" /> Anyone can run a facilitator, and a resource server can verify and settle on its own without one.<Cite ids="clm-x402-065" /> The SDK packages point to the public facilitator at x402.org by default, which serves testnets only, so production servers pick a facilitator on purpose.<Cite ids="clm-x402-232" /> Critics note that the CDP facilitator processes most payments even though the protocol is permissionless, and Cloudflare's new gateway also routes through it.<Cite ids="clm-x402-233" />
+
+Two newer bindings add roles. In the credit-backed `cloudflare:402` network, the network itself is merchant of record and payTo is the constant `merchant`.<Cite ids="clm-x402-068" /> In the auth-capture scheme on EVM, an operator drives hold and capture on an escrow contract, by default the AuthCaptureEscrow contract from base/commerce-payments v1.1.<Cite ids="clm-x402-239" />
+
+### Core objects
+
+Five objects carry a payment. PaymentRequired is what the server sends with the 402: a version number, an optional error string, a ResourceInfo describing what is for sale, an accepts list and optional extensions.<Cite ids="clm-x402-069" /> ResourceInfo needs only a URL; description, MIME type, service name, tags and an icon URL are optional.<Cite ids="clm-x402-070" /> Each entry of accepts is a PaymentRequirements object with six required fields (scheme, network, amount, asset, payTo, maxTimeoutSeconds) and an optional extra object.<Cite ids="clm-x402-071" /> Networks are CAIP-2 (Chain Agnostic Improvement Proposal 2) identifiers such as `eip155:84532`, and amounts are strings in the asset's smallest unit.<Cite ids="clm-x402-072" /> The extra object reserves two keys, assetTransferMethod and paymentFlow; the rest is scheme specific, such as the token's EIP-712 domain name and version on EVM chains.<Cite ids="clm-x402-073" />
+
+PaymentPayload is what the client sends back. It repeats the version, may echo the resource, copies the chosen requirements into accepted, and carries a scheme-specific payload plus any extensions.<Cite ids="clm-x402-075" /> For the exact scheme on EVM with the default EIP-3009 method, that payload is a signature and an authorization naming from, to, value, validAfter, validBefore and a nonce.<Cite ids="clm-x402-076" /> Other methods use other shapes: a Permit2 authorization whose spender is a fixed proxy contract, an ERC-7710 delegation, or on Solana one partially signed transaction.<Cite ids="clm-x402-077 clm-x402-078" />
+
+The facilitator answers with a VerifyResponse (isValid, an optional invalidReason, the payer and optional extension data) and a SettleResponse (success, errorReason, payer, transaction, network, amount and extensions).<Cite ids="clm-x402-079 clm-x402-080" /> A settle that broadcast nothing returns an empty transaction string, and a settle still pending must carry the hash.<Cite ids="clm-x402-081" /> GET /supported lists the scheme and network pairs a facilitator handles, the extensions it implements and its signer addresses.<Cite ids="clm-x402-082" /> Extensions travel in both directions as an info object plus a JSON Schema, and the client must echo what it received without deleting or overwriting it.<Cite ids="clm-x402-074" />
+
+<Mode spec>
+
+**Field tables.** Spec version v2.0, read from `specs/x402-specification-v2.md` section 5 and `specs/schemes/exact/scheme_exact_evm.md` at commit f8f8330. Descriptions are paraphrased.
+
+<FieldTable caption="PaymentRequired (sent in the PAYMENT-REQUIRED header)" specVersion="v2.0" fields={[
+  {
+    "name": "x402Version",
+    "type": "number",
+    "required": true,
+    "description": "Protocol version; 2 for V2.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "error",
+    "type": "string",
+    "required": false,
+    "description": "Human-readable reason that payment is needed.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "resource",
+    "type": "object (ResourceInfo)",
+    "required": true,
+    "description": "Describes the protected resource.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "accepts",
+    "type": "array of PaymentRequirements",
+    "required": true,
+    "description": "The payment options the server accepts.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "extensions",
+    "type": "object",
+    "required": false,
+    "description": "Map of extension id to an info and schema pair.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  }
+]} />
+
+<FieldTable caption="ResourceInfo" specVersion="v2.0" fields={[
+  {
+    "name": "url",
+    "type": "string",
+    "required": true,
+    "description": "URL of the protected resource.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "description",
+    "type": "string",
+    "required": false,
+    "description": "Human-readable description.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "mimeType",
+    "type": "string",
+    "required": false,
+    "description": "MIME type of the expected response.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "serviceName",
+    "type": "string",
+    "required": false,
+    "description": "Name of the service; printable ASCII, up to 32 characters.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "tags",
+    "type": "array of string",
+    "required": false,
+    "description": "Discovery tags; up to 5, each up to 32 characters.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "iconUrl",
+    "type": "string",
+    "required": false,
+    "description": "Absolute http or https icon URL, up to 2048 characters.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  }
+]} />
+
+<FieldTable caption="PaymentRequirements (one entry of accepts)" specVersion="v2.0" fields={[
+  {
+    "name": "scheme",
+    "type": "string",
+    "required": true,
+    "description": "Scheme id: exact, upto, batch-settlement or auth-capture.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "network",
+    "type": "string",
+    "required": true,
+    "description": "CAIP-2 network id, for example eip155:84532.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "amount",
+    "type": "string",
+    "required": true,
+    "description": "Price in atomic units of the asset (a ceiling at verify time under upto).",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "asset",
+    "type": "string",
+    "required": true,
+    "description": "Token contract address, or an ISO 4217 code for fiat.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "payTo",
+    "type": "string",
+    "required": true,
+    "description": "Recipient address, or a role constant such as merchant.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "maxTimeoutSeconds",
+    "type": "number",
+    "required": true,
+    "description": "Longest time allowed to complete the payment.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "extra",
+    "type": "object",
+    "required": false,
+    "description": "Reserved keys assetTransferMethod and paymentFlow; other keys are scheme specific (on EVM, name and version of the token EIP-712 domain).",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  }
+]} />
+
+<FieldTable caption="PaymentPayload (sent in the PAYMENT-SIGNATURE header)" specVersion="v2.0" fields={[
+  {
+    "name": "x402Version",
+    "type": "number",
+    "required": true,
+    "description": "Protocol version.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "resource",
+    "type": "object (ResourceInfo)",
+    "required": false,
+    "description": "Echo of the resource being paid for.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "accepted",
+    "type": "object (PaymentRequirements)",
+    "required": true,
+    "description": "The accepts entry the client chose.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "payload",
+    "type": "object",
+    "required": true,
+    "description": "Scheme-specific payment data.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "extensions",
+    "type": "object",
+    "required": false,
+    "description": "Echoed extension data; the client may add but not delete or overwrite.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  }
+]} />
+
+<FieldTable caption="Exact scheme on EVM, eip3009 method: payload" specVersion="v2.0" fields={[
+  {
+    "name": "signature",
+    "type": "string",
+    "required": true,
+    "description": "EIP-712 signature over TransferWithAuthorization.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md"
+  },
+  {
+    "name": "authorization.from",
+    "type": "string",
+    "required": true,
+    "description": "Payer address.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md"
+  },
+  {
+    "name": "authorization.to",
+    "type": "string",
+    "required": true,
+    "description": "Recipient address; must equal payTo.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md"
+  },
+  {
+    "name": "authorization.value",
+    "type": "string",
+    "required": true,
+    "description": "Amount in atomic units; must equal amount.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md"
+  },
+  {
+    "name": "authorization.validAfter",
+    "type": "string",
+    "required": true,
+    "description": "Unix time from which the authorization is valid.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md"
+  },
+  {
+    "name": "authorization.validBefore",
+    "type": "string",
+    "required": true,
+    "description": "Unix time at which the authorization expires.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md"
+  },
+  {
+    "name": "authorization.nonce",
+    "type": "string",
+    "required": true,
+    "description": "Random 32-byte value that the token contract accepts only once.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md"
+  }
+]} />
+
+<FieldTable caption="VerifyResponse (POST /verify)" specVersion="v2.0" fields={[
+  {
+    "name": "isValid",
+    "type": "boolean",
+    "required": true,
+    "description": "Whether the authorization is valid.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "invalidReason",
+    "type": "string",
+    "required": false,
+    "description": "Error code when invalid.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "payer",
+    "type": "string",
+    "required": false,
+    "description": "Payer wallet address.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "extensions",
+    "type": "object",
+    "required": false,
+    "description": "Extension data.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "extra",
+    "type": "object",
+    "required": false,
+    "description": "Scheme-specific data.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  }
+]} />
+
+<FieldTable caption="SettleResponse (POST /settle; sent in the PAYMENT-RESPONSE header)" specVersion="v2.0" fields={[
+  {
+    "name": "success",
+    "type": "boolean",
+    "required": true,
+    "description": "Whether settlement succeeded.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "errorReason",
+    "type": "string",
+    "required": false,
+    "description": "Error code on failure; settlement_pending is non-terminal.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "payer",
+    "type": "string",
+    "required": false,
+    "description": "Payer wallet address.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "transaction",
+    "type": "string",
+    "required": true,
+    "description": "Transaction hash; empty if nothing was broadcast; non-empty with settlement_pending.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "network",
+    "type": "string",
+    "required": true,
+    "description": "CAIP-2 network id.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "amount",
+    "type": "string",
+    "required": false,
+    "description": "Amount actually settled, in atomic units.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "extensions",
+    "type": "object",
+    "required": false,
+    "description": "Extension data.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  }
+]} />
+
+<FieldTable caption="SupportedResponse (GET /supported)" specVersion="v2.0" fields={[
+  {
+    "name": "kinds",
+    "type": "array of SupportedKind",
+    "required": true,
+    "description": "Supported pairs of x402Version, scheme and network, with optional extra.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "extensions",
+    "type": "array of string",
+    "required": true,
+    "description": "Extension ids the facilitator implements.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  },
+  {
+    "name": "signers",
+    "type": "object",
+    "required": true,
+    "description": "Map of CAIP-2 patterns such as eip155:* to signer addresses.",
+    "specRef": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md"
+  }
+]} />
+
+Illustrative example, spec version v2.0: a decoded PAYMENT-REQUIRED header. Addresses are placeholders; the asset is the USDC contract on Base Sepolia that the docs list as a default.
+
+```json
+{
+  "x402Version": 2,
+  "error": "PAYMENT-SIGNATURE header is required",
+  "resource": {
+    "url": "https://api.example.com/weather",
+    "description": "Current weather for one city",
+    "mimeType": "application/json"
+  },
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "eip155:84532",
+      "amount": "10000",
+      "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "payTo": "0xB0B0000000000000000000000000000000000B0B",
+      "maxTimeoutSeconds": 60,
+      "extra": {
+        "name": "USDC",
+        "version": "2"
+      }
+    }
+  ],
+  "extensions": {}
+}
+```
+
+</Mode>
+
+### Message flow step by step
+
+The main sequence in section C plays the default path: version 2 over HTTP, the exact scheme, the authorization payment flow.<Cite ids="clm-x402-092 clm-x402-099" />
+
+1. The client requests the resource without a payment header.<Cite ids="clm-x402-093" />
+2. The server answers 402 and puts a base64-encoded PaymentRequired object in the PAYMENT-REQUIRED header.<Cite ids="clm-x402-093" /> Since @x402/core 2.21.0 the SDK also sends Cache-Control no-store on that response, so shared caches do not keep it.<Cite ids="clm-x402-060" />
+3. The client picks one accepts entry and signs it. The TypeScript client first applies spendControls: by default only known assets, and at most $1 per payment.<Cite ids="clm-x402-145" /> It then signs EIP-712 typed data for the EIP-3009 TransferWithAuthorization type.<Cite ids="clm-x402-121" />
+4. The client sends the same request again with a base64-encoded PaymentPayload in the PAYMENT-SIGNATURE header.<Cite ids="clm-x402-094" />
+5. The server posts x402Version, paymentPayload and paymentRequirements to the facilitator's POST /verify.<Cite ids="clm-x402-096" /> Verify must not write state.<Cite ids="clm-x402-100" /> The facilitator checks the signature, that the recipient and amount match, the time window, the balance and whether the nonce was used before.<Cite ids="clm-x402-126 clm-x402-127 clm-x402-245" />
+6. If the payment is valid the server runs the handler; if not, it answers 402 again.<Cite ids="clm-x402-095 clm-x402-112" />
+7. The server posts the same body to POST /settle, and the facilitator broadcasts the transfer and pays the gas.<Cite ids="clm-x402-095 clm-x402-191" />
+8. The server returns 200 with the resource and a base64-encoded SettleResponse in PAYMENT-RESPONSE. A failed settle returns 402 with success false in the same header.<Cite ids="clm-x402-097" />
+
+Every step has a failure path, and section C plays five of them. An expired window, a wrong recipient and a low balance come back from verify as error codes such as `invalid_exact_evm_payload_authorization_valid_before`, `invalid_exact_evm_payload_recipient_mismatch` and `insufficient_funds`.<Cite ids="clm-x402-243 clm-x402-110" /> A replayed payment fails because the token contract records every nonce, and the TypeScript facilitator reads that record before it says yes.<Cite ids="clm-x402-127 clm-x402-245" /> That facilitator reports some reasons in its own words, such as `invalid_exact_evm_nonce_already_used`, which differ from names in the spec, so match on both if you parse them.<Cite ids="clm-x402-244" />
+
+A facilitator that does not answer is the awkward case. The TypeScript facilitator client gives up after 90 seconds by default, and the Express middleware turns that into HTTP 502 without running the handler.<Cite ids="clm-x402-246 clm-x402-247" /> A settle that times out is worse: the transfer may already have happened, so the server must look on chain before it retries, and a settlement_pending answer carries the hash to look for.<Cite ids="clm-x402-246 clm-x402-111 clm-x402-081" />
+
+<Mode spec>
+
+**Headers in V1 and V2.** V2 renamed every header and moved the requirements out of the 402 body.
+
+<FieldTable caption="V2 HTTP headers (x402Version 2)" specVersion="v2.0" fields={[
+  {
+    "name": "PAYMENT-REQUIRED",
+    "type": "server to client",
+    "required": true,
+    "description": "Base64-encoded PaymentRequired, sent with status 402."
+  },
+  {
+    "name": "PAYMENT-SIGNATURE",
+    "type": "client to server",
+    "required": true,
+    "description": "Base64-encoded PaymentPayload on the retried request."
+  },
+  {
+    "name": "PAYMENT-RESPONSE",
+    "type": "server to client",
+    "required": true,
+    "description": "Base64-encoded SettleResponse, on 200 (success) or 402 (success false)."
+  },
+  {
+    "name": "EXTENSION-RESPONSES",
+    "type": "facilitator to server",
+    "required": false,
+    "description": "Base64-encoded extension outcomes; never forwarded to buyers."
+  }
+]} />
+
+<FieldTable caption="V1 HTTP transport (x402Version 1), for contrast" specVersion="v1 (spec v0.2, 2025-10-03)" fields={[
+  {
+    "name": "402 response body",
+    "type": "server to client",
+    "required": true,
+    "description": "JSON PaymentRequirementsResponse with x402Version, error and accepts; no header."
+  },
+  {
+    "name": "X-PAYMENT",
+    "type": "client to server",
+    "required": true,
+    "description": "Base64-encoded V1 PaymentPayload with x402Version, scheme, network and payload."
+  },
+  {
+    "name": "X-PAYMENT-RESPONSE",
+    "type": "server to client",
+    "required": true,
+    "description": "Base64-encoded V1 SettlementResponse."
+  },
+  {
+    "name": "network (value)",
+    "type": "string",
+    "required": true,
+    "description": "Plain names such as base-sepolia instead of CAIP-2 ids."
+  },
+  {
+    "name": "maxAmountRequired",
+    "type": "string",
+    "required": true,
+    "description": "V1 name of the price field (amount in V2)."
+  }
+]} />
+
+**HTTP status codes (V2 HTTP transport).**
+
+| Case | Status |
+| --- | --- |
+| Payment required | 402 |
+| Invalid payment (malformed payload or requirements) | 400 |
+| Payment failed (verify or settle) | 402 |
+| Server error | 500 |
+| Success | 200 |
+| Permit2 allowance missing (upto, exact Permit2) | 412 |
+
+**Error codes named in the specification (section 9).** `insufficient_funds`, `invalid_exact_evm_payload_authorization_valid_after`, `invalid_exact_evm_payload_authorization_valid_before`, `invalid_exact_evm_payload_authorization_value_mismatch`, `invalid_exact_evm_payload_signature`, `invalid_exact_evm_payload_recipient_mismatch`, `invalid_network`, `invalid_payload`, `invalid_payment_requirements`, `invalid_scheme`, `unsupported_scheme`, `invalid_x402_version`, `invalid_transaction_state`, `unexpected_verify_error`, `unexpected_settle_error`, `settlement_pending`. The TypeScript EVM facilitator also emits its own strings, for example `invalid_exact_evm_nonce_already_used` and `invalid_exact_evm_insufficient_balance`.
+
+**Signed type (exact, eip3009).** `TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)`, signed as EIP-712 typed data under the token contract domain.
+
+Illustrative example, spec version v2.0: the body the resource server posts to the facilitator. The same body goes to `/verify` and then to `/settle`.
+
+```json
+{
+  "x402Version": 2,
+  "paymentPayload": {
+    "x402Version": 2,
+    "accepted": {
+      "scheme": "exact",
+      "network": "eip155:84532",
+      "amount": "10000",
+      "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "payTo": "0xB0B0000000000000000000000000000000000B0B",
+      "maxTimeoutSeconds": 60,
+      "extra": {
+        "name": "USDC",
+        "version": "2"
+      }
+    },
+    "payload": {
+      "signature": "0xabab...1b",
+      "authorization": {
+        "from": "0xA11CE0000000000000000000000000000000A11C",
+        "to": "0xB0B0000000000000000000000000000000000B0B",
+        "value": "10000",
+        "validAfter": "1791720595",
+        "validBefore": "1791720660",
+        "nonce": "0x5e5e5e5e7a1c...7a1c"
+      }
+    }
+  },
+  "paymentRequirements": {
+    "scheme": "exact",
+    "network": "eip155:84532",
+    "amount": "10000",
+    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "payTo": "0xB0B0000000000000000000000000000000000B0B",
+    "maxTimeoutSeconds": 60,
+    "extra": {
+      "name": "USDC",
+      "version": "2"
+    }
+  }
+}
+```
+
+</Mode>
+
+### Lifecycle and states
+
+The order of verify, handler and settle is not fixed. V2 names three payment flows in extra.paymentFlow: authorization (verify, run, settle), upfront (settle, then run) and escrow (settle a deposit or hold, run, then settle the final charge).<Cite ids="clm-x402-099" /> Whatever the flow, at least one verify or settle must run before the handler.<Cite ids="clm-x402-100" /> A client must not pay into a flow it does not recognize, and should prefer authorization when a server offers more than one.<Cite ids="clm-x402-101" />
+
+Each flow puts the risk somewhere else. Under authorization the seller has done the work before money moves, so a failed settle is the seller's loss; under upfront, a handler that fails leaves the client charged.<Cite ids="clm-x402-131" /> Lightning uses upfront because nothing can be pulled from a Lightning wallet later. The server issues a fresh BOLT11 invoice (the Lightning invoice format), the client pays it and returns the preimage, and the facilitator checks the hash and records it against replay.<Cite ids="clm-x402-102" /> The auth-capture scheme defaults to escrow: a first settle places a hold, the handler runs, and a second settle captures the real amount or voids the hold.<Cite ids="clm-x402-103" /> Its operations are authorize, charge, capture, void, refund and reclaim, and reclaim lets the client recover an untouched hold after the capture deadline.<Cite ids="clm-x402-114" />
+
+Settlement itself has three outcomes: success, a terminal failure, and settlement_pending, which is not final and which the server retries once and reconciles.<Cite ids="clm-x402-111" /> Over A2A (the Agent2Agent protocol) the task carries its own status values, from payment-required through payment-submitted and payment-verified to payment-completed or payment-failed.<Cite ids="clm-x402-113" /> Batch-settlement channels have an on-chain lifecycle of their own, visible as ChannelCreated, Deposited, Claimed, Settled, Refunded, WithdrawInitiated, WithdrawFinalized and ChannelClosed events.<Cite ids="clm-x402-115" /> The state machine in section C folds all three flows into one diagram.
+
+<Mode spec>
+
+**Payment flows (`extra.paymentFlow`, section 6.1).**
+
+| Flow | Order | Note |
+| --- | --- | --- |
+| `authorization` (default) | verify, resource, settle, respond | `/verify` is read-only; funds move after the handler. |
+| `upfront` | settle, resource, respond | No `/verify`; needed where funds cannot be pulled later (Lightning). |
+| `escrow` | settle, resource, settle, respond | First settle commits a deposit or hold; default for auth-capture and SVM upto. |
+
+**A2A payment status values** (`x402.payment.status`, `specs/transports-v2/a2a.md`): `payment-required`, `payment-rejected`, `payment-submitted`, `payment-verified`, `payment-completed`, `payment-failed`.
+
+<FieldTable caption="auth-capture lifecycle operations" specVersion="auth-capture v1.1 (2026-08-18)" fields={[
+  {
+    "name": "authorize",
+    "type": "once",
+    "required": false,
+    "description": "Reserves the client funds in a hold. Client-authorized."
+  },
+  {
+    "name": "charge",
+    "type": "once",
+    "required": false,
+    "description": "Collects in one step with no hold (authorization flow)."
+  },
+  {
+    "name": "capture",
+    "type": "repeatable",
+    "required": false,
+    "description": "Pays held funds to the receiver, up to the held total."
+  },
+  {
+    "name": "void",
+    "type": "once",
+    "required": false,
+    "description": "Releases the remaining hold while one exists."
+  },
+  {
+    "name": "refund",
+    "type": "repeatable",
+    "required": false,
+    "description": "Returns captured funds, up to captured minus refunded, until extra.refundDeadline."
+  },
+  {
+    "name": "reclaim",
+    "type": "once",
+    "required": false,
+    "description": "Client-only recovery of an untouched hold after extra.captureDeadline; never relayed by the facilitator."
+  }
+]} />
+
+</Mode>
+
+### Security and trust model (summary)
+
+<Mode eli5>
+
+The signed note protects you in two ways: nobody can change the amount or the name on it, and it works only once and only for a minute. It does not protect you from writing the note to the wrong shop, from a shop that takes the money and then serves nothing, or from spending too much in a day. Those checks are up to you and your wallet.
+
+</Mode>
+
+The core guarantee is narrow and strong. In the exact EVM scheme the client's signature covers the recipient and the amount, so a facilitator can broadcast the payment but cannot change where it goes or how much moves.<Cite ids="clm-x402-126" /> Replay protection comes from a random 32-byte nonce that EIP-3009 tokens refuse to reuse, plus a validAfter and validBefore window.<Cite ids="clm-x402-127" /> In upto, a witness field names the one facilitator allowed to settle.<Cite ids="clm-x402-128" />
+
+Everything else is trust you place in a party. The exact scheme defines no refund, and any remedy is the server's own arrangement.<Cite ids="clm-x402-129" /> Under upto the client trusts the server to charge fairly up to the ceiling.<Cite ids="clm-x402-131" /> There is no dispute process in the protocol.<Cite ids="clm-x402-150" /> Client spending limits are an SDK feature, not a protocol rule, and passing spendControls false turns them off.<Cite ids="clm-x402-146 clm-x402-147" />
+
+SDK bugs have mattered more than protocol bugs so far. Two GitHub advisories rated high hit legacy resource-server packages (2025-08-20) and facilitators that process Solana payments (2026-03-07), and recent core releases closed route-matching bypasses through encoded paths.<Cite ids="clm-x402-132 clm-x402-133 clm-x402-061" /> Neither advisory has a CVE (Common Vulnerabilities and Exposures) identifier.<Cite ids="clm-x402-134" /> Academic work describes five practical attacks on authorization, binding and replay handling, flaws such as cross-resource substitution and a duplicate settlement race, and the missing atomic link between payment and delivery.<Cite ids="clm-x402-138 clm-x402-141 clm-x402-142" /> Section H has the full threat table, and section I lists what a controls layer can add.
+
+### Versioning and governance
+
+Two protocol versions exist, and the x402Version field says which one a message uses; version 2 is current.<Cite ids="clm-x402-031" /> The v2.0 specification is dated 2025-12-09 and rebuilt the payment objects around CAIP-2 networks, a separate ResourceInfo and extensions.<Cite ids="clm-x402-032" /> V2 launched on 2025-12-11 with @x402/core 2.0.0.<Cite ids="clm-x402-034" /> The headers changed names: V1 put the requirements in the 402 body and used X-PAYMENT and X-PAYMENT-RESPONSE, while V2 uses PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE.<Cite ids="clm-x402-098" /> The V1 specification stays in the repository, and the launch post says the SDKs stay backward compatible.<Cite ids="clm-x402-036 clm-x402-035" />
+
+Package names follow the split. The unscoped npm packages, x402 and x402-express among them, are the V1 legacy set, while the @x402 scoped packages and the PyPI package x402 2.x implement V2.<Cite ids="clm-x402-039" /> PyPI x402 is not legacy: its latest version is 2.25.0, published 2026-09-29.<Cite ids="clm-x402-041" /> The TypeScript packages ship minor releases about weekly and reached 2.28.0 on 2026-09-29.<Cite ids="clm-x402-037 clm-x402-038" />
+
+Governance moved from a company to a foundation. Cloudflare and Coinbase announced a foundation plan on 2025-09-23.<Cite ids="clm-x402-018" /> A technical charter for x402 a Series of LF Projects, LLC was adopted on 2026-03-31. The Linux Foundation announced the x402 Foundation on 2026-04-02 and its operational launch on 2026-07-14, with 40 member organizations.<Cite ids="clm-x402-012 clm-x402-019 clm-x402-022" /> The charter sets up a Technical Steering Committee (TSC) with one vote per representative and majority decisions, and needs a 75 percent supermajority to change the Core Principles.<Cite ids="clm-x402-013 clm-x402-014" /> TSC.md names Coinbase (Erik Reppel), Cloudflare (Rohin Lohe) and Stripe (Steve Kaliski).<Cite ids="clm-x402-016" /> The original repository moved to the x402-foundation organization, and coinbase/x402 is now a fork of it.<Cite ids="clm-x402-008 clm-x402-010" /> The code is Apache-2.0, and contributions need GPG-signed commits.<Cite ids="clm-x402-026 clm-x402-028" /> So: Coinbase originated x402, but it no longer governs it alone.<Cite ids="clm-x402-226" />
+
+Names changed too. The scheme Cloudflare proposed as deferred in 2025-09 became batch-settlement when it merged on 2026-04-15, and old deferred examples still linger in one extension and in the V1 specification.<Cite ids="clm-x402-056 clm-x402-051 clm-x402-058" />
+
+### Extensibility
+
+x402 grows along three axes. Schemes define how value moves: exact, upto, batch-settlement and auth-capture in V2.<Cite ids="clm-x402-092" /> A new scheme starts as a specification pull request, then gets one reference SDK, then the others.<Cite ids="clm-x402-029" /> Networks are bindings of a scheme: the TypeScript SDK covers 13 network families, from EVM chains and Solana to Lightning, while Go and Python cover fewer.<Cite ids="clm-x402-175 clm-x402-055" /> Extensions add optional features without touching the core: bazaar, sign-in-with-x, payment-identifier, offer-receipt, builder-code, http-message-signatures, auth-hints and two gas-sponsoring extensions.<Cite ids="clm-x402-091" />
+
+A few deserve a closer look. Bazaar describes how to call a resource over HTTP or MCP (Model Context Protocol), so that a discovery service can list it.<Cite ids="clm-x402-085" /> The CDP Bazaar endpoint answered without an API key, and it returns resource listings, not categories.<Cite ids="clm-x402-160 clm-x402-161" /> Payment-identifier gives idempotency: a server returns 409 when the same identifier arrives with a different payload.<Cite ids="clm-x402-149" /> Offer-receipt signs offers and receipts with EIP-712 or JWS (JSON Web Signature), but the SDK parity table lists it for TypeScript only.<Cite ids="clm-x402-087 clm-x402-151" /> Builder-code appends an ERC-8021 suffix to settlement calldata so indexers can attribute the app and the facilitator, which is attribution, not revenue sharing.<Cite ids="clm-x402-089 clm-x402-154" /> Facilitators can also hand extension results to the server through an EXTENSION-RESPONSES header that buyers never see.<Cite ids="clm-x402-229" />
+
+Transports are the third axis. The same objects ride in HTTP headers, in the _meta field of an MCP tool call, and in A2A task metadata, while the facilitator API underneath stays HTTP.<Cite ids="clm-x402-116 clm-x402-117 clm-x402-119" /> Over MCP, if settlement fails after the tool ran, the server should return only the payment error, not the tool output.<Cite ids="clm-x402-248" />
+
+<Mode spec>
+
+<FieldTable caption="Extension keys and their main fields" specVersion="v2.0 (specs/extensions)" fields={[
+  {
+    "name": "bazaar",
+    "type": "discovery",
+    "required": false,
+    "description": "info.input.type (http or mcp), method, queryParams, bodyType, body, headers, toolName, inputSchema; info.output.type and info.output.example."
+  },
+  {
+    "name": "sign-in-with-x",
+    "type": "identity",
+    "required": false,
+    "description": "CAIP-122 sign-in: info.domain, uri, version, nonce, issuedAt, expirationTime, statement, resources; client header SIGN-IN-WITH-X."
+  },
+  {
+    "name": "payment-identifier",
+    "type": "idempotency",
+    "required": false,
+    "description": "info.required and info.id (16 to 128 characters); 409 on a fingerprint mismatch."
+  },
+  {
+    "name": "offer-receipt",
+    "type": "evidence",
+    "required": false,
+    "description": "Signed offers and receipts, format eip712 or jws; EIP-712 domains x402 offer and x402 receipt."
+  },
+  {
+    "name": "builder-code",
+    "type": "attribution",
+    "required": false,
+    "description": "ERC-8021 Schema 2 CBOR suffix with keys a (app), w (wallet or facilitator), s (service), m (facilitator metadata)."
+  },
+  {
+    "name": "http-message-signatures",
+    "type": "identity",
+    "required": false,
+    "description": "RFC 9421 signatures: info.registrationUrl, info.signatureSchemes, info.tags."
+  },
+  {
+    "name": "auth-hints",
+    "type": "identity",
+    "required": false,
+    "description": "info.authRequirements with acceptIndexes and methods (type, tokenType, authorizationServer)."
+  },
+  {
+    "name": "eip2612GasSponsoring",
+    "type": "gas",
+    "required": false,
+    "description": "Client signs an EIP-2612 permit so the facilitator can approve Permit2 without client gas."
+  },
+  {
+    "name": "erc20ApprovalGasSponsoring",
+    "type": "gas",
+    "required": false,
+    "description": "Client supplies a signed approve transaction for Permit2."
+  }
+]} />
+
+</Mode>
+
+### How it composes with the other seven
+
+x402 is a payment step with no opinion about who the client is or what the user approved, so it pairs with protocols that carry those answers.<Cite ids="clm-x402-152 clm-x402-147" /> Google's AP2 (Agent Payments Protocol) announcement of 2025-09-16 launched an A2A x402 extension with Coinbase, which makes x402 one way to pay under AP2.<Cite ids="clm-x402-210" /> ERC-8004 keeps payments out of its core but gives agents an x402Support flag and lets feedback carry proof of an x402 payment.<Cite ids="clm-x402-219" /> Stripe's MPP (Machine Payments Protocol) maps x402 exact onto its charge intent and can serve both protocols on one route.<Cite ids="clm-x402-213" /> Visa's TAP (Trusted Agent Protocol) specification has its own object for answering a 402.<Cite ids="clm-x402-242" /> No link to OpenAI's ACP (Agentic Commerce Protocol) or to UCP (Universal Commerce Protocol) appears in their repositories.<Cite ids="clm-x402-217 clm-x402-218" /> The section "Compare and compose" below goes further.
+
+### Limitations and open issues
+
+- **Volume is contested.** The x402.org counter showed 75.41M transactions and $24.24M over 30 days when read on 2026-10-10, yet the page said it was last updated on 2026-08-25.<Cite ids="clm-x402-194" /> The same $24.24M was reported for mid August, so the figure may be stale.<Cite ids="clm-x402-195" /> Visa and Artemis data to 2026-04-21 adjusts activity to about $15.0M across 109.6M transactions, against $135.7M unadjusted.<Cite ids="clm-x402-198" /> Visa's Cuy Sheffield separately cited about $19M across about 134M, and nobody has reconciled the two.<Cite ids="clm-x402-199" /> Artemis flagged 63.94 percent of transactions as gamed on average between 2025-11-09 and 2026-02-07.<Cite ids="clm-x402-201" /> A paper of 2026-07-14 counts 136,708,672 settlements on Base over 280 days and argues that the count can be manufactured almost for free.<Cite ids="clm-x402-205" /> Read every volume figure as a claim with a date and a method.<Cite ids="clm-x402-206" />
+- **Facilitators concentrate trust.** The protocol is permissionless, yet one facilitator carries most payments.<Cite ids="clm-x402-233" /> A facilitator cannot redirect funds, but it can refuse service, and it sees every payment.<Cite ids="clm-x402-126 clm-x402-165" />
+- **Payment and delivery are not atomic.** Under authorization the seller risks unpaid work, under upfront the buyer risks paying for nothing, and A402 proposes a fix.<Cite ids="clm-x402-131 clm-x402-142" />
+- **Headers get big.** Base64 JSON can pass 2 KB and be dropped by intermediaries, which is why the cloudflare:402 binding strips schema and optional fields.<Cite ids="clm-x402-234" />
+- **Spec drift.** SettleResponse is also called SettlementResponse, deferred examples survive the rename, the TypeScript facilitator uses its own reason strings, and the batch-settlement EVM version table carries a 2025 date for a 2026 file.<Cite ids="clm-x402-235 clm-x402-244 clm-x402-053" />
+- **Uneven SDKs.** Python lacks auth-capture and Solana batch-settlement, and the Java module has no published artifact.<Cite ids="clm-x402-175 clm-x402-044" />
+- **Metadata leaks.** Resource URLs and descriptions reach the facilitator, and one paper treats that as a PII (personally identifiable information) channel.<Cite ids="clm-x402-143 clm-x402-165" />
+- **Small steering group.** Three companies sit on the TSC, and Stripe also co-created the competing MPP.<Cite ids="clm-x402-236" />
+
+### What changed in 2025 and 2026
+
+- 2025-05-06: whitepaper and public launch; npm x402 0.3.0 published the same day.<Cite ids="clm-x402-004 clm-x402-005" />
+- 2025-08-20: first high-severity advisory, for legacy npm packages below 0.5.2.<Cite ids="clm-x402-132" />
+- 2025-09-16: the A2A x402 extension launched with AP2, and a2a-x402 published v0.1.0.<Cite ids="clm-x402-210 clm-x402-238" />
+- 2025-09-23: Cloudflare and Coinbase announced a foundation plan; Cloudflare's Agents SDK added x402 for agents and MCP servers.<Cite ids="clm-x402-018 clm-x402-185" />
+- 2025-10: daily transactions surged during the PING memecoin launch (reported).<Cite ids="clm-x402-207" />
+- 2025-12-11: V2 launched.<Cite ids="clm-x402-034" />
+- 2026-01-08 and 2026-01-15: Permit2 support and the bazaar extension merged.<Cite ids="clm-x402-046 clm-x402-047" />
+- 2026-02-02: sign-in-with-x merged; 2026-02-10 and 2026-02-11 brought a Stripe preview and Coinbase Agentic Wallets that use x402 (both reported).<Cite ids="clm-x402-048 clm-x402-181 clm-x402-180" />
+- 2026-03-04: the upto scheme merged; 2026-03-07: the Solana facilitator advisory.<Cite ids="clm-x402-049 clm-x402-133" />
+- 2026-03-31 and 2026-04-02: the charter was adopted and the Linux Foundation announced the x402 Foundation.<Cite ids="clm-x402-012 clm-x402-019" />
+- 2026-04-15: batch-settlement merged with the cloudflare:402 binding; 2026-04-29: Circle Nanopayments went live.<Cite ids="clm-x402-051 clm-x402-182" />
+- 2026-05-12 and 2026-05-13: TSC.md and the auth-capture scheme.<Cite ids="clm-x402-017 clm-x402-054" />
+- 2026-07-14: the foundation's operational launch with 40 members.<Cite ids="clm-x402-022" />
+- 2026-08-18: spendControls with a $1 default cap in @x402/core 2.23.0.<Cite ids="clm-x402-059" />
+- 2026-09-23: exact on Lightning; 2026-09-30: Cloudflare Monetization Gateway closed beta, settling USDC on Base through Coinbase's facilitator and separate from the credit-backed cloudflare:402 variant.<Cite ids="clm-x402-055 clm-x402-183 clm-x402-184" />
+
+## Compare and compose
+
+Stripe MPP is the closest sibling, and the two are built to coexist. MPP's documentation says the x402 exact model maps onto MPP's charge intent, and its `mppx` library lets one server route answer with either challenge and accept either credential.<Cite ids="clm-x402-213" /> Stripe sits on the x402 TSC and co-created MPP, so expect the two to keep converging at the edges.<Cite ids="clm-x402-214" /> Pick x402 when you want the facilitator model and the scheme family (upto, batch-settlement, auth-capture); compare the two side by side in the matrix before you commit to one.
+
+AP2 and x402 meet through the a2a-x402 extension, launched on 2025-09-16, which carries x402 requirements and payments inside A2A messages and, in its embedded flow, inside AP2 mandates.<Cite ids="clm-x402-210 clm-x402-211" /> That embedding targets AP2 v0.1: it puts the requirements in a CartMandate, and AP2 v0.2 has no Cart mandate, so the two specifications are out of step today.<Cite ids="clm-x402-211" /> The AP2 repository still ships human-present and human-not-present x402 samples.<Cite ids="clm-x402-212" />
+
+ERC-8004 supplies what x402 leaves out: who the agent is and how it behaved. Its registration file has an `x402Support` boolean, and its off-chain feedback file can carry a `proofOfPayment` for an x402 payment.<Cite ids="clm-x402-219" /> Its best practices recommend `agentWallet` as the address that receives x402 payments, and they warn that indexers cannot easily tell x402 payments from ordinary transfers.<Cite ids="clm-x402-220 clm-x402-156" />
+
+Visa TAP answers HTTP 402 in its own way. The TAP specification defines a conditional `browsingIOU` object that the agent sends when a merchant asked for payment with a 402. The merchant checks it against its 402 response and grants access, expecting the funds at settlement.<Cite ids="clm-x402-242" /> TAP's sample merchant backend uses non-standard X-Payment headers, not the x402 wire format.<Cite ids="clm-x402-215" /> Visa and Mastercard are both Premier members of the x402 Foundation, which also runs a card-acceptance working group.<Cite ids="clm-x402-023 clm-x402-221" /> L402, an earlier HTTP 402 payment design on Lightning, sits in the orbit: no source says it is the ancestor of x402.<Cite ids="clm-x402-222 clm-x402-223" />
