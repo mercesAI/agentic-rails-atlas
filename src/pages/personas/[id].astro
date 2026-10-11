@@ -1,0 +1,104 @@
+---
+/** /personas/<id>/: role, goals, pains, decisions, vocabulary and every protocol from this persona's seat. */
+import Page from '../../layouts/Page.astro';
+import Cite from '../../components/ui/Cite.astro';
+import Monogram from '../../components/ui/Monogram.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import { PERSONA_MARK_LABELS } from '../../components/protocol/labels';
+import { loadPersonaData, personaMonogram } from '../../components/hub/lib/persona-data';
+import { RELEVANCE_HELP, RELEVANCE_LABELS, roleSteps } from '../../components/hub/lib/personas';
+import { getSourcesMap } from '../../lib/content';
+import { dedupe, setPageSources } from '../../lib/citations';
+import { BUILD_DATE } from '../../lib/constants';
+import '../../components/hub/hub.css';
+
+export async function getStaticPaths() {
+  const { personas } = await loadPersonaData();
+  return personas.map((p) => ({ params: { id: p.id } }));
+}
+
+const { id } = Astro.params;
+const page = Astro.url.pathname;
+const { personas, protocols, files, matrix } = await loadPersonaData();
+const persona = personas.find((p) => p.id === id);
+if (!persona) throw new Error(`[personas] unknown persona ${id}`);
+
+const seats = protocols.map((p) => {
+  const file = files.get(p.slug) ?? null;
+  return {
+    protocol: p,
+    file,
+    card: file?.personas.find((c) => c.persona === persona.id) ?? null,
+    steps: roleSteps(persona.id, file),
+    level: matrix.get(persona.id)?.get(p.slug) ?? 'unknown',
+  };
+});
+const order = dedupe(seats.flatMap((s) => s.card?.sources ?? []));
+setPageSources(order, { page, sources: await getSourcesMap() });
+const index = personas.findIndex((p) => p.id === persona.id);
+const prev = personas[index - 1];
+const next = personas[index + 1];
+---
+<Page title={persona.name} eyebrow="Persona" lede={persona.oneLine} lastVerified={BUILD_DATE} prose={false}>
+  <span slot="meta" class="persona-mono" aria-hidden="true">{personaMonogram(persona.name)}</span>
+  <div class="hub">
+    <section class="hub-section" aria-labelledby="role-h">
+      <h2 id="role-h">Role</h2>
+      <div class="persona-page__cols">
+        <div><h3>Goals</h3><ul>{persona.goals.map((g) => <li>{g}</li>)}</ul></div>
+        <div><h3>Pains</h3><ul>{persona.pains.map((g) => <li>{g}</li>)}</ul></div>
+        <div><h3>Decisions they own</h3><ul>{persona.decisions.map((g) => <li>{g}</li>)}</ul></div>
+      </div>
+      <h3>Vocabulary</h3>
+      <ul class="vocab">{persona.vocabulary.map((v) => <li>{v}</li>)}</ul>
+    </section>
+
+    <section class="hub-section" aria-labelledby="seats-h">
+      <h2 id="seats-h">Each protocol from this seat</h2>
+      <p class="hub-muted">Relevance levels: {(['high', 'medium', 'low', 'none'] as const).map((l, i) => <>{i > 0 && '; '}<strong>{RELEVANCE_LABELS[l]}</strong>, {RELEVANCE_HELP[l].toLowerCase()}</>)}.</p>
+      {seats.map((s) => (
+        <article class="seat" id={`seat-${s.protocol.slug}`} data-family={s.protocol.family} aria-labelledby={`seat-${s.protocol.slug}-h`}>
+          <header class="seat__head">
+            <Monogram label={s.protocol.monogram} family={s.protocol.family} size="sm" />
+            <h3 id={`seat-${s.protocol.slug}-h`}><a href={`/p/${s.protocol.slug}/#e-personas`}>{s.protocol.name}</a></h3>
+            <span class="seat__level">Relevance: <strong>{RELEVANCE_LABELS[s.level]}</strong></span>
+          </header>
+          {!s.file && <p class="hub-muted">The persona section for {s.protocol.name} is still being written.</p>}
+          {s.file && s.card && (
+            <>
+              <p>{s.card.role} <Cite ids={s.card.sources.join(' ')} /></p>
+              <div class="seat__cols">
+                <div><h4>Goals</h4><ul>{s.card.goals.map((g) => <li>{g}</li>)}</ul></div>
+                <div><h4>Pains</h4><ul>{s.card.pains.map((g) => <li>{g}</li>)}</ul></div>
+                <div><h4>Implements</h4><ul>{s.card.implements.map((g) => <li>{g}</li>)}</ul></div>
+                <div><h4>Must trust</h4><ul>{s.card.mustTrust.map((g) => <li>{g}</li>)}</ul></div>
+                <div><h4>Questions they ask</h4><ul>{s.card.questions.map((g) => <li>{g}</li>)}</ul></div>
+                <div><h4>First three steps</h4><ol>{s.card.firstSteps.map((g) => <li>{g}</li>)}</ol></div>
+                <div><h4>Metrics they care about</h4><ul>{s.card.metrics.map((g) => <li>{g}</li>)}</ul></div>
+              </div>
+              <p class="seat__story"><strong>A day in the life.</strong> {s.card.story}</p>
+            </>
+          )}
+          {s.file && !s.card && (
+            <p class="hub-muted">Not one of the main personas on the {s.protocol.name} page.{s.steps.length === 0 && ' The responsibility table gives this persona no step.'}</p>
+          )}
+          {s.steps.length > 0 && (
+            <div>
+              <h4 class="hub-small">Steps in the responsibility table</h4>
+              <ul class="seat__steps">
+                {s.steps.map((r) => <li><span class="seat__mark">{PERSONA_MARK_LABELS[r.mark] ?? r.mark}</span><span>{r.step}</span></li>)}
+              </ul>
+            </div>
+          )}
+        </article>
+      ))}
+    </section>
+
+    <nav class="hub-small" aria-label="Other personas">
+      <a href="/personas/">All personas and the heatmap</a>
+      {prev && <> · Previous: <a href={`/personas/${prev.id}/`}>{prev.name}</a></>}
+      {next && <> · Next: <a href={`/personas/${next.id}/`}>{next.name}</a></>}
+    </nav>
+    <SourceList page={page} />
+  </div>
+</Page>

@@ -1,0 +1,82 @@
+---
+/** /personas/: the 19 personas and a persona by protocol relevance heatmap (text values, not color alone). */
+import Page from '../../layouts/Page.astro';
+import { loadPersonaData, personaMonogram } from '../../components/hub/lib/persona-data';
+import { RELEVANCE_HELP, RELEVANCE_LABELS, type Relevance } from '../../components/hub/lib/personas';
+import { BUILD_DATE } from '../../lib/constants';
+import '../../components/hub/hub.css';
+
+const { personas, protocols, files, matrix, score } = await loadPersonaData();
+const LEVELS: Relevance[] = ['high', 'medium', 'low', 'none', 'unknown'];
+const missing = protocols.filter((p) => !files.get(p.slug)).map((p) => p.name);
+const mainCount = (id: string) => [...(matrix.get(id)?.values() ?? [])].filter((l) => l === 'high').length;
+---
+<Page
+  title="Personas"
+  eyebrow="Cross-cutting"
+  lede="Nineteen seats at the table, from the delegating consumer to the agent itself. Open a persona to read every protocol from that seat, or scan the heatmap to see who each protocol matters to."
+  lastVerified={BUILD_DATE}
+  prose={false}
+  wide
+>
+  <div class="hub">
+    <section class="hub-section" aria-labelledby="personas-h">
+      <h2 id="personas-h">The personas</h2>
+      <ul class="persona-hub">
+        {personas.map((p) => (
+          <li>
+            <a class="persona-hub__card" href={`/personas/${p.id}/`}>
+              <span class="persona-mono" aria-hidden="true">{personaMonogram(p.name)}</span>
+              <span class="persona-hub__name">{p.name}</span>
+              <span class="persona-hub__line">{p.oneLine}</span>
+              <span class="persona-hub__meta">Main persona on {mainCount(p.id)} of {protocols.length} protocol pages</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="hub-section" aria-labelledby="heatmap-h">
+      <h2 id="heatmap-h">Persona by protocol relevance</h2>
+      <p>
+        Each cell is computed from the protocol page's persona section: <strong>High</strong> when the persona has its own card there,
+        <strong>Medium</strong> when it owns, implements or verifies a step in the responsibility table, <strong>Low</strong> when it only
+        relies on or observes a step. Rows are sorted by total relevance.
+        {missing.length > 0 && <> Persona sections for {missing.join(' and ')} are still being written, so their column reads "No data yet".</>}
+      </p>
+      <ul class="heatmap-legend">
+        {LEVELS.map((l) => <li><strong>{RELEVANCE_LABELS[l]}</strong>: {RELEVANCE_HELP[l]}</li>)}
+      </ul>
+      <div class="table-wrap heatmap" role="region" aria-labelledby="heatmap-caption" tabindex="0">
+        <table>
+          <caption id="heatmap-caption">Relevance of each protocol to each persona</caption>
+          <thead>
+            <tr>
+              <th scope="col">Persona</th>
+              {protocols.map((p) => <th scope="col"><a href={`/p/${p.slug}/#e-personas`}>{p.name}</a></th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {[...personas]
+              .sort((a, b) => (score.get(b.id) ?? 0) - (score.get(a.id) ?? 0))
+              .map((persona) => (
+                <tr>
+                  <th scope="row"><a href={`/personas/${persona.id}/`}>{persona.name}</a></th>
+                  {protocols.map((p) => {
+                    const level = matrix.get(persona.id)?.get(p.slug) ?? 'unknown';
+                    return (
+                      <td data-level={level}>
+                        <a href={`/personas/${persona.id}/#seat-${p.slug}`} title={`${persona.name} and ${p.name}: ${RELEVANCE_HELP[level]}`}>
+                          {RELEVANCE_LABELS[level]}
+                        </a>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</Page>
