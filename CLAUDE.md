@@ -30,3 +30,25 @@ See ATLAS_PROMPT.md 12.2. Content lives in `src/content/`; schemas in `src/lib/s
 - Research agents write to `research/`; writer agents write to `src/content/`; verifier agents write to `verification/` and never edit content.
 - Append to `PROGRESS.md` (timestamped) at every milestone; log judgment calls in `DECISIONS.md`; log blocked sources in `research/blocked.md`; log source conflicts in `research/conflicts.md`.
 - After Phase 2 the app must build at every commit.
+
+## Writing exemplars (from ATLAS_FOLLOWUP.md 3.1; match this register)
+
+Practitioner register (x402, opening of section B):
+
+> x402 answers one question: how does a server charge for a single HTTP request without accounts, API keys or invoices? The server replies 402 with a header that lists what it accepts: a scheme, a network, an amount, an asset and a payee address. The client signs a payment that matches one of those entries and retries the same request with the signature in a header. The server never touches a chain itself. It hands the signature to a facilitator, which checks it (verify), lets the server respond, then submits it on-chain (settle). The client's signature binds the amount and the recipient, so a facilitator cannot redirect funds, and a nonce with a validity window stops replays. What x402 does not give you: refunds under the exact scheme, a dispute process, or any statement about who the client is. Those live in other layers: the auth-capture scheme, ERC-8004, or your own policy.
+
+STE register (x402, one procedure plus one safety instruction):
+
+> **Pay for a resource with x402 (client)**
+> 1. Send the request to the server.
+> 2. If the server sends status 402, read the PAYMENT-REQUIRED header.
+> 3. Decode the header. Find the payment option that your wallet supports.
+> 4. Make sure that the amount and the payTo address are correct.
+> 5. Sign the payment with your key.
+> 6. Send the request again. Put the signed payment in the PAYMENT-SIGNATURE header.
+> 7. Read the PAYMENT-RESPONSE header. Keep the transaction identifier.
+>
+> CAUTION: DO NOT SIGN A PAYMENT IF THE payTo ADDRESS IS NOT THE ADDRESS THAT YOU EXPECT. YOU CANNOT REVERSE AN EXACT SETTLEMENT.
+
+## v1.1 corrections
+`ATLAS_FOLLOWUP.md` Section 2 lists seed facts of `ATLAS_PROMPT.md` that are wrong or unsupported. Content must follow the follow-up, not the first prompt, wherever they differ. `ATLAS_ERRATA.md` records every correction.
