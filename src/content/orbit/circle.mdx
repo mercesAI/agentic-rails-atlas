@@ -1,0 +1,25 @@
+---
+slug: circle
+name: "Circle: Nanopayments, Agent Stack and Arc"
+category: machine-payments
+starred: false
+oneLiner: "The USDC issuer, whose agent-facing products are Nanopayments through Circle Gateway (sub-cent USDC payments inside the x402 flow), the Circle Agent Stack and the Arc Layer 1 chain that charges fees in USDC."
+steward: "Circle Internet Group (company)"
+status: "Live"
+latestVersion:
+  label: "Arc public mainnet"
+  date: "2026-09-16"
+relations:
+  - to: x402
+    type: complements
+    note: "Nanopayments run inside the x402 flow with EIP-3009 authorizations; Circle reports Agent Stack payments over x402 settle in USDC."
+sources:
+  - src-x402-circle-nanopayments
+  - src-x402-fee-circle
+  - src-orbit-circle-arc-mainnet
+  - src-orbit-circle-arc-validators
+  - src-orbit-circle-arc-theblock
+lastVerified: "2026-10-11"
+---
+
+Nanopayments, live on mainnet since 2026-04-29, let a buyer sign EIP-3009 authorizations off-chain at zero gas for amounts from $0.000001 USDC, which Gateway batches and settles in bulk inside the [x402](/p/x402/) flow; the docs page lists no fee schedule. <Cite ids="src-x402-circle-nanopayments src-x402-fee-circle" /> Circle says it launched the Agent Stack (policy-controlled Agent Wallets plus Nanopayments) in May 2026 and opened Arc's public mainnet on 2026-09-16 with a permissioned founding validator cohort that includes BlackRock, DTCC, Mastercard and Visa. <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-arc-validators src-orbit-circle-arc-theblock" /> The Arc release says Arc has not been reviewed or approved by the New York State Department of Financial Services or any other regulator, and it claims that USDC accounts for 98.8% of agent-driven transaction volume, a vendor figure with no stated method (as of 2026-09-16). <Cite ids="src-orbit-circle-arc-mainnet" />

@@ -1,0 +1,28 @@
+---
+slug: erc-8226
+name: "ERC-8226 Regulated Agent Mandate"
+category: agent-identity
+starred: false
+oneLiner: "A Draft ERC (RAMS) that lets a KYC-verified principal give an on-chain agent scoped, time-bounded and capped authority over a regulated token, which the token checks at execution time."
+steward: "Authors Ludovico Rossi, Dario Lo Buglio, Thamer Dridi and Nabil El Alami Khalifi (Brickken); Ethereum ERC process"
+status: "Draft"
+latestVersion:
+  label: "ERCs commit f4df3d0 (multi-asset mandates, PR #2060)"
+  date: "2026-10-09"
+relations:
+  - to: erc-8004
+    type: complements
+    note: "ERC-8226 names ERC-8004 as an example agent-identity layer without a mandate framework and adds the mandate layer above it."
+  - to: ap2
+    type: complements
+    note: "An on-chain analogue of an AP2 mandate: bounded, revocable authority from a principal to an agent; neither references the other."
+sources:
+  - src-erc-8226
+  - src-orbit-erc-8226-prs
+  - src-orbit-erc-8226-magicians
+  - src-orbit-erc-8226-brickken
+  - src-ap2-erc8226
+lastVerified: "2026-10-11"
+---
+
+ERC-8226 splits compliance into three layers: token compliance (for example ERC-7943 or ERC-3643), mandate compliance (this ERC) and agent identity (a registry such as [ERC-8004](/p/erc-8004/)). <Cite ids="src-erc-8226 src-ap2-erc8226" /> The principal signs a mandate with EIP-712 (EIP-1271 for contract accounts) that sets validity dates and per-transaction and cumulative caps; tokens call `canExecute` before acting and `recordExecution` to consume the cap, enforcers can freeze an agent or principal, and only the principal can revoke. <Cite ids="src-erc-8226" /> Created on 2026-04-12 and first merged into `ethereum/ERCs` on 2026-05-12, it moved to one mandate per agent, principal and asset on 2026-10-09; its Ethereum Magicians thread had 50 posts by then. <Cite ids="src-orbit-erc-8226-prs src-orbit-erc-8226-magicians" /> The spec text does not mention AP2, x402 or any card network; see [ERC-3643](/orbit/erc-3643/) for how it bridges token compliance and agent identity. <Cite ids="src-erc-8226 src-orbit-erc-8226-brickken" />
