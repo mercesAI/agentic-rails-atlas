@@ -411,9 +411,69 @@ Support values follow `ControlSupport` in `src/lib/schemas.ts` (`native`, `parti
 
 ## Ecosystem and SDKs
 
+### Packages and code
+
+| Package or repo | Registry | Version (date) | What it is | Source |
+|---|---|---|---|---|
+| `agent-intent/verifiable-intent` (Python package name `verifiable-intent`) | GitHub only; not on PyPI (404 on 2026-10-11) | 0.1.0 in `pyproject.toml`; tag `v0.1.0` (2026-03-05) | Official VI spec and Python reference SDK; Apache-2.0; requires Python 3.10+ and `cryptography>=42.0` | [src-mcap-vi-pyproject] [src-mcap-pypi-vi] [src-mcap-vi-tag] |
+| `verifiable-intent` | npm | 0.1.0 (created 2026-07-18) | Unofficial TypeScript port by an individual (repository `lukasjhan/verifiable-intent`), not from the `agent-intent` organization | [src-mcap-npm-vi-unofficial] |
+| `@mastercard/developers-mcp` | npm | 0.1.7 (modified 2026-05-16) | MCP server for Mastercard Developers documentation | [src-mcap-npm-mcp] |
+| `@mastercard/developers-agent-toolkit` | npm | 0.1.6 (modified 2026-05-08) | Library form of the same toolkit | [src-mcap-npm-toolkit] |
+| `mastercard/developers-agent-toolkit` | GitHub, MIT | commit 2c6781c (2026-09-30) | Tools: `get-services-list`, `get-documentation`, `get-documentation-section-content`, `get-documentation-page`, `get-oauth10a-integration-guide`, `get-oauth20-integration-guide`, `get-openfinance-integration-guide`, `get-api-operation-list`, `get-api-operation-details`; plugins for Claude Code, Codex and Cursor with a `mastercard-best-practices` skill | [src-mcap-toolkit-readme] |
+
+Scope check on the toolkit (seed fact confirmed): its API client only reads `llms.txt` and `llms-full.txt` documentation files from developer.mastercard.com; it contains no Agent Pay, token or payment calls (no "agent pay" string in `typescript/src` or `skills`) [src-mcap-toolkit-api].
+
+There is no public Agent Pay SDK, API reference or sandbox. Mastercard Developers lists no Agent Pay service in its `llms.txt` index (2026-10-11); its Checkout Solutions release history says initial Agent Pay documentation pages went live on 2025-10-16 "for early preview", but the markdown source of that page now returns 404 and the HTML is a JavaScript shell, so its current content could not be read (seed item "developer docs page is still a placeholder": unconfirmed either way) [src-mcap-dev-llms] [src-mcap-dev-release-history].
+
+### Named participants (by role, with the source that names them)
+
+| Role | Names | Source |
+|---|---|---|
+| Launch collaborators (2025-04-29) | Microsoft, IBM, Braintree, Checkout.com | [src-mcap-launch-2025] |
+| AI and commerce collaborators (2025-09-10) | Stripe, Google, Ant International (Antom); PayOS | [src-mcap-sep-2025] |
+| First US issuers | Citi, U.S. Bank | [src-mcap-sep-2025] [src-mcap-q3-transcript] |
+| Wallet | PayPal (pilots the Acceptance Framework) | [src-mcap-paypal-2025] |
+| Edge | Cloudflare | [src-mcap-cloudflare-blog] |
+| PSP tokens | Stripe (SPTs carry Mastercard agentic network tokens from 2026-03-03) | [src-mcap-stripe-spt-2026] |
+| Latin America enabling partners | Bemobi, Checkout.com, Davivienda, Evertec, Getnet, Inti, MagaluPay, Yuno | [src-mcap-latam-2025] |
+| Latin America live issuers and processors (17) | BAC, Banco de la Nacion Argentina, Banco Falabella, Banco Galicia, Banco Itaú, Banco Ripley, Banco Security de BICE, Bancolombia, Banamex, Cencosud-Scotiabank, Davivienda, Dock, Evertec, Oriental Bank, Pomelo, Santander, ueno bank | [src-mcap-latam-2026] |
+| Australia | CBA, Westpac, IPSI, Maincode, EVT (Event Cinemas, Thredbo) | [src-mcap-australia-2026] |
+| Europe | Santander (2026-03-02); 36 named banks including Deutsche Bank, N26, KBC, UniCredit Bank Austria; Worldline and ING (regional end-to-end transaction) | [src-mcap-santander-2026] [src-mcap-europe-2026] |
+| Korea | CardInfoLink, hoppa | [src-mcap-korea-2026] |
+| VI commitments (2026-03-05) | Google, Fiserv, IBM, Checkout.com, Basis Theory, Getnet (PYMNTS); Mastercard's own guides list Google, IBM, Fiserv, Checkout.com, Worldpay, Adyen | [src-mcap-pymnts-vi] [src-mcap-dev-rails] [src-mcap-dev-level1] |
+| AP4M (32) | Aave Labs, Adyen, Alchemy, Anchorage Digital, Ant International, Basis Theory, BVNK, Catena, Checkout.com, Cloudflare, Coinbase, Coinflow, Crossmint, Getnet by Santander, Global Payments, Lovable Labs Incorporated, Mastercard Merchant Cloud, MoonPay, Nevermined, OKX, PayOS, Polygon, Rain, RippleX, Sapiom, Skyfire, Solana Foundation, Stripe, t54 Labs, Tempo, Turnkey, Utila (one of the 32 is Mastercard's own unit) | [src-mcap-ap4m-2026] |
+| Trust and intelligence (2026-09-30) | Cloudflare, Skyfire; quotes from Capital One and Javelin Strategy & Research | [src-mcap-trust-2026] |
+
+Other regional launches named but not individually verified here: New Zealand, Singapore, Malaysia and India (listed in the Korea release), UAE pilots (listed in the Australia release), Thailand with Krungthai Card (Mastercard developer guide) [src-mcap-korea-2026] [src-mcap-australia-2026] [src-mcap-dev-rails].
+
 ## Fees and costs
 
+| Item | Finding | Date | Source | Caveat |
+|---|---|---|---|---|
+| Agent Pay price list | Mastercard "does not publish a universal self-service price table for Agent Pay"; the review names no Mastercard fee, interchange, tokenization fee, liability rule or chargeback code | 2026-08-28 | [src-mcap-nevermined-review] | Vendor blog; Nevermined is an AP4M participant and quotes its own 1 to 2% pricing, which is not a Mastercard fee |
+| Network fee categories | No new agentic interchange categories or effective dates disclosed; the author expects new network fee categories (opinion) | 2026-05-01 | [src-mcap-mcc-fees] | Secondary opinion; page blocked on 2026-10-11, taken from ATLAS_FOLLOWUP.md Appendix B |
+| Merchant cost model | Merchants accept tokens through existing processors and "PCI scope remains unchanged"; Mastercard's guides describe no extra merchant fee | undated guide (2026) | [src-mcap-dev-level1] | Absence of a statement, not a statement of zero fees |
+| Stripe SPT path | Sellers already on Stripe "automatically support" agentic network tokens; no Agent Pay-specific Stripe price stated | 2026-03-03 | [src-mcap-stripe-spt-2026] | Stripe's normal card pricing presumably applies; not stated |
+| AP4M | No pricing; payments "some only fractions of a cent" are the target | 2026-06-10 | [src-mcap-ap4m-2026] | Settlement costs per rail not published |
+| Trust Framework probability score | Pricing undisclosed | 2026-09-30 | [src-mcap-trust-2026] | |
+
+Conclusion for writers: as of 2026-10-11 treat Agent Pay card payments as standard tokenized card-not-present economics ("card economics unchanged" in the compare matrix) until Mastercard publishes otherwise.
+
 ## Metrics with dates and caveats
+
+| Metric | Value | As of | Source | Caveat |
+|---|---|---|---|---|
+| Agent Pay transaction volume or value | Not published | 2026-10-11 | [src-mcap-trust-2026] [src-mcap-nevermined-review] | No Mastercard release reports counts or value |
+| European issuers enabled | "All Mastercard issuers in Europe" at network level | 2026-06-02 | [src-mcap-europe-2026] | Enablement, not usage |
+| European banks with completed controlled live transactions | 36 named | 2026-06-02 | [src-mcap-europe-2026] | Controlled transactions on Priceless.com |
+| Latin American issuers and processors with live transactions | 17 named | 2026-03-24 | [src-mcap-latam-2026] | "Performed in controlled environments" |
+| Latin American issuers enabled for tokenization | "nearly 100%" (December 2025: tokenization; March 2026: "agentic token technology") | 2025-12-03 and 2026-03-24 | [src-mcap-latam-2025] [src-mcap-latam-2026] | The wording changed between releases |
+| US cardholders enabled | All US cardholders planned "by the holiday season" 2025; remaining US issuers planned for November 2025 | 2025-09-10 and 2025-10-30 | [src-mcap-sep-2025] [src-mcap-q3-transcript] | Completion not confirmed by a later primary source found |
+| AP4M named participants | 32 ("More than 30") | 2026-06-10 | [src-mcap-ap4m-2026] | Includes Mastercard Merchant Cloud |
+| VI repository | 97 stars, 20 forks, 41 issues and PRs, 5 commits on `main` | 2026-10-11 | [src-mcap-vi-gh-repo] [src-mcap-vi-issues] | No commits since 2026-04-20 |
+| VI test suite | "268 tests across 17 test files" (CHANGELOG 0.1.0) | 2026-02-19 | [src-mcap-vi-changelog] | The repository now has more test files than 17 |
+| Consumer adoption projection | "one in 10 consumers projected to routinely use agents to make purchases by 2030" | 2026-09-30 | [src-mcap-trust-2026] | Projection; source of the projection not given |
+| Australian projection | Agentic commerce could influence 55% of Australian consumer transactions by 2030, up to A$670 billion | 2026-01-28 | [src-mcap-australia-2026] | Third-party research cited by Mastercard |
 
 ## Relations to the other seven protocols
 
