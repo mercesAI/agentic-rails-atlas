@@ -590,8 +590,78 @@ Seed arXiv ids all resolve with the titles above; no seed id was wrong.
 
 ## Seed audit
 
+| Seed fact (ATLAS_PROMPT 5.4 or ATLAS_FOLLOWUP) | Result | Source |
+| --- | --- | --- |
+| Announced 2025-09-29 with ChatGPT Instant Checkout | Confirmed | [src-openai-buy-it] [src-stripe-acp-launch] |
+| Apache-2.0 | Confirmed | [src-openai-acp-license] |
+| Beta in README, Draft in RFCs | Confirmed; newer RFCs say "Proposal" | [src-openai-acp-readme] [src-openai-acp-rfcs-dir] |
+| Versions 2025-09-29, 2025-12-12, 2026-01-16, 2026-01-30, 2026-04-17 (latest release) | Confirmed as dated spec folders; there are no GitHub releases or tags | [src-openai-acp-gh-repo] [src-openai-acp-changelog-20260417] |
+| Unreleased changes merged May to July 2026; last commit 2026-07-17 [verify current] | Confirmed: 18 commits from 2026-04-24 to 2026-07-18T04:51Z (2026-07-17 Pacific); none since, as of 2026-10-11 | [src-openai-acp-gh-commits] |
+| Governance since 2026-03-10: TSC up to 7 orgs appointed by OpenAI and Stripe, SEPs, limited founders' veto | Confirmed (PR #173, 2026-03-10); veto applies only to SEPs and can only block | [src-openai-acp-governance] |
+| Meta joined the TSC 2026-04-24 | Confirmed (PR #236) | [src-openai-acp-gh-commits] [src-openai-acp-governance] |
+| Corporate CLA signatories include Adyen, Wix, commercetools, nekuda, Affirm, Meta, PayPal | Corrected: "nekuda" is not a signatory name; the signatory is OpenCommerce Network Inc. (a nekuda-ai GitHub user is listed); Agentic Commerce Inc. (Catalog) is also a signatory | [src-openai-acp-cla-signatories] |
+| No foundation | Confirmed; a future neutral foundation is a stated goal | [src-openai-acp-governance] |
+| Merchant hosts REST API, system of record and merchant of record | Confirmed | [src-openai-acp-rfc-checkout] [src-openai-commerce-docs] |
+| Headers `Authorization: Bearer`, `API-Version`, `Idempotency-Key` on every POST | Confirmed for 2026-04-17; `Idempotency-Key` was optional before that release | [src-openai-acp-changelog-20260417] |
+| Recommended `Signature` (detached, canonical JSON), `Timestamp`, `Request-Id` | Confirmed | [src-openai-acp-rfc-checkout] |
+| Signing is mandatory for Delegate Payment | Partly: RFC-DP section 2.2 says MUST; its own header list says RECOMMENDED and the OpenAPI marks `Signature` optional | [src-openai-acp-rfc-delegate-payment] [src-openai-acp-openapi-delegate-payment-20260417] |
+| Endpoints and codes: create 201, update, get, complete must create an order, cancel with optional `intent_trace.reason_code` | Confirmed; cancel returns 405 if already final; complete is 200 in OpenAPI | [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-checkout-20260417] |
+| Status values: original five; from 2026-01-30 also `incomplete`, `requires_escalation`, `authentication_required`, `pending_approval`, `complete_in_progress`, `expired` | Corrected: `authentication_required` was already in 2025-12-12 and 2026-01-16; the other five arrived in 2026-01-30 | [src-openai-acp-schema-checkout-20260130] |
+| Integer minor units; typed totals; fulfillment types `shipping`, `digital`, `pickup`, `local_delivery`; messages with codes and `resolution` | Confirmed; `pickup` and `local_delivery` from 2026-01-30; `resolution` from 2026-04-17 | [src-openai-acp-schema-checkout-20260417] [src-openai-acp-changelog-20260417] |
+| Payment handlers since 2026-01-30 (`dev.acp.tokenized.card`, seller-backed saved card, gift card, points, store credit) | Confirmed; seller-backed handlers released in 2026-04-17 (RFC created 2026-02-05) | [src-openai-acp-changelog-20260130] [src-openai-acp-rfc-seller-backed] |
+| Complete request `payment_data { handler_id, instrument { type, credential { type: "spt", token } }, billing_address }` with optional 3DS result and risk signals | Confirmed; `spt` is an example credential type | [src-openai-acp-schema-checkout-20260417] |
+| Delegate Payment `POST /agentic_commerce/delegate_payment`, required `allowance` (`reason: one_time`, `max_amount`, `currency`, `checkout_session_id`, `merchant_id`, `expires_at`), returns `vt_...` | Confirmed | [src-openai-acp-schema-delegate-payment-20260417] |
+| SPT is Stripe's product; `spt_...`; usage limits; statuses `active`, `requires_action`, `deactivated`; revocable; cards, Link, wallets, Klarna, Affirm, network agentic tokens | Confirmed; wallets are Apple Pay and Google Pay; Affirm is "limited"; Stripe "might use" Agent Pay and Intelligent Commerce tokens | [src-stripe-spt] |
+| Webhooks `order_create`, `order_update`, HMAC `Merchant-Signature`, 300-second window; adjustments refund, return, dispute | Confirmed; header format and 300 s tolerance specified in 2026-04-17 | [src-openai-acp-openapi-webhook-20260417] |
+| 2026 additions: Cart, push Feed API, Delegate Authentication, `/.well-known/acp.json`, MCP binding with 5 tools, extensions (discount, affiliate attribution, marketing consent) | Confirmed with a correction: discount is the only extension declared through the extensions framework (`name: discount`); affiliate attribution (added 2025-12-12) and marketing consent are RFC-defined fields, not framework extensions | [src-openai-acp-changelog-20260417] [src-openai-acp-changelog-20251212] [src-openai-acp-rfc-extensions] |
+| Spec drift: RFC and OpenAPI examples show `items[{id, quantity}]`, JSON Schema dropped `quantity` on 2026-01-30 | Confirmed, and wider: the examples also use the key `items` while the schema requires `line_items` | [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-checkout-20260417] [src-openai-acp-schema-checkout-20260130] |
+| 2025-10-14 Walmart announced | Confirmed (announcement; "soon") | [src-walmart-openai] |
+| 2025-10-28 PayPal adopts ACP | Confirmed ("will adopt") | [src-paypal-acp] |
+| 2026-01-08 Copilot Checkout, adopting open standards such as ACP | Confirmed | [src-ms-copilot-checkout] |
+| Early March 2026 reports that Instant Checkout is "moving to Apps" | Confirmed as reported (secondary, quoting an OpenAI spokesperson via The Information) | [src-retailsystems-pivot] |
+| 2026-03-24 OpenAI: first version lacked flexibility, merchants use own checkout, ACP extends to discovery with major retailers | Confirmed | [src-openai-product-discovery] |
+| ChatGPT payment sheet in beta for select marketplace partners | Confirmed | [src-openai-apps-monetization] |
+| Surfaces ChatGPT and Copilot; PSPs Stripe, PayPal, Adyen, Checkout.com, Fiserv, Worldpay; platforms Shopify, Salesforce, commercetools, Wix | Confirmed with roles: PSPs from OpenAI's payment sheet list; Shopify through Shopify Catalog; Salesforce as feed provider; commercetools and Wix as CLA signatories and Stripe ACS platforms | [src-openai-apps-monetization] [src-openai-product-discovery] [src-stripe-acs-launch] |
+| Stripe's Agentic Commerce Suite supports ACP or UCP | Confirmed (Stripe docs table) | [src-stripe-agentic-commerce] |
+| No official volume data | Confirmed | [src-openai-product-discovery] |
+| Package `@agentic-commerce-protocol/specification` [verify npm publication] | Corrected: name exists only in `package.json` (0.1.0); not on npm (404) | [src-openai-acp-npm-404] |
+| Relations: no AP2-style mandates; official MCP binding; converging with UCP, no formal bridge; Visa and Mastercard tokens can sit under SPTs | Confirmed (UCP convergence shown by shared status names, handler naming and well-known discovery) | [src-ucp-checkout-schema] [src-stripe-spt] [src-openai-acp-mcp-binding] |
+| Security and criticism points | Confirmed | see Criticisms |
+| Do not get wrong: not IBM's Agent Communication Protocol (merged into A2A, August 2025), not Virtuals ACP, not Agent Client Protocol; OpenAI not MoR; SPT is Stripe's; Instant Checkout scaled back | Confirmed (IBM merge announced 2025-08-29) | [src-ibm-acp-a2a] [src-virtuals-acp] [src-agent-client-protocol] [src-openai-commerce-docs] |
+| ATLAS_FOLLOWUP 2.2 Scenario 6: external checkout GA; payment sheet beta for select marketplace partners; PCI DSS Level 1 merchants can receive card data through Delegate Payment; no source says the payment sheet uses an allowance-scoped token | Confirmed. Nuance: in the PCI DSS Level 1 path, the Delegate Payment request does include allowance constraints; nothing says the general payment sheet token is allowance-scoped | [src-openai-apps-monetization] |
+| ATLAS_FOLLOWUP Appendix B: OpenAI "small fee" (2025-09-29) | Confirmed, primary | [src-openai-buy-it] |
+| ATLAS_FOLLOWUP Appendix B: 4% for Shopify merchants (PYMNTS and The Information, 2026-01-21), not published by OpenAI | Confirmed as reported | [src-pymnts-4pct] |
+| Seed publications (2609.00060, 2604.15367, 2607.21824, 2508.02630, 2510.25779, 2609.28372, 2607.25253, 2207.01206, 2406.12045, 2508.08544, Rochet and Tirole 2003) | All resolve; 2604.15367 likely concerns Virtuals' ACP rather than this one | [src-arxiv-2609-00060] [src-arxiv-2604-15367] |
+
 ## Blocked sources
+
+- `https://openai.com/index/buy-it-in-chatgpt/` and `https://openai.com/index/powering-product-discovery-in-chatgpt/`: HTTP 403 to curl and WebFetch. Read through Wayback Machine snapshots (20261007012440 and 20260929220135). Logged in `research/blocked.md`.
+- `https://www.digitalcommerce360.com/2026/03/06/...` (and the AMP copy) and `.../2026/03/24/...`: HTTP 403. Alternative: Retail Systems (2026-03-10) for the "moving to apps" quote.
+- `https://chatgpt.com/merchants` and `https://help.openai.com/...`: HTTP 403 to curl (not needed after the developer docs).
+- `https://docs.paypal.ai/growth/agentic-commerce/agent-ready`: HTTP 404.
+- `https://4pillars.io/...` (Virtuals ACP analysis): HTTP 429. Alternative: Virtuals whitepaper.
 
 ## Conflicts
 
+All logged in `research/conflicts.md`. In each case the JSON Schema or OpenAPI file at 7fdd78d is treated as primary for the spec, and OpenAI's docs as primary for OpenAI's implementation.
+
+1. **Create request items.** RFC-AC 4.1 and the OpenAPI request examples (`minimal`, `with_address`, `with_first_touch_attribution`) send `items: [{id, quantity}]`; the schema-level example sends `items: [{product_id, quantity}]`. The 2026-01-30 and 2026-04-17 JSON Schema and OpenAPI schema require `line_items` of `Item` (`id`, `name`, `unit_amount`; `additionalProperties: false`), so `quantity` cannot be sent and these examples do not validate. The repository's own `examples/2026-04-17/examples.agentic_checkout.json` uses `line_items: [{id}]`.
+2. **Complete status code.** OpenAPI: 200. OpenAI's production checklist: "HTTP 201 Created".
+3. **Idempotency conflict status.** Spec (RFC-AC 6.4): 422 `idempotency_conflict`, 409 `idempotency_in_flight`. OpenAI checklist: `idempotency_conflict` with HTTP 409.
+4. **TLS version.** RFC-AC section 7: TLS 1.3 MUST. OpenAI: TLS 1.2 or later.
+5. **Webhook event names.** Spec: `order_create`, `order_update`. OpenAI checklist: `order_created`, `order_updated`; OpenAI FAQ: `ORDER_UPDATE`. (The OpenAPI uses `order_created` and `order_updated` only as example keys.)
+6. **Feed paths.** Spec: `/feeds`, `/feeds/{id}`, `/feeds/{id}/products`. OpenAI: `/product_feeds`, `/product_feeds/{id}`, `/product_feeds/{id}/products`, plus promotions (deferred in the spec).
+7. **Delegate Payment signing.** RFC-DP 2.2: client MUST sign and include `Timestamp`; RFC-DP header list: RECOMMENDED; OpenAPI: `Signature` and `Timestamp` `required: false`.
+8. **Order status after release.** The 2026-04-17 changelog lists `[created, confirmed, manual_review, processing, shipped, delivered, canceled]`; the 2026-04-17 schema now defines `completed` instead of `delivered` because PR #232 (2026-05-01) edited the released snapshot.
+9. **Decimal quantity.** The 2026-04-17 changelog says `Item.quantity` became `number`; only the 2025-09-29 schema has that type; later versions keep `integer` or drop the field.
+10. **MCP binding vs REST idempotency.** `docs/mcp-binding.md` makes `meta.idempotency_key` optional and lists `request_not_idempotent`; REST 2026-04-17 makes `Idempotency-Key` required and removed `request_not_idempotent`.
+11. **Checkout `Signature` description.** RFC-AC: detached signature over canonical JSON; checkout OpenAPI parameter: "HMAC signature for webhook verification".
+12. **`PaymentMethodCard.virtual`.** RFC-DP 3.3: REQUIRED; JSON Schema: optional.
+13. **Deprecated version name.** The 2026-01-30 changelog deprecates `2026-01-22`, a version with no folder; the payment handlers RFC is labeled Version 2026-01-22.
+14. **Discount extension identifier.** The 2026-01-30 changelog example uses `"namespace": "dev.acp.discount"`; the schemas and examples use `ExtensionDeclaration.name` `"discount"` and have no `namespace` property.
+
 ## Least certain
+
+1. **When Instant Checkout's 2025 form stopped.** OpenAI's 2026-03-24 post says merchants may use their own checkout; the "moving to apps" quote is known only through trade press relaying The Information (Retail Systems, 2026-03-10). No primary source gives a shutdown date, and the Developer docs' "Key concepts" page still says "Supporting Instant Checkout in ChatGPT requires" three flows.
+2. **The 4% fee.** Known only from PYMNTS relaying The Information and a Shopify spokesperson (2026-01-21); whether it was ever charged at scale, or still applies after March 2026, is unknown.
+3. **Who, besides ChatGPT, runs ACP checkout in production.** Microsoft said it is "adopting open standards like" ACP (2026-01-08) but its later merchant page requires UCP feeds; PayPal's and Walmart's 2025 statements were announcements. No primary source confirms live ACP checkout traffic on another surface.

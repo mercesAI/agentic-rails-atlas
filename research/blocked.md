@@ -31,3 +31,6 @@
 - 2026-10-11, mastercard-agent-pay: developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/agent-pay/ (markdown source returns 404; the HTML is a JavaScript shell); alternative used: release-history page and Merchant Cloud tutorial pages.
 - 2026-10-11, mastercard-agent-pay: agentpay-key-directory.mastercard.com: NXDOMAIN (host shown in a Mastercard developer guide example does not resolve); no alternative.
 - 2026-10-11, mastercard-agent-pay: merchantcostconsulting.com/?p=8876, theblock.co/post/404288, fireblocks.com blog, digitalcommerce360.com, fidoalliance.org podcast page: HTTP 403 to curl (and WebFetch for Merchant Cost Consulting); alternative used: Appendix B and Appendix A entries of ATLAS_FOLLOWUP.md (opened 2026-10-10), marked reported.
+- 2026-10-11, openai-acp: https://www.digitalcommerce360.com/2026/03/06/openai-shifts-checkout-plans-agentic-commerce-strategy/ (and /amp/, and the 2026-03-24 article): HTTP 403; alternative used: retail-systems.com article dated 2026-03-10 (reported).
+- 2026-10-11, openai-acp: https://docs.paypal.ai/growth/agentic-commerce/agent-ready: HTTP 404; no alternative needed.
+- 2026-10-11, openai-acp: https://4pillars.io/en/issues/acp-the-future-of-agentic-division-of-labour: HTTP 429; alternative used: https://whitepaper.virtuals.io/.
