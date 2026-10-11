@@ -1,0 +1,130 @@
+/**
+ * Visual encoding rules for the bubble universe (ATLAS_PROMPT.md 4.3 and 13).
+ * Fill hue = family, ring style = rails, size = equal base plus a small boost per layer covered.
+ */
+import { LAYERS, type Layer, type Rail, type RelationType, type Status } from '../../../lib/schemas';
+import type { OrbitCategoryId, PersonaMap, Relevance, UniverseProtocol, UniverseRelation } from './types';
+
+export type RingStyle = 'solid' | 'dashed' | 'double' | 'dotted';
+
+const RAIL_RING: Record<Rail, RingStyle> = {
+  card: 'solid',
+  crypto: 'dashed',
+  bank: 'dotted',
+  'rail-agnostic': 'double',
+  'multi-rail': 'double',
+};
+
+/**
+ * Ring style from the primary (first listed) rail. A protocol that lists
+ * rail-agnostic or multi-rail first gets the double ring.
+ */
+export function ringStyle(rails: readonly Rail[]): RingStyle {
+  const first = rails[0];
+  return first ? RAIL_RING[first] : 'double';
+}
+
+export const RING_LABELS: Record<RingStyle, string> = {
+  solid: 'Card network',
+  dashed: 'Crypto-native',
+  double: 'Rail-agnostic or multi-rail',
+  dotted: 'Bank rails',
+};
+
+export const RAIL_LABELS: Record<Rail, string> = {
+  crypto: 'Crypto-native',
+  card: 'Card network',
+  bank: 'Bank rails',
+  'rail-agnostic': 'Rail-agnostic',
+  'multi-rail': 'Multi-rail',
+};
+
+export const STATUS_LABELS: Record<Status, string> = {
+  draft: 'Draft',
+  beta: 'Beta',
+  pilot: 'Pilot',
+  live: 'Live',
+  mixed: 'Mixed',
+};
+
+export const RELATION_LABELS: Record<RelationType, string> = {
+  embeds: 'Embeds',
+  'uses-as-rail': 'Uses as a rail',
+  complements: 'Complements',
+  'competes-with': 'Competes with',
+  'compatible-with': 'Compatible with',
+  'same-steward': 'Same steward',
+  lineage: 'Lineage',
+};
+
+/** SVG stroke-dasharray per relation type, so line style (not color) tells types apart. */
+export const RELATION_DASH: Record<RelationType, string> = {
+  embeds: '',
+  'uses-as-rail': '10 4',
+  complements: '2 4',
+  'competes-with': '8 4 2 4',
+  'compatible-with': '5 5',
+  'same-steward': '1 7',
+  lineage: '14 6',
+};
+
+export const ORBIT_CATEGORY_LABELS: Record<OrbitCategoryId, string> = {
+  'agent-communication': 'Agent communication',
+  'agent-identity': 'Agent identity',
+  'wallet-permissions': 'Wallet permissions',
+  'machine-payments': 'Machine payments',
+  'card-wallet-commerce': 'Card and wallet commerce',
+  'legal-policy': 'Legal and policy',
+};
+
+/** Distinct layers a protocol covers (primary plus secondary). */
+export function layersCovered(p: Pick<UniverseProtocol, 'layerPrimary' | 'layersSecondary'>): number {
+  return new Set<Layer>([p.layerPrimary, ...p.layersSecondary]).size;
+}
+
+export const BASE_RADIUS = 54;
+export const RADIUS_BOOST = 3;
+export const MAX_BOOST_LAYERS = 6;
+
+/** Equal base size plus a small boost per extra layer covered (never by adoption). */
+export function bubbleRadius(p: Pick<UniverseProtocol, 'layerPrimary' | 'layersSecondary'>, base = BASE_RADIUS): number {
+  const extra = Math.min(layersCovered(p), MAX_BOOST_LAYERS) - 1;
+  return base + (base / BASE_RADIUS) * RADIUS_BOOST * extra;
+}
+
+const RAIL_X: Record<Rail, number> = {
+  crypto: 0,
+  'multi-rail': 0.5,
+  'rail-agnostic': 0.5,
+  bank: 0.75,
+  card: 1,
+};
+
+/** Position on the crypto-native (0) to card-network (1) axis: the mean over listed rails. */
+export function railScore(rails: readonly Rail[]): number {
+  if (rails.length === 0) return 0.5;
+  return rails.reduce((sum, r) => sum + RAIL_X[r], 0) / rails.length;
+}
+
+export function layerIndex(layer: Layer): number {
+  return LAYERS.indexOf(layer);
+}
+
+/** Relations that touch a protocol, limited to pairs where both ends are on the canvas. */
+export function relationsFor(
+  slug: string,
+  relations: readonly UniverseRelation[],
+  present: ReadonlySet<string>,
+): UniverseRelation[] {
+  return relations.filter(
+    (r) => (r.from === slug || r.to === slug) && present.has(r.from) && present.has(r.to) && r.from !== r.to,
+  );
+}
+
+/** Relevance of a protocol to a persona; no persona selected means every protocol is high. */
+export function relevanceOf(map: PersonaMap, persona: string | null, slug: string): Relevance {
+  if (!persona) return 'high';
+  return map[persona]?.[slug] ?? 'low';
+}
+
+export const RELEVANCE_OPACITY: Record<Relevance, number> = { high: 1, medium: 0.62, low: 0.22 };
