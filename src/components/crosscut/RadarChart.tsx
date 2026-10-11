@@ -15,6 +15,9 @@ export interface RadarChartProps {
   entries: RadarEntry[];
 }
 
+/** Shorter labels inside the chart so they fit narrow cards; the table uses the full names. */
+const CHART_LABELS: Partial<Record<string, string>> = { 'human-not-present': 'Human not present' };
+
 const W = 340;
 const H = 270;
 const CX = W / 2;
@@ -46,7 +49,7 @@ function Radar({ p, entries }: { p: ProtocolInfo; entries: RadarEntry[] }) {
             <g key={axis} aria-hidden="true">
               <line x1={CX} y1={CY} x2={x} y2={y} className="cc-radar-spoke" />
               <text x={lx} y={ly + dy} textAnchor={anchor} className="cc-radar-label">
-                {RADAR_AXIS_LABELS[axis]}
+                {CHART_LABELS[axis] ?? RADAR_AXIS_LABELS[axis]}
               </text>
             </g>
           );
