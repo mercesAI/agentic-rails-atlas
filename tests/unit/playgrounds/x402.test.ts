@@ -60,6 +60,7 @@ import {
   recoverSigner,
   sameAddress,
   signTypedData,
+  tamperAmount,
   transferWithAuthorizationTypedData,
   typedDataForDisplay,
   type TypedDataSigner,
@@ -261,6 +262,20 @@ describe('typed data and signatures', () => {
     const tampered = transferWithAuthorizationTypedData({ ...a, value: '10001' });
     expect(sameAddress(await recoverSigner(tampered, sig), signer.address)).toBe(false);
     expect(digestOf(td)).not.toBe(digestOf(tampered));
+  });
+  it('tampers the signed amount by one unit for both payload types', async () => {
+    const signer = newSigner();
+    const a = buildEip3009Authorization({ from: signer.address, to: FIXTURE_PAY_TO, value: '7', now: NOW, maxTimeoutSeconds: 60 });
+    const td = transferWithAuthorizationTypedData(a);
+    const t = tamperAmount(td);
+    expect(t.primaryType === 'TransferWithAuthorization' && t.message.value).toBe(8n);
+    const sig = await signer.signTypedData(td);
+    expect(sameAddress(await recoverSigner(t, sig), signer.address)).toBe(false);
+    const u = permitWitnessTypedData(
+      buildUptoAuthorization({ from: signer.address, to: FIXTURE_PAY_TO, facilitator: FIXTURE_FACILITATOR, token: FIXTURE_TOKEN.address, amount: '9', now: NOW, maxTimeoutSeconds: 60 }),
+    );
+    const tu = tamperAmount(u);
+    expect(tu.primaryType === 'PermitWitnessTransferFrom' && tu.message.permitted.amount).toBe(10n);
   });
   it('compares addresses without case and renders bigints for display', () => {
     expect(sameAddress('0xAB', '0xab')).toBe(true);

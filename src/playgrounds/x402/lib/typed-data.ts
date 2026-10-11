@@ -177,3 +177,14 @@ export function sameAddress(a: string, b: string): boolean {
 export function typedDataForDisplay(td: TypedData): unknown {
   return JSON.parse(JSON.stringify(td, (_k, v: unknown) => (typeof v === 'bigint' ? v.toString() : v)));
 }
+
+/** Same typed data with the amount raised by one atomic unit, to show that recovery then names a different address. */
+export function tamperAmount(td: TypedData): TypedData {
+  if (td.primaryType === 'TransferWithAuthorization') {
+    return { ...td, message: { ...td.message, value: td.message.value + 1n } };
+  }
+  return {
+    ...td,
+    message: { ...td.message, permitted: { ...td.message.permitted, amount: td.message.permitted.amount + 1n } },
+  };
+}
