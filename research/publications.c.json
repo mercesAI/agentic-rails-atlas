@@ -26,8 +26,27 @@
       "pub-miller-2017-sprites",
       "pub-chaum-1983-blind"
     ],
-    "Card payment security (TAP and Agent Pay context)": [],
-    "Economics and law": [],
+    "Card payment security (TAP and Agent Pay context)": [
+      "pub-murdoch-2010-chipandpin",
+      "pub-murdoch-2010-3dsecure",
+      "pub-bond-2014-chipandskim",
+      "pub-basin-2021-emv",
+      "pub-basin-2021-mixup",
+      "pub-radu-2022-relay",
+      "pub-barbosa-2021-fido2",
+      "pub-davidson-2018-privacypass",
+      "pub-venugopalan-2025-fpinconsistent"
+    ],
+    "Economics and law": [
+      "pub-rochet-2002-cooperation",
+      "pub-rochet-2003-platform",
+      "pub-kolt-2025-governing",
+      "pub-riedl-2025-law",
+      "pub-restrepoamariles-2026-payments",
+      "pub-bindschaedler-2026-recourse",
+      "pub-trout-2026-underwriting",
+      "pub-hammond-2025-multiagent"
+    ],
     "Protocol analyses and recent papers (part c additions)": [],
     "Grey literature": []
   },
@@ -367,6 +386,569 @@
       "verifiedAt": "2026-10-11",
       "verifiedVia": "doi-negotiation",
       "bibtex": "@inproceedings{chaum1983blind,\n  title = {{Blind Signatures for Untraceable Payments}},\n  author = {David Chaum},\n  year = {1983},\n  booktitle = {Advances in Cryptology},\n  pages = {199--203},\n  publisher = {Springer},\n  doi = {10.1007/978-1-4757-0602-4_18},\n  url = {https://doi.org/10.1007/978-1-4757-0602-4_18}\n}"
+    },
+    {
+      "id": "pub-murdoch-2010-chipandpin",
+      "title": "Chip and PIN is Broken",
+      "authors": [
+        "Steven J. Murdoch",
+        "Saar Drimer",
+        "Ross Anderson",
+        "Mike Bond"
+      ],
+      "year": 2010,
+      "venue": "IEEE Symposium on Security and Privacy 2010",
+      "peerReviewed": true,
+      "doi": "10.1109/SP.2010.33",
+      "url": "https://doi.org/10.1109/SP.2010.33",
+      "themes": [
+        "card-security",
+        "payments",
+        "security"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "foundation",
+      "summary": "Shows a man-in-the-middle attack on EMV chip cards in which a device between card and terminal makes the terminal believe the PIN was verified while the card believes signature verification was used, so a stolen card works with any PIN.",
+      "whyItMatters": "A reminder that card security fails at the seams between parties that each see half the transaction; agent payment schemes add another party, the agent, between cardholder and merchant.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{murdoch2010chipandpin,\n  title = {{Chip and PIN is Broken}},\n  author = {Steven J. Murdoch and Saar Drimer and Ross Anderson and Mike Bond},\n  year = {2010},\n  booktitle = {2010 IEEE Symposium on Security and Privacy},\n  pages = {433--446},\n  publisher = {IEEE},\n  doi = {10.1109/SP.2010.33},\n  url = {https://doi.org/10.1109/SP.2010.33}\n}"
+    },
+    {
+      "id": "pub-murdoch-2010-3dsecure",
+      "title": "Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication",
+      "authors": [
+        "Steven J. Murdoch",
+        "Ross Anderson"
+      ],
+      "year": 2010,
+      "venue": "Financial Cryptography and Data Security 2010, LNCS",
+      "peerReviewed": true,
+      "doi": "10.1007/978-3-642-14577-3_27",
+      "url": "https://doi.org/10.1007/978-3-642-14577-3_27",
+      "themes": [
+        "card-security",
+        "authentication",
+        "payments"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "foundation",
+      "summary": "Criticizes the original 3-D Secure schemes (Verified by Visa and MasterCard SecureCode) for training users to enter passwords into unverifiable inline frames, shifting liability onto cardholders, and weakening security in the name of convenience.",
+      "whyItMatters": "3-D Secure is the existing step-up and liability mechanism that card-based agent payments build on or bypass; this paper explains why authentication that users cannot verify fails.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{murdoch20103dsecure,\n  title = {{Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication}},\n  author = {Steven J. Murdoch and Ross Anderson},\n  year = {2010},\n  booktitle = {Financial Cryptography and Data Security},\n  series = {Lecture Notes in Computer Science},\n  pages = {336--342},\n  publisher = {Springer},\n  doi = {10.1007/978-3-642-14577-3_27},\n  url = {https://doi.org/10.1007/978-3-642-14577-3_27}\n}"
+    },
+    {
+      "id": "pub-bond-2014-chipandskim",
+      "title": "Chip and Skim: Cloning EMV Cards with the Pre-play Attack",
+      "authors": [
+        "Mike Bond",
+        "Omar Choudary",
+        "Steven J. Murdoch",
+        "Sergei Skorobogatov",
+        "Ross Anderson"
+      ],
+      "year": 2014,
+      "venue": "IEEE Symposium on Security and Privacy 2014",
+      "peerReviewed": true,
+      "doi": "10.1109/SP.2014.11",
+      "url": "https://doi.org/10.1109/SP.2014.11",
+      "themes": [
+        "card-security",
+        "payments",
+        "security"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "foundation",
+      "summary": "Finds that many EMV terminals and ATMs generate weak or predictable \"unpredictable numbers\", which lets an attacker who briefly accesses a card harvest authorization cryptograms in advance and replay them later as if the card were present (the pre-play attack).",
+      "whyItMatters": "Replay of pre-computed authorizations is the same failure class that agent payment specs try to block with nonces, timestamps and per-request signatures, as in Visa TAP signatures and network tokens.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{bond2014chipandskim,\n  title = {{Chip and Skim: Cloning EMV Cards with the Pre-play Attack}},\n  author = {Mike Bond and Omar Choudary and Steven J. Murdoch and Sergei Skorobogatov and Ross Anderson},\n  year = {2014},\n  booktitle = {2014 IEEE Symposium on Security and Privacy},\n  pages = {49--64},\n  publisher = {IEEE},\n  doi = {10.1109/SP.2014.11},\n  url = {https://doi.org/10.1109/SP.2014.11}\n}"
+    },
+    {
+      "id": "pub-basin-2021-emv",
+      "title": "The EMV Standard: Break, Fix, Verify",
+      "authors": [
+        "David Basin",
+        "Ralf Sasse",
+        "Jorge Toro-Pozo"
+      ],
+      "year": 2021,
+      "venue": "IEEE Symposium on Security and Privacy 2021",
+      "peerReviewed": true,
+      "doi": "10.1109/SP40001.2021.00037",
+      "url": "https://doi.org/10.1109/SP40001.2021.00037",
+      "themes": [
+        "card-security",
+        "formal-analysis",
+        "payments"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "foundation",
+      "summary": "Builds a Tamarin model of the EMV contactless protocol and finds that unauthenticated card data lets an attacker bypass the PIN for high-value Visa contactless payments; the authors propose and verify fixes that terminals can deploy.",
+      "whyItMatters": "The method, formal modeling of a payment network protocol that exposes a deployable attack, is what recent work applies to agent payment specs; it also shows how fragile unauthenticated fields are.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{basin2021emv,\n  title = {{The EMV Standard: Break, Fix, Verify}},\n  author = {David Basin and Ralf Sasse and Jorge Toro-Pozo},\n  year = {2021},\n  booktitle = {2021 IEEE Symposium on Security and Privacy (SP)},\n  pages = {1766--1781},\n  publisher = {IEEE},\n  doi = {10.1109/SP40001.2021.00037},\n  url = {https://doi.org/10.1109/SP40001.2021.00037}\n}"
+    },
+    {
+      "id": "pub-basin-2021-mixup",
+      "title": "Card Brand Mixup Attack: Bypassing the PIN in non-Visa Cards by Using Them for Visa Transactions",
+      "authors": [
+        "David Basin",
+        "Ralf Sasse",
+        "Jorge Toro-Pozo"
+      ],
+      "year": 2021,
+      "venue": "30th USENIX Security Symposium (USENIX Security 21)",
+      "peerReviewed": true,
+      "url": "https://www.usenix.org/conference/usenixsecurity21/presentation/basin",
+      "themes": [
+        "card-security",
+        "payments",
+        "security"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "foundation",
+      "summary": "Shows that an attacker can make a terminal treat a Mastercard contactless card as a Visa card, routing the transaction so that the earlier Visa PIN bypass applies; the authors demonstrated it with an Android app in real transactions.",
+      "whyItMatters": "A mismatch between card brand and network routing breaks assumptions on both sides; agent payment designs that span Visa and Mastercard credentials must bind the brand and network explicitly.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "publisher",
+      "bibtex": "@inproceedings{basin2021mixup,\n  title = {{Card Brand Mixup Attack: Bypassing the PIN in non-Visa Cards by Using Them for Visa Transactions}},\n  author = {David Basin and Ralf Sasse and Jorge Toro-Pozo},\n  year = {2021},\n  booktitle = {30th USENIX Security Symposium (USENIX Security 21)},\n  publisher = {USENIX Association},\n  url = {https://www.usenix.org/conference/usenixsecurity21/presentation/basin}\n}"
+    },
+    {
+      "id": "pub-radu-2022-relay",
+      "title": "Practical EMV Relay Protection",
+      "authors": [
+        "Andreea-Ina Radu",
+        "Tom Chothia",
+        "Christopher J.P. Newton",
+        "Ioana Boureanu",
+        "Liqun Chen"
+      ],
+      "year": 2022,
+      "venue": "IEEE Symposium on Security and Privacy 2022",
+      "peerReviewed": true,
+      "doi": "10.1109/SP46214.2022.9833642",
+      "url": "https://doi.org/10.1109/SP46214.2022.9833642",
+      "themes": [
+        "card-security",
+        "payments",
+        "security"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "foundation",
+      "summary": "Analyzes relay attacks on contactless EMV, including a relay of Apple Pay transit transactions to locked iPhones, and proposes a relay protection protocol with a formal proof that would fit within existing EMV deployments.",
+      "whyItMatters": "Relay is the card-present version of an agent acting far from the cardholder; the paper shows why binding a payment to its context, not just to valid credentials, matters.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{radu2022relay,\n  title = {{Practical EMV Relay Protection}},\n  author = {Andreea-Ina Radu and Tom Chothia and Christopher J.P. Newton and Ioana Boureanu and Liqun Chen},\n  year = {2022},\n  booktitle = {2022 IEEE Symposium on Security and Privacy (SP)},\n  pages = {1737--1756},\n  publisher = {IEEE},\n  doi = {10.1109/SP46214.2022.9833642},\n  url = {https://doi.org/10.1109/SP46214.2022.9833642}\n}"
+    },
+    {
+      "id": "pub-barbosa-2021-fido2",
+      "title": "Provable Security Analysis of FIDO2",
+      "authors": [
+        "Manuel Barbosa",
+        "Alexandra Boldyreva",
+        "Shan Chen",
+        "Bogdan Warinschi"
+      ],
+      "year": 2021,
+      "venue": "CRYPTO 2021, LNCS",
+      "peerReviewed": true,
+      "doi": "10.1007/978-3-030-84252-9_5",
+      "url": "https://doi.org/10.1007/978-3-030-84252-9_5",
+      "themes": [
+        "authentication",
+        "cryptography",
+        "passkeys"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay",
+        "ap2"
+      ],
+      "relation": "foundation",
+      "summary": "Gives the first provable-security analysis of FIDO2, covering WebAuthn and the CTAP2 authenticator protocol; it proves security properties of WebAuthn, finds weaknesses in CTAP2 and proposes a stronger replacement.",
+      "whyItMatters": "Passkey and FIDO-based consent is how card networks propose to confirm a cardholder before an agent pays; this paper pins down what the underlying protocol does and does not guarantee.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{barbosa2021fido2,\n  title = {{Provable Security Analysis of FIDO2}},\n  author = {Manuel Barbosa and Alexandra Boldyreva and Shan Chen and Bogdan Warinschi},\n  year = {2021},\n  booktitle = {Advances in Cryptology -- CRYPTO 2021},\n  series = {Lecture Notes in Computer Science},\n  pages = {125--156},\n  publisher = {Springer},\n  eprint = {2020/756},\n  doi = {10.1007/978-3-030-84252-9_5},\n  url = {https://doi.org/10.1007/978-3-030-84252-9_5}\n}"
+    },
+    {
+      "id": "pub-davidson-2018-privacypass",
+      "title": "Privacy Pass: Bypassing Internet Challenges Anonymously",
+      "authors": [
+        "Alex Davidson",
+        "Ian Goldberg",
+        "Nick Sullivan",
+        "George Tankersley",
+        "Filippo Valsorda"
+      ],
+      "year": 2018,
+      "venue": "Proceedings on Privacy Enhancing Technologies 2018",
+      "peerReviewed": true,
+      "doi": "10.1515/popets-2018-0026",
+      "url": "https://doi.org/10.1515/popets-2018-0026",
+      "themes": [
+        "bot-authentication",
+        "privacy",
+        "cryptography"
+      ],
+      "protocols": [
+        "visa-tap"
+      ],
+      "relation": "foundation",
+      "summary": "Presents Privacy Pass, in which a client solves one challenge, receives blindly signed tokens, and redeems them later to skip further challenges without the server linking redemptions to issuance.",
+      "whyItMatters": "Privacy Pass is the earlier anonymous-token approach to telling trusted clients from bots; Visa TAP instead identifies agents with signed HTTP messages, and comparing the two shows the trade between accountability and privacy.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@article{davidson2018privacypass,\n  title = {{Privacy Pass: Bypassing Internet Challenges Anonymously}},\n  author = {Alex Davidson and Ian Goldberg and Nick Sullivan and George Tankersley and Filippo Valsorda},\n  year = {2018},\n  journal = {Proceedings on Privacy Enhancing Technologies},\n  volume = {2018},\n  number = {3},\n  pages = {164--180},\n  doi = {10.1515/popets-2018-0026},\n  url = {https://doi.org/10.1515/popets-2018-0026}\n}"
+    },
+    {
+      "id": "pub-venugopalan-2025-fpinconsistent",
+      "title": "FP-Inconsistent: Measurement and Analysis of Fingerprint Inconsistencies in Evasive Bot Traffic",
+      "authors": [
+        "Hari Venugopalan",
+        "Shaoor Munir",
+        "Shuaib Ahmed",
+        "Tangbaihe Wang",
+        "Samuel T. King",
+        "Zubair Shafiq"
+      ],
+      "year": 2025,
+      "venue": "ACM Internet Measurement Conference 2025",
+      "peerReviewed": true,
+      "arxiv": "2406.07647",
+      "doi": "10.1145/3730567.3732919",
+      "url": "https://doi.org/10.1145/3730567.3732919",
+      "themes": [
+        "bot-authentication",
+        "measurement",
+        "security"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "related",
+      "summary": "Buys traffic from 20 bot services against a honey site protected by two commercial anti-bot products and finds that about half the requests evade detection by altering browser fingerprints; inconsistencies among altered attributes then help detect them.",
+      "whyItMatters": "Measures how weak fingerprint-based bot detection is, which is the problem Visa TAP and Mastercard Agent Pay address by having trusted agents sign their requests instead of hiding as browsers.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{venugopalan2025fpinconsistent,\n  title = {{FP-Inconsistent: Measurement and Analysis of Fingerprint Inconsistencies in Evasive Bot Traffic}},\n  author = {Hari Venugopalan and Shaoor Munir and Shuaib Ahmed and Tangbaihe Wang and Samuel T. King and Zubair Shafiq},\n  year = {2025},\n  booktitle = {Proceedings of the 2025 ACM Internet Measurement Conference},\n  pages = {134--149},\n  publisher = {ACM},\n  doi = {10.1145/3730567.3732919},\n  url = {https://doi.org/10.1145/3730567.3732919}\n}"
+    },
+    {
+      "id": "pub-rochet-2002-cooperation",
+      "title": "Cooperation among Competitors: Some Economics of Payment Card Associations",
+      "authors": [
+        "Jean-Charles Rochet",
+        "Jean Tirole"
+      ],
+      "year": 2002,
+      "venue": "The RAND Journal of Economics 33(4)",
+      "peerReviewed": true,
+      "doi": "10.2307/3087474",
+      "url": "https://doi.org/10.2307/3087474",
+      "themes": [
+        "economics",
+        "card-networks",
+        "interchange"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay"
+      ],
+      "relation": "foundation",
+      "summary": "Models a payment card association in which issuers and acquirers cooperate on a network but compete for cardholders and merchants, and studies how the interchange fee balances use and acceptance of cards.",
+      "whyItMatters": "Interchange is the economic engine that card-based agent payments inherit; the paper explains why networks set fees on one side to grow the other, which shapes who pays for agent checkout.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@article{rochet2002cooperation,\n  title = {{Cooperation among Competitors: Some Economics of Payment Card Associations}},\n  author = {Jean-Charles Rochet and Jean Tirole},\n  year = {2002},\n  journal = {The RAND Journal of Economics},\n  volume = {33},\n  number = {4},\n  publisher = {Wiley},\n  doi = {10.2307/3087474},\n  url = {https://doi.org/10.2307/3087474}\n}"
+    },
+    {
+      "id": "pub-rochet-2003-platform",
+      "title": "Platform Competition in Two-Sided Markets",
+      "authors": [
+        "Jean-Charles Rochet",
+        "Jean Tirole"
+      ],
+      "year": 2003,
+      "venue": "Journal of the European Economic Association 1(4)",
+      "peerReviewed": true,
+      "doi": "10.1162/154247603322493212",
+      "url": "https://doi.org/10.1162/154247603322493212",
+      "themes": [
+        "economics",
+        "markets",
+        "platforms"
+      ],
+      "protocols": [
+        "visa-tap",
+        "mastercard-agent-pay",
+        "openai-acp",
+        "ucp"
+      ],
+      "relation": "foundation",
+      "summary": "Builds the standard model of competition between two-sided platforms that must attract both buyers and sellers, showing how price structure, not just price level, determines adoption, with payment cards as a leading example.",
+      "whyItMatters": "Every agentic checkout protocol is a two-sided platform bet; this model explains the subsidy and fee choices behind merchant and agent adoption of ACP, UCP and card network programs.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@article{rochet2003platform,\n  title = {{Platform Competition in Two-Sided Markets}},\n  author = {Jean-Charles Rochet and Jean Tirole},\n  year = {2003},\n  journal = {Journal of the European Economic Association},\n  volume = {1},\n  number = {4},\n  pages = {990--1029},\n  doi = {10.1162/154247603322493212},\n  url = {https://doi.org/10.1162/154247603322493212}\n}"
+    },
+    {
+      "id": "pub-kolt-2025-governing",
+      "title": "Governing AI Agents",
+      "authors": [
+        "Noam Kolt"
+      ],
+      "year": 2025,
+      "arxiv": "2501.07913",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2501.07913",
+      "themes": [
+        "law",
+        "governance",
+        "delegation"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "Uses the economics of principal-agent problems and the common law of agency to analyze AI agents, identifying problems of information asymmetry, discretionary authority and loyalty, and argues that incentives, monitoring and enforcement work poorly for agents acting at machine speed and scale.",
+      "whyItMatters": "Frames delegated purchasing in legal terms, which matters for the mandate and consent records that AP2, Agent Pay and the other protocols produce as evidence of authority.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{kolt2025governing,\n  title = {{Governing AI Agents}},\n  author = {Noam Kolt},\n  year = {2025},\n  eprint = {2501.07913},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2501.07913}\n}"
+    },
+    {
+      "id": "pub-riedl-2025-law",
+      "title": "AI Agents and the Law",
+      "authors": [
+        "Mark O. Riedl",
+        "Deven R. Desai"
+      ],
+      "year": 2025,
+      "venue": "AAAI/ACM Conference on AI, Ethics, and Society (AIES 2025)",
+      "peerReviewed": true,
+      "arxiv": "2508.08544",
+      "doi": "10.1609/aies.v8i3.36705",
+      "url": "https://doi.org/10.1609/aies.v8i3.36705",
+      "themes": [
+        "law",
+        "delegation",
+        "governance"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "Compares technical and legal ideas of agency, linking implied authority in agency law to value alignment in AI, and argues that computer science has under-theorized the agent's loyalty to its principal and its dealings with third parties.",
+      "whyItMatters": "Agent payments put third parties (merchants, networks) in contact with an agent; the paper explains which legal duties may attach and why protocols record what the user actually authorized.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@inproceedings{riedl2025law,\n  title = {{AI Agents and the Law}},\n  author = {Mark O. Riedl and Deven R. Desai},\n  year = {2025},\n  booktitle = {Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society},\n  volume = {8},\n  pages = {2189--2198},\n  doi = {10.1609/aies.v8i3.36705},\n  url = {https://doi.org/10.1609/aies.v8i3.36705}\n}"
+    },
+    {
+      "id": "pub-restrepoamariles-2026-payments",
+      "title": "AI Agents in Payments: Applications, Risks and Regulations",
+      "authors": [
+        "David Restrepo Amariles",
+        "Damien Charlotin",
+        "Liyun He-Guelton"
+      ],
+      "year": 2026,
+      "venue": "European Journal of Risk Regulation 17(3)",
+      "peerReviewed": true,
+      "doi": "10.1017/err.2026.10103",
+      "url": "https://doi.org/10.1017/err.2026.10103",
+      "themes": [
+        "regulation",
+        "law",
+        "payments"
+      ],
+      "protocols": [
+        "ap2",
+        "visa-tap",
+        "mastercard-agent-pay",
+        "openai-acp",
+        "x402"
+      ],
+      "relation": "direct",
+      "summary": "Defines agentic payments as transactions started and completed by AI agents, sets out how they work across retail, e-commerce and decentralized finance, and classifies their technical, legal and societal risks, including liability gaps and regulatory non-compliance.",
+      "whyItMatters": "One of the few peer-reviewed legal analyses aimed at agent payments specifically, useful for the compliance and liability questions every protocol in the atlas leaves to implementers.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "doi-negotiation",
+      "bibtex": "@article{amariles2026payments,\n  title = {{AI Agents in Payments: Applications, Risks and Regulations}},\n  author = {David Restrepo Amariles and Damien Charlotin and Liyun He-Guelton},\n  year = {2026},\n  journal = {European Journal of Risk Regulation},\n  volume = {17},\n  number = {3},\n  pages = {884--907},\n  publisher = {Cambridge University Press},\n  doi = {10.1017/err.2026.10103},\n  url = {https://doi.org/10.1017/err.2026.10103}\n}"
+    },
+    {
+      "id": "pub-bindschaedler-2026-recourse",
+      "title": "Bonded Recourse for Smart-Contract Settlement of Compensable Agent Side Effects",
+      "authors": [
+        "Laurent Bindschaedler",
+        "Quentin Botha",
+        "Christoph Siebenbrunner"
+      ],
+      "year": 2026,
+      "arxiv": "2609.01939",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2609.01939",
+      "themes": [
+        "law",
+        "smart-contracts",
+        "liability"
+      ],
+      "protocols": [
+        "erc-8004",
+        "x402"
+      ],
+      "relation": "related",
+      "summary": "Designs Recourse, a set of smart contracts that binds each agent action to its scope, recovery plan, evidence, payout and collateral, so residual harm from a permitted action that fails can be settled through an optimistic oracle or arbitration. The authors deploy it on Base Sepolia and report less uncompensated harm than authorization-only baselines; the arXiv comment says it was accepted at IEEE BCCA 2026, not yet confirmed in proceedings.",
+      "whyItMatters": "Adds the after-the-fact remedy that payment and identity protocols lack; it pairs naturally with ERC-8004 reputation and on-chain settlement used by x402.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{bindschaedler2026recourse,\n  title = {{Bonded Recourse for Smart-Contract Settlement of Compensable Agent Side Effects}},\n  author = {Laurent Bindschaedler and Quentin Botha and Christoph Siebenbrunner},\n  year = {2026},\n  eprint = {2609.01939},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.01939}\n}"
+    },
+    {
+      "id": "pub-trout-2026-underwriting",
+      "title": "Underwriting the Agent Economy: The Blueprint for an AI Insurance Stack",
+      "authors": [
+        "Cristian Trout",
+        "Sanmi Koyejo",
+        "Sasha Romanosky",
+        "Giorgio Ripamonti",
+        "Lynn Thompson",
+        "Desiree Spain",
+        "Alex Taylor",
+        "Kevin Casey",
+        "Stephen Casper",
+        "Matthew Botvinick",
+        "Sean McGregor",
+        "Miles Brundage",
+        "A. Feder Cooper",
+        "Patricia Paskov",
+        "Adrien Ecoffet",
+        "Ben Bucknall",
+        "Kevin Wei",
+        "Markus Anderljung",
+        "Lukasz Szpruch",
+        "Bri Treece",
+        "Tom Zick",
+        "Gabriel Weil",
+        "Ugur Ozer",
+        "Kevin Kalinich",
+        "Jesus Gonzalez",
+        "Vitaly Baranov",
+        "Moran Koren",
+        "Guy Laban",
+        "Gil Arazi",
+        "Henri Winand",
+        "Derek Blum",
+        "Toby Clowes",
+        "Adam Kleinman",
+        "Anita Srinivasan",
+        "Tom Fehring",
+        "Rune Kvist",
+        "Rajiv Dattani"
+      ],
+      "year": 2026,
+      "arxiv": "2607.11999",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2607.11999",
+      "themes": [
+        "insurance",
+        "economics",
+        "liability"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "Argues that AI agent risk is mostly unpriced or excluded in current insurance lines and lays out an eight-part insurance stack, from incident data and catastrophe modeling to standards, pricing and claims, needed for large affirmative coverage by 2030.",
+      "whyItMatters": "Insurance is a likely backstop for agent purchasing errors that card chargebacks and stablecoin settlement do not cover; the report sketches what insurers would need from protocol logs and standards.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{trout2026underwriting,\n  title = {{Underwriting the Agent Economy: The Blueprint for an AI Insurance Stack}},\n  author = {Cristian Trout and Sanmi Koyejo and Sasha Romanosky and Giorgio Ripamonti and Lynn Thompson and Desiree Spain and Alex Taylor and Kevin Casey and Stephen Casper and Matthew Botvinick and Sean McGregor and Miles Brundage and A. Feder Cooper and Patricia Paskov and Adrien Ecoffet and Ben Bucknall and Kevin Wei and Markus Anderljung and Lukasz Szpruch and Bri Treece and Tom Zick and Gabriel Weil and Ugur Ozer and Kevin Kalinich and Jesus Gonzalez and Vitaly Baranov and Moran Koren and Guy Laban and Gil Arazi and Henri Winand and Derek Blum and Toby Clowes and Adam Kleinman and Anita Srinivasan and Tom Fehring and Rune Kvist and Rajiv Dattani},\n  year = {2026},\n  eprint = {2607.11999},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CY},\n  url = {https://arxiv.org/abs/2607.11999}\n}"
+    },
+    {
+      "id": "pub-hammond-2025-multiagent",
+      "title": "Multi-Agent Risks from Advanced AI",
+      "authors": [
+        "Lewis Hammond",
+        "Alan Chan",
+        "Jesse Clifton",
+        "Jason Hoelscher-Obermaier",
+        "Akbir Khan",
+        "Euan McLean",
+        "Chandler Smith",
+        "Wolfram Barfuss",
+        "Jakob Foerster",
+        "Tomáš Gavenčiak",
+        "The Anh Han",
+        "Edward Hughes",
+        "Vojtěch Kovařík",
+        "Jan Kulveit",
+        "Joel Z. Leibo",
+        "Caspar Oesterheld",
+        "Christian Schroeder de Witt",
+        "Nisarg Shah",
+        "Michael Wellman",
+        "Paolo Bova",
+        "Theodor Cimpeanu",
+        "Carson Ezell",
+        "Quentin Feuillade-Montixi",
+        "Matija Franklin",
+        "Esben Kran",
+        "Igor Krawczuk",
+        "Max Lamparth",
+        "Niklas Lauffer",
+        "Alexander Meinke",
+        "Sumeet Motwani",
+        "Anka Reuel",
+        "Vincent Conitzer",
+        "Michael Dennis",
+        "Iason Gabriel",
+        "Adam Gleave",
+        "Gillian Hadfield",
+        "Nika Haghtalab",
+        "Atoosa Kasirzadeh",
+        "Sébastien Krier",
+        "Kate Larson",
+        "Joel Lehman",
+        "David C. Parkes",
+        "Georgios Piliouras",
+        "Iyad Rahwan"
+      ],
+      "year": 2025,
+      "arxiv": "2502.14143",
+      "peerReviewed": false,
+      "url": "https://arxiv.org/abs/2502.14143",
+      "themes": [
+        "safety",
+        "markets",
+        "governance"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "A Cooperative AI Foundation technical report that sorts risks from interacting AI agents into three failure modes (miscoordination, conflict and collusion) and seven risk factors such as information asymmetry, network effects and commitment problems.",
+      "whyItMatters": "Agent-to-agent commerce is a multi-agent system; the taxonomy names the market failures, such as collusion between buyer and seller agents, that payment protocols alone cannot prevent.",
+      "verifiedAt": "2026-10-11",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{hammond2025multiagent,\n  title = {{Multi-Agent Risks from Advanced AI}},\n  author = {Lewis Hammond and Alan Chan and Jesse Clifton and Jason Hoelscher-Obermaier and Akbir Khan and Euan McLean and Chandler Smith and Wolfram Barfuss and Jakob Foerster and Tomáš Gavenčiak and The Anh Han and Edward Hughes and Vojtěch Kovařík and Jan Kulveit and Joel Z. Leibo and Caspar Oesterheld and Christian Schroeder de Witt and Nisarg Shah and Michael Wellman and Paolo Bova and Theodor Cimpeanu and Carson Ezell and Quentin Feuillade-Montixi and Matija Franklin and Esben Kran and Igor Krawczuk and Max Lamparth and Niklas Lauffer and Alexander Meinke and Sumeet Motwani and Anka Reuel and Vincent Conitzer and Michael Dennis and Iason Gabriel and Adam Gleave and Gillian Hadfield and Nika Haghtalab and Atoosa Kasirzadeh and Sébastien Krier and Kate Larson and Joel Lehman and David C. Parkes and Georgios Piliouras and Iyad Rahwan},\n  year = {2025},\n  eprint = {2502.14143},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.MA},\n  note = {Cooperative AI Foundation, Technical Report 1},\n  url = {https://arxiv.org/abs/2502.14143}\n}"
     }
   ],
   "unverified": [],
