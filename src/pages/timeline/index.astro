@@ -1,0 +1,33 @@
+---
+/** /timeline/: one lane per protocol plus Standards, Policy, Market and Prehistory. */
+import Page from '../../layouts/Page.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import TimelineExplorer from '../../components/hub/TimelineExplorer';
+import { loadTimeline } from '../../components/hub/lib/build';
+import { countBy } from '../../components/hub/lib/timeline';
+import { setPageSources } from '../../lib/citations';
+import { BUILD_DATE } from '../../lib/constants';
+import '../../components/hub/hub.css';
+
+const page = Astro.url.pathname;
+const data = await loadTimeline();
+setPageSources(data.order, { page, sources: data.sources });
+const byConf = countBy(data.events, (e) => e.confidence);
+---
+<Page
+  title="Timeline"
+  eyebrow="Cross-cutting"
+  lede="Every dated event in the atlas on one chart: a lane per protocol, plus lanes for standards, policy, market and the prehistory of paying over HTTP. Each event carries its sources and a confidence."
+  lastVerified={BUILD_DATE}
+  prose={false}
+  wide
+>
+  <div class="hub">
+    <p class="hub__summary">
+      {data.events.length} events: {byConf.verified ?? 0} verified, {byConf.reported ?? 0} reported, {byConf.unverified ?? 0} unverified.
+      {data.missingLanes.length > 0 && <> Timelines for {data.missingLanes.join(' and ')} are still being written.</>}
+    </p>
+    <TimelineExplorer client:load lanes={data.lanes} events={data.events} kinds={data.kinds} initialZoom="now" />
+    <SourceList page={page} />
+  </div>
+</Page>
