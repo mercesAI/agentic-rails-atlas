@@ -1439,7 +1439,8 @@
       "id": "clm-x402-146",
       "text": "Passing spendControls false disables the x402 client spending limits, which the browser paywall does because a human approves in the UI.",
       "sources": [
-        "src-x402-sdk-spendcontrols"
+        "src-x402-sdk-spendcontrols",
+        "src-x402-repo"
       ],
       "confidence": "verified",
       "topic": "controls"
@@ -1534,6 +1535,302 @@
       ],
       "confidence": "verified",
       "topic": "controls"
+    },
+    {
+      "id": "clm-x402-156",
+      "text": "An exact eip3009 payment appears on chain only as the token's own Transfer and AuthorizationUsed events, so nothing marks it as an x402 payment.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-erc8004-bp"
+      ],
+      "confidence": "verified",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-157",
+      "text": "The canonical x402 EVM contract addresses are x402ExactPermit2Proxy 0x402085c248EeA27D92E8b30b2C58ed07f9E20001, x402UptoPermit2Proxy 0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002 and x402BatchSettlement 0x4020074e9dF2ce1deE5A9C1b5c3f541D02a10003.",
+      "sources": [
+        "src-x402-contracts"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-158",
+      "text": "The x402 contracts README lists batch settlement as deployed on Base, Arbitrum, World Chain, Polygon, Optimism, Avalanche, Celo, Linea, Unichain and Monad mainnets.",
+      "sources": [
+        "src-x402-contracts"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-159",
+      "text": "The public x402.org facilitator is testnet only and its GET /supported listed exact, upto and batch-settlement on eip155:84532 plus exact on Solana devnet, Algorand testnet, aptos:2, stellar:testnet, hedera:testnet and xrpl:1.",
+      "sources": [
+        "src-x402-facilitator-supported",
+        "src-x402-docs-facilitators"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-160",
+      "text": "The CDP Bazaar discovery endpoint at api.cdp.coinbase.com/platform/v2/x402/discovery/resources answered without an API key, and the CDP docs say Bazaar discovery is public.",
+      "sources": [
+        "src-x402-cdp-bazaar"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-161",
+      "text": "The Bazaar discovery API returns resource listings, not category data, so x402 resource categories should not be claimed unless the API returns them.",
+      "sources": [
+        "src-x402-cdp-bazaar"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-162",
+      "text": "x402scan is an x402 explorer and registry operated by Merit Systems, with public API routes for buyers, facilitators, merchants, origins, registry, resources, send and wallets.",
+      "sources": [
+        "src-x402scan-repo"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-163",
+      "text": "x402scan's discovery document checks /openapi.json with x-payment-info first, then /.well-known/x402, and treats runtime 402 behavior as authoritative over static metadata.",
+      "sources": [
+        "src-x402scan-discovery"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-164",
+      "text": "The x402scan README shows an Apache 2.0 badge but the repository has no LICENSE file and GitHub reports no license.",
+      "sources": [
+        "src-x402scan-repo"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-165",
+      "text": "x402 header contents, including resource URLs, descriptions and amounts, travel only between client, server and facilitator, and batch-settlement vouchers stay in server storage until claimed.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-batch-evm"
+      ],
+      "confidence": "verified",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-166",
+      "text": "Credit-backed cloudflare:402 commitments never reach a chain, and the mapping from signature identity to billing account is held by Cloudflare.",
+      "sources": [
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified",
+      "topic": "observability"
+    },
+    {
+      "id": "clm-x402-167",
+      "text": "The x402 protocol has no built-in KYC, know-your-agent or sanctions layer, and compliance is left to facilitators.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-cdp-facilitator"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-x402-168",
+      "text": "Fiat and credit rails appear in the x402 spec through ISO 4217 asset codes and the cloudflare:402 binding, where Cloudflare is merchant of record with its own billing and dispute terms.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-batch-cf"
+      ],
+      "confidence": "verified",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-x402-169",
+      "text": "The x402 charter allows removal of a representative or participating organization if a regulator with jurisdiction over the project directs it.",
+      "sources": [
+        "src-x402-charter"
+      ],
+      "confidence": "verified",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-x402-170",
+      "text": "The Cloudflare Monetization Gateway closed beta is limited to eligible US-based sellers and buyers.",
+      "sources": [
+        "src-x402-cf-mg-beta"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-09-30",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-x402-171",
+      "text": "Stripe's x402 machine payments preview was reported as available to US businesses only and as mapping settlements onto PaymentIntents.",
+      "sources": [
+        "src-x402-stripe-coverage"
+      ],
+      "confidence": "reported",
+      "asOf": "2026-02-11",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-x402-172",
+      "text": "The x402 Foundation has a wg-tax working group repository, but no x402 tax specification content exists yet.",
+      "sources": [
+        "src-x402-gh-org"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-x402-173",
+      "text": "The official x402 npm packages include @x402/core, @x402/evm, @x402/svm, @x402/fetch, @x402/axios, @x402/express, @x402/hono, @x402/next, @x402/fastify, @x402/paywall, @x402/extensions and @x402/mcp, plus network packages such as @x402/stellar and @x402/near.",
+      "sources": [
+        "src-x402-repo"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-174",
+      "text": "The PyPI x402 package offers the extras httpx, requests, fastapi, flask and svm.",
+      "sources": [
+        "src-x402-pypi"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-175",
+      "text": "SDK parity is uneven: TypeScript covers 13 network families, Go covers evm and svm, and Python covers evm, svm and tvm without auth-capture or SVM batch-settlement.",
+      "sources": [
+        "src-x402-sdk-features"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-176",
+      "text": "The x402 docs list third-party SDKs Mogami (Java), x402-rs (Rust) and x402-rails (Ruby), and third-party extensions including x402r for refunds and arbitration.",
+      "sources": [
+        "src-x402-docs-devtools"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-177",
+      "text": "The x402 docs list facilitators including CDP, PayAI, Corbits, Dexter, Fireblocks, Polygon, Celo, NEAR x402 Facilitator and T54 XRPL, and say the list is not exhaustive.",
+      "sources": [
+        "src-x402-docs-facilitators"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-178",
+      "text": "Default dollar-priced assets in x402 are mostly USDC, but defaults also include USDT0 on Stable, MegaUSD on MegaETH, USDM on Cardano and USDT on TON, so not every x402 payment is USDC on Base.",
+      "sources": [
+        "src-x402-docs-networks"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-10",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-179",
+      "text": "The CDP facilitator supports Base, Base Sepolia, Polygon, Arbitrum, World and World Sepolia for exact, upto and batch-settlement, and Solana mainnet and devnet for exact and upto.",
+      "sources": [
+        "src-x402-fee-cdp"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-180",
+      "text": "Coinbase Agentic Wallets, announced on 2026-02-11, were reported to transact through x402.",
+      "sources": [
+        "src-x402-agentic-wallets-coverage"
+      ],
+      "confidence": "reported",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-181",
+      "text": "Stripe launched a machine payments preview on 2026-02-10 that charges agents in USDC on Base through x402.",
+      "sources": [
+        "src-x402-stripe-coverage"
+      ],
+      "confidence": "reported",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-182",
+      "text": "Circle Nanopayments powered by Circle Gateway went live on mainnet on 2026-04-29, using EIP-3009 authorizations inside the x402 flow with batched settlement.",
+      "sources": [
+        "src-x402-circle-nanopayments"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-183",
+      "text": "The Cloudflare Monetization Gateway closed beta of 2026-09-30 settles USDC on Base through Coinbase's x402 facilitator.",
+      "sources": [
+        "src-x402-cf-mg-beta"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-184",
+      "text": "The credit-backed cloudflare:402 network with RFC 9421 signatures is a separate batch-settlement variant, not the settlement path of the Monetization Gateway beta.",
+      "sources": [
+        "src-x402-scheme-batch-cf",
+        "src-x402-cf-mg-beta"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-x402-185",
+      "text": "Cloudflare's Agents SDK has supported x402 for agents and MCP servers through withX402 and paidTool since 2025-09-23.",
+      "sources": [
+        "src-x402-cf-blog-foundation"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem"
     }
   ]
 }
