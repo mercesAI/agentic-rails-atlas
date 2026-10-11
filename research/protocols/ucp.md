@@ -365,3 +365,108 @@ Rules: Update and new Complete are forbidden during `complete_in_progress`; `com
 - Seed check "ES256 mandatory": precise wording is that all implementations must support verifying `ES256`; it is the baseline, not the only algorithm. AP2 mandate signing follows AP2's rule (ECDSA `ES256`, `ES384`, `ES512` in v0.2), and the spec notes an inconsistency in AP2 v0.2 tracked as AP2 issue #268 [src-ucp-signatures] [src-ucp-ap2-spec].
 - Replay protection is at the business layer through signed `Idempotency-Key` (128-bit minimum entropy, stored 24 hours minimum, 48 recommended, fail closed with 503 on storage failure). For default UCP signatures `created` is optional [src-ucp-signatures].
 
+## Security model and published attacks or CVEs
+
+- Threats named by the signatures spec: impersonation, tampering, replay, method or endpoint confusion. Mitigations: RFC 9421 signatures over method, authority, path, `ucp-agent`, `idempotency-key`, `content-digest`, `content-type`; signed idempotency keys; key rotation by removal from `keys[]` ("a revoked or compromised key is not effectively revoked until it is absent") [src-ucp-signatures] [src-ucp-overview].
+- Identity binding: with API keys, OAuth or mTLS, the verifier must confirm the authenticated principal may act for the profile named in `UCP-Agent` [src-ucp-overview].
+- Permissionless onboarding: any platform with a discoverable profile can call any business without registration; businesses SHOULD keep a registry of pre-approved platforms and bound discovery cost for unknown ones [src-ucp-overview].
+- Server-side request forgery guard: profile, `jwks_uri` and CIMD fetches must reject non-HTTPS, redirects and special-use IP ranges (RFC 6890), and SHOULD check resolved addresses against DNS rebinding [src-ucp-overview].
+- Namespace authority binding prevents publishing an entity under a domain one does not control; it establishes "provenance, not trust" and does not consult the Public Suffix List, so co-tenants on shared suffixes (for example `github.io`) are a stated risk [src-ucp-overview].
+- PCI scope: credentials flow one way (platform to business), are opaque (tokens, encrypted payloads, mandates), and `handler_id` routing prevents key confusion. The checkout spec states a business does not need to become PCI DSS compliant to accept cards through this capability [src-ucp-overview] [src-ucp-checkout].
+- Signals: values must be observed or third-party attested, never buyer-asserted; reverse-domain keys; SHOULD not be persisted beyond operational need [src-ucp-overview].
+- Webhooks: must be signed; platform must reject events whose signer profile does not match the order's business [src-ucp-order].
+- Human review: absent AP2, the agent must hand checkout to a trusted deterministic UI for the buyer to place the order [src-ucp-checkout].
+- AP2 lock: once negotiated, no downgrade to unprotected checkout; merchant signature covers header and payload to block algorithm substitution [src-ucp-ap2-spec].
+- Advisories: the GitHub security-advisories API returned 0 advisories for `ucp`, `python-sdk`, `js-sdk`, `samples`, `conformance` and `ucp-schema` on 2026-10-11. No CVE naming UCP was found [src-ucp-gh-advisories].
+- Academic analysis: arXiv 2602.06345 (2026-02-06) studies replay and context-binding failures in mandate-based protocols and names UCP and AP2; arXiv 2606.05043 (Strabo, 2026-06-03) models UCP checkout as a declarative protocol [src-ucp-arxiv-260206345] [src-ucp-arxiv-260605043].
+- Spec-acknowledged inconsistency: AP2 v0.2 states two different rules for mandate signing algorithms (tracked as AP2 issue #268); UCP defers to AP2 [src-ucp-ap2-spec].
+
+## Controls
+
+Mapping to the 14 `CONTROL_IDS`. "native" means the UCP spec defines it; "partial" means defined only in an optional extension or as SHOULD; "external" means delegated to another party; "none" means not addressed.
+
+| Control id | Support | Mechanism and source |
+| --- | --- | --- |
+| `agent-identity-verification` | native | Platform profile via `UCP-Agent`; RFC 9421 signatures with `keys[]`, or API key, OAuth, mTLS bound to the profile [src-ucp-overview] [src-ucp-signatures] |
+| `agent-registration-kya` | partial | Permissionless onboarding by design; businesses SHOULD keep a pre-approved platform registry; no know-your-agent registry in the spec [src-ucp-overview] |
+| `user-consent-capture` | partial | Trusted UI review required without AP2; `dev.ucp.shopping.buyer_consent` map; AP2 `checkout_mandate` as signed consent (extension) [src-ucp-checkout] [src-ucp-ap2-spec] |
+| `spending-caps` | external | No cap field in UCP; caps live in AP2 mandates or the credential provider [src-ucp-ap2-spec] |
+| `merchant-payee-scoping` | partial | Payment tokens are handler-specific; AP2 mandate bound to the merchant-signed checkout; Adyen tokens bound to session and merchant id (vendor doc) [src-ucp-ap2-spec] [src-ucp-adyen-docs] |
+| `time-windows-expiry` | native | `expires_at` (default 6 hours), cart `expires_at`; `mandate_expired` error in AP2 extension [src-ucp-schema-checkout] [src-ucp-schema-ap2] |
+| `revocation` | native | Key removal from `keys[]`; OAuth token revocation RFC 7009 required for identity linking; OpenID RISC SHOULD [src-ucp-overview] [src-ucp-identity-linking] |
+| `step-up-authentication` | partial | `requires_escalation` handoff; 3DS2 device data collection and challenge Actions in `dev.ucp.common.payment.authentication` (optional extension) [src-ucp-checkout] [src-ucp-payment-auth] |
+| `replay-protection` | native | Signed `Idempotency-Key` (128-bit, 24 to 48 hour storage, 409 on mismatch); WBA `nonce` SHOULD [src-ucp-signatures] |
+| `receipts-evidence` | partial | Order with `permalink_url`, confirmation email required; AP2 mandates stored as durable evidence (JCS) [src-ucp-checkout] [src-ucp-ap2-spec] |
+| `dispute-support` | partial | Order `adjustments[]` with type `dispute`, `refund`, `return`; dispute handling itself is with the business and PSP [src-ucp-schema-order] |
+| `reputation` | none | No reputation mechanism in the spec |
+| `monitoring-signals` | native | `signals` (`dev.ucp.buyer_ip`, `dev.ucp.user_agent`, attestations), `signal` messages, webhooks [src-ucp-overview] |
+| `kill-switch` | partial | Businesses may refuse unknown platforms, return `503`, cancel sessions; Google can route traffic back to an older endpoint (FAQ); no protocol-level global stop [src-ucp-overview] [src-ucp-google-faq] |
+
+## Observability
+
+Public:
+- Business profiles at `https://{domain}/.well-known/ucp` are public by design (cacheable, `public`, `max-age` at least 60 seconds), so anyone can check which capabilities, transports and payment handlers a domain advertises. There is no public registry or index of UCP businesses; no indexer or explorer was found [src-ucp-overview].
+- Other well-known paths in the spec: `/.well-known/oauth-protected-resource` (RFC 9728), `/.well-known/oauth-authorization-server` (RFC 8414), `/.well-known/openid-configuration` (fallback), `/.well-known/http-message-signatures-directory` (WBA directory variant), `/.well-known/agent-card.json` (A2A example) [src-ucp-identity-linking] [src-ucp-overview].
+- ucp.dev publishes `versions.json`, listing `draft` and the dated versions with `latest` aliased to 2026-08-25 on 2026-10-11 [src-ucp-site-versions].
+- Governance is public: announcements, GitHub Discussions, a `meeting-minutes` repository (created 2026-02-04) [src-ucp-announcements] [src-ucp-gh-org].
+Private:
+- Checkout sessions, orders, webhooks (`orderEvent` with `Webhook-Id`, `Webhook-Timestamp`) and embedded events (`ec.*`, `ep.cart.*`, `action.*`) are point-to-point [src-ucp-rest-openapi] [src-ucp-embedded-openrpc].
+- Google traffic markers (Google FAQ): UCP requests carry a `UCP-Agent` header and a `User-Agent` beginning `Google/UCP`; health checks use `User-Agent: Google-UCP-Prober/1.0`; verification of Google origin via reverse DNS and published IP ranges [src-ucp-google-faq].
+- No merchant counts, transaction counts or volumes are published by Google or the UCP project as of 2026-10-11.
+
+## Compliance touchpoints
+
+- Merchant of record: the business is the MoR in the spec glossary, in Google's FAQ, in Google's NRF and I/O posts, and Microsoft's Copilot Checkout page says "Copilot does not become merchant of record" [src-ucp-glossary] [src-ucp-google-faq] [src-ucp-microsoft-page].
+- PCI DSS: business does not need PCI compliance to accept cards through checkout (tokens); platform, business and credential-provider scope sections in the overview [src-ucp-checkout] [src-ucp-overview].
+- Privacy: PII and payment data must follow PCI-DSS and GDPR guidance; the glossary names CCPA, GDPR, KYC [src-ucp-overview] [src-ucp-glossary].
+- Legal links: `links[]` is required on checkout ("mandatory for legal compliance"); `disclosure` warnings with jurisdiction applicability; `policies[]` for return and refund terms [src-ucp-schema-checkout] [src-ucp-checkout].
+- SCA and 3DS2: supported through the authentication extension; SCA defined in the glossary under PSD2 [src-ucp-payment-auth] [src-ucp-glossary].
+- Google data retention: Google keeps standard order data shown on "My orders" until the user deletes it; the merchant's own retention rules still apply [src-ucp-google-faq].
+- Marketing consent: Google says a future feature will let users opt in to marketing at checkout [src-ucp-google-faq]; the spec's `buyer_consent` became a reverse-DNS map in v2026-08-25 [src-ucp-release-20260825].
+- Regulatory scrutiny: Senator Elizabeth Warren wrote to Google's CEO in a letter dated 2026-02-03 about Gemini checkout and UCP data use and upselling (reported by eWeek 2026-02-05; the senate.gov copy returned HTTP 403) [src-ucp-eweek-warren].
+
+## Ecosystem and SDKs
+
+| Package | Registry | Latest (2026-10-11) | First published | Source |
+| --- | --- | --- | --- | --- |
+| `ucp-sdk` (Python) | PyPI | 0.5.0 (2026-08-27) | 0.1.0 on 2026-01-12 | [src-ucp-pypi] |
+| `@ucp-js/sdk` | npm | 0.5.1 (2026-09-02) | 0.0.1 on 2026-01-13 | [src-ucp-npm] |
+| `ucp-schema` (Rust, "Runtime resolution of UCP schema annotations") | crates.io | 1.4.1 (2026-08-03) | 0.1.0 on 2026-01-27 | [src-ucp-crates] |
+
+- Organization repositories (GitHub API, 2026-10-11): `ucp` (created 2025-12-31, 3,413 stars), `python-sdk`, `samples`, `conformance` (2026-01-06), `js-sdk` (2026-01-09), `ucp-schema` (2026-01-28), `meeting-minutes` (2026-02-04), `.github` (2026-02-05) [src-ucp-gh-org].
+- Samples: `rest/python`, `rest/nodejs`, `a2a` (business agent, chat client) [src-ucp-samples]. Conformance: language-agnostic pytest suite (`ap2_test.py`, `checkout_lifecycle_test.py`, `idempotency_test.py`, `webhook_test.py`, `simulation_url_security_test.py` and others); its README example config targets `"ucp_version": "2026-04-08"`, one release behind latest [src-ucp-conformance].
+- Platforms (deployed): Google AI Mode in Search and Gemini (US, Etsy and Wayfair from 2026-02-11) [src-ucp-google-feb2026]; Microsoft Copilot Checkout requires a UCP-compliant feed through Microsoft Merchant Center, while Microsoft's page says "MMC will support Universal Commerce Protocol (UCP)" (future tense on the page as read 2026-10-11) [src-ucp-microsoft-page].
+- Payment providers: Stripe documents UCP support and a "Stripe Payments handler", and says it is a member of the UCP Tech Council [src-ucp-stripe-docs]; Adyen documents a UCP Tokenization Handler following the 2026-01-23 tokenization guide, and an Agentic API over UCP [src-ucp-adyen-docs]. The seed's "Stripe Agentic Commerce Suite supports UCP" is reported in secondary coverage only; Stripe's own UCP page does not name the suite.
+- Co-developers and endorsers on ucp.dev (2026-10-11): 21 unique co-developer organizations across Shopping (Google, Shopify, Etsy, Wayfair, Target, Walmart, Amazon, Microsoft, Meta, Salesforce, Stripe), Lodging (Amadeus, Booking.com, Expedia Group, Google, Hilton, Marriott, Trip.com) and Food (DoorDash, Google, Square, Toast, Uber Eats); 51 endorsers listed (includes Adyen, Amex, Mastercard, Visa, PayPal, Klarna, Affirm, Worldpay, Checkout.com, Fiserv) [src-ucp-site].
+- Launch-time count: Google's 2026-01-11 posts said co-developed with Shopify, Etsy, Wayfair, Target and Walmart and "endorsed by over 20 global partners" [src-ucp-google-dev-blog] [src-ucp-google-nrf].
+- Integrators: Google Merchant Center onboarding; Google offers "Native checkout" (default) and "Embedded checkout" (optional, approved merchants) [src-ucp-google-guide].
+- Shopify: secondary reports say Google began automatically enrolling eligible US Shopify merchants in native checkout around 2026-09-18 to 2026-09-22, with opt-out in Shopify admin; no Google or Shopify primary announcement was found [src-ucp-ppcland-shopify].
+
+## Fees and costs
+
+| Fact | Date | Source | Confidence |
+| --- | --- | --- | --- |
+| UCP is an Apache-2.0 open standard; no protocol fee exists in the spec | 2026-10-11 | [src-ucp-gh-repo] | verified |
+| Google told The Register it "doesn't plan to take a cut" of sales closed through buy-on-Google agentic checkout | 2026-01-12 | [src-ucp-register] | reported |
+| Merchant stays merchant of record and its PSP must be able to process Google's tokens; merchants need not support Google Pay on their own site | 2026-10-11 | [src-ucp-google-faq] | verified |
+| Normal PSP processing fees therefore apply (inference from MoR and PSP role; no Google fee schedule exists) | 2026-10-11 | [src-ucp-google-faq] | reported |
+| Checkouts in Google AI Mode, Gemini and Microsoft Copilot reported as "no additional fees, for now" (The Information via PYMNTS) | 2026-01-21 | [src-ucp-pymnts-fees] | reported |
+| Shopify Agentic Storefronts per-channel fee on top of processing (Appendix B, secondary, rate not public) | 2026-07-29 | Appendix B of ATLAS_FOLLOWUP | unverified here |
+| Google Pay on Google AI surfaces supports only `PAN_ONLY` for `allowed_auth_methods` in UCP checkout | 2026-10-11 | [src-ucp-google-faq] | verified |
+
+Who pays: merchant pays its PSP only (UCP on Google), card economics unchanged.
+
+## Metrics with dates and caveats
+
+| Metric | Value | As of | Source | Caveat |
+| --- | --- | --- | --- | --- |
+| Co-developer organizations on ucp.dev | 21 unique (23 logo slots across 3 verticals) | 2026-10-11 | [src-ucp-site] | Count of names on the homepage; Google appears in 3 verticals |
+| Endorsers on ucp.dev | 51 | 2026-10-11 | [src-ucp-site] | Several also appear as vertical co-developers |
+| Endorsers at launch | "over 20" | 2026-01-11 | [src-ucp-google-dev-blog] | Google wording |
+| GitHub stars, `ucp` repo | 3,413 | 2026-10-11 | [src-ucp-gh-repo] | Popularity, not adoption |
+| Forks, `ucp` repo | 476 | 2026-10-11 | [src-ucp-gh-repo] | |
+| Protocol releases | 4 | 2026-10-11 | [src-ucp-gh-releases] | |
+| Governing Council seats filled | 3 of 5 | 2026-10-11 | [src-ucp-maintainers] | |
+| Merchant count, transaction volume | not published | 2026-10-11 | none | Google said "hundreds" of companies showed interest (2026-02-11) |
+| Interest | "hundreds of top tech companies, payments partners and retailers" | 2026-02-11 | [src-ucp-google-feb2026] | Marketing claim |
+
