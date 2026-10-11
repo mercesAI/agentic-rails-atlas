@@ -20,6 +20,6 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]],
-    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' }, defaultColor: false },
+    shikiConfig: { themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' }, defaultColor: false },
   },
 });

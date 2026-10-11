@@ -52,3 +52,4 @@ STE register (x402, one procedure plus one safety instruction):
 
 ## v1.1 corrections
 `ATLAS_FOLLOWUP.md` Section 2 lists seed facts of `ATLAS_PROMPT.md` that are wrong or unsupported. Content must follow the follow-up, not the first prompt, wherever they differ. `ATLAS_ERRATA.md` records every correction.
+- Several agents commit to `main` concurrently: stage files by explicit path, never `commit -a` or `add -A`, never rewrite history (no reset, rebase, amend, update-ref, force push).
