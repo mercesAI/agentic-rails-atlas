@@ -232,3 +232,80 @@ Result: 31 items checked, 29 pass, 2 fail (the same pull-request count in two pl
 | ecosystem.metrics ap2-prs-since-v02 "63 opened, 0 merged" | **fail** | as above | Same correction. |
 | ecosystem.metrics ap2-commits-since 0 | pass | no commit after e1ea56d | |
 | ecosystem.metrics ap2-production "none found" | pass | FAQ, arXiv:2608.23858, issue 345 marked disputed | |
+
+## Check 4: "Do not get wrong" (ATLAS_PROMPT.md Section 5.7)
+
+| Item | Verdict | Where stated | Note |
+| --- | --- | --- | --- |
+| v0.2 has no Intent or Cart mandates | pass | A: facts.json:9 ("Not the three mandates of 2025 ... no Intent Mandate and no Cart Mandate"); B: index.mdx:138; Q: faq.json:24 | Correct per v0.2.0 schemas (only checkout/payment, open/closed) and v0.1.0 mandate.py. |
+| AP2 is not a payment rail | pass | A: facts.json:6 and keyFacts "Rails: None of its own"; B: index.mdx:130, 136; Q: faq.json:5 | Supported by the launch post ("payment-agnostic") and spec scope. |
+| AP2 is not A2A | pass | A: facts.json:7 and frontmatter disambiguation; B: index.mdx:136; Q: faq.json:14 | Spec line 20 and samples under `scenarios/a2a/`. |
+| Governance now sits with FIDO, not with Google alone | pass | A: facts.json:8, keyFacts Steward and Governance; B: index.mdx:698-700 ("governance sits with FIDO, not with Google alone"); Q: faq.json:33 | Supported by blog.google 2026-04-28, FIDO PR, FAQ, issue 268 comment. |
+
+0 failed.
+
+## Check 5: diagrams against the spec
+
+| Diagram or flow | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| ap2-human-present (main flow, 16 steps) | pass | docs/ap2/flows.md:28-77 | Same order: cart, signed checkout, instruments, TS approval, sign, CP token (network optional), merchant, MPP, receipts. Steps 15 and 16 have an empty `specRef.section` (cosmetic). |
+| ap2-human-not-present (16 steps) | pass | flows.md:79-167; specification.md:225-249 | Open mandates with `cnf`, agent signs closed with `agent_sk`, `sd_hash` binding, both hashes to MPP, tuple stored. |
+| ap2-failure-unresolved-constraint | pass | flows.md:11-13; agent_authorization.md:526-530 | Fallback to human present is exactly what the spec describes. |
+| ap2-failure-invalid-credential | pass | agent_authorization.md:524-525; specification.md:331-332 | Terminal; Payment Receipt with error. |
+| ap2-failure-mandates-not-supported | pass | agent_authorization.md:533-535 | Fallback to non-agentic flow. |
+| ap2-dispute-verification | pass | specification.md:264-290, 344-362 | Five dispute verification steps in spec order. |
+| ap2-openid4vp-delegation | pass | agent_authorization.md:97-200 | `transaction_data` delegate entry, `dc_api`, DPC example. |
+| State machine ap2-mandate-lifecycle | pass | agent_authorization.md:392-401, 497-535; receipt schemas | Open and closed states, receipt status Success/Error, error codes split terminal vs retryable. Notes: closed mandates also carry `exp` but have no expiry transition; the expiry transitions cite `payment_mandate.json exp` where the open schema is meant. Labeled honestly as derived ("defines no session status enum"). |
+| ap2-mandate-chain | pass | schemas; flows.md:111-114, 146-150 | checkout_hash, transaction_id, sd_hash, cnf, conditional_transaction_id, receipt references all correct. |
+| ap2-constraint-evaluation | pass (note) | agent_authorization.md:455-466, 521-535 | Mapping a definitely violated constraint to `unresolved_constraint` is an interpretation (the spec text says "unable to verify that the closed Mandate conforms"); `invalid_mandate` would also be defensible. Consider a footnote. |
+| ap2-v01-v02-model | pass | v0.1.0 mandate.py; v0.2.0 schemas | |
+| ap2-data-model | pass (note) | schemas | OpenPaymentMandate class omits optional `pisp`, `execution_date`, `risk_data`, `iat`, `exp`; incomplete but not wrong. |
+| ap2-context, ap2-in-ucp, ap2-a2a-x402-embedding, ap2-composition | pass | vendor/ucp ap2-mandates.md:63-87, 137-182, 228, 407; a2a-x402 spec/v0.2/spec.md:37-46, 96-104; eips.ethereum.org ERC-8226 (mentions ERC-8004, not AP2) | No unsupported claim. |
+
+0 diagram defects; 3 cosmetic notes.
+
+## Check 6: specified vs deployed, announced vs live, stewardship
+
+| Item | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| Production use | pass | frontmatter statusNote, keyFacts Status, facts.json, index.mdx:714, compare-cells adoption-evidence "Unverified anywhere, including inside UCP" | Follow-up 2.1.9 applied; issue 345 kept as a disputed self-report. |
+| Google 2026-05-19 statement | pass | index.mdx timeline bullet "said AP2 would come to Google products" | Future tense kept. |
+| UCP extension | pass | index.mdx:708, 756 | Described as specified, not live. |
+| Scenario shopper-in-gemini AP2 step | pass | src/content/scenarios/shopper-in-gemini.mdx:5, 24, 44 | "per spec", "live use unverified". |
+| Stewardship naming | pass | frontmatter `stewards`, `governance`, disambiguation | "Created at Google, donated to the FIDO Alliance"; matches ATLAS_PROMPT Section 0 naming rule. |
+| FIDO working groups | pass | keyFacts Governance; index.mdx:698-699; faq.json:43 | Only the Agentic Authentication TWG was new (errata 2.1.11). |
+| Status field | pass | `status: draft` | |
+
+## Check 7: style gates
+
+| Item | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| `pnpm lint:style` | pass | 0 errors, 32 warnings site-wide; 1 AP2 warning (index.mdx:151 long-sentence, a mis-split on "279.99") | |
+| `pnpm lint:ste --protocol ap2` | pass | 68 sentences, 0 errors, 0 warnings | |
+| U+2014 in AP2 files | pass | grep over protocols/ap2, flows/ap2-*, states/ap2-*, diagrams/ap2-*, playgrounds/ap2: 0 hits | |
+| US spelling sample | fail (minor) | src/content/protocols/ap2/facts.json:20 "catalogued" | US form "cataloged" (claims.json already uses "catalogs"). No other British forms found (colour, behaviour, organisation, authorisation, tokenisation, licence, centre, modelling, labelled checked). |
+| Acronyms expanded on first use (index.mdx body) | fail (minor) | index.mdx:130 uses "UCP" and "AP2" before the expansions at :136 ("Universal Commerce Protocol (UCP)") and :134 ("AP2, the Agent Payments Protocol") | Expand both in the first sentence of the practitioner text. JWT, JWS, IETF, W3C, SDK, API and FIDO are never expanded in index.mdx; most are names, but JWT and JWS deserve a first-use expansion. LLM, SA, CP, TS, VC, DIDs, CVE are expanded correctly. |
+
+## Check 8: coverage
+
+`pnpm verify:coverage --protocol ap2`: PASS (8 pass, 0 fail, 0 missing). Claims 208 (4 reported, 2 unverified), practitioner words 2827, ELI5 348, 3 spec-deep FieldTable blocks, 16 diagrams, 35 resources, 58 publications, 12 STRIDE threats, 13 FAQ, 9 open questions, 10 quiz, 15 flashcards, 19 timeline events, 34 of 34 compare cells, 14 of 14 controls cells, playground present.
+
+## ATLAS_FOLLOWUP.md Section 2 and ATLAS_ERRATA.md rows
+
+Items that do not touch AP2 were checked only for leakage into AP2 files (grep for Web Bot Auth, L402, AGNTCY, MDES, RFC 9421, SpendControls, ERC-734, Bazaar, cloudflare:402, AP4M, x402scan, Copilot in `protocols/ap2` and `flows/ap2-*`: 0 hits). Their own pages are verified by the other protocol verifiers.
+
+| Item | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| 2.1.1 to 2.1.8, 2.1.12 to 2.1.16 | n/a for AP2 | grep, 0 hits in AP2 files | Owned by stripe-mpp, mastercard-agent-pay, visa-tap, x402, erc-8004, ucp and STE verifiers. |
+| 2.1.9 AP2 production use unverified anywhere, including UCP | pass | AP2 statusNote, keyFacts, index.mdx:714, compare-cells adoption-evidence; ucp/index.mdx:28 "Live use of the AP2 extension is unverified" | |
+| 2.1.10 v0.2 specifies no step-up | pass | index.mdx:130, 694; claim clm-ap2-118; security.json | Security section says no step-up, fallback via `unresolved_constraint`, v0.1 had 3DS2/OTP, liability with networks. The "What changed" list (index.mdx:718-724) does not mention the step-up removal; not wrong, but adding it to the 2026-04-28 bullet would match the follow-up wording. |
+| 2.1.11 only the Agentic Authentication TWG was new | pass | keyFacts Governance; index.mdx:698-699; faq.json:43; FIDO PR and 2025-04-29 PWG release | |
+| 2.2 Scenario 3 AP2 step "per spec; live use unverified" | pass | scenarios/shopper-in-gemini.mdx:5, 24, 44 | |
+| 2.2 AP2 v0.2 "relies on W3C VC 2.0 and DIDs" | pass | index.mdx:704; claim clm-ap2-110 | VC 2.0 and DIDs described as the wider family, not dependencies; no DID or VC 2.0 reference in docs/ap2. |
+| 2.2 other items | n/a for AP2 | grep, 0 hits | |
+| 2.3.2 a2a-x402 targets AP2 v0.1 | pass | index.mdx:708, 760; keyFacts Composes with; open-questions.json:29; x402/index.mdx:865; x402/open-questions.json:5 | Stated on both pages and in open questions. |
+| 2.3.3 constraint key prefixes | pass | index.mdx:758; relations.json; claims clm-ap2-153, -154 | Exact strings `payment.amount_range` (AP2 schema) and `mandate.payment.amount_range` (VI main 356c296). |
+| 2.3.4 closed Payment Mandate fields from the schema | pass | index.mdx:154 and FieldTable rows 204-275 | All ten properties including `vct`, `pisp`, `iat`, `exp`. |
+| 2.3.1, 2.3.5 to 2.3.7 | n/a for AP2 | | |
+| R8 Agent Factory podcast | pass | resources.json:286-291; research/vendor/AP2/README.md:17-19; claim clm-ap2-168 | |
+| R40 VI names only on main | pass | index.mdx:758 ("Those names exist only on Verifiable Intent's main branch since 2026-04-20; at its tag v0.1.0 they were different"); claim clm-ap2-170 | Confirmed: VI tag v0.1.0 (1dc3d41) uses `payment.amount`, `payment.allowed_payee`, `mandate.checkout.allowed_merchant` and `mandate.payment.open` without `.1`. |
