@@ -1,1 +1,1771 @@
-[]
+[
+  {
+    "id": "agent-id",
+    "term": "agentId",
+    "aliases": [
+      "agent ID",
+      "agent identifier",
+      "agentRegistry"
+    ],
+    "plain": "The number that identifies an agent in an ERC-8004 Identity Registry. It is the ERC-721 `tokenId` of the agent's identity token and is assigned in sequence when someone calls `register`. A globally unique reference pairs it with `agentRegistry`, a string of the form `{namespace}:{chainId}:{identityRegistry}`, such as `eip155:1:` plus the registry address.",
+    "ste": "The agentId is the number of an agent in the ERC-8004 Identity Registry. The registry gives the next number to each new agent.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-identity-sol"
+    ]
+  },
+  {
+    "id": "agent-uri",
+    "term": "agentURI",
+    "aliases": [
+      "agent URI",
+      "tokenURI",
+      "setAgentURI"
+    ],
+    "plain": "The URI stored on-chain for an ERC-8004 agent that points to its registration file. The spec names `ipfs://`, `https://` and base64 `data:` URIs, and the owner or an approved operator can change it with `setAgentURI`. An `https://` file can change without any on-chain event, so only content-addressed URIs pin the content.",
+    "ste": "The agentURI is the address of the registration file of an agent. The owner of the agent can change the agentURI at any time.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-identity-sol"
+    ]
+  },
+  {
+    "id": "agent-wallet",
+    "term": "agentWallet",
+    "aliases": [
+      "agent wallet",
+      "setAgentWallet",
+      "getAgentWallet"
+    ],
+    "plain": "A reserved metadata key in the ERC-8004 Identity Registry that holds the address where the agent receives payments. It defaults to the owner at registration and cannot be written through `setMetadata`. To change it, the owner calls `setAgentWallet` with a signature from the new wallet: an EIP-712 signature for an ordinary account or an ERC-1271 check for a contract wallet.",
+    "ste": "The agentWallet is the address that receives payments for an agent. A change to this address needs a signature from the new wallet.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-identity-sol"
+    ]
+  },
+  {
+    "id": "allowance",
+    "term": "Allowance",
+    "aliases": [
+      "Allowance",
+      "max_amount"
+    ],
+    "plain": "The limits attached to an ACP delegated payment token. It holds `reason` (only `one_time` is defined), `max_amount` in minor units, `currency`, `checkout_session_id`, `merchant_id` and `expires_at`. The payment provider is expected to enforce it, but the spec does not define the errors when a limit is exceeded.",
+    "ste": "An allowance sets the limits of a delegated payment token. The limits are the maximum amount, the currency, the merchant, the checkout session and the expiry time.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-schema-delegate-payment-20260417"
+    ]
+  },
+  {
+    "id": "auth-capture",
+    "term": "Auth-capture",
+    "aliases": [
+      "auth-capture scheme",
+      "AuthCaptureEscrow"
+    ],
+    "plain": "An x402 scheme that copies the card pattern of authorize first, capture later. The client authorizes a hold, the server runs the work, then captures up to the held amount or voids the hold, and refunds stay possible until `refundDeadline`. On EVM the default contract is `AuthCaptureEscrow` from Base commerce-payments.",
+    "ste": "Auth-capture is an x402 scheme that holds funds first and captures the funds later. The server can capture, void or refund the payment.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-scheme-auth-capture",
+      "src-x402-scheme-auth-capture-evm"
+    ]
+  },
+  {
+    "id": "authorization-header",
+    "term": "Authorization header",
+    "aliases": [
+      "Authorization: Payment",
+      "Payment-Authorization"
+    ],
+    "plain": "The standard HTTP request header that carries credentials. In MPP the client retries the request with `Authorization: Payment` followed by a base64url credential, or with `Payment-Authorization` when the challenge asks for that header so the normal `Authorization` header stays free for other logins. A request with more than one Payment credential should be rejected.",
+    "ste": "The Authorization header carries the credential of the client. In MPP, the client sends the payment proof in this header.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "batch-settlement",
+    "term": "Batch settlement",
+    "aliases": [
+      "batch-settlement",
+      "cloudflare:402"
+    ],
+    "plain": "An x402 scheme that collects many small payments and settles them together. On EVM the client deposits into a payment channel, then sends a signed cumulative voucher with each request, and the server claims and settles many vouchers in one transfer. A separate `cloudflare:402` variant is credit backed: the client signs requests with RFC 9421 and Cloudflare bills that identity later.",
+    "ste": "Batch settlement collects many small payments and settles them in one transfer. On EVM networks, it uses a payment channel and signed vouchers.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-scheme-batch-evm",
+      "src-x402-scheme-batch-cf"
+    ]
+  },
+  {
+    "id": "bazaar",
+    "term": "Bazaar",
+    "aliases": [
+      "bazaar extension",
+      "x402 Bazaar"
+    ],
+    "plain": "A discovery extension for x402. A resource server describes its paid endpoint (HTTP inputs and outputs, or an MCP tool) in the `bazaar` extension, and a facilitator lists those endpoints at `GET /discovery/resources`. Agents can then search a catalog of paid services before they call one.",
+    "ste": "Bazaar is an x402 extension for the discovery of paid services. A facilitator shows a list of the services that use this extension.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-ext-bazaar",
+      "src-x402-spec-v2"
+    ]
+  },
+  {
+    "id": "builder-code",
+    "term": "Builder code (ERC-8021)",
+    "aliases": [
+      "builder-code extension",
+      "ERC-8021"
+    ],
+    "plain": "An x402 extension that appends an ERC-8021 suffix to settlement calldata, naming the app, the wallet or facilitator, and the service, so indexers can attribute payments.",
+    "ste": "A short code at the end of the settlement data. It shows which application and facilitator sent the payment.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-ext-builder-code"
+    ]
+  },
+  {
+    "id": "business-profile",
+    "term": "Business profile",
+    "aliases": [
+      "/.well-known/ucp",
+      "UCP profile",
+      "platform profile"
+    ],
+    "plain": "The JSON document a UCP business publishes at `/.well-known/ucp` to say which protocol versions, services, capabilities and payment handlers it supports, plus its public signing keys in `keys`. The platform (the agent side) publishes a matching platform profile at a URL it names in the `UCP-Agent` header. Comparing the two profiles is how UCP negotiation works.",
+    "ste": "The business profile is a JSON document that tells the capabilities and payment handlers of a business. The business publishes the profile at a well-known address.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview",
+      "src-ucp-schema-profile"
+    ]
+  },
+  {
+    "id": "caip-10",
+    "term": "CAIP-10",
+    "aliases": [
+      "account ID",
+      "clientAddress"
+    ],
+    "plain": "A Chain Agnostic Improvement Proposal that names an account by adding an address to a CAIP-2 chain id, for example `eip155:1:` followed by the address. The ERC-8004 feedback file example writes `clientAddress` in this form. It lets one string say both which chain and which account.",
+    "ste": "CAIP-10 is a standard text format for an account on a blockchain. The format adds the account address to a CAIP-2 chain identifier.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-gloss-caip-10",
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "caip-2",
+    "term": "CAIP-2",
+    "aliases": [
+      "chain ID",
+      "network",
+      "eip155:8453"
+    ],
+    "plain": "A Chain Agnostic Improvement Proposal that names a blockchain with a `namespace:reference` string, such as `eip155:8453` for Base or a `solana:` genesis hash. x402 V2 uses CAIP-2 strings in its `network` field, where V1 used plain names such as `base-sepolia`. ERC-8004 builds its `agentRegistry` reference on the same pattern.",
+    "ste": "CAIP-2 is a standard text format for the identifier of a blockchain. x402 uses this format in the network field.",
+    "protocols": [
+      "erc-8004",
+      "x402"
+    ],
+    "sources": [
+      "src-gloss-caip-2",
+      "src-x402-spec-v2"
+    ]
+  },
+  {
+    "id": "capability",
+    "term": "Capability",
+    "aliases": [
+      "capabilities",
+      "dev.ucp.shopping.checkout",
+      "capability negotiation"
+    ],
+    "plain": "A named unit of functionality that both sides of a commerce protocol can declare, such as checkout, cart, order or identity linking. In UCP, capability names are reverse-domain strings like `dev.ucp.shopping.checkout`, and the business keeps only those both sides support, at the highest shared version. ACP has its own `capabilities` object for payment handlers, interventions and extensions.",
+    "ste": "A capability is a function that a business or a platform can do. UCP keeps only the capabilities that the two sides both support.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview",
+      "src-openai-acp-rfc-capability-negotiation"
+    ]
+  },
+  {
+    "id": "challenge",
+    "term": "Challenge",
+    "aliases": [
+      "payment challenge",
+      "challenge id"
+    ],
+    "plain": "In MPP, the server's offer to be paid, sent in `WWW-Authenticate: Payment`. It names the payment `method`, the `intent`, an encoded `request` with amount and currency, an optional `expires` time and an `id` that the server binds to all of those values, for example with an HMAC. A challenge is single use: a reused or unknown `id` fails with `invalid-challenge`.",
+    "ste": "In MPP, a challenge tells the client the payment method, the amount and the currency. The client can use each challenge one time only.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "charge",
+    "term": "Charge",
+    "aliases": [
+      "charge intent"
+    ],
+    "plain": "The MPP intent for a single payment of a fixed `amount` in a given `currency`. The client pays through the named method and retries with a credential, and the server verifies and settles before it sends any part of the response. Every MPP payment method defines a charge.",
+    "ste": "Charge is the MPP intent for one payment of a fixed amount. The server must verify the payment before it sends the resource.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-intent-charge"
+    ]
+  },
+  {
+    "id": "checkout-mandate",
+    "term": "Checkout Mandate",
+    "aliases": [
+      "mandate.checkout.1",
+      "checkout_mandate",
+      "checkout_jwt",
+      "checkout_hash"
+    ],
+    "plain": "The AP2 v0.2 mandate that approves one specific checkout. A closed Checkout Mandate (`vct` `mandate.checkout.1`) carries the merchant-signed `checkout_jwt` and its `checkout_hash`, and the merchant verifies it before it completes the order. UCP's AP2 extension sends it as `ap2.checkout_mandate` on the complete call.",
+    "ste": "A Checkout Mandate is the AP2 mandate for one checkout. The merchant verifies the mandate before it completes the order.",
+    "protocols": [
+      "ucp",
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-checkout",
+      "src-ap2-checkout-mandate-doc",
+      "src-ucp-ap2-spec"
+    ]
+  },
+  {
+    "id": "checkout-session",
+    "term": "Checkout session",
+    "aliases": [
+      "CheckoutSession",
+      "checkout_sessions",
+      "checkout-sessions"
+    ],
+    "plain": "The server-side record of one purchase in progress in ACP and UCP. The agent creates it with line items, updates it as the buyer picks shipping and payment, then completes or cancels it, and every response returns the full authoritative state, including `status`, totals and messages. ACP uses `/checkout_sessions` and UCP uses `/checkout-sessions`.",
+    "ste": "A checkout session is the record of one purchase on the server of the business. The agent can create, update, complete or cancel the session.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-checkout",
+      "src-ucp-checkout"
+    ]
+  },
+  {
+    "id": "closed-mandate",
+    "term": "Closed mandate",
+    "aliases": [
+      "closed Checkout Mandate",
+      "closed Payment Mandate",
+      "human present"
+    ],
+    "plain": "An AP2 v0.2 mandate for one exact checkout or payment, with all values fixed. The user can sign it directly on a Trusted Surface, or the agent can sign it under an open mandate the user approved earlier. Verifiers check the closed mandate and, when present, the chain back to its open mandate.",
+    "ste": "A closed mandate is an AP2 mandate for one exact checkout or one exact payment. All the values in a closed mandate are fixed.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-spec-v02",
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "cloudflare-402",
+    "term": "cloudflare:402",
+    "aliases": [
+      "credit-backed batch settlement"
+    ],
+    "plain": "A credit-backed binding of the x402 batch-settlement scheme in which Cloudflare is merchant of record, clients sign requests with RFC 9421, and Cloudflare bills the identity later. It is separate from the Monetization Gateway beta, which settles USDC on Base.",
+    "ste": "A batch settlement network where Cloudflare gives credit and sends the bill later. The payment does not go to a blockchain.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-scheme-batch-cf",
+      "src-x402-cf-mg-beta"
+    ]
+  },
+  {
+    "id": "cnf-claim",
+    "term": "cnf claim",
+    "aliases": [
+      "cnf",
+      "confirmation claim",
+      "RFC 7800"
+    ],
+    "plain": "The confirmation claim from RFC 7800, which places a public key inside a token and says that whoever presents the token must prove control of that key. In AP2 open mandates `cnf` holds the agent's key, so only that agent can turn the open mandate into closed ones. Verifiable Intent uses `cnf` the same way to delegate from user to agent.",
+    "ste": "The cnf claim puts a public key in a token. Only the holder of the related private key can use the token.",
+    "protocols": [
+      "ap2",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-rfc7800",
+      "src-ap2-schema-open-payment",
+      "src-mcap-vi-format"
+    ]
+  },
+  {
+    "id": "constraint",
+    "term": "Constraint",
+    "aliases": [
+      "constraints",
+      "unresolved_constraint",
+      "payment.amount_range",
+      "checkout.line_items"
+    ],
+    "plain": "A machine-checkable rule inside an AP2 open mandate or a Verifiable Intent credential that a later purchase must meet. AP2 v0.2 defines keys such as `checkout.allowed_merchants`, `checkout.line_items`, `payment.amount_range`, `payment.budget` and `payment.agent_recurrence`. A verifier that does not recognize a constraint must treat it as failed and return `unresolved_constraint`.",
+    "ste": "A constraint is a rule that a future purchase must obey. If a verifier does not know a constraint, the verifier rejects the mandate.",
+    "protocols": [
+      "ap2",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-ap2-schema-open-payment",
+      "src-ap2-agent-authorization",
+      "src-mcap-vi-constraints"
+    ]
+  },
+  {
+    "id": "consumer-recognition-object",
+    "term": "Consumer recognition object",
+    "aliases": [
+      "agenticConsumer",
+      "Agentic Consumer Recognition Object",
+      "contextualData"
+    ],
+    "plain": "The Visa TAP request body object `agenticConsumer` that lets a merchant recognize a returning shopper without receiving their identity in the clear. It carries the same `nonce` as the message signature, an `idToken`, `contextualData` (country, postal code, IP address, device data), `kid`, `alg` and a `signature` over the other fields. The merchant matches obfuscated email and phone values to its own accounts.",
+    "ste": "The consumer recognition object helps a merchant to identify a known customer. The object contains an ID token and a signature from the agent.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "content-digest",
+    "term": "Content digest",
+    "aliases": [
+      "Content-Digest",
+      "RFC 9530",
+      "digest"
+    ],
+    "plain": "A hash of an HTTP message body, sent in the `Content-Digest` header defined by RFC 9530. MPP challenges can carry a `digest` parameter so a payment is bound to one exact request body, which matters for POST requests. RFC 9421 signatures can cover the digest header to protect the body, but Visa TAP does not require it, so TAP signatures leave the body unbound.",
+    "ste": "A content digest is a hash of the body of an HTTP message. MPP uses the digest to connect a payment to one request body.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-rfc9530",
+      "src-stripe-mpp-core-01",
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "continue-url",
+    "term": "Continue URL",
+    "aliases": [
+      "continue_url"
+    ],
+    "plain": "A link in an ACP or UCP checkout where the buyer can finish the purchase on the merchant's own site. In UCP it must be present when the checkout status is `requires_escalation`, and the agent must open it for the buyer. It is the hand-off point when the agent cannot complete a step by itself.",
+    "ste": "The continue URL is a link to the site of the business. The buyer uses this link to complete a checkout that the agent cannot complete.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-checkout",
+      "src-openai-acp-schema-checkout-20260417"
+    ]
+  },
+  {
+    "id": "covered-components",
+    "term": "Covered components",
+    "aliases": [
+      "@authority",
+      "@path",
+      "@method",
+      "@target-uri"
+    ],
+    "plain": "The list of HTTP message parts that an RFC 9421 signature protects, such as `@authority`, `@path`, `@method` or a header like `content-digest`. Anything not listed can be changed without breaking the signature. Visa TAP requires only `@authority` and `@path`, so the method, query string and body are not bound.",
+    "ste": "Covered components are the parts of an HTTP message that a signature protects. A change to a part that is not covered does not make the signature fail.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-rfc9421",
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "credential",
+    "term": "Credential",
+    "aliases": [
+      "payment credential",
+      "MPP credential"
+    ],
+    "plain": "In MPP, the client's answer to a challenge. It echoes the `challenge` parameters, adds a method-specific `payload` (a signed transaction, a Shared Payment Token, an encrypted card token and so on) and can name the payer in `source`, preferably as a DID. In verifiable credential systems the same word means a signed claim about a subject, which is a different thing.",
+    "ste": "In MPP, a credential is the reply of the client to a challenge. The credential contains the proof of payment for the payment method.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "credential-provider",
+    "term": "Credential provider",
+    "aliases": [
+      "Credential Provider",
+      "CP",
+      "Payment Credential Provider"
+    ],
+    "plain": "The party that holds the user's payment credentials, such as a digital wallet or a payment network. In AP2 it checks the Payment Mandate before it returns a credential scoped to that checkout. UCP uses the same idea: the credential provider writes the payment handler specification, and the platform calls it to obtain a token.",
+    "ste": "A credential provider keeps the payment credentials of the user. In AP2, the credential provider verifies the Payment Mandate before it gives a credential.",
+    "protocols": [
+      "ucp",
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-spec-v02",
+      "src-ucp-overview"
+    ]
+  },
+  {
+    "id": "delegated-payment",
+    "term": "Delegated payment",
+    "aliases": [
+      "Delegate Payment",
+      "delegate_payment",
+      "Delegated Payment Spec"
+    ],
+    "plain": "The part of ACP in which the agent sends the buyer's card to a payment provider or vault and gets back a token that only the merchant can use, within set limits. The call is `POST /agentic_commerce/delegate_payment` with the card and an `allowance`, and the answer is a vault token. Stripe's Shared Payment Token is the first implementation OpenAI names.",
+    "ste": "Delegated payment lets an agent give a limited payment token to a merchant. The token does not show the card number to the merchant.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-delegate-payment",
+      "src-openai-commerce-docs"
+    ]
+  },
+  {
+    "id": "did",
+    "term": "DID",
+    "aliases": [
+      "Decentralized Identifier",
+      "did:pkh",
+      "did:key"
+    ],
+    "plain": "A Decentralized Identifier, a W3C standard (v1.0, 2022) for an identifier such as `did:key:...` or `did:pkh:...` that resolves to a document with public keys, without a central registry. MPP recommends a DID in the credential `source` field to name the payer, and ERC-8004 registration files can list a DID endpoint. x402 receipts can use a DID URL as the key id.",
+    "ste": "A DID is an identifier that refers to a document with public keys. A central registry is not necessary for a DID.",
+    "protocols": [
+      "erc-8004",
+      "x402",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-gloss-did-1",
+      "src-stripe-mpp-core-01",
+      "src-erc-8004-spec",
+      "src-x402-ext-offer-receipt"
+    ]
+  },
+  {
+    "id": "digital-credentials-api",
+    "term": "Digital Credentials API",
+    "aliases": [
+      "DC API",
+      "navigator.credentials.get digital"
+    ],
+    "plain": "A W3C browser API, still a Working Draft on 2026-09-04, that lets a website request a credential from a wallet on the user's device through the browser or operating system. AP2 v0.2 recommends it as the way to run its OpenID4VP delegation flow. It keeps the wallet exchange inside a trusted platform channel rather than a custom redirect.",
+    "ste": "The Digital Credentials API is a W3C browser API for a credential request to a wallet. AP2 recommends this API for the delegation of mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-gloss-dc-api",
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "eip-3009",
+    "term": "EIP-3009",
+    "aliases": [
+      "ERC-3009",
+      "transferWithAuthorization",
+      "TransferWithAuthorization",
+      "receiveWithAuthorization"
+    ],
+    "plain": "An Ethereum token standard, still in Draft, that lets a holder sign an off-chain authorization so that someone else submits the transfer and pays the gas. The signed message carries `from`, `to`, `value`, `validAfter`, `validBefore` and a random 32-byte `nonce`. It is the default method of the x402 `exact` scheme on EVM, and USDC implements it.",
+    "ste": "EIP-3009 lets a token holder sign a transfer that another party sends to the chain. Each authorization has a time window and a nonce.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-gloss-erc-3009",
+      "src-x402-scheme-exact-evm"
+    ]
+  },
+  {
+    "id": "eip-712",
+    "term": "EIP-712",
+    "aliases": [
+      "typed data",
+      "typed structured data",
+      "EIP-712 domain"
+    ],
+    "plain": "The Ethereum standard for hashing and signing typed, structured data instead of opaque bytes, so a wallet can show the user what they sign. A domain separator (name, version, chain id, contract) binds the signature to one app and chain. x402 uses EIP-712 for every EVM payment signature, and ERC-8004 uses it for `setAgentWallet`.",
+    "ste": "EIP-712 is the Ethereum standard for signatures on typed data. The signature is valid only for one domain and one chain.",
+    "protocols": [
+      "erc-8004",
+      "x402"
+    ],
+    "sources": [
+      "src-gloss-eip-712",
+      "src-x402-spec-v2",
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "erc-1271",
+    "term": "ERC-1271",
+    "aliases": [
+      "isValidSignature",
+      "contract signature"
+    ],
+    "plain": "The Ethereum standard for checking a signature when the signer is a smart contract wallet rather than a key. The verifier calls `isValidSignature` on the wallet contract and expects the magic value `0x1626ba7e`. ERC-8004 uses it when a contract wallet becomes an `agentWallet`, and the x402 Sign-In-With-X extension uses it to verify smart wallet signatures.",
+    "ste": "ERC-1271 is the Ethereum standard for the check of a signature from a smart contract wallet. The wallet contract tells the verifier if the signature is valid.",
+    "protocols": [
+      "erc-8004",
+      "x402"
+    ],
+    "sources": [
+      "src-gloss-erc-1271",
+      "src-erc-8004-spec",
+      "src-x402-ext-siwx"
+    ]
+  },
+  {
+    "id": "erc-721",
+    "term": "ERC-721",
+    "aliases": [
+      "NFT",
+      "non-fungible token",
+      "tokenId"
+    ],
+    "plain": "The Ethereum standard for non-fungible tokens, where each `tokenId` is unique and has one owner. ERC-8004 makes every agent identity an ERC-721 token, so an identity can be transferred and approved with ordinary NFT tools. ERC-721 status is Final.",
+    "ste": "ERC-721 is the Ethereum standard for unique tokens. In ERC-8004, each agent identity is one ERC-721 token.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-gloss-erc-721",
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "escalation",
+    "term": "Escalation",
+    "aliases": [
+      "requires_escalation"
+    ],
+    "plain": "The UCP checkout state `requires_escalation`, which means the business needs the buyer to act directly. The response must carry a `continue_url` and at least one message with severity `requires_buyer_input` or `requires_buyer_review`. ACP added the same status name in its 2026-01-30 schema without an RFC definition.",
+    "ste": "Escalation is a checkout status that tells the agent that the buyer must do a step. The agent must open the continue URL for the buyer.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-checkout",
+      "src-openai-acp-schema-checkout-20260130"
+    ]
+  },
+  {
+    "id": "exact-scheme",
+    "term": "Exact scheme",
+    "aliases": [
+      "exact"
+    ],
+    "plain": "The default x402 scheme: the client pays one fixed amount that the server names in advance. On EVM networks the client usually signs an EIP-3009 `TransferWithAuthorization` message, and Permit2 and ERC-7710 delegations are alternative methods. The facilitator submits the transfer, so the client does not need gas.",
+    "ste": "The exact scheme transfers one fixed amount for one request. The server sets the amount before the client signs the payment.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-scheme-exact",
+      "src-x402-scheme-exact-evm"
+    ]
+  },
+  {
+    "id": "extension",
+    "term": "Extension",
+    "aliases": [
+      "extensions",
+      "extends",
+      "ExtensionDeclaration"
+    ],
+    "plain": "An optional add-on that changes or adds fields to a base capability or message. UCP extensions name their parent in `extends`, for example the discount, fulfillment and AP2 mandate extensions of checkout, and are dropped when their parent is not shared. ACP has an extensions framework that only the discount extension uses, and x402 carries extensions such as `bazaar` in an `extensions` map.",
+    "ste": "An extension adds optional fields or functions to a base capability or message. An extension does not operate when its parent capability is not available.",
+    "protocols": [
+      "x402",
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview",
+      "src-openai-acp-rfc-extensions",
+      "src-x402-spec-v2"
+    ]
+  },
+  {
+    "id": "facilitator",
+    "term": "Facilitator",
+    "aliases": [
+      "x402 facilitator",
+      "/verify",
+      "/settle"
+    ],
+    "plain": "In x402, a facilitator is a server that checks a client's signed payment and then broadcasts it to the network on behalf of the resource server. It exposes `POST /verify`, `POST /settle` and `GET /supported`, and it usually pays the gas. The x402 docs say it does not hold funds or act as a custodian, and a resource server can also verify and settle on its own.",
+    "ste": "In x402, a facilitator is a server that examines a signed payment and sends the payment to the network. The facilitator does not keep the funds of the client.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2",
+      "src-x402-docs-facilitator-concept"
+    ]
+  },
+  {
+    "id": "feedback-file",
+    "term": "Feedback file",
+    "aliases": [
+      "feedbackURI",
+      "feedbackHash",
+      "off-chain feedback file",
+      "proofOfPayment"
+    ],
+    "plain": "An optional off-chain JSON document that adds detail to one ERC-8004 feedback entry. It repeats `agentRegistry`, `agentId`, `clientAddress`, `createdAt`, `value` and `valueDecimals`, and can add MCP, A2A or OASF context and a `proofOfPayment` object with a transaction hash. The on-chain `giveFeedback` call records its URI and, unless the URI is content addressed, a keccak256 `feedbackHash`.",
+    "ste": "A feedback file gives more data about one feedback entry. The file is off-chain, and a hash on the chain can protect its content.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "http-402",
+    "term": "HTTP 402",
+    "aliases": [
+      "402 Payment Required",
+      "Payment Required",
+      "402"
+    ],
+    "plain": "The HTTP status code 402 Payment Required. RFC 9110 still lists it as reserved for future use, so each protocol that uses it defines its own meaning. x402 answers with 402 and a `PAYMENT-REQUIRED` header, and MPP answers with 402 and a `WWW-Authenticate: Payment` challenge.",
+    "ste": "HTTP 402 is the status code for Payment Required. x402 and MPP use this code to tell a client that a resource needs a payment.",
+    "protocols": [
+      "x402",
+      "visa-tap",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-prehistory-rfc9110",
+      "src-x402-transport-http-v2",
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "id-token",
+    "term": "ID token",
+    "aliases": [
+      "idToken",
+      "mastercardIdToken",
+      "OpenID Connect ID Token"
+    ],
+    "plain": "A signed JSON Web Token that states who a user is, in the format OpenID Connect defines (`iss`, `sub`, `aud`, `exp`, `iat`, with optional claims such as `auth_time` and `amr`). In Visa TAP, Visa signs the ID token inside the consumer recognition object and puts only obfuscated email and phone values in it. Mastercard's `mastercardIdToken` plays a similar role in Agent Pay.",
+    "ste": "An ID token is a signed token that identifies a user. In Visa TAP, Visa signs the ID token.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-visa-tap-spec",
+      "src-mcap-dev-level2"
+    ]
+  },
+  {
+    "id": "idempotency-key",
+    "term": "Idempotency key",
+    "aliases": [
+      "Idempotency-Key",
+      "Idempotent-Replayed"
+    ],
+    "plain": "A unique value the client sends in the `Idempotency-Key` header so that a retried request is not processed twice. Since ACP 2026-04-17 it is mandatory on every POST: the same key with a different body returns 422, a key still in flight returns 409, and a replay returns the original response with `Idempotent-Replayed: true`. UCP marks the header required in its OpenAPI, and MPP asks for it on non-idempotent methods.",
+    "ste": "An idempotency key is a unique value that the client sends with a request. If the client sends the request again, the server does not do the operation two times.",
+    "protocols": [
+      "openai-acp",
+      "ucp",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-checkout",
+      "src-ucp-rest-openapi",
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "identity-linking",
+    "term": "Identity linking",
+    "aliases": [
+      "dev.ucp.common.identity_linking",
+      "account linking"
+    ],
+    "plain": "The UCP capability that links a buyer's account at a business to the agent platform through OAuth 2.0. It uses the authorization code flow with PKCE `S256` and scopes derived from capabilities, such as `dev.ucp.shopping.order:read`. Since 2026-08-25 an accelerated flow lets a trusted identity provider issue a grant by token exchange.",
+    "ste": "Identity linking connects the account of a buyer at a business to the agent platform. UCP uses OAuth 2.0 for this connection.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-identity-linking"
+    ]
+  },
+  {
+    "id": "intent-mpp",
+    "term": "Intent (MPP)",
+    "aliases": [
+      "intent",
+      "payment intent type"
+    ],
+    "plain": "In MPP, the kind of payment a challenge asks for, given in the `intent` parameter. The drafts define `charge` (one payment), `session` (metered payments over a channel, Tempo only) and `subscription` (recurring payments). It has nothing to do with a Stripe PaymentIntent object or with Mastercard's Verifiable Intent.",
+    "ste": "In MPP, the intent tells the type of payment. The three intents are charge, session and subscription.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-intent-charge"
+    ]
+  },
+  {
+    "id": "jwks",
+    "term": "JWKS",
+    "aliases": [
+      "JWK Set",
+      "JWK",
+      "/.well-known/jwks",
+      "jwks_uri"
+    ],
+    "plain": "A JSON Web Key Set, the RFC 7517 format for publishing a list of public keys, each with a key type and a `kid`. Visa's TAP key store is a JWKS at `https://mcp.visa.com/.well-known/jwks`, and UCP profiles carry their signing keys as a JWK set in `keys`. The MPP `card` method can point to a server key with `jwksUri`.",
+    "ste": "A JWKS is a JSON document that contains a list of public keys. Verifiers get keys from a JWKS to verify signatures.",
+    "protocols": [
+      "visa-tap",
+      "ucp",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-gloss-rfc-7517",
+      "src-visa-tap-spec",
+      "src-ucp-schema-profile"
+    ]
+  },
+  {
+    "id": "key-binding",
+    "term": "Key binding",
+    "aliases": [
+      "KB-JWT",
+      "key binding JWT",
+      "kb-jwt"
+    ],
+    "plain": "A proof, attached to an SD-JWT, that the party presenting it holds the private key named inside it. The holder signs a short key binding JWT over a nonce, an audience and a hash of the presentation, which stops a stolen token from being replayed by someone else. AP2 mandates and Verifiable Intent use key binding to tie each step to the user's or agent's key.",
+    "ste": "Key binding proves that the presenter of an SD-JWT has the private key in the token. This proof stops a replay of a stolen token.",
+    "protocols": [
+      "ap2",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-ap2-rfc9901",
+      "src-mcap-vi-format"
+    ]
+  },
+  {
+    "id": "keyid",
+    "term": "keyid",
+    "aliases": [
+      "keyId",
+      "kid",
+      "key identifier"
+    ],
+    "plain": "The RFC 9421 signature parameter that tells the verifier which public key to use. In Visa TAP it is an opaque string that the merchant looks up in Visa's key store, and in Mastercard Agent Pay it names the agent's key in the network key directory. The Web Bot Auth draft requires it to be a JWK SHA-256 thumbprint.",
+    "ste": "The keyid parameter identifies the public key for a signature. The verifier uses the keyid to find the key in a key directory.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-rfc9421",
+      "src-visa-tap-spec",
+      "src-wba-draft"
+    ]
+  },
+  {
+    "id": "l402",
+    "term": "L402",
+    "aliases": [
+      "LSAT"
+    ],
+    "plain": "An earlier HTTP 402 payment design on Lightning by Lightning Labs. The original spec paired a macaroon with a BOLT11 invoice; the bLIP-0026 draft, still an open proposal, is token-agnostic and makes macaroons optional. No source says it is the ancestor of x402.",
+    "ste": "A different HTTP 402 payment protocol on the Lightning Network.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-l402-repo",
+      "src-x402-blip-0026"
+    ]
+  },
+  {
+    "id": "line-item",
+    "term": "Line item",
+    "aliases": [
+      "line_items",
+      "LineItem"
+    ],
+    "plain": "One product line in a cart, checkout or order, with its item, quantity and totals. In ACP and UCP the `line_items` array is required when a checkout session is created, and the merchant returns the authoritative version with prices and taxes filled in. The agent should show the merchant's totals rather than compute its own.",
+    "ste": "A line item is one product line in a checkout, with the item, the quantity and the totals. The business calculates the totals for each line item.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-openai-acp-schema-checkout-20260417",
+      "src-ucp-schema-checkout"
+    ]
+  },
+  {
+    "id": "mandate",
+    "term": "Mandate",
+    "aliases": [
+      "mandates",
+      "AP2 mandate",
+      "Mandate Content"
+    ],
+    "plain": "In AP2, a signed, verifiable record of what a user authorized an agent to do, so that merchants, payment processors and networks can check it with deterministic code. AP2 v0.2 (2026-04-28) has two kinds, the Checkout Mandate and the Payment Mandate, each either closed or open, issued as SD-JWT credentials. v0.1 used Intent, Cart and Payment Mandates instead; v0.2 has no Intent or Cart Mandate.",
+    "ste": "In AP2, a mandate is a signed record of the actions that a user lets an agent do. Merchants and payment processors verify the mandate with deterministic code.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-spec-v02",
+      "src-ap2-mandate-py-v01"
+    ]
+  },
+  {
+    "id": "merchant-of-record",
+    "term": "Merchant of record",
+    "aliases": [
+      "MoR",
+      "merchant of record agreement"
+    ],
+    "plain": "The business that is legally the seller in a transaction: its name appears on the card statement and it carries refunds, chargebacks, taxes and compliance. In ACP and UCP the merchant stays merchant of record, and OpenAI's docs say neither OpenAI nor the payment providers take that role. In the `cloudflare:402` x402 variant, the network itself acts as merchant of record.",
+    "ste": "The merchant of record is the business that sells the product by law. This business is responsible for refunds, chargebacks and taxes.",
+    "protocols": [
+      "x402",
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-openai-commerce-docs",
+      "src-ucp-glossary",
+      "src-x402-scheme-batch-cf"
+    ]
+  },
+  {
+    "id": "merchant-payment-processor",
+    "term": "Merchant payment processor",
+    "aliases": [
+      "Merchant Payment Processor",
+      "MPP (AP2)"
+    ],
+    "plain": "The AP2 role that processes the payment for the merchant, checks that the payment credential is scoped to this checkout, and signs the Payment Receipt. AP2 abbreviates it as MPP. That MPP has nothing to do with the Stripe and Tempo Machine Payments Protocol.",
+    "ste": "The merchant payment processor is the AP2 role that processes the payment for the merchant. In AP2 documents, MPP means this role.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-spec-v02",
+      "src-ap2-glossary"
+    ]
+  },
+  {
+    "id": "minor-units",
+    "term": "Minor units",
+    "aliases": [
+      "minor unit",
+      "integer amount",
+      "unit_amount"
+    ],
+    "plain": "Money written as an integer count of the currency's smallest unit, as defined by ISO 4217: cents for USD, no subdivision for JPY. ACP and UCP send all amounts this way, so 1999 in USD means 19.99 dollars. x402 and MPP use a similar idea, called atomic units or base units, for token amounts.",
+    "ste": "Minor units show an amount of money as a whole number of the smallest unit of the currency. For example, 1999 minor units in USD is 19.99 dollars.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-openai-acp-schema-checkout-20260417",
+      "src-ucp-schema-payment"
+    ]
+  },
+  {
+    "id": "nonce",
+    "term": "Nonce",
+    "aliases": [
+      "nonce"
+    ],
+    "plain": "A value used once, so that a captured message cannot be accepted a second time. Visa TAP and Mastercard Agent Pay require a `nonce` signature parameter and reuse it inside the signed body objects to bind them to the request. x402 EIP-3009 authorizations and many other signed payloads carry their own random nonce for the same reason.",
+    "ste": "A nonce is a value that a party uses one time only. A verifier rejects a message with a nonce that it saw before.",
+    "protocols": [
+      "x402",
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-visa-tap-spec",
+      "src-mcap-dev-level1",
+      "src-x402-scheme-exact-evm"
+    ]
+  },
+  {
+    "id": "offer-receipt",
+    "term": "offer-receipt extension",
+    "aliases": [
+      "signed receipt",
+      "signed offer"
+    ],
+    "plain": "An x402 extension for signed offers and receipts in EIP-712 or JWS format, useful as evidence. The SDK parity table lists it for TypeScript only.",
+    "ste": "An extension that gives a signed offer before payment and a signed receipt after payment.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-ext-offer-receipt",
+      "src-x402-sdk-features"
+    ]
+  },
+  {
+    "id": "open-mandate",
+    "term": "Open mandate",
+    "aliases": [
+      "mandate.checkout.open.1",
+      "mandate.payment.open.1",
+      "human not present"
+    ],
+    "plain": "An AP2 v0.2 mandate that a user signs in advance for a purchase the agent will make later without the user present. Instead of a fixed checkout, it lists `constraints` (for example allowed merchants, line items, an amount range or a budget) and binds the agent's key in `cnf`. The agent later creates a closed mandate that must satisfy every constraint.",
+    "ste": "An open mandate lets an agent buy later without the user. The mandate contains constraints and the public key of the agent.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-open-checkout",
+      "src-ap2-schema-open-payment",
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "openid4vp",
+    "term": "OpenID4VP",
+    "aliases": [
+      "OpenID for Verifiable Presentations",
+      "transaction_data"
+    ],
+    "plain": "OpenID for Verifiable Presentations 1.0, the OpenID Foundation standard (final 2025-07-09) for asking a wallet to present a credential. AP2 v0.2 uses it to delegate: a `transaction_data` entry of type `delegate` carries the mandate content that the wallet signs. The AP2 example uses the browser Digital Credentials API as the channel.",
+    "ste": "OpenID4VP is a standard that lets a verifier ask a wallet for a credential. AP2 uses OpenID4VP to get a signed mandate from the wallet of the user.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-gloss-openid4vp",
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "payment-channel",
+    "term": "Payment channel",
+    "aliases": [
+      "channel",
+      "escrow channel",
+      "channelId"
+    ],
+    "plain": "An on-chain deposit that lets two parties exchange many off-chain payments and settle only the net result. The payer locks funds, sends vouchers as it uses the service, and either side closes the channel; a forced close starts a grace period before the payer can withdraw. MPP Tempo sessions and the x402 `batch-settlement` scheme on EVM both use channels.",
+    "ste": "A payment channel is a deposit on the chain for many small payments. The two parties settle only the final total on the chain.",
+    "protocols": [
+      "x402",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session",
+      "src-x402-scheme-batch-evm"
+    ]
+  },
+  {
+    "id": "payment-container",
+    "term": "Payment container",
+    "aliases": [
+      "agenticPaymentContainer",
+      "Agentic Payment Container",
+      "browsingIOU",
+      "cardMetadata"
+    ],
+    "plain": "The Visa TAP request body object `agenticPaymentContainer` that carries payment data from the agent to the merchant. Besides `nonce`, `kid`, `alg` and `signature`, it can hold a credential hash for key-entered cards, `cardMetadata`, an encrypted `payload` for API checkout, or a `browsingIOU` that answers an HTTP 402 request for paid content. The spec defines no canonical form for the signed body, and no test vector exists.",
+    "ste": "The payment container gives payment data from the agent to the merchant. The agent signs the container with the same key as the message signature.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "payment-flow",
+    "term": "Payment flow",
+    "aliases": [
+      "paymentFlow",
+      "extra.paymentFlow",
+      "authorization flow",
+      "upfront",
+      "escrow"
+    ],
+    "plain": "The x402 V2 setting that fixes the order of verify, resource execution and settlement. `authorization` (the default) verifies, runs the resource, then settles. `upfront` settles before the resource runs, and `escrow` settles a deposit first and a final charge after. Servers declare a non-default flow in `extra.paymentFlow`.",
+    "ste": "The payment flow sets the order of verification, work and settlement. The default flow is authorization.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2"
+    ]
+  },
+  {
+    "id": "payment-handler",
+    "term": "Payment handler",
+    "aliases": [
+      "payment_handlers",
+      "PaymentHandler",
+      "handler_id"
+    ],
+    "plain": "A specification for how a buyer's payment credential is obtained and passed to the merchant, such as Google Pay (`com.google.pay`) or Shop Pay in UCP, or `dev.acp.tokenized.card` in ACP. The merchant advertises the handlers it accepts, the agent runs the chosen handler with the credential provider, and the result goes back as an instrument tied to a `handler_id`. UCP itself defines the structure but no concrete handler.",
+    "ste": "A payment handler is a specification that tells how the agent gets a payment credential for the business. The business shows the handlers that it accepts.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview",
+      "src-openai-acp-rfc-payment-handlers"
+    ]
+  },
+  {
+    "id": "payment-identifier",
+    "term": "payment-identifier extension",
+    "aliases": [
+      "payment id"
+    ],
+    "plain": "An x402 extension that gives a payment a client-chosen id so servers can deduplicate retries; a server answers 409 when the same id arrives with a different payload.",
+    "ste": "An extension that gives each payment an identifier, so that the server can find a repeated request.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-ext-payment-identifier"
+    ]
+  },
+  {
+    "id": "payment-mandate",
+    "term": "Payment Mandate",
+    "aliases": [
+      "mandate.payment.1",
+      "payment_mandate",
+      "PaymentMandate"
+    ],
+    "plain": "The AP2 v0.2 mandate that approves one payment. A closed Payment Mandate (`vct` `mandate.payment.1`) names the `transaction_id` (a hash of the checkout), the `payee`, the `payment_amount` in minor units and the `payment_instrument`. The credential provider checks it before it releases a payment credential, and the network can see it as evidence of user intent.",
+    "ste": "A Payment Mandate is the AP2 mandate for one payment. It gives the payee, the amount and the payment instrument.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-payment",
+      "src-ap2-payment-mandate-doc"
+    ]
+  },
+  {
+    "id": "payment-payload",
+    "term": "Payment payload",
+    "aliases": [
+      "PaymentPayload",
+      "PAYMENT-SIGNATURE",
+      "X-PAYMENT"
+    ],
+    "plain": "The signed payment a client sends back after it picks one of the offered payment requirements. A V2 `PaymentPayload` holds `x402Version`, the chosen requirements in `accepted`, and a scheme-specific `payload` with the signature. Over HTTP it travels base64 encoded in the `PAYMENT-SIGNATURE` header (V1 used `X-PAYMENT`).",
+    "ste": "The payment payload contains the signed payment of the client. The client sends the payload in the PAYMENT-SIGNATURE header with the second request.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2",
+      "src-x402-transport-http-v2",
+      "src-x402-transport-http-v1"
+    ]
+  },
+  {
+    "id": "payment-receipt",
+    "term": "Payment-Receipt",
+    "aliases": [
+      "Payment-Receipt header",
+      "MPP receipt"
+    ],
+    "plain": "The MPP response header that proves a payment settled. It holds a base64url object with `status` (always `success`), `method`, `timestamp` and a method-specific `reference`, such as a Tempo transaction hash or a Stripe PaymentIntent id. Servers send it only with a 2xx response; x402 uses its own `PAYMENT-RESPONSE` header for the same job.",
+    "ste": "Payment-Receipt is the MPP header that tells the client about a successful payment. The server sends it only with a successful response.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "payment-requirements",
+    "term": "Payment requirements",
+    "aliases": [
+      "PaymentRequirements",
+      "accepts",
+      "PAYMENT-REQUIRED",
+      "PaymentRequired"
+    ],
+    "plain": "The terms a resource server will accept for one paid resource in x402. Each entry of the `accepts` array is a `PaymentRequirements` object with `scheme`, `network`, `amount`, `asset`, `payTo` and `maxTimeoutSeconds`, plus an optional `extra` object. In V2 the server sends the full `PaymentRequired` object, base64 encoded, in the `PAYMENT-REQUIRED` header of a 402 response.",
+    "ste": "Payment requirements tell the client the price, the token, the network and the recipient of a payment. The server sends them in a 402 response.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2",
+      "src-x402-transport-http-v2"
+    ]
+  },
+  {
+    "id": "permit2",
+    "term": "Permit2",
+    "aliases": [
+      "permitWitnessTransferFrom",
+      "x402ExactPermit2Proxy",
+      "x402UptoPermit2Proxy"
+    ],
+    "plain": "A Uniswap contract that adds signature-based approvals and transfers to any ERC-20 token, including tokens without EIP-3009. The holder approves Permit2 once, then signs transfers that can carry a witness with extra data. x402 uses Permit2 as an alternative `exact` method and as the only method of `upto` on EVM, through proxies at fixed addresses.",
+    "ste": "Permit2 is a Uniswap contract that lets a token holder sign a transfer for any ERC-20 token. The holder must approve Permit2 one time first.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-gloss-permit2",
+      "src-x402-scheme-exact-evm",
+      "src-x402-scheme-upto-evm"
+    ]
+  },
+  {
+    "id": "problem-details",
+    "term": "Problem details (RFC 9457)",
+    "aliases": [
+      "RFC 9457",
+      "application/problem+json",
+      "problem type"
+    ],
+    "plain": "An IETF format for machine-readable HTTP error bodies, served as `application/problem+json` with fields such as `type`, `title`, `status` and `detail`. MPP uses it for its error types under `https://paymentauth.org/problems/`, for example `payment-expired`, `invalid-challenge` and `verification-failed`. RFC 9457 replaced RFC 7807 in 2023.",
+    "ste": "Problem details is an IETF format for HTTP error messages in JSON. MPP uses this format to tell the client why a payment failed.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-gloss-rfc-9457",
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "registration-file",
+    "term": "Registration file",
+    "aliases": [
+      "agent registration file",
+      "agent-registration.json",
+      "registration-v1"
+    ],
+    "plain": "The JSON document an ERC-8004 `agentURI` resolves to. It carries `type`, `name`, `description`, `image`, a `services` list of endpoints (for example A2A, MCP, web or DID), `x402Support`, `active`, a `registrations` list that binds the file to on-chain identities, and optional `supportedTrust` values. The spec publishes an example structure but no JSON Schema.",
+    "ste": "The registration file describes an agent and its service endpoints. The file also contains the on-chain identities of the agent.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-bp-registration"
+    ]
+  },
+  {
+    "id": "reputation-registry",
+    "term": "Reputation Registry",
+    "aliases": [
+      "ReputationRegistry",
+      "giveFeedback",
+      "getSummary"
+    ],
+    "plain": "The ERC-8004 contract where any address except the agent's owner and operators can record feedback about an agent. Each entry stores a signed `value` with `valueDecimals` and two optional tags, and it can be revoked by its author or answered with `appendResponse`. `getSummary` averages entries only for a list of client addresses that the caller supplies, which is the spec's defense against fake reviewers.",
+    "ste": "The Reputation Registry keeps feedback about agents. The owner of an agent cannot give feedback to that agent.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-reputation-sol"
+    ]
+  },
+  {
+    "id": "resource-server",
+    "term": "Resource server",
+    "aliases": [
+      "seller server"
+    ],
+    "plain": "The HTTP server that sells a resource in x402. It answers unpaid requests with 402 and the price, asks a facilitator to verify and settle, and serves the response.",
+    "ste": "The HTTP server that sells a resource. It sends the price, asks the facilitator to verify the payment, and sends the resource.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2",
+      "src-x402-repo"
+    ]
+  },
+  {
+    "id": "rfc-9421",
+    "term": "RFC 9421",
+    "aliases": [
+      "HTTP Message Signatures",
+      "Signature-Input",
+      "Signature"
+    ],
+    "plain": "The IETF standard (February 2024) for signing parts of an HTTP message. The signer lists what it covers and its parameters in `Signature-Input` and puts the result in `Signature`, both as structured-field dictionaries. Visa TAP, Mastercard Agent Pay, Web Bot Auth and the `cloudflare:402` x402 variant all build agent identity on it.",
+    "ste": "RFC 9421 is the IETF standard for signatures on HTTP messages. Visa TAP and Mastercard Agent Pay use it to identify agents.",
+    "protocols": [
+      "x402",
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-rfc9421",
+      "src-visa-tap-spec",
+      "src-mcap-dev-level1"
+    ]
+  },
+  {
+    "id": "scheme",
+    "term": "Scheme",
+    "aliases": [
+      "x402 scheme",
+      "payment scheme"
+    ],
+    "plain": "In x402, a scheme is a named rule set for how money moves, such as `exact`, `upto`, `batch-settlement` or `auth-capture`. The `scheme` field in each payment requirement picks one, and a separate per-network document says how that scheme works on EVM, Solana, Lightning or another network. Schemes keep the core protocol independent of any single chain.",
+    "ste": "In x402, a scheme is a set of rules for the transfer of money. Each scheme has one specification for each supported network.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2",
+      "src-x402-scheme-exact"
+    ]
+  },
+  {
+    "id": "sd-jwt",
+    "term": "SD-JWT",
+    "aliases": [
+      "Selective Disclosure JWT",
+      "SD-JWT VC",
+      "dc+sd-jwt",
+      "RFC 9901"
+    ],
+    "plain": "Selective Disclosure for JSON Web Tokens, published as RFC 9901: a signed token in which the holder can reveal only some claims and keep the rest hidden. AP2 v0.2 mandates and Mastercard's Verifiable Intent credentials are SD-JWTs, chained with the Delegate SD-JWT draft. A key binding JWT can prove that the presenter holds the key named in the token.",
+    "ste": "SD-JWT is a signed token that lets the holder show only some of its claims. AP2 and Verifiable Intent use SD-JWT for their credentials.",
+    "protocols": [
+      "ucp",
+      "ap2",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-ap2-rfc9901",
+      "src-ap2-delegate-sd-jwt",
+      "src-mcap-vi-format"
+    ]
+  },
+  {
+    "id": "session",
+    "term": "Session",
+    "aliases": [
+      "session intent",
+      "Tempo session"
+    ],
+    "plain": "The MPP intent for metered use, such as paying per model token. The client deposits into an on-chain escrow channel, then sends signed vouchers with a rising `cumulativeAmount` as it consumes the service, and the server settles on-chain when it chooses. The session draft is experimental and defined for the Tempo method in `mpp-specs`.",
+    "ste": "Session is the MPP intent for a payment that increases with use. The client sends signed vouchers while it uses the service.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session"
+    ]
+  },
+  {
+    "id": "settlement-pending",
+    "term": "settlement_pending",
+    "aliases": [
+      "pending settlement"
+    ],
+    "plain": "A non-terminal x402 settle result: the transaction was broadcast but its confirmation could not be established. It carries the transaction hash so the server can check the chain before it retries.",
+    "ste": "A settle result. The transaction went to the network, but the facilitator did not get the receipt.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2",
+      "src-x402-docs-facilitator-concept"
+    ]
+  },
+  {
+    "id": "shared-payment-token",
+    "term": "Shared Payment Token",
+    "aliases": [
+      "SPT",
+      "spt_",
+      "shared_payment_granted_token"
+    ],
+    "plain": "A Stripe payment primitive that lets an agent share a buyer's saved payment method with one seller without exposing card details. The agent issues an SPT with `usage_limits` (`currency`, `max_amount`, `expires_at`), and the seller confirms a PaymentIntent with it. It is Stripe's implementation of ACP delegated payment and also the credential of the `stripe` method in MPP, but it is not part of either spec.",
+    "ste": "A Shared Payment Token (SPT) is a Stripe token that gives one seller limited use of a payment method. The seller does not see the card details.",
+    "protocols": [
+      "openai-acp",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-spt",
+      "src-stripe-mpp-stripe-charge"
+    ]
+  },
+  {
+    "id": "sign-in-with-x",
+    "term": "Sign-In-With-X",
+    "aliases": [
+      "SIWX",
+      "CAIP-122",
+      "sign-in-with-x",
+      "SIGN-IN-WITH-X"
+    ],
+    "plain": "A chain-agnostic way for a wallet to prove it controls an account by signing a structured message, defined in CAIP-122. x402 has a `sign-in-with-x` extension: the server sends `domain`, `uri`, `nonce`, `issuedAt` and related fields, and the client returns a signed `SIGN-IN-WITH-X` header. It proves who the payer is, which lets a server recognize a returning client.",
+    "ste": "Sign-In-With-X lets a wallet prove control of an account with a signed message. x402 uses it in an optional extension.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-gloss-caip-122",
+      "src-x402-ext-siwx"
+    ]
+  },
+  {
+    "id": "signature-agent",
+    "term": "Signature-Agent",
+    "aliases": [
+      "Signature-Agent header",
+      "signature-agent"
+    ],
+    "plain": "An HTTP request header that points to the signer's key directory, so a verifier can fetch the public key. The Web Bot Auth draft requires it and requires the signature to cover it, and the `cloudflare:402` x402 variant does the same. Visa TAP does not require it, and Mastercard shows it in an example request.",
+    "ste": "The Signature-Agent header gives the address of the key directory of the signer. The verifier gets the public key from this directory.",
+    "protocols": [
+      "x402",
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-wba-draft",
+      "src-x402-scheme-batch-cf",
+      "src-mcap-dev-level1"
+    ]
+  },
+  {
+    "id": "signature-base",
+    "term": "Signature base",
+    "aliases": [
+      "@signature-params"
+    ],
+    "plain": "The exact text that RFC 9421 signs: one line per covered component, written as the quoted component name, a colon and its value, followed by a final `@signature-params` line. Signer and verifier must build it byte for byte the same, or the check fails. The Visa TAP spec's own code sample formats some lines differently from RFC 9421.",
+    "ste": "In RFC 9421, the signature base is the exact text that the signer signs. The verifier must make the same text to verify the signature.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-rfc9421",
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "spend-controls",
+    "term": "spendControls",
+    "aliases": [
+      "spend controls",
+      "spending cap"
+    ],
+    "plain": "Client-side limits in the x402 TypeScript SDK: by default only known assets and at most $1 per payment. Passing false disables them. They are an SDK feature, not part of the protocol.",
+    "ste": "Limits in the client software. They stop a payment above a set amount or in an unknown asset.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-sdk-spendcontrols",
+      "src-x402-core-changelog"
+    ]
+  },
+  {
+    "id": "subscription",
+    "term": "Subscription",
+    "aliases": [
+      "subscription intent",
+      "subscriptionId"
+    ],
+    "plain": "The MPP intent for a recurring payment of a fixed `amount` every `periodCount` `periodUnit` (day, week or month). The server collects the first period on activation, returns a `subscriptionId` in the receipt and may collect one renewal per period. Missed periods never add up to extra charges.",
+    "ste": "Subscription is the MPP intent for a payment that occurs one time in each period. The server can collect only one payment in each period.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-intent-subscription"
+    ]
+  },
+  {
+    "id": "tag",
+    "term": "Tag",
+    "aliases": [
+      "tag",
+      "agent-browser-auth",
+      "agent-payer-auth",
+      "web-bot-auth"
+    ],
+    "plain": "The RFC 9421 signature parameter that states what the signature is for. Visa TAP uses `agent-browser-auth` for browsing and `agent-payer-auth` for checkout and payment, Mastercard Agent Pay documents `Agent-pay-auth`, and the Web Bot Auth draft requires `web-bot-auth`. A verifier rejects a signature with a tag it does not expect.",
+    "ste": "The tag parameter tells the purpose of a signature. Visa TAP has one tag for visits to product pages and one tag for payment.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-visa-tap-spec",
+      "src-mcap-dev-level1",
+      "src-wba-draft"
+    ]
+  },
+  {
+    "id": "tempo",
+    "term": "Tempo",
+    "aliases": [
+      "Tempo blockchain",
+      "Tempo mainnet"
+    ],
+    "plain": "A payments blockchain from Tempo Labs, whose team wrote MPP together with Stripe. It has no native gas token: fees are paid in USD TIP-20 stablecoins. Its mainnet chain id is 4217, blocks arrive about every 600 ms, and Simplex BFT consensus gives deterministic finality.",
+    "ste": "Tempo is a blockchain for payments. On Tempo, the fees are in stablecoins, and the chain has deterministic finality.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-specs-repo",
+      "src-stripe-mpp-tempo-fees",
+      "src-stripe-mpp-tempo-connection",
+      "src-stripe-mpp-tempo-consensus"
+    ]
+  },
+  {
+    "id": "tip-20",
+    "term": "TIP-20",
+    "aliases": [
+      "TIP-20 token"
+    ],
+    "plain": "The token standard of the Tempo blockchain, built for stablecoins. TIP-20 tokens use 6 decimals, can carry a transfer memo, and can point to a TIP-403 policy registry for allow and block lists. MPP's `tempo` method names the token by its TIP-20 address in `currency`.",
+    "ste": "TIP-20 is the token standard of the Tempo blockchain. TIP-20 tokens have 6 decimals and can have a memo with each transfer.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-tip20",
+      "src-stripe-mpp-tempo-charge"
+    ]
+  },
+  {
+    "id": "trusted-surface",
+    "term": "Trusted Surface",
+    "aliases": [
+      "TS"
+    ],
+    "plain": "In AP2 v0.2, the user interface that shows the user what they approve and collects consent before a user-signed mandate is created. It must be non-agentic: deterministic code such as part of the agent app, a wallet or issuer app, or a browser or mobile platform. It can also collect risk signals that go into `risk_data`.",
+    "ste": "A Trusted Surface is the user interface that gets the consent of the user for a mandate. A Trusted Surface must not be an agent.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-spec-v02",
+      "src-ap2-implementation"
+    ]
+  },
+  {
+    "id": "ucp-agent-header",
+    "term": "UCP-Agent header",
+    "aliases": [
+      "UCP-Agent",
+      "ucp-agent"
+    ],
+    "plain": "The HTTP request header in which a UCP platform names the URL of its own profile, written as `UCP-Agent: profile=\"...\"` in structured-field dictionary syntax. The business fetches that profile, checks the version and computes the shared set of capabilities. Over MCP the same value goes in `meta[\"ucp-agent\"].profile`.",
+    "ste": "The UCP-Agent header tells the business the address of the profile of the platform. The business reads that profile and finds the shared capabilities.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview",
+      "src-ucp-rest-openapi"
+    ]
+  },
+  {
+    "id": "upto-scheme",
+    "term": "Upto scheme",
+    "aliases": [
+      "upto"
+    ],
+    "plain": "An x402 scheme for metered work where the final price is not known in advance. The client signs a Permit2 authorization for a ceiling amount, and at settlement the server charges the actual amount, which must not exceed that ceiling. A zero charge needs no on-chain transaction.",
+    "ste": "The upto scheme lets the server charge an amount up to a maximum. The client signs the maximum, and the server charges the actual cost after the work.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-scheme-upto-evm"
+    ]
+  },
+  {
+    "id": "uups-proxy",
+    "term": "UUPS proxy",
+    "aliases": [
+      "UUPS",
+      "ERC-1822",
+      "upgradeable proxy",
+      "_authorizeUpgrade"
+    ],
+    "plain": "A Universal Upgradeable Proxy Standard contract keeps its state at a fixed address while the logic contract behind it can be replaced. In UUPS the upgrade function lives in the logic contract, so whoever passes `_authorizeUpgrade` can change the code. The deployed ERC-8004 registries are UUPS proxies with upgrade rights restricted to one owner address.",
+    "ste": "A UUPS proxy is a contract that keeps its address and data when its code changes. The owner of the proxy can replace the code.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-gloss-erc-1822",
+      "src-erc-8004-identity-sol"
+    ]
+  },
+  {
+    "id": "validation-request",
+    "term": "Validation request",
+    "aliases": [
+      "validationRequest",
+      "validationResponse",
+      "requestHash",
+      "Validation Registry"
+    ],
+    "plain": "A call to the ERC-8004 Validation Registry in which an agent's owner asks a named validator to check a piece of work. The request carries a `requestURI` and a `requestHash`, and only that validator can answer with `validationResponse` and a score from 0 to 100. The Validation Registry is specified, but the contracts README lists no official deployment.",
+    "ste": "A validation request asks one validator to check the work of an agent. The validator gives a score from 0 to 100.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-contracts-readme"
+    ]
+  },
+  {
+    "id": "vault-token",
+    "term": "Vault token",
+    "aliases": [
+      "vt_",
+      "DelegatePaymentResponse"
+    ],
+    "plain": "The token returned by an ACP Delegate Payment call, shown with a `vt_` prefix in the spec examples. It stands for the stored card and can be used only by the named merchant, for the named checkout session, within the allowance. The agent passes it to the merchant in `payment_data.instrument.credential.token` when it completes checkout.",
+    "ste": "A vault token is the token that the payment provider returns after delegated payment. The merchant can use the token only within the allowance.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-schema-delegate-payment-20260417",
+      "src-openai-acp-rfc-delegate-payment"
+    ]
+  },
+  {
+    "id": "verifiable-credential",
+    "term": "Verifiable credential",
+    "aliases": [
+      "VC",
+      "verifiable digital credential",
+      "VDC"
+    ],
+    "plain": "A tamper-evident digital claim that an issuer makes about a subject, which anyone can check with the issuer's public key. The W3C Verifiable Credentials Data Model 2.0 is one format, and SD-JWT VC is another; AP2 mandates are issued as SD-JWT credentials. Do not confuse it with an MPP credential, which is a payment proof in an HTTP header.",
+    "ste": "A verifiable credential is a signed claim that an issuer makes about a subject. A verifier can check the claim with the public key of the issuer.",
+    "protocols": [
+      "ap2",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-gloss-vc-2",
+      "src-ap2-spec-v02"
+    ]
+  },
+  {
+    "id": "visa-intelligent-commerce",
+    "term": "Visa Intelligent Commerce",
+    "aliases": [
+      "VIC"
+    ],
+    "plain": "Visa's program and API set for agent commerce, announced on 2025-04-30. It covers agent-specific tokens, cardholder step-up verification and passkey setup, Payment Instructions that bind credential requests to what the user approved, and commerce signals sent back to Visa. Visa presents Trusted Agent Protocol as an enhancement to VIC.",
+    "ste": "Visa Intelligent Commerce (VIC) is the Visa program for payments by AI agents. VIC gives tokens, passkeys and payment instructions to agents.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-vic-dev",
+      "src-visa-vic-pr",
+      "src-visa-tap-overview"
+    ]
+  },
+  {
+    "id": "visa-token-service",
+    "term": "Visa Token Service",
+    "aliases": [
+      "VTS"
+    ],
+    "plain": "Visa's network tokenization service, which replaces a card number with a token for wallets, merchants and other token requestors. The VIC overview lists VTS APIs among the services that Visa's MCP server reaches. Visa sources for TAP talk about VTS and VIC tokens, not MDES, which is Mastercard's equivalent.",
+    "ste": "Visa Token Service (VTS) is the Visa service that replaces a card number with a token. The Visa MCP server gives access to VTS APIs.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-gloss-visa-vts",
+      "src-visa-vic-dev"
+    ]
+  },
+  {
+    "id": "voucher",
+    "term": "Voucher",
+    "aliases": [
+      "cumulative voucher",
+      "cumulativeAmount",
+      "maxClaimableAmount"
+    ],
+    "plain": "A signed off-chain message that raises the total a payee may claim from a payment channel. MPP Tempo sessions send vouchers with a rising `cumulativeAmount`, and the x402 `batch-settlement` scheme uses vouchers with `maxClaimableAmount`. Vouchers cost no fees, and only the latest one matters when the channel settles.",
+    "ste": "A voucher is a signed message that increases the total amount that the payee can claim. The client sends vouchers off the chain, so they cost no fee.",
+    "protocols": [
+      "x402",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session",
+      "src-x402-scheme-batch-evm"
+    ]
+  },
+  {
+    "id": "web-bot-auth",
+    "term": "Web Bot Auth",
+    "aliases": [
+      "webbotauth",
+      "draft-ietf-webbotauth-httpsig-protocol"
+    ],
+    "plain": "An IETF working group and its draft (`draft-ietf-webbotauth-httpsig-protocol-00`, posted 2026-09-01) for automated clients that sign their requests with RFC 9421 and publish keys in a directory. It requires the `web-bot-auth` tag and a covered `Signature-Agent` header. Visa TAP predates the draft and does not conform to it, though Cloudflare describes both card networks' schemes as built on Web Bot Auth.",
+    "ste": "Web Bot Auth is an IETF draft for bots that sign HTTP requests with RFC 9421. The bot publishes its public keys in a directory.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-wba-draft",
+      "src-visa-tap-cf-blog"
+    ]
+  },
+  {
+    "id": "www-authenticate",
+    "term": "WWW-Authenticate",
+    "aliases": [
+      "WWW-Authenticate: Payment",
+      "Payment scheme"
+    ],
+    "plain": "The standard HTTP response header that tells a client how to authenticate. MPP defines a new authentication scheme called `Payment`, so a 402 response carries one or more `WWW-Authenticate: Payment` challenges with `id`, `realm`, `method`, `intent` and `request` parameters. On 2026-10-11 the `Payment` scheme was requested in an Internet-Draft but not yet in the IANA registry.",
+    "ste": "WWW-Authenticate is the HTTP header that tells the client how to authenticate. In MPP, this header contains the payment challenge.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-iana"
+    ]
+  },
+  {
+    "id": "x402version",
+    "term": "x402Version",
+    "aliases": [
+      "protocol version field"
+    ],
+    "plain": "The field in every x402 message that names the protocol version: 1 for the legacy wire format, 2 for the current one.",
+    "ste": "A field that gives the protocol version. The value 2 is the current version.",
+    "protocols": [
+      "x402"
+    ],
+    "sources": [
+      "src-x402-spec-v2",
+      "src-x402-spec-v1"
+    ]
+  }
+]

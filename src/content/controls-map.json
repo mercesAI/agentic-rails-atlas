@@ -71,6 +71,155 @@
       "description": "Can an operator stop an agent's ability to transact at once?"
     }
   ],
-  "cells": [],
+  "cells": [
+    {
+      "protocol": "x402",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "Identity is optional and separate from payment: sign-in-with-x (CAIP-122 wallet proof), auth-hints (OAuth 2.0 with DPoP) and RFC 9421 agent signatures in cloudflare:402.",
+      "sources": [
+        "src-x402-ext-siwx",
+        "src-x402-ext-auth-hints",
+        "src-x402-scheme-batch-cf"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "No registry in x402. ERC-8004 can record that an agent accepts x402; cloudflare:402 needs the signature agent registered with Cloudflare.",
+      "sources": [
+        "src-x402-erc-8004",
+        "src-x402-ext-http-sig",
+        "src-x402-scheme-batch-cf"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "The protocol has no consent object. The browser paywall asks a human in the UI; agents rely on mandates from other protocols such as AP2.",
+      "sources": [
+        "src-x402-sdk-spendcontrols",
+        "src-x402-repo",
+        "src-x402-a2a-spec"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "spending-caps",
+      "support": "partial",
+      "note": "Budgets are out of scope in the spec. The TypeScript client applies spendControls by default (default assets only, $1 per payment); upto signs a ceiling.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-sdk-spendcontrols",
+        "src-x402-scheme-upto-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "The signature covers payTo and the amount; upto also names the one facilitator allowed to settle.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-scheme-upto-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "validAfter, validBefore, Permit2 deadline, maxTimeoutSeconds and Lightning invoice expiry bound every authorization.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-lnbtc"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "revocation",
+      "support": "partial",
+      "note": "A signed exact authorization cannot be recalled before it expires. auth-capture adds void and client reclaim after captureDeadline; batch-settlement channels allow timed withdrawal.",
+      "sources": [
+        "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "The specification defines no step-up or challenge beyond the 402 itself.",
+      "sources": [
+        "src-x402-spec-v2"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Single-use 32-byte nonces enforced by EIP-3009 tokens, Permit2 nonces, cumulative vouchers, and replay stores for Lightning payment hashes.",
+      "sources": [
+        "src-x402-spec-v2",
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-scheme-batch-evm"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "PAYMENT-RESPONSE carries the transaction hash; the optional offer-receipt extension signs offers and receipts (TypeScript only).",
+      "sources": [
+        "src-x402-transport-http-v2",
+        "src-x402-ext-offer-receipt",
+        "src-x402-sdk-features"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "dispute-support",
+      "support": "none",
+      "note": "No dispute process. exact has no refund; auth-capture adds refunds, and third parties such as x402r add arbitration.",
+      "sources": [
+        "src-x402-scheme-exact",
+        "src-x402-scheme-auth-capture",
+        "src-x402-docs-devtools"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "reputation",
+      "support": "external",
+      "note": "None in x402. ERC-8004 feedback can carry proofOfPayment for an x402 payment.",
+      "sources": [
+        "src-x402-erc-8004",
+        "src-x402-erc8004-bp"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Settlements are public on chain but look like ordinary transfers; /supported, Bazaar and x402scan are public; header contents are private.",
+      "sources": [
+        "src-x402-scheme-exact-evm",
+        "src-x402-erc8004-bp",
+        "src-x402-cdp-bazaar",
+        "src-x402scan-repo"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "No protocol kill switch. Clients stop by policy or spendControls; servers stop by removing routes; facilitators can refuse to settle.",
+      "sources": [
+        "src-x402-sdk-spendcontrols",
+        "src-x402-docs-facilitator-concept"
+      ]
+    }
+  ],
   "independentLayerNotes": []
 }

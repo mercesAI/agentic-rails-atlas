@@ -1,1 +1,64 @@
-[]
+[
+  {
+    "from": "x402",
+    "to": "ap2",
+    "type": "embeds",
+    "note": "AP2 can carry x402 as a payment method through the a2a-x402 extension launched on 2025-09-16; its embedded flow targets AP2 v0.1 mandates (CartMandate), which AP2 v0.2 no longer has.",
+    "sources": [
+      "src-x402-google-ap2-blog",
+      "src-x402-a2a-spec",
+      "src-x402-ap2-repo"
+    ]
+  },
+  {
+    "from": "x402",
+    "to": "erc-8004",
+    "type": "complements",
+    "note": "ERC-8004 registration files carry an x402Support flag, feedback files can carry proofOfPayment for an x402 payment, and best practices use agentWallet as the x402 receipt address.",
+    "sources": [
+      "src-x402-erc-8004",
+      "src-x402-erc8004-bp"
+    ]
+  },
+  {
+    "from": "x402",
+    "to": "mastercard-agent-pay",
+    "type": "same-steward",
+    "note": "Mastercard is a Premier member of the x402 Foundation, which runs a card-acceptance working group; no technical link to Agent Pay was found.",
+    "sources": [
+      "src-x402-lf-july",
+      "src-x402-gh-org"
+    ]
+  },
+  {
+    "from": "x402",
+    "to": "stripe-mpp",
+    "type": "compatible-with",
+    "note": "MPP maps x402 exact onto its charge intent, and mppx can serve both protocols on one route; Stripe sits on the x402 TSC and co-created MPP.",
+    "sources": [
+      "src-x402-mpp-vs-x402",
+      "src-x402-tsc"
+    ]
+  },
+  {
+    "from": "x402",
+    "to": "stripe-mpp",
+    "type": "competes-with",
+    "note": "Both offer HTTP 402 machine payments for agents; Visa and Artemis measured MPP far below x402 to 2026-04-21 (secondary report).",
+    "sources": [
+      "src-x402-mpp-vs-x402",
+      "src-x402-forkast-visa"
+    ]
+  },
+  {
+    "from": "x402",
+    "to": "visa-tap",
+    "type": "complements",
+    "note": "The TAP specification defines a browsingIOU object an agent sends when a merchant answered with 402; TAP samples use non-standard X-Payment headers rather than the x402 wire format. Visa is a Premier member of the x402 Foundation.",
+    "sources": [
+      "src-visa-tap-spec",
+      "src-x402-visa-tap-repo",
+      "src-x402-lf-july"
+    ]
+  }
+]
