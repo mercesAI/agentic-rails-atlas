@@ -1,0 +1,10 @@
+{
+  "id": "multi-agent-buys-one-api-call-context",
+  "protocol": "multi",
+  "type": "composition",
+  "title": "An agent buys one API call: actors and protocol boundaries",
+  "caption": "Discovery runs through the x402 Bazaar or ERC-8004 registries; payment is x402 between client, seller, facilitator and token contract; feedback is ERC-8004, with the proof of payment in an off-chain file and only value, decimals, tags and the revoked flag in registry storage. Numbers follow the scenario flow.",
+  "alt": "Flowchart. The client agent finds the seller either through an x402 Bazaar discovery listing or by reading the ERC-8004 Identity Registry, whose agentURI points to a registration file with services and x402Support. The client requests the resource from the seller's resource server, gets a 402, and retries with a signed payment. The resource server asks the x402 facilitator to verify and settle; the facilitator pays the gas and calls transferWithAuthorization on the token contract, which emits Transfer and AuthorizationUsed. The client then publishes a feedback file carrying proofOfPayment to off-chain storage and calls giveFeedback on the ERC-8004 Reputation Registry with the file URI and hash; the registry stores value, decimals, tags and the revoked flag. An indexer or later buyer reads the NewFeedback event, fetches the file and confirms the transfer on chain.",
+  "sourceOfTruth": { "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md", "label": "ERC-8004 specification (Draft, 2026-01-25) and the x402 V2 specification" },
+  "sources": ["src-erc-8004-spec", "src-x402-spec-v2", "src-x402-scheme-exact-evm", "src-x402-ext-bazaar"]
+}

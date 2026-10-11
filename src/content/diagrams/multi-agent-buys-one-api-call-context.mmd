@@ -1,0 +1,34 @@
+flowchart LR
+  subgraph CZ["Client side"]
+    CA["Client agent and wallet"]
+  end
+  subgraph DZ["Discovery (pick one path)"]
+    BZ["x402 Bazaar: GET /discovery/resources"]
+    IR["ERC-8004 Identity Registry: agentURI, agentWallet"]
+    RF["Registration file: services, x402Support"]
+  end
+  subgraph SZ["Seller trust zone (x402)"]
+    RS["Resource server"]
+  end
+  subgraph FZ["Facilitator (x402)"]
+    FA["/verify and /settle, pays gas"]
+  end
+  subgraph PZ["Public chain"]
+    TK["Token contract: Transfer, AuthorizationUsed"]
+    RR["ERC-8004 Reputation Registry: value, decimals, tags, revoked flag"]
+  end
+  subgraph OZ["Off-chain storage"]
+    FF["Feedback file with proofOfPayment"]
+  end
+  RD["Indexer or later buyer"]
+  CA -- "1a find listing" --> BZ
+  CA -- "1b read agent" --> IR
+  IR -. "agentURI" .-> RF
+  CA -- "2 request, 402, signed retry" --> RS
+  RS -- "3 verify, settle" --> FA
+  FA -- "4 transferWithAuthorization" --> TK
+  CA -- "5 publish file" --> FF
+  CA -- "6 giveFeedback with feedbackURI and feedbackHash" --> RR
+  RD -- "7 read NewFeedback" --> RR
+  RD -- "8 fetch file, check txHash" --> FF
+  RD -. "8 confirm transfer" .-> TK
