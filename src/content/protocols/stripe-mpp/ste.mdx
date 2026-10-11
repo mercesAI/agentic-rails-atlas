@@ -1,0 +1,104 @@
+---
+protocol: stripe-mpp
+title: Stripe MPP in Simplified Technical English
+lastVerified: "2026-10-11"
+---
+
+<SteDescription>
+
+MPP is the Machine Payments Protocol. It is an open protocol for payments in HTTP. Tempo Labs and Stripe wrote the protocol together. Thus, MPP is not a protocol of Stripe only.
+
+MPP adds a Payment authentication scheme to HTTP. A server sends status 402 with a challenge. The client pays with the payment method that the challenge names. Then the client sends the request again with a credential. The server verifies the payment and sends a receipt.
+
+The core specification is an individual Internet-Draft at the IETF. It is not an IETF standard. No IETF group controls it. Each payment rail writes the specification for its payment method.
+
+MPP is not only for crypto money. Some payment methods use stablecoins on Tempo or on other networks. The stripe method uses Shared Payment Tokens for cards. The card method from Visa uses encrypted card tokens. The `lightning` method uses Bitcoin.
+
+The server makes the challenge identifier from all of the challenge values with a secret key. Thus, nobody can change the amount or the recipient. Each challenge identifier operates one time only.
+
+In AP2 documents, the letters MPP mean Merchant Payment Processor. That is a different thing.
+
+</SteDescription>
+
+<SteProcedure title="Pay for a resource with MPP (agent)">
+
+1. Send the request to the server.
+2. If the server sends status 402, read the WWW-Authenticate header.
+3. Decode the `request` value of the challenge.
+4. Make sure that the amount, the currency and the recipient are correct.
+5. Make sure that the challenge did not expire.
+6. Do not use the description to make a decision.
+7. Pay with the payment method that the challenge names.
+8. Send the request again. Put the credential in the Authorization header.
+9. If the challenge has the `header` value, put the credential in the Payment-Authorization header.
+10. Read the Payment-Receipt header. Keep the reference value.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT PAY IF THE RECIPIENT IS NOT THE RECIPIENT THAT YOU EXPECT. YOU CANNOT REVERSE A PAYMENT ON A BLOCKCHAIN.
+</SteCaution>
+
+<SteCaution>
+DO NOT WRITE A CREDENTIAL TO A LOG FILE OR TO AN ERROR MESSAGE. A DIFFERENT PERSON CAN USE THE CREDENTIAL TO PAY.
+</SteCaution>
+
+<SteProcedure title="Accept an MPP payment (server)">
+
+1. Select the payment methods that your buyers can use.
+2. Make a secret key of 32 bytes or more for the challenges.
+3. If a request has no credential, send status 402 with a challenge.
+4. Set the Cache-Control header to no-store on the 402 response.
+5. When a credential arrives, calculate the challenge identifier again.
+6. Make sure that nobody used the challenge identifier before.
+7. Make sure that the challenge did not expire.
+8. Verify the payment proof with the payment method.
+9. If a check fails, send status 402 with a new challenge.
+10. Record the challenge identifier as used.
+11. Send the resource with the Payment-Receipt header.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT SEND THE RESOURCE BEFORE THE PAYMENT IS VERIFIED. AN UNPAID CLIENT CAN GET THE RESOURCE.
+</SteCaution>
+
+<SteProcedure title="Close a payment channel (agent)">
+
+1. Send a credential with the close action and the last voucher.
+2. Read the receipt. Make sure that the spent amount is correct.
+3. If the server does not close the channel, call requestClose on the network.
+4. Wait 16 minutes or more.
+5. Call withdraw to get the remaining money back.
+
+</SteProcedure>
+
+<SteCaution>
+DO NOT KEEP A PAYMENT CHANNEL OPEN WHEN YOU DO NOT USE IT. A CHANNEL DOES NOT EXPIRE, AND THE DEPOSIT STAYS LOCKED.
+</SteCaution>
+
+<SteNote>
+The deposit is the maximum amount that you can lose in a session.
+</SteNote>
+
+<SteNote>
+Session is not a standard intent. Each payment method defines its own session.
+</SteNote>
+
+<SteTerms>
+
+- **challenge**: The data in the WWW-Authenticate header that tells the client the price and the payment method.
+- **credential**: The data that the client sends to show that it paid. Anyone who has it can use it.
+- **receipt**: The data in the Payment-Receipt header that shows a successful payment.
+- **payment method**: The specification for one payment rail, for example tempo, stripe or card.
+- **intent**: The type of payment, for example charge or subscription.
+- **charge**: A payment of one amount one time.
+- **subscription**: A payment of one amount for each period.
+- **session**: A series of small payments from a deposit in a payment channel.
+- **voucher**: A signed note that gives the total amount that the client used.
+- **payment channel**: An escrow on the network that holds the deposit for a session.
+- **Shared Payment Token**: A Stripe token that lets a seller charge a card with limits.
+- **verify (TV)**: To make sure that a payment proof is correct.
+- **settle (TV)**: To send a payment to the network so that the money moves.
+
+</SteTerms>
