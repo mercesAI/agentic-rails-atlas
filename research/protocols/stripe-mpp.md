@@ -1,6 +1,6 @@
 # Stripe MPP (Machine Payments Protocol) research dossier
 
-Slug: `stripe-mpp`. Research date (accessed date for everything below): 2026-10-11. US spelling. Dates are YYYY-MM-DD. Status: in progress (sections are appended as they are finished).
+Slug: `stripe-mpp`. Research date (accessed date for everything below): 2026-10-11. US spelling. Dates are YYYY-MM-DD. Status: complete for 2026-10-11; 80 sources, 201 claims.
 
 Repositories read (all under `research/vendor/`):
 
@@ -210,7 +210,7 @@ IANA check (2026-10-11): neither the "Payment" scheme nor the three header field
 
 1. 402 challenge with `method="card"`, `acceptedNetworks`, `merchantName` and the server's RSA encryption key (`encryptionJwk`, or `jwksUri` plus `kid` on the realm's origin) [src-stripe-mpp-card-charge].
 2. Client sends the card identifier and full challenge context to its Client Enabler (illustrative `POST /v1/payment-tokens`) [src-stripe-mpp-card-charge].
-3. Client Enabler provisions a network token and cryptogram (for example through Visa Intelligent Commerce), encrypts them as a JWE for the server key, and returns the credential payload [src-stripe-mpp-card-charge] [src-stripe-mpp-docs-card].
+3. Client Enabler provisions a network token and cryptogram (for example through Visa Intelligent Commerce; Visa's own integration guide says processors with a VIC integration can act as Client Enablers), encrypts them as a JWE for the server key, and returns the credential payload [src-stripe-mpp-card-charge] [src-stripe-mpp-docs-card] [src-stripe-mpp-visa-mcp-guide].
 4. Client retries with `Authorization: Payment`; the spec says the client may add Trusted Agent Protocol signature headers for extra identity assurance [src-stripe-mpp-card-charge].
 5. Server forwards `encryptedPayload` to its Server Enabler, which decrypts and requests authorization from the network; on approval the server returns 200 with a receipt containing `challengeId` and the authorization `reference`; on decline it SHOULD issue a fresh 402 [src-stripe-mpp-card-charge].
 
@@ -395,7 +395,7 @@ Dispute on the seed figure: the seed says MPPScan figures "cited by Merit System
 
 ## Relations to the other seven protocols
 
-- **x402.** Competing and interoperable HTTP 402 designs. Header mapping: x402 `PAYMENT-REQUIRED` to `WWW-Authenticate: Payment`, `PAYMENT-SIGNATURE` to `Authorization: Payment` (or `Payment-Authorization`), `PAYMENT-RESPONSE` to `Payment-Receipt`. x402 `exact` maps to MPP `charge`; x402 `upto` and EVM `batch-settlement` are the comparable usage-based mechanisms to MPP `session`. `mppx` can serve both on one route and its x402 headers are implemented in `src/x402/Header.ts`; Cloudflare calls MPP backwards compatible with x402. Stripe sits on both: it co-authors MPP and is an x402 Foundation TSC member (see the x402 dossier, clm-x402-213 and clm-x402-214). The discovery draft cites x402scan's OpenAPI-first approach and `/.well-known/x402` as prior art, and both explorers are run by Merit Systems [src-stripe-mpp-vs-x402] [src-stripe-mpp-mppx-changelog] [src-stripe-mpp-cloudflare] [src-stripe-mpp-discovery].
+- **x402.** Competing and interoperable HTTP 402 designs. Header mapping: x402 `PAYMENT-REQUIRED` to `WWW-Authenticate: Payment`, `PAYMENT-SIGNATURE` to `Authorization: Payment` (or `Payment-Authorization`), `PAYMENT-RESPONSE` to `Payment-Receipt`. x402 `exact` maps to MPP `charge`; x402 `upto` and EVM `batch-settlement` are the comparable usage-based mechanisms to MPP `session`. `mppx` can serve both on one route and its x402 headers are implemented in `src/x402/Header.ts`; Cloudflare calls MPP backwards compatible with x402. Stripe sits on both: it co-authors MPP and is an x402 Foundation TSC member, represented by Steve Kaliski, who is also an MPP core author (see the x402 dossier, clm-x402-213 and clm-x402-214) [src-stripe-mpp-x402-tsc]. The discovery draft cites x402scan's OpenAPI-first approach and `/.well-known/x402` as prior art, and both explorers are run by Merit Systems [src-stripe-mpp-vs-x402] [src-stripe-mpp-mppx-changelog] [src-stripe-mpp-cloudflare] [src-stripe-mpp-discovery].
 - **Visa TAP.** Two links. (1) Visa's `card` method spec says a client may add Trusted Agent Protocol signature headers; this wording has been in the file since the 2026-03-18 public commit. (2) Visa's 2026-03-18 announcement says the card spec and SDK are built on Visa Intelligent Commerce and TAP. Separately, `mppx` added TAP and Web Bot Auth request-attestation profiles (merged 2026-08-04, blog 2026-08-12). The `mpp-card` 0.1.8 package contains no TAP signing code [src-stripe-mpp-card-history] [src-stripe-mpp-visa-card] [src-stripe-mpp-blog-identity] [src-stripe-mpp-mpp-card-pkg].
 - **OpenAI ACP.** No protocol cross-reference in the cloned ACP repository [src-stripe-mpp-ucp-repo]. Shared component: Stripe Shared Payment Tokens, which the `stripe` MPP method carries in `payload.spt` and which Stripe also uses for agentic checkout; Stripe presents MPP, ACP and x402 support side by side in its agentic commerce offering [src-stripe-mpp-stripe-charge] [src-stripe-mpp-stripe-blog].
 - **Google UCP.** No documented relation: the cloned UCP repositories contain no reference to MPP, paymentauth or `mppx` [src-stripe-mpp-ucp-repo].
@@ -496,7 +496,7 @@ Dispute on the seed figure: the seed says MPPScan figures "cited by Merit System
 | MCP error `-32042`, `_meta` credential and receipt | confirmed | src-stripe-mpp-mcp-transport | plus `-32043` |
 | Discovery optional via OpenAPI extensions | confirmed | src-stripe-mpp-discovery | |
 | x402 header and scheme mapping; `mppx` serves both | confirmed | src-stripe-mpp-vs-x402, src-stripe-mpp-mppx-changelog | |
-| Tempo mainnet 2026-03-18, chain 4217, testnet Moderato 42431 | confirmed | src-stripe-mpp-tempo-connection, src-stripe-mpp-tempo-mainnet | |
+| Tempo mainnet 2026-03-18, chain 4217, testnet Moderato 42431 | confirmed | src-stripe-mpp-tempo-connection, src-stripe-mpp-tempo-mainnet, src-stripe-mpp-chainlist | chain registry also lists deprecated testnet Andantino 42429 |
 | Fees in USD stablecoins | confirmed | src-stripe-mpp-tempo-fees | |
 | About 500 ms finality | corrected | src-stripe-mpp-tempo-consensus | blocks about every 600 ms (500 ms builder loop plus latency), deterministic finality, Simplex BFT |
 | TIP-20 with 6 decimals | confirmed | src-stripe-mpp-tempo-tip20 | |
