@@ -684,3 +684,72 @@ Visa also extends VIC beyond its own protocol: it authored the card payment meth
 **Sources.** src-orbit-shopify-news; src-orbit-shopify-help-requirements; src-orbit-shopify-help-cx; src-orbit-shopify-changelog; src-ucp-ppcland-shopify; src-openai-product-discovery.
 
 ---
+
+## ★ NPCI UPI agentic payments
+
+- **id:** `npci-upi-agentic`
+- **Category:** card-wallet-commerce
+- **What it is:** Pilots in which AI assistants (first ChatGPT, then Claude) pay Indian merchants over UPI, using UPI Reserve Pay so the user approves one spending limit for a merchant once and the agent then completes several debits within it.
+- **Steward:** National Payments Corporation of India (NPCI, operator of UPI), with Razorpay as payment aggregator and OpenAI and Anthropic as AI platform partners.
+- **Status (as of 2026-10-11):** Pilot. ChatGPT pilot announced 2025-10-09 with Axis Bank and Airtel Payments Bank as banking partners and Bigbasket among the first merchants; Claude pilot announced 2026-02-20 at the India AI Impact Summit with Zomato, Swiggy and Zepto, for a small group of users. A national framework (reported as a "Unified Agentic Protocol" with an AI-agent registry) has been reported in September 2026 but not confirmed by an NPCI publication found here (reported).
+- **Latest version:** Claude pilot (2026-02-20).
+- **Primary links:**
+  - https://razorpay.com/newsroom/razorpay-npci-and-openai-come-together-to-launch-agentic-payments-ushering-in-ai-driven-commerce-at-national-scale/ (ChatGPT pilot release)
+  - https://razorpay.com/newsroom/razorpay-npci-launch-agentic-payments-on-claude-powering-zomato-swiggy-zepto-at-the-india-ai-impact-summit/ (Claude pilot release)
+  - https://razorpay.com/blog/upi-reserve-pay/ (Reserve Pay on NPCI's Single Block Multi Debit framework)
+  - https://www.npci.org.in/ (NPCI)
+
+**Description.** UPI is India's real-time account-to-account payment system, run by NPCI. Its agentic pilots do not add a new protocol on the wire; they reuse two UPI features that let a user hand bounded authority to someone else. UPI Reserve Pay, which Razorpay describes as built on NPCI's Single Block Multi Debit (SBMD) framework, lets a user block an amount for a merchant once (with UPI PIN) and then allows several debits against that block without another PIN prompt. UPI Circle lets a primary user delegate UPI payments to a secondary user within limits. Together they give an AI agent a pre-authorized, capped and merchant-scoped budget.
+
+The first pilot was announced on 2025-10-09 by Razorpay, NPCI and OpenAI as "Agentic Payments" on ChatGPT, described as being in the pilot stage. Razorpay's banking partners were Axis Bank and Airtel Payments Bank, and Bigbasket (Tata group) was among the first merchants; TechCrunch reported Vi mobile recharges as another. NPCI's growth executive director was quoted in the release. Razorpay's newsroom page carries a 2025-10-30 publication timestamp, while the joint announcement and news coverage are dated 2025-10-09; use 2025-10-09 for the announcement.
+
+On 2026-02-20, at the India AI Impact Summit, Razorpay and NPCI brought the same model to Anthropic's Claude: users can order food, groceries and essentials from Zomato, Swiggy and Zepto inside the conversation, approving one spending limit per merchant through Reserve Pay. Razorpay said this pilot runs with a small group of users. Razorpay's 2026-03-12 blog post on Reserve Pay offers Reserve Pay to merchants through early access, with agentic payments as one use.
+
+What is not yet public is a national rulebook. In July to September 2026 Indian and international outlets reported that NPCI was preparing a framework for agent payments on UPI, with an AI-agent registry and phased rollout, expected around Global Fintech Fest 2026 (September 8 to 11); reported caps vary between outlets and should not be shown as rules. No NPCI circular or press release confirming the framework, limits or liability was found on 2026-10-11, so the site should show it as reported only.
+
+Compared with the eight protocols, UPI agentic payments are closest in spirit to AP2 mandates and to card-network agentic tokens: a user-approved, capped, merchant-scoped authority that the agent spends. The difference is that the scope is enforced by the payment system itself (the blocked amount in the user's bank account) rather than by a signed credential or a token's controls.
+
+**Status history.**
+- 2025-10-09: Razorpay, NPCI and OpenAI announce the ChatGPT agentic payments pilot on UPI.
+- 2026-02-20: Razorpay and NPCI announce the Claude pilot (Zomato, Swiggy, Zepto).
+- 2026-03-12: Razorpay describes Reserve Pay as built on NPCI's SBMD framework.
+- 2026-09: NPCI agent registry and framework reported around Global Fintech Fest 2026 (reported, not confirmed by NPCI).
+
+**Relations to the eight.**
+- ap2: competes-with. Different mechanism for the same job (user-approved, capped agent spending); no reference in either direction.
+- openai-acp: no documented relation. The ChatGPT pilot is an OpenAI partnership; the releases do not say it uses ACP.
+- Other six: no documented relation.
+
+**Sources.** src-orbit-npci-chatgpt-pilot; src-orbit-npci-claude-pilot; src-orbit-npci-reserve-pay; src-orbit-npci-techcrunch; src-orbit-npci-registry-report.
+
+---
+
+## Amazon v. Perplexity (Comet shopping agent)
+
+- **id:** `amazon-v-perplexity`
+- **Category:** legal-policy
+- **What it is:** A US lawsuit in which Amazon sued Perplexity under the federal Computer Fraud and Abuse Act (CFAA) and California's CDAFA over Perplexity's Comet browser agent logging in to and shopping on Amazon.com for users; the first appellate ruling on whether an AI agent acting for a user accesses a site "without authorization".
+- **Steward:** US District Court for the Northern District of California (No. 3:25-cv-09514-MMC, Judge Maxine M. Chesney); US Court of Appeals for the Ninth Circuit (No. 26-1444).
+- **Status (as of 2026-10-11):** Preliminary injunction vacated; case remanded and continuing in the district court. The Ninth Circuit opinion (filed 2026-08-04; Judges Milan D. Smith Jr. and Eric C. Tung, and District Judge John Charles Hinderaker by designation; opinion by Judge Smith) held that Amazon was unlikely to succeed on its CFAA and CDAFA claims because, on these facts, the user rather than Perplexity accessed Amazon, using the agent as a tool, and that the equitable factors favored Perplexity. The court described its holding as narrow and tied to the facts before it.
+- **Latest version:** Ninth Circuit opinion, 2026-08-04.
+- **Primary links:**
+  - https://cdn.ca9.uscourts.gov/datastore/opinions/2026/08/04/26-1444.pdf (Ninth Circuit opinion)
+  - https://www.courtlistener.com/docket/71874820/amazoncom-services-llc-v-perplexity-ai-inc/ (district docket, CourtListener)
+  - https://www.courtlistener.com/docket/72502129/amazoncom-services-llc-v-perplexity-ai-inc/ (appeal docket, CourtListener)
+
+**Card data.** Amazon filed its complaint and a motion for a preliminary injunction in November 2025 (docket opened 2025-11-04). After a March 2026 hearing, the district court granted the injunction on 2026-03-09 (date per GeekWire and Decrypt; reported): it barred Comet's agent from password-protected areas of Amazon and ordered deletion of collected Amazon customer data, with a seven-day administrative stay. Perplexity appealed (appeal docketed 2026-03-11) and the Ninth Circuit stayed the injunction pending appeal and expedited the case; it was argued on 2026-06-11 in Seattle. Amici included the ACLU and the Knight First Amendment Institute, the Electronic Frontier Foundation with Mozilla and others, the Software and Information Industry Association, the National Retail Federation, Digital Content Next, the News/Media Alliance and Airlines for America. Commentators note that the ruling leaves site operators with terms of service and technical measures, which is where agent identity schemes such as Visa TAP, Mastercard Agent Pay signatures and Web Bot Auth come in.
+
+**Status history.**
+- 2025-11-04: Amazon files suit and moves for a preliminary injunction (N.D. Cal.).
+- 2026-03-09: preliminary injunction granted, seven-day administrative stay (reported date).
+- 2026-03-11: appeal docketed in the Ninth Circuit (No. 26-1444); stay pending appeal later granted.
+- 2026-06-11: argued and submitted.
+- 2026-08-04: injunction vacated and case remanded.
+
+**Relations to the eight.**
+- visa-tap, mastercard-agent-pay: complements. Not parties to the case; the dispute is about unidentified agent access, which signed agent identification at the merchant edge is designed to address. Context only, no source links the case to either program.
+- Other six: no documented relation.
+
+**Sources.** src-orbit-amazon-perplexity-ca9; src-orbit-amazon-perplexity-dockets; src-orbit-amazon-perplexity-geekwire; src-orbit-amazon-perplexity-decrypt; src-orbit-amazon-perplexity-jonesday.
+
+---
