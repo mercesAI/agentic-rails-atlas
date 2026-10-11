@@ -192,3 +192,43 @@ Minor presentation inconsistency: the decoded SD-JWT in ap2-human-present.json s
 | v0.1 names | pass | lib/v01.ts | every snake_case name found at tag v0.1.0 except scenario ids |
 | "Teaching simplification" label | pass | Playground.tsx:82; lib/mandates.ts:11, 153; lib/v01.ts:6 | present where SD-JWT chaining and the reference hash are simplified |
 | Other snake_case strings | pass | fixtures, scenario ids, CSS classes | not protocol identifiers; `com.example.loyalty_tier` is a deliberately unknown constraint type following the spec's rDNS advice |
+
+## Check 3: dates, versions and numbers
+
+Tags (`gh api repos/google-agentic-commerce/AP2/tags` and `/releases`): `v0.1.0` -> bb57b6b, release published 2025-09-16T12:32Z; `v0.2.0` -> b4587ac, release published 2026-04-28T12:40Z. The frontmatter `latestVersion` (v0.2.0, 2026-04-28) and `firstAnnounced` (2025-09-16) match. Spec title "Agentic Payment Protocol (v0.2)" confirmed at `docs/ap2/specification.md:1`.
+
+Result: 31 items checked, 29 pass, 2 fail (the same pull-request count in two places).
+
+| Item | Verdict | Evidence | Note |
+| --- | --- | --- | --- |
+| frontmatter firstAnnounced 2025-09-16 | pass | launch post dated September 16, 2025 | |
+| frontmatter latestVersion v0.2.0, 2026-04-28 | pass | gh releases v0.2.0 2026-04-28T12:40Z | |
+| timeline 2025-04-29 FIDO Payments WG | pass | fidoalliance.org PWG release "April 29, 2025" | |
+| timeline 2025-05-30 repository created | pass | gh api repos: created_at 2025-05-30T19:37Z | |
+| timeline 2025-09-16 announced, v0.1.0 | pass | launch post; release v0.1.0 | |
+| timeline 2025-10-30 Tether, Solana, OKX | pass | commit b43b072 2025-10-30 (PR 103) | |
+| timeline 2025-11-04 a2a-x402 v0.2 | pass | a2a-x402 PR 49 merged 2025-11-04T01:10Z | |
+| timeline 2025-12-15 x402 in Python samples | pass | PR 121 merged 2025-12-15T22:19Z | |
+| timeline 2026-01-11 UCP ships with AP2 extension | pass | UCP tag v2026-01-11 tree has docs/specification/ap2-mandates.md; first commit 2026-01-11 | the GitHub release object for v2026-01-11 was published 2026-01-23; the tag date is correct |
+| timeline 2026-01-30 arXiv:2601.22569 | pass | export.arxiv.org published 2026-01-30 | |
+| timeline 2026-02-06 arXiv:2602.06345 | pass | export.arxiv.org published 2026-02-06 | |
+| timeline 2026-04-22 Delegate SD-JWT | pass | datatracker API time 2026-04-22T04:45Z | HTML page shows 2026-04-21 (US time) |
+| timeline 2026-04-28 v0.2.0 and FIDO donation | pass | release; blog.google Apr 28, 2026; FIDO PR April 28, 2026 | |
+| timeline 2026-04-29 last commit | pass | e1ea56d 2026-04-29T16:51Z | |
+| timeline 2026-05-19 Google plans AP2 in products | pass | blog.google May 19, 2026 | |
+| timeline 2026-05-26 issue 268 opened | pass | created_at 2026-05-26T20:53Z | |
+| timeline 2026-08-24 arXiv:2608.23858 | pass | export.arxiv.org published 2026-08-24 | |
+| timeline 2026-08-25 UCP rename | pass | UCP commit 0b9d7c40 2026-08-25; release v2026-08-25 | |
+| timeline 2026-09-04 vcap -01 | pass | datatracker | |
+| timeline 2026-09-10 arXiv:2609.11757 | pass | export.arxiv.org published 2026-09-10 | |
+| timeline 2026-10-03 TypeScript SDK PR closed | pass | PR 305 closed 2026-10-03T09:44Z, not merged | |
+| changedRecently 2026-04-22, 04-28, 05-19, 05-27, 08-24, 08-25, 09-04 (7 rows) | pass | as above; issue 268 comment 2026-05-27T10:32Z | |
+| changedRecently 2026-04-29 "63 community pull requests opened since then, none merged" | **fail** | gh search: PR 246 created 2026-04-29T16:38Z, merged 16:51Z (it is commit e1ea56d) | 62 PRs were opened after e1ea56d, none merged; or keep 63 and say "one merged (PR 246, the last commit)". |
+| ecosystem.metrics ap2-launch-orgs "more than 60" | pass | launch post | |
+| ecosystem.metrics ap2-partners-launch 56 | pass | partners.md at e66fc0b: 56 list entries | |
+| ecosystem.metrics ap2-partners-final 125 | pass | partners.md at 61f5de4 (2026-02-09): 125 list entries | |
+| ecosystem.metrics ap2-gh-stars 3216 | pass | gh api 3218 now; asOf 2026-10-11 | normal drift |
+| ecosystem.metrics ap2-gh-forks 510 | pass | gh api 510 | |
+| ecosystem.metrics ap2-prs-since-v02 "63 opened, 0 merged" | **fail** | as above | Same correction. |
+| ecosystem.metrics ap2-commits-since 0 | pass | no commit after e1ea56d | |
+| ecosystem.metrics ap2-production "none found" | pass | FAQ, arXiv:2608.23858, issue 345 marked disputed | |
