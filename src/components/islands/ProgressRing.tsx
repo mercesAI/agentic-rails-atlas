@@ -46,6 +46,7 @@ export default function ProgressRing({ slugs = [], sectionsPer = 20, size = 56, 
     <figure className="progress-ring" aria-label={`${label}: ${text}`}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" focusable="false">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={stroke} />
+        {ratio > 0 && (
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -57,6 +58,7 @@ export default function ProgressRing({ slugs = [], sectionsPer = 20, size = 56, 
           strokeDasharray={`${c * ratio} ${c}`}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
+        )}
       </svg>
       <figcaption>
         <span className="progress-ring__value">{text}</span>
