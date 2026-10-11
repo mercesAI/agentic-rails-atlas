@@ -1,0 +1,40 @@
+---
+protocol: fixture
+title: Deliberate STE violations
+---
+
+<SteDescription>
+The server doesn't keep the key.
+
+The facilitator checks the signature; the server sends the response.
+
+The server may return status 402 when the payment is missing.
+
+The client reads the payment channel settlement batch proof.
+
+The facilitator is sending the transaction to the chain.
+
+The payment is settled by the facilitator.
+
+The client sends one request to the server and the server answers with a status code and a header that lists every payment option that it accepts today.
+
+One. Two. Three. Four. Five. Six. Seven.
+</SteDescription>
+
+<SteProcedure title="Violations in a procedure">
+
+1. The client sends the request to the server.
+2. The header is read by the client.
+3. Start signing the payload.
+4. Set up the wallet.
+5. Send the request to the server and then wait for the response before you read all of the headers again now.
+
+</SteProcedure>
+
+<SteNote>
+NOTE: The server returns status 402 if the payment is missing.
+</SteNote>
+
+<SteTerms>
+- **facilitator**: The service that checks and settles a payment for the server.
+</SteTerms>

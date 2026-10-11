@@ -157,7 +157,7 @@ const STATIVE = new Set([
 
 interface VerbJson {
   text: string;
-  verb: { root: string; auxiliary: string; grammar: { form: string } };
+  verb?: { root?: string; auxiliary?: string; grammar?: { form?: string } };
 }
 
 export function checkVerbs(seg: Segment, ctx: SentenceContext): Flag[] {
@@ -165,13 +165,16 @@ export function checkVerbs(seg: Segment, ctx: SentenceContext): Flag[] {
   const d = doc(seg);
   const verbs = d.verbs().json() as VerbJson[];
   const lowered = taggerText(seg).toLowerCase();
+  let passiveFound = false;
   for (const v of verbs) {
-    const form = v.verb.grammar.form;
-    const root = v.verb.root.replace(/[^a-z]/gi, '').toLowerCase();
+    const form = v.verb?.grammar?.form ?? '';
+    const auxiliary = v.verb?.auxiliary ?? '';
+    const root = (v.verb?.root ?? '').replace(/[^a-z]/gi, '').toLowerCase();
     if (form.startsWith('passive')) {
       const hasAgent = new RegExp(`\\b${root}\\s+by\\b`).test(lowered);
       if (STATIVE.has(root) && !hasAgent) continue;
       if (!isProcedural(ctx.blockType) && ctx.agentUnknown) continue;
+      passiveFound = true;
       out.push(
         flag(
           'passive-voice',
@@ -181,7 +184,7 @@ export function checkVerbs(seg: Segment, ctx: SentenceContext): Flag[] {
           `"${v.text.trim()}" is passive. Use the active voice and name the agent.`,
         ),
       );
-      if (/\b(has|have|had) been\b/.test(v.verb.auxiliary)) {
+      if (/\b(has|have|had) been\b/.test(auxiliary)) {
         out.push(flag('verb-form', 'error', seg, ctx, `"${v.text.trim()}" uses a perfect tense. Use a simple tense.`));
       }
       continue;
@@ -192,8 +195,27 @@ export function checkVerbs(seg: Segment, ctx: SentenceContext): Flag[] {
       );
     }
   }
+  // Fallback for participles the tagger misses ("is read by"): a form of "be",
+  // at most one word, a participle, then a "by" agent phrase.
+  if (!passiveFound) {
+    const m = PASSIVE_BY_RE.exec(lowered);
+    if (m && !(ctx.agentUnknown && !isProcedural(ctx.blockType))) {
+      out.push(
+        flag(
+          'passive-voice',
+          isProcedural(ctx.blockType) ? 'error' : 'warning',
+          seg,
+          ctx,
+          `"${m[0].replace(/\s+by$/, '')}" is passive. Use the active voice and name the agent.`,
+        ),
+      );
+    }
+  }
   return out;
 }
+
+const PASSIVE_BY_RE =
+  /\b(?:is|are|was|were|be|been)\s+(?:\w+\s+)?(?:\w+ed|\w+en|read|sent|set|put|made|found|kept|paid|sold|built|held|left|lost|shown|done|given|taken|known|written|sent|bound|run|split|cut)\s+by\b/;
 
 // ---------------------------------------------------------------------------
 // Contractions, semicolons, em dashes, Latin abbreviations (raw-text checks)
