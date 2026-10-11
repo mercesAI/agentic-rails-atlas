@@ -1,0 +1,16 @@
+{
+  "id": "mastercard-agent-pay-vi-layers",
+  "protocol": "mastercard-agent-pay",
+  "type": "architecture",
+  "title": "Verifiable Intent layer stack with lifetimes",
+  "caption": "Each layer binds the key that signs the next through the cnf claim. Immediate mode stops at L2 with final values; Autonomous mode adds L3a for the network and L3b for the merchant, linked by checkout_hash. Lifetimes are the spec recommendations.",
+  "alt": "Flowchart from top to bottom. L1, signed by the issuer, typ sd+jwt, about one year, binds the user key. It leads either to L2 Immediate, typ kb-sd-jwt, 15 minutes, final checkout and payment values, user present; or to L2 Autonomous, typ kb-sd-jwt+kb, 24 hours to 30 days, constraints and the agent key. L2 Autonomous leads to L3a, payment mandate to the network, and L3b, checkout mandate to the merchant, each 5 minutes recommended and 1 hour maximum. L3a transaction_id equals L3b checkout_hash.",
+  "sourceOfTruth": {
+    "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+    "label": "Verifiable Intent credential format, sections 2 and 7"
+  },
+  "sources": [
+    "src-mcap-vi-format",
+    "src-mcap-vi-spec"
+  ]
+}

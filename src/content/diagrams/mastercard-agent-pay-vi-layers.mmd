@@ -1,0 +1,11 @@
+flowchart TB
+  L1["L1 credential: issuer signs, sd+jwt, about 1 year, binds user key"]
+  L2I["L2 Immediate: user signs, kb-sd-jwt, 15 minutes, final values"]
+  L2A["L2 Autonomous: user signs, kb-sd-jwt+kb, 24 hours to 30 days, constraints and agent key"]
+  L3A["L3a payment mandate to network: agent signs, 5 minutes, max 1 hour"]
+  L3B["L3b checkout mandate to merchant: agent signs, 5 minutes, max 1 hour"]
+  L1 -- "cnf user key" --> L2I
+  L1 -- "cnf user key" --> L2A
+  L2A -- "cnf agent key" --> L3A
+  L2A -- "cnf agent key" --> L3B
+  L3A <-. "transaction_id equals checkout_hash" .-> L3B

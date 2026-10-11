@@ -1,0 +1,107 @@
+{
+  "id": "mastercard-agent-pay-token-lifecycle",
+  "protocol": "mastercard-agent-pay",
+  "title": "Agentic token lifecycle (as described, not a published state model)",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "sources": [
+    "src-mcap-dev-rails",
+    "src-mcap-dev-level1",
+    "src-mcap-launch-2025",
+    "src-mcap-stripe-spt-2026"
+  ],
+  "states": [
+    {
+      "id": "agent-registered",
+      "label": "Agent registered",
+      "initial": true,
+      "note": "Public key in the Mastercard key directory."
+    },
+    {
+      "id": "agent-certified",
+      "label": "Agent certified",
+      "note": "Security review passed; on the trusted agent list."
+    },
+    {
+      "id": "consumer-authorized",
+      "label": "Consumer authorized",
+      "note": "Consumer authenticated (passkeys in regional pilots) and set limits."
+    },
+    {
+      "id": "token-provisioned",
+      "label": "Token provisioned",
+      "note": "Single-use, merchant-specific or time-limited."
+    },
+    {
+      "id": "presented",
+      "label": "Presented at checkout",
+      "note": "Typed into a card form or sent through a merchant API."
+    },
+    {
+      "id": "authorized",
+      "label": "Authorized",
+      "terminal": true,
+      "note": "Issuer approved."
+    },
+    {
+      "id": "declined",
+      "label": "Declined",
+      "terminal": true,
+      "note": "Issuer or network declined. Response codes are not published."
+    },
+    {
+      "id": "expired-or-revoked",
+      "label": "Expired or no longer usable",
+      "terminal": true,
+      "note": "Inferred from time-limited and single-use tokens. Mastercard publishes no revocation API or state names."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "agent-registered",
+      "to": "agent-certified",
+      "trigger": "Security review and certification pass",
+      "specRef": "The Rails for Agentic Commerce"
+    },
+    {
+      "from": "agent-certified",
+      "to": "consumer-authorized",
+      "trigger": "Consumer authenticates with the platform and authorizes the agent",
+      "specRef": "Level 1 guide"
+    },
+    {
+      "from": "consumer-authorized",
+      "to": "token-provisioned",
+      "trigger": "Platform requests an agentic token",
+      "apiCall": "Not published",
+      "specRef": "Level 1 guide"
+    },
+    {
+      "from": "token-provisioned",
+      "to": "presented",
+      "trigger": "Agent fills the card form or calls the merchant API",
+      "specRef": "Level 1 and Level 3 guides"
+    },
+    {
+      "from": "presented",
+      "to": "authorized",
+      "trigger": "Network detokenizes and issuer approves",
+      "apiCall": "Card authorization message"
+    },
+    {
+      "from": "presented",
+      "to": "declined",
+      "trigger": "Outside token limits or issuer declines",
+      "apiCall": "Card authorization message"
+    },
+    {
+      "from": "token-provisioned",
+      "to": "expired-or-revoked",
+      "trigger": "Time window passes or single use consumed"
+    },
+    {
+      "from": "authorized",
+      "to": "expired-or-revoked",
+      "trigger": "Single-use token cannot be used again"
+    }
+  ]
+}

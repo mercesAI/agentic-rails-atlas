@@ -1,0 +1,147 @@
+{
+  "id": "mastercard-agent-pay-enrollment-provisioning",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersionDate": "2026-10-11",
+  "title": "Agent enrollment, certification and token provisioning",
+  "summary": "Before any purchase, the agent developer registers a public key and passes a Mastercard security review, merchants register through their acquirer, and the consumer authorizes the agent so the platform can request a scoped agentic token. Mastercard documents these steps in prose only.",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    },
+    {
+      "id": "directory",
+      "label": "Mastercard key directory",
+      "kind": "registry"
+    },
+    {
+      "id": "consumer",
+      "label": "Consumer",
+      "kind": "human"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "acquirer",
+      "label": "Acquirer or PSP",
+      "kind": "psp"
+    },
+    {
+      "id": "issuer",
+      "label": "Issuer",
+      "kind": "issuer"
+    }
+  ],
+  "sources": [
+    "src-mcap-dev-rails",
+    "src-mcap-dev-level1",
+    "src-mcap-latam-2026",
+    "src-mcap-launch-2025",
+    "src-mcap-trust-2026"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "directory",
+      "label": "Register agent public key",
+      "detail": "The agent developer creates a key pair and registers the public key in the Mastercard Agent Pay key directory during onboarding.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      }
+    },
+    {
+      "n": 2,
+      "from": "network",
+      "to": "agent",
+      "label": "Security review and certification",
+      "detail": "Mastercard checks that the agent authenticates consumers properly, uses tokenized credentials, never stores raw card data, captures intent accurately and follows privacy rules. Since 2026-09-30 Skyfire is named as a Know Your Agent partner.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/ai-revolution/14/index.md"
+      },
+      "failures": [
+        {
+          "condition": "Agent not registered or not certified",
+          "outcome": "It cannot transact through the network"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "network",
+      "to": "network",
+      "label": "Add to trusted agent list",
+      "detail": "Certified agents join trusted agent lists maintained by the network, which merchants rely on through signature verification.",
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/ai-revolution/14/index.md"
+      }
+    },
+    {
+      "n": 4,
+      "from": "merchant",
+      "to": "acquirer",
+      "label": "Merchant registers for Agent Pay",
+      "detail": "Merchants register through their acquirer or PSP, not directly with Mastercard.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/ai-revolution/14/index.md"
+      }
+    },
+    {
+      "n": 5,
+      "from": "consumer",
+      "to": "agent",
+      "label": "Authenticate and authorize agent",
+      "detail": "The consumer authenticates with the agent platform, authorizes it to buy on their behalf and sets permissions and limits. Regional releases name Mastercard Payment Passkeys for this authentication.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      }
+    },
+    {
+      "n": 6,
+      "from": "agent",
+      "to": "network",
+      "label": "Request agentic token",
+      "detail": "The platform asks the network for an agentic token. The token holds no card data and may be single-use, merchant-specific or time-limited. No public API or field list exists for this request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      },
+      "failures": [
+        {
+          "condition": "Consumer authentication fails",
+          "outcome": "No token is provisioned"
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "from": "network",
+      "to": "issuer",
+      "label": "Issuer enabled for Agent Pay",
+      "detail": "The card must belong to an issuer enabled for Agent Pay at network level (for example all European issuers from 2026-06-02).",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 8,
+      "from": "network",
+      "to": "agent",
+      "label": "Return scoped token",
+      "detail": "The agent receives the token and its controls. It never sees the card number.",
+      "crossesTrustBoundary": true
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+flowchart LR
+  subgraph CZ["Consumer zone"]
+    C["Consumer"]
+    PK["Passkey"]
+  end
+  subgraph AZ["Agent platform zone"]
+    AG["Agent platform"]
+    AK["Agent signing key"]
+    TK["Agentic token"]
+  end
+  subgraph MZ["Merchant zone"]
+    CDN["CDN or edge"]
+    M["Merchant site or API"]
+  end
+  subgraph PZ["Acquiring"]
+    ACQ["Acquirer or PSP"]
+  end
+  subgraph NZ["Mastercard zone"]
+    REG["Agent registry and trusted lists"]
+    DIR["Key directory (location not public)"]
+    NET["Network: tokens, detokenize, risk score"]
+  end
+  subgraph IZ["Issuer zone"]
+    ISS["Issuer"]
+  end
+  C -- "1 authorize, set limits" --> AG
+  PK --- C
+  AG -- "0 register key, certify" --> REG
+  REG --- DIR
+  AG -- "2 request token" --> NET
+  NET -- "3 scoped token" --> TK
+  AK --- AG
+  AG -- "4 signed request, tag Agent-pay-auth" --> CDN
+  CDN -. "5 fetch key by keyid" .-> DIR
+  CDN --> M
+  AG -- "6 token in card form or API" --> M
+  M -- "7 authorization" --> ACQ
+  ACQ --> NET
+  NET -- "8 agent info" --> ISS

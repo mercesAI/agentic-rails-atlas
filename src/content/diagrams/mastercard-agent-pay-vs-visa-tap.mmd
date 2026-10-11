@@ -1,0 +1,25 @@
+flowchart LR
+  subgraph MC["Mastercard Agent Pay"]
+    MT["tag Agent-pay-auth"]
+    MD["Mastercard key directory, location not public"]
+    MK["Mastercard Agentic Tokens"]
+    MV["Verifiable Intent (SD-JWT layers)"]
+  end
+  subgraph SH["Shared pattern"]
+    R["RFC 9421 signature with tag and nonce"]
+    CF["Edge verification, for example Cloudflare"]
+    SPT["Stripe SPTs carry both networks' tokens"]
+  end
+  subgraph VS["Visa TAP with VIC"]
+    VT["tags agent-browser-auth and agent-payer-auth"]
+    VD["Visa key directory"]
+    VK["VIC agentic network tokens"]
+    VO["TAP consumer and payment objects"]
+  end
+  MT --- R
+  VT --- R
+  R --- CF
+  MD --- CF
+  VD --- CF
+  MK --- SPT
+  VK --- SPT

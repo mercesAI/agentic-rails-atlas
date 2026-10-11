@@ -1,0 +1,134 @@
+{
+  "id": "mastercard-agent-pay-vi-autonomous",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Verifiable Intent 0.1 (main at 356c296)",
+  "specVersionDate": "2026-04-20",
+  "title": "Verifiable Intent Autonomous mode (three layers, agent delegated)",
+  "summary": "The user signs open mandates with constraints and the agent key, then leaves. Later the agent signs L3a for the network and L3b for the merchant, bound to each other through checkout_hash and transaction_id. The network checks constraints and keeps state for budgets.",
+  "actors": [
+    {
+      "id": "user",
+      "label": "User",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    },
+    {
+      "id": "issuer",
+      "label": "Issuer",
+      "kind": "issuer"
+    }
+  ],
+  "sources": [
+    "src-mcap-vi-spec",
+    "src-mcap-vi-format",
+    "src-mcap-vi-constraints",
+    "src-mcap-vi-security"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "user",
+      "to": "agent",
+      "label": "Sign L2 Autonomous (kb-sd-jwt+kb)",
+      "detail": "Open mandates mandate.checkout.open.1 and mandate.payment.open.1 both carry the same agent cnf.jwk with kid, and constraints. The payment mandate must include mandate.payment.reference. Lifetime 24 hours to 30 days, never past L1 exp.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Values are made up.\n{\n  \"vct\": \"mandate.payment.open.1\",\n  \"cnf\": {\n    \"jwk\": {\n      \"kty\": \"EC\",\n      \"crv\": \"P-256\",\n      \"x\": \"<agent-key-x>\",\n      \"y\": \"<agent-key-y>\",\n      \"kid\": \"agent-key-1\"\n    }\n  },\n  \"payment_instrument\": {\n    \"type\": \"mastercard.srcDigitalCard\",\n    \"id\": \"<token-uuid>\"\n  },\n  \"constraints\": [\n    {\n      \"type\": \"mandate.payment.amount_range\",\n      \"currency\": \"USD\",\n      \"min\": 0,\n      \"max\": 30000\n    },\n    {\n      \"type\": \"mandate.payment.budget\",\n      \"currency\": \"USD\",\n      \"max\": 50000\n    },\n    {\n      \"type\": \"mandate.payment.reference\",\n      \"conditional_transaction_id\": \"<B64U(SHA-256(checkout_disclosure))>\"\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "4.5"
+      }
+    },
+    {
+      "n": 2,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Shop and get checkout_jwt",
+      "detail": "The agent shops within the constraints and receives a checkout_jwt from the merchant.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 3,
+      "from": "agent",
+      "to": "agent",
+      "label": "Sign L3a and L3b",
+      "detail": "L3a holds mandate.payment.1 (aud: the network); L3b holds mandate.checkout.1 with checkout_hash and line_items (aud: the merchant). L3a transaction_id must equal L3b checkout_hash. Header kid matches L2 cnf.jwk.kid, no jwk header, no cnf in the payload. Lifetime 5 minutes recommended, 1 hour maximum.",
+      "payload": {
+        "format": "jwt",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Values are made up.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb-sd-jwt\",\n    \"kid\": \"agent-key-1\"\n  },\n  \"payload\": {\n    \"nonce\": \"<fresh-nonce>\",\n    \"aud\": \"https://network.example.com/vi/authorize\",\n    \"iat\": 1791720000,\n    \"exp\": 1791720300,\n    \"sd_hash\": \"<selective sd_hash>\",\n    \"_sd_alg\": \"sha-256\",\n    \"_sd\": [\n      \"<payment-mandate-digest>\",\n      \"<merchant-digest>\"\n    ],\n    \"delegate_payload\": [\n      {\n        \"...\": \"<payment-mandate-digest>\"\n      },\n      {\n        \"...\": \"<merchant-digest>\"\n      }\n    ]\n  }\n}",
+        "illustrative": true
+      },
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "5"
+      }
+    },
+    {
+      "n": 4,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Present L1 + L2 + L3b",
+      "detail": "The merchant resolves the agent key from L2 by kid, checks typ, the selective sd_hash and the checkout constraints such as allowed merchants and line items.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/README.md"
+      },
+      "failures": [
+        {
+          "condition": "Merchant not in allowed list",
+          "outcome": "Constraint violation, reject"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "network",
+      "label": "Present L1 + L2 + L3a",
+      "detail": "The network checks the payment constraints, enforces one L3 pair per mandate pair (or the agent_recurrence counters) and records cumulative spend.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/security-model.md",
+        "section": "4.2"
+      },
+      "failures": [
+        {
+          "condition": "Amount above amount_range max",
+          "outcome": "Violation: amount exceeded"
+        },
+        {
+          "condition": "cnf.jwk differs between the two L2 mandates",
+          "outcome": "Reject (split-agent attack)"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "network",
+      "to": "issuer",
+      "label": "Assurance data to issuer",
+      "detail": "The network returns assurance data; the issuer makes the final authorization decision.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/README.md"
+      }
+    }
+  ]
+}

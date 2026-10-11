@@ -1,0 +1,185 @@
+{
+  "id": "mastercard-agent-pay-level1-purchase",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersionDate": "2026-10-11",
+  "title": "Agent Pay Level 1 purchase with edge verification",
+  "summary": "A registered agent signs its web requests with RFC 9421 and the tag Agent-pay-auth. The CDN or merchant checks the signature against the Mastercard key directory, the agent types its agentic token into the normal card form, and the authorization runs over the existing card rails. Mastercard publishes no wire schema for the network leg.",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "cdn",
+      "label": "CDN or edge (Cloudflare)",
+      "kind": "cdn"
+    },
+    {
+      "id": "directory",
+      "label": "Mastercard key directory",
+      "kind": "registry"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "acquirer",
+      "label": "Acquirer or PSP",
+      "kind": "psp"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    },
+    {
+      "id": "issuer",
+      "label": "Issuer",
+      "kind": "issuer"
+    }
+  ],
+  "sources": [
+    "src-mcap-dev-level1",
+    "src-mcap-cloudflare-blog",
+    "src-mcap-dev-rails",
+    "src-mcap-rfc9421",
+    "src-mcap-stripe-spt-2026"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "cdn",
+      "label": "Signed GET with tag Agent-pay-auth",
+      "detail": "The agent signs each request with HTTP Message Signatures (RFC 9421). Signature-Input carries keyid, alg, created, expires, nonce and the tag. Mastercard's guide gives the Mastercard tag as Agent-pay-auth; its testing glossary writes agent-pay-auth. The guide's example Signature-Agent host does not resolve, so this example uses a placeholder host.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-11. Values are made up.\nGET /product/42 HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agent-keys.example.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";nonce=\"e8N7S2MFd/qrd6T2R3tdfAuuANngKI7LFtKYI/vowzk=\";tag=\"Agent-pay-auth\"\nSignature: sig1=:jdq0SqOwHdyHr9+r5jw3iYZH6aNGKijYp/EstF4RQTQdi5N5YYKrD+mCT1HA1nZDsi6nJKuHxUi/5Syp3rLWBA==:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
+        "section": "Understanding the Signature Headers"
+      },
+      "failures": [
+        {
+          "condition": "No Signature-Input with a scheme tag",
+          "outcome": "Treat as an ordinary bot and apply the non-agent bot policy"
+        },
+        {
+          "condition": "A required parameter is missing",
+          "outcome": "Block the request"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "from": "cdn",
+      "to": "directory",
+      "label": "Fetch public key for keyid",
+      "detail": "The verifier looks up the agent key named by keyid in the directory hosted by Mastercard. Cloudflare says each network hosts its own directory and names no Mastercard URL; the directory location is not public.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/"
+      },
+      "failures": [
+        {
+          "condition": "Key not found in the directory",
+          "outcome": "Block the request"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "cdn",
+      "to": "cdn",
+      "label": "Verify window, nonce, tag, signature",
+      "detail": "Checks in order: created and expires bracket the current time, the nonce was not seen before, the tag is valid, the signature base is rebuilt from the covered components and the Ed25519 signature verifies.",
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/"
+      },
+      "failures": [
+        {
+          "condition": "Window expired or nonce reused",
+          "outcome": "Block the request"
+        },
+        {
+          "condition": "Signature does not verify",
+          "outcome": "Block the request"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Forward as a trusted agent",
+      "detail": "The edge passes the request to the merchant site, which can now serve the agent instead of challenging it as a bot."
+    },
+    {
+      "n": 5,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Fill card form with agentic token",
+      "detail": "The agent types the agentic token into the standard card number, expiry and security code fields. The token looks like a card number to the merchant, so PCI scope does not change. Agents may not use a card already on file at the merchant, because the network could not then see the flow as agentic.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      },
+      "failures": [
+        {
+          "condition": "Agent uses a card on file instead of an agentic token",
+          "outcome": "The network cannot recognize the transaction as agentic"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "merchant",
+      "to": "acquirer",
+      "label": "Submit authorization",
+      "detail": "The merchant processes the payment through its existing acquirer or PSP, as for any card-not-present payment.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 7,
+      "from": "acquirer",
+      "to": "network",
+      "label": "Authorization request",
+      "detail": "The network detokenizes and checks the token limits. Stripe says agentic network tokens map to the latest funding PAN and add agent information to the authorization message for issuers; Mastercard publishes no data element name for that flag.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce"
+      },
+      "failures": [
+        {
+          "condition": "Token used outside its merchant, amount or time limits",
+          "outcome": "Decline (exact response code not published)"
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "from": "network",
+      "to": "issuer",
+      "label": "Route to issuer",
+      "detail": "The issuer makes the final approve or decline decision with the agent information it receives.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 9,
+      "from": "issuer",
+      "to": "merchant",
+      "label": "Approve or decline",
+      "detail": "The response returns through network and acquirer. Standard chargeback rights apply afterwards; no agent-specific reason code is published.",
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      }
+    }
+  ]
+}

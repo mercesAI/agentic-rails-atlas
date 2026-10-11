@@ -1,0 +1,81 @@
+{
+  "id": "mastercard-agent-pay-failure-vi-budget-exceeded",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Verifiable Intent 0.1 (main at 356c296)",
+  "specVersionDate": "2026-04-20",
+  "title": "Verifiable Intent failure: cumulative budget exceeded",
+  "summary": "An Autonomous mandate carries a mandate.payment.budget cap. A new L3a would push cumulative spend over the cap, so the network rejects it. Only the network can enforce this, because it needs state across transactions.",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    }
+  ],
+  "sources": [
+    "src-mcap-vi-constraints",
+    "src-mcap-vi-security"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Present L3b",
+      "detail": "The checkout side passes: the merchant is allowed and the items match.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 2,
+      "from": "merchant",
+      "to": "network",
+      "label": "Present L3a",
+      "detail": "The payment mandate amount is within amount_range, but the network adds it to the cumulative spend recorded for this L2 mandate pair, looked up by sd_hash.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md",
+        "section": "4.5"
+      }
+    },
+    {
+      "n": 3,
+      "from": "network",
+      "to": "merchant",
+      "label": "Reject: budget exceeded",
+      "detail": "The new cumulative total is above budget max, so the constraint is violated and the network does not authorize.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/constraints.md",
+        "section": "4.5"
+      },
+      "failures": [
+        {
+          "condition": "new cumulative spend greater than max",
+          "outcome": "Violation: budget exceeded"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "merchant",
+      "to": "agent",
+      "label": "Payment declined",
+      "detail": "If the L2 expires before the purchase is fulfilled, the spec says the implementation should prompt the user to authorize again.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "7"
+      }
+    }
+  ]
+}

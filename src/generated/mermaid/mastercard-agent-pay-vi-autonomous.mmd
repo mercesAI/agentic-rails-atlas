@@ -1,0 +1,30 @@
+sequenceDiagram
+  accTitle: Verifiable Intent Autonomous mode (three layers, agent delegated)
+  accDescr: Sequence diagram: Verifiable Intent Autonomous mode (three layers, agent delegated). 5 participants: User, Agent platform, Merchant, Mastercard network, and Issuer. 6 steps, 5 crossing a trust boundary, 3 failure branches. Based on mastercard-agent-pay Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: User to Agent platform: Sign L2 Autonomous (kb-sd-jwt+kb). This step crosses a trust boundary. Step 2: Agent platform to Merchant: Shop and get checkout_jwt. This step crosses a trust boundary. Step 3: Agent platform to Agent platform: Sign L3a and L3b. Step 4: Agent platform to Merchant: Present L1 + L2 + L3b. This step crosses a trust boundary. If Merchant not in allowed list: Constraint violation, reject. Step 5: Merchant to Mastercard network: Present L1 + L2 + L3a. This step crosses a trust boundary. If Amount above amount_range max: Violation: amount exceeded. If cnf.jwk differs between the two L2 mandates: Reject (split-agent attack). Step 6: Mastercard network to Issuer: Assurance data to issuer. This step crosses a trust boundary.
+  autonumber
+  participant p_user as User
+  participant p_agent as Agent platform
+  participant p_merchant as Merchant
+  participant p_network as Mastercard network
+  participant p_issuer as Issuer
+  p_user->>p_agent: Sign L2 Autonomous (kb-sd-jwt+kb)
+  Note over p_user,p_agent: Crosses a trust boundary
+  p_agent->>p_merchant: Shop and get checkout_jwt
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  p_agent->>p_agent: Sign L3a and L3b
+  alt Expected path
+    p_agent->>p_merchant: Present L1 + L2 + L3b
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else Merchant not in allowed list
+    Note over p_agent,p_merchant: Constraint violation, reject
+  end
+  alt Expected path
+    p_merchant->>p_network: Present L1 + L2 + L3a
+    Note over p_merchant,p_network: Crosses a trust boundary
+  else Amount above amount_range max
+    Note over p_merchant,p_network: Violation: amount exceeded
+  else cnf.jwk differs between the two L2 mandates
+    Note over p_merchant,p_network: Reject (split-agent attack)
+  end
+  p_network->>p_issuer: Assurance data to issuer
+  Note over p_network,p_issuer: Crosses a trust boundary

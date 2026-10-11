@@ -1,0 +1,72 @@
+{
+  "id": "mastercard-agent-pay-failure-intent-mismatch",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersionDate": "2026-10-11",
+  "title": "Agent Pay failure: checkout total exceeds the registered intent",
+  "summary": "At Level 3 the agent submits a checkout whose total is higher than orderTotalAmount in the registered intent. Mastercard tells merchants to reject it.",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    }
+  ],
+  "sources": [
+    "src-mcap-dev-level3"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Checkout with intentId",
+      "detail": "The agent sends the intent and credentials. The cart now costs more than the consumer approved, for example after a price change.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+      }
+    },
+    {
+      "n": 2,
+      "from": "merchant",
+      "to": "merchant",
+      "label": "Compare totals",
+      "detail": "The merchant compares its checkout total with orderTotalAmount and its own srcDpaId with the merchant in the intent.",
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+      },
+      "failures": [
+        {
+          "condition": "Total greater than orderTotalAmount",
+          "outcome": "Reject"
+        },
+        {
+          "condition": "srcDpaId differs",
+          "outcome": "Reject"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "from": "merchant",
+      "to": "agent",
+      "label": "Reject checkout",
+      "detail": "No authorization is sent. For a DEFERRED order the guide suggests requiring the agent to get explicit consumer confirmation instead.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+      }
+    }
+  ]
+}

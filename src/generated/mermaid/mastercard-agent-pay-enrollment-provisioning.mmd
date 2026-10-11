@@ -1,0 +1,34 @@
+sequenceDiagram
+  accTitle: Agent enrollment, certification and token provisioning
+  accDescr: Sequence diagram: Agent enrollment, certification and token provisioning. 7 participants: Agent platform, Mastercard network, Mastercard key directory, Consumer, Merchant, Acquirer or PSP, and Issuer. 8 steps, 7 crossing a trust boundary, 2 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to Mastercard key directory: Register agent public key. This step crosses a trust boundary. Step 2: Mastercard network to Agent platform: Security review and certification. This step crosses a trust boundary. If Agent not registered or not certified: It cannot transact through the network. Step 3: Mastercard network to Mastercard network: Add to trusted agent list. Step 4: Merchant to Acquirer or PSP: Merchant registers for Agent Pay. This step crosses a trust boundary. Step 5: Consumer to Agent platform: Authenticate and authorize agent. This step crosses a trust boundary. Step 6: Agent platform to Mastercard network: Request agentic token. This step crosses a trust boundary. If Consumer authentication fails: No token is provisioned. Step 7: Mastercard network to Issuer: Issuer enabled for Agent Pay. This step crosses a trust boundary. Step 8: Mastercard network to Agent platform: Return scoped token. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as Agent platform
+  participant p_network as Mastercard network
+  participant p_directory as Mastercard key directory
+  participant p_consumer as Consumer
+  participant p_merchant as Merchant
+  participant p_acquirer as Acquirer or PSP
+  participant p_issuer as Issuer
+  p_agent->>p_directory: Register agent public key
+  Note over p_agent,p_directory: Crosses a trust boundary
+  alt Expected path
+    p_network->>p_agent: Security review and certification
+    Note over p_network,p_agent: Crosses a trust boundary
+  else Agent not registered or not certified
+    Note over p_network,p_agent: It cannot transact through the network
+  end
+  p_network->>p_network: Add to trusted agent list
+  p_merchant->>p_acquirer: Merchant registers for Agent Pay
+  Note over p_merchant,p_acquirer: Crosses a trust boundary
+  p_consumer->>p_agent: Authenticate and authorize agent
+  Note over p_consumer,p_agent: Crosses a trust boundary
+  alt Expected path
+    p_agent->>p_network: Request agentic token
+    Note over p_agent,p_network: Crosses a trust boundary
+  else Consumer authentication fails
+    Note over p_agent,p_network: No token is provisioned
+  end
+  p_network->>p_issuer: Issuer enabled for Agent Pay
+  Note over p_network,p_issuer: Crosses a trust boundary
+  p_network-->>p_agent: Return scoped token
+  Note over p_network,p_agent: Crosses a trust boundary

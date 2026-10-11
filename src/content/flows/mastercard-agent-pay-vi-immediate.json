@@ -1,0 +1,122 @@
+{
+  "id": "mastercard-agent-pay-vi-immediate",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Verifiable Intent 0.1 (main at 356c296)",
+  "specVersionDate": "2026-04-20",
+  "title": "Verifiable Intent Immediate mode (two layers, user present)",
+  "summary": "The user reviews a final cart and signs L2 with final checkout and payment mandates. The agent forwards L1 and L2; the merchant sees the checkout side and the network sees the payment side. No L3 is created.",
+  "actors": [
+    {
+      "id": "vissuer",
+      "label": "Issuer (L1 signer)",
+      "kind": "issuer"
+    },
+    {
+      "id": "user",
+      "label": "User",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    }
+  ],
+  "sources": [
+    "src-mcap-vi-spec",
+    "src-mcap-vi-format",
+    "src-mcap-vi-security"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "vissuer",
+      "to": "user",
+      "label": "Issue L1 (sd+jwt)",
+      "detail": "The issuer, a bank or Mastercard on its behalf, signs L1 binding the user's public key in cnf.jwk. Lifetime about one year.",
+      "payload": {
+        "format": "sd-jwt",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Values are made up.\n{\n  \"iss\": \"https://issuer.example.com\",\n  \"sub\": \"user-0001\",\n  \"iat\": 1791000000,\n  \"exp\": 1822536000,\n  \"vct\": \"https://credentials.mastercard.com/card\",\n  \"cnf\": {\n    \"jwk\": {\n      \"kty\": \"EC\",\n      \"crv\": \"P-256\",\n      \"x\": \"<user-key-x>\",\n      \"y\": \"<user-key-y>\"\n    }\n  },\n  \"pan_last_four\": \"1234\",\n  \"scheme\": \"mastercard\",\n  \"_sd_alg\": \"sha-256\",\n  \"_sd\": [\n    \"<hash-of-email-disclosure>\"\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "3"
+      }
+    },
+    {
+      "n": 2,
+      "from": "agent",
+      "to": "user",
+      "label": "Present final cart and checkout_jwt",
+      "detail": "The agent builds the cart and obtains a checkout_jwt from the merchant; its format and signing are implementation-defined in 0.1.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "6.3"
+      }
+    },
+    {
+      "n": 3,
+      "from": "user",
+      "to": "agent",
+      "label": "Sign L2 Immediate (kb-sd-jwt)",
+      "detail": "The user signs L2 with the key from L1 cnf.jwk. It holds mandate.checkout.1 with checkout_hash and mandate.payment.1 with transaction_id equal to that hash. No cnf in mandates, so no further delegation. Lifetime about 15 minutes.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Values are made up.\n{\n  \"vct\": \"mandate.payment.1\",\n  \"payment_instrument\": {\n    \"type\": \"mastercard.srcDigitalCard\",\n    \"id\": \"<token-uuid>\"\n  },\n  \"payment_amount\": {\n    \"currency\": \"USD\",\n    \"amount\": 3800\n  },\n  \"payee\": {\n    \"name\": \"Example Cinemas\",\n    \"website\": \"https://cinema.example.com\"\n  },\n  \"transaction_id\": \"<B64U(SHA-256(checkout_jwt))>\"\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md",
+        "section": "4.4"
+      }
+    },
+    {
+      "n": 4,
+      "from": "agent",
+      "to": "merchant",
+      "label": "L1 + L2, checkout disclosed",
+      "detail": "The merchant verifies the L1 signature with the issuer JWKS, L2 with L1 cnf.jwk, sd_hash, and recomputes checkout_hash against its own checkout.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/README.md"
+      },
+      "failures": [
+        {
+          "condition": "checkout_hash does not match the merchant checkout",
+          "outcome": "Reject"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "network",
+      "label": "L1 + L2, payment disclosed",
+      "detail": "The network verifies the chain and the transaction_id binding as a pre-authorization step. The issuer still makes the final decision.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/README.md"
+      },
+      "failures": [
+        {
+          "condition": "L2 exp passed (300 second skew recommended)",
+          "outcome": "Reject"
+        }
+      ]
+    }
+  ]
+}

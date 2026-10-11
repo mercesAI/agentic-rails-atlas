@@ -1,0 +1,18 @@
+sequenceDiagram
+  accTitle: Agent Pay failure: checkout total exceeds the registered intent
+  accDescr: Sequence diagram: Agent Pay failure: checkout total exceeds the registered intent. 3 participants: Agent platform, Merchant, and Mastercard network. 3 steps, 2 crossing a trust boundary, 2 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to Merchant: Checkout with intentId. This step crosses a trust boundary. Step 2: Merchant to Merchant: Compare totals. If Total greater than orderTotalAmount: Reject. If srcDpaId differs: Reject. Step 3: Merchant to Agent platform: Reject checkout. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as Agent platform
+  participant p_merchant as Merchant
+  participant p_network as Mastercard network
+  p_agent->>p_merchant: Checkout with intentId
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_merchant: Compare totals
+  else Total greater than orderTotalAmount
+    Note over p_merchant: Reject
+  else srcDpaId differs
+    Note over p_merchant: Reject
+  end
+  p_merchant->>p_agent: Reject checkout
+  Note over p_merchant,p_agent: Crosses a trust boundary

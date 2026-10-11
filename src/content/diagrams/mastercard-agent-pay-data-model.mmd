@@ -1,0 +1,92 @@
+classDiagram
+  class SignatureInput {
+    keyid
+    alg
+    created
+    expires
+    nonce
+    tag
+  }
+  class AgentUserIdentity {
+    mastercardIdToken
+    signature
+    kid
+    nonce
+    alg
+  }
+  class PaymentData {
+    paymentData
+    signature
+    kid
+    nonce
+    alg
+  }
+  class Intent {
+    intentId
+    intentSummary
+    intentStatus
+    consumer
+    digitalAccountCredentials
+  }
+  class Order {
+    orderId
+    orderExecutionType
+    orderStatus
+    orderExpiry
+    orderTotalAmount
+  }
+  class Merchant {
+    srcDpaId
+    merchantName
+    merchantUrl
+  }
+  class L1 {
+    iss
+    sub
+    vct
+    cnf_jwk_user
+    pan_last_four
+    scheme
+  }
+  class L2 {
+    nonce
+    aud
+    sd_hash
+    delegate_payload
+  }
+  class OpenPaymentMandate {
+    vct mandate.payment.open.1
+    cnf_jwk_agent
+    payment_instrument
+    constraints
+    risk_data
+  }
+  class OpenCheckoutMandate {
+    vct mandate.checkout.open.1
+    cnf_jwk_agent
+    constraints
+  }
+  class L3a {
+    aud network
+    vct mandate.payment.1
+    payment_amount
+    payee
+    transaction_id
+  }
+  class L3b {
+    aud merchant
+    vct mandate.checkout.1
+    checkout_jwt
+    checkout_hash
+    line_items
+  }
+  SignatureInput ..> AgentUserIdentity : same key and nonce
+  SignatureInput ..> PaymentData : same key and nonce
+  Intent "1" --> "*" Order
+  Order "1" --> "*" Merchant
+  L1 --> L2 : cnf binds user key
+  L2 --> OpenPaymentMandate
+  L2 --> OpenCheckoutMandate
+  OpenPaymentMandate --> L3a : cnf binds agent key
+  OpenCheckoutMandate --> L3b : cnf binds agent key
+  L3a .. L3b : transaction_id equals checkout_hash

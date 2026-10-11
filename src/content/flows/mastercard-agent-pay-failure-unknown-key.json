@@ -1,0 +1,88 @@
+{
+  "id": "mastercard-agent-pay-failure-unknown-key",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersionDate": "2026-10-11",
+  "title": "Agent Pay failure: the keyid is not in the key directory",
+  "summary": "An agent sends a signed request whose keyid the verifier cannot find in the Mastercard directory, for example an unregistered or delisted agent. Mastercard's decision table says to block.",
+  "actors": [
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "cdn",
+      "label": "CDN or edge (Cloudflare)",
+      "kind": "cdn"
+    },
+    {
+      "id": "directory",
+      "label": "Mastercard key directory",
+      "kind": "registry"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    }
+  ],
+  "sources": [
+    "src-mcap-dev-level1",
+    "src-mcap-cloudflare-blog",
+    "src-mcap-dev-rails"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "cdn",
+      "label": "Signed request, unknown keyid",
+      "detail": "The request carries complete Signature-Input parameters and the Agent Pay tag, but the key was never registered or is no longer listed.",
+      "payload": {
+        "format": "http",
+        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-11. Values are made up.\nGET /checkout HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agent-keys.example.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";nonce=\"e8N7S2MFd/qrd6T2R3tdfAuuANngKI7LFtKYI/vowzk=\";tag=\"Agent-pay-auth\"\nSignature: sig1=:jdq0SqOwHdyHr9+r5jw3iYZH6aNGKijYp/EstF4RQTQdi5N5YYKrD+mCT1HA1nZDsi6nJKuHxUi/5Syp3rLWBA==:",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      }
+    },
+    {
+      "n": 2,
+      "from": "cdn",
+      "to": "directory",
+      "label": "Look up keyid",
+      "detail": "The directory returns no key for this keyid.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://blog.cloudflare.com/secure-agentic-commerce/"
+      }
+    },
+    {
+      "n": 3,
+      "from": "cdn",
+      "to": "agent",
+      "label": "Block",
+      "detail": "Mastercard's merchant decision table says a key not found in the directory means block. The agent never reaches the card form.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
+      },
+      "failures": [
+        {
+          "condition": "Key not found",
+          "outcome": "Request blocked"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "from": "cdn",
+      "to": "merchant",
+      "label": "Log the attempt",
+      "detail": "The merchant or edge keeps the event for bot analytics. Mastercard publishes no event name for it."
+    }
+  ]
+}

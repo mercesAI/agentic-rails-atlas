@@ -1,0 +1,106 @@
+{
+  "id": "mastercard-agent-pay-stripe-spt",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersionDate": "2026-03-03",
+  "title": "Agent Pay token inside a Stripe Shared Payment Token",
+  "summary": "Stripe provisions a Mastercard agentic network token scoped to the customer's intent and hands it to the agent as a Shared Payment Token. This is how an ACP checkout processed by Stripe can carry an Agent Pay token.",
+  "actors": [
+    {
+      "id": "consumer",
+      "label": "Consumer",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "stripe",
+      "label": "Stripe",
+      "kind": "psp"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "issuer",
+      "label": "Issuer",
+      "kind": "issuer"
+    }
+  ],
+  "sources": [
+    "src-mcap-stripe-spt-2026",
+    "src-mcap-acp-schema"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "consumer",
+      "to": "agent",
+      "label": "Authorize agent purchase",
+      "detail": "The customer authorizes the agent to pay.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 2,
+      "from": "stripe",
+      "to": "network",
+      "label": "Provision agentic network token",
+      "detail": "Stripe requests a Mastercard agentic network token scoped to the customer's intent.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce"
+      }
+    },
+    {
+      "n": 3,
+      "from": "stripe",
+      "to": "agent",
+      "label": "Share as SPT",
+      "detail": "The agent receives a Shared Payment Token, not the network token or the card number.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce"
+      }
+    },
+    {
+      "n": 4,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Pay with SPT",
+      "detail": "The agent passes the SPT to a seller on Stripe, for example inside an ACP checkout. Sellers on Stripe support agentic network tokens automatically.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce"
+      }
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "network",
+      "label": "Authorize",
+      "detail": "At authorization the network maps the token to the latest funding PAN and adds agent information to the message for the issuer.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce"
+      }
+    },
+    {
+      "n": 6,
+      "from": "network",
+      "to": "issuer",
+      "label": "Issuer decides",
+      "detail": "The issuer approves or declines.",
+      "crossesTrustBoundary": true
+    }
+  ]
+}

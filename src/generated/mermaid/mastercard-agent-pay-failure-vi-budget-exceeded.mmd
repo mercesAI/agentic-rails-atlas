@@ -1,0 +1,19 @@
+sequenceDiagram
+  accTitle: Verifiable Intent failure: cumulative budget exceeded
+  accDescr: Sequence diagram: Verifiable Intent failure: cumulative budget exceeded. 3 participants: Agent platform, Merchant, and Mastercard network. 4 steps, 4 crossing a trust boundary, 1 failure branch. Based on mastercard-agent-pay Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: Agent platform to Merchant: Present L3b. This step crosses a trust boundary. Step 2: Merchant to Mastercard network: Present L3a. This step crosses a trust boundary. Step 3: Mastercard network to Merchant: Reject: budget exceeded. This step crosses a trust boundary. If new cumulative spend greater than max: Violation: budget exceeded. Step 4: Merchant to Agent platform: Payment declined. This step crosses a trust boundary.
+  autonumber
+  participant p_agent as Agent platform
+  participant p_merchant as Merchant
+  participant p_network as Mastercard network
+  p_agent->>p_merchant: Present L3b
+  Note over p_agent,p_merchant: Crosses a trust boundary
+  p_merchant->>p_network: Present L3a
+  Note over p_merchant,p_network: Crosses a trust boundary
+  alt Expected path
+    p_network-->>p_merchant: Reject: budget exceeded
+    Note over p_network,p_merchant: Crosses a trust boundary
+  else new cumulative spend greater than max
+    Note over p_network,p_merchant: Violation: budget exceeded
+  end
+  p_merchant->>p_agent: Payment declined
+  Note over p_merchant,p_agent: Crosses a trust boundary

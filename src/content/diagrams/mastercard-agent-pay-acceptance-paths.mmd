@@ -1,0 +1,13 @@
+flowchart TB
+  START["Merchant registered through acquirer or PSP"]
+  START --> P1["No-code path: Levels 1 and 2"]
+  START --> P3["Deeper path: Level 3"]
+  P1 --> E1["Edge verifies signed request (Web Bot Auth)"]
+  E1 --> F1["Agent types token into existing card form"]
+  F1 --> F2["Level 2: Agent User Identity and Payment Data in body"]
+  P3 --> I1["Agent registers intent with Intent API"]
+  I1 --> I2["intentId and tokenized credentials (DSRP)"]
+  I2 --> I3["Merchant API validates intent and totals"]
+  F2 --> AUTH["Card authorization: network, issuer"]
+  F1 --> AUTH
+  I3 --> AUTH

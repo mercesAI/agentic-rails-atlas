@@ -1,0 +1,136 @@
+{
+  "id": "mastercard-agent-pay-level3-intent",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersionDate": "2026-10-11",
+  "title": "Level 3 programmatic checkout with the Intent API",
+  "summary": "At Level 3 the agent registers the consumer intent with Mastercard's Intent API, receives an intentId and tokenized credentials, and sends both to the merchant's agentic API. The merchant validates the intent against the checkout. Mastercard names the fields but points to the non-public Acceptance Framework for the full schema.",
+  "actors": [
+    {
+      "id": "consumer",
+      "label": "Consumer",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "acquirer",
+      "label": "Acquirer or PSP",
+      "kind": "psp"
+    },
+    {
+      "id": "issuer",
+      "label": "Issuer",
+      "kind": "issuer"
+    }
+  ],
+  "sources": [
+    "src-mcap-dev-level3",
+    "src-mcap-dev-level2",
+    "src-mcap-dev-rails"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "consumer",
+      "to": "agent",
+      "label": "State purchase intent",
+      "detail": "The consumer tells the agent what to buy and within which limits; the agent captures it as structured intent.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 2,
+      "from": "agent",
+      "to": "network",
+      "label": "Register intent (Intent API)",
+      "detail": "Mastercard validates and stores the intent. Field names come from the Level 3 guide; no public schema or endpoint path exists.",
+      "payload": {
+        "format": "json",
+        "content": "// Illustrative example, Agent Pay developer guides as read 2026-10-11. No public schema; field names from the guide, values made up.\n{\n  \"intentSummary\": \"Two cinema tickets for Friday under 40 USD\",\n  \"orders\": [\n    {\n      \"orderExecutionType\": \"IMMEDIATE\",\n      \"orderExpiry\": 1791723600,\n      \"orderTotalAmount\": {\n        \"value\": \"38.00\",\n        \"currency\": \"USD\"\n      },\n      \"items\": [\n        {\n          \"itemId\": \"tkt-std\",\n          \"itemName\": \"Standard ticket\",\n          \"itemQuantity\": 2\n        }\n      ],\n      \"merchants\": [\n        {\n          \"srcDpaId\": \"dpa-0000-example\",\n          \"merchantName\": \"Example Cinemas\"\n        }\n      ]\n    }\n  ]\n}",
+        "illustrative": true
+      },
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+      }
+    },
+    {
+      "n": 3,
+      "from": "network",
+      "to": "agent",
+      "label": "Return intentId and credentials",
+      "detail": "The response carries a Mastercard-generated intentId and digitalAccountCredentials (tokenized). For Mastercard the payload contains a DSRP cryptogram and card metadata.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+      }
+    },
+    {
+      "n": 4,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Checkout via merchant API",
+      "detail": "The agent sends the intent and the tokenized credentials to the merchant's agentic endpoint, signed like any Agent Pay request.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+      }
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "merchant",
+      "label": "Validate intent",
+      "detail": "The merchant checks the intent signature, that intentStatus is ACTIVE, the expiry and the srcDpaId, then compares totals, SKUs, quantities and delivery details.",
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/23/index.md"
+      },
+      "failures": [
+        {
+          "condition": "Total exceeds orderTotalAmount or srcDpaId differs",
+          "outcome": "Reject the checkout"
+        },
+        {
+          "condition": "SKU, quantity or address mismatch",
+          "outcome": "Flag for review"
+        },
+        {
+          "condition": "Deferred order fails validation",
+          "outcome": "Ask the agent to obtain explicit consumer confirmation"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "from": "merchant",
+      "to": "acquirer",
+      "label": "Submit authorization",
+      "detail": "Payment proceeds over the card rails with the tokenized payload.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 7,
+      "from": "acquirer",
+      "to": "issuer",
+      "label": "Authorize through network",
+      "detail": "The network routes to the issuer for the final decision. Mastercard calls intent exchange between agent and merchant future facing.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/ai-revolution/14/index.md"
+      }
+    }
+  ]
+}

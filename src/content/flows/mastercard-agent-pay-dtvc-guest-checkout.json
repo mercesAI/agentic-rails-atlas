@@ -1,0 +1,127 @@
+{
+  "id": "mastercard-agent-pay-dtvc-guest-checkout",
+  "protocol": "mastercard-agent-pay",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersionDate": "2026-10-11",
+  "title": "Guest checkout with a Virtual Card Token and a DTVC",
+  "summary": "For web guest checkouts with a simple card form, Mastercard points integrators to Mastercard Virtual Card Tokens. After user validation and consent the integrator gets a token number, expiry and a one-time DTVC, which the agent types into the form. Mastercard validates the DTVC at authorization.",
+  "actors": [
+    {
+      "id": "consumer",
+      "label": "Consumer",
+      "kind": "human"
+    },
+    {
+      "id": "agent",
+      "label": "Agent platform",
+      "kind": "agent"
+    },
+    {
+      "id": "network",
+      "label": "Mastercard network",
+      "kind": "network"
+    },
+    {
+      "id": "merchant",
+      "label": "Merchant",
+      "kind": "merchant"
+    },
+    {
+      "id": "acquirer",
+      "label": "Acquirer or PSP",
+      "kind": "psp"
+    },
+    {
+      "id": "issuer",
+      "label": "Issuer",
+      "kind": "issuer"
+    }
+  ],
+  "sources": [
+    "src-mcap-dev-mvct",
+    "src-mcap-dev-mvct-pay",
+    "src-mcap-dev-mvct-tests"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "from": "agent",
+      "to": "network",
+      "label": "Request checkout for merchant domain",
+      "detail": "The integrator, here the agent platform, asks Mastercard for a checkout for a given merchant web domain.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
+      }
+    },
+    {
+      "n": 2,
+      "from": "consumer",
+      "to": "agent",
+      "label": "User validation and consent",
+      "detail": "The user is validated and consents before a security code is requested.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
+      }
+    },
+    {
+      "n": 3,
+      "from": "network",
+      "to": "agent",
+      "label": "Return token, expiry and DTVC",
+      "detail": "Mastercard returns the virtual card token, its expiry date and a newly generated one-time DTVC. Mastercard pages expand DTVC both as Dynamic Token Validation Code and as Dynamic Token Verification Code.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
+      }
+    },
+    {
+      "n": 4,
+      "from": "agent",
+      "to": "merchant",
+      "label": "Type values into card form",
+      "detail": "The agent fills the card number, expiry and security code fields. The merchant sees an ordinary card form submission.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
+      }
+    },
+    {
+      "n": 5,
+      "from": "merchant",
+      "to": "acquirer",
+      "label": "Submit authorization",
+      "detail": "The merchant processes the payment through its usual acquirer.",
+      "crossesTrustBoundary": true
+    },
+    {
+      "n": 6,
+      "from": "acquirer",
+      "to": "network",
+      "label": "Authorization with token",
+      "detail": "Mastercard processes the token and validates the DTVC.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
+      },
+      "failures": [
+        {
+          "condition": "DTVC wrong or already used",
+          "outcome": "Validation fails and the issuer is told (response code not published)"
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "from": "network",
+      "to": "issuer",
+      "label": "Tell issuer DTVC result",
+      "detail": "The authorization request tells the issuer whether DTVC validation was performed; the issuer approves or declines.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+flowchart LR
+  MAP["Mastercard Agent Pay"]
+  VI["Verifiable Intent"]
+  AP2["AP2"]
+  UCP["UCP"]
+  SPT["Stripe SPT"]
+  ACP["OpenAI ACP"]
+  TAP["Visa TAP"]
+  MPP["Stripe MPP"]
+  X4["x402"]
+  E8["ERC-8004"]
+  MAP --> VI
+  VI -- "same four mandate vct values" --- AP2
+  VI -. "carried in AP2 mandate extension" .-> UCP
+  MAP -- "agentic token inside SPT" --> SPT
+  SPT --> ACP
+  MAP -- "same edge signature pattern" --- TAP
+  MAP -. "Tempo quote in AP4M release" .- MPP
+  MAP -. "premier Foundation member" .- X4
+  MAP ~~~ E8

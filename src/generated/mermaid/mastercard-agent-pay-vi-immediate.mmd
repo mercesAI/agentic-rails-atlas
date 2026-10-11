@@ -1,0 +1,27 @@
+sequenceDiagram
+  accTitle: Verifiable Intent Immediate mode (two layers, user present)
+  accDescr: Sequence diagram: Verifiable Intent Immediate mode (two layers, user present). 5 participants: Issuer (L1 signer), User, Agent platform, Merchant, and Mastercard network. 5 steps, 5 crossing a trust boundary, 2 failure branches. Based on mastercard-agent-pay Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: Issuer (L1 signer) to User: Issue L1 (sd+jwt). This step crosses a trust boundary. Step 2: Agent platform to User: Present final cart and checkout_jwt. This step crosses a trust boundary. Step 3: User to Agent platform: Sign L2 Immediate (kb-sd-jwt). This step crosses a trust boundary. Step 4: Agent platform to Merchant: L1 + L2, checkout disclosed. This step crosses a trust boundary. If checkout_hash does not match the merchant checkout: Reject. Step 5: Merchant to Mastercard network: L1 + L2, payment disclosed. This step crosses a trust boundary. If L2 exp passed (300 second skew recommended): Reject.
+  autonumber
+  participant p_vissuer as Issuer (L1 signer)
+  participant p_user as User
+  participant p_agent as Agent platform
+  participant p_merchant as Merchant
+  participant p_network as Mastercard network
+  p_vissuer->>p_user: Issue L1 (sd+jwt)
+  Note over p_vissuer,p_user: Crosses a trust boundary
+  p_agent->>p_user: Present final cart and checkout_jwt
+  Note over p_agent,p_user: Crosses a trust boundary
+  p_user-->>p_agent: Sign L2 Immediate (kb-sd-jwt)
+  Note over p_user,p_agent: Crosses a trust boundary
+  alt Expected path
+    p_agent->>p_merchant: L1 + L2, checkout disclosed
+    Note over p_agent,p_merchant: Crosses a trust boundary
+  else checkout_hash does not match the merchant checkout
+    Note over p_agent,p_merchant: Reject
+  end
+  alt Expected path
+    p_merchant->>p_network: L1 + L2, payment disclosed
+    Note over p_merchant,p_network: Crosses a trust boundary
+  else L2 exp passed (300 second skew recommended)
+    Note over p_merchant,p_network: Reject
+  end

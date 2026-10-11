@@ -1,0 +1,73 @@
+{
+  "id": "mastercard-agent-pay-vi-mandate-state",
+  "protocol": "mastercard-agent-pay",
+  "title": "Verifiable Intent mandate pair state held by the network",
+  "specVersion": "Verifiable Intent 0.1 (main at 356c296)",
+  "sources": [
+    "src-mcap-vi-constraints",
+    "src-mcap-vi-security",
+    "src-mcap-vi-format"
+  ],
+  "states": [
+    {
+      "id": "unfulfilled",
+      "label": "Unfulfilled",
+      "initial": true,
+      "note": "L2 Autonomous signed; no L3 pair accepted yet."
+    },
+    {
+      "id": "fulfilled",
+      "label": "Fulfilled",
+      "terminal": true,
+      "note": "One L3a and L3b pair accepted (base model)."
+    },
+    {
+      "id": "recurring",
+      "label": "Recurring (agent_recurrence)",
+      "note": "Counters occurrence_count and cumulative_spent advance with each L3a."
+    },
+    {
+      "id": "exhausted",
+      "label": "Exhausted",
+      "terminal": true,
+      "note": "max_occurrences, budget max or end_date reached."
+    },
+    {
+      "id": "expired",
+      "label": "Expired",
+      "terminal": true,
+      "note": "L2 exp passed; the user should be prompted to authorize again."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "unfulfilled",
+      "to": "fulfilled",
+      "trigger": "Network accepts the first L3a for the pair",
+      "apiCall": "None defined in the spec",
+      "specRef": "security-model.md 4.2"
+    },
+    {
+      "from": "unfulfilled",
+      "to": "recurring",
+      "trigger": "First L3a accepted with mandate.payment.agent_recurrence present",
+      "specRef": "constraints.md 4.7"
+    },
+    {
+      "from": "recurring",
+      "to": "recurring",
+      "trigger": "Further L3a within counters and budget"
+    },
+    {
+      "from": "recurring",
+      "to": "exhausted",
+      "trigger": "Counter, budget or end_date limit reached"
+    },
+    {
+      "from": "unfulfilled",
+      "to": "expired",
+      "trigger": "L2 exp passes before fulfillment",
+      "specRef": "credential-format.md 7"
+    }
+  ]
+}
