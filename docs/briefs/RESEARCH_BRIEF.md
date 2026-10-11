@@ -31,3 +31,6 @@ If a site blocks you, append one line to `research/blocked.md` (`- 2026-10-11, <
 
 ## Work incrementally
 Write your dossier to disk section by section as you go (append after each heading), and write the sources file as soon as you have 10 records, then keep extending it. A session limit may stop you at any time; whatever is on disk is kept and a later agent continues from it. If `research/protocols/<slug>.md` already exists when you start, read it and continue from where it stops instead of starting over.
+
+## Write early and commit
+Usage limits have stopped earlier agents before they wrote anything. Create `research/protocols/<slug>.md` with its headings and the "Identity and governance" section within your first few tool calls. Write the sources file once it has 10 records. After each dossier section, append it and commit: `git add research/protocols/<slug>.* && git commit -m "research(<slug>): <section>"`, the message ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Only add your own files (plus `research/blocked.md` and `research/conflicts.md` when you change them).
