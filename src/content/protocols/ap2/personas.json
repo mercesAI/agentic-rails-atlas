@@ -1,0 +1,402 @@
+{
+  "protocol": "ap2",
+  "personas": [
+    {
+      "persona": "consumer",
+      "role": "Approves mandates on a Trusted Surface: exact purchases when present, limits for the agent when not.",
+      "goals": [
+        "Let an agent buy within limits I set",
+        "See exactly what I approve",
+        "Have evidence if a purchase goes wrong"
+      ],
+      "pains": [
+        "No way to cancel an open mandate before it expires",
+        "Limits written in constraint terms are hard to read",
+        "Unclear who pays if the agent misreads me"
+      ],
+      "implements": [
+        "Nothing technical: approves on a wallet, issuer app, browser or agent app that acts as Trusted Surface"
+      ],
+      "mustTrust": [
+        "The Trusted Surface to show the real checkout",
+        "The agent to stay inside its constraints",
+        "The network rules for disputes"
+      ],
+      "questions": [
+        "What exactly did I approve, and for how long?",
+        "Can the agent spend twice from one approval?",
+        "What happens when the agent finds something outside my limits?"
+      ],
+      "firstSteps": [
+        "Read the merchant, items, amount range and expiry before approving an open mandate",
+        "Prefer short expiry times for autonomous tasks",
+        "Keep the receipts the agent stores"
+      ],
+      "metrics": [
+        "Time from task to approved purchase",
+        "Number of fallbacks to manual approval",
+        "Disputes resolved with mandate evidence"
+      ],
+      "story": "Priya asks her assistant to buy a two-person tent before Friday, under 300 dollars, from one of two outdoor stores. Her banking app opens and shows the limits in plain words, the stores, the price ceiling and an expiry on Friday night. She confirms with her fingerprint and goes to work. On Wednesday the agent finds the green tent for 249 dollars and buys it without asking. On Thursday it tries a matching groundsheet, but the store answers that the item is outside the approved line items, so her phone asks her to approve that one directly. She declines. Both receipts sit in the app.",
+      "sources": [
+        "src-ap2-flows",
+        "src-ap2-spec-v02",
+        "src-ap2-implementation"
+      ]
+    },
+    {
+      "persona": "wallet-cp",
+      "role": "Credential Provider: verifies Payment Mandates and issues a token scoped to the purchase; often also hosts the Trusted Surface.",
+      "goals": [
+        "Release credentials only for approved purchases",
+        "Offer agent payments without new fraud exposure",
+        "Reuse existing tokenization"
+      ],
+      "pains": [
+        "Stateful constraints (budget, recurrence) need presentation history",
+        "No revocation primitive for open mandates",
+        "Specification moved to FIDO with no public draft"
+      ],
+      "implements": [
+        "Delegate SD-JWT chain verification",
+        "Constraint evaluation for payment.* types",
+        "Payment Receipt handling and error codes",
+        "OpenID4VP delegation with type delegate when acting as wallet"
+      ],
+      "mustTrust": [
+        "The user credential issuer or the trusted agent provider list",
+        "The network to honor scoped credentials",
+        "Its own deterministic code, never an LLM"
+      ],
+      "questions": [
+        "How do I track payment.budget across presentations?",
+        "Which delegation model do my verifiers accept?",
+        "How do I invalidate tokens from overlapping mandates?"
+      ],
+      "firstSteps": [
+        "Read agent_authorization.md and payment_mandate.md at v0.2.0",
+        "Run the Python SDK chain verification against the schema examples",
+        "Map each failure to invalid_credential, invalid_mandate or unresolved_constraint"
+      ],
+      "metrics": [
+        "Share of presentations rejected by error code",
+        "Token issuance latency after mandate verification",
+        "Fraud rate on mandate-backed tokens"
+      ],
+      "story": "Marco runs the agent payments team at a digital wallet. Each morning he reviews rejected presentations by error code. Most invalid_credential cases come from one agent provider whose closed mandates are signed with a rotated key that no longer matches cnf. The unresolved_constraint cases are mostly budget checks: his service is the one that has to remember earlier presentations, and the specification never said whose job that was. He files a note for the FIDO payments group about revocation, then adds a rule that invalidates outstanding tokens when the agent presents an overlapping mandate. The release goes out with ES256 keys only.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-payment-mandate-doc",
+        "src-ap2-security",
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "persona": "issuer",
+      "role": "Card issuer or bank: may receive the Payment Mandate through the network or act as Credential Provider, and uses mandates as dispute evidence.",
+      "goals": [
+        "Know an agent purchase was user-approved",
+        "Fewer first-party disputes",
+        "Clear liability"
+      ],
+      "pains": [
+        "Liability stays with network rules that are not yet agent specific",
+        "No step-up mechanism in v0.2",
+        "Production evidence missing"
+      ],
+      "implements": [
+        "Mandate verification where it acts as Credential Provider or behind the network",
+        "Dispute verification of mandates and receipts",
+        "Risk decisions using risk_data"
+      ],
+      "mustTrust": [
+        "The network to pass mandates intact",
+        "The Trusted Surface to have authenticated the user",
+        "Receipts to be signed by the right parties"
+      ],
+      "questions": [
+        "Does a mandate change chargeback rights?",
+        "How do I challenge the user if v0.2 has no step-up?",
+        "Who retains mandates for disputes?"
+      ],
+      "firstSteps": [
+        "Read the Dispute Evidence and Verification: Dispute sections",
+        "Check how your network plans to carry mandates",
+        "Decide how unresolved_constraint fallbacks reach your authentication flow"
+      ],
+      "metrics": [
+        "Disputes with mandate evidence attached",
+        "Approval rate on mandate-backed transactions",
+        "Fallback rate to manual approval"
+      ],
+      "story": "Helen handles disputes at a regional bank. A customer says her agent bought the wrong concert tickets. The merchant supplies the Checkout Mandate and receipt, and the network passes the Payment Mandate. Helen's tool recomputes the hash of the checkout JWT, matches both receipt references and confirms that the agent's closed mandate sits inside the customer's open one, with the venue and price allowed. The evidence shows the agent stayed inside its limits, so the dispute turns on whether those limits matched what the customer meant. AP2 cannot answer that, and the network rules say nothing specific about agents yet. She escalates it.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-faq",
+        "src-reg-worldpay-liability"
+      ]
+    },
+    {
+      "persona": "merchant-enterprise",
+      "role": "Merchant: signs every checkout, verifies Checkout Mandates and open-mandate constraints, and returns Checkout Receipts.",
+      "goals": [
+        "Accept agent orders with proof of user approval",
+        "Keep their own checkout and payment stack",
+        "Clear errors when agents misbehave"
+      ],
+      "pains": [
+        "Signature rule conflict for the Checkout JWT (issue 268)",
+        "Line-item matching needs a max-flow style check",
+        "No proof of production use to justify the work"
+      ],
+      "implements": [
+        "checkout_jwt signing with ECDSA",
+        "Checkout Mandate and constraint verification",
+        "Checkout Receipt JWT with status and errors",
+        "The UCP extension when selling through UCP"
+      ],
+      "mustTrust": [
+        "Its processor to verify the Payment Mandate",
+        "The agent to forward the exact checkout_jwt",
+        "Its signing key custody"
+      ],
+      "questions": [
+        "Should I sign checkouts with ES256 or Ed25519?",
+        "How strictly do I match line items?",
+        "Which UCP errors do I return?"
+      ],
+      "firstSteps": [
+        "Sign checkouts with ES256 and include enough entropy",
+        "Implement checkout_hash comparison against the latest checkout_jwt",
+        "Add UCP dev.ucp.common.payment.ap2_mandate to /.well-known/ucp if you sell through UCP"
+      ],
+      "metrics": [
+        "Share of agent orders with valid mandates",
+        "Constraint rejections per day",
+        "Chargebacks on agent orders"
+      ],
+      "story": "Tomas leads checkout engineering at an outdoor retailer that sells through UCP. His team signs every checkout with ES256 because the specification forbids deterministic signatures, even though their bot-auth setup already uses Ed25519, so they now manage two key types. Today an agent presents a closed Checkout Mandate for a tent, but the cart has a different color than the open mandate allows. His service evaluates checkout.line_items, finds no match and returns a Checkout Receipt with unresolved_constraint. Ten minutes later the same order comes back with a user-signed closed mandate and goes through. He logs the round trip for the weekly report.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-issue-268",
+        "src-ap2-checkout-mandate-doc",
+        "src-ap2-ucp-ext"
+      ]
+    },
+    {
+      "persona": "agent-dev",
+      "role": "Shopping Agent developer: builds Mandate Content, gets it signed, presents mandates, and handles receipts and fallbacks.",
+      "goals": [
+        "Complete purchases without asking the user each time",
+        "Pass every verifier on the first try",
+        "Keep the LLM away from keys"
+      ],
+      "pains": [
+        "Selecting the right open mandate is left to the agent",
+        "Overlapping presentations are forbidden until a rejection arrives",
+        "The SDK is not on PyPI"
+      ],
+      "implements": [
+        "Mandate Content assembly",
+        "Key-binding JWTs signed with the key in cnf",
+        "Selective disclosure choices",
+        "Receipt storage and scope reduction"
+      ],
+      "mustTrust": [
+        "The Trusted Surface to sign what it showed",
+        "Its own deterministic signer to stay out of the model's reach",
+        "Verifiers to return signed receipts"
+      ],
+      "questions": [
+        "Which disclosures does this verifier need?",
+        "How do I reduce an open mandate after success?",
+        "What do I do on unresolved_constraint?"
+      ],
+      "firstSteps": [
+        "Clone the AP2 repository and run the human-not-present Python sample",
+        "Read the SDK README for MandateClient create, present and verify",
+        "Put signing behind a deterministic service with no LLM access"
+      ],
+      "metrics": [
+        "Purchases completed without fallback",
+        "Error receipts by code",
+        "Average disclosures per presentation"
+      ],
+      "story": "Aiko builds a grocery agent. Her signer is a small service the model cannot call directly: the model proposes a basket, deterministic code checks it against the open mandates and only then signs a closed mandate with the key in cnf. Today a store returned unresolved_constraint because a substitute brand was not in acceptable_items. Her code stored the error receipt, asked the user's phone for approval of the exact basket, and finished. She is also adding scope reduction: after each success the agent records the open, closed and receipt tuple, so the weekly budget is never presented twice.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-sdk-readme",
+        "src-ap2-spec-v02",
+        "src-ap2-security"
+      ]
+    },
+    {
+      "persona": "compliance",
+      "role": "Compliance or risk officer: judges whether mandates support consent, liability and data-protection duties.",
+      "goals": [
+        "Evidence of consent that holds up",
+        "Data minimization",
+        "Know who is accountable"
+      ],
+      "pains": [
+        "AP2 makes no regulatory claims",
+        "Liability left to network rules",
+        "Governance in transition to FIDO"
+      ],
+      "implements": [
+        "Retention policy for mandates and receipts",
+        "Review of Trusted Surface consent screens",
+        "Mapping to SCA, Regulation E and Z, and GDPR"
+      ],
+      "mustTrust": [
+        "The Trusted Surface consent capture",
+        "Signed receipts from merchant and processor",
+        "Network dispute rules"
+      ],
+      "questions": [
+        "Does an open mandate count as consent to a specific transaction under PSD2?",
+        "Who keeps mandates and for how long?",
+        "Does risk_data contain personal data?"
+      ],
+      "firstSteps": [
+        "Read Dispute Evidence and Security and Privacy Considerations",
+        "Map open mandates to your SCA and authorization rules",
+        "Set a retention rule for mandates and receipts"
+      ],
+      "metrics": [
+        "Disputes resolved with mandate evidence",
+        "Data fields disclosed per presentation",
+        "Open policy questions closed"
+      ],
+      "story": "Sophie reviews a plan to accept agent purchases at a European retailer. The mandates help: a signed record of what the customer saw and approved, with only the needed fields disclosed. But AP2 itself claims no compliance. Its glossary defines Strong Customer Authentication and dynamic linking without saying a mandate satisfies them, and whether a standing open mandate counts as consent to a specific transaction under PSD2 is untested. She asks the team to keep mandates and receipts for the dispute window, to treat risk_data as personal data, and to follow the FIDO working group because the specification no longer evolves on GitHub.",
+      "sources": [
+        "src-ap2-glossary",
+        "src-ap2-security",
+        "src-policy-eu-psd2",
+        "src-ap2-faq"
+      ]
+    }
+  ],
+  "responsibilities": {
+    "columns": [
+      "consumer",
+      "wallet-cp",
+      "issuer",
+      "merchant-enterprise",
+      "agent-dev",
+      "compliance"
+    ],
+    "rows": [
+      {
+        "step": "Approve Mandate Content on the Trusted Surface",
+        "marks": {
+          "consumer": "owns",
+          "wallet-cp": "implements",
+          "issuer": "",
+          "merchant-enterprise": "",
+          "agent-dev": "relies-on",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Sign the checkout (checkout_jwt)",
+        "marks": {
+          "consumer": "",
+          "wallet-cp": "",
+          "issuer": "",
+          "merchant-enterprise": "owns",
+          "agent-dev": "relies-on",
+          "compliance": ""
+        }
+      },
+      {
+        "step": "Sign closed mandates in human-not-present mode",
+        "marks": {
+          "consumer": "relies-on",
+          "wallet-cp": "",
+          "issuer": "",
+          "merchant-enterprise": "",
+          "agent-dev": "owns",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Verify the Payment Mandate and issue a token",
+        "marks": {
+          "consumer": "",
+          "wallet-cp": "owns",
+          "issuer": "verifies",
+          "merchant-enterprise": "",
+          "agent-dev": "relies-on",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Verify the Checkout Mandate and constraints",
+        "marks": {
+          "consumer": "",
+          "wallet-cp": "",
+          "issuer": "",
+          "merchant-enterprise": "owns",
+          "agent-dev": "relies-on",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Track budget and recurrence state",
+        "marks": {
+          "consumer": "",
+          "wallet-cp": "owns",
+          "issuer": "",
+          "merchant-enterprise": "",
+          "agent-dev": "implements",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Return signed receipts",
+        "marks": {
+          "consumer": "",
+          "wallet-cp": "implements",
+          "issuer": "",
+          "merchant-enterprise": "owns",
+          "agent-dev": "relies-on",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Store the open, closed and receipt tuple",
+        "marks": {
+          "consumer": "",
+          "wallet-cp": "",
+          "issuer": "",
+          "merchant-enterprise": "",
+          "agent-dev": "owns",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Verify mandates and receipts in a dispute",
+        "marks": {
+          "consumer": "relies-on",
+          "wallet-cp": "verifies",
+          "issuer": "owns",
+          "merchant-enterprise": "implements",
+          "agent-dev": "",
+          "compliance": "observes"
+        }
+      },
+      {
+        "step": "Set retention and consent policy",
+        "marks": {
+          "consumer": "",
+          "wallet-cp": "implements",
+          "issuer": "implements",
+          "merchant-enterprise": "implements",
+          "agent-dev": "",
+          "compliance": "owns"
+        }
+      }
+    ]
+  }
+}

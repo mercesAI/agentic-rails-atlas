@@ -1,0 +1,321 @@
+{
+  "protocol": "ap2",
+  "summary": "AP2 assumes every LLM and agent can be turned against the user, so it puts the user's approval on a non-agentic Trusted Surface and binds every mandate to one checkout with hashes. Within that design, tampering with the checkout or payment and reusing a stolen mandate are well covered. The open problems sit before and after the signature: prompt injection that steers what the agent picks, replay at runtime because verifiers have no consume-once rule, no revocation of open mandates, no step-up in v0.2, and no retention rule for dispute evidence. No CVE or advisory exists for the repository; the published findings come from 2026 research papers and unreviewed GitHub issues.",
+  "threats": [
+    {
+      "id": "ap2-t1",
+      "stride": "S",
+      "title": "Manipulated discovery steers the agent",
+      "description": "Text in product listings or tool results (prompt injection) pushes the agent toward a brand, a pricier item or another user's credentials while it builds the cart.",
+      "preconditions": [
+        "The agent reads untrusted merchant or tool content",
+        "Constraints are wide enough to allow the steered choice"
+      ],
+      "impact": "A validly signed purchase that the user did not really want.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Signatures cover the final checkout, not the decision. Keep constraints narrow, show human-present approval for high value, and isolate the signer from the model.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-pub-2601-22569",
+        "src-ap2-pub-2609-11757",
+        "src-ap2-pub-2608-23858"
+      ]
+    },
+    {
+      "id": "ap2-t2",
+      "stride": "T",
+      "title": "Manipulated checkout",
+      "description": "The agent or a man in the middle alters items or price between the merchant's signed checkout and the user approval.",
+      "preconditions": [
+        "Agent or transport compromised"
+      ],
+      "impact": "User approves a different checkout than the merchant created.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "The merchant signs checkout_jwt and checks checkout_hash against its latest checkout before completing.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-schema-checkout",
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "id": "ap2-t3",
+      "stride": "T",
+      "title": "Manipulated payment",
+      "description": "The agent or Credential Provider changes payee, amount or instrument in transit.",
+      "preconditions": [
+        "A party between the Trusted Surface and the processor is malicious"
+      ],
+      "impact": "Funds go elsewhere or amount changes.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Processors and Credential Providers verify the user signature, the transaction_id binding and every constraint.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "id": "ap2-t4",
+      "stride": "S",
+      "title": "Stolen Payment Mandate reused with another checkout",
+      "description": "An attacker replays a captured closed Payment Mandate against a different checkout.",
+      "preconditions": [
+        "Mandate captured in transit or from logs"
+      ],
+      "impact": "Unauthorized purchase.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "transaction_id names one checkout_jwt hash; open mandates must carry payment.reference.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "id": "ap2-t5",
+      "stride": "R",
+      "title": "Replay of an accepted mandate at runtime",
+      "description": "Retries, concurrency or orchestration let the same accepted closed mandate be processed more than once.",
+      "preconditions": [
+        "Verifier keeps no consumed-mandate record"
+      ],
+      "impact": "Duplicate charges.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "The spec forbids overlapping presentations by the agent but defines no consume-once rule for verifiers; record each accepted mandate hash. Issue 346 reports the samples never consume accepted mandates.",
+      "sources": [
+        "src-ap2-pub-2602-06345",
+        "src-ap2-gh-issues-since",
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "id": "ap2-t6",
+      "stride": "E",
+      "title": "Double spend from one open mandate",
+      "description": "A compromised agent signs several closed mandates from one open mandate before any receipt arrives.",
+      "preconditions": [
+        "Agent signer reachable by the model or attacker"
+      ],
+      "impact": "Purchases beyond what the user approved.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "The deterministic part of the agent must not sign overlapping mandates without a rejection receipt; Credential Providers, networks or processors may reject overlaps or invalidate tokens.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "id": "ap2-t7",
+      "stride": "I",
+      "title": "Leakage of user intent through constraints",
+      "description": "A merchant learns the user's full budget or other merchants from open mandate constraints.",
+      "preconditions": [
+        "Agent discloses all constraints"
+      ],
+      "impact": "Privacy loss and price discrimination.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Selective disclosure is mandatory for constraints; decoy digests may be added; disclose only what the verifier needs.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "id": "ap2-t8",
+      "stride": "I",
+      "title": "Rainbow-table guessing of digests",
+      "description": "An observer guesses checkout contents from checkout_hash or disclosure digests.",
+      "preconditions": [
+        "Low-entropy checkout content",
+        "Deterministic signatures"
+      ],
+      "impact": "Purchase details exposed.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Salted digests per RFC 9901; the two spec documents disagree on deterministic signatures (issue 268). Use ECDSA and add entropy.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-spec-v02",
+        "src-ap2-issue-268"
+      ]
+    },
+    {
+      "id": "ap2-t9",
+      "stride": "E",
+      "title": "No revocation of an open mandate",
+      "description": "A user changes their mind or the agent is compromised, but an open mandate stays valid until exp.",
+      "preconditions": [
+        "Long exp",
+        "No out-of-band blocking"
+      ],
+      "impact": "Purchases after the user withdrew consent.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Use the shortest exp the task allows; Credential Providers and networks can refuse tokens. ERC-8226 shows an on-chain revoke for comparison.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-agent-authorization",
+        "src-ap2-erc8226"
+      ]
+    },
+    {
+      "id": "ap2-t10",
+      "stride": "S",
+      "title": "Agent key theft",
+      "description": "An attacker obtains the agent private key named in cnf.",
+      "preconditions": [
+        "Key stored where the model or host can reach it"
+      ],
+      "impact": "Attacker can close any open mandate within its constraints.",
+      "mitigatedBySpec": "partial",
+      "implementerNotes": "Proof of possession binds the mandate to the key, not to the agent's integrity. Keep the key in deterministic code or hardware; keep open mandates short and narrow.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "id": "ap2-t11",
+      "stride": "D",
+      "title": "Fallback abuse through unresolved_constraint",
+      "description": "An attacker forces repeated unresolved_constraint errors so the user is asked again and again, or into a non-agentic flow with weaker checks.",
+      "preconditions": [
+        "Merchant or agent behaves maliciously"
+      ],
+      "impact": "Approval fatigue; users approve without reading.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "v0.2 defines no step-up and no limit on fallbacks; Trusted Surfaces should show the full checkout each time.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-flows"
+      ]
+    },
+    {
+      "id": "ap2-t12",
+      "stride": "R",
+      "title": "Dispute evidence not retained",
+      "description": "Mandates and receipts are not stored, so nobody can prove what the user approved.",
+      "preconditions": [
+        "No retention agreement between parties"
+      ],
+      "impact": "Disputes fall back to network rules without evidence.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Retention and retrieval are out of scope; agree retention with your network and processor.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "ap2-s1",
+      "title": "Listing text upgrades the purchase",
+      "preconditions": [
+        "Open mandate allows any item from one merchant up to 300 USD",
+        "Agent reads product descriptions directly"
+      ],
+      "steps": [
+        "A listing includes text telling assistants to prefer the premium model",
+        "The agent builds a checkout for the premium model at 295 USD",
+        "The agent signs a closed mandate inside the constraints",
+        "Merchant and Credential Provider verify successfully"
+      ],
+      "impact": "A valid, fully evidenced purchase the user would not have chosen; mandates prove approval of limits, not of the choice.",
+      "sources": [
+        "src-ap2-pub-2609-11757",
+        "src-ap2-pub-2608-23858"
+      ]
+    },
+    {
+      "id": "ap2-s2",
+      "title": "Retry storm charges twice",
+      "preconditions": [
+        "Processor times out after charging",
+        "Verifier keeps no record of accepted mandates"
+      ],
+      "steps": [
+        "The agent receives no receipt and retries",
+        "The same closed mandate is accepted again",
+        "A second charge goes through"
+      ],
+      "impact": "Duplicate payment until reconciled.",
+      "sources": [
+        "src-ap2-pub-2602-06345",
+        "src-ap2-gh-issues-since"
+      ]
+    },
+    {
+      "id": "ap2-s3",
+      "title": "Compromised agent within a long open mandate",
+      "preconditions": [
+        "Open mandate with a week-long exp and a budget constraint",
+        "Agent key reachable on the host"
+      ],
+      "steps": [
+        "Attacker copies the agent key",
+        "Attacker closes mandates with allowed merchants up to the budget",
+        "The user cannot revoke the open mandate"
+      ],
+      "impact": "Loss up to the budget before exp.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-schema-open-payment"
+      ]
+    }
+  ],
+  "research": [
+    {
+      "title": "Beyond the Mandate: A Systematic Security Analysis of the Agent Payments Protocol (AP2)",
+      "date": "2026-08-24",
+      "finding": "48 threats in five families across five architectures, eight in the High band; valid signatures do not guarantee intent when the pre-authorization context is manipulated.",
+      "publicationId": "pub-aviv-2026-mandate",
+      "sources": [
+        "src-ap2-pub-2608-23858"
+      ]
+    },
+    {
+      "title": "Zero-Trust Runtime Verification for Agentic Payment Protocols",
+      "date": "2026-02-06",
+      "finding": "Replay and context-redirect gaps from retries and concurrency; consume-once nonces at about 3.8 ms in simulation.",
+      "publicationId": "pub-lan-2026-zerotrust",
+      "sources": [
+        "src-ap2-pub-2602-06345"
+      ]
+    },
+    {
+      "title": "Whispers of Wealth: Red-Teaming Google's Agent Payments Protocol via Prompt Injection",
+      "date": "2026-01-30",
+      "finding": "Branded Whisper and Vault Whisper attacks steer product ranking and extract user data from an AP2 shopping agent.",
+      "publicationId": "pub-debi-2026-whispers",
+      "sources": [
+        "src-ap2-pub-2601-22569"
+      ]
+    },
+    {
+      "title": "Signing the Transaction but Not the Decision: Whisper Attacks and a Binding Defense for AP2",
+      "date": "2026-09-10",
+      "finding": "Product-description text steers sample agents into credential fetches, cart divergence and upgrades; proposes A-VIP session binding.",
+      "publicationId": "pub-louck-2026-whisper",
+      "sources": [
+        "src-ap2-pub-2609-11757"
+      ]
+    },
+    {
+      "title": "A Formal Analysis of Agent Payment Protocols",
+      "date": "2026-08-30",
+      "finding": "Tamarin models of x402, MPP, ACP and AP2; 40 new formal-consistency findings across 86 cases.",
+      "publicationId": "pub-jiang-2026-formal",
+      "sources": [
+        "src-ap2-pub-2609-00060"
+      ]
+    },
+    {
+      "title": "SoK: Security of Autonomous LLM Agents in Agentic Commerce",
+      "date": "2026-04-15",
+      "finding": "12 cross-layer attack vectors across agent payment protocols including AP2.",
+      "publicationId": "pub-mao-2026-sok",
+      "sources": [
+        "src-ap2-pub-2604-15367"
+      ]
+    }
+  ],
+  "cves": [],
+  "trustBoundaryDiagram": "ap2-context"
+}
