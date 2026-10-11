@@ -96,7 +96,11 @@ function endpoints(): { list: Endpoint[]; source: string } {
   }
   const cfg = readJsonFile<{ source?: string; endpoints?: Endpoint[] }>(join(ROOT, 'scripts', 'data', 'agent0.json'));
   const key = process.env.GRAPH_API_KEY;
-  const list = (cfg?.endpoints ?? []).map((e) => (key ? { ...e, url: e.url.replace(/\/api\/[^/]+\//, `/api/${key}/`) } : e));
+  if (!key) {
+    warn('agent0', 'GRAPH_API_KEY and AGENT0_SUBGRAPH_URLS are unset; skipping Agent0 and keeping the previous snapshot');
+    return { list: [], source: 'none' };
+  }
+  const list = (cfg?.endpoints ?? []).map((e) => ({ ...e, url: e.url.replace('{GRAPH_API_KEY}', key) }));
   return { list, source: cfg?.source ?? 'scripts/data/agent0.json' };
 }
 
