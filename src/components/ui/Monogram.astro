@@ -1,0 +1,33 @@
+---
+/** Protocol monogram: rounded square with a short label in the family hue. No logos. */
+import type { Family } from '../../lib/schemas';
+
+export interface Props {
+  label: string;
+  family: Family;
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+const { label, family, size = 'md', class: className } = Astro.props;
+---
+<span class:list={['monogram', `monogram--${size}`, className]} data-family={family} aria-hidden="true">{label}</span>
+
+<style>
+  .monogram {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--family-ink);
+    background: var(--family-soft);
+    border: 1px solid var(--family-fill);
+    border-radius: var(--radius-md);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .monogram--sm { min-width: 2.1rem; height: 1.6rem; padding: 0 0.3rem; font-size: 0.68rem; border-radius: var(--radius-sm); }
+  .monogram--md { min-width: 3rem; height: 2.4rem; padding: 0 0.45rem; font-size: 0.85rem; }
+  .monogram--lg { min-width: 4.5rem; height: 4rem; padding: 0 0.7rem; font-size: 1.2rem; border-radius: var(--radius-lg); }
+</style>

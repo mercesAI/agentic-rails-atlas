@@ -1,0 +1,19 @@
+---
+/** Callout kinds: note, caution, disambiguation, changed. The kind label is always visible text. */
+export type CalloutKind = 'note' | 'caution' | 'disambiguation' | 'changed';
+export interface Props {
+  kind?: CalloutKind;
+  title?: string;
+}
+const DEFAULT_TITLES: Record<CalloutKind, string> = {
+  note: 'Note',
+  caution: 'Caution',
+  disambiguation: 'Not to be confused with',
+  changed: 'Changed recently',
+};
+const { kind = 'note', title } = Astro.props;
+---
+<aside class="callout" data-kind={kind} role="note" aria-label={title ?? DEFAULT_TITLES[kind]}>
+  <p class="callout__title"><span class="callout__glyph" aria-hidden="true"></span>{title ?? DEFAULT_TITLES[kind]}</p>
+  <div class="callout__body"><slot /></div>
+</aside>

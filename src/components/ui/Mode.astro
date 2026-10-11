@@ -1,0 +1,17 @@
+---
+/**
+ * Reading-mode block. Text outside <Mode> is practitioner text (also shown in spec mode).
+ * <Mode eli5> shows only in ELI5; <Mode spec> only in Spec-deep. tokens.css does the switching.
+ */
+export interface Props {
+  eli5?: boolean;
+  spec?: boolean;
+  practitioner?: boolean;
+  ste?: boolean;
+}
+const { eli5, spec, practitioner, ste } = Astro.props;
+const modes = [eli5 && 'eli5', practitioner && 'practitioner', spec && 'spec', ste && 'ste'].filter(Boolean).join(' ');
+---
+<div class="mode-block" data-modes={modes || 'practitioner spec'}>
+  <slot />
+</div>

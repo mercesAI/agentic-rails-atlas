@@ -1,0 +1,34 @@
+---
+/**
+ * Freshness: green under 30 days since verification, amber 30 to 90, red over 90.
+ * The dot shape also changes (filled, half, hollow) so color is not the only channel.
+ */
+import { BUILD_DATE } from '../../lib/constants';
+import { freshness, FRESHNESS_LABELS } from '../../lib/freshness';
+
+export interface Props {
+  date: string;
+  buildDate?: string;
+}
+const { date, buildDate = BUILD_DATE } = Astro.props;
+const { level, days } = freshness(date, buildDate);
+---
+<span class="fresh" data-level={level} title={`${days} days before the build date ${buildDate}`}>
+  <span class="fresh__dot" aria-hidden="true"></span>
+  <span>Verified <time datetime={date}>{date}</time></span>
+  <span class="sr-only">({FRESHNESS_LABELS[level]})</span>
+</span>
+
+<style>
+  .fresh {
+    display: inline-flex; align-items: center; gap: 0.45em;
+    font-size: 0.8125rem; color: var(--fg-muted);
+    padding: 0.1em 0.55em; border: 1px solid var(--border); border-radius: 999px;
+  }
+  .fresh__dot { width: 0.6em; height: 0.6em; border-radius: 50%; border: 1.5px solid var(--c); }
+  [data-level='green'] { --c: var(--fresh-green); }
+  [data-level='green'] .fresh__dot { background: var(--c); }
+  [data-level='amber'] { --c: var(--fresh-amber); }
+  [data-level='amber'] .fresh__dot { background: linear-gradient(90deg, var(--c) 50%, transparent 50%); }
+  [data-level='red'] { --c: var(--fresh-red); }
+</style>

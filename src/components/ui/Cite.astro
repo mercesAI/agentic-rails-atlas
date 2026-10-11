@@ -1,0 +1,33 @@
+---
+/**
+ * Citation marker. `ids` is a space-separated list of claim ids or source ids.
+ * Numbers come from the page source order set by `setPageSources` (lib/citations.ts).
+ * Unknown ids render a "[?]" marker with data-missing so verifiers can find them; the build never fails.
+ */
+import { resolveCite } from '../../lib/citations';
+
+export interface Props {
+  ids: string;
+}
+const { ids } = Astro.props;
+const resolved = resolveCite(ids, Astro.url.pathname);
+const numbers = [...new Set(resolved.flatMap((r) => r.numbers))].sort((a, b) => a - b);
+const claims = resolved.filter((r) => r.claim);
+const title = claims.map((r) => r.claim?.text).join(' | ') || undefined;
+const order = { unverified: 0, reported: 1, verified: 2 } as const;
+const confidence = claims
+  .map((r) => r.confidence)
+  .filter((c): c is NonNullable<typeof c> => Boolean(c))
+  .sort((a, b) => order[a] - order[b])[0];
+const missing = resolved.filter((r) => r.kind === 'unknown').map((r) => r.id);
+---
+<sup class="cite" data-confidence={confidence}>
+  {numbers.length === 0 ? (
+    <a href="#sources" data-cite={ids} data-missing={missing.join(' ') || undefined} title={title}>[?]<span class="sr-only"> citation pending</span></a>
+  ) : (
+    <a href={`#src-${numbers[0]}`} data-cite={ids} title={title}>
+      <span class="sr-only">Source </span>[{numbers.join(', ')}]
+    </a>
+  )}
+  {confidence === 'unverified' && <span class="cite__flag" title="Unverified claim">?<span class="sr-only"> unverified</span></span>}
+</sup>

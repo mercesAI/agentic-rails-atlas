@@ -1,0 +1,26 @@
+---
+/** Status as a small dot plus a text label (color is never the only channel). */
+import type { Status } from '../../lib/schemas';
+
+export interface Props {
+  status: Status;
+  showLabel?: boolean;
+  note?: string;
+}
+const LABELS: Record<Status, string> = { draft: 'Draft', beta: 'Beta', pilot: 'Pilot', live: 'Live', mixed: 'Mixed' };
+const { status, showLabel = true, note } = Astro.props;
+---
+<span class="status" data-status={status} title={note}>
+  <span class="status__dot" aria-hidden="true"></span>
+  {showLabel ? <span class="status__label">{LABELS[status]}</span> : <span class="sr-only">Status: {LABELS[status]}</span>}
+</span>
+
+<style>
+  .status { display: inline-flex; align-items: center; gap: 0.4em; font-size: 0.875rem; color: var(--fg-muted); }
+  .status__dot { width: 0.55em; height: 0.55em; border-radius: 50%; background: var(--dot); box-shadow: 0 0 0 2px var(--bg); }
+  [data-status='draft'] { --dot: var(--status-draft); }
+  [data-status='beta'] { --dot: var(--status-beta); }
+  [data-status='pilot'] { --dot: var(--status-pilot); }
+  [data-status='live'] { --dot: var(--status-live); }
+  [data-status='mixed'] { --dot: var(--status-mixed); }
+</style>

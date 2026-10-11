@@ -1,0 +1,47 @@
+---
+/**
+ * Small label chip. Rails use a ring glyph whose border style encodes the rail
+ * (solid card, dashed crypto, dotted bank, double rail-agnostic or multi-rail); families use the family hue.
+ */
+import type { Family, Rail } from '../../lib/schemas';
+
+export interface Props {
+  href?: string;
+  rail?: Rail;
+  family?: Family;
+  active?: boolean;
+  class?: string;
+}
+const { href, rail, family, active = false, class: className } = Astro.props;
+const Tag = href ? 'a' : 'span';
+---
+<Tag
+  href={href}
+  class:list={['chip', { 'chip--family': family, 'chip--active': active }, className]}
+  data-family={family}
+  data-rail={rail}
+  aria-current={href && active ? 'true' : undefined}
+>
+  {rail && <span class="chip__ring" aria-hidden="true"></span>}
+  {family && !rail && <span class="chip__swatch" aria-hidden="true"></span>}
+  <slot />
+</Tag>
+
+<style>
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.4em;
+    padding: 0.15em 0.6em; font-size: 0.8125rem; line-height: 1.5;
+    color: var(--fg-muted); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 999px;
+    text-decoration: none; white-space: nowrap;
+  }
+  a.chip:hover { color: var(--fg); border-color: var(--border-strong); background: var(--surface-hover); }
+  .chip--active { color: var(--fg); border-color: var(--border-strong); }
+  .chip--family { color: var(--family-ink); background: var(--family-soft); border-color: transparent; }
+  .chip__swatch { width: 0.5em; height: 0.5em; border-radius: 2px; background: var(--family-fill); }
+  .chip__ring { width: 0.75em; height: 0.75em; border-radius: 50%; border: 1.5px solid currentColor; }
+  [data-rail='crypto'] .chip__ring { border-style: dashed; }
+  [data-rail='bank'] .chip__ring { border-style: dotted; border-width: 2px; }
+  [data-rail='rail-agnostic'] .chip__ring,
+  [data-rail='multi-rail'] .chip__ring { border-style: double; border-width: 3px; }
+</style>

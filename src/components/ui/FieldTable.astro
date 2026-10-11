@@ -1,0 +1,58 @@
+---
+/**
+ * Field table for spec-deep blocks. Pass `fields` inline, or `source` naming
+ * src/content/fieldtables/<id>.json ({caption?, specVersion?, fields[]}) for reuse.
+ */
+export interface Field {
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
+  specRef?: string;
+}
+export interface Props {
+  fields?: Field[];
+  caption?: string;
+  specVersion?: string;
+  source?: string;
+}
+interface FieldFile { caption?: string; specVersion?: string; fields: Field[] }
+
+const files = import.meta.glob<FieldFile>('/src/content/fieldtables/*.json', { eager: true, import: 'default' });
+const { source } = Astro.props;
+const fromFile = source ? files[`/src/content/fieldtables/${source}.json`] : undefined;
+if (source && !fromFile) console.warn(`[FieldTable] missing src/content/fieldtables/${source}.json`);
+const fields = Astro.props.fields ?? fromFile?.fields ?? [];
+const caption = Astro.props.caption ?? fromFile?.caption ?? 'Fields';
+const specVersion = Astro.props.specVersion ?? fromFile?.specVersion;
+---
+<div class="table-wrap field-table" role="region" aria-label={caption} tabindex="0">
+  <table>
+    <caption>
+      {caption}
+      {specVersion && <span class="field-table__version">Spec version {specVersion}</span>}
+    </caption>
+    <thead>
+      <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Required</th><th scope="col">Description</th></tr>
+    </thead>
+    <tbody>
+      {fields.length === 0 && <tr><td colspan="4">Field list in progress.</td></tr>}
+      {fields.map((f) => (
+        <tr>
+          <th scope="row"><code>{f.name}</code></th>
+          <td><code>{f.type}</code></td>
+          <td>{f.required ? 'Yes' : 'No'}</td>
+          <td>
+            {f.description}
+            {f.specRef && (
+              <>
+                {' '}
+                <a class="field-table__ref" href={f.specRef} rel="noopener noreferrer external">Spec<span class="sr-only"> reference for {f.name}</span></a>
+              </>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
