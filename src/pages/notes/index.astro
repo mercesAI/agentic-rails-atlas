@@ -1,0 +1,26 @@
+---
+/** /notes/: every note from the shared atlas:notes store, with search, export and import. Client-side only. */
+import Page from '../../layouts/Page.astro';
+import NotesHub from '../../components/hub/NotesHub';
+import { getProtocols, getScenarioEntries, getOrbitEntries } from '../../lib/content';
+import { SECTION_TITLES } from '../../lib/schemas';
+import '../../components/hub/hub.css';
+
+const scopes: Record<string, { name: string; href: string }> = {};
+for (const p of await getProtocols()) scopes[p.slug] = { name: p.name, href: `/p/${p.slug}/` };
+for (const s of await getScenarioEntries()) scopes[s.data.slug] ??= { name: s.data.title, href: `/scenarios/${s.data.slug}/` };
+for (const o of await getOrbitEntries()) if (o.data.starred) scopes[o.data.slug] ??= { name: o.data.name, href: `/orbit/${o.data.slug}/` };
+const titles: Record<string, string> = Object.fromEntries(
+  Object.entries(SECTION_TITLES).map(([id, title]) => [id, `${id.charAt(0).toUpperCase()}. ${title}`]),
+);
+---
+<Page
+  title="My notes"
+  eyebrow="Notes"
+  lede="All the notes you have written on protocol pages, in one place. Search them, edit them, and export or import them as Markdown or JSON."
+  prose={false}
+>
+  <div class="hub">
+    <NotesHub client:load scopes={scopes} titles={titles} />
+  </div>
+</Page>
