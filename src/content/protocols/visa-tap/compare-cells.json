@@ -1,0 +1,564 @@
+{
+  "cells": [
+    {
+      "protocol": "visa-tap",
+      "dimension": "primary-job",
+      "value": "Agent identification on merchant web requests",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified",
+      "detail": "The agent signs each request with RFC 9421, tagged browse or pay, and may add signed consumer and payment objects."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "layers-covered",
+      "value": "Identity and trust; carries payment credentials at checkout",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified",
+      "detail": "No settlement, consent or dispute layer; those sit in VIC and card rails."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "stewards",
+      "value": "Visa (developed with Cloudflare)",
+      "sources": [
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "governance-model",
+      "value": "Proprietary Visa specification",
+      "sources": [
+        "src-visa-tap-terms",
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified",
+      "detail": "Visa changes it alone; licensees apply updates within six months; Visa says it will align with IETF, OpenID Foundation and EMVCo."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "license-spec-and-code",
+      "value": "Visa Developer Center Terms plus TAP Product Terms (revocable, no modification)",
+      "sources": [
+        "src-visa-tap-terms",
+        "src-visa-tap-repo-license"
+      ],
+      "confidence": "verified",
+      "detail": "Sample files carry MIT-style headers, conflicting with LICENSE.md."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "first-announced",
+      "value": "2025-10-14",
+      "sources": [
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "latest-version-and-date",
+      "value": "No version number; launched 2025-10-14",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-gh-meta"
+      ],
+      "confidence": "verified",
+      "detail": "Sample repository last changed 2025-10-28."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "maturity",
+      "value": "Live at named merchants, still in development",
+      "sources": [
+        "src-visa-eu-live",
+        "src-visa-tap-overview"
+      ],
+      "confidence": "verified",
+      "detail": "Live European purchases 2026-07-02; overview says development and deployment, not in all markets."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "transports",
+      "value": "HTTP headers and request body",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "detail": "No published MCP or ACP binding."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "settlement-rails",
+      "value": "Card (Visa network)",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified",
+      "detail": "TAP itself moves no money."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "agent-identity-model",
+      "value": "RFC 9421 signature with a key registered by the payment scheme",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-jwks"
+      ],
+      "confidence": "verified",
+      "detail": "Key store at mcp.visa.com/.well-known/jwks; onboarding not public."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "user-authorization-model",
+      "value": "None in TAP; passkey-approved Payment Instructions in VIC",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "detail": "The ID Token can carry auth_time and amr."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Agent acting for a consumer who approved an instruction in VIC",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "detail": "TAP has no presence indicator."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "merchant-of-record",
+      "value": "The merchant",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "detail": "TAP does not change who sells."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "credential-type",
+      "value": "Agent signing key; VIC agent-specific network token in the payment container",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified",
+      "detail": "Credential hash, encrypted payload or browsingIOU depending on processing path."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "cryptography",
+      "value": "RFC 9421 (Ed25519 in examples), PS256 body objects, JWT and JWS ID Token",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-rfc9421"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "replay-protection",
+      "value": "8-minute window plus nonce; nonce tracking optional",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "native-spending-controls",
+      "value": "None",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "detail": "Limits live in VIC."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "revocation",
+      "value": "Key removal or expiry only",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "detail": "No revocation list or status endpoint."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "refunds-and-disputes",
+      "value": "Not in TAP; card dispute rules and VIC signals",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-worldpay-liability"
+      ],
+      "confidence": "reported",
+      "detail": "No agent-specific liability shift published."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "privacy-exposure",
+      "value": "Consumer IP address, device data, country, postal code and obfuscated contacts reach each merchant",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "detail": "No minimization or retention rule."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "discovery-mechanism",
+      "value": "Visa key store (JWKS); Agentic Directory announced",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-jun10"
+      ],
+      "confidence": "verified",
+      "detail": "No public directory list found."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Registration required (Visa onboarding)",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "decentralization",
+      "value": "Centralized: one Visa-controlled key store",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-cf-blog"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-visa-eu-live"
+      ],
+      "confidence": "verified",
+      "detail": "Public JWKS and repository; no events, logs or counts."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No TAP fee stated; VIC production fees on request; no agent-specific interchange published",
+      "sources": [
+        "src-visa-tap-terms",
+        "src-visa-vic-dev",
+        "src-nevermined-vic",
+        "src-mcc-2026"
+      ],
+      "confidence": "reported",
+      "detail": "Evidence of absence from Visa pages and secondary reviews (2026)."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "who-pays",
+      "value": "Card economics unchanged",
+      "sources": [
+        "src-nevermined-vic",
+        "src-worldpay-liability"
+      ],
+      "confidence": "reported",
+      "detail": "Merchant pays usual acquiring fees."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "builds-on-standards",
+      "value": "RFC 9421, JWT, JWS, OpenID Connect ID Token, JWKS",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "composes-with",
+      "value": "Stripe MPP, x402 (browsingIOU), OpenAI ACP and UCP via Intelligent Commerce Connect",
+      "sources": [
+        "src-mpp-card-draft",
+        "src-visa-tap-spec",
+        "src-visa-icc",
+        "src-ap2-repo"
+      ],
+      "confidence": "verified",
+      "detail": "No documented link to AP2 or ERC-8004."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "visa/trusted-agent-protocol sample (unpackaged); mppx TAP attestation",
+      "sources": [
+        "src-visa-tap-gh-meta",
+        "src-mppx-tap"
+      ],
+      "confidence": "verified",
+      "detail": "No Visa TAP package on npm or PyPI."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "adoption-evidence",
+      "value": "Four merchants named live (2026-07-02); Cloudflare and Akamai at the edge",
+      "sources": [
+        "src-visa-eu-live",
+        "src-akamai-pr"
+      ],
+      "confidence": "verified",
+      "detail": "No count of verifying merchants published."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "published-security-research",
+      "value": "None specific",
+      "sources": [
+        "src-pub-2606-08790",
+        "src-pub-2609-00060",
+        "src-visa-tap-gh-meta"
+      ],
+      "confidence": "verified",
+      "detail": "RAILS names TAP; the formal analysis of 2026-08-30 does not model it; no CVE."
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "regulatory-touchpoints",
+      "value": "Card liability rules (Reg Z and E, PSD2, UK PSRs), SCA, GDPR for consumer data",
+      "sources": [
+        "src-policy-regz-1026-12",
+        "src-policy-eu-rts-sca",
+        "src-policy-eu-gdpr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "biggest-open-question",
+      "value": "How do production agent keys reach verifiers, and will TAP converge with Web Bot Auth?",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-wba-draft"
+      ],
+      "confidence": "verified"
+    }
+  ],
+  "radar": [
+    {
+      "protocol": "visa-tap",
+      "axis": "openness",
+      "value": 1,
+      "justification": "Public specification but revocable proprietary terms that forbid modification.",
+      "sources": [
+        "src-visa-tap-terms"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "decentralization",
+      "value": 1,
+      "justification": "One Visa-controlled key store and Visa onboarding of agents.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-jwks"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Unversioned specification, no test vectors, sample unchanged since 2025-10-28.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-gh-meta"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Named live merchants and CDNs, no counts of verifying merchants.",
+      "sources": [
+        "src-visa-eu-live",
+        "src-akamai-pr"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "human-not-present",
+      "value": 2,
+      "justification": "Signs agent requests without the user present; consent and limits come from VIC.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "No dispute mechanism in TAP; card rules and VIC signals apply.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-worldpay-liability"
+      ]
+    }
+  ],
+  "controlsCells": [
+    {
+      "protocol": "visa-tap",
+      "control": "agent-identity-verification",
+      "support": "native",
+      "note": "RFC 9421 signature with a key from the payment scheme's key store; the tag states browse or pay intent.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "Agents are onboarded to Visa Intelligent Commerce and approved by the scheme; the process is not public. The Agentic Directory (2026-06-10) lists agents Visa has verified.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev",
+        "src-visa-jun10"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "Consent lives in VIC, where the user approves each Payment Instruction with a passkey; the ID Token can carry auth_time and amr.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "spending-caps",
+      "support": "external",
+      "note": "No amounts or limits in TAP; VIC Payment Instructions and network controls apply.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "merchant-payee-scoping",
+      "support": "partial",
+      "note": "@authority binds the signature to one merchant host and @path to a page; the method and body are not bound.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "created and expires at most 8 minutes apart; created must be past and expires future.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "revocation",
+      "support": "partial",
+      "note": "An expired or missing key blocks verification; no revocation list or key status endpoint is specified.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "step-up-authentication",
+      "support": "external",
+      "note": "Step-up verification and Visa Payment Passkeys happen in VIC.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-eu-live"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "Nonce plus time window, but nonce tracking is optional for the verifier.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "receipts-evidence",
+      "support": "none",
+      "note": "TAP defines no receipt; VIC confirmations and commerce signals serve as transaction evidence.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-ai-vic-client"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "dispute-support",
+      "support": "external",
+      "note": "VIC signals support dispute resolution; no agent-specific liability shift is published.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-worldpay-liability"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "reputation",
+      "support": "none",
+      "note": "No reputation mechanism for agents; Agent Score rates merchant sites for agent readiness, not agents.",
+      "sources": [
+        "src-visa-jun10"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Visa says TAP feeds telemetry into its fraud and risk models; CDNs expose verification results to zone owners.",
+      "sources": [
+        "src-visa-threats",
+        "src-cf-signed-agent-field"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "kill-switch",
+      "support": "partial",
+      "note": "Visa can remove a key from its store and merchants can block untagged or failing requests; no emergency procedure is documented.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    }
+  ]
+}

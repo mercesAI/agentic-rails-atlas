@@ -1,0 +1,55 @@
+[
+  {
+    "from": "visa-tap",
+    "to": "stripe-mpp",
+    "type": "compatible-with",
+    "note": "Visa authored the MPP card method; draft-card-charge-00 lets a client add TAP signature headers, Visa says the card spec and mpp-card SDK are built on VIC and TAP, and mppx signs and verifies TAP attestations.",
+    "sources": [
+      "src-mpp-card-draft",
+      "src-visa-mpp-card",
+      "src-mppx-tap"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "x402",
+    "type": "complements",
+    "note": "TAP's browsingIOU answers an HTTP 402 with card-acquiring data but uses none of x402's headers or payloads; Visa is a Premier member of the x402 Foundation and said at launch it was working with Coinbase on interoperability.",
+    "sources": [
+      "src-visa-tap-spec",
+      "src-x402-lf-july",
+      "src-visa-tap-pr"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "openai-acp",
+    "type": "complements",
+    "note": "Visa says TAP complements ACP and Intelligent Commerce Connect accepts ACP payments; no wire-level binding is published.",
+    "sources": [
+      "src-visa-tap-pr",
+      "src-visa-icc"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "ucp",
+    "type": "complements",
+    "note": "Intelligent Commerce Connect accepts UCP payments and Visa is listed as a UCP endorser; UCP has its own RFC 9421 signing, closer to the Web Bot Auth draft, and never names TAP.",
+    "sources": [
+      "src-visa-icc",
+      "src-ucp-site",
+      "src-ucp-signatures"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "mastercard-agent-pay",
+    "type": "competes-with",
+    "note": "Same pattern on another network: RFC 9421 signatures with a network tag and a nonce, verified at the CDN. Mastercard uses one tag, Agent-pay-auth, and its own key directory, whose location is not public.",
+    "sources": [
+      "src-visa-tap-cf-blog",
+      "src-mcap-dev-level1"
+    ]
+  }
+]

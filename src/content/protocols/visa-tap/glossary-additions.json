@@ -1,0 +1,150 @@
+[
+  {
+    "id": "trusted-agent-protocol",
+    "term": "Trusted Agent Protocol",
+    "aliases": [
+      "Visa TAP",
+      "TAP"
+    ],
+    "plain": "Visa's specification for AI agents to sign their web requests to merchants with RFC 9421, tagged for browsing or paying, with optional signed consumer and payment objects. It identifies agents and moves no money.",
+    "ste": "A Visa specification. An AI agent uses it to sign requests to a merchant. It does not move money.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec",
+      "src-visa-tap-pr"
+    ]
+  },
+  {
+    "id": "agent-provider",
+    "term": "Agent Provider",
+    "aliases": [
+      "Agent"
+    ],
+    "plain": "In TAP, a certified AI platform that a payment scheme has onboarded and approved to pay on behalf of its account holders. It holds the signing key.",
+    "ste": "An AI platform that a payment scheme approved. It signs requests for the consumer.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "checkout-enabler",
+    "term": "Checkout Enabler",
+    "aliases": [],
+    "plain": "In TAP, an intermediary that an agent may use to reach merchant sites. TAP only expects it to pass signatures and query parameters through unchanged.",
+    "ste": "A service between the agent and the merchant. It must send the signatures to the merchant without a change.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "site-protection-provider",
+    "term": "Site Protection Provider",
+    "aliases": [],
+    "plain": "In TAP, the layer in front of a merchant site, such as a CDN, trust management system or proxy, that can verify agent signatures for the merchant.",
+    "ste": "A CDN or proxy in front of the merchant site. It can verify the signatures for the merchant.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "payment-credential-hash",
+    "term": "Payment credential hash",
+    "aliases": [
+      "paymentCredentialsHash",
+      "credentialHash"
+    ],
+    "plain": "A TAP field that hashes the card number, expiry month and year and security code so a merchant can check key-entered card data. The specification names no algorithm or salt.",
+    "ste": "A hash of the card data. The merchant compares it with a hash of the card data that the agent types.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "contextual-data",
+    "term": "Contextual data",
+    "aliases": [],
+    "plain": "The TAP object inside the consumer recognition object with countryCode, zip, ipAddress and deviceData of the consumer.",
+    "ste": "Data about the device and location of the consumer: country, postal code, IP address and device data.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "payment-account-reference",
+    "term": "Payment account reference",
+    "aliases": [
+      "PAR",
+      "paymentAccountReference"
+    ],
+    "plain": "A reference to the funding account behind a card credential, carried in TAP's cardMetadata so merchants can link token and virtual card payments to one account.",
+    "ste": "A reference to the account behind a card. It links different tokens of one card.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "payment-instruction",
+    "term": "Payment Instruction",
+    "aliases": [
+      "purchase instruction"
+    ],
+    "plain": "In Visa Intelligent Commerce, the user's instruction to an agent, authenticated with a passkey, against which VIC releases payment credentials. Visa's client creates it with POST /vacp/v1/instructions.",
+    "ste": "An instruction from the consumer to the agent. The consumer approves it with a passkey.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-vic-dev",
+      "src-visa-ai-vic-client"
+    ]
+  },
+  {
+    "id": "agentic-directory",
+    "term": "Agentic Directory",
+    "aliases": [
+      "Agent Directory",
+      "Agentic Registry"
+    ],
+    "plain": "Visa's directory, announced 2026-06-10, of agents and merchants it has verified as legitimate participants in agentic commerce. No public list was found.",
+    "ste": "A Visa list of agents and merchants that Visa verified.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-jun10"
+    ]
+  },
+  {
+    "id": "intelligent-commerce-connect",
+    "term": "Intelligent Commerce Connect",
+    "aliases": [],
+    "plain": "A Visa on-ramp, in pilot since 2026-04-08, that lets merchants accept agent payments initiated through TAP, MPP, ACP and UCP.",
+    "ste": "A Visa service that lets merchants accept agent payments from different protocols.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-icc"
+    ]
+  }
+]
