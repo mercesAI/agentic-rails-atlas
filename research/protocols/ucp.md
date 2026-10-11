@@ -470,3 +470,82 @@ Who pays: merchant pays its PSP only (UCP on Google), card economics unchanged.
 | Merchant count, transaction volume | not published | 2026-10-11 | none | Google said "hundreds" of companies showed interest (2026-02-11) |
 | Interest | "hundreds of top tech companies, payments partners and retailers" | 2026-02-11 | [src-ucp-google-feb2026] | Marketing claim |
 
+## Relations to the other seven protocols
+
+- **AP2 (Agent Payments Protocol).** AP2 is an optional extension inside UCP, not the same protocol. UCP defines where AP2 artifacts go (`ap2.merchant_authorization`, `ap2.checkout_mandate`, payment mandate in `payment.instruments[*].credential.token`); the mandate formats come from the AP2 specification. The extension existed since v2026-01-11 as `dev.ucp.shopping.ap2_mandate` and was renamed `dev.ucp.common.payment.ap2_mandate` in v2026-08-25 [src-ucp-ap2-spec] [src-ucp-schema-ap2] [src-ucp-schema-ap2-0408]. Google's FAQ says AP2 "can be used as a specialized payment layer within UCP" [src-ucp-google-faq]. Google donated AP2 to the FIDO Alliance on 2026-04-28 [src-ucp-google-ap2-fido], and on 2026-05-19 said it would "begin bringing AP2 to Google products in the coming months, starting with Gemini Spark" [src-ucp-google-universal-cart]. Production use of AP2 mandates inside UCP (or anywhere) is unverified as of 2026-10-11.
+- **x402.** No documented relation. The UCP spec does not mention x402 or HTTP 402 and defines no stablecoin handler. Coinbase sits on the UCP Payments Tech Council (governance overlap only) [src-ucp-maintainers].
+- **Visa Trusted Agent Protocol (TAP).** No documented bridge. Both use RFC 9421 HTTP Message Signatures. UCP added Web Bot Auth interop in v2026-08-25 (`Signature-Agent`, `tag="web-bot-auth"`), the same direction TAP is aligned with, but the UCP spec never names TAP. Visa is a listed UCP endorser [src-ucp-signatures] [src-ucp-site].
+- **OpenAI ACP (Agentic Commerce Protocol).** No bridge or mapping is specified. Both cover agent checkout with the merchant as merchant of record. Stripe co-develops ACP and holds a UCP Governing Council seat (since 2026-04-28) and Shopping and Payments TC seats [src-ucp-announcements] [src-ucp-maintainers]. Reported fee contrast: Shopify merchants pay a 4% fee on ChatGPT checkout sales while Google and Microsoft checkouts carry no additional fee "for now" [src-ucp-pymnts-fees].
+- **Stripe MPP (Machine Payments Protocol).** No documented relation in the UCP spec. Stripe's UCP page documents a Stripe Payments handler for UCP, which is a card and wallet tokenization path, not MPP [src-ucp-stripe-docs].
+- **Mastercard Agent Pay.** No documented integration. UCP's `network_token` credential type (with `cryptogram`, `eci_value`, `token_requestor_id`) can carry network tokens in general [src-ucp-schema-payment]. Which network's agentic token, if any, flows inside a Google Pay handler is not published; Google's FAQ says UCP on Google AI surfaces supports only `PAN_ONLY` for Google Pay `allowed_auth_methods` [src-ucp-google-faq]. Mastercard is a listed UCP endorser [src-ucp-site].
+- **ERC-8004 (Trustless Agents).** No documented relation. UCP identity is domain-based (profiles, reverse-DNS names, JWK sets), not on-chain [src-ucp-overview].
+- **Transports (context, not one of the eight).** MCP and A2A are UCP transport bindings [src-ucp-overview].
+
+## Criticisms and open questions
+
+- Google's structural control: Google holds a permanent GC seat, the proxy vote for all open GC seats until December 2028 (2 of 5 seats open on 2026-10-11), custody of the ucp.dev domain, 6 of 10 permanent Food TC seats and 6 of 12 permanent Lodging TC seats; there is no foundation [src-ucp-governance] [src-ucp-maintainers].
+- Privacy and upselling: Senator Warren's letter dated 2026-02-03 raised data sharing with retailers and upselling (reported) [src-ucp-eweek-warren]. The UCP roadmap lists "native cross-sell and upsell modules" as a priority [src-ucp-roadmap].
+- Merchant consent and measurement: reported automatic enrollment of eligible US Shopify merchants with manual opt-out (September 2026) and concerns about attribution gaps when checkout happens on Google surfaces [src-ucp-ppcland-shopify]. The spec's `attribution` field passes campaign parameters such as `gclid` but prescribes no attribution model [src-ucp-overview].
+- Complexity: two layers of negotiation (pick one protocol version profile, then exact-version capability intersection), schema composition with `extends`, `$requestConstraints`, actions and multiple transports [src-ucp-overview].
+- Documentation drift: the ucp.dev "UCP and AP2" page still describes a `checkoutSignature` and a CheckoutMandate holding a hash of the checkout, while the schema uses `ap2.merchant_authorization` and a checkout mandate that contains the full checkout (see Conflicts) [src-ucp-ucp-and-ap2-page] [src-ucp-ap2-spec].
+- Conformance lag: the conformance README targets 2026-04-08 while the latest release is 2026-08-25 [src-ucp-conformance].
+- Permissionless onboarding shifts abuse handling to each business (discovery budgets, SSRF guards) [src-ucp-overview].
+- Backports amend dated releases in place, so two parties can hold different copies of the same version [src-ucp-overview].
+- Open: live AP2 use; merchant and volume numbers; whether and when non-Google platforms (Copilot) are live on UCP rather than feeds; whether Google Pay tokens on AI surfaces will move beyond `PAN_ONLY`.
+
+## Resources
+
+| Title | URL | Publisher | Date | Type | Badge | Note | Start here |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| UCP home | https://ucp.dev | UCP Authors | 2026-10-11 (read) | spec site | official | Co-developers and endorsers | yes |
+| Specification overview (latest) | https://ucp.dev/latest/specification/overview/ | UCP Authors | 2026-08-25 | spec | official | Discovery, negotiation, payments | yes |
+| Specification (draft) | https://ucp.dev/draft/specification/overview/ | UCP Authors | rolling | spec | official, draft | Unreleased changes | no |
+| UCP repository | https://github.com/Universal-Commerce-Protocol/ucp | UCP Authors | 2025-12-31 (created) | repo | official | Schemas, OpenAPI, OpenRPC, releases | yes |
+| Announcements | https://ucp.dev/documentation/announcements/ | UCP Authors | 2026-09-25 (latest entry) | announcement | official | Releases and councils | no |
+| Governance | https://github.com/Universal-Commerce-Protocol/.github/blob/main/GOVERNANCE.md | UCP Authors | 2026-10-05 (commit) | governance | official | Councils, proxy vote | no |
+| UCP and AP2 | https://ucp.dev/documentation/ucp-and-ap2/ | UCP Authors | 2026 | docs | official | Note naming drift | no |
+| Google UCP guide | https://developers.google.com/merchant/ucp/ | Google | 2026-10-11 (read) | docs | vendor | Native vs embedded checkout | yes |
+| Google UCP FAQ | https://developers.google.com/merchant/ucp/faq | Google | 2026-10-11 (read) | docs | vendor | MoR, PSP, `PAN_ONLY`, user agents | yes |
+| Under the Hood: UCP | https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/ | Google Developers | 2026-01-11 | engineering | vendor | Demo checkout | yes |
+| Building the Universal Commerce Protocol | https://shopify.engineering/UCP | Shopify (Ilya Grigorik) | 2026-01-11 | engineering | co-author | Rationale | yes |
+| The next era of agentic retail (NRF remarks) | https://blog.google/company-news/inside-google/message-ceo/nrf-2026-remarks/ | Google | 2026-01-11 | announcement | vendor | Launch | no |
+| Digital advertising and commerce in 2026 | https://blog.google/products/ads-commerce/digital-advertising-commerce-2026/ | Google | 2026-02-11 | announcement | vendor | Etsy and Wayfair live in US | no |
+| Universal Cart | https://blog.google/products-and-platforms/products/shopping/google-shopping-cart/ | Google | 2026-05-19 | announcement | vendor | Product, not the protocol | no |
+| UCP features at Google Marketing Live | https://blog.google/products-and-platforms/products/shopping/shopping-updates-google-marketing-live/ | Google | 2026-05-20 | announcement | vendor | Ads, Canada, Australia, UK | no |
+| UCP: Building a common language for agentic commerce (talk) | https://w3c.github.io/ecommerce-for-humans-and-AI-Agents-workshop/agenda.html | W3C/GS1 workshop (Amit Handa, Google) | 2026-09-08 | talk | event | Conference talk with slides | no |
+| Shopify: UCP / WebMCP (talk) | https://w3c.github.io/ecommerce-for-humans-and-AI-Agents-workshop/agenda.html | W3C/GS1 workshop (Yoav Weiss, Shopify) | 2026-09-08 | talk | event | Production view | no |
+| Microsoft agentic commerce and Copilot Checkout | https://about.ads.microsoft.com/en/solutions/technology/agentic-commerce | Microsoft Advertising | 2026-10-11 (read) | docs | vendor | "MMC will support UCP" | no |
+| Stripe UCP docs | https://docs.stripe.com/agentic-commerce/protocols/ucp | Stripe | 2026-10-11 (read) | docs | vendor | Stripe Payments handler | no |
+| Adyen Agentic Payments with UCP | https://docs.adyen.com/online-payments/agentic-commerce/agent-platform/agentic-payments-ucp | Adyen | 2026-10-09 (modified) | docs | vendor | Tokenization handler | no |
+| Samples | https://github.com/Universal-Commerce-Protocol/samples | UCP Authors | 2026-01-06 (created) | repo | official | REST and A2A samples | yes |
+| Conformance tests | https://github.com/Universal-Commerce-Protocol/conformance | UCP Authors | 2026-01-06 (created) | repo | official | Test suite | no |
+| UCP Explained (Ep. 43) | https://smarter-ecommerce.com/en/podcast/season-4/universal-commerce-protocol-ucp-explained-what-every-ecommerce-brand-must-know/ | Growing Ecommerce | 2026-06-30 | podcast | secondary | Merchant prep | no |
+| Will Agentic Commerce Replace Search? (Ep. 22) | https://smarter-ecommerce.com/en/podcast/season-4/google-s-ucp-explained-will-agentic-commerce-replace-search-in-2026/ | Growing Ecommerce | 2026-02-10 | podcast | secondary | UCP vs rivals | no |
+| Deep Dive: Shopify and Google's UCP | https://www.fintechwrapup.com/p/deep-dive-breaking-down-shopify-and | Fintech Wrap Up | 2026-01-18 | newsletter | secondary | Bindings, AP2 link | no |
+| How to Integrate UCP with AI Agents | https://www.analyticsvidhya.com/blog/2026/01/universal-commerce-protocol-by-google/ | Analytics Vidhya | 2026-01-12 | tutorial | secondary | Local demo | no |
+| Google's UCP Powers Agentic Shopping | https://www.infoq.com/news/2026/01/google-ucp | InfoQ | 2026-01-24 | long-form | secondary | Architecture summary | no |
+| UCP: Solving the N x N Bottleneck | https://uday.bearblog.dev/ucp/ | Uday (blog) | 2026-01 | long-form | secondary | Why a shared protocol | no |
+| Agentic commerce and the battleground for payments infrastructure | https://bankunderground.co.uk/2026/05/21/agentic-commerce-and-the-battleground-for-new-payments-infrastructure/ | Bank Underground (BoE staff blog) | 2026-05-21 | long-form | secondary | Cross-protocol | no |
+| Every Agent Payment Protocol Compared | https://atxp.ai/blog/agent-payment-protocols-compared | ATXP | 2026-03-04 | long-form | secondary | x402, ACP, UCP, AP2 | no |
+| The Agentic Payments Map | https://www.fintechbrainfood.com/p/the-agentic-payments-map | Fintech Brainfood | 2026-02-01 | newsletter | secondary | All protocols | no |
+| Agentic payments protocols compared | https://crossmint.com/learn/agentic-payments-protocols-compared | Crossmint | 2026-03-12 | long-form | secondary | Readiness matrix | no |
+
+All URLs returned HTTP 200 to `curl -sSIL` on 2026-10-11 except where noted (the announcements and governance URLs are the published forms of files read in the repo). Conference talk coverage: the earlier pass found none; this pass found the W3C/GS1 "E-commerce for Humans and AI Agents" workshop (Zurich, 2026-09-08 to 2026-09-09) with a UCP session by Amit Handa (Google) and a Shopify UCP and WebMCP session by Yoav Weiss, both with slides [src-ucp-w3c-workshop].
+
+## Publications
+
+| Id | Title | Authors | Date | Relation to UCP | Verified via |
+| --- | --- | --- | --- | --- | --- |
+| arXiv:2606.05043 | Strabo: Declarative Specification and Implementation of Agentic Interaction Protocols | Samuel H. Christie, Amit K. Chopra, Munindar P. Singh | 2026-06-03 | Models UCP checkout as a Langshaw protocol and interoperates with Google's UCP agents | export.arxiv.org API |
+| arXiv:2602.06345 | Zero-Trust Runtime Verification for Agentic Payment Protocols: Mitigating Replay and Context-Binding Failures in AP2 | Qianlong Lan, Anuj Kaul, Shaun Jones, Stephanie Westrum | 2026-02-06 | Abstract names UCP and AP2 as mandate-based protocols | export.arxiv.org API |
+| arXiv:2607.21824 | Protocol-Level Attacks on Agentic Commerce Platforms: A Cross-Platform Taxonomy, AIP-Bench, and Unified Defense | Yedidel Louck | 2026-07-23 | Context (abstract does not name UCP) | export.arxiv.org API |
+| arXiv:2609.00060 | A Formal Analysis of Agent Payment Protocols | Ke Jiang et al. | 2026-08-30 | Context (abstract does not name UCP) | export.arxiv.org API |
+| arXiv:2508.02630 | What Is Your AI Agent Buying? Evaluation, Biases, Model Dependence, and Emerging Implications for Agentic E-Commerce | Amine Allouah et al. | 2025-08-04 | Context | export.arxiv.org API |
+| arXiv:2510.25779 | Magentic Marketplace: An Open-Source Environment for Studying Agentic Markets | Gagan Bansal et al. | 2025-10-27 | Context | export.arxiv.org API |
+| arXiv:2607.25253 | The User Asks, Platforms Compete: How Agentic Recommendation Markets Take Shape | Deyao Hong et al. | 2026-07-28 | Context | export.arxiv.org API |
+| arXiv:2608.08395 | From Product Search to Preference Articulation: The Economics of Agentic Commerce | Lingxiu Dong, Kaiwen Luo, Fasheng Xu | 2026-08-09 | Context | export.arxiv.org API |
+| arXiv:2307.13854 | WebArena: A Realistic Web Environment for Building Autonomous Agents | Shuyan Zhou et al. | 2023-07-25 | Context | export.arxiv.org API |
+| DOI 10.1162/154247603322493212 | Platform Competition in Two-Sided Markets | Jean-Charles Rochet, Jean Tirole | 2003-06 | Foundations | doi.org CSL-JSON |
+
+An arXiv abstract search for "Universal Commerce Protocol" returned 2 results on 2026-10-11 (2606.05043 and 2602.06345). The seed statement "no paper names UCP" is corrected.
+

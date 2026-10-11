@@ -12,3 +12,5 @@
 - 2026-10-11, ucp: https://www.warren.senate.gov/?p=31789 and /newsroom/news-coverage/...: HTTP 403; alternative used: eWeek 2026-02-05 coverage (letter marked reported)
 - 2026-10-11, ucp: https://www.searchenginejournal.com/ (UCP March update article): HTTP 403; alternative used: techwyse.com coverage (reported)
 - 2026-10-11, ucp: https://searchengineland.com/google-opens-native-ai-checkout-to-eligible-shopify-merchants-490407: HTTP 403; alternative used: ppc.land 2026-09-23 (reported)
+- 2026-10-11, openai-acp: https://openai.com/index/buy-it-in-chatgpt/ and https://openai.com/index/powering-product-discovery-in-chatgpt/: HTTP 403 to curl and WebFetch; alternative used: Wayback Machine snapshots 20261007012440 and 20260929220135 (text read from the archived HTML).
+- 2026-10-11, ucp: https://fidoalliance.org/google-donates-agent-payments-protocol-to-fido-alliance/: HTTP 403; alternative used: Google blog 2026-04-28 post
