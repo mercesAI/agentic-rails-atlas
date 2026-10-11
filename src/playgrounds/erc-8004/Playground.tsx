@@ -286,7 +286,7 @@ function RegistrationPanel({ say }: { say: (s: string) => void }) {
         </button>
       )}
       <p aria-live="polite">
-        <strong>{validation.ok ? 'Valid' : `${errors} error${errors === 1 ? '' : 's'}`}</strong> against a schema {SCHEMA_LABEL.toLowerCase()}.
+        <strong>{validation.ok ? 'Valid' : `${errors} error${errors === 1 ? '' : 's'}`}</strong> against a local schema ({SCHEMA_LABEL}).
       </p>
       <Issues issues={validation.issues} />
       <p className="e8-tag">
