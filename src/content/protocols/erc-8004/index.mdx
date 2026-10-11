@@ -110,8 +110,361 @@ keyFacts:
     claimIds: [clm-erc-8004-105, clm-erc-8004-106, clm-erc-8004-107]
 ---
 
-Section B is being written.
+<Mode eli5>
+
+Picture a notice board in a town square that no single shop owns. Any helper robot can pin a card on it. The card has a number, and it points to a longer profile: the robot's name, what it can do, how to reach it, and whether it takes payment. Whoever holds the card can hand it to someone else, the way you might sell a shop sign.
+
+Next to the board hangs a guestbook. Anyone who used a robot can write a short score in it, with a word or two that says what the score is about, such as "fast" or "reachable". The robot's own owner may not write about their own robot. You can cross out your own entry later, and anyone can pin a reply under an entry, for example "I gave this person a refund".
+
+The guestbook has a weak spot. Writing in it costs almost nothing, so one person can pretend to be a hundred happy customers. That is why the board only adds up scores from writers you say you trust. Everything else you have to judge for yourself.
+
+A third book, where independent checkers would confirm that a robot did its work correctly, is described in the rules, but nobody has officially hung it up yet.
+
+The board never handles money. If you pay a robot, you pay somewhere else, and you can mention that payment in your guestbook note so others can check it.
+
+The board already holds a huge number of cards, but most of them lead to empty profiles or to doors that never open. A big board is not the same thing as a board full of good robots.
+
+</Mode>
+
+ERC-8004 answers one question: how does an agent find another agent it has never met, and decide how far to trust it, without a platform in the middle?<Cite ids="clm-erc-8004-197" /> It puts three small registries on Ethereum and other EVM (Ethereum Virtual Machine) chains.<Cite ids="clm-erc-8004-018 clm-erc-8004-019" /> The Identity Registry mints each agent an ERC-721 token, the token type behind NFTs (non-fungible tokens). The token points to a registration file that lists the agent's services, such as an MCP (Model Context Protocol) server or an A2A (Agent2Agent) agent card.<Cite ids="clm-erc-8004-020 clm-erc-8004-043 clm-erc-8004-047" /> The Reputation Registry lets any address except the owner and its operators post a score with tags.<Cite ids="clm-erc-8004-053 clm-erc-8004-055" /> The Validation Registry, where an independent validator would record a check of the agent's work, is specified but not officially deployed.<Cite ids="clm-erc-8004-079 clm-erc-8004-083" /> ERC-8004 moves no money: payments are out of scope, and an x402 payment can only add evidence to a piece of feedback.<Cite ids="clm-erc-8004-017 clm-erc-8004-159" /> What ERC-8004 does not give you: proof that an agent works, protection against fake reviewers, or any check on who runs it. The text says as much and leaves ranking to whoever reads the data.<Cite ids="clm-erc-8004-110 clm-erc-8004-109 clm-erc-8004-118" /> It is a Draft ERC (Ethereum Request for Comments), not a Final one, even though its registries are listed on 25 mainnets.<Cite ids="clm-erc-8004-002 clm-erc-8004-099" />
+
+### Problem and design goals
+
+The authors start from a gap. MCP lets a server list its tools and A2A handles messaging and task lifecycles. Neither tells you which agent to pick from an organization you have never dealt with, or whether it behaved well before.<Cite ids="clm-erc-8004-197" /> ERC-8004 fills that gap with three lightweight registries meant to run as one singleton per chain, on Ethereum mainnet or a Layer 2 network.<Cite ids="clm-erc-8004-018 clm-erc-8004-019" /> Trust is meant to scale with the value at risk: client feedback for cheap tasks, and stake-secured re-execution, zkML (zero-knowledge machine learning) proofs or TEE (trusted execution environment) oracles for expensive ones.<Cite ids="clm-erc-8004-196" />
+
+Three design choices follow. First, identity reuses ERC-721, so any wallet or NFT app can display and transfer an agent without new code.<Cite ids="clm-erc-8004-020" /> Second, almost everything descriptive lives off-chain in a registration file that the token points to, served over IPFS (the InterPlanetary File System), HTTPS or an inline data URI.<Cite ids="clm-erc-8004-043" /> Third, feedback keeps a few numbers and tags on-chain so smart contracts can read them, and pushes detail into events and off-chain files.<Cite ids="clm-erc-8004-057 clm-erc-8004-058" /> The registries filter by reviewer and tag; anything smarter, such as weighting or graph analysis, is expected to happen off-chain.<Cite ids="clm-erc-8004-198" />
+
+The scope is narrow on purpose. Payments are orthogonal and not covered.<Cite ids="clm-erc-8004-017" /> Validator incentives and slashing belong to whatever validation protocol plugs in.<Cite ids="clm-erc-8004-082" /> And the text admits that it can tie a file to an on-chain agent but cannot guarantee that the advertised capabilities work or are safe.<Cite ids="clm-erc-8004-110" /> If an agent lists no trust models in its file, the registration is for discovery only.<Cite ids="clm-erc-8004-049" />
+
+### Actors and roles
+
+The owner holds the ERC-721 token for an agent. In ERC-8004 the token id is called agentId and the token URI is called agentURI.<Cite ids="clm-erc-8004-021" /> Operators are addresses the owner approves through the normal ERC-721 approval functions; they can update the URI, metadata and wallet and request validation, just like the owner.<Cite ids="clm-erc-8004-220 clm-erc-8004-033" />
+
+The agent wallet is the address where the agent receives payments. It starts as the owner's address, and changing it needs a signature from the new wallet.<Cite ids="clm-erc-8004-035 clm-erc-8004-036" /> Clients are any addresses that give feedback; neither the owner nor an operator may rate its own agent.<Cite ids="clm-erc-8004-053 clm-erc-8004-055" /> When the client is itself an agent, it should give feedback from its agent wallet so that reputation can be aggregated per agent.<Cite ids="clm-erc-8004-072" /> Responders are anyone at all: the agent showing that it refunded someone, or an aggregator tagging feedback as spam.<Cite ids="clm-erc-8004-063" />
+
+Validators are addresses or contracts named in a validation request, and only the named validator may answer it.<Cite ids="clm-erc-8004-080" /> Two roles sit outside the text but matter in practice. The owner of the registry contracts can upgrade them, and on Ethereum and Base that owner is a single EOA (externally owned account) whose holder is not published.<Cite ids="clm-erc-8004-105 clm-erc-8004-106 clm-erc-8004-107" /> Indexers and explorers, such as 8004scan (powered by AltLayer) and the Agent0 subgraphs on The Graph, turn events into searchable data.<Cite ids="clm-erc-8004-123 clm-erc-8004-121" />
+
+### Core objects
+
+An agent is named globally by two values. The first, agentRegistry, has the form namespace, chain id and registry address joined by colons, with `eip155` as the namespace for EVM chains; the second is the agentId.<Cite ids="clm-erc-8004-022 clm-erc-8004-023" /> The text says ids are assigned incrementally, and the deployed code starts at 0: the first agent on Ethereum mainnet has id 0.<Cite ids="clm-erc-8004-024" />
+
+The registration file is what agentURI resolves to. Its `type` is a fixed URI ending in `#registration-v1`, followed by a name, description and image for NFT apps, a services list, two booleans (`x402Support` and `active`), a registrations list and an optional supportedTrust list.<Cite ids="clm-erc-8004-044 clm-erc-8004-045" /> Each service has a name and an endpoint, with a recommended version; the example names web, A2A, MCP, OASF, ENS (Ethereum Name Service), DID (decentralized identifier) and email.<Cite ids="clm-erc-8004-046 clm-erc-8004-047" /> Each registrations entry carries an agentId and an agentRegistry, which binds the file back to one or more on-chain identities.<Cite ids="clm-erc-8004-048" /> The text gives the structure as an example, not as a JSON Schema, so "required" is partly a reading of that example.<Cite ids="clm-erc-8004-051" /> An agent may also prove that it controls an HTTPS service domain by serving a matching registrations entry at `/.well-known/agent-registration.json` on that domain.<Cite ids="clm-erc-8004-050" />
+
+On-chain metadata is a key and bytes value store per agent.<Cite ids="clm-erc-8004-027 clm-erc-8004-032" /> One key, `agentWallet`, is reserved: you cannot set it through the generic setter or at registration.<Cite ids="clm-erc-8004-034" />
+
+Feedback is a signed fixed-point number: an int128 value plus a valueDecimals count from 0 to 18.<Cite ids="clm-erc-8004-052" /> Two free-text tags say what the number means; the text's examples include starred, reachable, uptime, successRate, responseTime and revenues, and an uptime of 99.77% is written as 9977 with two decimals.<Cite ids="clm-erc-8004-070 clm-erc-8004-071" /> Only value, decimals, both tags and a revoked flag are stored; the endpoint, the URI of a detail file and that file's keccak256 hash are emitted in the event and then forgotten by the contract.<Cite ids="clm-erc-8004-057 clm-erc-8004-058 clm-erc-8004-060" /> Each entry gets a feedbackIndex that counts from 1 per client and agent.<Cite ids="clm-erc-8004-059" />
+
+The off-chain feedback file repeats the registry, agent, client, timestamp, value and decimals, and can add tags, the rated endpoint, MCP, A2A or OASF context and a proofOfPayment object.<Cite ids="clm-erc-8004-073 clm-erc-8004-074" /> That object has four fields (from and to addresses, a chain id and a transaction hash), and it lives only in the file: the registry stores no payment data and never checks the proof.<Cite ids="clm-erc-8004-075 clm-erc-8004-076" />
+
+<Mode spec>
+
+**Field tables.** Spec version: ERC-8004 Draft, text last changed 2026-01-25, read at ethereum/ERCs commit b1f2bd8. Function details come from the reference contracts at erc-8004-contracts commit b9e466c (implementation version 2.0.0). Descriptions are paraphrased.
+
+<FieldTable caption="Agent registration file (resolved from agentURI)" specVersion="Draft 2026-01-25" fields={[
+  { "name": "type", "type": "string (URI)", "required": true, "description": "Fixed value https://eips.ethereum.org/EIPS/eip-8004#registration-v1.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "name", "type": "string", "required": true, "description": "Agent name; with description and image it SHOULD keep ERC-721 apps working.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "description", "type": "string", "required": true, "description": "Natural-language description; may include pricing and how to interact.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "image", "type": "string (URL)", "required": true, "description": "Image for NFT apps and explorers.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "services", "type": "array of service objects", "required": true, "description": "Endpoints; number and kind are up to the developer. Renamed from endpoints on 2026-01-25.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "x402Support", "type": "boolean", "required": true, "description": "Whether the agent accepts x402 payments. Shown in the required structure; no schema enforces it.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "active", "type": "boolean", "required": true, "description": "Whether the agent is live. Shown in the required structure; best practices treat it as optional.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "registrations", "type": "array of registration objects", "required": true, "description": "SHOULD hold at least one entry; every field of an entry is mandatory.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" },
+  { "name": "supportedTrust", "type": "array of string", "required": false, "description": "Examples reputation, crypto-economic, tee-attestation. Absent or empty means discovery only.", "specRef": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md" }
+]} />
+
+<FieldTable caption="Service entry (one item of services)" specVersion="Draft 2026-01-25" fields={[
+  { "name": "name", "type": "string", "required": true, "description": "Examples web, A2A, MCP, OASF, ENS, DID, email." },
+  { "name": "endpoint", "type": "string", "required": true, "description": "URL, IPFS URI, ENS name, DID or email address." },
+  { "name": "version", "type": "string", "required": false, "description": "SHOULD, not MUST; for example an MCP protocol date or an A2A version." },
+  { "name": "skills", "type": "array of string", "required": false, "description": "OPTIONAL, shown on the OASF entry." },
+  { "name": "domains", "type": "array of string", "required": false, "description": "OPTIONAL, shown on the OASF entry." }
+]} />
+
+<FieldTable caption="Registration entry (one item of registrations)" specVersion="Draft 2026-01-25" fields={[
+  { "name": "agentId", "type": "number", "required": true, "description": "The ERC-721 tokenId in the named registry." },
+  { "name": "agentRegistry", "type": "string", "required": true, "description": "{namespace}:{chainId}:{identityRegistry}, for example eip155:1 plus the registry address." }
+]} />
+
+<FieldTable caption="MetadataEntry (register overload with metadata)" specVersion="Draft 2026-01-25" fields={[
+  { "name": "metadataKey", "type": "string", "required": true, "description": "Any key except the reserved agentWallet." },
+  { "name": "metadataValue", "type": "bytes", "required": true, "description": "Raw bytes; read back with getMetadata." }
+]} />
+
+**Identity Registry** (contract `IdentityRegistryUpgradeable`, token name `AgentIdentity`, symbol `AGENT`).
+
+| Function or event | Who calls | What it does |
+| --- | --- | --- |
+| `register()`, `register(string agentURI)`, `register(string agentURI, MetadataEntry[] metadata)` | anyone | Mints to the caller, sets `agentWallet` to the caller, returns `agentId` |
+| `setAgentURI(uint256 agentId, string newURI)` | owner or operator | Emits `URIUpdated` |
+| `getMetadata(uint256 agentId, string metadataKey)` returns `bytes` | anyone | Reads one key |
+| `setMetadata(uint256 agentId, string metadataKey, bytes metadataValue)` | owner or operator | Any key except `agentWallet`; emits `MetadataSet` |
+| `setAgentWallet(uint256 agentId, address newWallet, uint256 deadline, bytes signature)` | owner or operator | Stores a wallet after checking the new wallet's signature |
+| `getAgentWallet(uint256 agentId)`, `unsetAgentWallet(uint256 agentId)` | anyone; owner or operator | Read or clear the wallet |
+| `Registered(uint256 indexed agentId, string agentURI, address indexed owner)` | event | One per registration, with `Transfer` and `MetadataSet` |
+| `URIUpdated(uint256 indexed agentId, string newURI, address indexed updatedBy)` | event | After `setAgentURI` |
+| `MetadataSet(uint256 indexed agentId, string indexed indexedMetadataKey, string metadataKey, bytes metadataValue)` | event | Every metadata write, including `agentWallet` |
+
+<FieldTable caption="Feedback record stored by the Reputation Registry" specVersion="Draft 2026-01-25; contracts 2.0.0" fields={[
+  { "name": "value", "type": "int128", "required": true, "description": "Signed fixed-point value; the reference code bounds it to plus or minus 1e38." },
+  { "name": "valueDecimals", "type": "uint8", "required": true, "description": "0 to 18." },
+  { "name": "tag1", "type": "string", "required": false, "description": "Dimension, for example starred or uptime." },
+  { "name": "tag2", "type": "string", "required": false, "description": "Sub-dimension, for example day or week." },
+  { "name": "isRevoked", "type": "bool", "required": true, "description": "Set by revokeFeedback; no way back." }
+]} />
+
+<FieldTable caption="Off-chain feedback file (at feedbackURI)" specVersion="Draft 2026-01-25" fields={[
+  { "name": "agentRegistry", "type": "string", "required": true, "description": "eip155:{chainId}:{identityRegistry}." },
+  { "name": "agentId", "type": "number", "required": true, "description": "Rated agent." },
+  { "name": "clientAddress", "type": "string", "required": true, "description": "eip155:{chainId}:{address} in the example." },
+  { "name": "createdAt", "type": "string", "required": true, "description": "ISO 8601 timestamp in the example." },
+  { "name": "value", "type": "number", "required": true, "description": "Same as on-chain." },
+  { "name": "valueDecimals", "type": "number", "required": true, "description": "Same as on-chain." },
+  { "name": "tag1, tag2, endpoint", "type": "string", "required": false, "description": "Same meaning as the on-chain call." },
+  { "name": "mcp", "type": "object", "required": false, "description": "One of tool, prompt or resource." },
+  { "name": "a2a", "type": "object", "required": false, "description": "skills, contextId, taskId as defined by A2A." },
+  { "name": "oasf", "type": "object", "required": false, "description": "skills and domains as defined by OASF." },
+  { "name": "proofOfPayment", "type": "object", "required": false, "description": "fromAddress, toAddress, chainId, txHash; usable for an x402 payment; never checked on-chain." }
+]} />
+
+**Reputation Registry** (contract `ReputationRegistryUpgradeable`).
+
+| Function or event | Who calls | What it does |
+| --- | --- | --- |
+| `giveFeedback(uint256 agentId, int128 value, uint8 valueDecimals, string tag1, string tag2, string endpoint, string feedbackURI, bytes32 feedbackHash)` | any address except the owner and operators | Stores value, decimals and tags; emits `NewFeedback` |
+| `revokeFeedback(uint256 agentId, uint64 feedbackIndex)` | the original client | Sets `isRevoked`; emits `FeedbackRevoked` |
+| `appendResponse(uint256 agentId, address clientAddress, uint64 feedbackIndex, string responseURI, bytes32 responseHash)` | anyone | Emits `ResponseAppended`; does not change the value |
+| `getSummary(uint256 agentId, address[] clientAddresses, string tag1, string tag2)` returns `(uint64 count, int128 summaryValue, uint8 summaryValueDecimals)` | anyone | Reverts when `clientAddresses` is empty |
+| `readFeedback`, `readAllFeedback`, `getResponseCount`, `getClients`, `getLastIndex`, `getIdentityRegistry` | anyone | Reads |
+| `NewFeedback(uint256 indexed agentId, address indexed clientAddress, uint64 feedbackIndex, int128 value, uint8 valueDecimals, string indexed indexedTag1, string tag1, string tag2, string endpoint, string feedbackURI, bytes32 feedbackHash)` | event | The only place `endpoint`, `feedbackURI` and `feedbackHash` appear on-chain |
+
+**Validation Registry** (specified, not officially deployed): `validationRequest(address validatorAddress, uint256 agentId, string requestURI, bytes32 requestHash)` by the owner or an operator; `validationResponse(bytes32 requestHash, uint8 response, string responseURI, bytes32 responseHash, string tag)` by the named validator, `response` from 0 to 100; reads `getValidationStatus`, `getSummary` returning `(count, averageResponse)`, `getAgentValidations`, `getValidatorRequests`.
+
+**Tag examples from the text.** `starred` 87 with 0 decimals; `reachable` 1; `ownerVerified` 1; `uptime` 9977 with 2 decimals for 99.77%; `successRate` 89; `responseTime` 560 (ms); `blocktimeFreshness` 4 (blocks); `revenues` 560 (for example USD); `tradingYield` with `tag2` of day, week, month or year, -32 with 1 decimal for -3.2%. The best-practices copy of this table shows 32 without the minus sign; the specification is primary.
+
+Illustrative example, spec version Draft 2026-01-25: a registration file for an agent on Ethereum mainnet. Endpoints and ids are invented.
+
+```json
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "weather-oracle",
+  "description": "Returns current weather for a city. Pay per call with x402.",
+  "image": "https://agent.example/logo.png",
+  "services": [
+    { "name": "web", "endpoint": "https://agent.example/" },
+    { "name": "A2A", "endpoint": "https://agent.example/.well-known/agent-card.json", "version": "0.3.0" },
+    { "name": "MCP", "endpoint": "https://mcp.agent.example/", "version": "2025-06-18" }
+  ],
+  "x402Support": true,
+  "active": true,
+  "registrations": [
+    { "agentId": 4242, "agentRegistry": "eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432" }
+  ],
+  "supportedTrust": ["reputation"]
+}
+```
+
+Illustrative example, spec version Draft 2026-01-25: a feedback file that records an x402 payment. The file is uploaded first; `giveFeedback` then carries its URI and hash.
+
+```json
+{
+  "agentRegistry": "eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "agentId": 4242,
+  "clientAddress": "eip155:8453:0xA11CE0000000000000000000000000000000A11C",
+  "createdAt": "2026-10-11T12:00:00Z",
+  "value": 87,
+  "valueDecimals": 0,
+  "tag1": "starred",
+  "endpoint": "https://mcp.agent.example/",
+  "mcp": { "tool": "get_weather" },
+  "proofOfPayment": {
+    "fromAddress": "0xA11CE0000000000000000000000000000000A11C",
+    "toAddress": "0xB0B0000000000000000000000000000000000B0B",
+    "chainId": "8453",
+    "txHash": "0x5e5e...7a1c"
+  }
+}
+```
+
+</Mode>
+
+### Message flow step by step
+
+The main sequence in section C covers registration and wallet binding, the two calls every agent owner makes.<Cite ids="clm-erc-8004-026 clm-erc-8004-036" />
+
+1. The owner writes the registration file and hosts it on IPFS or HTTPS, or encodes it as a base64 data URI to keep it fully on-chain.<Cite ids="clm-erc-8004-043" />
+2. The owner calls one of the three register functions on the Identity Registry. The registry mints the token to the caller and sets the agent wallet to the caller.<Cite ids="clm-erc-8004-026 clm-erc-8004-035" />
+3. The transaction emits a Transfer event, a MetadataSet event for the agent wallet, one MetadataSet per extra metadata entry, and a Registered event with the new agentId.<Cite ids="clm-erc-8004-028 clm-erc-8004-029" />
+4. If the file was written before the id was known, the owner adds the agentId to its registrations list and calls setAgentURI, which emits URIUpdated.<Cite ids="clm-erc-8004-048 clm-erc-8004-030" />
+5. Optionally, the owner serves `/.well-known/agent-registration.json` on each service domain that differs from the file's own domain.<Cite ids="clm-erc-8004-050" />
+6. To receive payments at a different address, the new wallet signs an EIP-712 typed message that names the agent, the wallet, the owner and a deadline; a contract wallet answers an ERC-1271 check instead.<Cite ids="clm-erc-8004-036 clm-erc-8004-037" />
+7. The owner or an operator submits that signature with setAgentWallet. The reference code accepts a deadline at most 5 minutes ahead.<Cite ids="clm-erc-8004-038" />
+
+Feedback after a payment has a fixed order. The client pays through x402 or any other rail, with no ERC-8004 call involved.<Cite ids="clm-erc-8004-017" /> It writes and uploads the feedback file with the proofOfPayment object, computes the file's hash, and only then calls giveFeedback with the file's URI and hash.<Cite ids="clm-erc-8004-077 clm-erc-8004-060" /> The registry stores the value, decimals and tags under the next feedbackIndex and emits NewFeedback with the rest.<Cite ids="clm-erc-8004-057 clm-erc-8004-061" /> Nobody on-chain checks the proof, the hash or the file; a reader who cares must fetch the file, compare the hash and look the transaction up on the named chain.<Cite ids="clm-erc-8004-076" />
+
+Reading reputation starts with a choice the registry forces on you: which reviewers do you trust? getSummary needs a non-empty list of client addresses and reverts without one.<Cite ids="clm-erc-8004-066" /> It returns a count and a plain mean of the matching, non-revoked values, normalized to 18 decimals and reported at the most common decimals.<Cite ids="clm-erc-8004-065 clm-erc-8004-067" /> For anything better, read every entry with readAllFeedback and the events, and score them off-chain.<Cite ids="clm-erc-8004-068 clm-erc-8004-198" />
+
+Every write has a failure path, and section C plays three of them. A wallet signature fails with "expired", "deadline too far" or "invalid wallet sig".<Cite ids="clm-erc-8004-039" /> An owner who rates its own agent hits "Self-feedback not allowed".<Cite ids="clm-erc-8004-056" /> A token transfer clears the agent wallet, so payments addressed to the old wallet no longer match until the new owner binds one again.<Cite ids="clm-erc-8004-041" /> A broken registration file fails nowhere on-chain: the registries never read it, so explorers and clients must handle a dead link themselves.<Cite ids="clm-erc-8004-217" />
+
+<Mode spec>
+
+**Wallet binding signature.** Domain name `ERC8004IdentityRegistry`, version `1`, the chain id and the registry address. Typed struct `AgentWalletSet(uint256 agentId,address newWallet,address owner,uint256 deadline)`. The reference code tries ECDSA recovery first (this also covers EIP-7702 delegated accounts), then ERC-1271 `isValidSignature` with magic value `0x1626ba7e`.
+
+Illustrative example, spec version Draft 2026-01-25 with contracts 2.0.0: the typed data the new wallet signs. Addresses are invented.
+
+```json
+{
+  "domain": {
+    "name": "ERC8004IdentityRegistry",
+    "version": "1",
+    "chainId": 8453,
+    "verifyingContract": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
+  },
+  "primaryType": "AgentWalletSet",
+  "types": {
+    "AgentWalletSet": [
+      { "name": "agentId", "type": "uint256" },
+      { "name": "newWallet", "type": "address" },
+      { "name": "owner", "type": "address" },
+      { "name": "deadline", "type": "uint256" }
+    ]
+  },
+  "message": {
+    "agentId": "4242",
+    "newWallet": "0xB0B0000000000000000000000000000000000B0B",
+    "owner": "0x0E0E000000000000000000000000000000000E0E",
+    "deadline": "1791720240"
+  }
+}
+```
+
+**Revert strings in the reference contracts (2.0.0).**
+
+| Call | Revert |
+| --- | --- |
+| `register(agentURI, metadata)`, `setMetadata` | `reserved key` (the key is `agentWallet`) |
+| `setAgentURI`, `setMetadata`, `setAgentWallet`, `unsetAgentWallet` | `Not authorized` (caller is not owner or operator) |
+| `setAgentWallet` | `bad wallet`, `expired`, `deadline too far`, `invalid wallet sig` |
+| `giveFeedback` | `Self-feedback not allowed`, `too many decimals`, `value too large`, `ERC721NonexistentToken` |
+| `revokeFeedback` | `index must be > 0`, `index out of bounds`, `Already revoked` |
+| `appendResponse` | `index must be > 0`, `Empty URI`, `index out of bounds` |
+| `getSummary` | `clientAddresses required` |
+| `validationRequest`, `validationResponse` | `bad validator`, `exists`, `Not authorized`, `unknown`, `not validator`, `resp>100` |
+
+</Mode>
+
+### Lifecycle and states
+
+An agent identity has few states, and most of them are about the wallet. Registration leaves the agent with or without a URI, and with its wallet set to the owner.<Cite ids="clm-erc-8004-026 clm-erc-8004-035" /> setAgentWallet moves it to a verified wallet, and unsetAgentWallet clears it.<Cite ids="clm-erc-8004-036 clm-erc-8004-040" /> Any ERC-721 transfer clears the wallet too, and the new owner has to bind one again.<Cite ids="clm-erc-8004-041" />
+
+There is no on-chain end state. The reference registry has no burn or deregistration function, so an owner who wants to retire an agent can only point the URI elsewhere, set `active` to false in the file, or transfer the token.<Cite ids="clm-erc-8004-042 clm-erc-8004-045" /> An "inactive" agent is therefore visible only to someone who fetches and reads its file.<Cite ids="clm-erc-8004-217" />
+
+Feedback entries have two states: given and revoked. Only the original client can revoke, and nothing un-revokes.<Cite ids="clm-erc-8004-062 clm-erc-8004-190" /> Responses can pile up under an entry in either state without changing its value or the summary.<Cite ids="clm-erc-8004-064" /> Validation requests, in the specified registry, go from requested to responded, and the validator may answer again, for example a soft result first and a final one later.<Cite ids="clm-erc-8004-081" /> In the reference code a later answer can also lower a pass, which an open issue reports as a rogue-validator risk.<Cite ids="clm-erc-8004-088" />
+
+### Security and trust model (summary)
+
+ERC-8004 makes data public and comparable; it does not make it true. The text says Sybil attacks can inflate fake agents' reputation, and its only built-in defense is to filter by reviewers you already trust, which is why getSummary refuses an empty reviewer list.<Cite ids="clm-erc-8004-109 clm-erc-8004-066" /> Since the agent-signed feedbackAuth was removed, any address other than the owner and operators can rate any agent without proving an interaction.<Cite ids="clm-erc-8004-183" /> The self-rating check stops the owner's own address, not a fresh address the owner controls.<Cite ids="clm-erc-8004-216" />
+
+Files are the second soft spot. An HTTPS registration file can change with no on-chain event, and only content-addressed URIs pin what an agent claimed.<Cite ids="clm-erc-8004-111" /> Wallet binding is tighter: the signature names the agent, the wallet, the owner and a short deadline under a chain-bound domain. It has no nonce, though, so it can be replayed for the same tuple inside its window.<Cite ids="clm-erc-8004-037 clm-erc-8004-194" />
+
+The third is the contracts themselves. All three registries are UUPS (Universal Upgradeable Proxy Standard) proxies that only the contract owner can upgrade.<Cite ids="clm-erc-8004-105" /> On 2026-10-11 that owner, on Ethereum and on Base, was the address 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, which has no contract code: it is a single externally owned account, not a multisig contract.<Cite ids="clm-erc-8004-106" /> Who holds that key is not published, while the project's own upgrade notes advise a multisig or timelock for production.<Cite ids="clm-erc-8004-107 clm-erc-8004-200" /> No CVE, GitHub advisory or named audit firm's report was found; a community audit in an open pull request reports one high, three medium and three low findings.<Cite ids="clm-erc-8004-112 clm-erc-8004-113 clm-erc-8004-114" /> Section H has the full threat table.
+
+### Versioning and governance
+
+ERC-8004 carries no semantic version. The text changes by commit, the registration file is versioned by its `type` URI, and all three registry implementations report version 2.0.0.<Cite ids="clm-erc-8004-044 clm-erc-8004-093" /> It was created on 2025-08-13, merged into ethereum/ERCs on 2025-08-18 and moved to Review on 2025-10-08, when Erik Reppel joined the author list.<Cite ids="clm-erc-8004-003 clm-erc-8004-004 clm-erc-8004-005 clm-erc-8004-010" /> On 2026-01-13 an EIP (Ethereum Improvement Proposal) editor moved it back to Draft and added a requires line for EIP-155, EIP-712, EIP-721 and ERC-1271.<Cite ids="clm-erc-8004-006 clm-erc-8004-007" /> The last change to the text before 2026-10-11 came on 2026-01-25.<Cite ids="clm-erc-8004-008" />
+
+Governance is light. The contracts README calls ERC-8004 a community effort coordinated by Marco De Rossi (MetaMask) and Davide Crapis (Ethereum Foundation), co-authored by Jordan Ellis (Google) and Erik Reppel (Coinbase).<Cite ids="clm-erc-8004-011" /> No foundation or association was found, so changes to the text go through the ethereum/ERCs editors, while the contracts and their deployments are in the hands of whoever owns the proxies.<Cite ids="clm-erc-8004-013 clm-erc-8004-108" /> The text is CC0; the Solidity files carry an MIT license header, while the README's license section says CC0.<Cite ids="clm-erc-8004-014 clm-erc-8004-015" />
+
+Deployments use the same two proxy addresses on every listed mainnet, created with CREATE2 through the Safe Singleton Factory: Identity at 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432 and Reputation at 0x8004BAa17C55a88189AE136b182e5fdA19dE9b63.<Cite ids="clm-erc-8004-094 clm-erc-8004-095 clm-erc-8004-104" /> Testnets use a second pair.<Cite ids="clm-erc-8004-096" /> The table shows when each mainnet first appeared in the contracts README. These are listing dates, not deployment dates, and a listing can lag the chain.<Cite ids="clm-erc-8004-097 clm-erc-8004-188 clm-erc-8004-101 clm-erc-8004-102 clm-erc-8004-103" />
+
+| Listed in README | Mainnets added | Count so far |
+| --- | --- | --- |
+| 2026-01-29 | Ethereum | 1 |
+| 2026-03-06 | Base, Abstract, Arbitrum, Avalanche, BSC, Celo, Gnosis, GOAT Network, Linea, Mantle, MegaETH, Metis, Monad, Optimism, Polygon, Scroll, SKALE Base, Soneium, Taiko, XLayer | 21 |
+| 2026-04-08 | Billions | 22 |
+| 2026-04-09 | Injective | 23 |
+| 2026-06-11 | 0G | 24 |
+| 2026-08-15 | Robinhood Chain | 25 |
+
+The list was unchanged on 2026-10-11: 25 mainnets including Ethereum, 24 besides it.<Cite ids="clm-erc-8004-099" /> Explorers count more networks than that, which suggests community deployments outside the official list.<Cite ids="clm-erc-8004-147" />
+
+<Mode spec>
+
+**Renamed and removed identifiers.** Use this table to spot outdated tutorials.
+
+| Earlier name | Current name | Changed |
+| --- | --- | --- |
+| `endpoints[]` | `services[]` | spec 2026-01-25 |
+| `score` (`uint8`, 0 to 100) | `value` (`int128`) plus `valueDecimals` (`uint8`, 0 to 18) | spec 2026-01-25; contracts January 2026 |
+| `averageScore` in `getSummary` | `summaryValue`, `summaryValueDecimals` | spec 2026-01-25 |
+| `bytes32` tags | `string` tags | contracts 2025-11-12 |
+| `feedbackAuth` (agent-signed permission to rate) | removed; any address except owner and operators may rate | contracts 2025-11-12; spec 2026-01-07 |
+| `agentWallet` as an endpoints entry | reserved metadata key set by `setAgentWallet` | spec 2026-01-07 |
+| `tokenURI` | called `agentURI` | spec 2026-01-07 |
+| `requestUri` | `requestURI` | spec 2026-01-07 |
+
+The 2026-01-25 update also barred the owner and operators from feedback, made the reviewer list in `getSummary` mandatory, added `getAgentWallet` and `unsetAgentWallet`, and typed metadata values as `bytes`. Contract versions: repository created 2025-10-08, upgradeable proxies from 2025-10-14, 1.1.0 on 2025-11-12, 2.0.0 in January 2026.
+
+</Mode>
+
+### Extensibility
+
+Most extension happens in files, not contracts. The services list takes any number and kind of endpoints, and the feedback file accepts extra fields beyond the defined ones.<Cite ids="clm-erc-8004-046 clm-erc-8004-074" /> Tags are free text, so any community can define its own dimensions; the text only offers examples.<Cite ids="clm-erc-8004-070" /> On-chain metadata accepts any key except the reserved wallet key.<Cite ids="clm-erc-8004-034" /> supportedTrust is the hook for trust models beyond reputation, such as crypto-economic validation or TEE attestation.<Cite ids="clm-erc-8004-049" />
+
+The other extension path is a new ERC that builds on this one. ERC-8122 (Minimal Agent Registry, Draft) targets custom deployments instead of one singleton per chain.<Cite ids="clm-erc-8004-135" /> ERC-8217 (Agent NFT Identity Bindings, Draft) binds an ERC-8004 agent to an outside NFT through a metadata key.<Cite ids="clm-erc-8004-136" /> ERC-8183 (Agentic Commerce, Draft, created 2026-02-25) is job escrow with an evaluator and recommends plugging in ERC-8004 reputation and validation through hooks.<Cite ids="clm-erc-8004-133" /> ERC-8126 (AI Agent Verification) lists ERC-8004 in its requires line and reached Final on 2026-06-02, while ERC-8004 itself stays Draft; the sources do not explain the gap.<Cite ids="clm-erc-8004-134 clm-erc-8004-201" /> ERC-8226 (Regulated Agent Mandate, Draft, created 2026-04-12) adds what ERC-8004 lacks for regulated assets: a mandate that gives an agent scoped, time-bounded and capped authority.<Cite ids="clm-erc-8004-137 clm-erc-8004-138" />
+
+### How it composes with the other seven
+
+x402 is the closest partner, but neither depends on the other. ERC-8004 gives x402 three hooks: the `x402Support` flag in the registration file, the agent wallet as the payee address, and proofOfPayment in feedback files.<Cite ids="clm-erc-8004-159" /> Its best-practices guide asks facilitators to publish revenues feedback, because indexers cannot easily tell x402 payments from ordinary transfers.<Cite ids="clm-erc-8004-160" /> The link is also personal: Erik Reppel co-authors ERC-8004 and represents Coinbase on the x402 Technical Steering Committee.<Cite ids="clm-erc-8004-161" />
+
+Stripe's MPP (Machine Payments Protocol) discovery draft cites ERC-8004 and calls its own off-chain discovery compatible with future on-chain anchoring, without specifying an integration.<Cite ids="clm-erc-8004-162" /> AP2 (Agent Payments Protocol) does not mention ERC-8004; the link runs through A2A, which ERC-8004 lists as a service and which AP2 can extend.<Cite ids="clm-erc-8004-167" /> No documented relation was found to Visa's Trusted Agent Protocol, the OpenAI and Stripe Agentic Commerce Protocol, Google's Universal Commerce Protocol or Mastercard Agent Pay.<Cite ids="clm-erc-8004-163 clm-erc-8004-164 clm-erc-8004-165 clm-erc-8004-166" />
+
+### Limitations and open issues
+
+- **Count is not quality.** 8004scan reported 561,576 or more registered agents, 682,170 feedback entries and 496,805 unique wallets on 2026-10-11.<Cite ids="clm-erc-8004-145 clm-erc-8004-146" /> Those are token ids, free to mint and full of placeholders.<Cite ids="clm-erc-8004-157" /> The CSOAI census of 2026-09-26 read 505,635 ids on three chains and found 13,210 whose file declares an http(s) MCP, A2A or web endpoint, with 231,014 files not fetched.<Cite ids="clm-erc-8004-148 clm-erc-8004-150" /> An empirical study (arXiv:2606.26028, data to 2026-05-13) found only 3% (Ethereum), 4% (BSC) and 15% (Base) of agents with a valid file and a live endpoint.<Cite ids="clm-erc-8004-153" />
+- **Reviewers are mostly Sybils in measured data.** The same study saw coordinated Sybil behavior among 73.5%, 59.2% and 90.6% of reviewers on those chains.<Cite ids="clm-erc-8004-154" /> After removing it, most rated agents on BSC and Base had no valid feedback left.<Cite ids="clm-erc-8004-210" />
+- **Values do not compare.** A value means whatever its tags say, getSummary averages whatever matches, and the study concludes that the registry cannot work as a trust signal as deployed.<Cite ids="clm-erc-8004-067 clm-erc-8004-155" />
+- **Validation is unfinished.** The README calls that part of the text still under discussion with the TEE community and lists no address.<Cite ids="clm-erc-8004-083 clm-erc-8004-084" /> A contract answers at the scripted Validation address on Ethereum and Base, but it is not listed or announced, so treat the registry as not officially deployed.<Cite ids="clm-erc-8004-086" />
+- **One upgrade key.** A single unidentified account can change the code of every registry on Ethereum and Base.<Cite ids="clm-erc-8004-106 clm-erc-8004-107" />
+- **Draft in production.** The standard is Draft while 25 mainnets list it and a companion ERC that requires it is Final.<Cite ids="clm-erc-8004-185 clm-erc-8004-134" />
+- **Loose edges.** There is no JSON Schema for the registration file. The editors' notes question the URIStorage dependency, the x402 example and the missing test cases, and the best-practices copy of the tag table drops a minus sign.<Cite ids="clm-erc-8004-051 clm-erc-8004-184 clm-erc-8004-187" />
+- **Gas-heavy reads.** getSummary and readAllFeedback loop over every entry, and the community audit flags unbounded returns.<Cite ids="clm-erc-8004-195" />
+
+### What changed in 2025 and 2026
+
+- 2025-08-13 and 2025-08-18: created, then merged into ethereum/ERCs.<Cite ids="clm-erc-8004-003 clm-erc-8004-004" />
+- 2025-10-08: moved to Review; the contracts repository was created the same day.<Cite ids="clm-erc-8004-005 clm-erc-8004-211" />
+- 2025-10-22 to 2025-11-03: first testnet registries listed, including Validation Registry addresses.<Cite ids="clm-erc-8004-098 clm-erc-8004-085" />
+- 2025-11-12: feedbackAuth removed from the contracts, tags changed to strings.<Cite ids="clm-erc-8004-090" />
+- 2025-11-21: Trustless Agent Day at La Rural in Buenos Aires during Devconnect.<Cite ids="clm-erc-8004-131" />
+- 2026-01-06 and 2026-01-07: testnet Validation addresses dropped from the README; the text reserved agentWallet and added x402Support and active.<Cite ids="clm-erc-8004-085 clm-erc-8004-091" />
+- 2026-01-13: returned from Review to Draft.<Cite ids="clm-erc-8004-006" />
+- 2026-01-25: endpoints became services and score became value plus valueDecimals.<Cite ids="clm-erc-8004-092" />
+- 2026-01-29: Ethereum mainnet addresses listed for the Identity and Reputation registries.<Cite ids="clm-erc-8004-097" />
+- 2026-03-06: twenty more mainnets listed at once.<Cite ids="clm-erc-8004-100" />
+- 2026-04-12 and 2026-04-14: ERC-8226 created; Agent0 subgraphs live on five chains.<Cite ids="clm-erc-8004-137 clm-erc-8004-121" />
+- 2026-06-02: ERC-8126 reached Final.<Cite ids="clm-erc-8004-134" />
+- 2026-08-15: Robinhood Chain listed as the 25th mainnet.<Cite ids="clm-erc-8004-102" />
+- 2026-09-26: the CSOAI census measured 505,635 ids.<Cite ids="clm-erc-8004-148" />
+- 2026-10-11: on-chain reads show one externally owned account owning the proxies on Ethereum and Base.<Cite ids="clm-erc-8004-106" />
 
 ## Compare and compose
 
-Section P is being written.
+ERC-8004 and x402 are built to sit side by side. x402 moves a signed payment and says nothing about who the counterparty is; ERC-8004 names the agent, publishes its payee address and keeps a public log that a payment can back up.<Cite ids="clm-erc-8004-159 clm-erc-8004-160" /> A proposal open in the contracts repository would go further and ground feedback in x402 payment proofs as a Sybil defense, but nothing like it is in the text today.<Cite ids="clm-erc-8004-213" /> Against Visa TAP and Mastercard Agent Pay, the contrast is in who vouches for the agent. Those programs identify agents to a card network, while ERC-8004 lets anyone mint an identity and leaves trust to public signals, and no source links them.<Cite ids="clm-erc-8004-118 clm-erc-8004-163 clm-erc-8004-166" />
+
+The comparison that matters most for tokenization teams is with ERC-3643 (T-REX, Token for Regulated EXchanges) and ONCHAINID. ERC-3643 is a Final ERC created on 2021-07-09, stewarded by the ERC3643 Association in Luxembourg, and its reference implementation moved from the now archived TokenySolutions/T-REX repository to the GPL-3.0 ERC-3643/ERC-3643 fork.<Cite ids="clm-erc-8004-169 clm-erc-8004-181 clm-erc-8004-170 clm-erc-8004-171" /> The archived repository's 4.1.6 release dates from 2024-10-18, while the organization repository marks 4.1.3 as its latest.<Cite ids="clm-erc-8004-172" /> The ONCHAINID key and claim design comes from [ERC-734](https://github.com/ethereum/EIPs/issues/734) and [ERC-735](https://github.com/ethereum/EIPs/issues/735), which were never merged as EIP files and exist only as closed GitHub issues; ERC-725 is still Draft.<Cite ids="clm-erc-8004-173 clm-erc-8004-205 clm-erc-8004-174" />
+
+| Dimension | ERC-3643 plus ONCHAINID | ERC-8004 |
+| --- | --- | --- |
+| Status and governance | Final ERC (2021-07-09), ERC3643 Association | Draft ERC (2025-08-13), community effort, no association |
+| Access model | Permissioned: a holder's wallet must be in the Identity Registry and pass `isVerified`, which needs required claim topics from trusted issuers | Permissionless: any address calls `register()` and gets an ERC-721 agent id |
+| Trust signal | Issuer-signed claims on the holder's ONCHAINID (`topic`, `scheme`, `issuer`, `signature`, `data`, `uri`), checked with `isClaimValid` | Open feedback from any address except owner and operators; validator responses 0 to 100 in a registry that is not officially deployed |
+| Scope | Transfer compliance for one token, checked by the Compliance contract (`canTransfer`) | Discovery and trust registry for agents and their services (`services`, `supportedTrust`) |
+| Who writes | Token agents register identities; CLAIM-purpose keys add claims; MANAGEMENT keys manage keys; the token owner sets trusted issuers and claim topics | Owner or operator writes URI, metadata and wallet; any third party writes feedback; anyone appends responses; a named validator responds |
+| Upgradeability | T-REX proxies point to `TREXImplementationAuthority`; ONCHAINID identities can be proxies | UUPS proxies at CREATE2 addresses; one externally owned account holds the upgrade right on Ethereum and Base (2026-10-11), holder not published |
+| Data location | Claims stored on-chain in the identity contract; `data` may be a hash and `uri` may point off-chain | Registration file off-chain or in a data URI; feedback value and tags on-chain; detail files referenced only in events |
+| License | Text CC0; reference code GPL-3.0 | Text CC0; contracts MIT per file headers |
+| Missing on each side | No agent, service endpoint or feedback concept | No issuer-attested compliance claims, no mandate or delegation model |
+
+The table rests on the ERC-3643 text, the ONCHAINID contracts and the ERC-8004 sources.<Cite ids="clm-erc-8004-178 clm-erc-8004-202 clm-erc-8004-176 clm-erc-8004-203 clm-erc-8004-175 clm-erc-8004-204 clm-erc-8004-207 clm-erc-8004-180 clm-erc-8004-106" /> If you come from T-REX, watch three words. An ERC-3643 Agent is an operator role appointed by the token owner to register identities, mint, burn and freeze; an ERC-8004 agent is the AI service itself.<Cite ids="clm-erc-8004-179" /> The ClaimIssuer contracts you trust play the part of the reviewer list you pass to getSummary, and claim topics map loosely to feedback tags.<Cite ids="clm-erc-8004-066 clm-erc-8004-176" /> The ERC-8004 Identity Registry shares a name with the T-REX one but is a different thing: an open ERC-721 directory of agents, not an allowlist that maps wallets to verified identities and countries.<Cite ids="clm-erc-8004-177" />
+
+ERC-8226, the Regulated Agent Mandate, is the one standard found that connects the two worlds. A verified principal delegates scoped, time-bounded and capped authority to an agent. Token compliance stays with ERC-3643 or ERC-7943, and agent identity comes from a registry such as ERC-8004, which the authors describe as discovery and trust signals without a mandate framework.<Cite ids="clm-erc-8004-138 clm-erc-8004-206" /> It is a Draft from Brickken authors, and no statement from the ERC3643 Association or Tokeny about AI agents or ERC-8004 was found.<Cite ids="clm-erc-8004-137 clm-erc-8004-182" /> That also makes ERC-8226 the closest on-chain analogue of an AP2 mandate.<Cite ids="clm-erc-8004-138 clm-erc-8004-167" />
