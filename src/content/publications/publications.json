@@ -189,7 +189,7 @@
     ],
     "relation": "related",
     "summary": "Using ACES, a provider-agnostic framework for auditing agent decisions, the authors measure how LLM shopping agents choose among products. They find demand concentrating on a few modal products, preferences that reshuffle with model updates, strong position biases that persist even in text-only interfaces, and consistent reactions to sponsored tags and platform endorsements.",
-    "whyItMatters": "Checkout protocols such as OpenAI ACP and UCP move the purchase decision into an agent; this paper quantifies the ranking and position biases merchants and platforms inherit when the agent, not a person, picks the product.",
+    "whyItMatters": "Checkout protocols such as OpenAI ACP and UCP move the purchase decision into an agent; this paper quantifies the ranking and position biases merchants and platforms inherit when the agent, not a person, picks the product. Agentic Commerce Protocol (ACP): How agents choose products, relevant to feed-driven discovery in ChatGPT. UCP: Shows how agent buyers are biased by placement and model choice, which matters for platform checkout.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{allouah2025buying,\n  title = {What Is Your AI Agent Buying? Evaluation, Biases, Model Dependence, & Emerging Implications for Agentic E-Commerce},\n  author = {Amine Allouah and Omar Besbes and Josué D Figueroa and Yash Kanoria and Akshit Kumar},\n  year = {2025},\n  eprint = {2508.02630},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2508.02630},\n  note = {arXiv preprint}\n}"
@@ -218,7 +218,7 @@
     ],
     "relation": "direct",
     "summary": "Systematic security analysis of AP2 v0.2 across five lifecycle phases and five deployment architectures, using MAESTRO threat modeling to catalog 48 threats in five families and AIVSS scoring to flag eight High-band threats, each demonstrated on a purpose-built testbed with proofs of concept and mitigations, plus a deployment-aware scanner. The central finding is that valid mandate signatures do not guarantee that a transaction reflects user intent when the pre-authorization context is manipulated.",
-    "whyItMatters": "Most complete threat catalog for ap2 to date, and it covers the A2A and MCP inputs that sit outside the signed mandates.",
+    "whyItMatters": "Most complete threat catalog for ap2 to date, and it covers the A2A and MCP inputs that sit outside the signed mandates. AP2: The main security analysis of AP2 v0.2; source of the 48-threat count in section H.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{aviv2026mandate,\n  title = {{Beyond the Mandate: A Systematic Security Analysis of the Agent Payments Protocol (AP2)}},\n  author = {Avital Aviv and Parth A. Gandh and Ron Bitton and Asaf Shabtai},\n  year = {2026},\n  eprint = {2608.23858},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2608.23858}\n}"
@@ -268,7 +268,7 @@
     ],
     "relation": "related",
     "summary": "Introduces Magentic-Marketplace, an open-source simulated two-sided market in which assistant agents represent consumers and service agents represent competing businesses, and uses it to measure utility, behavioral bias, vulnerability to manipulation and the effect of search mechanisms. Frontier models approach optimal welfare only under ideal search, degrade sharply with scale, and show a severe first-proposal bias that gives response speed a 10 to 30 times advantage over quality.",
-    "whyItMatters": "Discovery and checkout protocols such as UCP and OpenAI ACP create the two-sided agent markets this environment simulates, so its first-proposal and search findings bear directly on how merchant feeds and ranking should be designed.",
+    "whyItMatters": "Discovery and checkout protocols such as UCP and OpenAI ACP create the two-sided agent markets this environment simulates, so its first-proposal and search findings bear directly on how merchant feeds and ranking should be designed. Agentic Commerce Protocol (ACP): Simulated agent marketplaces; context for agent-mediated checkout. UCP: Simulated agentic marketplaces; useful to reason about many platforms meeting many businesses.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{bansal2025magentic,\n  title = {Magentic Marketplace: An Open-Source Environment for Studying Agentic Markets},\n  author = {Gagan Bansal and Wenyue Hua and Zezhou Huang and Adam Fourney and Amanda Swearngin and Will Epperson and Tyler Payne and Jake M. Hofman and Brendan Lucier and Chinmay Singh and Markus Mobius and Akshay Nambi and Archana Yadav and Kevin Gao and David M. Rothschild and Aleksandrs Slivkins and Daniel G. Goldstein and Hussein Mozannar and Nicole Immorlica and Maya Murad and Matthew Vogel and Subbarao Kambhampati and Eric Horvitz and Saleema Amershi},\n  year = {2025},\n  eprint = {2510.25779},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.MA},\n  url = {https://arxiv.org/abs/2510.25779},\n  note = {arXiv preprint}\n}"
@@ -502,11 +502,12 @@
       "security"
     ],
     "protocols": [
-      "x402"
+      "x402",
+      "ap2"
     ],
     "relation": "foundation",
     "summary": "Introduces macaroons, bearer credentials built from chained HMACs that any holder can attenuate by adding caveats (contextual restrictions such as time, target or third-party discharge) without contacting the issuer, enabling decentralized delegation in cloud services.",
-    "whyItMatters": "The attenuable-token model behind later agent delegation designs (Biscuit tokens in AIP, scoped mandates in ap2) and a reference point for how visa-tap and openai-acp scope agent authority. x402: Macaroons, the credential in the original L402 design (an earlier HTTP 402 approach on Lightning).",
+    "whyItMatters": "The attenuable-token model behind later agent delegation designs (Biscuit tokens in AIP, scoped mandates in ap2) and a reference point for how visa-tap and openai-acp scope agent authority. AP2: Caveat-based attenuation, an ancestor of constraint-limited delegation. x402: Macaroons, the credential in the original L402 design (an earlier HTTP 402 approach on Lightning).",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{birgisson2014macaroons,\n  title = {{Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud}},\n  author = {Arnar Birgisson and Joe Gibbs Politz and Úlfar Erlingsson and Ankur Taly and Michael Vrable and Mark Lentczner},\n  year = {2014},\n  booktitle = {Proceedings 2014 Network and Distributed System Security Symposium (NDSS)},\n  publisher = {Internet Society},\n  doi = {10.14722/ndss.2014.23212},\n  url = {https://doi.org/10.14722/ndss.2014.23212}\n}"
@@ -590,7 +591,7 @@
     ],
     "relation": "grey",
     "summary": "An issue paper (published 2026-07-16) asking whether EU consumer law, built on the assumption that a human makes the final purchase decision, is ready for AI shopping agents, and proposing how to adapt it. It is part of CERRE's Regulatory Lab series, which received input from members including Apple, Booking.com and Microsoft.",
-    "whyItMatters": "Checkout protocols such as ACP and UCP assume the agent can confirm a purchase; this paper explains where EU disclosure and consent rules may not fit that flow.",
+    "whyItMatters": "Checkout protocols such as ACP and UCP assume the agent can confirm a purchase; this paper explains where EU disclosure and consent rules may not fit that flow. Agentic Commerce Protocol (ACP): Consumer protection analysis of agentic commerce including ACP.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "publisher",
     "bibtex": "@techreport{busch2026cerre,\n  title = {{Agentic AI and Consumer Protection}},\n  author = {Christoph Busch},\n  year = {2026},\n  institution = {Centre on Regulation in Europe (CERRE)},\n  type = {Issue Paper},\n  month = {jul},\n  url = {https://cerre.eu/publications/agentic-ai-and-consumer-protection/}\n}"
@@ -624,7 +625,7 @@
     ],
     "relation": "foundation",
     "summary": "Proposes a framework in which IDs are ascribed to instances of AI systems, such as a particular agent session, with associated information accessible to parties that interact with them, and argues that demand for IDs is strongest where systems can make financial transactions or contact real people. The arXiv comment reports acceptance at the RegML workshop at NeurIPS 2024; no publisher record confirms it, so no venue is shown.",
-    "whyItMatters": "Direct conceptual ancestor of per-agent identity in visa-tap, erc-8004 registrations and the agent credentials in ap2 mandates.",
+    "whyItMatters": "Direct conceptual ancestor of per-agent identity in visa-tap, erc-8004 registrations and the agent credentials in ap2 mandates. Visa Trusted Agent Protocol: Agent identifiers, the general problem TAP solves for one network.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{chan2024ids,\n  title = {{IDs for AI Systems}},\n  author = {Alan Chan and Noam Kolt and Peter Wills and Usman Anwar and Christian Schroeder de Witt and Nitarshan Rajkumar and Lewis Hammond and David Krueger and Lennart Heim and Markus Anderljung},\n  year = {2024},\n  eprint = {2406.12137},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2406.12137}\n}"
@@ -692,10 +693,12 @@
       "agent-protocols",
       "regulation"
     ],
-    "protocols": [],
+    "protocols": [
+      "visa-tap"
+    ],
     "relation": "foundation",
     "summary": "Introduces the concept of agent infrastructure, technical systems and shared protocols external to agents that mediate their interactions, and identifies three functions: attributing actions and properties to agents and their principals, shaping agent interactions, and detecting and remedying harm. Provides a catalog of research directions with analysis of adoption and links to existing internet infrastructure. Confirmed as a TMLR paper through the jmlr.org BibTeX record (OpenReview id Ckh17xN2R2).",
-    "whyItMatters": "The framing paper for treating x402, ap2, erc-8004 and the card-network protocols as infrastructure rather than model behavior.",
+    "whyItMatters": "The framing paper for treating x402, ap2, erc-8004 and the card-network protocols as infrastructure rather than model behavior. Visa Trusted Agent Protocol: Attribution and interaction infrastructure for agents, of which signed requests are one piece.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "publisher",
     "bibtex": "@article{chan2025infrastructure,\n  title = {{Infrastructure for AI Agents}},\n  author = {Alan Chan and Kevin Wei and Sihao Huang and Nitarshan Rajkumar and Elija Perrier and Seth Lazar and Gillian K. Hadfield and Markus Anderljung},\n  year = {2025},\n  journal = {Transactions on Machine Learning Research},\n  eprint = {2501.10114},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2501.10114},\n  note = {ISSN 2835-8856; OpenReview forum Ckh17xN2R2}\n}"
@@ -754,7 +757,7 @@
     ],
     "relation": "related",
     "summary": "Presents Cairn, a community reputation platform in which agents query the collective opinion of a data source, service or tool before use and submit evidence-backed ratings afterward, aggregated by a time-decayed Beta model with confidence shrinkage and searchable by reviewer rationale. The engine is evaluated under lying, collusion and camouflage, and in a production case study rating heterogeneous agents.",
-    "whyItMatters": "An off-chain alternative to ERC-8004's registry for the same question (should an agent trust this resource), useful as a design comparison for aggregation and adversarial robustness.",
+    "whyItMatters": "An off-chain alternative to ERC-8004's registry for the same question (should an agent trust this resource), useful as a design comparison for aggregation and adversarial robustness. ERC-8004: Trustless Agents: A design view of reputation as shared memory for agents.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{chard2026cairn,\n  title = {Reputation as Community Memory for the Agentic Web},\n  author = {Ryan Chard and Gus Ellerm and Alexander Brace and Alok Kamatar and Suman Raj and Ian Foster and Kyle Chard},\n  year = {2026},\n  eprint = {2609.19502},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.MA},\n  url = {https://arxiv.org/abs/2609.19502},\n  note = {arXiv preprint}\n}"
@@ -866,7 +869,7 @@
     ],
     "relation": "direct",
     "summary": "Models the checkout part of Google's Universal Commerce Protocol as a declarative Langshaw interaction protocol, implements agents for it in the Peach programming model, and shows those agents interoperating with UCP agents built by Google. The arXiv comment says it was presented at the EMAS workshop at AAMAS 2026.",
-    "whyItMatters": "One of only two papers found on 2026-10-11 that analyze UCP by name; it shows that UCP checkout can be specified declaratively and checked for interoperability.",
+    "whyItMatters": "One of only two papers found on 2026-10-11 that analyze UCP by name; it shows that UCP checkout can be specified declaratively and checked for interoperability. UCP: Models UCP checkout as a declarative protocol and reports interoperation with Google's UCP agents; one of two papers that name UCP.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{christie2026strabo,\n  title = {{Strabo: Declarative Specification and Implementation of Agentic Interaction Protocols}},\n  author = {Samuel H. Christie and Amit K. Chopra and Munindar P. Singh},\n  year = {2026},\n  eprint = {2606.05043},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2606.05043}\n}"
@@ -895,7 +898,7 @@
     ],
     "relation": "foundation",
     "summary": "Studies when a principal can safely delegate approval of a long-running agent's actions to a panel of possibly misaligned reviewer agents, and characterizes k-robust coalitional alignment as the necessary and sufficient condition for a threshold approval rule to guarantee the principal does at least as well as a baseline policy, extending the result to sequential control in discounted MDPs and to strategic voting.",
-    "whyItMatters": "Theory for the human-approval bottleneck that ap2 mandates and openai-acp checkout confirmations encode; it asks when approval itself can be delegated.",
+    "whyItMatters": "Theory for the human-approval bottleneck that ap2 mandates and openai-acp checkout confirmations encode; it asks when approval itself can be delegated. AP2: Theory of approving actions of possibly misaligned agents.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{collina2026delegating,\n  title = {{Delegating Authorization to Misaligned Agents: Coalitional Alignment and Safe Control}},\n  author = {Natalie Collina and Surbhi Goel and Aaron Roth and Sikata Bela Sengupta},\n  year = {2026},\n  eprint = {2609.15803},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.GT},\n  url = {https://arxiv.org/abs/2609.15803}\n}"
@@ -923,7 +926,7 @@
     ],
     "relation": "foundation",
     "summary": "Proposes opML, which runs machine learning inference for blockchains under an optimistic model: results are accepted unless a challenger wins an interactive fraud-proof game, similar to optimistic rollups. The authors argue this is far cheaper than zero-knowledge proofs and can serve large models on ordinary hardware.",
-    "whyItMatters": "Shows the crypto-economic alternative to zkML for ERC-8004 validation, where validators stake on a result and disputes, not proofs, keep inference honest.",
+    "whyItMatters": "Shows the crypto-economic alternative to zkML for ERC-8004 validation, where validators stake on a result and disputes, not proofs, keep inference honest. ERC-8004: Trustless Agents: Optimistic re-execution, close to stake-secured validation.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{conway2024opml,\n  title = {{opML: Optimistic Machine Learning on Blockchain}},\n  author = {KD Conway and Cathie So and Xiaohang Yu and Kartin Wong},\n  year = {2024},\n  eprint = {2401.17555},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2401.17555}\n}"
@@ -948,7 +951,7 @@
     ],
     "relation": "foundation",
     "summary": "A long technical analysis of Intel Software Guard Extensions built from Intel papers, manuals, a tutorial and patents. It explains enclave creation, memory protection and remote attestation, and it catalogs the side-channel and design weaknesses that limit the trust these guarantees deserve.",
-    "whyItMatters": "TEE attestation is one of the validation methods ERC-8004 anticipates; this paper is the standard reference for what an SGX attestation proves and where it does not hold.",
+    "whyItMatters": "TEE attestation is one of the validation methods ERC-8004 anticipates; this paper is the standard reference for what an SGX attestation proves and where it does not hold. ERC-8004: Trustless Agents: Background on TEE attestation for validators.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "publisher",
     "bibtex": "@misc{costan2016sgx,\n  title = {{Intel SGX Explained}},\n  author = {Victor Costan and Srinivas Devadas},\n  year = {2016},\n  howpublished = {Cryptology ePrint Archive, Paper 2016/086},\n  url = {https://eprint.iacr.org/2016/086}\n}"
@@ -1008,7 +1011,7 @@
     ],
     "relation": "foundation",
     "summary": "Presents Privacy Pass, in which a client solves one challenge, receives blindly signed tokens, and redeems them later to skip further challenges without the server linking redemptions to issuance.",
-    "whyItMatters": "Privacy Pass is the earlier anonymous-token approach to telling trusted clients from bots; Visa TAP instead identifies agents with signed HTTP messages, and comparing the two shows the trade between accountability and privacy.",
+    "whyItMatters": "Privacy Pass is the earlier anonymous-token approach to telling trusted clients from bots; Visa TAP instead identifies agents with signed HTTP messages, and comparing the two shows the trade between accountability and privacy. Visa Trusted Agent Protocol: Privacy Pass, a CDN-world alternative for telling clients apart without identifying them.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@article{davidson2018privacypass,\n  title = {{Privacy Pass: Bypassing Internet Challenges Anonymously}},\n  author = {Alex Davidson and Ian Goldberg and Nick Sullivan and George Tankersley and Filippo Valsorda},\n  year = {2018},\n  journal = {Proceedings on Privacy Enhancing Technologies},\n  volume = {2018},\n  number = {3},\n  pages = {164--180},\n  doi = {10.1515/popets-2018-0026},\n  url = {https://doi.org/10.1515/popets-2018-0026}\n}"
@@ -1106,7 +1109,7 @@
     ],
     "relation": "direct",
     "summary": "Red-teams a working AP2 shopping agent built with Gemini 2.5 Flash and the Google ADK and introduces two prompt-injection techniques, the Branded Whisper Attack, which manipulates product ranking, and the Vault Whisper Attack, which extracts sensitive user data, showing that simple adversarial prompts reliably subvert agent behavior. The IEEE version carries the title given here; the arXiv preprint (2601.22569) is titled 'Whispers of Wealth: Red-Teaming Google's Agent Payments Protocol via Prompt Injection'.",
-    "whyItMatters": "First published attack paper on ap2 and the origin of the whisper-attack line that Louck and colleagues extend in 2026.",
+    "whyItMatters": "First published attack paper on ap2 and the origin of the whisper-attack line that Louck and colleagues extend in 2026. AP2: Prompt injection against an AP2 shopping agent.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{debi2026whispers,\n  title = {{Whispers of Wealth: A Systematic Red-Teaming Study of the Agent Payments Protocol (AP2)}},\n  author = {Tanusree Debi and Wentian Zhu and Pranjol Sen Gupta},\n  year = {2026},\n  booktitle = {2026 International Conference on Intelligent Multimedia, Networking, and Security (IMNS)},\n  publisher = {IEEE},\n  pages = {1-6},\n  doi = {10.1109/IMNS67862.2026.11655291},\n  eprint = {2601.22569},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2601.22569}\n}"
@@ -1135,7 +1138,7 @@
     ],
     "relation": "direct",
     "summary": "Defines the agentic clearing problem, deciding whether an agent met its delegated obligation and which settlement action follows, and argues that MCP, A2A, x402, AP2 and the Visa and Mastercard network agent protocols all assume that determination without producing it. RAILS specifies seven primitives and a formal model of admissibility-graded verification yielding a soundness property that no financially material settlement rests on evidence below the obligation's admissibility floor. The abstract names Visa and Mastercard generically rather than by protocol name.",
-    "whyItMatters": "Names x402, ap2 and the Visa and Mastercard agent programs as rails that lack a clearing layer; useful for the atlas comparison of where disputes and fulfillment evidence live.",
+    "whyItMatters": "Names x402, ap2 and the Visa and Mastercard agent programs as rails that lack a clearing layer; useful for the atlas comparison of where disputes and fulfillment evidence live. Visa Trusted Agent Protocol: The only paper found that names TAP; places it as the network's edge attestation layer.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{valoisfranklin2026rails,\n  title = {{RAILS: Verification-Native Clearing For Agentic Commerce}},\n  author = {Adrian de Valois-Franklin and Alex Bogdan},\n  year = {2026},\n  eprint = {2606.08790},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2606.08790}\n}"
@@ -1162,7 +1165,7 @@
     ],
     "relation": "related",
     "summary": "A search-theoretic model that compares manual product search, which evaluates a few products accurately, with agentic search, which screens a broad catalog through noisy representations of preferences. Manual search collapses beyond a preference-complexity threshold and platform revenue falls to zero, while agentic search avoids the collapse; the paper derives how platforms should set agent refinement depth.",
-    "whyItMatters": "Supplies the economic rationale for the discovery and product-feed layers of UCP and OpenAI ACP: once consumers delegate search, platform revenue depends on how well the agent elicits preferences rather than on how many items a person inspects.",
+    "whyItMatters": "Supplies the economic rationale for the discovery and product-feed layers of UCP and OpenAI ACP: once consumers delegate search, platform revenue depends on how well the agent elicits preferences rather than on how many items a person inspects. UCP: Economics of agentic commerce, from product search to preference articulation.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{dong2026preference,\n  title = {From Product Search to Preference Articulation: The Economics of Agentic Commerce},\n  author = {Lingxiu Dong and Kaiwen Luo and Fasheng Xu},\n  year = {2026},\n  eprint = {2608.08395},\n  archivePrefix = {arXiv},\n  primaryClass = {econ.TH},\n  url = {https://arxiv.org/abs/2608.08395},\n  note = {arXiv preprint}\n}"
@@ -1189,7 +1192,7 @@
     ],
     "relation": "foundation",
     "summary": "Shows that in a large peer-to-peer system without a logically centralized authority, a single faulty entity can present many identities and defeat the redundancy the system relies on, and that such Sybil attacks remain possible except under unrealistic assumptions of resource parity and coordination among entities.",
-    "whyItMatters": "Defines the attack every permissionless agent registry inherits: ERC-8004 identities and feedback without a trusted issuer are exposed to it, which is why TAP and the card networks keep a certifying authority in the loop.",
+    "whyItMatters": "Defines the attack every permissionless agent registry inherits: ERC-8004 identities and feedback without a trusted issuer are exposed to it, which is why TAP and the card networks keep a certifying authority in the loop. ERC-8004: Trustless Agents: The original Sybil attack result behind the reviewer-filter design.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{douceur2002sybil,\n  title = {The Sybil Attack},\n  author = {John R. Douceur},\n  year = {2002},\n  booktitle = {Peer-to-Peer Systems: First International Workshop (IPTPS 2002)},\n  series = {Lecture Notes in Computer Science},\n  publisher = {Springer},\n  pages = {251-260},\n  doi = {10.1007/3-540-45748-8_24},\n  url = {https://www.microsoft.com/en-us/research/publication/the-sybil-attack/}\n}"
@@ -1364,7 +1367,7 @@
     ],
     "relation": "direct",
     "summary": "A dynamic model in which an agent's reputation is capital that attracts future demand, and the agent chooses each period between honest operation, investing in quality, or a one-shot deviation that cashes out the reputation and restarts under a penalized new identity. The temptation depends on identity-reset cost, reputation persistence, demand sensitivity and enforcement design; ERC-8004, ERC-8183 and x402 are named as the motivating infrastructure.",
-    "whyItMatters": "Names ERC-8004 and x402 directly and states the economic condition under which an on-chain reputation registry disciplines agents: resetting an identity must cost more than the one-shot gain from burning it.",
+    "whyItMatters": "Names ERC-8004 and x402 directly and states the economic condition under which an on-chain reputation registry disciplines agents: resetting an identity must cost more than the one-shot gain from burning it. ERC-8004: Trustless Agents: Economics of reputation when identities are cheap.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{gatta2026tempting,\n  title = {Tempting the Agent: The Economics of Reputation without Persistent Identity in AI Agent Markets},\n  author = {Federico Gatta and Manuel Naviglio and Francesco Tarantelli},\n  year = {2026},\n  eprint = {2609.02992},\n  archivePrefix = {arXiv},\n  primaryClass = {q-fin.GN},\n  url = {https://arxiv.org/abs/2609.02992},\n  note = {arXiv preprint}\n}"
@@ -1596,7 +1599,7 @@
     ],
     "relation": "foundation",
     "summary": "Introduces indirect prompt injection: adversaries plant instructions in data that an LLM-integrated application will retrieve, so the model is attacked without any direct interface. The paper gives a security taxonomy of impacts, including data theft, worming and contamination of the information ecosystem, and demonstrates attacks on real systems.",
-    "whyItMatters": "The founding paper for the threat every agentic payment protocol must contain; AP2 mandates, x402 pre-execution filters, TAP intent signatures and ACP's structured checkout all exist partly because retrieved merchant content can hijack the buying agent.",
+    "whyItMatters": "The founding paper for the threat every agentic payment protocol must contain; AP2 mandates, x402 pre-execution filters, TAP intent signatures and ACP's structured checkout all exist partly because retrieved merchant content can hijack the buying agent. Agentic Commerce Protocol (ACP): Indirect prompt injection, relevant to merchant text rendered by the agent.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{greshake2023injection,\n  title = {Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection},\n  author = {Kai Greshake and Sahar Abdelnabi and Shailesh Mishra and Christoph Endres and Thorsten Holz and Mario Fritz},\n  year = {2023},\n  booktitle = {Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security (AISec '23)},\n  publisher = {ACM},\n  pages = {79-90},\n  doi = {10.1145/3605764.3623985},\n  eprint = {2302.12173},\n  archivePrefix = {arXiv},\n  url = {https://arxiv.org/abs/2302.12173}\n}"
@@ -1778,7 +1781,7 @@
     ],
     "relation": "related",
     "summary": "Studies agentic recommendation markets in which a user agent states a need first and platforms compete for its attention. Across three product domains, broader access does not translate into exposure, platforms answer with selectively positive explanations in 73 to 78 percent of first-ranked positions, and tying platform behavior to later user feedback cuts this to 36 to 41 percent while raising purchases of the relevant item.",
-    "whyItMatters": "Models the merchant-side incentives that UCP and ACP discovery surfaces create when many sellers answer one agent's query, and argues that access, attention and accountability must be designed as one mechanism.",
+    "whyItMatters": "Models the merchant-side incentives that UCP and ACP discovery surfaces create when many sellers answer one agent's query, and argues that access, attention and accountability must be designed as one mechanism. Agentic Commerce Protocol (ACP): Platform competition in agentic recommendation, context for ranking and fees. UCP: Economics of agentic recommendation markets and platform competition.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{hong2026platforms,\n  title = {The User Asks, Platforms Compete: How Agentic Recommendation Markets Take Shape},\n  author = {Deyao Hong and Kehan Zheng and Qian Li and Jun Zhang and Jie Jiang and Hongning Wang},\n  year = {2026},\n  eprint = {2607.25253},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2607.25253},\n  note = {arXiv preprint}\n}"
@@ -1807,7 +1810,7 @@
     ],
     "relation": "direct",
     "summary": "Compares six trust mechanisms for inter-agent protocols (brief, claim, proof, stake, reputation, constraint) and evaluates A2A, AP2 and ERC-8004 against them on security, privacy, cost and resistance to Sybil, collusion and whitewashing, with attention to LLM-specific weaknesses such as prompt injection and sycophancy. It argues that proof and stake should gate high-impact actions, with claims for discovery and reputation as an overlay. The arXiv record says it was submitted to the AAAI 2026 TrustAgent workshop; acceptance is not confirmed.",
-    "whyItMatters": "Direct comparative treatment of ap2 and erc-8004 trust assumptions; its warning that claim-only and reputation-only designs are brittle anticipates the empirical ERC-8004 Sybil findings.",
+    "whyItMatters": "Direct comparative treatment of ap2 and erc-8004 trust assumptions; its warning that claim-only and reputation-only designs are brittle anticipates the empirical ERC-8004 Sybil findings. ERC-8004: Trustless Agents: Places ERC-8004 reputation among other inter-agent trust models.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{hu2025trust,\n  title = {{Inter-Agent Trust Models: A Comparative Study of Brief, Claim, Proof, Stake, Reputation and Constraint in Agentic Web Protocol Design-A2A, AP2, ERC-8004, and Beyond}},\n  author = {Botao 'Amber' Hu and Helena Rong},\n  year = {2025},\n  eprint = {2511.03434},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.HC},\n  url = {https://arxiv.org/abs/2511.03434}\n}"
@@ -1838,7 +1841,7 @@
     ],
     "relation": "related",
     "summary": "Argues that Know Your Agent regimes modeled on human identity verification and credit scores are incomplete because language model agents are assemblages of mutable modules (models, prompts, tool policies, memory) with fluid personas that may not internalize sanctions, so identifiability, predictability, credibility and rehabilitability lack grounding. It proposes observability-based, ex ante, protocol-level behavioral harnesses in place of ex post reputation.",
-    "whyItMatters": "A direct critique of the premise behind ERC-8004's Reputation Registry and of KYA-style identity checks in TAP and Agent Pay: if the sanctioned identity can be swapped out, reputation does not discipline the agent.",
+    "whyItMatters": "A direct critique of the premise behind ERC-8004's Reputation Registry and of KYA-style identity checks in TAP and Agent Pay: if the sanctioned identity can be swapped out, reputation does not discipline the agent. ERC-8004: Trustless Agents: Questions whether LLM agents have the stable identity reputation needs.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{hu2026dissociative,\n  title = {Dissociative Identity: Language Model Agents Lack Grounding for Reputation Mechanisms},\n  author = {Botao Amber Hu and Helena Rong and Max Van Kleek},\n  year = {2026},\n  booktitle = {Proceedings of the 2026 ACM Conference on Fairness, Accountability, and Transparency (FAccT '26)},\n  publisher = {ACM},\n  pages = {4199-4219},\n  doi = {10.1145/3805689.3806748},\n  eprint = {2605.30169},\n  archivePrefix = {arXiv},\n  url = {https://arxiv.org/abs/2605.30169}\n}"
@@ -1900,7 +1903,7 @@
     ],
     "relation": "related",
     "summary": "Argues that OAuth, OIDC and SAML style IAM is inadequate for ephemeral, interdependent AI agents and proposes a framework built on verifiable agent identities using DIDs and VCs, an Agent Naming Service for discovery, fine-grained dynamic access control, a global session and policy enforcement layer for revocation, and zero-knowledge proofs for selective disclosure.",
-    "whyItMatters": "A frequently cited zero-trust identity blueprint that overlaps with the discovery and identity roles of erc-8004 and the agent recognition goals of visa-tap.",
+    "whyItMatters": "A frequently cited zero-trust identity blueprint that overlaps with the discovery and identity roles of erc-8004 and the agent recognition goals of visa-tap. Visa Trusted Agent Protocol: A decentralized alternative to a network-controlled agent identity.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{huang2025zerotrust,\n  title = {{A Novel Zero-Trust Identity Framework for Agentic AI: Decentralized Authentication and Fine-Grained Access Control}},\n  author = {Ken Huang and Vineeth Sai Narajala and John Yeoh and Jason Ross and Ramesh Raskar and Youssef Harkati and Jerry Huang and Idan Habler and Chris Hughes},\n  year = {2025},\n  eprint = {2505.19301},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2505.19301}\n}"
@@ -1995,14 +1998,16 @@
       "agent-protocols"
     ],
     "protocols": [
+      "erc-8004",
       "x402",
       "openai-acp",
+      "ucp",
       "stripe-mpp",
       "ap2"
     ],
     "relation": "direct",
     "summary": "Builds Tamarin models of x402, MPP, ACP and AP2 from their specifications, schemas and reference code using one shared abstraction of the agent payment lifecycle, then asks source-backed verification questions to expose missing bindings and cross-stage correspondences, which it consolidates into 18 security principles. Across 86 verification cases it reproduces 46 known or calibration cases, reports 40 new formal-consistency findings, and validates ten of them against x402 implementations with proofs of concept.",
-    "whyItMatters": "The only side-by-side formal model of x402, stripe-mpp, openai-acp and ap2 so far; it shows where each specification leaves delegated authority, settlement and fulfillment unbound. x402: Formal Tamarin models of x402 alongside MPP, ACP and AP2.",
+    "whyItMatters": "The only side-by-side formal model of x402, stripe-mpp, openai-acp and ap2 so far; it shows where each specification leaves delegated authority, settlement and fulfillment unbound. AP2: Tamarin models that include AP2. ERC-8004: Trustless Agents: Formal models of agent payment protocols around ERC-8004. Agentic Commerce Protocol (ACP): Models ACP in Tamarin with x402, MPP and AP2; the only formal analysis that names it. UCP: Formal analysis of agent payment protocols; the abstract does not name UCP but analyzes AP2, which UCP embeds as an extension. x402: Formal Tamarin models of x402 alongside MPP, ACP and AP2.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{jiang2026formal,\n  title = {{A Formal Analysis of Agent Payment Protocols}},\n  author = {Ke Jiang and Mohan Yu and Yuan Chang and Mohit Kumar Jangid and Jianyu Niu and Cong Wang and Yinqian Zhang},\n  year = {2026},\n  eprint = {2609.00060},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.00060}\n}"
@@ -2060,7 +2065,7 @@
     ],
     "relation": "foundation",
     "summary": "Surveys systems in which parties rate each other after transactions and aggregated ratings guide future decisions, describing them as collaborative sanctioning systems that also create an incentive for good behavior. It reviews commercial and proposed designs, analyzes trends and proposes a research agenda.",
-    "whyItMatters": "The reference taxonomy for reputation computation that ERC-8004 reputation clients and off-chain scorers draw on, and a reminder that the field predates agents by two decades.",
+    "whyItMatters": "The reference taxonomy for reputation computation that ERC-8004 reputation clients and off-chain scorers draw on, and a reminder that the field predates agents by two decades. ERC-8004: Trustless Agents: Survey of trust and reputation systems.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@article{josang2007survey,\n  title = {A Survey of Trust and Reputation Systems for Online Service Provision},\n  author = {Audun Jøsang and Roslan Ismail and Colin Boyd},\n  year = {2007},\n  journal = {Decision Support Systems},\n  volume = {43},\n  number = {2},\n  pages = {618-644},\n  doi = {10.1016/j.dss.2005.05.019},\n  url = {https://folk.universitetetioslo.no/josang/papers/JIB2007-DSS.pdf}\n}"
@@ -2115,7 +2120,7 @@
     ],
     "relation": "foundation",
     "summary": "Builds the first ZK-SNARK proof of correct inference for a full-resolution ImageNet model, so a client can check after the fact that a machine learning service ran the promised model. It also sketches protocols that use these proofs to verify model accuracy and to pay for verified predictions.",
-    "whyItMatters": "An early, concrete answer to the question an ERC-8004 validator asks: did the service actually run the model it claimed, and can that be checked without trusting the server.",
+    "whyItMatters": "An early, concrete answer to the question an ERC-8004 validator asks: did the service actually run the model it claimed, and can that be checked without trusting the server. ERC-8004: Trustless Agents: Zero-knowledge inference, another validation path.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{kang2022zkdnn,\n  title = {{Scaling up Trustless DNN Inference with Zero-Knowledge Proofs}},\n  author = {Daniel Kang and Tatsunori Hashimoto and Ion Stoica and Yi Sun},\n  year = {2022},\n  eprint = {2210.08674},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2210.08674}\n}"
@@ -2161,10 +2166,12 @@
       "governance",
       "delegation"
     ],
-    "protocols": [],
+    "protocols": [
+      "ap2"
+    ],
     "relation": "related",
     "summary": "Uses the economics of principal-agent problems and the common law of agency to analyze AI agents, identifying problems of information asymmetry, discretionary authority and loyalty, and argues that incentives, monitoring and enforcement work poorly for agents acting at machine speed and scale.",
-    "whyItMatters": "Frames delegated purchasing in legal terms, which matters for the mandate and consent records that AP2, Agent Pay and the other protocols produce as evidence of authority.",
+    "whyItMatters": "Frames delegated purchasing in legal terms, which matters for the mandate and consent records that AP2, Agent Pay and the other protocols produce as evidence of authority. AP2: Legal and governance frame for agents acting for principals.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{kolt2025governing,\n  title = {{Governing AI Agents}},\n  author = {Noam Kolt},\n  year = {2025},\n  eprint = {2501.07913},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2501.07913}\n}"
@@ -2193,7 +2200,7 @@
     ],
     "relation": "direct",
     "summary": "Analyzes the AP2 mandate lifecycle and finds runtime enforcement gaps created by retries, concurrency and orchestration, then proposes a zero-trust runtime verifier that enforces explicit context binding and consume-once mandate semantics with time-bound nonces. Simulations at up to 10,000 transactions per second show both mechanisms are needed to stop replay and context-redirect attacks, at about 3.8 ms verification latency.",
-    "whyItMatters": "Shows that ap2 (and ucp, which it also names as a mandate-based protocol) needs execution-time checks on mandates, not just signature validity at issuance.",
+    "whyItMatters": "Shows that ap2 (and ucp, which it also names as a mandate-based protocol) needs execution-time checks on mandates, not just signature validity at issuance. AP2: Replay and context-binding gaps in the mandate lifecycle. UCP: Names UCP and AP2 in its abstract; replay and context-binding failures in mandate-based protocols.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{lan2026zerotrust,\n  title = {{Zero-Trust Runtime Verification for Agentic Payment Protocols: Mitigating Replay and Context-Binding Failures in AP2}},\n  author = {Qianlong Lan and Anuj Kaul and Shaun Jones and Stephanie Westrum},\n  year = {2026},\n  eprint = {2602.06345},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2602.06345}\n}"
@@ -2551,7 +2558,7 @@
     ],
     "relation": "direct",
     "summary": "Describes a structured dataset of 10,000 ERC-8004 agents registered on Ethereum mainnet within a defined block range, combining on-chain identity records, minting and transfer events, reputation summaries and feedback records with resolved off-chain metadata, collected through Web3 RPC queries. The companion data are deposited on Harvard Dataverse under DOI 10.7910/DVN/HJZW8Q (a dataset DOI, which the arXiv record lists in place of a paper DOI).",
-    "whyItMatters": "A reusable baseline for erc-8004 measurement work; the Mafrur and Khusumanegara readiness study builds on data of this kind.",
+    "whyItMatters": "A reusable baseline for erc-8004 measurement work; the Mafrur and Khusumanegara readiness study builds on data of this kind. ERC-8004: Trustless Agents: A dataset of early Ethereum registrations for your own analysis.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{liu2026dataset,\n  title = {{A dataset of early blockchain-registered AI agents on Ethereum}},\n  author = {Yulin Liu},\n  year = {2026},\n  eprint = {2604.22652},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.DB},\n  url = {https://arxiv.org/abs/2604.22652}\n}"
@@ -2638,7 +2645,7 @@
     ],
     "relation": "related",
     "summary": "Argues that the most consequential risks in agentic commerce platforms sit in the protocol between agents and commerce services rather than in the model, documenting 33 structural vulnerabilities across three platforms that succeed deterministically regardless of model, three of which chain into a payment hijack. Contributes a taxonomy, AIP-Bench as a deterministic benchmark, and PCAT, a platform-agnostic defense that removes four of five structural attack classes.",
-    "whyItMatters": "Cross-platform evidence that protocol design, not model alignment, decides the security of openai-acp, ap2 and ucp style checkout flows; the three platforms are not named in the abstract, so the mapping is unconfirmed.",
+    "whyItMatters": "Cross-platform evidence that protocol design, not model alignment, decides the security of openai-acp, ap2 and ucp style checkout flows; the three platforms are not named in the abstract, so the mapping is unconfirmed. Agentic Commerce Protocol (ACP): Protocol-level attacks on agentic commerce platforms; does not name ACP but covers the same layer. UCP: Cross-platform attack taxonomy for agentic commerce platforms; context for section H.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{louck2026protocollevel,\n  title = {{Protocol-Level Attacks on Agentic Commerce Platforms: A Cross-Platform Taxonomy, AIP-Bench, and Unified Defense}},\n  author = {Yedidel Louck},\n  year = {2026},\n  eprint = {2607.21824},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2607.21824}\n}"
@@ -2665,7 +2672,7 @@
     ],
     "relation": "direct",
     "summary": "Shows that AP2 signs completed transactions but not the decisions leading to them, so ordinary product-description text can steer a shopping agent into fetching another user's payment credentials, assembling a valid cart that differs from what the user saw, or upgrading to a more expensive item, with success rates of 90%, 56% and 73.3% on the Gemini Flash-Lite models that AP2 sample agents use. Proposes A-VIP, a protocol-layer defense that binds credential lookups and cart lines to the session and listing, and releases AP2-WhisperBench with 1,544 scenarios.",
-    "whyItMatters": "Direct follow-up to the whisper attacks on ap2 with a protocol-layer defense and a benchmark; it sharpens the point that mandate signatures do not cover intent formation.",
+    "whyItMatters": "Direct follow-up to the whisper attacks on ap2 with a protocol-layer defense and a benchmark; it sharpens the point that mandate signatures do not cover intent formation. AP2: Shows mandates sign the transaction but not the decision; proposes a binding defense.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{louck2026whisper,\n  title = {{Signing the Transaction but Not the Decision: Whisper Attacks and a Binding Defense for AP2}},\n  author = {Yedidel Louck and Amit Dvir and Ariel Stulman},\n  year = {2026},\n  eprint = {2609.11757},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.11757}\n}"
@@ -2694,7 +2701,7 @@
     ],
     "relation": "direct",
     "summary": "Asks whether ERC-8004 agents on Ethereum are operationally ready beyond registration by building an agent-level feature table (identity status, metadata, service declarations, reputation feedback, transfers, cross-chain registration) and an evidence-layer readiness framework, complemented by network analysis of owner-agent, feedback-client and wallet-transfer graphs. Early adoption is registration-heavy but operationally shallow, and ownership and feedback activity are concentrated in a few wallets and clients.",
-    "whyItMatters": "Independent, journal-published measurement that supports the atlas distinction between erc-8004 identity registrations and a working agent economy.",
+    "whyItMatters": "Independent, journal-published measurement that supports the atlas distinction between erc-8004 identity registrations and a working agent economy. ERC-8004: Trustless Agents: Measures operational readiness of registered agents.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@article{mafrur2026readiness,\n  title = {{From Agent Identity to Agent Economy: Measuring the Operational Readiness of ERC-8004 AI Agents}},\n  author = {Rischan Mafrur and Priagung Khusumanegara},\n  year = {2026},\n  journal = {Journal of FinTech and Digital Assets},\n  volume = {1},\n  number = {2},\n  pages = {69-88},\n  doi = {10.34900/jfda.v1i2.1411},\n  eprint = {2606.12128},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CE},\n  url = {https://arxiv.org/abs/2606.12128}\n}"
@@ -2728,7 +2735,7 @@
     ],
     "relation": "direct",
     "summary": "A systematization of knowledge that frames the security of autonomous LLM agents in commerce along five dimensions (agent integrity, transaction authorization, inter-agent trust, market manipulation, regulatory compliance), derives 12 cross-layer attack vectors from a curated corpus of papers, protocol documents, industry reports and incidents, and proposes a layered defense for the authorization gaps in current agent payment protocols. The ACP it lists is written 'Agent Commerce Protocol', which may not be OpenAI's Agentic Commerce Protocol; that mapping is unconfirmed.",
-    "whyItMatters": "Places erc-8004, ap2, x402 and stripe-mpp in one threat framework and argues that their authorization gaps compound across the reasoning, tooling, custody and settlement layers. x402: Security SoK of agentic commerce that covers x402.",
+    "whyItMatters": "Places erc-8004, ap2, x402 and stripe-mpp in one threat framework and argues that their authorization gaps compound across the reasoning, tooling, custody and settlement layers. AP2: Places AP2 among agent commerce attack vectors. x402: Security SoK of agentic commerce that covers x402.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{mao2026sok,\n  title = {{SoK: Security of Autonomous LLM Agents in Agentic Commerce}},\n  author = {Qian'ang Mao and Jiaxin Wang and Ya Liu and Li Zhu and Cong Ma and Jiaqi Yan},\n  year = {2026},\n  eprint = {2604.15367},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2604.15367}\n}"
@@ -2756,7 +2763,7 @@
     ],
     "relation": "grey",
     "summary": "The first Web Bot Auth working group draft (revision 00, 2026-09-01) for identifying automated HTTP clients with HTTP Message Signatures. It defines the Signature-Agent header for in-band key discovery, a JWKS-based key directory format and a well-known URI for serving it.",
-    "whyItMatters": "The Visa TAP spec calls itself aligned with Web Bot Auth, Cloudflare says the Visa and Mastercard agent protocols build on it, and UCP offers an optional Web Bot Auth profile; this working group draft, posted almost a year after TAP launched, is the standards-track form of that request signing.",
+    "whyItMatters": "The Visa TAP spec calls itself aligned with Web Bot Auth, Cloudflare says the Visa and Mastercard agent protocols build on it, and UCP offers an optional Web Bot Auth profile; this working group draft, posted almost a year after TAP launched, is the standards-track form of that request signing. Visa Trusted Agent Protocol: The IETF working group draft TAP is compared against.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "publisher",
     "bibtex": "@misc{meunier2026webbotauth,\n  title = {{HTTP Message Signatures for automated traffic}},\n  author = {T. Meunier and S. Major},\n  year = {2026},\n  howpublished = {Internet-Draft draft-ietf-webbotauth-httpsig-protocol-00, IETF},\n  note = {Work in progress, 2026-09-01},\n  url = {https://datatracker.ietf.org/doc/draft-ietf-webbotauth-httpsig-protocol/}\n}"
@@ -2895,7 +2902,7 @@
     ],
     "relation": "foundation",
     "summary": "Criticizes the original 3-D Secure schemes (Verified by Visa and MasterCard SecureCode) for training users to enter passwords into unverifiable inline frames, shifting liability onto cardholders, and weakening security in the name of convenience.",
-    "whyItMatters": "3-D Secure is the existing step-up and liability mechanism that card-based agent payments build on or bypass; this paper explains why authentication that users cannot verify fails.",
+    "whyItMatters": "3-D Secure is the existing step-up and liability mechanism that card-based agent payments build on or bypass; this paper explains why authentication that users cannot verify fails. Visa Trusted Agent Protocol: Lessons from an earlier network-run authentication layer and its liability design.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{murdoch20103dsecure,\n  title = {{Verified by Visa and MasterCard SecureCode: Or, How Not to Design Authentication}},\n  author = {Steven J. Murdoch and Ross Anderson},\n  year = {2010},\n  booktitle = {Financial Cryptography and Data Security},\n  series = {Lecture Notes in Computer Science},\n  pages = {336--342},\n  publisher = {Springer},\n  doi = {10.1007/978-3-642-14577-3_27},\n  url = {https://doi.org/10.1007/978-3-642-14577-3_27}\n}"
@@ -2951,7 +2958,7 @@
     ],
     "relation": "related",
     "summary": "Specifies OpenID Connect for Agents (OIDC-A) 1.0, an extension to OpenID Connect Core that adds standard claims, endpoints and flows for agent identity, attestation verification, delegation-chain validation and capability-based authorization while staying compatible with OAuth 2.0 infrastructure. A specification proposal is published on GitHub.",
-    "whyItMatters": "A concrete OIDC-based alternative to the HTTP message signature approach of visa-tap and to the mandate chain in ap2.",
+    "whyItMatters": "A concrete OIDC-based alternative to the HTTP message signature approach of visa-tap and to the mandate chain in ap2. AP2: Agent identity extension for OpenID Connect.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{nagabhushanaradhya2025oidca,\n  title = {{OpenID Connect for Agents (OIDC-A) 1.0: A Standard Extension for LLM-Based Agent Identity and Authorization}},\n  author = {Subramanya Nagabhushanaradhya},\n  year = {2025},\n  eprint = {2509.25974},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.NI},\n  url = {https://arxiv.org/abs/2509.25974}\n}"
@@ -3038,7 +3045,7 @@
     ],
     "relation": "related",
     "summary": "Defines AI identity as the continuous relationship between what an agent is declared to be and what it is observed to do, compares human and AI identity on substrate, persistence, verifiability and legal standing, evaluates current technical and regulatory documents against agent identity requirements, and identifies five structural gaps including recursive delegation accountability and agent identity integrity.",
-    "whyItMatters": "A gap analysis that the identity claims in visa-tap, erc-8004 and ap2 can be checked against.",
+    "whyItMatters": "A gap analysis that the identity claims in visa-tap, erc-8004 and ap2 can be checked against. Visa Trusted Agent Protocol: Survey of agent identity standards and gaps.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{otsuka2026aiidentity,\n  title = {{AI Identity: Standards, Gaps, and Research Directions for AI Agents}},\n  author = {Takumi Otsuka and Kentaroh Toyoda and Alex Leung},\n  year = {2026},\n  eprint = {2604.23280},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2604.23280}\n}"
@@ -3244,7 +3251,7 @@
     ],
     "relation": "related",
     "summary": "Introduces Invocation-Bound Capability Tokens, an append-only token chain that fuses identity, attenuated authorization and provenance binding, in a compact JWT mode and a chained Biscuit mode with Datalog policies for multi-hop delegation across MCP, A2A and HTTP. Python and Rust implementations add sub-millisecond overhead, and all 600 adversarial attempts were rejected.",
-    "whyItMatters": "Delegation tokens for the A2A and MCP layers that ap2 and the a2a-x402 extension sit on, and a descendant of the Macaroons caveat model.",
+    "whyItMatters": "Delegation tokens for the A2A and MCP layers that ap2 and the a2a-x402 extension sit on, and a descendant of the Macaroons caveat model. AP2: Verifiable delegation across MCP and A2A.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{prakash2026aip,\n  title = {{AIP: Agent Identity Protocol for Verifiable Delegation Across MCP and A2A}},\n  author = {Sunil Prakash},\n  year = {2026},\n  eprint = {2603.24775},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2603.24775}\n}"
@@ -3270,7 +3277,7 @@
     ],
     "relation": "related",
     "summary": "Proposes a governance proxy that enforces signed, machine-readable mandates on MCP tool calls, blocking non-conforming calls and recording every decision in a hash-chained, timestamp-anchored audit trail. The mandate is modeled on the civil-law delegation of authority and mapped to EU AI Act, GDPR, NIS2 and eIDAS 2 obligations; the paper describes implementation status and an evaluation plan rather than results.",
-    "whyItMatters": "A mandate concept parallel to AP2's intent and cart mandates, applied at the tool-call layer and tied to EU legal instruments, which is useful for the compliance view of delegation.",
+    "whyItMatters": "A mandate concept parallel to AP2's intent and cart mandates, applied at the tool-call layer and tied to EU legal instruments, which is useful for the compliance view of delegation. AP2: Signed mandates enforced on tool calls, mapped to EU law.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{racioppi2026mandato,\n  title = {Mandato: Protocol-Level Enforcement of Digitally Signed Mandates on AI Agent Actions with Cryptographically Chained Audit Trails},\n  author = {Giovanni Racioppi},\n  year = {2026},\n  eprint = {2608.14074},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2608.14074},\n  note = {arXiv preprint}\n}"
@@ -3430,7 +3437,7 @@
     ],
     "relation": "direct",
     "summary": "Defines agentic payments as transactions started and completed by AI agents, sets out how they work across retail, e-commerce and decentralized finance, and classifies their technical, legal and societal risks, including liability gaps and regulatory non-compliance.",
-    "whyItMatters": "One of the few peer-reviewed legal analyses aimed at agent payments specifically, useful for the compliance and liability questions every protocol in the atlas leaves to implementers.",
+    "whyItMatters": "One of the few peer-reviewed legal analyses aimed at agent payments specifically, useful for the compliance and liability questions every protocol in the atlas leaves to implementers. AP2: Risks and regulation of agent payments. Agentic Commerce Protocol (ACP): Risks and regulation of AI agents in payments, covering ACP.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@article{amariles2026payments,\n  title = {{AI Agents in Payments: Applications, Risks and Regulations}},\n  author = {David Restrepo Amariles and Damien Charlotin and Liyun He-Guelton},\n  year = {2026},\n  journal = {European Journal of Risk Regulation},\n  volume = {17},\n  number = {3},\n  pages = {884--907},\n  publisher = {Cambridge University Press},\n  doi = {10.1017/err.2026.10103},\n  url = {https://doi.org/10.1017/err.2026.10103}\n}"
@@ -3453,10 +3460,12 @@
       "delegation",
       "governance"
     ],
-    "protocols": [],
+    "protocols": [
+      "ap2"
+    ],
     "relation": "related",
     "summary": "Compares technical and legal ideas of agency, linking implied authority in agency law to value alignment in AI, and argues that computer science has under-theorized the agent's loyalty to its principal and its dealings with third parties.",
-    "whyItMatters": "Agent payments put third parties (merchants, networks) in contact with an agent; the paper explains which legal duties may attach and why protocols record what the user actually authorized.",
+    "whyItMatters": "Agent payments put third parties (merchants, networks) in contact with an agent; the paper explains which legal duties may attach and why protocols record what the user actually authorized. AP2: Agency and liability when AI agents act.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{riedl2025law,\n  title = {{AI Agents and the Law}},\n  author = {Mark O. Riedl and Deven R. Desai},\n  year = {2025},\n  booktitle = {Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society},\n  volume = {8},\n  pages = {2189--2198},\n  doi = {10.1609/aies.v8i3.36705},\n  url = {https://doi.org/10.1609/aies.v8i3.36705}\n}"
@@ -3571,7 +3580,7 @@
     ],
     "relation": "foundation",
     "summary": "Builds the standard model of competition between two-sided platforms that must attract both buyers and sellers, showing how price structure, not just price level, determines adoption, with payment cards as a leading example.",
-    "whyItMatters": "Every agentic checkout protocol is a two-sided platform bet; this model explains the subsidy and fee choices behind merchant and agent adoption of ACP, UCP and card network programs.",
+    "whyItMatters": "Every agentic checkout protocol is a two-sided platform bet; this model explains the subsidy and fee choices behind merchant and agent adoption of ACP, UCP and card network programs. Agentic Commerce Protocol (ACP): Two-sided market economics behind platform fees on merchants. UCP: Two-sided platform economics behind a protocol that joins agent surfaces and merchants.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@article{rochet2003platform,\n  title = {{Platform Competition in Two-Sided Markets}},\n  author = {Jean-Charles Rochet and Jean Tirole},\n  year = {2003},\n  journal = {Journal of the European Economic Association},\n  volume = {1},\n  number = {4},\n  pages = {990--1029},\n  doi = {10.1162/154247603322493212},\n  url = {https://doi.org/10.1162/154247603322493212}\n}"
@@ -3604,7 +3613,7 @@
     ],
     "relation": "related",
     "summary": "Presents a conceptual framework and prototype in which each agent holds a ledger-anchored W3C Decentralized Identifier and third-party-issued Verifiable Credentials, so agents can authenticate and establish cross-domain trust at the start of a dialogue. Evaluation shows feasibility but also limits when the agent's LLM alone controls the security procedures. The arXiv preprint is dated 2025; the ICAART proceedings appeared in 2026.",
-    "whyItMatters": "Peer-reviewed DID and VC approach to agent identity that contrasts with the on-chain registry model of erc-8004 and the network-issued credentials of visa-tap.",
+    "whyItMatters": "Peer-reviewed DID and VC approach to agent identity that contrasts with the on-chain registry model of erc-8004 and the network-issued credentials of visa-tap. ERC-8004: Trustless Agents: DID and verifiable credential alternative to registry identity.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{garzon2026didvc,\n  title = {{AI Agents with Decentralized Identifiers and Verifiable Credentials}},\n  author = {Sandro Rodriguez Garzon and Awid Vaziry and Enis Mert Kuzu and Dennis Enrique Gehrmann and Buse Varkan and Alexander Gaballa and Axel Küpper},\n  year = {2026},\n  booktitle = {Proceedings of the 18th International Conference on Agents and Artificial Intelligence (ICAART 2026), Volume 1},\n  publisher = {SCITEPRESS},\n  pages = {252-259},\n  doi = {10.5220/0014234400004052},\n  eprint = {2511.02841},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2511.02841}\n}"
@@ -3780,7 +3789,7 @@
     ],
     "relation": "related",
     "summary": "A design-science study proposing a protocol-agnostic merchant-side architecture for agentic commerce built around a canonical decision envelope, protected dependency and result hashes, Ed25519 or HMAC authentication, live-request rebinding, a generated-claim gate and eleven semantic invariants, evaluated on an open-source JavaScript implementation with eight scenarios and five ablations; the author lists production security and interoperability as not established.",
-    "whyItMatters": "Addresses what a merchant must keep authoritative when openai-acp, ucp or ap2 checkout messages arrive from agents, complementary to those protocol specifications.",
+    "whyItMatters": "Addresses what a merchant must keep authoritative when openai-acp, ucp or ap2 checkout messages arrive from agents, complementary to those protocol specifications. Agentic Commerce Protocol (ACP): Merchant-side reference architecture for agent commerce of the kind ACP serves.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{sfiris2026decisioncentered,\n  title = {{A Decision-Centered Reference Architecture for Trustworthy Agentic Commerce}},\n  author = {Dimitrios S. Sfiris},\n  year = {2026},\n  eprint = {2607.18347},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.SE},\n  url = {https://arxiv.org/abs/2607.18347}\n}"
@@ -3835,7 +3844,7 @@
     ],
     "relation": "related",
     "summary": "Proposes Issuer-Sovereign Agentic Payments, in which the cardholder approves a spending rule once with the issuing bank's own authentication component, and at payment time the bank checks the merchant against that rule and generates the card authentication value only if allowed, so the transaction rides normal card rails with issuer validation and no extra execution-time dependency.",
-    "whyItMatters": "A counterproposal to network-led designs such as visa-tap and mastercard-agent-pay, where spending controls are enforced by the network or a credential provider rather than the issuer.",
+    "whyItMatters": "A counterproposal to network-led designs such as visa-tap and mastercard-agent-pay, where spending controls are enforced by the network or a credential provider rather than the issuer. Visa Trusted Agent Protocol: Argues for issuer-side controls, contrasting with network-run agent recognition.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{sharma2026issuer,\n  title = {{Issuer-Sovereign Agentic Payments}},\n  author = {Dishant Sharma and Rajneesh Kaushal and Ashu Kanaujia},\n  year = {2026},\n  eprint = {2609.27452},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.27452}\n}"
@@ -3892,7 +3901,7 @@
     ],
     "relation": "related",
     "summary": "Introduces WebDecept, a plugin that injects seven deceptive interface patterns (targeted advertisements, domain redirection, shopping manipulation and others) into existing web environments, and evaluates multimodal web agents under them. Agents were highly susceptible to several classes of deception and prompt-based constraints were often insufficient.",
-    "whyItMatters": "Measures the merchant-side manipulation surface that structured checkouts in UCP and ACP are meant to remove, and gives a baseline for how agents behave when they must still browse a storefront.",
+    "whyItMatters": "Measures the merchant-side manipulation surface that structured checkouts in UCP and ACP are meant to remove, and gives a baseline for how agents behave when they must still browse a storefront. UCP: Web agent safety under deceptive e-commerce interfaces, which a trusted review UI must withstand.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{shi2026deceptive,\n  title = {Benchmarking Web Agent Safety under E-commerce Deceptive Interfaces},\n  author = {Zijing Shi and Meng Fang and Ling Chen},\n  year = {2026},\n  booktitle = {Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},\n  publisher = {Association for Computational Linguistics},\n  pages = {22090-22103},\n  doi = {10.18653/v1/2026.acl-long.1009},\n  url = {https://aclanthology.org/2026.acl-long.1009/},\n  eprint = {2606.13686},\n  archivePrefix = {arXiv}\n}"
@@ -3926,7 +3935,7 @@
     ],
     "relation": "related",
     "summary": "Proposes a framework for authenticated, authorized and auditable delegation of authority from humans to AI agents, extending OAuth 2.0 and OpenID Connect with agent-specific credentials and metadata, and a method for translating natural-language permissions into auditable access control configurations.",
-    "whyItMatters": "The reference design for delegation chains that ap2 mandates, visa-tap agent identity and openai-acp checkout each assume but implement differently.",
+    "whyItMatters": "The reference design for delegation chains that ap2 mandates, visa-tap agent identity and openai-acp checkout each assume but implement differently. AP2: Delegation credentials for agents, the idea behind open mandates. Visa Trusted Agent Protocol: Delegated agent credentials, the user-to-agent link that TAP leaves to VIC.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{south2025delegation,\n  title = {{Authenticated Delegation and Authorized AI Agents}},\n  author = {Tobin South and Samuele Marro and Thomas Hardjono and Robert Mahari and Cedric Deslandes Whitney and Dazza Greenwood and Alan Chan and Alex Pentland},\n  year = {2025},\n  eprint = {2501.09674},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CY},\n  url = {https://arxiv.org/abs/2501.09674}\n}"
@@ -3974,7 +3983,7 @@
     ],
     "relation": "grey",
     "summary": "An OpenID Foundation white paper that surveys the authentication, authorization and identity resources available for today's agents, including MCP-centered practice, and sets out a strategic agenda for scalable access control, agent-centric identities, workload differentiation and delegated authority. Grey literature: the venue is the arXiv journal reference, not a peer-reviewed outlet.",
-    "whyItMatters": "Standards-community baseline for the identity layer under visa-tap, ap2 and openai-acp; it records what OAuth and OIDC already cover and what is missing.",
+    "whyItMatters": "Standards-community baseline for the identity layer under visa-tap, ap2 and openai-acp; it records what OAuth and OIDC already cover and what is missing. AP2: OpenID Foundation white paper on agent identity and authorization. Visa Trusted Agent Protocol: Survey of agent identity that discusses Web Bot Auth.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@techreport{south2025identity,\n  title = {{Identity Management for Agentic AI: The new frontier of authorization, authentication, and security for an AI agent world}},\n  author = {Tobin South and Subramanya Nagabhushanaradhya and Ayesha Dissanayaka and Sarah Cecchetti and George Fletcher and Victor Lu and Aldo Pietropaolo and Dean H. Saxe and Jeff Lombardo and Abhishek Maligehalli Shivalingaiah and Stan Bounev and Alex Keisner and Andor Kesselman and Zack Proser and Ginny Fahs and Andrew Bunyea and Ben Moskowitz and Atul Tulshibagwale and Dazza Greenwood and Jiaxin Pei and Alex Pentland},\n  year = {2025},\n  institution = {OpenID Foundation},\n  type = {Whitepaper},\n  eprint = {2510.25819},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2510.25819}\n}"
@@ -4030,7 +4039,7 @@
     ],
     "relation": "related",
     "summary": "Argues that AP2 and ACP lack interoperable, tamper-evident audit trails and proposes a global event timeline built from canonical event schemas, deterministic batching, Merkle commitments and blockchain anchoring, plus signed fraud markers tied to that evidence. A single-author prototype reports throughput figures; a copy is also on Zenodo (DOI 10.5281/zenodo.19060285).",
-    "whyItMatters": "Names a gap shared by AP2 and ACP, the lack of a common verifiable event log for disputes and fraud signals, and sketches one way to fill it.",
+    "whyItMatters": "Names a gap shared by AP2 and ACP, the lack of a common verifiable event log for disputes and fraud signals, and sketches one way to fill it. Agentic Commerce Protocol (ACP): Argues ACP lacks interoperable, tamper-evident audit trails.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{srivastava2026timeline,\n  title = {{Building Trust in Autonomous Commerce: A Verifiable Global Event Timeline and AI-Ready Fraud Intelligence Layer}},\n  author = {Rajat Srivastava},\n  year = {2026},\n  eprint = {2607.19436},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2607.19436}\n}"
@@ -4084,7 +4093,7 @@
     ],
     "relation": "foundation",
     "summary": "Presents zkLLM, a zero-knowledge proof system specialized for large language model inference, with a parallel lookup argument for non-arithmetic tensor operations and a dedicated proof for attention. It lets a model owner prove that an output came from committed parameters without revealing them.",
-    "whyItMatters": "ERC-8004 leaves room for validators that check agent work with cryptographic proofs; zkLLM shows what a zkML validation response could attest to and how costly that proof is for transformer models.",
+    "whyItMatters": "ERC-8004 leaves room for validators that check agent work with cryptographic proofs; zkLLM shows what a zkML validation response could attest to and how costly that proof is for transformer models. ERC-8004: Trustless Agents: zkML proofs, one of the validation methods the text names.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{sun2024zkllm,\n  title = {{zkLLM: Zero Knowledge Proofs for Large Language Models}},\n  author = {Haochen Sun and Jason Li and Hongyang Zhang},\n  year = {2024},\n  booktitle = {Proceedings of the 2024 ACM SIGSAC Conference on Computer and Communications Security},\n  pages = {4405--4419},\n  publisher = {ACM},\n  doi = {10.1145/3658644.3670334},\n  url = {https://doi.org/10.1145/3658644.3670334}\n}"
@@ -4175,7 +4184,7 @@
     ],
     "relation": "grey",
     "summary": "An acquirer's analysis (2026-07-30) noting that Visa, Mastercard and American Express have all launched frameworks for agent transactions while the question of who bears the loss in a dispute remains largely open.",
-    "whyItMatters": "Liability allocation is the unresolved commercial question behind TAP and Agent Pay; this is the merchant-acquirer view of it.",
+    "whyItMatters": "Liability allocation is the unresolved commercial question behind TAP and Agent Pay; this is the merchant-acquirer view of it. Visa Trusted Agent Protocol: Acquirer view that no agent liability shift exists yet.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "publisher",
     "bibtex": "@misc{suresh2026worldpay,\n  title = {{Agentic commerce liability is still being written}},\n  author = {Reshmi Suresh},\n  year = {2026},\n  howpublished = {Worldpay},\n  note = {Article, 2026-07-30},\n  url = {https://worldpay.com/en/insights/articles/agentic-commerce-liability-is-still-being-written}\n}"
@@ -4408,7 +4417,7 @@
     ],
     "relation": "direct",
     "summary": "Extends the A2A protocol with ledger-anchored identities, publishing AgentCards on chain as smart contracts for verifiable discovery, and with x402 micropayments so that agents can discover, authenticate and pay one another across organizational boundaries; includes an implementation and evaluation. Published in Springer CCIS from IJCCI 2025 under the title given here; the arXiv preprint (2507.19550, 2025) carries the longer title 'Towards Multi-Agent Economies: Enhancing the A2A Protocol with Ledger-Anchored Identities and x402 Micropayments for AI Agents'.",
-    "whyItMatters": "Peer-reviewed design that pairs x402 with on-chain agent identity, the same combination that erc-8004 plus x402 deployments pursue. x402: Combines A2A with ledger-anchored identities and x402 micropayments.",
+    "whyItMatters": "Peer-reviewed design that pairs x402 with on-chain agent identity, the same combination that erc-8004 plus x402 deployments pursue. ERC-8004: Trustless Agents: Ledger-anchored identity with A2A and x402, before ERC-8004. x402: Combines A2A with ledger-anchored identities and x402 micropayments.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{vaziry2026a2ax402,\n  title = {{Enhancing the A2A Protocol with Blockchain-Based Identities and x402 Micropayments for Agentic AI}},\n  author = {Awid Vaziry and Sandro Rodriguez Garzon and Axel Küpper},\n  year = {2026},\n  booktitle = {Computational Intelligence (IJCCI 2025), Communications in Computer and Information Science, vol. 2827},\n  publisher = {Springer Nature Switzerland},\n  series = {Communications in Computer and Information Science},\n  pages = {454-472},\n  doi = {10.1007/978-3-032-15632-7_25},\n  eprint = {2507.19550},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.MA},\n  url = {https://arxiv.org/abs/2507.19550}\n}"
@@ -4470,7 +4479,7 @@
     ],
     "relation": "related",
     "summary": "Buys traffic from 20 bot services against a honey site protected by two commercial anti-bot products and finds that about half the requests evade detection by altering browser fingerprints; inconsistencies among altered attributes then help detect them.",
-    "whyItMatters": "Measures how weak fingerprint-based bot detection is, which is the problem Visa TAP and Mastercard Agent Pay address by having trusted agents sign their requests instead of hiding as browsers.",
+    "whyItMatters": "Measures how weak fingerprint-based bot detection is, which is the problem Visa TAP and Mastercard Agent Pay address by having trusted agents sign their requests instead of hiding as browsers. Visa Trusted Agent Protocol: Why fingerprint-based bot detection fails and cryptographic agent identity appeals.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{venugopalan2025fpinconsistent,\n  title = {{FP-Inconsistent: Measurement and Analysis of Fingerprint Inconsistencies in Evasive Bot Traffic}},\n  author = {Hari Venugopalan and Shaoor Munir and Shuaib Ahmed and Tangbaihe Wang and Samuel T. King and Zubair Shafiq},\n  year = {2025},\n  booktitle = {Proceedings of the 2025 ACM Internet Measurement Conference},\n  pages = {134--149},\n  publisher = {ACM},\n  doi = {10.1145/3730567.3732919},\n  url = {https://doi.org/10.1145/3730567.3732919}\n}"
@@ -4526,7 +4535,7 @@
     ],
     "relation": "related",
     "summary": "Using Tool-Lab, a process-tracing setup that hides product attributes behind costly tool calls, the authors test eight deployed LLMs from three providers against just-below pricing and promotional framing. Cues rarely mislead when information is free, but under acquisition costs and a vague goal the agents skip the attributes needed to compute unit price and make heuristic, suboptimal choices much like people.",
-    "whyItMatters": "Shows that storefront information architecture and tool cost shape what agents buy, which matters for how merchants expose product data in ACP and UCP feeds and for proposals to sell product information per fact over x402.",
+    "whyItMatters": "Shows that storefront information architecture and tool cost shape what agents buy, which matters for how merchants expose product data in ACP and UCP feeds and for proposals to sell product information per fact over x402. Agentic Commerce Protocol (ACP): Agents as surrogate consumers; behavior behind ACP purchases.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{wadi2026shopping,\n  title = {Shopping by algorithm: How agentic AI deploys human heuristics as a surrogate consumer},\n  author = {Davood Wadi and Yu Ma},\n  year = {2026},\n  eprint = {2609.28372},\n  archivePrefix = {arXiv},\n  primaryClass = {econ.GN},\n  url = {https://arxiv.org/abs/2609.28372},\n  note = {arXiv preprint}\n}"
@@ -4683,7 +4692,7 @@
     ],
     "relation": "direct",
     "summary": "First empirical study of ERC-8004 on Ethereum, BNB Smart Chain and Base from deployment through 2026-05-13, crawling Identity and Reputation Registry events, registration files and associated x402 payments. Only 3%, 4% and 15% of registrations on the three chains expose a valid registration file with a live endpoint, reputation values are not commensurable and are cheap to manipulate, and 73.5%, 59.2% and 90.6% of reviewers show coordinated Sybil behavior; removing flagged feedback leaves 15.8%, 77.9% and 86.8% of rated agents with no valid feedback.",
-    "whyItMatters": "Primary evidence for the disputed status of erc-8004 reputation data and for the gap between registrations and operational agents; it also links x402 settlements to registered identities.",
+    "whyItMatters": "Primary evidence for the disputed status of erc-8004 reputation data and for the gap between registrations and operational agents; it also links x402 settlements to registered identities. ERC-8004: Trustless Agents: The main measurement of ERC-8004 in practice: liveness and Sybil reviewers on three chains.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{xiong2026trustless,\n  title = {{Can Trustless Agents Be Trusted? An Empirical Study of the ERC-8004 Decentralized AI Agent Ecosystem}},\n  author = {Xihan Xiong and Zelin Li and Wei Wei and Qin Wang and William Knottenbelt and Zhipeng Wang},\n  year = {2026},\n  eprint = {2606.26028},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2606.26028}\n}"
@@ -4820,7 +4829,7 @@
     ],
     "relation": "related",
     "summary": "Surveys agent communication protocols with a two-dimensional classification (context-oriented versus inter-agent, general-purpose versus domain-specific), compares them on security, scalability and latency, and lays out directions such as layered architectures, privacy preservation and group interaction.",
-    "whyItMatters": "Provides the taxonomy into which payment and commerce protocols (x402, AP2, ACP, UCP) slot as domain-specific layers above MCP and A2A.",
+    "whyItMatters": "Provides the taxonomy into which payment and commerce protocols (x402, AP2, ACP, UCP) slot as domain-specific layers above MCP and A2A. UCP: Survey of AI agent protocols for orientation.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{yang2025protocols,\n  title = {A Survey of AI Agent Protocols},\n  author = {Yingxuan Yang and Huacan Chai and Yuanyi Song and Siyuan Qi and Muning Wen and Ning Li and Junwei Liao and Haoyi Hu and Jianghao Lin and Gaowei Chang and Weiwen Liu and Ying Wen and Yong Yu and Weinan Zhang},\n  year = {2025},\n  eprint = {2504.16736},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2504.16736},\n  note = {arXiv preprint}\n}"
@@ -4884,7 +4893,7 @@
     ],
     "relation": "foundation",
     "summary": "A simulated e-commerce site with 1.18 million real products and 12,087 crowd-sourced instructions in which an agent must search, customize and buy an item. It introduced compositional instruction following, query reformulation and noisy web text as grounding challenges and collected over 1,600 human demonstrations for training.",
-    "whyItMatters": "The ancestor of every agentic shopping benchmark; the search, option selection and checkout steps it scripted are what ACP and UCP now turn into protocol messages.",
+    "whyItMatters": "The ancestor of every agentic shopping benchmark; the search, option selection and checkout steps it scripted are what ACP and UCP now turn into protocol messages. Agentic Commerce Protocol (ACP): Foundational shopping-agent benchmark.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "publisher",
     "bibtex": "@inproceedings{yao2022webshop,\n  title = {WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents},\n  author = {Shunyu Yao and Howard Chen and John Yang and Karthik Narasimhan},\n  year = {2022},\n  booktitle = {Advances in Neural Information Processing Systems 35 (NeurIPS 2022)},\n  url = {https://proceedings.neurips.cc/paper_files/paper/2022/hash/82ad13ec01f9fe44c01cb91814fd7b8c-Abstract-Conference.html},\n  eprint = {2207.01206},\n  archivePrefix = {arXiv}\n}"
@@ -4913,7 +4922,7 @@
     ],
     "relation": "foundation",
     "summary": "Simulates conversations between an LLM-played user and an agent that has domain API tools and policy documents, grading by comparing the final database state to an annotated goal and introducing the pass^k reliability metric. Even strong function-calling agents succeeded on under half of the tasks and were inconsistent across trials, with pass^8 below 25 percent in retail.",
-    "whyItMatters": "Its retail domain (orders, exchanges, refunds under policy) is the post-purchase side of ACP and UCP, and pass^k is the reliability framing merchants need before letting agents touch orders.",
+    "whyItMatters": "Its retail domain (orders, exchanges, refunds under policy) is the post-purchase side of ACP and UCP, and pass^k is the reliability framing merchants need before letting agents touch orders. Agentic Commerce Protocol (ACP): Retail tool-use benchmark close to ACP checkout tool calls.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "publisher",
     "bibtex": "@inproceedings{yao2025taubench,\n  title = {{$\\tau$}-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains},\n  author = {Shunyu Yao and Noah Shinn and Pedram Razavi and Karthik Narasimhan},\n  year = {2025},\n  booktitle = {The Thirteenth International Conference on Learning Representations (ICLR 2025)},\n  url = {https://openreview.net/forum?id=roNSXZpUDN},\n  eprint = {2406.12045},\n  archivePrefix = {arXiv}\n}"
@@ -5010,7 +5019,7 @@
     ],
     "relation": "direct",
     "summary": "Systematizes blockchain-based agent-to-agent payments, with x402 as the lead example, into a four-stage lifecycle of discovery, authorization, execution and accounting, classifies representative designs at each stage, and isolates recurring weaknesses: weak intent binding, misuse under valid authorization, payment-service decoupling and limited accountability.",
-    "whyItMatters": "Gives a lifecycle vocabulary for x402 and for the discovery role that erc-8004 registries are meant to fill, and names the payment-service decoupling problem that later x402 attack papers exploit. x402: Systematizes blockchain agent-to-agent payments, with x402 as a central case.",
+    "whyItMatters": "Gives a lifecycle vocabulary for x402 and for the discovery role that erc-8004 registries are meant to fill, and names the payment-service decoupling problem that later x402 attack papers exploit. ERC-8004: Trustless Agents: Survey that places ERC-8004 among agent payment components. x402: Systematizes blockchain agent-to-agent payments, with x402 as a central case.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{zhang2026sok,\n  title = {{SoK: Blockchain Agent-to-Agent Payments}},\n  author = {Yuanzhe Zhang and Yuexin Xiang and Yuchen Lei and Qin Wang and Tian Qiu and Yujing Sun and Spiridon Zarkov and Tsz Hon Yuen and Andreas Deppeler and Jiangshan Yu and Kwok-Yan Lam},\n  year = {2026},\n  eprint = {2604.03733},\n  archivePrefix = {arXiv},\n  primaryClass = {q-fin.GN},\n  url = {https://arxiv.org/abs/2604.03733}\n}"
@@ -5075,7 +5084,7 @@
     ],
     "relation": "foundation",
     "summary": "A reproducible environment of fully functional websites across e-commerce, forums, software development and content management, with tools and knowledge bases and a benchmark of long-horizon tasks graded on functional correctness rather than on action traces.",
-    "whyItMatters": "Its e-commerce site is the standard sandbox for web shopping agents; Piet et al. and Shi et al. in this bibliography build their security arguments on it.",
+    "whyItMatters": "Its e-commerce site is the standard sandbox for web shopping agents; Piet et al. and Shi et al. in this bibliography build their security arguments on it. UCP: Foundation benchmark for web agents that shop through ordinary sites, the path UCP replaces.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "publisher",
     "bibtex": "@inproceedings{zhou2024webarena,\n  title = {WebArena: A Realistic Web Environment for Building Autonomous Agents},\n  author = {Shuyan Zhou and Frank F. Xu and Hao Zhu and Xuhui Zhou and Robert Lo and Abishek Sridhar and Xianyi Cheng and Tianyue Ou and Yonatan Bisk and Daniel Fried and Uri Alon and Graham Neubig},\n  year = {2024},\n  booktitle = {The Twelfth International Conference on Learning Representations (ICLR 2024)},\n  url = {https://openreview.net/forum?id=oKn9c6ytLx},\n  eprint = {2307.13854},\n  archivePrefix = {arXiv}\n}"

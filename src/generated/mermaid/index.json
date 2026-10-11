@@ -302,6 +302,198 @@
       "source": "src/content/flows/erc-8004-validation-specified.json"
     },
     {
+      "id": "mastercard-agent-pay-dtvc-guest-checkout",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Guest checkout with a Virtual Card Token and a DTVC",
+      "description": "Sequence diagram: Guest checkout with a Virtual Card Token and a DTVC. 6 participants: Consumer, Agent platform, Mastercard network, Merchant, Acquirer or PSP, and Issuer. 7 steps, 7 crossing a trust boundary, 1 failure branch. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to Mastercard network: Request checkout for merchant domain. This step crosses a trust boundary. Step 2: Consumer to Agent platform: User validation and consent. This step crosses a trust boundary. Step 3: Mastercard network to Agent platform: Return token, expiry and DTVC. This step crosses a trust boundary. Step 4: Agent platform to Merchant: Type values into card form. This step crosses a trust boundary. Step 5: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary. Step 6: Acquirer or PSP to Mastercard network: Authorization with token. This step crosses a trust boundary. If DTVC wrong or already used: Validation fails and the issuer is told (response code not published). Step 7: Mastercard network to Issuer: Tell issuer DTVC result. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Agent platform to Mastercard network: Request checkout for merchant domain. This step crosses a trust boundary.",
+        "Step 2: Consumer to Agent platform: User validation and consent. This step crosses a trust boundary.",
+        "Step 3: Mastercard network to Agent platform: Return token, expiry and DTVC. This step crosses a trust boundary.",
+        "Step 4: Agent platform to Merchant: Type values into card form. This step crosses a trust boundary.",
+        "Step 5: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary.",
+        "Step 6: Acquirer or PSP to Mastercard network: Authorization with token. This step crosses a trust boundary. If DTVC wrong or already used: Validation fails and the issuer is told (response code not published).",
+        "Step 7: Mastercard network to Issuer: Tell issuer DTVC result. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-dtvc-guest-checkout.json"
+    },
+    {
+      "id": "mastercard-agent-pay-enrollment-provisioning",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Agent enrollment, certification and token provisioning",
+      "description": "Sequence diagram: Agent enrollment, certification and token provisioning. 7 participants: Agent platform, Mastercard network, Mastercard key directory, Consumer, Merchant, Acquirer or PSP, and Issuer. 8 steps, 7 crossing a trust boundary, 2 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to Mastercard key directory: Register agent public key. This step crosses a trust boundary. Step 2: Mastercard network to Agent platform: Security review and certification. This step crosses a trust boundary. If Agent not registered or not certified: It cannot transact through the network. Step 3: Mastercard network to Mastercard network: Add to trusted agent list. Step 4: Merchant to Acquirer or PSP: Merchant registers for Agent Pay. This step crosses a trust boundary. Step 5: Consumer to Agent platform: Authenticate and authorize agent. This step crosses a trust boundary. Step 6: Agent platform to Mastercard network: Request agentic token. This step crosses a trust boundary. If Consumer authentication fails: No token is provisioned. Step 7: Mastercard network to Issuer: Issuer enabled for Agent Pay. This step crosses a trust boundary. Step 8: Mastercard network to Agent platform: Return scoped token. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Agent platform to Mastercard key directory: Register agent public key. This step crosses a trust boundary.",
+        "Step 2: Mastercard network to Agent platform: Security review and certification. This step crosses a trust boundary. If Agent not registered or not certified: It cannot transact through the network.",
+        "Step 3: Mastercard network to Mastercard network: Add to trusted agent list.",
+        "Step 4: Merchant to Acquirer or PSP: Merchant registers for Agent Pay. This step crosses a trust boundary.",
+        "Step 5: Consumer to Agent platform: Authenticate and authorize agent. This step crosses a trust boundary.",
+        "Step 6: Agent platform to Mastercard network: Request agentic token. This step crosses a trust boundary. If Consumer authentication fails: No token is provisioned.",
+        "Step 7: Mastercard network to Issuer: Issuer enabled for Agent Pay. This step crosses a trust boundary.",
+        "Step 8: Mastercard network to Agent platform: Return scoped token. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-enrollment-provisioning.json"
+    },
+    {
+      "id": "mastercard-agent-pay-failure-intent-mismatch",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Agent Pay failure: checkout total exceeds the registered intent",
+      "description": "Sequence diagram: Agent Pay failure: checkout total exceeds the registered intent. 3 participants: Agent platform, Merchant, and Mastercard network. 3 steps, 2 crossing a trust boundary, 2 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to Merchant: Checkout with intentId. This step crosses a trust boundary. Step 2: Merchant to Merchant: Compare totals. If Total greater than orderTotalAmount: Reject. If srcDpaId differs: Reject. Step 3: Merchant to Agent platform: Reject checkout. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Agent platform to Merchant: Checkout with intentId. This step crosses a trust boundary.",
+        "Step 2: Merchant to Merchant: Compare totals. If Total greater than orderTotalAmount: Reject. If srcDpaId differs: Reject.",
+        "Step 3: Merchant to Agent platform: Reject checkout. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-failure-intent-mismatch.json"
+    },
+    {
+      "id": "mastercard-agent-pay-failure-unknown-key",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Agent Pay failure: the keyid is not in the key directory",
+      "description": "Sequence diagram: Agent Pay failure: the keyid is not in the key directory. 4 participants: Agent platform, CDN or edge (Cloudflare), Mastercard key directory, and Merchant. 4 steps, 3 crossing a trust boundary, 1 failure branch. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to CDN or edge (Cloudflare): Signed request, unknown keyid. This step crosses a trust boundary. Step 2: CDN or edge (Cloudflare) to Mastercard key directory: Look up keyid. This step crosses a trust boundary. Step 3: CDN or edge (Cloudflare) to Agent platform: Block. This step crosses a trust boundary. If Key not found: Request blocked. Step 4: CDN or edge (Cloudflare) to Merchant: Log the attempt.",
+      "lines": [
+        "Step 1: Agent platform to CDN or edge (Cloudflare): Signed request, unknown keyid. This step crosses a trust boundary.",
+        "Step 2: CDN or edge (Cloudflare) to Mastercard key directory: Look up keyid. This step crosses a trust boundary.",
+        "Step 3: CDN or edge (Cloudflare) to Agent platform: Block. This step crosses a trust boundary. If Key not found: Request blocked.",
+        "Step 4: CDN or edge (Cloudflare) to Merchant: Log the attempt."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-failure-unknown-key.json"
+    },
+    {
+      "id": "mastercard-agent-pay-failure-vi-budget-exceeded",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Verifiable Intent failure: cumulative budget exceeded",
+      "description": "Sequence diagram: Verifiable Intent failure: cumulative budget exceeded. 3 participants: Agent platform, Merchant, and Mastercard network. 4 steps, 4 crossing a trust boundary, 1 failure branch. Based on mastercard-agent-pay Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: Agent platform to Merchant: Present L3b. This step crosses a trust boundary. Step 2: Merchant to Mastercard network: Present L3a. This step crosses a trust boundary. Step 3: Mastercard network to Merchant: Reject: budget exceeded. This step crosses a trust boundary. If new cumulative spend greater than max: Violation: budget exceeded. Step 4: Merchant to Agent platform: Payment declined. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Agent platform to Merchant: Present L3b. This step crosses a trust boundary.",
+        "Step 2: Merchant to Mastercard network: Present L3a. This step crosses a trust boundary.",
+        "Step 3: Mastercard network to Merchant: Reject: budget exceeded. This step crosses a trust boundary. If new cumulative spend greater than max: Violation: budget exceeded.",
+        "Step 4: Merchant to Agent platform: Payment declined. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-failure-vi-budget-exceeded.json"
+    },
+    {
+      "id": "mastercard-agent-pay-level1-purchase",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Agent Pay Level 1 purchase with edge verification",
+      "description": "Sequence diagram: Agent Pay Level 1 purchase with edge verification. 7 participants: Agent platform, CDN or edge (Cloudflare), Mastercard key directory, Merchant, Acquirer or PSP, Mastercard network, and Issuer. 9 steps, 6 crossing a trust boundary, 7 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to CDN or edge (Cloudflare): Signed GET with tag Agent-pay-auth. This step crosses a trust boundary. If No Signature-Input with a scheme tag: Treat as an ordinary bot and apply the non-agent bot policy. If A required parameter is missing: Block the request. Step 2: CDN or edge (Cloudflare) to Mastercard key directory: Fetch public key for keyid. This step crosses a trust boundary. If Key not found in the directory: Block the request. Step 3: CDN or edge (Cloudflare) to CDN or edge (Cloudflare): Verify window, nonce, tag, signature. If Window expired or nonce reused: Block the request. If Signature does not verify: Block the request. Step 4: CDN or edge (Cloudflare) to Merchant: Forward as a trusted agent. Step 5: Agent platform to Merchant: Fill card form with agentic token. This step crosses a trust boundary. If Agent uses a card on file instead of an agentic token: The network cannot recognize the transaction as agentic. Step 6: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary. Step 7: Acquirer or PSP to Mastercard network: Authorization request. This step crosses a trust boundary. If Token used outside its merchant, amount or time limits: Decline (exact response code not published). Step 8: Mastercard network to Issuer: Route to issuer. This step crosses a trust boundary. Step 9: Issuer to Merchant: Approve or decline.",
+      "lines": [
+        "Step 1: Agent platform to CDN or edge (Cloudflare): Signed GET with tag Agent-pay-auth. This step crosses a trust boundary. If No Signature-Input with a scheme tag: Treat as an ordinary bot and apply the non-agent bot policy. If A required parameter is missing: Block the request.",
+        "Step 2: CDN or edge (Cloudflare) to Mastercard key directory: Fetch public key for keyid. This step crosses a trust boundary. If Key not found in the directory: Block the request.",
+        "Step 3: CDN or edge (Cloudflare) to CDN or edge (Cloudflare): Verify window, nonce, tag, signature. If Window expired or nonce reused: Block the request. If Signature does not verify: Block the request.",
+        "Step 4: CDN or edge (Cloudflare) to Merchant: Forward as a trusted agent.",
+        "Step 5: Agent platform to Merchant: Fill card form with agentic token. This step crosses a trust boundary. If Agent uses a card on file instead of an agentic token: The network cannot recognize the transaction as agentic.",
+        "Step 6: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary.",
+        "Step 7: Acquirer or PSP to Mastercard network: Authorization request. This step crosses a trust boundary. If Token used outside its merchant, amount or time limits: Decline (exact response code not published).",
+        "Step 8: Mastercard network to Issuer: Route to issuer. This step crosses a trust boundary.",
+        "Step 9: Issuer to Merchant: Approve or decline."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-level1-purchase.json"
+    },
+    {
+      "id": "mastercard-agent-pay-level3-intent",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Level 3 programmatic checkout with the Intent API",
+      "description": "Sequence diagram: Level 3 programmatic checkout with the Intent API. 6 participants: Consumer, Agent platform, Mastercard network, Merchant, Acquirer or PSP, and Issuer. 7 steps, 6 crossing a trust boundary, 3 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Consumer to Agent platform: State purchase intent. This step crosses a trust boundary. Step 2: Agent platform to Mastercard network: Register intent (Intent API). This step crosses a trust boundary. Step 3: Mastercard network to Agent platform: Return intentId and credentials. This step crosses a trust boundary. Step 4: Agent platform to Merchant: Checkout via merchant API. This step crosses a trust boundary. Step 5: Merchant to Merchant: Validate intent. If Total exceeds orderTotalAmount or srcDpaId differs: Reject the checkout. If SKU, quantity or address mismatch: Flag for review. If Deferred order fails validation: Ask the agent to obtain explicit consumer confirmation. Step 6: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary. Step 7: Acquirer or PSP to Issuer: Authorize through network. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Consumer to Agent platform: State purchase intent. This step crosses a trust boundary.",
+        "Step 2: Agent platform to Mastercard network: Register intent (Intent API). This step crosses a trust boundary.",
+        "Step 3: Mastercard network to Agent platform: Return intentId and credentials. This step crosses a trust boundary.",
+        "Step 4: Agent platform to Merchant: Checkout via merchant API. This step crosses a trust boundary.",
+        "Step 5: Merchant to Merchant: Validate intent. If Total exceeds orderTotalAmount or srcDpaId differs: Reject the checkout. If SKU, quantity or address mismatch: Flag for review. If Deferred order fails validation: Ask the agent to obtain explicit consumer confirmation.",
+        "Step 6: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary.",
+        "Step 7: Acquirer or PSP to Issuer: Authorize through network. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-level3-intent.json"
+    },
+    {
+      "id": "mastercard-agent-pay-stripe-spt",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Agent Pay token inside a Stripe Shared Payment Token",
+      "description": "Sequence diagram: Agent Pay token inside a Stripe Shared Payment Token. 6 participants: Consumer, Agent platform, Stripe, Mastercard network, Merchant, and Issuer. 6 steps, 6 crossing a trust boundary. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-03-03). Step 1: Consumer to Agent platform: Authorize agent purchase. This step crosses a trust boundary. Step 2: Stripe to Mastercard network: Provision agentic network token. This step crosses a trust boundary. Step 3: Stripe to Agent platform: Share as SPT. This step crosses a trust boundary. Step 4: Agent platform to Merchant: Pay with SPT. This step crosses a trust boundary. Step 5: Merchant to Mastercard network: Authorize. This step crosses a trust boundary. Step 6: Mastercard network to Issuer: Issuer decides. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: Consumer to Agent platform: Authorize agent purchase. This step crosses a trust boundary.",
+        "Step 2: Stripe to Mastercard network: Provision agentic network token. This step crosses a trust boundary.",
+        "Step 3: Stripe to Agent platform: Share as SPT. This step crosses a trust boundary.",
+        "Step 4: Agent platform to Merchant: Pay with SPT. This step crosses a trust boundary.",
+        "Step 5: Merchant to Mastercard network: Authorize. This step crosses a trust boundary.",
+        "Step 6: Mastercard network to Issuer: Issuer decides. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-stripe-spt.json"
+    },
+    {
+      "id": "mastercard-agent-pay-token-lifecycle",
+      "kind": "state",
+      "protocol": "mastercard-agent-pay",
+      "title": "Agentic token lifecycle (as described, not a published state model)",
+      "description": "State diagram: Agentic token lifecycle (as described, not a published state model). 8 states: Agent registered, Agent certified, Consumer authorized, Token provisioned, Presented at checkout, Authorized, Declined, and Expired or no longer usable. Starts in Agent registered. Ends in Authorized, Declined, and Expired or no longer usable. 8 transitions. From Agent registered to Agent certified when Security review and certification pass. From Agent certified to Consumer authorized when Consumer authenticates with the platform and authorizes the agent. From Consumer authorized to Token provisioned when Platform requests an agentic token (Not published). From Token provisioned to Presented at checkout when Agent fills the card form or calls the merchant API. From Presented at checkout to Authorized when Network detokenizes and issuer approves (Card authorization message). From Presented at checkout to Declined when Outside token limits or issuer declines (Card authorization message). From Token provisioned to Expired or no longer usable when Time window passes or single use consumed. From Authorized to Expired or no longer usable when Single-use token cannot be used again.",
+      "lines": [
+        "From Agent registered to Agent certified when Security review and certification pass.",
+        "From Agent certified to Consumer authorized when Consumer authenticates with the platform and authorizes the agent.",
+        "From Consumer authorized to Token provisioned when Platform requests an agentic token (Not published).",
+        "From Token provisioned to Presented at checkout when Agent fills the card form or calls the merchant API.",
+        "From Presented at checkout to Authorized when Network detokenizes and issuer approves (Card authorization message).",
+        "From Presented at checkout to Declined when Outside token limits or issuer declines (Card authorization message).",
+        "From Token provisioned to Expired or no longer usable when Time window passes or single use consumed.",
+        "From Authorized to Expired or no longer usable when Single-use token cannot be used again."
+      ],
+      "source": "src/content/states/mastercard-agent-pay-token-lifecycle.json"
+    },
+    {
+      "id": "mastercard-agent-pay-vi-autonomous",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Verifiable Intent Autonomous mode (three layers, agent delegated)",
+      "description": "Sequence diagram: Verifiable Intent Autonomous mode (three layers, agent delegated). 5 participants: User, Agent platform, Merchant, Mastercard network, and Issuer. 6 steps, 5 crossing a trust boundary, 3 failure branches. Based on mastercard-agent-pay Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: User to Agent platform: Sign L2 Autonomous (kb-sd-jwt+kb). This step crosses a trust boundary. Step 2: Agent platform to Merchant: Shop and get checkout_jwt. This step crosses a trust boundary. Step 3: Agent platform to Agent platform: Sign L3a and L3b. Step 4: Agent platform to Merchant: Present L1 + L2 + L3b. This step crosses a trust boundary. If Merchant not in allowed list: Constraint violation, reject. Step 5: Merchant to Mastercard network: Present L1 + L2 + L3a. This step crosses a trust boundary. If Amount above amount_range max: Violation: amount exceeded. If cnf.jwk differs between the two L2 mandates: Reject (split-agent attack). Step 6: Mastercard network to Issuer: Assurance data to issuer. This step crosses a trust boundary.",
+      "lines": [
+        "Step 1: User to Agent platform: Sign L2 Autonomous (kb-sd-jwt+kb). This step crosses a trust boundary.",
+        "Step 2: Agent platform to Merchant: Shop and get checkout_jwt. This step crosses a trust boundary.",
+        "Step 3: Agent platform to Agent platform: Sign L3a and L3b.",
+        "Step 4: Agent platform to Merchant: Present L1 + L2 + L3b. This step crosses a trust boundary. If Merchant not in allowed list: Constraint violation, reject.",
+        "Step 5: Merchant to Mastercard network: Present L1 + L2 + L3a. This step crosses a trust boundary. If Amount above amount_range max: Violation: amount exceeded. If cnf.jwk differs between the two L2 mandates: Reject (split-agent attack).",
+        "Step 6: Mastercard network to Issuer: Assurance data to issuer. This step crosses a trust boundary."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-vi-autonomous.json"
+    },
+    {
+      "id": "mastercard-agent-pay-vi-immediate",
+      "kind": "flow",
+      "protocol": "mastercard-agent-pay",
+      "title": "Verifiable Intent Immediate mode (two layers, user present)",
+      "description": "Sequence diagram: Verifiable Intent Immediate mode (two layers, user present). 5 participants: Issuer (L1 signer), User, Agent platform, Merchant, and Mastercard network. 5 steps, 5 crossing a trust boundary, 2 failure branches. Based on mastercard-agent-pay Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: Issuer (L1 signer) to User: Issue L1 (sd+jwt). This step crosses a trust boundary. Step 2: Agent platform to User: Present final cart and checkout_jwt. This step crosses a trust boundary. Step 3: User to Agent platform: Sign L2 Immediate (kb-sd-jwt). This step crosses a trust boundary. Step 4: Agent platform to Merchant: L1 + L2, checkout disclosed. This step crosses a trust boundary. If checkout_hash does not match the merchant checkout: Reject. Step 5: Merchant to Mastercard network: L1 + L2, payment disclosed. This step crosses a trust boundary. If L2 exp passed (300 second skew recommended): Reject.",
+      "lines": [
+        "Step 1: Issuer (L1 signer) to User: Issue L1 (sd+jwt). This step crosses a trust boundary.",
+        "Step 2: Agent platform to User: Present final cart and checkout_jwt. This step crosses a trust boundary.",
+        "Step 3: User to Agent platform: Sign L2 Immediate (kb-sd-jwt). This step crosses a trust boundary.",
+        "Step 4: Agent platform to Merchant: L1 + L2, checkout disclosed. This step crosses a trust boundary. If checkout_hash does not match the merchant checkout: Reject.",
+        "Step 5: Merchant to Mastercard network: L1 + L2, payment disclosed. This step crosses a trust boundary. If L2 exp passed (300 second skew recommended): Reject."
+      ],
+      "source": "src/content/flows/mastercard-agent-pay-vi-immediate.json"
+    },
+    {
+      "id": "mastercard-agent-pay-vi-mandate-state",
+      "kind": "state",
+      "protocol": "mastercard-agent-pay",
+      "title": "Verifiable Intent mandate pair state held by the network",
+      "description": "State diagram: Verifiable Intent mandate pair state held by the network. 5 states: Unfulfilled, Fulfilled, Recurring (agent_recurrence), Exhausted, and Expired. Starts in Unfulfilled. Ends in Fulfilled, Exhausted, and Expired. 5 transitions. From Unfulfilled to Fulfilled when Network accepts the first L3a for the pair (None defined in the spec). From Unfulfilled to Recurring (agent_recurrence) when First L3a accepted with mandate.payment.agent_recurrence present. From Recurring (agent_recurrence) to Recurring (agent_recurrence) when Further L3a within counters and budget. From Recurring (agent_recurrence) to Exhausted when Counter, budget or end_date limit reached. From Unfulfilled to Expired when L2 exp passes before fulfillment.",
+      "lines": [
+        "From Unfulfilled to Fulfilled when Network accepts the first L3a for the pair (None defined in the spec).",
+        "From Unfulfilled to Recurring (agent_recurrence) when First L3a accepted with mandate.payment.agent_recurrence present.",
+        "From Recurring (agent_recurrence) to Recurring (agent_recurrence) when Further L3a within counters and budget.",
+        "From Recurring (agent_recurrence) to Exhausted when Counter, budget or end_date limit reached.",
+        "From Unfulfilled to Expired when L2 exp passes before fulfillment."
+      ],
+      "source": "src/content/states/mastercard-agent-pay-vi-mandate-state.json"
+    },
+    {
       "id": "openai-acp-3ds-authentication",
       "kind": "flow",
       "protocol": "openai-acp",

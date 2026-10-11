@@ -56,6 +56,37 @@
     ]
   },
   {
+    "id": "acp-discovery-document",
+    "term": "ACP discovery document",
+    "aliases": [
+      "acp.json",
+      "/.well-known/acp.json"
+    ],
+    "plain": "The unauthenticated JSON file at /.well-known/acp.json that lists a seller's ACP versions, transports and services.",
+    "ste": "A public file on the server of the seller. It gives the ACP versions and services.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-discovery"
+    ]
+  },
+  {
+    "id": "adjustment",
+    "term": "Order adjustment",
+    "aliases": [
+      "adjustments"
+    ],
+    "plain": "An ACP order entry for a change after purchase, such as a refund, return, exchange or dispute, with status pending, completed or failed.",
+    "ste": "A change to an order after the purchase, for example a refund.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-schema-checkout-20260417"
+    ]
+  },
+  {
     "id": "agent-card",
     "term": "Agent card",
     "aliases": [
@@ -96,6 +127,51 @@
     ]
   },
   {
+    "id": "agent-provider",
+    "term": "Agent Provider",
+    "aliases": [
+      "Agent"
+    ],
+    "plain": "In TAP, a certified AI platform that a payment scheme has onboarded and approved to pay on behalf of its account holders. It holds the signing key.",
+    "ste": "An AI platform that a payment scheme approved. It signs requests for the consumer.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "agent-registration-well-known",
+    "term": "/.well-known/agent-registration.json",
+    "aliases": [
+      "domain proof"
+    ],
+    "plain": "An optional file an agent serves on a service domain to show it controls that domain, with a registrations entry that matches its on-chain id.",
+    "ste": "A file on a web domain that shows that the agent controls the domain.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "agent-registry",
+    "term": "agentRegistry",
+    "aliases": [
+      "agent registry identifier"
+    ],
+    "plain": "The string that names the Identity Registry an agent lives in: chain family, chain id and registry address joined by colons, such as eip155:1 plus the address. Together with agentId it identifies an agent globally.",
+    "ste": "A text value with the chain family, the chain number and the address of the registry.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
     "id": "agent-uri",
     "term": "agentURI",
     "aliases": [
@@ -129,6 +205,22 @@
     "sources": [
       "src-erc-8004-spec",
       "src-erc-8004-identity-sol"
+    ]
+  },
+  {
+    "id": "agentic-directory",
+    "term": "Agentic Directory",
+    "aliases": [
+      "Agent Directory",
+      "Agentic Registry"
+    ],
+    "plain": "Visa's directory, announced 2026-06-10, of agents and merchants it has verified as legitimate participants in agentic commerce. No public list was found.",
+    "ste": "A Visa list of agents and merchants that Visa verified.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-jun10"
     ]
   },
   {
@@ -179,6 +271,34 @@
     "protocols": [],
     "sources": [
       "src-gloss-ans-draft"
+    ]
+  },
+  {
+    "id": "ap2-transaction-id",
+    "term": "transaction_id (AP2)",
+    "aliases": [],
+    "plain": "Field of the closed Payment Mandate holding the hash of checkout_jwt, the same value as checkout_hash, so the payment binds to one checkout.",
+    "ste": "The hash of the signed checkout in the Payment Mandate.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-payment"
+    ]
+  },
+  {
+    "id": "api-version",
+    "term": "API-Version header",
+    "aliases": [
+      "API-Version"
+    ],
+    "plain": "The ACP request header that names the dated protocol version a client speaks, such as 2026-04-17.",
+    "ste": "The header that gives the version date of ACP that the client uses.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-checkout"
     ]
   },
   {
@@ -336,6 +456,37 @@
     ]
   },
   {
+    "id": "capability-intersection",
+    "term": "Capability intersection",
+    "aliases": [
+      "capability negotiation"
+    ],
+    "plain": "The UCP negotiation step in which the business keeps only capabilities both profiles list, picks the highest version both support, and prunes extensions whose parent capability is gone.",
+    "ste": "The set of capabilities that the business and the platform both support, at the highest common version.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview"
+    ]
+  },
+  {
+    "id": "cart-mandate",
+    "term": "Cart Mandate (v0.1)",
+    "aliases": [
+      "CartMandate"
+    ],
+    "plain": "AP2 v0.1 object holding merchant-signed cart contents with a W3C PaymentRequest. Removed in v0.2, though a2a-x402 still embeds it.",
+    "ste": "An old AP2 cart mandate that v0.2 removed.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-mandate-py-v01",
+      "src-ap2-a2a-x402-v02"
+    ]
+  },
+  {
     "id": "challenge",
     "term": "Challenge",
     "aliases": [
@@ -382,6 +533,47 @@
       "src-openai-commerce-docs",
       "src-ap2-faq",
       "src-worldpay-liability"
+    ]
+  },
+  {
+    "id": "checkout-enabler",
+    "term": "Checkout Enabler",
+    "aliases": [],
+    "plain": "In TAP, an intermediary that an agent may use to reach merchant sites. TAP only expects it to pass signatures and query parameters through unchanged.",
+    "ste": "A service between the agent and the merchant. It must send the signatures to the merchant without a change.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "checkout-hash",
+    "term": "checkout_hash",
+    "aliases": [],
+    "plain": "Base64url hash of checkout_jwt inside the closed Checkout Mandate; SHA-256 unless the SD-JWT names another algorithm.",
+    "ste": "The hash of the signed checkout in the Checkout Mandate.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-checkout"
+    ]
+  },
+  {
+    "id": "checkout-jwt",
+    "term": "checkout_jwt",
+    "aliases": [
+      "Checkout JWT"
+    ],
+    "plain": "The merchant-signed JSON Web Token of the checkout that a Checkout Mandate carries. Its hash binds every mandate and receipt to one purchase.",
+    "ste": "The checkout that the merchant signs. Its hash links the mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-checkout"
     ]
   },
   {
@@ -536,6 +728,19 @@
     ]
   },
   {
+    "id": "contextual-data",
+    "term": "Contextual data",
+    "aliases": [],
+    "plain": "The TAP object inside the consumer recognition object with countryCode, zip, ipAddress and deviceData of the consumer.",
+    "ste": "Data about the device and location of the consumer: country, postal code, IP address and device data.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
     "id": "continue-url",
     "term": "Continue URL",
     "aliases": [
@@ -627,6 +832,36 @@
       "src-ucp-schema-payment",
       "src-stripe-mpp-card-charge",
       "src-mcap-dev-level3"
+    ]
+  },
+  {
+    "id": "delegate-authentication",
+    "term": "Delegate Authentication",
+    "aliases": [
+      "delegated authentication"
+    ],
+    "plain": "ACP endpoints, added in 2026-04-17, that run 3-D Secure 2 fingerprinting, challenges and results on behalf of an agent.",
+    "ste": "ACP endpoints that do 3-D Secure checks for the agent.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-delegate-auth"
+    ]
+  },
+  {
+    "id": "delegate-sd-jwt",
+    "term": "Delegate SD-JWT",
+    "aliases": [
+      "dSD-JWT"
+    ],
+    "plain": "An individual IETF draft for chaining SD-JWTs through key binding, which AP2 uses to chain open and closed mandates.",
+    "ste": "A draft standard that links one signed token to the next.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-delegate-sd-jwt"
     ]
   },
   {
@@ -801,6 +1036,21 @@
     ]
   },
   {
+    "id": "erc-3643",
+    "term": "ERC-3643 (T-REX)",
+    "aliases": [
+      "T-REX"
+    ],
+    "plain": "A Final ERC for permissioned tokens. Transfers pass only between wallets whose identities carry the claims the token requires.",
+    "ste": "A standard for tokens that only verified holders can receive.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-3643-spec"
+    ]
+  },
+  {
     "id": "erc-721",
     "term": "ERC-721",
     "aliases": [
@@ -815,6 +1065,22 @@
     "sources": [
       "src-gloss-erc-721",
       "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "erc-8226",
+    "term": "ERC-8226 Regulated Agent Mandate",
+    "aliases": [
+      "RAMS"
+    ],
+    "plain": "A Draft ERC that lets a verified principal give an agent scoped, time-bounded and capped authority, using ERC-8004 for agent identity and ERC-3643 or ERC-7943 for token compliance.",
+    "ste": "A draft standard that gives an agent limited authority for regulated tokens.",
+    "protocols": [
+      "erc-8004",
+      "ap2"
+    ],
+    "sources": [
+      "src-erc-8226"
     ]
   },
   {
@@ -889,6 +1155,35 @@
     ]
   },
   {
+    "id": "feed-api",
+    "term": "Feed API",
+    "aliases": [
+      "product feed API"
+    ],
+    "plain": "The ACP 2026-04-17 API, hosted by the agent, that merchants call to push product and variant data.",
+    "ste": "An API on the agent side. The merchant uses it to send product data.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-openapi-feed-20260417"
+    ]
+  },
+  {
+    "id": "feedback-auth",
+    "term": "feedbackAuth",
+    "aliases": [],
+    "plain": "A removed ERC-8004 mechanism: an agent-signed permission that a client needed before giving feedback. Removed from the contracts on 2025-11-12 and from the text on 2026-01-07.",
+    "ste": "A permission that the agent signed for feedback. The standard does not use it now.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-commit-rm-feedbackauth",
+      "src-erc-8004-commit-jan07"
+    ]
+  },
+  {
     "id": "feedback-file",
     "term": "Feedback file",
     "aliases": [
@@ -899,6 +1194,19 @@
     ],
     "plain": "An optional off-chain JSON document that adds detail to one ERC-8004 feedback entry. It repeats `agentRegistry`, `agentId`, `clientAddress`, `createdAt`, `value` and `valueDecimals`, and can add MCP, A2A or OASF context and a `proofOfPayment` object with a transaction hash. The on-chain `giveFeedback` call records its URI and, unless the URI is content addressed, a keccak256 `feedbackHash`.",
     "ste": "A feedback file gives more data about one feedback entry. The file is off-chain, and a hash on the chain can protect its content.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "feedback-index",
+    "term": "feedbackIndex",
+    "aliases": [],
+    "plain": "A counter that starts at 1 for the feedback one client gave one agent. Used to read, revoke or respond to a specific entry.",
+    "ste": "A number that identifies one feedback item from one client.",
     "protocols": [
       "erc-8004"
     ],
@@ -980,6 +1288,36 @@
     ]
   },
   {
+    "id": "human-not-present",
+    "term": "Human not present",
+    "aliases": [
+      "autonomous mode"
+    ],
+    "plain": "AP2 mode in which the user signs open mandates with constraints and the agent later signs closed mandates with its own key.",
+    "ste": "The mode where the agent buys inside limits that the user set.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-flows"
+    ]
+  },
+  {
+    "id": "human-present",
+    "term": "Human present",
+    "aliases": [
+      "direct mode"
+    ],
+    "plain": "AP2 mode in which the user approves the exact closed Checkout and Payment Mandates on a Trusted Surface.",
+    "ste": "The mode where the user approves the exact purchase.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-flows"
+    ]
+  },
+  {
     "id": "id-token",
     "term": "ID token",
     "aliases": [
@@ -1035,6 +1373,66 @@
     ]
   },
   {
+    "id": "identity-registry-erc-8004",
+    "term": "Identity Registry (ERC-8004)",
+    "aliases": [
+      "ERC-8004 Identity Registry"
+    ],
+    "plain": "The ERC-721 contract that mints agent identities, stores agentURI and metadata, and holds the agentWallet. Not the same thing as the ERC-3643 Identity Registry.",
+    "ste": "The contract that makes a token for each agent and keeps the address of its file.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-3643-spec"
+    ]
+  },
+  {
+    "id": "instant-checkout",
+    "term": "Instant Checkout",
+    "aliases": [
+      "ChatGPT Instant Checkout"
+    ],
+    "plain": "ChatGPT's 2025 in-chat purchase feature that launched ACP; OpenAI scaled it back in March 2026 in favor of merchant checkout.",
+    "ste": "The 2025 ChatGPT function that let a buyer pay in the chat. OpenAI made it smaller in 2026.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-buy-it",
+      "src-openai-product-discovery"
+    ]
+  },
+  {
+    "id": "intelligent-commerce-connect",
+    "term": "Intelligent Commerce Connect",
+    "aliases": [],
+    "plain": "A Visa on-ramp, in pilot since 2026-04-08, that lets merchants accept agent payments initiated through TAP, MPP, ACP and UCP.",
+    "ste": "A Visa service that lets merchants accept agent payments from different protocols.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-icc"
+    ]
+  },
+  {
+    "id": "intent-mandate",
+    "term": "Intent Mandate (v0.1)",
+    "aliases": [
+      "IntentMandate"
+    ],
+    "plain": "AP2 v0.1 object that described a purchase in natural language with merchants, SKUs and expiry. Removed in v0.2.",
+    "ste": "An old AP2 mandate that v0.2 removed.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-mandate-py-v01"
+    ]
+  },
+  {
     "id": "intent-mpp",
     "term": "Intent (MPP)",
     "aliases": [
@@ -1048,6 +1446,21 @@
     "sources": [
       "src-stripe-mpp-core-01",
       "src-stripe-mpp-intent-charge"
+    ]
+  },
+  {
+    "id": "intent-trace",
+    "term": "Intent trace",
+    "aliases": [
+      "intent_trace"
+    ],
+    "plain": "An optional object on an ACP cancel request with a reason code, such as shipping_cost, that says why the buyer did not finish.",
+    "ste": "Data that tells the merchant why the buyer stopped the purchase.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-intent-traces"
     ]
   },
   {
@@ -1221,6 +1634,23 @@
     ]
   },
   {
+    "id": "mandate-receipt",
+    "term": "Mandate receipt",
+    "aliases": [
+      "Payment Receipt",
+      "Checkout Receipt"
+    ],
+    "plain": "Verifier-signed JWT returned after a mandate is presented, with a status and a reference that is the hash of the closed mandate.",
+    "ste": "A signed answer that tells if the mandate was accepted.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-receipts",
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
     "id": "mcp",
     "term": "MCP",
     "aliases": [
@@ -1262,6 +1692,22 @@
     ]
   },
   {
+    "id": "merchant-authorization",
+    "term": "Merchant authorization",
+    "aliases": [
+      "ap2.merchant_authorization"
+    ],
+    "plain": "The business's detached JWS signature over a JCS-canonical UCP checkout, sent in every checkout response when the AP2 extension is active.",
+    "ste": "The signature of the business on the checkout. The platform must verify it before it shows the checkout.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-ap2-spec",
+      "src-ucp-schema-ap2"
+    ]
+  },
+  {
     "id": "merchant-of-record",
     "term": "Merchant of record",
     "aliases": [
@@ -1299,6 +1745,21 @@
     ]
   },
   {
+    "id": "merchant-signature",
+    "term": "Merchant-Signature",
+    "aliases": [
+      "Merchant-Signature header"
+    ],
+    "plain": "The header on ACP order webhooks that carries a Unix timestamp and an HMAC-SHA256 signature of the raw body.",
+    "ste": "The header that has the time and the HMAC signature of an order message.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-openapi-webhook-20260417"
+    ]
+  },
+  {
     "id": "mica",
     "term": "MiCA",
     "aliases": [
@@ -1328,6 +1789,21 @@
     "sources": [
       "src-openai-acp-schema-checkout-20260417",
       "src-ucp-schema-payment"
+    ]
+  },
+  {
+    "id": "namespace-authority-binding",
+    "term": "Namespace authority binding",
+    "aliases": [
+      "authority binding"
+    ],
+    "plain": "The UCP rule that a capability's schema URL host must match its reverse-DNS name. It proves who published a schema, not that the publisher is trustworthy.",
+    "ste": "A rule. The host of the schema address must agree with the name of the capability.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview"
     ]
   },
   {
@@ -1418,6 +1894,20 @@
     ]
   },
   {
+    "id": "onchainid",
+    "term": "ONCHAINID",
+    "aliases": [],
+    "plain": "The identity contract used by ERC-3643 tokens. It holds keys by purpose and claims signed by trusted issuers, such as KYC results.",
+    "ste": "A contract that keeps keys and signed claims for one identity.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-onchainid-identity",
+      "src-onchainid-structs"
+    ]
+  },
+  {
     "id": "open-mandate",
     "term": "Open mandate",
     "aliases": [
@@ -1451,6 +1941,22 @@
     "sources": [
       "src-gloss-openid4vp",
       "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "order-webhook",
+    "term": "Order webhook",
+    "aliases": [
+      "order_create",
+      "order_update"
+    ],
+    "plain": "A signed message from the merchant to the agent about an ACP order, with event type order_create or order_update.",
+    "ste": "A message from the merchant to the agent about the status of an order.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-openapi-webhook-20260417"
     ]
   },
   {
@@ -1493,6 +1999,22 @@
     ]
   },
   {
+    "id": "payment-account-reference",
+    "term": "Payment account reference",
+    "aliases": [
+      "PAR",
+      "paymentAccountReference"
+    ],
+    "plain": "A reference to the funding account behind a card credential, carried in TAP's cardMetadata so merchants can link token and virtual card payments to one account.",
+    "ste": "A reference to the account behind a card. It links different tokens of one card.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
     "id": "payment-channel",
     "term": "Payment channel",
     "aliases": [
@@ -1521,6 +2043,22 @@
     ],
     "plain": "The Visa TAP request body object `agenticPaymentContainer` that carries payment data from the agent to the merchant. Besides `nonce`, `kid`, `alg` and `signature`, it can hold a credential hash for key-entered cards, `cardMetadata`, an encrypted `payload` for API checkout, or a `browsingIOU` that answers an HTTP 402 request for paid content. The spec defines no canonical form for the signed body, and no test vector exists.",
     "ste": "The payment container gives payment data from the agent to the merchant. The agent signs the container with the same key as the message signature.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "payment-credential-hash",
+    "term": "Payment credential hash",
+    "aliases": [
+      "paymentCredentialsHash",
+      "credentialHash"
+    ],
+    "plain": "A TAP field that hashes the card number, expiry month and year and security code so a merchant can check key-entered card data. The specification names no algorithm or salt.",
+    "ste": "A hash of the card data. The merchant compares it with a hash of the card data that the agent types.",
     "protocols": [
       "visa-tap"
     ],
@@ -1578,6 +2116,22 @@
     ],
     "sources": [
       "src-x402-ext-payment-identifier"
+    ]
+  },
+  {
+    "id": "payment-instruction",
+    "term": "Payment Instruction",
+    "aliases": [
+      "purchase instruction"
+    ],
+    "plain": "In Visa Intelligent Commerce, the user's instruction to an agent, authenticated with a passkey, against which VIC releases payment credentials. Visa's client creates it with POST /vacp/v1/instructions.",
+    "ste": "An instruction from the consumer to the agent. The consumer approves it with a passkey.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-vic-dev",
+      "src-visa-ai-vic-client"
     ]
   },
   {
@@ -1672,6 +2226,21 @@
     ]
   },
   {
+    "id": "payment-sheet",
+    "term": "ChatGPT payment sheet",
+    "aliases": [
+      "payment sheet"
+    ],
+    "plain": "An Apps SDK checkout surface in ChatGPT, in private beta for select marketplace partners, that sends a payment token to the merchant's MCP server.",
+    "ste": "A payment window in ChatGPT apps. Only some partners can use it.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-apps-monetization"
+    ]
+  },
+  {
     "id": "permit2",
     "term": "Permit2",
     "aliases": [
@@ -1688,6 +2257,36 @@
       "src-gloss-permit2",
       "src-x402-scheme-exact-evm",
       "src-x402-scheme-upto-evm"
+    ]
+  },
+  {
+    "id": "pisp",
+    "term": "PISP",
+    "aliases": [
+      "Payment Initiation Service Provider"
+    ],
+    "plain": "A European open-banking provider that starts payments from a bank account. AP2 can name or restrict PISPs in Payment Mandates.",
+    "ste": "A provider that starts a payment from a bank account.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-types"
+    ]
+  },
+  {
+    "id": "platform-profile",
+    "term": "Platform profile",
+    "aliases": [
+      "agent profile"
+    ],
+    "plain": "The profile a UCP platform publishes at a URL of its choice and names in the UCP-Agent header; it lists the platform's capabilities, keys and settings such as an order webhook URL.",
+    "ste": "The JSON document of the platform. The platform sends its address in the UCP-Agent header.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview"
     ]
   },
   {
@@ -1741,6 +2340,21 @@
       "src-gloss-owasp-llm01",
       "src-ap2-pub-2601-22569",
       "src-ap2-spec-v02"
+    ]
+  },
+  {
+    "id": "proof-of-payment",
+    "term": "proofOfPayment",
+    "aliases": [
+      "proof of payment"
+    ],
+    "plain": "An optional object in an ERC-8004 feedback file with fromAddress, toAddress, chainId and txHash. It points to a payment such as an x402 settlement; the registry never stores or checks it.",
+    "ste": "An object in the feedback file that identifies a payment transaction.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
     ]
   },
   {
@@ -1928,6 +2542,20 @@
     ]
   },
   {
+    "id": "sd-hash",
+    "term": "sd_hash",
+    "aliases": [],
+    "plain": "Hash in a key-binding JWT over the SD-JWT it extends. In AP2 it binds an agent-signed closed mandate to its user-signed open parent.",
+    "ste": "A hash that links the closed mandate to the open mandate.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization",
+      "src-ap2-rfc9901"
+    ]
+  },
+  {
     "id": "sd-jwt",
     "term": "SD-JWT",
     "aliases": [
@@ -1947,6 +2575,36 @@
       "src-ap2-rfc9901",
       "src-ap2-delegate-sd-jwt",
       "src-mcap-vi-format"
+    ]
+  },
+  {
+    "id": "security-locked-session",
+    "term": "Security-locked session",
+    "aliases": [
+      "security lock"
+    ],
+    "plain": "A UCP checkout session in which the AP2 extension was negotiated, so the business must sign every checkout and neither side may fall back to an unprotected checkout.",
+    "ste": "A session that uses AP2 mandates. The session cannot change back to a checkout without mandates.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-ap2-spec"
+    ]
+  },
+  {
+    "id": "seller-backed-handler",
+    "term": "Seller-backed payment handler",
+    "aliases": [
+      "seller-backed handler"
+    ],
+    "plain": "An ACP payment handler for value the merchant holds, such as a saved card, gift card, points or store credit, so no card moves to the agent.",
+    "ste": "A payment method that the merchant keeps, for example a gift card or points.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-rfc-seller-backed"
     ]
   },
   {
@@ -1998,6 +2656,21 @@
     "sources": [
       "src-stripe-spt",
       "src-stripe-mpp-stripe-charge"
+    ]
+  },
+  {
+    "id": "shopping-agent",
+    "term": "Shopping Agent",
+    "aliases": [
+      "SA"
+    ],
+    "plain": "The AP2 role that finds products, builds the checkout and presents mandates. The specification expects it to be agentic and treats it as a potential attacker.",
+    "ste": "The agent that buys for the user and presents mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-spec-v02"
     ]
   },
   {
@@ -2054,6 +2727,34 @@
     "sources": [
       "src-rfc9421",
       "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "site-protection-provider",
+    "term": "Site Protection Provider",
+    "aliases": [],
+    "plain": "In TAP, the layer in front of a merchant site, such as a CDN, trust management system or proxy, that can verify agent signatures for the merchant.",
+    "ste": "A CDN or proxy in front of the merchant site. It can verify the signatures for the merchant.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec"
+    ]
+  },
+  {
+    "id": "specification-enhancement-proposal",
+    "term": "Specification Enhancement Proposal",
+    "aliases": [
+      "SEP"
+    ],
+    "plain": "The ACP change process for major changes: a TSC sponsor, a 7-business-day public review and a simple majority vote.",
+    "ste": "A formal request to change the ACP specification.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-acp-governance"
     ]
   },
   {
@@ -2128,6 +2829,19 @@
     ],
     "sources": [
       "src-stripe-mpp-intent-subscription"
+    ]
+  },
+  {
+    "id": "supported-trust",
+    "term": "supportedTrust",
+    "aliases": [],
+    "plain": "An optional list in the registration file naming the trust models an agent supports, such as reputation, crypto-economic or tee-attestation. Empty means discovery only.",
+    "ste": "A list of trust models that an agent supports.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
     ]
   },
   {
@@ -2221,6 +2935,68 @@
     ]
   },
   {
+    "id": "transport-binding",
+    "term": "Transport binding",
+    "aliases": [
+      "UCP service binding"
+    ],
+    "plain": "A UCP service entry that pairs a transport (rest, mcp, a2a or embedded) with an endpoint and a machine-readable description such as OpenAPI or OpenRPC.",
+    "ste": "An entry in the profile. It connects a transport to an endpoint.",
+    "protocols": [
+      "ucp"
+    ],
+    "sources": [
+      "src-ucp-overview",
+      "src-ucp-schema-profile"
+    ]
+  },
+  {
+    "id": "trusted-agent-protocol",
+    "term": "Trusted Agent Protocol",
+    "aliases": [
+      "Visa TAP",
+      "TAP"
+    ],
+    "plain": "Visa's specification for AI agents to sign their web requests to merchants with RFC 9421, tagged for browsing or paying, with optional signed consumer and payment objects. It identifies agents and moves no money.",
+    "ste": "A Visa specification. An AI agent uses it to sign requests to a merchant. It does not move money.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-tap-spec",
+      "src-visa-tap-pr"
+    ]
+  },
+  {
+    "id": "trusted-agent-provider",
+    "term": "Trusted Agent Provider",
+    "aliases": [],
+    "plain": "AP2 delegation model in which the agent provider signs mandates with a key the agent cannot use without the Trusted Surface. Not Visa TAP.",
+    "ste": "A model where the provider of the agent signs the mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
+    "id": "trusted-reviewer-list",
+    "term": "Trusted reviewer list",
+    "aliases": [
+      "clientAddresses filter"
+    ],
+    "plain": "The list of client addresses a reader passes to getSummary. ERC-8004 requires it because unfiltered feedback is open to Sybil attacks.",
+    "ste": "The list of reviewers that a reader trusts.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-reputation-sol"
+    ]
+  },
+  {
     "id": "trusted-surface",
     "term": "Trusted Surface",
     "aliases": [],
@@ -2249,6 +3025,19 @@
     "sources": [
       "src-ucp-overview",
       "src-ucp-rest-openapi"
+    ]
+  },
+  {
+    "id": "unresolved-constraint",
+    "term": "unresolved_constraint",
+    "aliases": [],
+    "plain": "AP2 error returned when a mandate holds an unknown constraint or conformance cannot be confirmed; it may signal a fallback to user approval.",
+    "ste": "An error that tells the agent to get the approval of the user.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization"
     ]
   },
   {
@@ -2285,6 +3074,19 @@
     ]
   },
   {
+    "id": "user-credential-model",
+    "term": "User Credential model",
+    "aliases": [],
+    "plain": "AP2 delegation model in which a credential issued to the user signs mandates, typically through OpenID4VP, and verifiers trust the issuer.",
+    "ste": "A model where a credential of the user signs the mandates.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
     "id": "uups-proxy",
     "term": "UUPS proxy",
     "aliases": [
@@ -2301,6 +3103,20 @@
     "sources": [
       "src-gloss-erc-1822",
       "src-erc-8004-identity-sol"
+    ]
+  },
+  {
+    "id": "validation-registry",
+    "term": "Validation Registry",
+    "aliases": [],
+    "plain": "The third ERC-8004 registry, where a named validator records a 0 to 100 check of an agent's work. Specified in the Draft text, not officially deployed.",
+    "ste": "A registry where a validator writes the result of a check. It is not officially on a chain.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-contracts-readme"
     ]
   },
   {
@@ -2323,6 +3139,19 @@
     ]
   },
   {
+    "id": "value-decimals",
+    "term": "valueDecimals",
+    "aliases": [],
+    "plain": "The number of decimal places (0 to 18) that applies to an ERC-8004 feedback value. An uptime of 99.77% is value 9977 with valueDecimals 2.",
+    "ste": "The number of decimal places of a feedback value.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
+    ]
+  },
+  {
     "id": "vault-token",
     "term": "Vault token",
     "aliases": [
@@ -2337,6 +3166,21 @@
     "sources": [
       "src-openai-acp-schema-delegate-payment-20260417",
       "src-openai-acp-rfc-delegate-payment"
+    ]
+  },
+  {
+    "id": "vct",
+    "term": "vct",
+    "aliases": [
+      "Verifiable Credential Type"
+    ],
+    "plain": "SD-JWT VC claim naming the credential type. AP2 uses it for the mandate type and schema version, for example mandate.payment.1.",
+    "ste": "The claim that gives the mandate type and version.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-ap2-schema-payment"
     ]
   },
   {

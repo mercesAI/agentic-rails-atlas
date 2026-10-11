@@ -73,6 +73,141 @@
   ],
   "cells": [
     {
+      "protocol": "erc-8004",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The on-chain agentId, owner and agentWallet are verifiable, and the optional /.well-known file proves domain control. Nothing proves who operates the agent.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "agent-registration-kya",
+      "support": "partial",
+      "note": "A permissionless registry for discovery: anyone can mint an identity, with no KYC or know-your-agent check.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "user-consent-capture",
+      "support": "none",
+      "note": "No consent or mandate object; ERC-8226 (Draft) proposes one on top.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8226"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "spending-caps",
+      "support": "none",
+      "note": "ERC-8004 moves no money, so it has no caps.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "merchant-payee-scoping",
+      "support": "partial",
+      "note": "agentWallet publishes a payee address that the wallet itself signed for; nothing limits what a client may pay.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "time-windows-expiry",
+      "support": "partial",
+      "note": "Only the wallet-binding signature expires (at most 5 minutes ahead in the reference code).",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "revocation",
+      "support": "partial",
+      "note": "Clients revoke their own feedback and owners can unset the wallet; an identity cannot be revoked or burned.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "Not covered.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "EIP-712 domain and deadline bind the wallet signature, but there is no nonce; feedback uses per-client indexes.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "proofOfPayment and file hashes live in off-chain files and are never verified on-chain.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Only appendResponse, for example to show a refund; no dispute resolution.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "reputation",
+      "support": "native",
+      "note": "The Reputation Registry: tagged values per client, revocation, responses and a filtered summary.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Public events and tags such as reachable, uptime and responseTime that monitors can publish as feedback.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-bp-reputation"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "control": "kill-switch",
+      "support": "none",
+      "note": "No pause and no burn; only the registry owner can change the code by upgrade.",
+      "sources": [
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-minimaluups-mainnet"
+      ]
+    },
+    {
       "protocol": "x402",
       "control": "agent-identity-verification",
       "support": "partial",
@@ -218,6 +353,551 @@
       "sources": [
         "src-x402-sdk-spendcontrols",
         "src-x402-docs-facilitator-concept"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "agent-identity-verification",
+      "support": "native",
+      "note": "RFC 9421 signature with a key from the payment scheme's key store; the tag states browse or pay intent.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "Agents are onboarded to Visa Intelligent Commerce and approved by the scheme; the process is not public. The Agentic Directory (2026-06-10) lists agents Visa has verified.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev",
+        "src-visa-jun10"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "Consent lives in VIC, where the user approves each Payment Instruction with a passkey; the ID Token can carry auth_time and amr.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "spending-caps",
+      "support": "external",
+      "note": "No amounts or limits in TAP; VIC Payment Instructions and network controls apply.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "merchant-payee-scoping",
+      "support": "partial",
+      "note": "@authority binds the signature to one merchant host and @path to a page; the method and body are not bound.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "created and expires at most 8 minutes apart; created must be past and expires future.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "revocation",
+      "support": "partial",
+      "note": "An expired or missing key blocks verification; no revocation list or key status endpoint is specified.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "step-up-authentication",
+      "support": "external",
+      "note": "Step-up verification and Visa Payment Passkeys happen in VIC.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-eu-live"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "Nonce plus time window, but nonce tracking is optional for the verifier.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "receipts-evidence",
+      "support": "none",
+      "note": "TAP defines no receipt; VIC confirmations and commerce signals serve as transaction evidence.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-ai-vic-client"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "dispute-support",
+      "support": "external",
+      "note": "VIC signals support dispute resolution; no agent-specific liability shift is published.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-worldpay-liability"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "reputation",
+      "support": "none",
+      "note": "No reputation mechanism for agents; Agent Score rates merchant sites for agent readiness, not agents.",
+      "sources": [
+        "src-visa-jun10"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Visa says TAP feeds telemetry into its fraud and risk models; CDNs expose verification results to zone owners.",
+      "sources": [
+        "src-visa-threats",
+        "src-cf-signed-agent-field"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "control": "kill-switch",
+      "support": "partial",
+      "note": "Visa can remove a key from its store and merchants can block untagged or failing requests; no emergency procedure is documented.",
+      "sources": [
+        "src-visa-tap-spec"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "Bilateral bearer key plus a recommended detached Signature and Timestamp with algorithms agreed out of band; no agent identity scheme.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "agent-registration-kya",
+      "support": "external",
+      "note": "No registry in ACP. Each platform runs its own merchant and partner onboarding, such as ChatGPT's approved-partner application.",
+      "sources": [
+        "src-openai-commerce-docs",
+        "src-openai-acp-site"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "user-consent-capture",
+      "support": "external",
+      "note": "The buyer confirms in the agent interface (a product feature). The spec captures marketing consents and 3DS results but no signed purchase consent.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "allowance.max_amount and currency on every delegated token; Stripe SPT usage_limits.max_amount.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "allowance.merchant_id and allowance.checkout_session_id bind the token to one merchant and one session.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "allowance.expires_at, session expires_at and the expired status.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "revocation",
+      "support": "external",
+      "note": "No revoke endpoint in ACP; Stripe SPTs can be revoked. Agents can cancel open sessions.",
+      "sources": [
+        "src-openai-acp-rfcs-dir",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "step-up-authentication",
+      "support": "native",
+      "note": "authentication_required status, authentication_metadata, authentication_result, Delegate Authentication (3DS2) and capabilities.interventions.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-rfc-delegate-auth"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "Mandatory Idempotency-Key on POST since 2026-04-17, one_time allowance, webhook timestamp window; request Timestamp checks only SHOULD.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "Order with permalink_url and order_create and order_update webhooks; no signed receipt.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-schema-checkout-20260417"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Order adjustments include refund, return and dispute; the merchant handles chargebacks as merchant of record; no dispute protocol.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "reputation",
+      "support": "none",
+      "note": "Nothing in the spec.",
+      "sources": [
+        "src-openai-acp-rfcs-dir"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "risk_signals on complete, RiskSignal entries on Delegate Payment, intent_trace reason codes on cancel, Request-Id.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfc-intent-traces"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Merchants can decline any order and agents can cancel sessions; Stripe SPTs can be revoked; no protocol-wide stop.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "agent-identity-verification",
+      "support": "native",
+      "note": "Platform profile URL in UCP-Agent with RFC 9421 signatures against its keys, or API key, OAuth or mTLS bound to that profile.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-signatures"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "agent-registration-kya",
+      "support": "partial",
+      "note": "Permissionless by design; businesses should keep a registry of pre-approved platforms. No know-your-agent registry.",
+      "sources": [
+        "src-ucp-overview"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "user-consent-capture",
+      "support": "partial",
+      "note": "Buyer places the order in a trusted UI unless AP2 is active; buyer_consent map; AP2 checkout_mandate as signed consent.",
+      "sources": [
+        "src-ucp-checkout",
+        "src-ucp-ap2-spec",
+        "src-ucp-release-20260825"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "spending-caps",
+      "support": "external",
+      "note": "No cap field; limits live in AP2 mandates, the credential provider or the platform.",
+      "sources": [
+        "src-ucp-ap2-spec",
+        "src-ucp-schema-checkout"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "merchant-payee-scoping",
+      "support": "partial",
+      "note": "Tokens are handler-specific and some (Adyen) are bound to session and merchant; AP2 mandates bind the merchant-signed checkout.",
+      "sources": [
+        "src-ucp-ap2-spec",
+        "src-ucp-adyen-docs"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "Checkout expires_at defaults to 6 hours; mandate_expired in the AP2 extension.",
+      "sources": [
+        "src-ucp-schema-checkout",
+        "src-ucp-schema-ap2"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "revocation",
+      "support": "native",
+      "note": "Remove keys from the profile; RFC 7009 token revocation required for identity linking; OpenID RISC recommended.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-identity-linking"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "step-up-authentication",
+      "support": "partial",
+      "note": "requires_escalation handoff through continue_url; 3DS2 device data collection and challenge actions in the optional authentication extension.",
+      "sources": [
+        "src-ucp-checkout",
+        "src-ucp-payment-auth"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Signed Idempotency-Key with 128-bit entropy, 24 to 48 hour storage and 409 on mismatch; Web Bot Auth shape adds nonce.",
+      "sources": [
+        "src-ucp-signatures"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "receipts-evidence",
+      "support": "partial",
+      "note": "Order with permalink_url and a required confirmation email; AP2 mandates kept as JCS-canonical evidence.",
+      "sources": [
+        "src-ucp-checkout",
+        "src-ucp-ap2-spec"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Order adjustments can record disputes, refunds and returns; dispute handling stays with the business and PSP.",
+      "sources": [
+        "src-ucp-schema-order"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "reputation",
+      "support": "none",
+      "note": "No reputation mechanism for platforms or businesses.",
+      "sources": [
+        "src-ucp-overview"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "monitoring-signals",
+      "support": "native",
+      "note": "signals such as dev.ucp.buyer_ip and dev.ucp.user_agent, plus signed order webhooks.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-order"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "control": "kill-switch",
+      "support": "partial",
+      "note": "Businesses can refuse platforms, answer 503 or cancel sessions; no protocol-level global stop.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-google-faq"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The agent proves possession of the key in cnf; who the agent is belongs to the commerce protocol layer.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-implementation"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "agent-registration-kya",
+      "support": "none",
+      "note": "No registry or know-your-agent step; under the Trusted Agent Provider model verifiers keep their own list of trusted providers.",
+      "sources": [
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "user-consent-capture",
+      "support": "native",
+      "note": "A non-agentic Trusted Surface shows the Mandate Content and authenticates the user before signing.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-flows"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "spending-caps",
+      "support": "native",
+      "note": "payment.amount_range per payment and payment.budget across recurring uses.",
+      "sources": [
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "checkout.allowed_merchants, checkout.line_items, payment.allowed_payees, payment.allowed_pisps and payment.allowed_payment_instruments.",
+      "sources": [
+        "src-ap2-schema-open-checkout",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "time-windows-expiry",
+      "support": "native",
+      "note": "iat and exp on every mandate, payment.execution_date windows and payment.agent_recurrence frequency.",
+      "sources": [
+        "src-ap2-schema-open-payment",
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "revocation",
+      "support": "none",
+      "note": "No mandate revocation in v0.2; only short exp and agent-side mandate management.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-agent-authorization"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "step-up-authentication",
+      "support": "none",
+      "note": "v0.2 specifies no step-up; a failed check falls back through unresolved_constraint to a user-approved closed mandate. v0.1 had 3DS2 and OTP challenges.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-spec-v01"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "replay-protection",
+      "support": "partial",
+      "note": "checkout_hash, transaction_id, sd_hash, cnf and the one-presentation-at-a-time rule; consume-once tracking is left to verifiers.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-spec-v02",
+        "src-ap2-pub-2602-06345"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "Signed Payment and Checkout Receipts whose reference is the hash of the closed mandate.",
+      "sources": [
+        "src-ap2-schema-receipts"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "dispute-support",
+      "support": "partial",
+      "note": "Dispute verification steps are defined; retention, retrieval and adjudication are out of scope.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "reputation",
+      "support": "none",
+      "note": "Not addressed.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "risk_data from the Trusted Surface; no event or telemetry format.",
+      "sources": [
+        "src-ap2-schema-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "control": "kill-switch",
+      "support": "external",
+      "note": "Credential Providers, networks or processors may reject overlapping mandates or invalidate tokens; card networks keep their own controls.",
+      "sources": [
+        "src-ap2-security"
       ]
     }
   ],

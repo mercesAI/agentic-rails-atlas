@@ -1,5 +1,234 @@
 [
   {
+    "from": "ap2",
+    "to": "mastercard-agent-pay",
+    "type": "compatible-with",
+    "note": "Verifiable Intent shares AP2 v0.2 vct values with aligned constraint semantics and different key prefixes (payment.amount_range versus mandate.payment.amount_range); both were contributed to FIDO on 2026-04-28.",
+    "sources": [
+      "src-ap2-vi-spec",
+      "src-ap2-schema-open-payment",
+      "src-ap2-fido-pr"
+    ]
+  },
+  {
+    "from": "ap2",
+    "to": "ucp",
+    "type": "embeds",
+    "note": "UCP embeds AP2 through the extension dev.ucp.common.payment.ap2_mandate (renamed in v2026-08-25): merchant signature in ap2.merchant_authorization, Checkout Mandate in ap2.checkout_mandate, Payment Mandate in the credential token. Live use unverified.",
+    "sources": [
+      "src-ap2-ucp-ext",
+      "src-ucp-schema-ap2",
+      "src-ap2-faq"
+    ]
+  },
+  {
+    "from": "ap2",
+    "to": "x402",
+    "type": "compatible-with",
+    "note": "The a2a-x402 Embedded Flow nests x402 inside AP2 mandates, but it targets the v0.1 CartMandate and PaymentMandate; AP2 v0.2 has no Cart mandate. The AP2 repository ships x402 samples.",
+    "sources": [
+      "src-ap2-a2a-x402-v02",
+      "src-ap2-repo"
+    ]
+  },
+  {
+    "from": "erc-8004",
+    "to": "ap2",
+    "type": "complements",
+    "note": "Indirect only: ERC-8004 lists A2A agent cards as services and AP2 can be implemented as an A2A extension. ERC-8226 is the closest on-chain analogue of an AP2 mandate.",
+    "sources": [
+      "src-erc-8004-spec",
+      "src-ap2-glossary",
+      "src-erc-8226"
+    ]
+  },
+  {
+    "from": "erc-8004",
+    "to": "stripe-mpp",
+    "type": "compatible-with",
+    "note": "The MPP payment discovery draft cites ERC-8004 and calls its off-chain discovery compatible with future on-chain anchoring; no integration is specified.",
+    "sources": [
+      "src-mpp-discovery-draft"
+    ]
+  },
+  {
+    "from": "erc-8004",
+    "to": "x402",
+    "type": "complements",
+    "note": "Neither depends on the other. ERC-8004 publishes x402Support, uses agentWallet as the payee address, and lets feedback files carry proofOfPayment for an x402 payment; Erik Reppel co-authors ERC-8004 and sits on the x402 TSC.",
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-bp-reputation",
+      "src-x402-tsc"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "ap2",
+    "type": "complements",
+    "note": "ACP has no mandates or signed user intent; AP2 mandates or Verifiable Intent could add that layer, but no adopted extension exists.",
+    "sources": [
+      "src-openai-acp-rfcs-dir",
+      "src-vi-protocols"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "mastercard-agent-pay",
+    "type": "compatible-with",
+    "note": "No documented protocol link. Stripe says it might use Mastercard Agent Pay tokens under SPT card payments.",
+    "sources": [
+      "src-fee-stripe-spt-docs"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "stripe-mpp",
+    "type": "same-steward",
+    "note": "Stripe co-maintains ACP and runs MPP; MPP accepts cards through the same Shared Payment Token family that implements ACP Delegate Payment.",
+    "sources": [
+      "src-stripe-mpp-docs",
+      "src-openai-commerce-docs"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "ucp",
+    "type": "competes-with",
+    "note": "Both define merchant-hosted agent checkout sessions; five status names match and both publish well-known discovery documents, but no bridge or mapping exists. Stripe supports both.",
+    "sources": [
+      "src-ucp-checkout-schema",
+      "src-stripe-agentic-commerce",
+      "src-openai-acp-rfcs-dir"
+    ]
+  },
+  {
+    "from": "openai-acp",
+    "to": "visa-tap",
+    "type": "compatible-with",
+    "note": "No documented protocol link. Stripe says it might use Visa Intelligent Commerce tokens under SPT card payments, so Visa agent tokens can sit under an ACP payment.",
+    "sources": [
+      "src-fee-stripe-spt-docs"
+    ]
+  },
+  {
+    "from": "ucp",
+    "to": "ap2",
+    "type": "embeds",
+    "note": "AP2 is an optional UCP extension, dev.ucp.common.payment.ap2_mandate (dev.ucp.shopping.ap2_mandate before v2026-08-25). UCP places the merchant authorization, checkout mandate and payment mandate; AP2 defines the formats. Live use is unverified.",
+    "sources": [
+      "src-ucp-ap2-spec",
+      "src-ucp-schema-ap2",
+      "src-ucp-schema-ap2-0408",
+      "src-ucp-google-faq"
+    ]
+  },
+  {
+    "from": "ucp",
+    "to": "ap2",
+    "type": "same-steward",
+    "note": "Google launched both; Google donated AP2 to the FIDO Alliance on 2026-04-28 while UCP stays under its own Governing Council.",
+    "sources": [
+      "src-ucp-google-ap2-fido",
+      "src-ucp-governance"
+    ]
+  },
+  {
+    "from": "ucp",
+    "to": "mastercard-agent-pay",
+    "type": "compatible-with",
+    "note": "The network_token credential type (number, cryptogram, eci_value, token_requestor_id) can carry network tokens in general; no Agent Pay integration is documented, and Google surfaces use Google Pay PAN_ONLY.",
+    "sources": [
+      "src-ucp-schema-payment",
+      "src-ucp-google-faq",
+      "src-ucp-site"
+    ]
+  },
+  {
+    "from": "ucp",
+    "to": "openai-acp",
+    "type": "competes-with",
+    "note": "Both specify agent checkout with the merchant as merchant of record; no bridge or mapping is specified. Stripe co-develops ACP and sits on UCP councils.",
+    "sources": [
+      "src-ucp-maintainers",
+      "src-ucp-announcements",
+      "src-ucp-glossary"
+    ]
+  },
+  {
+    "from": "ucp",
+    "to": "stripe-mpp",
+    "type": "complements",
+    "note": "No documented relation in the spec; Stripe's UCP integration is a payment handler for tokenized methods, not MPP.",
+    "sources": [
+      "src-ucp-stripe-docs",
+      "src-ucp-overview"
+    ]
+  },
+  {
+    "from": "ucp",
+    "to": "visa-tap",
+    "type": "complements",
+    "note": "Both use RFC 9421 HTTP Message Signatures and UCP added optional Web Bot Auth interop; the UCP spec never names TAP and no bridge is documented. Visa is a listed endorser.",
+    "sources": [
+      "src-ucp-signatures",
+      "src-ucp-site"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "mastercard-agent-pay",
+    "type": "competes-with",
+    "note": "Same pattern on another network: RFC 9421 signatures with a network tag and a nonce, verified at the CDN. Mastercard uses one tag, Agent-pay-auth, and its own key directory, whose location is not public.",
+    "sources": [
+      "src-visa-tap-cf-blog",
+      "src-mcap-dev-level1"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "openai-acp",
+    "type": "complements",
+    "note": "Visa says TAP complements ACP and Intelligent Commerce Connect accepts ACP payments; no wire-level binding is published.",
+    "sources": [
+      "src-visa-tap-pr",
+      "src-visa-icc"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "stripe-mpp",
+    "type": "compatible-with",
+    "note": "Visa authored the MPP card method; draft-card-charge-00 lets a client add TAP signature headers, Visa says the card spec and mpp-card SDK are built on VIC and TAP, and mppx signs and verifies TAP attestations.",
+    "sources": [
+      "src-mpp-card-draft",
+      "src-visa-mpp-card",
+      "src-mppx-tap"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "ucp",
+    "type": "complements",
+    "note": "Intelligent Commerce Connect accepts UCP payments and Visa is listed as a UCP endorser; UCP has its own RFC 9421 signing, closer to the Web Bot Auth draft, and never names TAP.",
+    "sources": [
+      "src-visa-icc",
+      "src-ucp-site",
+      "src-ucp-signatures"
+    ]
+  },
+  {
+    "from": "visa-tap",
+    "to": "x402",
+    "type": "complements",
+    "note": "TAP's browsingIOU answers an HTTP 402 with card-acquiring data but uses none of x402's headers or payloads; Visa is a Premier member of the x402 Foundation and said at launch it was working with Coinbase on interoperability.",
+    "sources": [
+      "src-visa-tap-spec",
+      "src-x402-lf-july",
+      "src-visa-tap-pr"
+    ]
+  },
+  {
     "from": "x402",
     "to": "ap2",
     "type": "embeds",

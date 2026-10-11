@@ -139,6 +139,358 @@
   ],
   "cells": [
     {
+      "protocol": "erc-8004",
+      "dimension": "primary-job",
+      "value": "On-chain agent identity, discovery and public feedback",
+      "detail": "Three registries: identity (ERC-721 plus a registration file), reputation, and validation (specified only).",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "layers-covered",
+      "value": "Identity and trust; reputation and feedback; discovery",
+      "detail": "No checkout, authorization or settlement layer.",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "stewards",
+      "value": "ERC-8004 team (community), coordinated by De Rossi (MetaMask) and Crapis (Ethereum Foundation)",
+      "detail": "Co-authors Jordan Ellis (Google) and Erik Reppel (Coinbase); no foundation found.",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "governance-model",
+      "value": "ethereum/ERCs editorial process; contracts controlled by one proxy owner",
+      "detail": "An EIP editor returned the text to Draft on 2026-01-13; one externally owned account owns the proxies on Ethereum and Base (2026-10-11).",
+      "sources": [
+        "src-erc-8004-commit-draft",
+        "src-erc-8004-onchain-probe"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "license-spec-and-code",
+      "value": "Spec CC0; contracts MIT per file headers (README says CC0)",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "first-announced",
+      "value": "2025-08-13 (created)",
+      "detail": "Merged into ethereum/ERCs on 2025-08-18.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-commit-add"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "latest-version-and-date",
+      "value": "Draft text of 2026-01-25; contracts 2.0.0",
+      "sources": [
+        "src-erc-8004-commit-jan25",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "maturity",
+      "value": "Draft ERC; Identity and Reputation live on 25 mainnets; Validation not officially deployed",
+      "detail": "README list as of 2026-08-15, unchanged on 2026-10-11.",
+      "sources": [
+        "src-erc-8004-eip-page",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "transports",
+      "value": "EVM transactions and reads; files over IPFS, HTTPS or data URI; /.well-known domain proof",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "settlement-rails",
+      "value": "None (moves no money)",
+      "detail": "Registries live on EVM chains; payments happen on other rails.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "agent-identity-model",
+      "value": "ERC-721 token per agent pointing to a registration file; global id agentRegistry plus agentId",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "user-authorization-model",
+      "value": "None",
+      "detail": "No consent or mandate object; ERC-8226 (Draft) proposes one on top.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8226"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Not applicable",
+      "detail": "Registries record identity and feedback, not purchases.",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "merchant-of-record",
+      "value": "Not applicable",
+      "detail": "No payment flows through ERC-8004.",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "credential-type",
+      "value": "ERC-721 token plus EIP-712 or ERC-1271 wallet-binding signature",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "cryptography",
+      "value": "EIP-712, ERC-1271, keccak256 file commitments",
+      "detail": "ECDSA recovery also accepts EIP-7702 delegated accounts in the reference code.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "replay-protection",
+      "value": "Partial: EIP-712 domain and a 5-minute deadline on wallet binding, no nonce",
+      "sources": [
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "native-spending-controls",
+      "value": "None (moves no money)",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "revocation",
+      "value": "Feedback revocation by its client; wallet unset; no identity revocation or burn",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "refunds-and-disputes",
+      "value": "No disputes; appendResponse can show a refund",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "privacy-exposure",
+      "value": "Everything on-chain is public and permanent; files public if their URI is",
+      "detail": "The text says on-chain pointers and hashes cannot be deleted.",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "discovery-mechanism",
+      "value": "Registration files with services (A2A, MCP, web, ENS, DID), indexed by explorers and subgraphs",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-thegraph-agent0"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Permissionless",
+      "sources": [
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "decentralization",
+      "value": "Open registries on public chains, with one upgrade key on Ethereum and Base",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-onchain-probe"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "observability-score",
+      "value": "5 of 5",
+      "detail": "All state and events are public; quality of the data is the weak point.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-8004scan"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; gas only",
+      "detail": "Measured 2026-10-11 with eth_estimateGas: register about 203,412 gas, first giveFeedback about 155,185 to 178,504 gas; cents on mainnet that day, dollars at early-2026 gas prices.",
+      "sources": [
+        "src-quicknode-8004-faq",
+        "src-erc-8004-gas-probe",
+        "src-cobo-8004"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "who-pays",
+      "value": "Caller pays gas",
+      "detail": "Owner pays to register; client or an EIP-7702 sponsor pays for feedback.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-gas-probe"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "builds-on-standards",
+      "value": "ERC-721 (URIStorage), EIP-712, ERC-1271, EIP-155, UUPS proxies",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "composes-with",
+      "value": "x402 (x402Support, agentWallet, proofOfPayment); MPP discovery draft cites it; AP2 indirectly via A2A",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-mpp-discovery-draft",
+        "src-ap2-glossary"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "erc-8004-contracts 2.0.0; agent0-sdk 1.7.1 (npm, PyPI); create-8004-agent; ChaosChain; Lucid Agents",
+      "sources": [
+        "src-erc-8004-contracts-readme",
+        "src-npm-agent0-sdk",
+        "src-pypi-agent0-sdk",
+        "src-npm-create-8004-agent"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "adoption-evidence",
+      "value": "Many registrations, few live agents",
+      "detail": "561,576+ agents on 8004scan (2026-10-11) against 3% to 15% live in arXiv:2606.26028 (data to 2026-05-13). Count is not quality.",
+      "sources": [
+        "src-8004scan",
+        "src-pub-2606-26028",
+        "src-csoai-census"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "published-security-research",
+      "value": "Yes: an empirical study of Sybil reviewers and liveness; an unmerged community audit; no CVE",
+      "sources": [
+        "src-pub-2606-26028",
+        "src-erc-8004-pr-51",
+        "src-erc-8004-contracts-history"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "regulatory-touchpoints",
+      "value": "Data protection (permanent public records); no KYC; payment rules apply to linked rails",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-policy-eu-gdpr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "erc-8004",
+      "dimension": "biggest-open-question",
+      "value": "Can reputation be made Sybil-resistant without a gate, and who controls the upgrade key?",
+      "sources": [
+        "src-pub-2606-26028",
+        "src-erc-8004-onchain-probe"
+      ],
+      "confidence": "verified"
+    },
+    {
       "protocol": "x402",
       "dimension": "primary-job",
       "value": "Pay-per-request payments over HTTP 402",
@@ -539,9 +891,1552 @@
         "src-x402-arxiv-2603-01179"
       ],
       "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "primary-job",
+      "value": "Agent identification on merchant web requests",
+      "detail": "The agent signs each request with RFC 9421, tagged browse or pay, and may add signed consumer and payment objects.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "layers-covered",
+      "value": "Identity and trust; carries payment credentials at checkout",
+      "detail": "No settlement, consent or dispute layer; those sit in VIC and card rails.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "stewards",
+      "value": "Visa (developed with Cloudflare)",
+      "sources": [
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "governance-model",
+      "value": "Proprietary Visa specification",
+      "detail": "Visa changes it alone; licensees apply updates within six months; Visa says it will align with IETF, OpenID Foundation and EMVCo.",
+      "sources": [
+        "src-visa-tap-terms",
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "license-spec-and-code",
+      "value": "Visa Developer Center Terms plus TAP Product Terms (revocable, no modification)",
+      "detail": "Sample files carry MIT-style headers, conflicting with LICENSE.md.",
+      "sources": [
+        "src-visa-tap-terms",
+        "src-visa-tap-repo-license"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "first-announced",
+      "value": "2025-10-14",
+      "sources": [
+        "src-visa-tap-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "latest-version-and-date",
+      "value": "No version number; launched 2025-10-14",
+      "detail": "Sample repository last changed 2025-10-28.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-gh-meta"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "maturity",
+      "value": "Live at named merchants, still in development",
+      "detail": "Live European purchases 2026-07-02; overview says development and deployment, not in all markets.",
+      "sources": [
+        "src-visa-eu-live",
+        "src-visa-tap-overview"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "transports",
+      "value": "HTTP headers and request body",
+      "detail": "No published MCP or ACP binding.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "settlement-rails",
+      "value": "Card (Visa network)",
+      "detail": "TAP itself moves no money.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "agent-identity-model",
+      "value": "RFC 9421 signature with a key registered by the payment scheme",
+      "detail": "Key store at mcp.visa.com/.well-known/jwks; onboarding not public.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-jwks"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "user-authorization-model",
+      "value": "None in TAP; passkey-approved Payment Instructions in VIC",
+      "detail": "The ID Token can carry auth_time and amr.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Agent acting for a consumer who approved an instruction in VIC",
+      "detail": "TAP has no presence indicator.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "merchant-of-record",
+      "value": "The merchant",
+      "detail": "TAP does not change who sells.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "credential-type",
+      "value": "Agent signing key; VIC agent-specific network token in the payment container",
+      "detail": "Credential hash, encrypted payload or browsingIOU depending on processing path.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "cryptography",
+      "value": "RFC 9421 (Ed25519 in examples), PS256 body objects, JWT and JWS ID Token",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-rfc9421"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "replay-protection",
+      "value": "8-minute window plus nonce; nonce tracking optional",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "native-spending-controls",
+      "value": "None",
+      "detail": "Limits live in VIC.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "revocation",
+      "value": "Key removal or expiry only",
+      "detail": "No revocation list or status endpoint.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "refunds-and-disputes",
+      "value": "Not in TAP; card dispute rules and VIC signals",
+      "detail": "No agent-specific liability shift published.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-worldpay-liability"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "privacy-exposure",
+      "value": "Consumer IP address, device data, country, postal code and obfuscated contacts reach each merchant",
+      "detail": "No minimization or retention rule.",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "discovery-mechanism",
+      "value": "Visa key store (JWKS); Agentic Directory announced",
+      "detail": "No public directory list found.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-jun10"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Registration required (Visa onboarding)",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "decentralization",
+      "value": "Centralized: one Visa-controlled key store",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-cf-blog"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "detail": "Public JWKS and repository; no events, logs or counts.",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-visa-eu-live"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No TAP fee stated; VIC production fees on request; no agent-specific interchange published",
+      "detail": "Evidence of absence from Visa pages and secondary reviews (2026).",
+      "sources": [
+        "src-visa-tap-terms",
+        "src-visa-vic-dev",
+        "src-nevermined-vic",
+        "src-mcc-2026"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "who-pays",
+      "value": "Card economics unchanged",
+      "detail": "Merchant pays usual acquiring fees.",
+      "sources": [
+        "src-nevermined-vic",
+        "src-worldpay-liability"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "builds-on-standards",
+      "value": "RFC 9421, JWT, JWS, OpenID Connect ID Token, JWKS",
+      "sources": [
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "composes-with",
+      "value": "Stripe MPP, x402 (browsingIOU), OpenAI ACP and UCP via Intelligent Commerce Connect",
+      "detail": "No documented link to AP2 or ERC-8004.",
+      "sources": [
+        "src-mpp-card-draft",
+        "src-visa-tap-spec",
+        "src-visa-icc",
+        "src-ap2-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "visa/trusted-agent-protocol sample (unpackaged); mppx TAP attestation",
+      "detail": "No Visa TAP package on npm or PyPI.",
+      "sources": [
+        "src-visa-tap-gh-meta",
+        "src-mppx-tap"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "adoption-evidence",
+      "value": "Four merchants named live (2026-07-02); Cloudflare and Akamai at the edge",
+      "detail": "No count of verifying merchants published.",
+      "sources": [
+        "src-visa-eu-live",
+        "src-akamai-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "published-security-research",
+      "value": "None specific",
+      "detail": "RAILS names TAP; the formal analysis of 2026-08-30 does not model it; no CVE.",
+      "sources": [
+        "src-pub-2606-08790",
+        "src-pub-2609-00060",
+        "src-visa-tap-gh-meta"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "regulatory-touchpoints",
+      "value": "Card liability rules (Reg Z and E, PSD2, UK PSRs), SCA, GDPR for consumer data",
+      "sources": [
+        "src-policy-regz-1026-12",
+        "src-policy-eu-rts-sca",
+        "src-policy-eu-gdpr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "visa-tap",
+      "dimension": "biggest-open-question",
+      "value": "How do production agent keys reach verifiers, and will TAP converge with Web Bot Auth?",
+      "sources": [
+        "src-visa-tap-jwks",
+        "src-wba-draft"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "primary-job",
+      "value": "Agent checkout against a merchant-hosted API, with a scoped delegated card token",
+      "detail": "The agent creates, updates and completes a checkout session; Delegate Payment swaps a card for a vault token bound by an allowance.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-rfc-delegate-payment"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "layers-covered",
+      "value": "Checkout and orders, payment credential handoff, discovery and feeds, post-purchase order events",
+      "detail": "No agent identity, reputation or user mandate layer.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-changelog-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "stewards",
+      "value": "OpenAI and Stripe (founding maintainers); TSC: OpenAI, Stripe, Meta",
+      "detail": "Meta joined 2026-04-24.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-acp-maintainers"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "governance-model",
+      "value": "Company-led TSC of up to 7 seats appointed by the founders; SEPs by simple majority; founders' block-only veto",
+      "detail": "No foundation; one is a stated long-term goal.",
+      "sources": [
+        "src-openai-acp-governance"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "license-spec-and-code",
+      "value": "Apache-2.0",
+      "detail": "Contributions under a corporate or individual CLA.",
+      "sources": [
+        "src-openai-acp-license",
+        "src-openai-acp-cla-signatories"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "first-announced",
+      "value": "2025-09-29",
+      "detail": "With ChatGPT Instant Checkout and Stripe SPTs.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-stripe-acp-launch"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "latest-version-and-date",
+      "value": "2026-04-17 (dated folder)",
+      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18.",
+      "sources": [
+        "src-openai-acp-changelog-20260417",
+        "src-openai-acp-gh-commits"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "maturity",
+      "value": "Beta spec, Draft RFCs; deployed for feeds in ChatGPT",
+      "detail": "2025 in-chat checkout scaled back in March 2026; payment sheet in private beta.",
+      "sources": [
+        "src-openai-acp-readme",
+        "src-openai-product-discovery",
+        "src-openai-apps-monetization"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "transports",
+      "value": "REST over HTTPS, MCP binding (5 tools), webhooks, feed API and files",
+      "detail": "MCP binding released in 2026-04-17.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-mcp-binding",
+        "src-openai-acp-openapi-feed-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "settlement-rails",
+      "value": "Cards (FPAN or network token) through the merchant's PSP; seller-backed gift cards, points, store credit",
+      "detail": "SPTs can carry Link, wallets, Klarna and Affirm on Stripe.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfc-seller-backed",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "agent-identity-model",
+      "value": "Bilateral bearer key per agent and merchant pair",
+      "detail": "Detached Signature recommended; no registry or key directory.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "user-authorization-model",
+      "value": "Buyer confirms in the agent UI; token limited by an allowance",
+      "detail": "No signed mandate or consent object.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-rfcs-dir"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Human present",
+      "detail": "Every flow assumes the buyer confirms in session; no delegated standing authority.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "merchant-of-record",
+      "value": "The merchant",
+      "detail": "OpenAI and PSPs are not merchant of record.",
+      "sources": [
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "credential-type",
+      "value": "Single-use vault token (vt_) or Stripe SPT",
+      "detail": "Network tokens can sit under SPTs.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "cryptography",
+      "value": "TLS; HMAC-SHA256 webhooks; optional detached request signatures (Ed25519 or ES256 examples); 3DS2",
+      "detail": "Signature algorithms agreed out of band.",
+      "sources": [
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-acp-rfc-checkout"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "replay-protection",
+      "value": "Mandatory Idempotency-Key; one_time allowance; 300-second webhook window",
+      "detail": "Request Timestamp checks only SHOULD.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-acp-openapi-webhook-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "native-spending-controls",
+      "value": "allowance.max_amount and currency per token",
+      "detail": "Plus merchant, session and expiry scoping.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "revocation",
+      "value": "None in the spec",
+      "detail": "Stripe SPTs can be revoked; sessions can be canceled.",
+      "sources": [
+        "src-openai-acp-rfcs-dir",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "refunds-and-disputes",
+      "value": "Merchant handles refunds and chargebacks; order adjustments report refund, return, dispute",
+      "detail": "No dispute protocol.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "privacy-exposure",
+      "value": "Buyer contact, address and risk signals go to the merchant; card data only to the PSP or vault",
+      "detail": "Nothing public.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-schema-delegate-payment-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "discovery-mechanism",
+      "value": "/.well-known/acp.json per seller; push product feeds to the agent",
+      "detail": "No public registry.",
+      "sources": [
+        "src-openai-acp-rfc-discovery",
+        "src-openai-acp-openapi-feed-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Registration required (bilateral onboarding)",
+      "detail": "ChatGPT feeds limited to approved partners.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "decentralization",
+      "value": "Centralized per platform",
+      "detail": "Each agent platform onboards merchants; founders control governance.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "detail": "Only discovery documents and the GitHub repository are public.",
+      "sources": [
+        "src-openai-acp-rfc-discovery",
+        "src-openai-acp-site"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; OpenAI charges merchants \"a small fee\" (rate unpublished); a 4 percent Shopify figure is reported only",
+      "detail": "Merchant PSP fees unchanged; SPT pricing not published (public preview).",
+      "sources": [
+        "src-openai-buy-it",
+        "src-pymnts-4pct",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "who-pays",
+      "value": "Merchant pays platform fee",
+      "detail": "Card economics otherwise unchanged.",
+      "sources": [
+        "src-openai-buy-it",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "builds-on-standards",
+      "value": "REST, JSON Schema, OpenAPI, OpenRPC, EMV 3DS2, network tokens, HMAC-SHA256, RFC 8615, MCP, CommonMark",
+      "detail": "No VCs, DIDs, RFC 9421 or chains.",
+      "sources": [
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-mcp-binding",
+        "src-openai-acp-rfcs-dir"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "composes-with",
+      "value": "Stripe SPT; Visa and Mastercard agent tokens under SPTs; UCP side by side",
+      "detail": "No documented link to x402, ERC-8004, TAP or AP2.",
+      "sources": [
+        "src-fee-stripe-spt-docs",
+        "src-stripe-agentic-commerce",
+        "src-openai-acp-rfcs-dir"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "No official SDK; OpenAI and Stripe hosted services",
+      "detail": "Svix publishes unofficial types; package.json name not on npm.",
+      "sources": [
+        "src-svix-acp-types",
+        "src-openai-acp-npm-404"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "adoption-evidence",
+      "value": "Named partners, no volume data",
+      "detail": "Seven retailers for discovery; Copilot, PayPal, Walmart announcements; no GMV published.",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-ms-copilot-checkout",
+        "src-paypal-acp"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "published-security-research",
+      "value": "Little: one formal model covering ACP among four protocols",
+      "detail": "No CVEs or advisories; an audit-trail critique.",
+      "sources": [
+        "src-arxiv-2609-00060",
+        "src-openai-acp-gh-advisories",
+        "src-arxiv-2607-19436"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "regulatory-touchpoints",
+      "value": "Card rules, PCI DSS, SCA via 3DS, consumer protection; AI transparency on the surface",
+      "detail": "Merchant of record keeps tax and compliance.",
+      "sources": [
+        "src-openai-commerce-docs",
+        "src-policy-eu-rts-sca",
+        "src-policy-eu-ai-omnibus"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "openai-acp",
+      "dimension": "biggest-open-question",
+      "value": "Does ACP checkout survive beyond feeds, and who besides ChatGPT runs it in production?",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-ms-agentic-commerce"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "primary-job",
+      "value": "Agent checkout, carts and orders with capability negotiation",
+      "detail": "Discovery at /.well-known/ucp, negotiation, then checkout over REST, MCP, A2A or embedded.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-checkout"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "layers-covered",
+      "value": "Discovery, checkout and orders, payment credential handoff, identity linking; mandates only through the AP2 extension",
+      "detail": "No settlement rail of its own.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-ap2-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "stewards",
+      "value": "UCP Governing Council; Google and Shopify permanent, Stripe elected",
+      "detail": "Google is custodian of ucp.dev.",
+      "sources": [
+        "src-ucp-governance",
+        "src-ucp-maintainers"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "governance-model",
+      "value": "Council-owned, no foundation; Google proxy for open seats until December 2028",
+      "detail": "Domain Tech Councils of 16 decide by majority.",
+      "sources": [
+        "src-ucp-governance"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "license-spec-and-code",
+      "value": "Apache-2.0 (UCP Authors)",
+      "detail": "Contributors sign the Google CLA.",
+      "sources": [
+        "src-ucp-gh-repo",
+        "src-ucp-governance"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "first-announced",
+      "value": "2026-01-11",
+      "detail": "Launched at NRF.",
+      "sources": [
+        "src-ucp-google-nrf",
+        "src-ucp-google-dev-blog"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "latest-version-and-date",
+      "value": "v2026-08-25 (2026-08-25)",
+      "detail": "main carries drafts; SDKs 0.5.x match it.",
+      "sources": [
+        "src-ucp-gh-releases",
+        "src-ucp-js-sdk-readme"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "maturity",
+      "value": "Live on Google AI Mode and Gemini (US) since 2026-02-11",
+      "detail": "Four dated releases; AP2 extension live use unverified.",
+      "sources": [
+        "src-ucp-google-feb2026",
+        "src-ucp-gh-releases"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "transports",
+      "value": "REST, MCP, A2A, embedded",
+      "detail": "OpenAPI, OpenRPC and Agent Card descriptions.",
+      "sources": [
+        "src-ucp-overview"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "settlement-rails",
+      "value": "Rail-agnostic handlers; cards via the merchant's PSP in practice",
+      "detail": "Credential types token, PAN, network token.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-schema-payment",
+        "src-ucp-google-faq"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "agent-identity-model",
+      "value": "Domain-based platform profile plus JWK keys; RFC 9421, OAuth, API key or mTLS",
+      "detail": "Authenticated principal must be bound to the profile in UCP-Agent.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-signatures"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "user-authorization-model",
+      "value": "Buyer places the order in a trusted UI; optional AP2 checkout mandate",
+      "detail": "Identity linking with OAuth 2.0 for signed-in actions.",
+      "sources": [
+        "src-ucp-checkout",
+        "src-ucp-ap2-spec",
+        "src-ucp-identity-linking"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Human present by default; human not present only with AP2 (specified, unverified live)",
+      "sources": [
+        "src-ucp-checkout",
+        "src-ucp-ap2-spec",
+        "src-ucp-google-universal-cart"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "merchant-of-record",
+      "value": "The business",
+      "detail": "Google and Microsoft are not merchant of record.",
+      "sources": [
+        "src-ucp-glossary",
+        "src-ucp-google-faq",
+        "src-ucp-microsoft-page"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "credential-type",
+      "value": "Opaque handler token, PAN or network token",
+      "detail": "Google surfaces: Google Pay PAN_ONLY.",
+      "sources": [
+        "src-ucp-schema-payment",
+        "src-ucp-google-faq"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "cryptography",
+      "value": "RFC 9421 with Content-Digest; ES256 baseline; JWS and SD-JWT in the AP2 extension",
+      "sources": [
+        "src-ucp-signatures",
+        "src-ucp-ap2-spec"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "replay-protection",
+      "value": "Signed Idempotency-Key, 24 to 48 hour storage, 409 on mismatch",
+      "sources": [
+        "src-ucp-signatures"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "native-spending-controls",
+      "value": "None in UCP",
+      "detail": "Caps come from AP2 mandates, the wallet or the platform.",
+      "sources": [
+        "src-ucp-ap2-spec",
+        "src-ucp-schema-checkout"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "revocation",
+      "value": "Key removal from the profile; RFC 7009 token revocation for identity linking",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-identity-linking"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "refunds-and-disputes",
+      "value": "Order adjustments record refunds, returns and disputes; handling stays with merchant and PSP",
+      "sources": [
+        "src-ucp-schema-order"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "privacy-exposure",
+      "value": "Platform sees buyer data, signals and order history; credentials are opaque",
+      "detail": "Privacy and upselling concerns raised in a senator's letter (reported).",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-eweek-warren"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "discovery-mechanism",
+      "value": "/.well-known/ucp business profile",
+      "detail": "No public registry of businesses.",
+      "sources": [
+        "src-ucp-overview"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Permissionless; businesses may keep allowlists",
+      "detail": "Google surfaces need Merchant Center onboarding.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-google-guide"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "decentralization",
+      "value": "Federated by domain, governance concentrated at Google",
+      "detail": "Google holds proxy votes and the domain.",
+      "sources": [
+        "src-ucp-governance",
+        "src-ucp-overview"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "observability-score",
+      "value": "2 of 5",
+      "detail": "Public profiles and governance; transactions private.",
+      "sources": [
+        "src-ucp-overview",
+        "src-ucp-site"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; Google says no cut (reported); merchant pays its PSP",
+      "detail": "Google, Microsoft checkouts reported with no additional fee for now.",
+      "sources": [
+        "src-ucp-register",
+        "src-ucp-google-faq",
+        "src-ucp-pymnts-fees"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "who-pays",
+      "value": "Merchant pays PSP only",
+      "sources": [
+        "src-ucp-google-faq",
+        "src-ucp-register"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "builds-on-standards",
+      "value": "RFC 9421, 9530, 8941, 7517, OAuth 2.0 family, JSON Schema, OpenAPI, OpenRPC, MCP, A2A",
+      "sources": [
+        "src-ucp-signatures",
+        "src-ucp-overview",
+        "src-ucp-identity-linking"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "composes-with",
+      "value": "AP2 (extension); MCP and A2A (transports); network tokens via credential type",
+      "sources": [
+        "src-ucp-ap2-spec",
+        "src-ucp-overview",
+        "src-ucp-schema-payment"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "ucp-sdk (PyPI), @ucp-js/sdk (npm), ucp-schema (crates), samples, conformance",
+      "sources": [
+        "src-ucp-pypi",
+        "src-ucp-npm",
+        "src-ucp-crates",
+        "src-ucp-samples"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "adoption-evidence",
+      "value": "Live Google checkout (Etsy, Wayfair); 21 co-developers, 51 endorsers; no merchant counts",
+      "detail": "AP2 inside UCP: unverified.",
+      "sources": [
+        "src-ucp-google-feb2026",
+        "src-ucp-site"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "published-security-research",
+      "value": "Two arXiv papers name UCP (2602.06345, 2606.05043); no CVE or advisory",
+      "sources": [
+        "src-ucp-arxiv-260206345",
+        "src-ucp-arxiv-260605043",
+        "src-ucp-gh-advisories"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "regulatory-touchpoints",
+      "value": "Card law (Reg Z, Reg E, PSD2 SCA), GDPR, AI Act Article 50",
+      "detail": "Merchant's PSP handles SCA and disputes.",
+      "sources": [
+        "src-policy-regz-1026-12",
+        "src-policy-eu-rts-sca",
+        "src-policy-eu-ai-act"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ucp",
+      "dimension": "biggest-open-question",
+      "value": "Will checkout spread beyond Google surfaces and will AP2 mandates go live?",
+      "sources": [
+        "src-ucp-microsoft-page",
+        "src-ucp-google-universal-cart"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "primary-job",
+      "value": "Signed mandates that prove what a user authorized an agent to buy",
+      "detail": "Checkout and Payment Mandates, closed or open, verified by merchant, credential provider and processor.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "layers-covered",
+      "value": "Intent and authorization; payment credential scoping; dispute evidence",
+      "detail": "No rail, no checkout messages, no identity registry.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-implementation"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "stewards",
+      "value": "FIDO Alliance working groups; Google for samples and SDK",
+      "detail": "Donated 2026-04-28.",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-faq"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "governance-model",
+      "value": "Industry alliance working groups (FIDO)",
+      "detail": "Payments Technical Working Group chaired by Mastercard and Visa; no public deliverable yet.",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-fido-pwg-2025"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "license-spec-and-code",
+      "value": "Apache-2.0",
+      "detail": "Repository license covers docs, schemas and code.",
+      "sources": [
+        "src-ap2-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "first-announced",
+      "value": "2025-09-16",
+      "detail": "Google Cloud launch post.",
+      "sources": [
+        "src-ap2-gcloud-launch"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "latest-version-and-date",
+      "value": "v0.2.0 (2026-04-28)",
+      "detail": "main idle since 2026-04-29.",
+      "sources": [
+        "src-ap2-gh-releases",
+        "src-ap2-gh-commits"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "maturity",
+      "value": "Draft specification with samples",
+      "detail": "No verified production use.",
+      "sources": [
+        "src-ap2-faq",
+        "src-ap2-pub-2608-23858"
+      ],
+      "confidence": "unverified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "transports",
+      "value": "Transport-agnostic inside a commerce protocol",
+      "detail": "UCP extension; A2A in samples; OpenID4VP and the Digital Credentials API for delegation.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-ucp-ext",
+        "src-ap2-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "settlement-rails",
+      "value": "None of its own (rail-agnostic)",
+      "detail": "Cards, bank transfers, PISPs and x402 via a2a-x402.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-schema-types"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "agent-identity-model",
+      "value": "Proof of possession of the agent key in cnf",
+      "detail": "Agent identification left to the commerce protocol.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-implementation"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "user-authorization-model",
+      "value": "User-signed mandates (SD-JWT VC) on a non-agentic Trusted Surface",
+      "detail": "User Credential or Trusted Agent Provider delegation.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Both",
+      "detail": "Closed mandates for human present; open mandates with constraints for human not present.",
+      "sources": [
+        "src-ap2-flows"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "merchant-of-record",
+      "value": "Unchanged: the merchant",
+      "detail": "AP2 adds no intermediary that takes over the sale.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "credential-type",
+      "value": "Payment token scoped by a verified Payment Mandate",
+      "detail": "Issued by the Credential Provider, possibly with the network.",
+      "sources": [
+        "src-ap2-flows"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "cryptography",
+      "value": "SD-JWT VC with ES256, Delegate SD-JWT chains, SHA-256 hash bindings",
+      "detail": "JWK type fixes EC P-256.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-schema-types"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "replay-protection",
+      "value": "checkout_hash, transaction_id, sd_hash and cnf; one presentation at a time",
+      "detail": "No consume-once rule for verifiers.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-pub-2602-06345"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "native-spending-controls",
+      "value": "Yes: payment.amount_range and payment.budget",
+      "detail": "Plus payee, merchant, instrument, PISP, line item, date and recurrence constraints.",
+      "sources": [
+        "src-ap2-schema-open-payment",
+        "src-ap2-schema-open-checkout"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "revocation",
+      "value": "None; expiry only",
+      "detail": "The spec recommends the shortest exp.",
+      "sources": [
+        "src-ap2-implementation",
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "refunds-and-disputes",
+      "value": "Dispute verification steps; no refunds",
+      "detail": "Retention, retrieval and adjudication out of scope; liability with networks.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-faq"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "privacy-exposure",
+      "value": "Low by design: mandatory selective disclosure of constraints",
+      "detail": "risk_data travels to verifiers.",
+      "sources": [
+        "src-ap2-security",
+        "src-ap2-schema-payment"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "discovery-mechanism",
+      "value": "None of its own; UCP /.well-known/ucp lists the extension",
+      "sources": [
+        "src-ap2-ucp-ext"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Open specification; verifiers choose which issuers or agent providers to trust",
+      "detail": "No registration step defined.",
+      "sources": [
+        "src-ap2-agent-authorization"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "decentralization",
+      "value": "Bilateral trust between parties; governed by an alliance",
+      "detail": "No central operator in the protocol.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-fido-pr"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "observability-score",
+      "value": "1 of 5",
+      "detail": "Everything except UCP profiles and GitHub activity is private.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-ucp-ext"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee",
+      "detail": "Costs are those of the underlying rail.",
+      "sources": [
+        "src-ap2-spec-v02"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "who-pays",
+      "value": "Card or rail economics unchanged",
+      "detail": "AP2 adds no fee; merchants may carry a second signing key type.",
+      "sources": [
+        "src-ap2-spec-v02",
+        "src-ap2-issue-268"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "builds-on-standards",
+      "value": "SD-JWT (RFC 9901), SD-JWT VC, Delegate SD-JWT draft, RFC 7800, OpenID4VP, Digital Credentials API",
+      "detail": "VC 2.0 and DIDs only as the wider family.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-delegate-sd-jwt"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "composes-with",
+      "value": "UCP (extension), x402 (a2a-x402, v0.1 target), Mastercard Verifiable Intent",
+      "detail": "No documented link with TAP, ACP, MPP or ERC-8004.",
+      "sources": [
+        "src-ap2-ucp-ext",
+        "src-ap2-a2a-x402-v02",
+        "src-ap2-vi-spec",
+        "src-ap2-repo"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "Python SDK and samples in Python, Go and Android",
+      "detail": "SDK not on PyPI; TypeScript SDK PR closed unmerged.",
+      "sources": [
+        "src-ap2-repo",
+        "src-ap2-gh-issues-since"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "adoption-evidence",
+      "value": "Unverified anywhere, including inside UCP",
+      "detail": "One self-reported deployment (issue 345); 3,216 GitHub stars on 2026-10-11.",
+      "sources": [
+        "src-ap2-faq",
+        "src-ap2-issue-345",
+        "src-ap2-gh-repo"
+      ],
+      "confidence": "unverified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "published-security-research",
+      "value": "Yes: several 2026 papers; no CVE",
+      "detail": "48 threats (2608.23858), prompt injection, replay, formal analysis.",
+      "sources": [
+        "src-ap2-pub-2608-23858",
+        "src-ap2-pub-2601-22569",
+        "src-ap2-pub-2602-06345",
+        "src-ap2-gh-advisories"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "regulatory-touchpoints",
+      "value": "Consent and unauthorized-transaction rules; SCA",
+      "detail": "Regulation E and Z, PSD2 and UK PSRs; no compliance claim in the spec.",
+      "sources": [
+        "src-policy-rege-1005-2",
+        "src-policy-eu-psd2",
+        "src-ap2-glossary"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "ap2",
+      "dimension": "biggest-open-question",
+      "value": "Will FIDO publish it and will anyone deploy it?",
+      "detail": "No FIDO deliverable and no verified production use as of 2026-10-11.",
+      "sources": [
+        "src-ap2-fido-pr",
+        "src-ap2-faq"
+      ],
+      "confidence": "unverified"
     }
   ],
   "radar": [
+    {
+      "protocol": "erc-8004",
+      "axis": "openness",
+      "value": 5,
+      "justification": "CC0 text, open contracts, permissionless registration on public chains.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "decentralization",
+      "value": 3,
+      "justification": "Public chains and anyone can read or write, but one externally owned account can upgrade the registries on Ethereum and Base.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Draft ERC with two of three registries deployed; the text last changed 2026-01-25.",
+      "sources": [
+        "src-erc-8004-eip-page",
+        "src-erc-8004-contracts-readme"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Hundreds of thousands of registrations but only 3% to 15% live agents and majority Sybil reviewers in measured data.",
+      "sources": [
+        "src-8004scan",
+        "src-pub-2606-26028"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "human-not-present",
+      "value": 4,
+      "justification": "Designed for agents to find and rate agents without people; no payment or consent step to support.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
+    {
+      "protocol": "erc-8004",
+      "axis": "dispute-support",
+      "value": 1,
+      "justification": "Only appendResponse and feedback revocation; no dispute process.",
+      "sources": [
+        "src-erc-8004-spec"
+      ]
+    },
     {
       "protocol": "x402",
       "axis": "openness",
@@ -604,6 +2499,244 @@
       "sources": [
         "src-x402-scheme-exact",
         "src-x402-scheme-auth-capture"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "openness",
+      "value": 1,
+      "justification": "Public specification but revocable proprietary terms that forbid modification.",
+      "sources": [
+        "src-visa-tap-terms"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "decentralization",
+      "value": 1,
+      "justification": "One Visa-controlled key store and Visa onboarding of agents.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-jwks"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Unversioned specification, no test vectors, sample unchanged since 2025-10-28.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-gh-meta"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Named live merchants and CDNs, no counts of verifying merchants.",
+      "sources": [
+        "src-visa-eu-live",
+        "src-akamai-pr"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "human-not-present",
+      "value": 2,
+      "justification": "Signs agent requests without the user present; consent and limits come from VIC.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev"
+      ]
+    },
+    {
+      "protocol": "visa-tap",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "No dispute mechanism in TAP; card rules and VIC signals apply.",
+      "sources": [
+        "src-visa-vic-dev",
+        "src-worldpay-liability"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "openness",
+      "value": 3,
+      "justification": "Apache-2.0 spec in a public repository with a CLA, but the founders appoint the TSC and keep a veto.",
+      "sources": [
+        "src-openai-acp-license",
+        "src-openai-acp-governance"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "decentralization",
+      "value": 1,
+      "justification": "Bilateral onboarding per platform and founder-controlled governance; no permissionless path.",
+      "sources": [
+        "src-openai-acp-governance",
+        "src-openai-acp-rfc-checkout"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18.",
+      "sources": [
+        "src-openai-acp-readme",
+        "src-openai-acp-gh-commits"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Large named partners for feeds, but no published volume and a scaled-back checkout product.",
+      "sources": [
+        "src-openai-product-discovery",
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "human-not-present",
+      "value": 1,
+      "justification": "Built around a buyer confirming in session; tokens are one-time and session bound.",
+      "sources": [
+        "src-openai-acp-schema-delegate-payment-20260417",
+        "src-openai-buy-it"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "Merchant handles chargebacks under card rules and reports adjustments; no dispute protocol.",
+      "sources": [
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-commerce-docs"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "axis": "openness",
+      "value": 4,
+      "justification": "Apache-2.0 spec and SDKs, public repository and Discussions; governance favors Google.",
+      "sources": [
+        "src-ucp-gh-repo",
+        "src-ucp-governance"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "axis": "decentralization",
+      "value": 2,
+      "justification": "Any domain can publish a profile, but Google holds proxy votes until December 2028 and the domain, and one platform dominates live use.",
+      "sources": [
+        "src-ucp-governance",
+        "src-ucp-google-feb2026"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "axis": "maturity",
+      "value": 3,
+      "justification": "Four dated releases and a live Google deployment; frequent breaking changes and drafts on main.",
+      "sources": [
+        "src-ucp-gh-releases",
+        "src-ucp-release-20260825"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "axis": "adoption-evidence",
+      "value": 3,
+      "justification": "Live US checkout on Google surfaces and many endorsers, but no merchant or volume figures.",
+      "sources": [
+        "src-ucp-google-feb2026",
+        "src-ucp-site"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "axis": "human-not-present",
+      "value": 1,
+      "justification": "Buyer places the order in a trusted UI unless the AP2 extension is active, and AP2 live use is unverified.",
+      "sources": [
+        "src-ucp-checkout",
+        "src-ucp-ap2-spec"
+      ]
+    },
+    {
+      "protocol": "ucp",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "Order adjustments record disputes and refunds; resolution stays with merchant and card rules.",
+      "sources": [
+        "src-ucp-schema-order"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "openness",
+      "value": 4,
+      "justification": "Apache-2.0 specification and schemas in public; specification work now in FIDO, whose drafts are member-only.",
+      "sources": [
+        "src-ap2-repo",
+        "src-ap2-fido-pr"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "decentralization",
+      "value": 3,
+      "justification": "No central operator; each verifier chooses whom to trust; governance by an industry alliance.",
+      "sources": [
+        "src-ap2-agent-authorization",
+        "src-ap2-fido-pr"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "maturity",
+      "value": 2,
+      "justification": "v0.2 specification with schemas and samples; spec contradictions open and no public FIDO draft.",
+      "sources": [
+        "src-ap2-gh-releases",
+        "src-ap2-issue-268"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "adoption-evidence",
+      "value": 1,
+      "justification": "Named collaborators and a UCP extension, but no verified production use.",
+      "sources": [
+        "src-ap2-gcloud-launch",
+        "src-ap2-faq",
+        "src-ap2-issue-345"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "human-not-present",
+      "value": 5,
+      "justification": "Open mandates with constraints and agent keys were designed for this case.",
+      "sources": [
+        "src-ap2-flows",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "protocol": "ap2",
+      "axis": "dispute-support",
+      "value": 3,
+      "justification": "Defined dispute verification over mandates and receipts; retention and adjudication left out.",
+      "sources": [
+        "src-ap2-spec-v02"
       ]
     }
   ]
