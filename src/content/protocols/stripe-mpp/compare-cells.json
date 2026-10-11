@@ -1,0 +1,603 @@
+{
+  "cells": [
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "primary-job",
+      "value": "Pay-per-request, metered and recurring payments as an HTTP authentication scheme",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-specs-repo"
+      ],
+      "confidence": "verified",
+      "detail": "402 challenge, credential and receipt; methods settle on their own rails."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "layers-covered",
+      "value": "Payment credential and settlement rails; optional discovery",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-discovery"
+      ],
+      "confidence": "verified",
+      "detail": "No identity, mandate or checkout layer; disputes depend on the rail."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "stewards",
+      "value": "Tempo Labs and Stripe",
+      "sources": [
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-governance"
+      ],
+      "confidence": "verified",
+      "detail": "Rails maintain their own methods (Visa, Lightspark, Circle and others)."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "governance-model",
+      "value": "Core as an individual IETF draft; methods by rails; no foundation",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-governance"
+      ],
+      "confidence": "verified",
+      "detail": "No working group, charter or steering committee."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "license-spec-and-code",
+      "value": "Specs CC0 1.0; tooling Apache-2.0 or MIT; mppx MIT",
+      "sources": [
+        "src-stripe-mpp-specs-license",
+        "src-stripe-mpp-mppx-repo"
+      ],
+      "confidence": "verified",
+      "detail": "IETF submissions fall under IETF Trust terms."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "first-announced",
+      "value": "2026-03-18",
+      "sources": [
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-gh-specs-commits"
+      ],
+      "confidence": "verified",
+      "detail": "With Tempo mainnet; spec repository created 2026-01-05."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "latest-version-and-date",
+      "value": "draft-httpauth-payment-01 (2026-09-09); mppx 0.13.4 (2026-10-08)",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "detail": "Old name draft-ryan-httpauth-payment expired 2026-09-18."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "maturity",
+      "value": "Live deployments on a draft spec",
+      "sources": [
+        "src-stripe-mpp-tempo-mainnet",
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-iana"
+      ],
+      "confidence": "verified",
+      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier; no IANA registrations."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "transports",
+      "value": "HTTP authentication headers; JSON-RPC and MCP; SSE receipts",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-mcp-transport"
+      ],
+      "confidence": "verified",
+      "detail": "MCP error -32042 and _meta credential and receipt."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "settlement-rails",
+      "value": "Tempo and other chains, Stripe SPTs, card networks, Lightning",
+      "sources": [
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-docs-methods"
+      ],
+      "confidence": "verified",
+      "detail": "11 method ids in the spec repo; mpp.dev documents two more."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "agent-identity-model",
+      "value": "None in the core; optional request attestation in mppx",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified",
+      "detail": "Optional DID source; Web Bot Auth and TAP profiles; TAP headers optional in the card method."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "user-authorization-model",
+      "value": "The client's payment proof per request, or a rail grant",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ],
+      "confidence": "verified",
+      "detail": "Session deposit, SPT limits or Tempo access key; no user mandate object."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "human-present-and-human-not-present-support",
+      "value": "Both",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified",
+      "detail": "Built for unattended clients; browser wallets should ask a human to confirm; SPT creation may prompt 3DS."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "merchant-of-record",
+      "value": "The resource server",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified",
+      "detail": "With the stripe method the seller's Stripe account receives the PaymentIntent."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "credential-type",
+      "value": "Bearer Payment credential wrapping a method proof",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-charge",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified",
+      "detail": "Signed Tempo transaction, SPT id, JWE network token, Lightning preimage or EIP-712 voucher."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "cryptography",
+      "value": "HMAC-SHA256 binding, JCS, RFC 9530 digest, EIP-712 secp256k1, JWE RSA-OAEP",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified",
+      "detail": "TLS 1.2 or later required."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "replay-protection",
+      "value": "Single-use challenge ids and single-use method proofs",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ],
+      "confidence": "verified",
+      "detail": "Idempotency-Key, digest binding, channel and domain binding."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "native-spending-controls",
+      "value": "None in the core; caps come from rails",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ],
+      "confidence": "verified",
+      "detail": "Session deposit, SPT usage limits, Tempo access keys."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "revocation",
+      "value": "No core revocation; method-specific cancellation; forced channel close",
+      "sources": [
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "refunds-and-disputes",
+      "value": "Depend on the method",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin",
+        "src-stripe-mpp-tempo-session"
+      ],
+      "confidence": "verified",
+      "detail": "Card routes keep chargebacks; Stripe stablecoin payments have no disputes; session close refunds the unspent deposit."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "privacy-exposure",
+      "value": "Chain settlements public; credentials private between client and server",
+      "sources": [
+        "src-stripe-mpp-tempo-connection",
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified",
+      "detail": "Card credentials may carry billing address and name; core forbids requiring accounts."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "discovery-mechanism",
+      "value": "Optional /openapi.json with x-service-info and x-payment-info",
+      "sources": [
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified",
+      "detail": "No .well-known path; mpp.dev directory and MPPscan."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "permissionless-or-registration-required",
+      "value": "Permissionless for chain methods; accounts for the stripe method",
+      "sources": [
+        "src-stripe-mpp-governance",
+        "src-stripe-mpp-stripe-charge"
+      ],
+      "confidence": "verified",
+      "detail": "Rails add methods without approval."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "decentralization",
+      "value": "Open spec, concentrated authorship",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-consensus",
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified",
+      "detail": "Five core authors from two companies; Tempo validators are permissioned; 126 of 129 listings accept Tempo."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "observability-score",
+      "value": "3 of 5",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-tempo-connection"
+      ],
+      "confidence": "verified",
+      "detail": "Public chain settlement and MPPscan; credentials, Stripe and card payments private."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "fees-and-who-pays-them",
+      "value": "No protocol fee; rail fees",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-fees",
+        "src-stripe-mpp-stripe-docs",
+        "src-fee-stripe-spt-docs"
+      ],
+      "confidence": "verified",
+      "detail": "Tempo gas at most about 0.0006 USD per 50,000-gas transfer, paid by the client unless the server sponsors; Stripe minimums 0.50 USD (cards) and 0.01 USDC; Stripe stablecoin fee reported, not confirmed for MPP; SPT pricing not published (as of 2026-10-11)."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "who-pays",
+      "value": "Client pays gas unless the server sponsors; card economics unchanged",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-docs"
+      ],
+      "confidence": "verified",
+      "detail": "Server always pays settle and close; Stripe can pay Tempo fees with hostedFeePayer."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "builds-on-standards",
+      "value": "HTTP 402 auth (RFC 9110), JCS, RFC 9530, RFC 9457, HMAC, EIP-712, JWE, DID",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified",
+      "detail": "Plus OpenAPI and JSON-RPC for extensions."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "composes-with",
+      "value": "x402, Stripe SPT (ACP), Visa TAP and VIC, Mastercard AP4M (Tempo's statement)",
+      "sources": [
+        "src-stripe-mpp-vs-x402",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-visa-card",
+        "src-mcap-ap4m-2026",
+        "src-stripe-mpp-ucp-repo"
+      ],
+      "confidence": "verified",
+      "detail": "AP2 complementary with no cross-reference; no UCP or ERC-8004 link."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "reference-implementations-and-sdks",
+      "value": "mppx 0.13.4 (TypeScript), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
+      "sources": [
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-sdk-registries",
+        "src-stripe-mpp-sdk-index"
+      ],
+      "confidence": "verified",
+      "detail": "Community SDKs in Elixir, Go and Swift."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "adoption-evidence",
+      "value": "Live but small and mostly Tempo",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified",
+      "detail": "MPPscan: 4,072,426 transactions and 435,476 USD all time, 8,774 USD in the last 30 days (2026-10-11); 129 directory services."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "published-security-research",
+      "value": "Yes: one formal analysis and six SDK advisories",
+      "sources": [
+        "src-stripe-mpp-arxiv-2609-00060",
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-rs"
+      ],
+      "confidence": "verified",
+      "detail": "Tamarin model in arXiv:2609.00060; CVE-2026-34209, CVE-2026-34210, CVE-2026-63627, CVE-2026-63628 and two critical GHSAs."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "regulatory-touchpoints",
+      "value": "Card law for card methods; stablecoin, AML and sanctions rules for chain methods",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-policy-genius-act",
+        "src-policy-regz-1026-12"
+      ],
+      "confidence": "verified",
+      "detail": "No KYC or sanctions layer in the core."
+    },
+    {
+      "protocol": "stripe-mpp",
+      "dimension": "biggest-open-question",
+      "value": "Will it become a real standard with a neutral home, and is the traffic real commerce?",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-mppscan"
+      ],
+      "confidence": "verified"
+    }
+  ],
+  "radar": [
+    {
+      "protocol": "stripe-mpp",
+      "axis": "openness",
+      "value": 4,
+      "justification": "CC0 specs, permissionless methods and open SDKs, but no neutral governance body.",
+      "sources": [
+        "src-stripe-mpp-specs-license",
+        "src-stripe-mpp-governance"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "decentralization",
+      "value": 2,
+      "justification": "Authorship from two companies, a permissioned Tempo validator set, and nearly all listed services on Tempo.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-consensus",
+        "src-stripe-mpp-directory-api"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "maturity",
+      "value": 3,
+      "justification": "Live since 2026-03-18 with several SDKs, but the core is an individual draft and Stripe's integration is labeled Frontier.",
+      "sources": [
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-stripe-docs"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "adoption-evidence",
+      "value": 2,
+      "justification": "Millions of indexed transactions but under one cent each recently, and few non-Tempo listings.",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-directory-api"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "human-not-present",
+      "value": 4,
+      "justification": "Designed for unattended clients with deposit-capped sessions and access-key subscriptions; no user mandate object.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-tempo-subscription"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "axis": "dispute-support",
+      "value": 2,
+      "justification": "Chargebacks only on card routes; none on stablecoin routes.",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    }
+  ],
+  "controlsCells": [
+    {
+      "protocol": "stripe-mpp",
+      "control": "agent-identity-verification",
+      "support": "partial",
+      "note": "The core payment is pseudonymous with an optional DID source; mppx adds RFC 9421 request attestation for Web Bot Auth and Visa TAP, and the card method allows optional TAP headers.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-card-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "agent-registration-kya",
+      "support": "none",
+      "note": "The core forbids requiring accounts for payment; any know-your-customer step belongs to a method (the stripe method needs Stripe accounts on both sides).",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "user-consent-capture",
+      "support": "partial",
+      "note": "Browser wallets should show the origin and ask for explicit confirmation; SPT creation may prompt 3DS or biometrics. No user mandate object.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "spending-caps",
+      "support": "partial",
+      "note": "Caps come from the rail: the session deposit, SPT usage limits, Tempo access key limits. The core has none.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-subscription"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "merchant-payee-scoping",
+      "support": "native",
+      "note": "recipient and realm are bound into the challenge id; SPTs are scoped to the seller networkId; v2 session descriptors must match the payee.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "time-windows-expiry",
+      "support": "partial",
+      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at, but session channels and vouchers never expire.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "revocation",
+      "support": "partial",
+      "note": "No core revocation message; subscriptions cancel by method-specific means and a payer can force-close a channel.",
+      "sources": [
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "step-up-authentication",
+      "support": "external",
+      "note": "Method-specific: Stripe may prompt 3DS while creating an SPT; card methods carry network cryptograms.",
+      "sources": [
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "replay-protection",
+      "support": "native",
+      "note": "Single-use challenge ids and proofs, Idempotency-Key, digest binding, and channel and EIP-712 domain binding in sessions.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "receipts-evidence",
+      "support": "native",
+      "note": "Payment-Receipt with a method reference on every paid response; session receipts add spent and acceptedCumulative, plus a final SSE event.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "dispute-support",
+      "support": "external",
+      "note": "Depends on the rail: card and stripe routes keep chargebacks; Stripe stablecoin payments have no disputes; on-chain charges are final.",
+      "sources": [
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-stripe-stablecoin"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "reputation",
+      "support": "none",
+      "note": "No reputation layer; the discovery draft only mentions future on-chain anchoring compatible with ERC-8004.",
+      "sources": [
+        "src-stripe-mpp-discovery"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "monitoring-signals",
+      "support": "partial",
+      "note": "Public explorer data (MPPscan, Tempo chain) and the Stripe Dashboard for Stripe-settled payments; servers should rate-limit.",
+      "sources": [
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "protocol": "stripe-mpp",
+      "control": "kill-switch",
+      "support": "none",
+      "note": "No protocol stop; a payer stops signing or force-closes, and an operator revokes keys at the wallet or disables a Stripe account.",
+      "sources": [
+        "src-stripe-mpp-tempo-session"
+      ]
+    }
+  ]
+}

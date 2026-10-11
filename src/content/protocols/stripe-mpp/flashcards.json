@@ -1,0 +1,134 @@
+{
+  "protocol": "stripe-mpp",
+  "cards": [
+    {
+      "id": "stripe-mpp-f1",
+      "front": "WWW-Authenticate: Payment",
+      "back": "The 402 challenge with id, realm, method, intent and request, plus optional digest, expires, description, header and opaque.",
+      "claimIds": [
+        "clm-stripe-mpp-055",
+        "clm-stripe-mpp-056"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f2",
+      "front": "Authorization: Payment",
+      "back": "Default field for the base64url credential: challenge echo, optional source, method payload.",
+      "claimIds": [
+        "clm-stripe-mpp-062"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f3",
+      "front": "Payment-Authorization",
+      "back": "Alternate credential field selected by header=\"Payment-Authorization\", so Authorization can keep a bearer token.",
+      "claimIds": [
+        "clm-stripe-mpp-060",
+        "clm-stripe-mpp-061"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f4",
+      "front": "Payment-Receipt",
+      "back": "base64url JSON with status success, method, timestamp and reference; never on errors.",
+      "claimIds": [
+        "clm-stripe-mpp-063",
+        "clm-stripe-mpp-064"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f5",
+      "front": "Accept-Payment",
+      "back": "Client preference list of method/intent pairs with q weights; the challenge stays authoritative.",
+      "claimIds": [
+        "clm-stripe-mpp-066",
+        "clm-stripe-mpp-067"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f6",
+      "front": "Challenge binding",
+      "back": "The server binds id to all parameters except description; HMAC-SHA256 over the pipe-joined values is recommended.",
+      "claimIds": [
+        "clm-stripe-mpp-058",
+        "clm-stripe-mpp-059"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f7",
+      "front": "request parameter",
+      "back": "base64url JSON without padding, canonicalized with JCS (RFC 8785).",
+      "claimIds": [
+        "clm-stripe-mpp-057"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f8",
+      "front": "charge intent",
+      "back": "One-time payment; requires amount in base units and currency.",
+      "claimIds": [
+        "clm-stripe-mpp-070"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f9",
+      "front": "subscription intent",
+      "back": "amount, currency, periodUnit, periodCount; at most one renewal per period; subscriptionId in the receipt.",
+      "claimIds": [
+        "clm-stripe-mpp-072",
+        "clm-stripe-mpp-073",
+        "clm-stripe-mpp-105"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f10",
+      "front": "Session actions (Tempo)",
+      "back": "open, topUp, voucher, close; vouchers carry cumulative amounts with EIP-712 signatures.",
+      "claimIds": [
+        "clm-stripe-mpp-075",
+        "clm-stripe-mpp-076"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f11",
+      "front": "Forced close",
+      "back": "requestClose, grace period of at least 15 minutes, then withdraw.",
+      "claimIds": [
+        "clm-stripe-mpp-103"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f12",
+      "front": "-32042",
+      "back": "MCP JSON-RPC error for payment required, with challenges in error.data.",
+      "claimIds": [
+        "clm-stripe-mpp-110"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f13",
+      "front": "Method ids in mpp-specs",
+      "back": "tempo, stripe, card, lightning, evm, solana, stellar, hedera, usdc, nearintents, xrpl.",
+      "claimIds": [
+        "clm-stripe-mpp-082"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f14",
+      "front": "draft-httpauth-payment-01",
+      "back": "Core draft posted 2026-09-09, expires 2027-03-13; individual submission.",
+      "claimIds": [
+        "clm-stripe-mpp-024",
+        "clm-stripe-mpp-006"
+      ]
+    },
+    {
+      "id": "stripe-mpp-f15",
+      "front": "MPP (in AP2)",
+      "back": "Merchant Payment Processor, unrelated to the Machine Payments Protocol.",
+      "claimIds": [
+        "clm-stripe-mpp-019"
+      ]
+    }
+  ]
+}
