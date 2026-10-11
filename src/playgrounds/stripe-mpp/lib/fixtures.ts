@@ -63,7 +63,7 @@ export function formatUnits(value: bigint, decimals: number = FIXTURE_TOKEN.deci
 export function parseUnits(text: string, decimals: number = FIXTURE_TOKEN.decimals): bigint {
   const t = text.trim();
   if (!/^\d+(\.\d+)?$/.test(t)) throw new Error('Enter a positive decimal number, for example 0.01.');
-  const [whole, frac = ''] = t.split('.');
+  const [whole = '0', frac = ''] = t.split('.');
   if (frac.length > decimals) throw new Error(`Use at most ${decimals} decimal places.`);
   return BigInt(whole) * 10n ** BigInt(decimals) + BigInt(frac.padEnd(decimals, '0') || '0');
 }

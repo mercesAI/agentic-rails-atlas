@@ -96,14 +96,14 @@ export function parseChallenge(value: string): Challenge {
   if (!m) throw new Error('The value does not start with the Payment scheme.');
   const params: Record<string, string> = {};
   const re = /\s*([A-Za-z0-9_-]+)\s*=\s*(?:"((?:[^"\\]|\\.)*)"|([^\s,]+))\s*(?:,|$)/gy;
-  const rest = m[1].trim();
+  const rest = (m[1] ?? '').trim();
   let pos = 0;
   while (pos < rest.length) {
     re.lastIndex = pos;
     const match = re.exec(rest);
     if (!match) throw new Error('The auth-params could not be parsed.');
-    const name = match[1].toLowerCase();
-    params[name] = match[2] !== undefined ? match[2].replace(/\\(.)/g, '$1') : match[3];
+    const name = (match[1] ?? '').toLowerCase();
+    params[name] = match[2] !== undefined ? match[2].replace(/\\(.)/g, '$1') : (match[3] ?? '');
     pos = re.lastIndex;
   }
   for (const req of ['id', 'realm', 'method', 'intent', 'request'] as const) {
@@ -112,14 +112,12 @@ export function parseChallenge(value: string): Challenge {
   if (params.header !== undefined && params.header !== PAYMENT_AUTHORIZATION) {
     throw new Error('The header parameter may only be Payment-Authorization.');
   }
-  const c: Challenge = {
-    id: params.id,
-    realm: params.realm,
-    method: params.method,
-    intent: params.intent,
-    request: params.request,
-  };
-  for (const opt of ['expires', 'digest', 'description', 'opaque'] as const) if (params[opt] !== undefined) c[opt] = params[opt];
+  const get = (k: string): string => params[k] ?? '';
+  const c: Challenge = { id: get('id'), realm: get('realm'), method: get('method'), intent: get('intent'), request: get('request') };
+  for (const opt of ['expires', 'digest', 'description', 'opaque'] as const) {
+    const v = params[opt];
+    if (v !== undefined) c[opt] = v;
+  }
   if (params.header !== undefined) c.header = PAYMENT_AUTHORIZATION;
   return c;
 }
@@ -143,7 +141,7 @@ export function serializeCredential(cred: Credential): [string, string] {
 export function parseCredential(value: string): Credential {
   const m = /^\s*Payment\s+([A-Za-z0-9_-]+)\s*$/.exec(value);
   if (!m) throw new Error('The value is not "Payment" followed by one base64url token.');
-  const d = decodeJson(m[1]);
+  const d = decodeJson(m[1] ?? '');
   if (!d.ok) throw new Error(d.error);
   const v = d.value as Partial<Credential> | null;
   if (!v || typeof v !== 'object' || typeof v.challenge !== 'object' || typeof v.payload !== 'object') {
