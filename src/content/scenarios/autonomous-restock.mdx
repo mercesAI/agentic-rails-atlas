@@ -1,0 +1,93 @@
+---
+slug: autonomous-restock
+order: 4
+title: Autonomous restock while the user is away
+summary: A cafe owner signs AP2 v0.2 open mandates with allowed merchants, a per-order cap, a weekly recurrence and a total budget. While the owner is away the agent closes them with its own key, three verifiers check the bindings, and signed receipts come back. Specified only; production use is unverified.
+protocols:
+  - ap2
+flow: multi-autonomous-restock
+personas:
+  - autonomous-agent
+  - merchant-smb
+  - wallet-cp
+  - psp
+  - controls-builder
+  - fraud-risk
+lastVerified: "2026-10-11"
+---
+
+## The situation
+
+A cafe owner wants coffee beans reordered whenever stock runs low, from one of two roasters, at most once a week, without approving each order. The owner is not present when the agent buys. AP2 v0.2 covers this with its human-not-present mode: the user signs open Checkout and Payment Mandates that include the agent's public key in `cnf`, and the agent later signs closed mandates with its own key.<Cite ids="clm-ap2-091 clm-ap2-092" />
+
+This scenario is specified, not observed. Production use of AP2 mandates is unverified anywhere, including inside UCP, as of 2026-10-11.<Cite ids="clm-ap2-139" /> One third party self-reported a merchant-side AP2 v0.2 deployment in a GitHub issue on 2026-08-29; nobody has verified it.<Cite ids="clm-ap2-140" /> No commit has reached the AP2 main branch since 2026-04-29, and specification work has moved to FIDO.<Cite ids="clm-ap2-029 clm-ap2-022" />
+
+## Actors
+
+AP2 v0.2 defines five roles: Shopping Agent, Credential Provider, Merchant, Merchant Payment Processor and Trusted Surface.<Cite ids="clm-ap2-039" /> Here "MPP" means Merchant Payment Processor, a role unrelated to the Machine Payments Protocol.<Cite ids="clm-ap2-040" />
+
+- **Cafe owner**, present only when the open mandates are signed.
+- **Trusted Surface**, which must be non-agentic.<Cite ids="clm-ap2-041" />
+- **Shopping Agent**, which is expected to be agentic, holding the key named in `cnf`.
+- **Supplier**, the merchant, which signs the checkout.
+- **Credential Provider**, for example a digital wallet or a payment network.<Cite ids="clm-ap2-049" />
+- **Merchant Payment Processor**, the supplier's processor.
+
+## Step by step
+
+All mandate steps belong to AP2 v0.2. Catalog and checkout calls belong to the surrounding commerce protocol, which AP2 leaves open and designs to be compatible with UCP.<Cite ids="clm-ap2-104" />
+
+1. **Task (no protocol).** The owner states the task and the limits.
+2. **Propose open mandates.** The open Checkout Mandate requires `vct` (`mandate.checkout.open.1`), `constraints` and `cnf`, and its constraints must include `checkout.line_items`.<Cite ids="clm-ap2-055 clm-ap2-056" /> The open Payment Mandate requires `vct` (`mandate.payment.open.1`), `constraints` and `cnf`, and must include `payment.reference`.<Cite ids="clm-ap2-064" /> Here the agent adds `checkout.allowed_merchants`, `payment.amount_range`, `payment.agent_recurrence` with `WEEKLY`, `payment.budget` and `payment.allowed_payees`.<Cite ids="clm-ap2-066 clm-ap2-067 clm-ap2-070" />
+3. **Consent.** The Trusted Surface shows the limits and authenticates the owner.
+4. **Sign and leave.** The Trusted Surface signs the open mandates with the user key. AP2 recommends the smallest `exp` that still lets the agent finish.<Cite ids="clm-ap2-094" />
+5. **Shop (commerce protocol).** When stock is low, the agent builds a cart with a supplier.
+6. **Merchant-signed checkout.** The supplier returns `checkout_jwt`, a merchant-signed JWT of the checkout.<Cite ids="clm-ap2-052" />
+7. **Pre-check.** All validation must run in deterministic code.<Cite ids="clm-ap2-042" /> The agent must not present a new closed mandate from the same open mandate until it receives a rejection receipt for the previous one.<Cite ids="clm-ap2-093" />
+8. **Close the mandates with key binding.** The closed mandate is a key-binding JWT signed with the agent key named in `cnf`, and its `sd_hash` covers the user-signed open mandate it extends.<Cite ids="clm-ap2-180" /> `transaction_id` in the Payment Mandate is the hash of `checkout_jwt`, which ties payment to this checkout.<Cite ids="clm-ap2-060" />
+9. **Present the payment chain.** The agent presents only the open-mandate disclosures needed to evaluate the closed mandates.<Cite ids="clm-ap2-186" />
+10. **Credential Provider verifies.** The verifier processes the chain, checks that the closed mandate keeps every value the open mandate fixed, and evaluates each constraint.<Cite ids="clm-ap2-202" /> The budget check adds the requested amount to all earlier closed amounts.<Cite ids="clm-scn-autonomous-restock-001" /> The token is released only after the final Payment Mandate verifies.<Cite ids="clm-ap2-122" />
+11. **Send the checkout chain.** The agent sends the token and the open and closed Checkout Mandates to the supplier.
+12. **Merchant verifies.** The supplier checks that the hash of its checkout JWT matches `checkout_hash` and evaluates every open constraint.<Cite ids="clm-ap2-201" /> A line item requirement must be matched without reusing an item.<Cite ids="clm-ap2-073" />
+13. **Initiate payment.** The supplier passes the token and both hashes to its processor.
+14. **Processor verifies; Payment Receipt.** The processor must verify that the credential is scoped to the checkout, for example by finding the closed Payment Mandate inside it.<Cite ids="clm-ap2-200" /> The Payment Receipt requires `status`, `iss`, `iat`, `reference` and `payment_id`, plus `psp_confirmation_id` and `network_confirmation_id` on success.<Cite ids="clm-ap2-079" />
+15. **Checkout Receipt.** It requires `status`, `iss`, `iat` and `reference`, plus `order_id` on success.<Cite ids="clm-ap2-080" /> A receipt's `reference` is the hash of the closed mandate, computed like `sd_hash`.<Cite ids="clm-ap2-081" />
+16. **Store and narrow.** After a success receipt the agent stores the open mandate, closed mandate and receipt together and narrows the open mandate's scope.<Cite ids="clm-ap2-103" />
+
+## Which protocol does what
+
+| Steps | Protocol | Object or message | Spec version |
+|---|---|---|---|
+| 2 to 4 | AP2 | open mandates, `cnf`, constraints | v0.2 |
+| 5 | Commerce protocol (for example UCP) | cart and checkout calls | outside AP2 |
+| 6 to 10 | AP2 | `checkout_jwt`, closed mandates (`sd_hash`, `transaction_id`), Credential Provider verification | v0.2 |
+| 11 to 16 | AP2 | merchant and processor verification, Checkout and Payment Receipts | v0.2 |
+
+AP2 v0.2 was released on 2026-04-28.<Cite ids="clm-ap2-027" /> Each mandate type carries a `vct` with a numeric suffix that verifiers must match exactly.<Cite ids="clm-ap2-034" />
+
+## Where controls apply
+
+- **Before authorization.** Native caps are `payment.amount_range` and `payment.budget`; native scoping is `checkout.allowed_merchants` and `payment.allowed_payees`.<Cite ids="clm-ap2-127 clm-ap2-128" /> A Trusted Surface template can refuse wide constraints.<Cite ids="src-ap2-schema-open-payment" />
+- **At signing.** A deterministic signer that holds the agent key, separate from the language model, can refuse overlapping or out-of-budget closed mandates. AP2 requires the rejection receipts it relies on to be integrity protected from the agent's model.<Cite ids="clm-scn-autonomous-restock-003" />
+- **At the edge.** The supplier's verification runs before any charge, and an unknown constraint type always fails.<Cite ids="clm-ap2-074" />
+- **At settlement.** Recurrence and budget checks need the verifier to track earlier presentations.<Cite ids="clm-scn-autonomous-restock-002 clm-scn-autonomous-restock-001" /> Credential Providers, networks or processors may reject overlapping mandates or invalidate earlier tokens.<Cite ids="clm-ap2-130" />
+- **After the fact.** Dispute verification recomputes the `checkout_jwt` hash, checks both receipt references against the closed mandates and verifies both mandates.<Cite ids="clm-ap2-097" /> AP2 leaves retention, retrieval and adjudication outside the specification.<Cite ids="clm-ap2-098" />
+
+## What is observable from outside
+
+Almost nothing. AP2 defines no public registry, explorer, indexer, event stream or `.well-known` path of its own.<Cite ids="clm-ap2-131" /> Mandates and receipts travel only among the agent, Credential Provider, merchant, processor and network.<Cite ids="src-ap2-spec-v02" /> SD-JWT digests are salted and decoys are allowed, so even a verifier sees only the constraints it is shown.<Cite ids="clm-ap2-123" /> From outside, a supplier that runs AP2 through UCP is visible only through its profile, which lists the AP2 capability.<Cite ids="clm-ap2-106" /> The card authorization looks like any other card payment.
+
+## What can go wrong
+
+- **A constraint fails.** The verifier answers `unresolved_constraint`, which may signal a fallback, while `invalid_credential` and `invalid_mandate` are terminal.<Cite ids="clm-ap2-082 clm-ap2-083" /> A failing check must come back as a signed receipt carrying the error.<Cite ids="clm-ap2-182" />
+- **The owner is needed after all.** A human-not-present flow can turn into a human-present one when a verifier returns `unresolved_constraint` and the user approves closed mandates.<Cite ids="clm-ap2-096" /> There is no step-up in v0.2.<Cite ids="clm-ap2-118" />
+- **Double spend.** The rejection-receipt rule exists so one open mandate cannot approve two checkouts at once.<Cite ids="clm-ap2-093" />
+- **Leaked agent key.** AP2 v0.2 defines no way to revoke a mandate before it expires.<Cite ids="clm-ap2-117" /> The short `exp` and the budget are the only bounds.
+- **Ambiguous budget.** `payment.budget` types `max` as a number with no stated unit, and the documentation example uses 1000.00, so the unit is unresolved in v0.2.<Cite ids="clm-ap2-193" /> A verifier and an agent that read it differently will disagree.
+- **Prompt injection.** AP2 assumes it cannot be prevented and treats every model and agent as a potential attacker.<Cite ids="clm-ap2-116" />
+- **Who pays for a bad order.** AP2 leaves liability to the payment networks.<Cite ids="clm-ap2-120" />
+
+## Variants
+
+- **Monthly instead of weekly.** `payment.agent_recurrence` takes `MONTHLY` or other frequencies with an optional `max_occurrences`.<Cite ids="clm-ap2-070" /> Note that the checkout side has only `checkout.allowed_merchants` and `checkout.line_items`, and one open mandate's line items cannot be split across several checkouts, so how one open Checkout Mandate serves repeated orders is not spelled out in v0.2.<Cite ids="clm-ap2-066 clm-ap2-192" />
+- **Agent provider signs instead of the user.** In the Trusted Agent Provider model the provider signs mandates with a key the agent cannot use without the Trusted Surface, and verifiers trust a list of providers instead of a user credential issuer.<Cite ids="clm-ap2-047 clm-ap2-204" />

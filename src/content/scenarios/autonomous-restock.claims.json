@@ -1,0 +1,33 @@
+{
+  "protocol": "ap2",
+  "generatedAt": "2026-10-11",
+  "claims": [
+    {
+      "id": "clm-scn-autonomous-restock-001",
+      "text": "Evaluating the AP2 payment.budget constraint requires tracking the total spent with the Payment Mandate: the requested amount plus all previously closed Payment Mandate amounts must not exceed max, and the approved amount is then added to the running total.",
+      "sources": ["src-ap2-payment-mandate-doc"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "AP2 v0.2",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-scn-autonomous-restock-002",
+      "text": "The AP2 payment.agent_recurrence constraint evaluates as true when the current Payment Mandate is far enough in time from the previous presentation to meet frequency and max_occurrences is not exceeded, which requires tracking earlier presentations.",
+      "sources": ["src-ap2-payment-mandate-doc"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "AP2 v0.2",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-scn-autonomous-restock-003",
+      "text": "AP2 says the non-deterministic part of the Shopping Agent must avoid signing overlapping closed mandates for the same open mandate without receipts rejecting the earlier ones, and that those receipts must be integrity protected from the agent's language model.",
+      "sources": ["src-ap2-security"],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "specVersion": "AP2 v0.2",
+      "topic": "security"
+    }
+  ]
+}
