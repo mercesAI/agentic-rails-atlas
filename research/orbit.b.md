@@ -168,3 +168,105 @@ Several of the eight protocols now carry Lightning as a payment method without L
 **Sources.** src-orbit-interledger-op-repo; src-orbit-interledger-op-npm; src-orbit-interledger-wm-spec; src-orbit-interledger-blog; src-orbit-interledger-community-x402.
 
 ---
+
+## Circle: Nanopayments, Agent Stack and Arc
+
+- **id:** `circle`
+- **Category:** machine-payments
+- **What it is:** The USDC and EURC issuer, whose agent-facing products are Nanopayments through Circle Gateway (sub-cent USDC payments inside the x402 flow), the Circle Agent Stack and the Arc Layer 1 chain that charges fees in USDC.
+- **Steward:** Circle Internet Group (company).
+- **Status (as of 2026-10-11):** Live. Nanopayments on mainnet since 2026-04-29; Circle Agent Stack launched in May 2026 (month only, per Circle); Arc public mainnet since 2026-09-16 with a permissioned founding validator cohort (developers deploy without approval). Circle's Arc release says Arc has not been reviewed or approved by the New York State Department of Financial Services or any other regulator.
+- **Latest version:** Arc public mainnet (2026-09-16).
+- **Primary links:**
+  - https://www.circle.com/blog/nanopayments-powered-by-circle-gateway-is-now-live-on-mainnet (Nanopayments mainnet)
+  - https://developers.circle.com/gateway/nanopayments (Nanopayments docs)
+  - https://www.circle.com/pressroom/circle-launches-arc-mainnet-an-economic-operating-system-for-the-internet (Arc mainnet)
+  - https://www.circle.com/pressroom/circle-announces-founding-validator-cohort-and-major-integrations-for-arc-ahead-of-september-16-mainnet-launch (validators, 2026-08-05)
+
+**Card data.** Nanopayments let a buyer sign EIP-3009 authorizations off-chain at zero gas for amounts from $0.000001 USDC; Gateway batches them and settles in bulk across 11 chains. Circle publishes no fee schedule for it on the docs page. The Arc release (2026-09-16) describes Arc as EVM-compatible with USDC gas, sub-second finality and opt-in privacy still in development, names founding validators including BlackRock, DTCC, Mastercard and Visa, and says the Agent Stack gives developers policy-controlled Agent Wallets plus Nanopayments. It also claims that USDC accounts for 98.8% of agent-driven transaction volume (Circle's own figure, method and date range not given; show as a vendor claim with as-of 2026-09-16). Secondary reports note a ten-billion ARC genesis mint with no public token offering decided (reported).
+
+**Status history.**
+- 2026-04-29: Nanopayments powered by Circle Gateway live on mainnet.
+- 2026-05: Circle Agent Stack launched (month per Circle's 2026-09-16 release).
+- 2026-08-05: Circle names the Arc founding validator cohort and sets 2026-09-16 for mainnet.
+- 2026-09-16: Arc public mainnet.
+
+**Relations to the eight.**
+- x402: complements. Nanopayments run inside the x402 flow with EIP-3009 authorizations; Circle reports Agent Stack payments over the x402 standard settle in USDC.
+- stripe-mpp: no documented relation found in Circle's Arc and Nanopayments pages (the Arc release does not mention MPP or Tempo).
+- visa-tap, mastercard-agent-pay: no protocol relation; Visa and Mastercard are named Arc founding validators (corporate, not protocol).
+- Other four: no documented relation.
+
+**Sources.** src-x402-circle-nanopayments; src-x402-fee-circle; src-orbit-circle-arc-mainnet; src-orbit-circle-arc-validators; src-orbit-circle-arc-theblock.
+
+---
+
+## Coinbase: Payments MCP, Agentic Wallets and Base MCP
+
+- **id:** `coinbase-agent-products`
+- **Category:** machine-payments
+- **What it is:** Coinbase Developer Platform products that give AI agents wallets and payment tools built around x402: Payments MCP (a local MCP server with wallet, onramp and x402 payments), Agentic Wallets (TEE-secured agent wallets with spending controls) and Base MCP (a Base Account connector for chat agents).
+- **Steward:** Coinbase (Coinbase Developer Platform; Base).
+- **Status (as of 2026-10-11):** Live. Payments MCP launched 2025-10-23 (repository `coinbase/payments-mcp` last pushed 2025-10-22, npm `@coinbase/payments-mcp` 1.0.5); Agentic Wallets launched 2026-02-11 (CLI `awal`; Base, Base Sepolia, Solana and Polygon listed in the quickstart); Base MCP launched 2026-05-26 (date from Fortune; reported).
+- **Latest version:** Base MCP (2026-05-26, reported).
+- **Primary links:**
+  - https://www.coinbase.com/developer-platform/discover/launches/payments-mcp (Payments MCP launch)
+  - https://www.coinbase.com/developer-platform/discover/launches/agentic-wallets (Agentic Wallets launch)
+  - https://docs.cdp.coinbase.com/agentic-wallet/cli/quickstart (Agentic Wallet CLI docs)
+  - https://github.com/coinbase/payments-mcp (repository)
+
+**Card data.** Payments MCP runs on the user's desktop and was tested by Coinbase with Claude Desktop, Claude Code, Codex, Gemini and Cherry Studio; it lets an agent create a wallet, fund it through an onramp and pay x402 services, with a Bazaar explorer for discovery. Agentic Wallets keep keys in Trusted Execution Environments, expose skills (authenticate, fund, send, trade, earn), and apply session caps, per-transaction limits and KYT screening; Coinbase frames x402 as the payment protocol. Base MCP, per Fortune, lets Claude or ChatGPT propose transfers and swaps that the user confirms in the Base wallet, without the agent holding keys (OAuth 2.1 sign-in). Coinbase also originated x402 itself (see the x402 page) and runs the facilitator that settles Cloudflare's Monetization Gateway payments.
+
+**Status history.**
+- 2025-10-23: Payments MCP launch post (The Block dates its story 2025-10-22).
+- 2026-02-11: Agentic Wallets launch post.
+- 2026-05-26: Base MCP launch (reported).
+
+**Relations to the eight.**
+- x402: same-steward. Coinbase started x402 and these products pay through it; x402 governance moved to the x402 Foundation (Linux Foundation, operational launch 2026-07-14), so the relation is to the originator rather than the current steward.
+- Other seven: no documented relation.
+
+**Sources.** src-orbit-coinbase-payments-mcp; src-orbit-coinbase-payments-mcp-repo; src-orbit-coinbase-agentic-wallets; src-orbit-coinbase-awal-docs; src-x402-agentic-wallets-coverage; src-orbit-coinbase-base-mcp-fortune.
+
+---
+
+## Cloudflare: Monetization Gateway, Wallets, NET Dollar and Radar data
+
+- **id:** `cloudflare-agent-payments`
+- **Category:** machine-payments
+- **What it is:** Cloudflare's agent payment products: the Monetization Gateway (pay-per-crawl generalized to any resource, settling x402 payments), Cloudflare Wallets (stablecoin wallets for accounts and their agents), and the announced NET Dollar stablecoin; plus the Radar dataset that reports AI crawler traffic.
+- **Steward:** Cloudflare (company). Cloudflare co-founded the x402 Foundation with Coinbase (announced 2025-09-23).
+- **Status (as of 2026-10-11):**
+  - Monetization Gateway: closed beta since 2026-09-30, limited to eligible US-based sellers and buyers; settles USDC on Base through Coinbase's x402 facilitator.
+  - `cloudflare:402`: a separate, credit-backed `batch-settlement` network in the x402 spec, with RFC 9421 signatures and Cloudflare as Merchant of Record, described for pay-per-crawl. It is not the settlement path of the Monetization Gateway beta.
+  - Cloudflare Wallets: announced 2026-08-04; only handle reservation at cloudflare.pay is open; full access (onramp, offramp, Virtual Wallets for agents) is promised "in the coming months"; first version will send, receive and hold stablecoins only.
+  - NET Dollar: announced 2025-09-25 as a planned US dollar-backed stablecoin; no launch found as of 2026-10-11 (launch unverified).
+  - Radar: the Radar API requires an API token (Custom Token with Account > Radar > Read) and its data is published under CC BY-NC 4.0, per Cloudflare's docs.
+- **Latest version:** Monetization Gateway closed beta (2026-09-30).
+- **Primary links:**
+  - https://blog.cloudflare.com/monetization-gateway-beta/ (Monetization Gateway beta)
+  - https://blog.cloudflare.com/wallets/ (Wallets announcement)
+  - https://developers.cloudflare.com/wallets/ (Wallets docs)
+  - https://www.cloudflare.com/press/press-releases/2025/cloudflare-introduces-net-dollar-to-support-a-new-business-model-for-the-ai-driven-internet/ (NET Dollar)
+  - https://developers.cloudflare.com/radar/ (Radar docs and data license)
+
+**Card data.** Cloudflare Wallets have two types: Account Wallets for human account owners and Virtual Wallets that agents use through API keys, with owner-set guardrails (allowance, allow list, maximum transaction size); agents may optionally identify themselves as delegates of the account. The NET Dollar release says Cloudflare contributes to AP2 and x402 and leaves the timing of beta and general availability open. Cloudflare's AI Gateway accepts a `PAYMENT-METHOD: x402` header for paid inference. Cloudflare also verifies Visa TAP and Mastercard Agent Pay signatures at its edge (blog 2025-10-24) and, since 2026-07-01, lists signed agents as a category of Verified Bots; those identity items are covered in `orbit.a.md`.
+
+**Status history.**
+- 2025-09-23: Cloudflare and Coinbase announce the x402 Foundation; Cloudflare proposes a deferred scheme (later `batch-settlement`).
+- 2025-09-25: NET Dollar announced.
+- 2025-10-24: Cloudflare blog on verifying Visa and Mastercard agent signatures.
+- 2026-04-15: x402 PR #1145 merges `batch-settlement` with the `cloudflare:402` binding.
+- 2026-08-04: Cloudflare Wallets announced (Agents Week); handle reservation opens.
+- 2026-09-30: Monetization Gateway closed beta (US only), USDC on Base via the Coinbase facilitator.
+
+**Relations to the eight.**
+- x402: complements. Cloudflare co-founded the x402 Foundation, wrote the `cloudflare:402` binding into the x402 spec, settles Monetization Gateway payments with x402, and Wallets are built to pay with x402.
+- visa-tap: complements. TAP was developed in collaboration with Cloudflare, which verifies TAP signatures at the edge.
+- mastercard-agent-pay: complements. Cloudflare verifies Mastercard agent signatures at the edge (2025-10-24 post).
+- ap2: compatible-with. The NET Dollar release says Cloudflare contributes to AP2; no Cloudflare AP2 product found.
+- Other four: no documented relation.
+
+**Sources.** src-x402-cf-mg-beta; src-x402-cf-changelog; src-x402-cf-blog-foundation; src-x402-scheme-batch-cf; src-x402-gh-pr-1145; src-orbit-cloudflare-wallets-blog; src-orbit-cloudflare-wallets-pr; src-orbit-cloudflare-wallets-docs; src-orbit-cloudflare-net-dollar; src-orbit-cloudflare-radar-api; src-visa-tap-cf-blog; src-cf-verified-bots.
+
+---
