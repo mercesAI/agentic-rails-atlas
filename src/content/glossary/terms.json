@@ -1,5 +1,83 @@
 [
   {
+    "id": "3-d-secure",
+    "term": "3-D Secure",
+    "aliases": [
+      "3DS",
+      "3DS2",
+      "EMV 3DS",
+      "authentication_required"
+    ],
+    "plain": "The EMVCo protocol in which the merchant and the card issuer exchange data so the issuer can authenticate the cardholder in an online payment, sometimes with a challenge. ACP added the `authentication_required` checkout status and a Delegate Authentication API for it, and UCP handles it through an authentication extension with device data and challenge actions. AP2 v0.2 defines no step-up mechanism of its own.",
+    "ste": "3-D Secure is the EMVCo protocol that lets the card issuer authenticate the cardholder in an online payment. ACP and UCP have functions for 3-D Secure.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-gloss-emvco-3ds",
+      "src-openai-acp-rfc-delegate-auth",
+      "src-ucp-payment-auth"
+    ]
+  },
+  {
+    "id": "a2a",
+    "term": "A2A",
+    "aliases": [
+      "Agent2Agent",
+      "Agent2Agent protocol",
+      "A2A protocol"
+    ],
+    "plain": "The Agent2Agent protocol, an open standard hosted at the Linux Foundation that lets independent AI agents discover each other and exchange messages and tasks. IBM's Agent Communication Protocol merged into it in August 2025. AP2, UCP and x402 all define A2A bindings, and A2A is about agent messaging, while AP2 is about payment mandates.",
+    "ste": "A2A is an open protocol for messages and tasks between AI agents. AP2, UCP and x402 can send their data over A2A.",
+    "protocols": [
+      "x402",
+      "ucp",
+      "ap2"
+    ],
+    "sources": [
+      "src-gloss-a2a-spec",
+      "src-ibm-acp-a2a",
+      "src-ucp-a2a",
+      "src-x402-transport-a2a-v2"
+    ]
+  },
+  {
+    "id": "aaif",
+    "term": "AAIF",
+    "aliases": [
+      "Agentic AI Foundation"
+    ],
+    "plain": "The Agentic AI Foundation, formed under the Linux Foundation on 2025-12-09 with founding contributions from Anthropic, Block and OpenAI. Its first projects were the Model Context Protocol, goose and AGENTS.md. None of the eight payment protocols in this atlas is an AAIF project.",
+    "ste": "The Agentic AI Foundation (AAIF) is a Linux Foundation group for open agent standards. MCP is one of its projects.",
+    "protocols": [],
+    "sources": [
+      "src-gloss-aaif-lf"
+    ]
+  },
+  {
+    "id": "agent-card",
+    "term": "Agent card",
+    "aliases": [
+      "Agent Card",
+      "AgentCard",
+      "agent-card.json"
+    ],
+    "plain": "In A2A, the JSON document that describes an agent: its name, endpoint, skills, security schemes and supported extensions, served at `/.well-known/agent-card.json`. Payment extensions such as a2a-x402 are declared in its `capabilities.extensions`, and UCP's A2A binding uses the Agent Card URL as its endpoint. An ERC-8004 registration file can list an A2A endpoint among its services.",
+    "ste": "An agent card is the A2A document that describes an agent and its endpoint. A client reads the agent card before it sends a task.",
+    "protocols": [
+      "erc-8004",
+      "x402",
+      "ucp"
+    ],
+    "sources": [
+      "src-gloss-a2a-spec",
+      "src-x402-transport-a2a-v2",
+      "src-ucp-overview",
+      "src-erc-8004-spec"
+    ]
+  },
+  {
     "id": "agent-id",
     "term": "agentId",
     "aliases": [
@@ -54,6 +132,27 @@
     ]
   },
   {
+    "id": "agentic-token",
+    "term": "Agentic token",
+    "aliases": [
+      "Mastercard Agentic Token",
+      "agentic network token",
+      "Agentic Tokens"
+    ],
+    "plain": "A network token issued for purchases made by an AI agent, but the phrase names different products at different networks. At Mastercard, Agentic Tokens are Agent Pay credentials issued only to registered agents and built on Mastercard's existing tokenization. Stripe and Visa call Visa's agent credentials agentic network tokens, which are a separate product on a separate network.",
+    "ste": "An agentic token is a network token for purchases by an AI agent. Visa and Mastercard use this name for different products.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-launch-2025",
+      "src-mcap-dev-level1",
+      "src-stripe-spt",
+      "src-mc-agentic-tokens"
+    ]
+  },
+  {
     "id": "allowance",
     "term": "Allowance",
     "aliases": [
@@ -67,6 +166,19 @@
     ],
     "sources": [
       "src-openai-acp-schema-delegate-payment-20260417"
+    ]
+  },
+  {
+    "id": "ans",
+    "term": "ANS",
+    "aliases": [
+      "Agent Name Service"
+    ],
+    "plain": "The Agent Name Service, a proposal for a DNS-based directory in which AI agents can be found and checked through certificates. Its first IETF draft, `draft-narajala-ans-00` (2025-05-16), expired and was replaced by an ANS v2 draft. It is an individual draft, not a working group standard.",
+    "ste": "The Agent Name Service (ANS) is a proposal for a directory of AI agents that uses DNS. ANS is an individual IETF draft.",
+    "protocols": [],
+    "sources": [
+      "src-gloss-ans-draft"
     ]
   },
   {
@@ -174,7 +286,6 @@
     "id": "caip-10",
     "term": "CAIP-10",
     "aliases": [
-      "account ID",
       "clientAddress"
     ],
     "plain": "A Chain Agnostic Improvement Proposal that names an account by adding an address to a CAIP-2 chain id, for example `eip155:1:` followed by the address. The ERC-8004 feedback file example writes `clientAddress` in this form. It lets one string say both which chain and which account.",
@@ -192,7 +303,6 @@
     "term": "CAIP-2",
     "aliases": [
       "chain ID",
-      "network",
       "eip155:8453"
     ],
     "plain": "A Chain Agnostic Improvement Proposal that names a blockchain with a `namespace:reference` string, such as `eip155:8453` for Base or a `solana:` genesis hash. x402 V2 uses CAIP-2 strings in its `network` field, where V1 used plain names such as `base-sepolia`. ERC-8004 builds its `agentRegistry` reference on the same pattern.",
@@ -254,6 +364,24 @@
     ],
     "sources": [
       "src-stripe-mpp-intent-charge"
+    ]
+  },
+  {
+    "id": "chargeback",
+    "term": "Chargeback",
+    "aliases": [
+      "card dispute"
+    ],
+    "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes, but no network has published agent-specific chargeback rules.",
+    "ste": "A chargeback is the reversal of a card payment after the cardholder disputes it. The merchant of record handles chargebacks.",
+    "protocols": [
+      "openai-acp",
+      "ap2"
+    ],
+    "sources": [
+      "src-openai-commerce-docs",
+      "src-ap2-faq",
+      "src-worldpay-liability"
     ]
   },
   {
@@ -465,7 +593,6 @@
     "term": "Credential provider",
     "aliases": [
       "Credential Provider",
-      "CP",
       "Payment Credential Provider"
     ],
     "plain": "The party that holds the user's payment credentials, such as a digital wallet or a payment network. In AP2 it checks the Payment Mandate before it returns a credential scoped to that checkout. UCP uses the same idea: the credential provider writes the payment handler specification, and the platform calls it to obtain a token.",
@@ -477,6 +604,29 @@
     "sources": [
       "src-ap2-spec-v02",
       "src-ucp-overview"
+    ]
+  },
+  {
+    "id": "cryptogram",
+    "term": "Cryptogram",
+    "aliases": [
+      "transaction cryptogram",
+      "dynamicData",
+      "DSRP cryptogram",
+      "dCVV"
+    ],
+    "plain": "A one-time value computed for a single card transaction that proves the token was used by its legitimate holder for this payment. It travels with a network token, for example in the UCP `cryptogram` field, the ACP `cryptogram` field or the MPP `card` method's `dynamicData`. Mastercard's Level 3 Agent Pay guide mentions a DSRP cryptogram in its tokenized payload.",
+    "ste": "A cryptogram is a value for one card transaction only. The issuer uses the cryptogram to verify the use of a network token.",
+    "protocols": [
+      "openai-acp",
+      "ucp",
+      "stripe-mpp",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-ucp-schema-payment",
+      "src-stripe-mpp-card-charge",
+      "src-mcap-dev-level3"
     ]
   },
   {
@@ -537,6 +687,45 @@
     ]
   },
   {
+    "id": "dtvc",
+    "term": "DTVC",
+    "aliases": [
+      "Dynamic Token Verification Code",
+      "Dynamic Token Validation Code",
+      "Virtual Card Token"
+    ],
+    "plain": "A one-time code that Mastercard issues with a Virtual Card Token for guest checkouts, where the agent types the token into ordinary card fields. Mastercard validates the code and tells the issuer whether it did so. Mastercard's own pages expand the acronym both as Dynamic Token Validation Code and as Dynamic Token Verification Code.",
+    "ste": "A DTVC is a code for one use that Mastercard gives with a virtual card token. Mastercard validates the DTVC during the payment.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-mvct",
+      "src-mcap-dev-mvct-tests"
+    ]
+  },
+  {
+    "id": "eci",
+    "term": "ECI",
+    "aliases": [
+      "Electronic Commerce Indicator",
+      "eci_value",
+      "eci"
+    ],
+    "plain": "The Electronic Commerce Indicator, a short code sent with a card authorization that says what level of authentication took place, for example after 3-D Secure. UCP's network token credential and ACP's card object carry it as `eci_value`, and the MPP `card` token object carries `eci`. Issuers read it when they decide whether to approve.",
+    "ste": "The ECI is a code that tells the level of authentication for a card payment. The issuer reads the ECI before it approves the payment.",
+    "protocols": [
+      "openai-acp",
+      "ucp",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-ucp-schema-payment",
+      "src-openai-acp-schema-delegate-payment-20260417",
+      "src-stripe-mpp-card-charge"
+    ]
+  },
+  {
     "id": "eip-3009",
     "term": "EIP-3009",
     "aliases": [
@@ -576,11 +765,28 @@
     ]
   },
   {
+    "id": "emvco",
+    "term": "EMVCo",
+    "aliases": [
+      "EMV"
+    ],
+    "plain": "The technical body, formed in 1999 and owned by American Express, Discover, JCB, Mastercard, UnionPay and Visa, that maintains the EMV specifications for chip cards, payment tokenization, 3-D Secure and Secure Remote Commerce. On 2026-09-01 it published a draft framework for card-based agent payments for comment. It lists Know Your Agent and agentic transaction indicators as possible future work.",
+    "ste": "EMVCo is the technical body that writes the EMV specifications for card payments. Six card networks own EMVCo.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-gloss-emvco-about",
+      "src-mcap-emvco-news",
+      "src-mcap-emvco-hub"
+    ]
+  },
+  {
     "id": "erc-1271",
     "term": "ERC-1271",
     "aliases": [
-      "isValidSignature",
-      "contract signature"
+      "isValidSignature"
     ],
     "plain": "The Ethereum standard for checking a signature when the signer is a smart contract wallet rather than a key. The verifier calls `isValidSignature` on the wallet contract and expects the magic value `0x1626ba7e`. ERC-8004 uses it when a contract wallet becomes an `agentWallet`, and the x402 Sign-In-With-X extension uses it to verify smart wallet signatures.",
     "ste": "ERC-1271 is the Ethereum standard for the check of a signature from a smart contract wallet. The wallet contract tells the verifier if the signature is valid.",
@@ -598,7 +804,6 @@
     "id": "erc-721",
     "term": "ERC-721",
     "aliases": [
-      "NFT",
       "non-fungible token",
       "tokenId"
     ],
@@ -650,7 +855,6 @@
     "term": "Extension",
     "aliases": [
       "extensions",
-      "extends",
       "ExtensionDeclaration"
     ],
     "plain": "An optional add-on that changes or adds fields to a base capability or message. UCP extensions name their parent in `extends`, for example the discount, fulfillment and AP2 mandate extensions of checkout, and are dropped when their parent is not shared. ACP has an extensions framework that only the discount extension uses, and x402 carries extensions such as `bazaar` in an `extensions` map.",
@@ -700,6 +904,58 @@
     ],
     "sources": [
       "src-erc-8004-spec"
+    ]
+  },
+  {
+    "id": "fido-alliance",
+    "term": "FIDO Alliance",
+    "aliases": [
+      "FIDO"
+    ],
+    "plain": "The industry association behind the FIDO authentication standards and passkeys. Google donated AP2 to the FIDO Alliance on 2026-04-28, when FIDO also formed a new Agentic Authentication technical working group; its Payments working group already existed from 2025. Card networks use FIDO-based payment passkeys to authenticate cardholders.",
+    "ste": "The FIDO Alliance is the industry group for FIDO authentication standards and passkeys. AP2 is now a FIDO Alliance project.",
+    "protocols": [
+      "visa-tap",
+      "ap2",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-fido-agentic",
+      "src-ap2-google-fido-blog",
+      "src-fido-pwg"
+    ]
+  },
+  {
+    "id": "finality",
+    "term": "Finality",
+    "aliases": [
+      "settlement finality",
+      "deterministic finality"
+    ],
+    "plain": "The point after which a payment can no longer be reversed or reorganized out of the ledger. On Tempo, Simplex BFT consensus gives deterministic finality with blocks about every 600 ms, while on many other chains finality is probabilistic and grows with each block. x402 `lnbtc` lists unmet finality as a failure, and card payments stay reversible through chargebacks long after authorization.",
+    "ste": "Finality is the point after which nobody can reverse a payment. Tempo has deterministic finality.",
+    "protocols": [
+      "x402",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-consensus",
+      "src-x402-scheme-exact-lnbtc"
+    ]
+  },
+  {
+    "id": "genius-act",
+    "term": "GENIUS Act",
+    "aliases": [
+      "Public Law 119-27",
+      "S. 1582"
+    ],
+    "plain": "The first US federal law for payment stablecoins, signed on 2025-07-18 as Public Law 119-27. It takes effect on the earlier of 2027-01-18 or 120 days after final implementing rules, and on 2026-10-11 the final rules were still pending. The Act does not address AI agents as payers.",
+    "ste": "The GENIUS Act is the US law for payment stablecoins. The law does not refer to AI agents.",
+    "protocols": [],
+    "sources": [
+      "src-policy-genius-act",
+      "src-policy-occ-genius-proposal"
     ]
   },
   {
@@ -782,7 +1038,6 @@
     "id": "intent-mpp",
     "term": "Intent (MPP)",
     "aliases": [
-      "intent",
       "payment intent type"
     ],
     "plain": "In MPP, the kind of payment a challenge asks for, given in the `intent` parameter. The drafts define `charge` (one payment), `session` (metered payments over a channel, Tempo only) and `subscription` (recurring payments). It has nothing to do with a Stripe PaymentIntent object or with Mastercard's Verifiable Intent.",
@@ -857,18 +1112,60 @@
     ]
   },
   {
+    "id": "know-your-agent",
+    "term": "Know your agent",
+    "aliases": [
+      "KYA",
+      "Know Your Agent"
+    ],
+    "plain": "A family of practices, by analogy with know your customer, for identifying and vetting the AI agent behind a transaction and the party responsible for it. Mastercard requires agents to register and pass certification before they transact, and on 2026-09-30 named Skyfire as a KYA provider for Agent Pay. EMVCo lists Know Your Agent as possible future work, and no network has published KYA rules as a standard.",
+    "ste": "Know your agent (KYA) is the identification and check of the AI agent in a transaction. Mastercard lets only registered agents make transactions.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-dev-rails",
+      "src-mcap-trust-2026",
+      "src-mcap-emvco-hub"
+    ]
+  },
+  {
     "id": "l402",
     "term": "L402",
     "aliases": [
-      "LSAT"
+      "LSAT",
+      "Lightning HTTP 402",
+      "bLIP-0026"
     ],
-    "plain": "An earlier HTTP 402 payment design on Lightning by Lightning Labs. The original spec paired a macaroon with a BOLT11 invoice; the bLIP-0026 draft, still an open proposal, is token-agnostic and makes macaroons optional. No source says it is the ancestor of x402.",
-    "ste": "A different HTTP 402 payment protocol on the Lightning Network.",
+    "plain": "A Lightning Labs protocol for paid HTTP APIs: the server answers 402 with a `WWW-Authenticate: L402` challenge carrying a token and a BOLT11 invoice, and the client pays and returns the token with the payment preimage. The original Lightning Labs spec fixes the token as a macaroon, while bLIP-0026, rewritten on 2026-02-25, is token agnostic and makes macaroons optional. No source states that x402 descends from L402.",
+    "ste": "L402 is an HTTP payment protocol that uses a Lightning invoice. The client pays the invoice and sends the preimage as proof.",
     "protocols": [
       "x402"
     ],
     "sources": [
+      "src-x402-blip-0026",
       "src-x402-l402-repo",
+      "src-orbit-l402-blip-head"
+    ]
+  },
+  {
+    "id": "lightning-invoice",
+    "term": "Lightning invoice",
+    "aliases": [
+      "BOLT11",
+      "BOLT11 invoice",
+      "payment_hash"
+    ],
+    "plain": "A BOLT11 payment request on the Bitcoin Lightning Network that names an amount and a payment hash, signed by the receiving node. Paying it reveals the preimage of that hash to the payer. The x402 `exact` scheme on Lightning (`lnbtc`), the MPP `lightning` method and L402 all use BOLT11 invoices.",
+    "ste": "A Lightning invoice is a signed payment request on the Lightning Network. When the payer pays the invoice, the payer gets the preimage.",
+    "protocols": [
+      "x402",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-x402-scheme-exact-lnbtc",
+      "src-stripe-mpp-lightning",
       "src-x402-blip-0026"
     ]
   },
@@ -891,6 +1188,21 @@
     ]
   },
   {
+    "id": "macaroon",
+    "term": "Macaroon",
+    "aliases": [
+      "macaroons"
+    ],
+    "plain": "A bearer credential, described in a 2014 NDSS paper, whose holder can add caveats that narrow what it allows, such as expiry or allowed services, without contacting the issuer. The original L402 spec uses a macaroon as its token, and bLIP-0026 keeps macaroons as one optional token format. None of the eight protocols in this atlas uses macaroons.",
+    "ste": "A macaroon is a credential that its holder can restrict with caveats. The original L402 specification uses macaroons.",
+    "protocols": [],
+    "sources": [
+      "src-prehistory-macaroons-ndss",
+      "src-x402-l402-repo",
+      "src-x402-blip-0026"
+    ]
+  },
+  {
     "id": "mandate",
     "term": "Mandate",
     "aliases": [
@@ -906,6 +1218,47 @@
     "sources": [
       "src-ap2-spec-v02",
       "src-ap2-mandate-py-v01"
+    ]
+  },
+  {
+    "id": "mcp",
+    "term": "MCP",
+    "aliases": [
+      "Model Context Protocol"
+    ],
+    "plain": "The Model Context Protocol, an open protocol that connects AI applications to tools and data through JSON-RPC 2.0 messages between hosts, clients and servers. Several payment protocols ride on it: x402 and MPP define MCP transports, ACP and UCP publish OpenRPC bindings, and Visa and Mastercard ship MCP servers. Since December 2025 it is a project of the Agentic AI Foundation.",
+    "ste": "MCP is an open protocol that connects AI applications to tools and data. x402, MPP, ACP and UCP have MCP bindings.",
+    "protocols": [
+      "x402",
+      "openai-acp",
+      "ucp",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-gloss-mcp-spec",
+      "src-x402-transport-mcp-v2",
+      "src-stripe-mpp-mcp-transport",
+      "src-openai-acp-mcp-binding",
+      "src-ucp-mcp-openrpc",
+      "src-visa-mcp-server",
+      "src-gloss-aaif-lf"
+    ]
+  },
+  {
+    "id": "mdes",
+    "term": "MDES",
+    "aliases": [
+      "Mastercard Digital Enablement Service"
+    ],
+    "plain": "Mastercard Digital Enablement Service, Mastercard's tokenization platform for card numbers, used by wallets and other token requestors. The Agent Pay pages read for this atlas say only that Agentic Tokens build on Mastercard's existing tokenization and do not name MDES. Mastercard is retiring its MDES for Merchants product on 2026-12-31 in favor of Secure Card on File.",
+    "ste": "MDES is the Mastercard service that replaces card numbers with tokens. The Agent Pay pages do not use the name MDES.",
+    "protocols": [
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-gloss-mdes",
+      "src-mcap-dev-llms",
+      "src-mcap-launch-2025"
     ]
   },
   {
@@ -946,12 +1299,25 @@
     ]
   },
   {
+    "id": "mica",
+    "term": "MiCA",
+    "aliases": [
+      "Markets in Crypto-Assets Regulation",
+      "Regulation (EU) 2023/1114"
+    ],
+    "plain": "The EU Markets in Crypto-Assets Regulation, Regulation (EU) 2023/1114, which licenses crypto-asset service providers and sets rules for stablecoin issuers. Its transitional period for service providers ended on 2026-07-01, so firms without MiCA authorization had to stop serving EU clients. It matters to agent payments that settle in stablecoins, such as x402 and MPP on chain.",
+    "ste": "MiCA is the EU regulation for crypto-assets and stablecoins. Service providers without a MiCA license must not serve EU clients after 2026-07-01.",
+    "protocols": [],
+    "sources": [
+      "src-policy-eu-mica",
+      "src-policy-amf-mica-end"
+    ]
+  },
+  {
     "id": "minor-units",
     "term": "Minor units",
     "aliases": [
-      "minor unit",
-      "integer amount",
-      "unit_amount"
+      "minor unit"
     ],
     "plain": "Money written as an integer count of the currency's smallest unit, as defined by ISO 4217: cents for USD, no subdivision for JPY. ACP and UCP send all amounts this way, so 1999 in USD means 19.99 dollars. x402 and MPP use a similar idea, called atomic units or base units, for token amounts.",
     "ste": "Minor units show an amount of money as a whole number of the smallest unit of the currency. For example, 1999 minor units in USD is 19.99 dollars.",
@@ -965,11 +1331,46 @@
     ]
   },
   {
+    "id": "nanda",
+    "term": "NANDA",
+    "aliases": [
+      "Networked AI Agents in Decentralized Architecture",
+      "Project NANDA"
+    ],
+    "plain": "Networked AI Agents in Decentralized Architecture, an MIT Media Lab research project on an open internet of agents with registries, discovery and trust between agents. It is research infrastructure, not a payment protocol. ERC-8004 and NANDA both address how agents find and trust each other.",
+    "ste": "NANDA is a research project of the MIT Media Lab. The project studies the discovery of AI agents and trust between agents.",
+    "protocols": [],
+    "sources": [
+      "src-gloss-nanda-mit"
+    ]
+  },
+  {
+    "id": "network-token",
+    "term": "Network token",
+    "aliases": [
+      "payment token",
+      "EMV Payment Token",
+      "network_token"
+    ],
+    "plain": "A substitute card number issued by a card network's token service in place of the real card number (PAN), usable only within limits such as one merchant, device or channel. Each payment with it usually carries a one-time cryptogram. ACP, UCP and the MPP `card` method all have fields for network tokens, and both Visa's and Mastercard's agent programs rely on them.",
+    "ste": "A network token is a number that replaces the real card number. A network token operates only for a specified merchant, device or channel.",
+    "protocols": [
+      "visa-tap",
+      "openai-acp",
+      "ucp",
+      "stripe-mpp",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-gloss-emvco-tokenisation",
+      "src-ucp-schema-payment",
+      "src-openai-acp-schema-delegate-payment-20260417"
+    ]
+  },
+  {
     "id": "nonce",
     "term": "Nonce",
-    "aliases": [
-      "nonce"
-    ],
+    "aliases": [],
     "plain": "A value used once, so that a captured message cannot be accepted a second time. Visa TAP and Mastercard Agent Pay require a `nonce` signature parameter and reuse it inside the signed body objects to bind them to the request. x402 EIP-3009 authorizations and many other signed payloads carry their own random nonce for the same reason.",
     "ste": "A nonce is a value that a party uses one time only. A verifier rejects a message with a nonce that it saw before.",
     "protocols": [
@@ -981,6 +1382,22 @@
       "src-visa-tap-spec",
       "src-mcap-dev-level1",
       "src-x402-scheme-exact-evm"
+    ]
+  },
+  {
+    "id": "oasf",
+    "term": "OASF",
+    "aliases": [
+      "Open Agentic Schema Framework"
+    ],
+    "plain": "The Open Agentic Schema Framework from the AGNTCY project, a schema system for describing an agent's skills, domains and other attributes as structured records. ERC-8004 registration files show an OASF service entry with `skills` and `domains`, and its feedback files can carry OASF context. It describes agents; it does not move payments.",
+    "ste": "OASF is a schema system that describes the skills and attributes of AI agents. ERC-8004 files can contain OASF data.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-gloss-oasf",
+      "src-erc-8004-spec"
     ]
   },
   {
@@ -1037,10 +1454,48 @@
     ]
   },
   {
+    "id": "pan",
+    "term": "PAN",
+    "aliases": [
+      "primary account number",
+      "FPAN",
+      "funding PAN"
+    ],
+    "plain": "The primary account number, the long number printed on a payment card. Tokenization exists to keep it away from merchants and agents, because a stolen PAN can be reused. ACP distinguishes `fpan` from `network_token`, and UCP v2026-08-25 split PAN and network token into separate credential types.",
+    "ste": "The PAN is the primary account number of a payment card. Tokens replace the PAN to keep it safe from merchants and agents.",
+    "protocols": [
+      "openai-acp",
+      "ucp"
+    ],
+    "sources": [
+      "src-gloss-emvco-tokenisation",
+      "src-ucp-schema-payment",
+      "src-openai-acp-schema-delegate-payment-20260417"
+    ]
+  },
+  {
+    "id": "passkey",
+    "term": "Passkey",
+    "aliases": [
+      "passkeys",
+      "WebAuthn credential",
+      "FIDO credential"
+    ],
+    "plain": "A phishing-resistant login credential based on public-key cryptography, created and used through the W3C WebAuthn standard and the FIDO Alliance specifications. The private key stays on the user's device or syncs between the user's devices, and the user unlocks it with a PIN or biometric. Card networks now use passkeys to authenticate cardholders for agent purchases.",
+    "ste": "A passkey is a credential that uses a private key on the device of the user. The user unlocks the passkey with a PIN or a biometric.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-gloss-webauthn-3",
+      "src-visa-vic-dev"
+    ]
+  },
+  {
     "id": "payment-channel",
     "term": "Payment channel",
     "aliases": [
-      "channel",
       "escrow channel",
       "channelId"
     ],
@@ -1080,8 +1535,7 @@
       "paymentFlow",
       "extra.paymentFlow",
       "authorization flow",
-      "upfront",
-      "escrow"
+      "upfront"
     ],
     "plain": "The x402 V2 setting that fixes the order of verify, resource execution and settlement. `authorization` (the default) verifies, runs the resource, then settles. `upfront` settles before the resource runs, and `escrow` settles a deposit first and a final charge after. Servers declare a non-default flow in `extra.paymentFlow`.",
     "ste": "The payment flow sets the order of verification, work and settlement. The default flow is authorization.",
@@ -1142,6 +1596,25 @@
     "sources": [
       "src-ap2-schema-payment",
       "src-ap2-payment-mandate-doc"
+    ]
+  },
+  {
+    "id": "payment-passkey",
+    "term": "Payment passkey",
+    "aliases": [
+      "Visa Payment Passkey",
+      "Mastercard Payment Passkey"
+    ],
+    "plain": "A passkey that a card network uses to authenticate the cardholder for a payment. In Visa Intelligent Commerce, the agent sets up a passkey during card enrollment and later uses it to authenticate the user's Payment Instructions, and Visa says every Agentic Ready transaction in Europe used Visa Payment Passkeys. Mastercard names Mastercard Payment Passkeys in its regional Agent Pay launches.",
+    "ste": "A payment passkey is a passkey that authenticates the cardholder for a payment. Visa and Mastercard use payment passkeys for purchases by agents.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-visa-vic-dev",
+      "src-visa-eu-live",
+      "src-mcap-latam-2026"
     ]
   },
   {
@@ -1218,6 +1691,23 @@
     ]
   },
   {
+    "id": "preimage",
+    "term": "Preimage",
+    "aliases": [
+      "payment preimage"
+    ],
+    "plain": "The secret value whose SHA-256 hash is the payment hash in a Lightning invoice. It is released to the payer only when the payment completes, so presenting it proves that the invoice was paid. In x402 `lnbtc`, the facilitator checks that the hash of the preimage equals the invoice's payment hash and records the hash so it cannot be replayed.",
+    "ste": "A preimage is the secret value that gives the payment hash of a Lightning invoice. The preimage proves that the payer paid the invoice.",
+    "protocols": [
+      "x402",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-x402-scheme-exact-lnbtc",
+      "src-stripe-mpp-lightning"
+    ]
+  },
+  {
     "id": "problem-details",
     "term": "Problem details (RFC 9457)",
     "aliases": [
@@ -1233,6 +1723,55 @@
     "sources": [
       "src-gloss-rfc-9457",
       "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "prompt-injection",
+    "term": "Prompt injection",
+    "aliases": [
+      "indirect prompt injection",
+      "LLM01"
+    ],
+    "plain": "An attack in which text the model reads, such as a product page or a tool result, contains instructions that change what the agent does. In commerce it can push an agent to pick a different merchant or pay a different amount. A 2026 red-team study of AP2 used it, and AP2 answers with deterministic verification of signed mandates outside the model.",
+    "ste": "Prompt injection is an attack that puts instructions into the text that an AI model reads. The instructions can make an agent do an unsafe payment.",
+    "protocols": [
+      "ap2"
+    ],
+    "sources": [
+      "src-gloss-owasp-llm01",
+      "src-ap2-pub-2601-22569",
+      "src-ap2-spec-v02"
+    ]
+  },
+  {
+    "id": "psd3",
+    "term": "PSD3",
+    "aliases": [
+      "Third Payment Services Directive"
+    ],
+    "plain": "The proposed third EU Payment Services Directive, which would replace PSD2 for the licensing and supervision of payment institutions. The Parliament and Council reached a provisional agreement on 2025-11-27, but no Official Journal publication was found by 2026-10-11. The texts contain no provisions specific to AI agents.",
+    "ste": "PSD3 is the proposed EU directive for payment services. It will replace PSD2, but the EU did not publish the final text before 2026-10-11.",
+    "protocols": [],
+    "sources": [
+      "src-policy-arthurcox-psd3",
+      "src-policy-obt-psd3",
+      "src-policy-eu-psd2"
+    ]
+  },
+  {
+    "id": "psr",
+    "term": "PSR",
+    "aliases": [
+      "Payment Services Regulation",
+      "EU Payment Services Regulation"
+    ],
+    "plain": "The proposed EU Payment Services Regulation, agreed together with PSD3, which would put conduct rules such as strong customer authentication, fraud liability and payer protection into a directly applicable regulation. It was not in the Official Journal on 2026-10-11 and is expected to apply some time after publication. In the UK, the similar abbreviation PSRs refers to the Payment Services Regulations 2017, a separate law.",
+    "ste": "The PSR is the proposed EU regulation for the rules of payment services. The PSR and PSD3 are parts of the same EU package.",
+    "protocols": [],
+    "sources": [
+      "src-policy-arthurcox-psd3",
+      "src-policy-obt-psd3",
+      "src-policy-uk-psrs-77"
     ]
   },
   {
@@ -1254,6 +1793,56 @@
     ]
   },
   {
+    "id": "regulation-e",
+    "term": "Regulation E",
+    "aliases": [
+      "Reg E",
+      "12 CFR 1005",
+      "Electronic Fund Transfer Act"
+    ],
+    "plain": "The US rule (12 CFR Part 1005) that implements the Electronic Fund Transfer Act and limits consumer liability for unauthorized debit and other electronic transfers. Under 1005.2(m), a transfer made by someone to whom the consumer gave the access device is not unauthorized until the consumer tells the bank that person may no longer use it. That clause is the central open question for credentials delegated to agents.",
+    "ste": "Regulation E is the US rule for electronic fund transfers from consumer accounts. It tells when a transfer is unauthorized and who pays for the loss.",
+    "protocols": [],
+    "sources": [
+      "src-policy-rege-1005-2"
+    ]
+  },
+  {
+    "id": "regulation-z",
+    "term": "Regulation Z",
+    "aliases": [
+      "Reg Z",
+      "12 CFR 1026",
+      "Truth in Lending"
+    ],
+    "plain": "The US rule (12 CFR Part 1026) that implements the Truth in Lending Act, including credit card protections. Section 1026.12(b) caps a cardholder's liability for unauthorized use at 50 dollars and treats use by someone with actual, implied or apparent authority as authorized. How that authority test applies to an AI agent is not settled.",
+    "ste": "Regulation Z is the US rule for consumer credit and credit cards. It sets a maximum liability of 50 dollars for unauthorized use of a credit card.",
+    "protocols": [],
+    "sources": [
+      "src-policy-regz-1026-12"
+    ]
+  },
+  {
+    "id": "replay-attack",
+    "term": "Replay attack",
+    "aliases": [
+      "replay protection"
+    ],
+    "plain": "An attack in which a valid signed message or payment proof is captured and sent again to get the same effect twice. Protocols defend with single-use nonces, short validity windows and idempotency keys: TAP limits signatures to 8 minutes and requires a nonce, MPP challenges are single use, and x402 Lightning payments record each payment hash. RFC 9421 itself leaves replay protection to the application.",
+    "ste": "In a replay attack, an attacker sends a valid signed message again. Nonces, short time limits and single-use challenges stop replay attacks.",
+    "protocols": [
+      "x402",
+      "visa-tap",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-rfc9421",
+      "src-visa-tap-spec",
+      "src-stripe-mpp-core-01",
+      "src-x402-scheme-exact-lnbtc"
+    ]
+  },
+  {
     "id": "reputation-registry",
     "term": "Reputation Registry",
     "aliases": [
@@ -1269,6 +1858,21 @@
     "sources": [
       "src-erc-8004-spec",
       "src-erc-8004-reputation-sol"
+    ]
+  },
+  {
+    "id": "reputation-system",
+    "term": "Reputation system",
+    "aliases": [],
+    "plain": "A system that collects ratings or outcomes about a party and turns them into a signal others can use to decide whether to trust it. ERC-8004 provides only the raw on-chain feedback records and a plain average over chosen reviewers, and leaves scoring to off-chain aggregators. Feedback values in ERC-8004 depend on their tags, so they are not directly comparable.",
+    "ste": "A reputation system collects feedback about a party and gives a signal of trust. ERC-8004 keeps the feedback, and other services calculate the scores.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-reputation-sol",
+      "src-erc-8004-bp-reputation"
     ]
   },
   {
@@ -1292,8 +1896,7 @@
     "term": "RFC 9421",
     "aliases": [
       "HTTP Message Signatures",
-      "Signature-Input",
-      "Signature"
+      "Signature-Input"
     ],
     "plain": "The IETF standard (February 2024) for signing parts of an HTTP message. The signer lists what it covers and its parameters in `Signature-Input` and puts the result in `Signature`, both as structured-field dictionaries. Visa TAP, Mastercard Agent Pay, Web Bot Auth and the `cloudflare:402` x402 variant all build agent identity on it.",
     "ste": "RFC 9421 is the IETF standard for signatures on HTTP messages. Visa TAP and Mastercard Agent Pay use it to identify agents.",
@@ -1312,8 +1915,7 @@
     "id": "scheme",
     "term": "Scheme",
     "aliases": [
-      "x402 scheme",
-      "payment scheme"
+      "x402 scheme"
     ],
     "plain": "In x402, a scheme is a named rule set for how money moves, such as `exact`, `upto`, `batch-settlement` or `auth-capture`. The `scheme` field in each payment requirement picks one, and a separate per-network document says how that scheme works on EVM, Solana, Lightning or another network. Schemes keep the core protocol independent of any single chain.",
     "ste": "In x402, a scheme is a set of rules for the transfer of money. Each scheme has one specification for each supported network.",
@@ -1472,6 +2074,47 @@
     ]
   },
   {
+    "id": "stablecoin",
+    "term": "Stablecoin",
+    "aliases": [
+      "payment stablecoin",
+      "stablecoins"
+    ],
+    "plain": "A blockchain token designed to keep a fixed value against a currency, usually the US dollar, backed by reserves. x402 most often settles in USDC, Tempo charges its fees in USD stablecoins, and Mastercard's Agent Pay for Machines names stablecoins among its settlement rails. In the US the GENIUS Act regulates payment stablecoins, and in the EU MiCA covers them.",
+    "ste": "A stablecoin is a token that keeps a fixed value against a currency, for example the US dollar. x402 and MPP can settle payments in stablecoins.",
+    "protocols": [
+      "x402",
+      "stripe-mpp",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-gloss-usdc-circle",
+      "src-x402-docs-networks",
+      "src-stripe-mpp-tempo-fees",
+      "src-mcap-ap4m-2026",
+      "src-policy-genius-act"
+    ]
+  },
+  {
+    "id": "strong-customer-authentication",
+    "term": "Strong customer authentication",
+    "aliases": [
+      "SCA",
+      "dynamic linking"
+    ],
+    "plain": "The EU requirement, from PSD2 and its technical standard Delegated Regulation 2018/389, that most electronic payments authenticate the payer with two of three factors: knowledge, possession and inherence. For remote payments the authentication code must also be dynamically linked to the amount and payee. Visa says its European agent transactions used payment passkeys to support SCA, which sits in VIC rather than in TAP.",
+    "ste": "Strong customer authentication (SCA) is an EU rule for payments. The payer must show two of three factors: knowledge, possession and inherence.",
+    "protocols": [
+      "visa-tap",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-policy-eu-psd2",
+      "src-policy-eu-rts-sca",
+      "src-visa-eu-live"
+    ]
+  },
+  {
     "id": "subscription",
     "term": "Subscription",
     "aliases": [
@@ -1488,10 +2131,27 @@
     ]
   },
   {
+    "id": "sybil-attack",
+    "term": "Sybil attack",
+    "aliases": [
+      "Sybil",
+      "fake reviewers"
+    ],
+    "plain": "An attack in which one party creates many fake identities to gain influence, named in Douceur's 2002 paper. The ERC-8004 spec says Sybil feedback is possible and expects readers to filter by trusted reviewers, which is why `getSummary` requires a list of client addresses. A 2026 empirical study found coordinated Sybil behavior among most ERC-8004 reviewers on the chains it measured.",
+    "ste": "In a Sybil attack, one party makes many false identities. In ERC-8004, false identities can give false feedback to agents.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-pub-douceur-2002",
+      "src-erc-8004-spec",
+      "src-pub-2606-26028"
+    ]
+  },
+  {
     "id": "tag",
     "term": "Tag",
     "aliases": [
-      "tag",
       "agent-browser-auth",
       "agent-payer-auth",
       "web-bot-auth"
@@ -1506,6 +2166,23 @@
       "src-visa-tap-spec",
       "src-mcap-dev-level1",
       "src-wba-draft"
+    ]
+  },
+  {
+    "id": "tee-attestation",
+    "term": "TEE attestation",
+    "aliases": [
+      "trusted execution environment",
+      "tee-attestation"
+    ],
+    "plain": "A signed statement from a trusted execution environment (secure hardware) that a specific piece of code ran inside it. ERC-8004 lists `tee-attestation` as a `supportedTrust` value and names TEE attestation as a validator method, and its contracts README says validation is still under discussion with the TEE community. No TEE attestation format is specified in the ERC.",
+    "ste": "A TEE attestation is a signed statement that specified code ran in secure hardware. ERC-8004 names TEE attestation as one method of trust.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec",
+      "src-erc-8004-contracts-readme"
     ]
   },
   {
@@ -1546,9 +2223,7 @@
   {
     "id": "trusted-surface",
     "term": "Trusted Surface",
-    "aliases": [
-      "TS"
-    ],
+    "aliases": [],
     "plain": "In AP2 v0.2, the user interface that shows the user what they approve and collects consent before a user-signed mandate is created. It must be non-agentic: deterministic code such as part of the agent app, a wallet or issuer app, or a browser or mobile platform. It can also collect risk signals that go into `risk_data`.",
     "ste": "A Trusted Surface is the user interface that gets the consent of the user for a mandate. A Trusted Surface must not be an agent.",
     "protocols": [
@@ -1589,6 +2264,24 @@
     ],
     "sources": [
       "src-x402-scheme-upto-evm"
+    ]
+  },
+  {
+    "id": "usdc",
+    "term": "USDC",
+    "aliases": [
+      "USD Coin"
+    ],
+    "plain": "A US dollar stablecoin issued by Circle, which Circle describes as fully reserved and redeemable 1:1 for dollars. Its EVM contracts implement EIP-3009 `transferWithAuthorization`, which is why it is the default token of the x402 `exact` scheme, for example on Base. MPP has a separate `usdc` payment method drafted by Circle.",
+    "ste": "USDC is a US dollar stablecoin from Circle. USDC supports EIP-3009, so x402 uses USDC by default on EVM networks.",
+    "protocols": [
+      "x402",
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-gloss-usdc-circle",
+      "src-x402-docs-networks",
+      "src-stripe-mpp-usdc"
     ]
   },
   {
@@ -1650,7 +2343,6 @@
     "id": "verifiable-credential",
     "term": "Verifiable credential",
     "aliases": [
-      "VC",
       "verifiable digital credential",
       "VDC"
     ],
@@ -1663,6 +2355,25 @@
     "sources": [
       "src-gloss-vc-2",
       "src-ap2-spec-v02"
+    ]
+  },
+  {
+    "id": "verifiable-intent",
+    "term": "Verifiable Intent",
+    "aliases": [
+      "VI",
+      "verifiable-intent"
+    ],
+    "plain": "An open specification from Mastercard (version 0.1-draft, 2026-02-18) for proving what a user authorized an agent to buy, as a chain of SD-JWT credentials. An issuer signs layer 1 about the user's card and key, the user signs layer 2 with a mandate, and in autonomous mode the agent signs layer 3 payment and checkout credentials for the network and the merchant. Its mandate names mirror AP2 v0.2, and Mastercard says it will embed VI in Agent Pay's intent APIs.",
+    "ste": "Verifiable Intent is a Mastercard specification that proves the purchases that a user lets an agent make. It uses a chain of SD-JWT credentials.",
+    "protocols": [
+      "ap2",
+      "mastercard-agent-pay"
+    ],
+    "sources": [
+      "src-mcap-vi-spec",
+      "src-mcap-vi-format",
+      "src-mcap-vi-changelog"
     ]
   },
   {
@@ -1766,6 +2477,21 @@
     "sources": [
       "src-x402-spec-v2",
       "src-x402-spec-v1"
+    ]
+  },
+  {
+    "id": "zkml",
+    "term": "zkML",
+    "aliases": [
+      "zero-knowledge machine learning"
+    ],
+    "plain": "Zero-knowledge machine learning: a proof that a given model produced a given output, which can be checked without rerunning the model. The ERC-8004 spec names zkML proofs as one possible method for validators in its Validation Registry. The spec does not define a zkML format, and the registry has no official deployment.",
+    "ste": "zkML is a proof that a model gave a specified output. ERC-8004 names zkML as one possible method for validators.",
+    "protocols": [
+      "erc-8004"
+    ],
+    "sources": [
+      "src-erc-8004-spec"
     ]
   }
 ]
