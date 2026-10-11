@@ -1,0 +1,342 @@
+{
+  "protocol": "stripe-mpp",
+  "personas": [
+    {
+      "persona": "api-seller",
+      "role": "Runs the resource server: prices routes, issues bound challenges, verifies credentials and returns receipts, usually through mppx middleware.",
+      "goals": [
+        "Charge per call or per token without accounts or invoices",
+        "Accept stablecoins and cards from the same 402 response",
+        "Get paid before any side effect runs"
+      ],
+      "pains": [
+        "Managing the HMAC secret that every challenge id depends on",
+        "Choosing between charge and a session for streaming endpoints",
+        "Keeping up with SDK advisories (four mppx advisories in 2026)"
+      ],
+      "implements": [
+        "mppx server with one or more methods and a secretKey",
+        "Cache-Control no-store on 402 and private on receipts",
+        "Atomic consumption of challenge ids"
+      ],
+      "mustTrust": [
+        "The rail to settle what it confirms",
+        "Its SDK version to enforce replay and close rules",
+        "Discovery crawlers to list it accurately (advisory only)"
+      ],
+      "questions": [
+        "Which methods do my buyers actually hold?",
+        "Do I sponsor Tempo fees with feePayer or hostedFeePayer?",
+        "How do I refund a stablecoin charge if delivery fails?"
+      ],
+      "firstSteps": [
+        "Run the mppx server quick start on the Moderato testnet",
+        "Add a second method (stripe) to the same route and read both challenges",
+        "Pin mppx to 0.8.2 or later and subscribe to the repository advisories"
+      ],
+      "metrics": [
+        "Paid requests per route",
+        "Share of 402s that convert to 200",
+        "Fee payer spend per day"
+      ],
+      "story": "Priya sells a weather API by the call. Her route answers unpaid requests with a Tempo challenge and a Stripe challenge, both bound with the HMAC secret she rotated last week. Overnight an agent fleet pays 40,000 times at one cent each; the receipts carry transaction hashes she reconciles each morning. A partner wants to stream forecasts per minute, so she adds a session route and caps the suggested deposit. When an advisory about fee payer draining appears, she upgrades mppx, checks her fee wallet balance, and adds a daily ceiling. Her one open worry: refunds on stablecoin charges are her own policy.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-mppx-repo",
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-tempo-session"
+      ]
+    },
+    {
+      "persona": "agent-dev",
+      "role": "Builds the client or agent that receives challenges, decides whether to pay and produces credentials.",
+      "goals": [
+        "Pay any MPP server on the first request",
+        "Keep keys and limits out of the model's reach",
+        "Support both MPP and x402 without two code paths"
+      ],
+      "pains": [
+        "Bearer credentials that anyone can spend if they leak",
+        "Channels that never expire unless the client closes them",
+        "Method support that differs by SDK"
+      ],
+      "implements": [
+        "mppx client wrapping fetch, with Accept-Payment preferences",
+        "Checks on amount, recipient, currency and expires before signing",
+        "Session bookkeeping: open, voucher, close, forced-close fallback"
+      ],
+      "mustTrust": [
+        "The server to deliver after payment",
+        "The rail to cap loss (deposit, SPT limits)",
+        "Its own policy hook to reject bad challenges"
+      ],
+      "questions": [
+        "How much can this agent lose in the worst case?",
+        "Which channels are still open and how do I close them?",
+        "What happens if the server never answers my close?"
+      ],
+      "firstSteps": [
+        "Run the mppx client quick start against the mpp.dev paid ping on testnet",
+        "Add a policy extension that rejects unknown recipients",
+        "List and close retained sessions with the mppx CLI"
+      ],
+      "metrics": [
+        "Spend per task",
+        "Open channel count and locked deposit",
+        "Rejected challenges by reason"
+      ],
+      "story": "Marco ships a research agent that buys search results and model tokens. He wires mppx into fetch and adds a policy hook that refuses any challenge whose recipient is not on an allowlist or whose amount exceeds two cents. For a model provider the agent opens a Tempo session with a five dollar deposit, so the worst case is five dollars. At the end of each task his code sends a close; a nightly job lists retained channels and force-closes any the server ignored, waiting the full grace period. He never logs credentials, because whoever copies one can spend it.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-mppx-repo"
+      ]
+    },
+    {
+      "persona": "psp",
+      "role": "Settles MPP charges on card and fiat rails: Stripe for the stripe method, or a Client or Server Enabler for the Visa card method.",
+      "goals": [
+        "Bring existing card and wallet acceptance to machine clients",
+        "Keep raw card data out of client and server scope",
+        "Reuse fraud, tax, refunds and reporting"
+      ],
+      "pains": [
+        "Replayed SPT credentials (CVE-2026-34210)",
+        "Mapping one challenge to one PaymentIntent or authorization",
+        "No published SPT pricing"
+      ],
+      "implements": [
+        "PaymentIntent creation with confirm true and an idempotency key from challenge id and SPT",
+        "JWE decryption and network authorization as Server Enabler",
+        "Network token and cryptogram provisioning as Client Enabler"
+      ],
+      "mustTrust": [
+        "The merchant server to validate the challenge before charging",
+        "The card network for authorization and dispute rules",
+        "The Client Enabler key handling"
+      ],
+      "questions": [
+        "Is this payment card-not-present with agent involvement, and how do disputes work?",
+        "What metadata ties a PaymentIntent to its challenge?",
+        "Do stablecoin charges carry a percentage fee?"
+      ],
+      "firstSteps": [
+        "Read draft-stripe-charge-00 and draft-card-charge-00",
+        "Run the mppx stripe example in test mode",
+        "Map PaymentIntent and authorization references into receipts"
+      ],
+      "metrics": [
+        "Authorization rate on agent traffic",
+        "Dispute rate by method",
+        "Duplicate charge incidents"
+      ],
+      "story": "Lena works on acceptance at a payment processor that already serves Visa merchants. Visa's card method lets her team act as a Server Enabler: merchant servers forward an encrypted token they cannot read, her service decrypts it and asks the network for authorization. Card economics and chargebacks stay as they are. On the first week a merchant's buggy client sends the same credential twice; her idempotency checks return the first authorization instead of charging again. She reports authorization rates for agent traffic separately, because nobody yet knows whether it behaves like ordinary card-not-present volume.",
+      "sources": [
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-ghsa-34210",
+        "src-stripe-mpp-stripe-docs"
+      ]
+    },
+    {
+      "persona": "autonomous-agent",
+      "role": "The software that pays: reads challenges, chooses a method within its limits, signs, retries and keeps receipts.",
+      "goals": [
+        "Finish the task within budget",
+        "Prefer the cheapest acceptable method",
+        "Keep proof of every payment"
+      ],
+      "pains": [
+        "Challenges that look valid but name the wrong recipient",
+        "Descriptions that can say anything",
+        "Streams that cut off mid-session"
+      ],
+      "implements": [
+        "Accept-Payment preference ordering",
+        "Pre-payment checks on amount, currency, recipient and expires",
+        "Receipt storage with reference and timestamp"
+      ],
+      "mustTrust": [
+        "Its operator's policy and key custody",
+        "The server's challenge binding",
+        "The rail's finality"
+      ],
+      "questions": [
+        "Is this price within my budget for this task?",
+        "Is the challenge still valid?",
+        "Did I get a receipt for every paid response?"
+      ],
+      "firstSteps": [
+        "Read the challenge and decode request",
+        "Check amount, recipient, currency and expires against policy",
+        "Pay through the preferred method and store the receipt"
+      ],
+      "metrics": [
+        "Cost per completed task",
+        "Receipts per paid response",
+        "Rejected challenges"
+      ],
+      "story": "An overnight procurement agent needs ten datasets. For each it requests the file, receives a 402 with two challenges and decodes both. One is a Tempo charge for 0.40 USD to an address its operator approved; the other is a Stripe charge it is not configured to use, so it ignores it. It checks that the challenge expires in four minutes, signs and retries, and stores the receipt hash in its task log. One server asks for 40 USD with a reassuring description. The agent ignores the description, compares the amount with its budget, refuses, and flags the server for its operator.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-charge"
+      ]
+    },
+    {
+      "persona": "controls-builder",
+      "role": "Builds an independent controls layer (budgets, allowlists, monitoring, kill switches) around MPP clients and servers.",
+      "goals": [
+        "Enforce budgets the protocol does not have",
+        "See every payment an agent makes",
+        "Stop spending quickly when something goes wrong"
+      ],
+      "pains": [
+        "No protocol kill switch or revocation message",
+        "Channels without expiry",
+        "Identity only as an SDK add-on"
+      ],
+      "implements": [
+        "Policy extensions that run before mppx signs",
+        "Channel inventory and forced-close automation",
+        "Receipt and MPPscan monitoring"
+      ],
+      "mustTrust": [
+        "The SDK hook order",
+        "Public chain data for reconciliation",
+        "Rail-level limits such as SPT max_amount"
+      ],
+      "questions": [
+        "Where can I intercept a payment before it is signed?",
+        "How do I prove a payment to an auditor?",
+        "How long can a channel stay open unseen?"
+      ],
+      "firstSteps": [
+        "Add an mppx extension that enforces a per-task budget",
+        "Export receipts and channel states to a ledger",
+        "Alert on open channels older than a set age"
+      ],
+      "metrics": [
+        "Blocked versus allowed payments",
+        "Open channel value at risk",
+        "Time to stop an agent"
+      ],
+      "story": "Sam runs the controls team for a company with 300 agents. MPP gives him clean hooks: every payment starts with a decoded challenge, and mppx runs his extension before it signs. His extension checks a per-agent budget, a recipient allowlist and a maximum price per unit for sessions. A dashboard joins stored receipts with on-chain settlements. The gap he cannot close in policy is time: channels never expire, so his nightly job force-closes channels idle for a day. When an agent misbehaves, he revokes its key at the wallet, because the protocol has no stop button.",
+      "sources": [
+        "src-stripe-mpp-mppx-repo",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-core-01"
+      ]
+    }
+  ],
+  "responsibilities": {
+    "columns": [
+      "api-seller",
+      "agent-dev",
+      "psp",
+      "autonomous-agent",
+      "controls-builder"
+    ],
+    "rows": [
+      {
+        "step": "Issue the bound challenge (402 with WWW-Authenticate: Payment)",
+        "marks": {
+          "api-seller": "owns",
+          "agent-dev": "relies-on",
+          "psp": "",
+          "autonomous-agent": "relies-on",
+          "controls-builder": "observes"
+        }
+      },
+      {
+        "step": "State preferences with Accept-Payment",
+        "marks": {
+          "api-seller": "",
+          "agent-dev": "implements",
+          "psp": "",
+          "autonomous-agent": "owns",
+          "controls-builder": ""
+        }
+      },
+      {
+        "step": "Check amount, recipient, currency and expires",
+        "marks": {
+          "api-seller": "",
+          "agent-dev": "implements",
+          "psp": "",
+          "autonomous-agent": "owns",
+          "controls-builder": "verifies"
+        }
+      },
+      {
+        "step": "Enforce budgets and allowlists",
+        "marks": {
+          "api-seller": "",
+          "agent-dev": "implements",
+          "psp": "",
+          "autonomous-agent": "relies-on",
+          "controls-builder": "owns"
+        }
+      },
+      {
+        "step": "Pay through the method (sign, mint SPT, get card token)",
+        "marks": {
+          "api-seller": "",
+          "agent-dev": "implements",
+          "psp": "implements",
+          "autonomous-agent": "owns",
+          "controls-builder": ""
+        }
+      },
+      {
+        "step": "Verify binding, expiry and proof",
+        "marks": {
+          "api-seller": "owns",
+          "agent-dev": "",
+          "psp": "verifies",
+          "autonomous-agent": "",
+          "controls-builder": ""
+        }
+      },
+      {
+        "step": "Settle on the rail",
+        "marks": {
+          "api-seller": "implements",
+          "agent-dev": "",
+          "psp": "owns",
+          "autonomous-agent": "",
+          "controls-builder": "observes"
+        }
+      },
+      {
+        "step": "Return and store the Payment-Receipt",
+        "marks": {
+          "api-seller": "owns",
+          "agent-dev": "implements",
+          "psp": "",
+          "autonomous-agent": "relies-on",
+          "controls-builder": "verifies"
+        }
+      },
+      {
+        "step": "Close or force-close session channels",
+        "marks": {
+          "api-seller": "implements",
+          "agent-dev": "implements",
+          "psp": "",
+          "autonomous-agent": "owns",
+          "controls-builder": "verifies"
+        }
+      },
+      {
+        "step": "Handle disputes and refunds",
+        "marks": {
+          "api-seller": "owns",
+          "agent-dev": "",
+          "psp": "owns",
+          "autonomous-agent": "",
+          "controls-builder": "observes"
+        }
+      }
+    ]
+  }
+}

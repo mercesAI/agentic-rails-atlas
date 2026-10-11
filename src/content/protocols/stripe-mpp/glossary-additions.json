@@ -1,0 +1,226 @@
+[
+  {
+    "id": "payment-authorization",
+    "term": "Payment-Authorization",
+    "aliases": [
+      "Payment-Authorization header",
+      "header parameter"
+    ],
+    "plain": "An HTTP request header that carries an MPP credential when the challenge asked for it, so the Authorization header can keep a bearer token.",
+    "ste": "A header that holds the payment credential. The server asks for it when Authorization holds a different token.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-gh-pr-328"
+    ]
+  },
+  {
+    "id": "accept-payment",
+    "term": "Accept-Payment",
+    "aliases": [
+      "Accept-Payment header"
+    ],
+    "plain": "A request header in which an MPP client lists the method and intent pairs it supports, with optional q weights. The server's challenge stays authoritative.",
+    "ste": "A header that lists the payment methods and intents that the client can use.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-gh-pr-231"
+    ]
+  },
+  {
+    "id": "challenge-binding",
+    "term": "Challenge binding",
+    "aliases": [
+      "HMAC binding",
+      "challenge id binding"
+    ],
+    "plain": "Tying an MPP challenge id to all its parameters, usually with an HMAC-SHA256 over them, so a client cannot change what it pays for and a server can verify statelessly.",
+    "ste": "The server makes the challenge identifier from the challenge values with a secret key. Thus, nobody can change the values.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "jcs",
+    "term": "JCS",
+    "aliases": [
+      "JSON Canonicalization Scheme",
+      "RFC 8785"
+    ],
+    "plain": "A rule set (RFC 8785) that serializes JSON the same way everywhere. MPP encodes the request parameter with it so binding inputs match across implementations.",
+    "ste": "A standard that writes JSON data in one fixed form.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01"
+    ]
+  },
+  {
+    "id": "payment-method-mpp",
+    "term": "Payment method (MPP)",
+    "aliases": [
+      "method id",
+      "MPP method"
+    ],
+    "plain": "A rail-specific MPP specification, named by a lowercase id such as tempo, stripe or card, that defines the request and payload fields and how to verify and settle.",
+    "ste": "A specification for one payment rail. It tells the client how to pay and the server how to verify.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-core-01",
+      "src-stripe-mpp-specs-repo"
+    ]
+  },
+  {
+    "id": "client-enabler",
+    "term": "Client Enabler",
+    "aliases": [
+      "token service provider (card method)"
+    ],
+    "plain": "In the Visa-authored MPP card method, the party that provisions a network token and cryptogram for the client and encrypts them for the server.",
+    "ste": "The party that gets a card token for the client and encrypts it for the server.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-card-charge"
+    ]
+  },
+  {
+    "id": "server-enabler",
+    "term": "Server Enabler",
+    "aliases": [
+      "acquirer (card method)"
+    ],
+    "plain": "In the MPP card method, the PSP or acquirer that decrypts the token for the merchant server and requests authorization from the card network.",
+    "ste": "The payment provider that decrypts the card token and asks the card network for approval.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-card-charge"
+    ]
+  },
+  {
+    "id": "fee-payer",
+    "term": "Fee payer",
+    "aliases": [
+      "feePayer",
+      "hostedFeePayer"
+    ],
+    "plain": "The party that pays network fees for a transaction. In MPP Tempo methods the server can co-sign as fee payer; Stripe's hostedFeePayer makes Stripe pay.",
+    "ste": "The party that pays the network fee for a transaction.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-charge",
+      "src-stripe-mpp-stripe-docs"
+    ]
+  },
+  {
+    "id": "cooperative-close",
+    "term": "Cooperative close",
+    "aliases": [
+      "action close"
+    ],
+    "plain": "Ending an MPP session channel by agreement: the client sends a final voucher and the server closes on chain, capturing only what was spent and refunding the rest.",
+    "ste": "The server closes the channel with the last voucher. The server keeps the used amount and returns the remainder.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session"
+    ]
+  },
+  {
+    "id": "forced-close",
+    "term": "Forced close",
+    "aliases": [
+      "requestClose",
+      "withdraw"
+    ],
+    "plain": "Ending an MPP session channel without the server: the client calls requestClose, waits a grace period of at least 15 minutes, then withdraws what is left.",
+    "ste": "The client closes the channel without the server. The client waits 15 minutes or more, then takes back the money.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session"
+    ]
+  },
+  {
+    "id": "business-network-profile",
+    "term": "Business Network Profile",
+    "aliases": [
+      "networkId",
+      "profile_"
+    ],
+    "plain": "The Stripe merchant identity that the stripe MPP method puts in methodDetails.networkId so an SPT can be scoped to that seller.",
+    "ste": "The Stripe identifier of the seller. The payment token works only for this seller.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-stripe-charge"
+    ]
+  },
+  {
+    "id": "mppscan",
+    "term": "MPPscan",
+    "aliases": [
+      "MPP explorer"
+    ],
+    "plain": "A public explorer by Merit Systems that indexes MPP servers, agents, transactions and volume, mostly on Tempo.",
+    "ste": "A public web site that shows MPP payments and servers.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-mppscan"
+    ]
+  },
+  {
+    "id": "tempo-access-key",
+    "term": "Access key (Tempo)",
+    "aliases": [
+      "accessKey",
+      "keyAuthorization"
+    ],
+    "plain": "A Tempo key authorization with limits that the payer signs once so a server can collect recurring MPP subscription charges.",
+    "ste": "A key with limits that the payer approves. The server uses it to collect each subscription payment.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-subscription"
+    ]
+  },
+  {
+    "id": "channel-reserve-precompile",
+    "term": "TIP-20 channel reserve",
+    "aliases": [
+      "session v2",
+      "TIP-1034"
+    ],
+    "plain": "The Tempo precompile that holds session deposits in MPP session protocol v2, replacing the v1 escrow contract.",
+    "ste": "The built-in Tempo function that holds the deposit for a session, version 2.",
+    "protocols": [
+      "stripe-mpp"
+    ],
+    "sources": [
+      "src-stripe-mpp-tempo-session",
+      "src-stripe-mpp-blog-sessions"
+    ]
+  }
+]

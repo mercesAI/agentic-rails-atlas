@@ -1,0 +1,66 @@
+[
+  {
+    "from": "stripe-mpp",
+    "to": "x402",
+    "type": "compatible-with",
+    "note": "MPP maps x402 headers onto Payment authentication and x402 exact onto charge; upto and batch-settlement are comparable to sessions. mppx 0.9.0 and later serves both on one route; the mppx client prefers the Payment challenge.",
+    "sources": [
+      "src-stripe-mpp-vs-x402",
+      "src-stripe-mpp-mppx-changelog",
+      "src-stripe-mpp-cloudflare"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "x402",
+    "type": "competes-with",
+    "note": "Both are HTTP 402 payment protocols; MPP's comparison page, written by its authors, recommends MPP by default. Stripe co-authors MPP and sits on the x402 TSC.",
+    "sources": [
+      "src-stripe-mpp-vs-x402",
+      "src-stripe-mpp-x402-tsc"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "openai-acp",
+    "type": "complements",
+    "note": "No protocol cross-reference; the shared component is Stripe Shared Payment Tokens, which the stripe method carries and Stripe also uses for agentic checkout.",
+    "sources": [
+      "src-stripe-mpp-stripe-charge",
+      "src-stripe-mpp-stripe-blog",
+      "src-stripe-mpp-ucp-repo"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "visa-tap",
+    "type": "embeds",
+    "note": "The Visa-authored card method lets a client add TAP signature headers (in the spec since 2026-03-18); Visa says the card spec and SDK are built on VIC and TAP; mppx adds TAP request attestation.",
+    "sources": [
+      "src-stripe-mpp-card-charge",
+      "src-stripe-mpp-card-history",
+      "src-stripe-mpp-visa-card",
+      "src-stripe-mpp-blog-identity"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "mastercard-agent-pay",
+    "type": "compatible-with",
+    "note": "Tempo's statement only: in Mastercard's 2026-06-10 AP4M release Tempo says it is working with Mastercard on MPP compatibility. Mastercard makes no MPP claim and has no MPP method spec.",
+    "sources": [
+      "src-mcap-ap4m-2026",
+      "src-stripe-mpp-specs-repo"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "ap2",
+    "type": "complements",
+    "note": "Complementary in principle (AP2 carries user authorization evidence, MPP settles payment) but no specification binds them and neither repository mentions the other. In AP2, MPP means Merchant Payment Processor.",
+    "sources": [
+      "src-stripe-mpp-ap2-glossary",
+      "src-stripe-mpp-ucp-repo"
+    ]
+  }
+]
