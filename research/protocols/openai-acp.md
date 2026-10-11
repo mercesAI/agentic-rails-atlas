@@ -241,11 +241,129 @@ Handler names seen in the repository: `dev.acp.tokenized.card`, the seller-backe
 
 ## Message flows step by step
 
+Spec references are to files at commit 7fdd78d. "RFC-AC" = `rfcs/rfc.agentic_checkout.md`, "RFC-DP" = `rfcs/rfc.delegate_payment.md`.
+
+### Flow 1: Discovery (2026-04-17, optional)
+
+1. Agent knows only the seller's domain and sends `GET https://<merchant>/.well-known/acp.json` with no authentication (`rfc.discovery.md` section 3; RFC 8615 well-known URI) [src-openai-acp-rfc-discovery].
+2. Seller returns `DiscoveryResponse` (`protocol.name` `acp`, `protocol.version`, `protocol.supported_versions`, `api_base_url`, `transports` `rest` or `mcp`, `capabilities.services`). Responses SHOULD carry `Cache-Control: public, max-age=3600` at least [src-openai-acp-rfc-discovery] [src-openai-acp-schema-checkout-20260417].
+3. Agent picks a mutually supported `API-Version` and transport. Session-specific data (payment handlers) is not in the discovery document; it comes back on session creation [src-openai-acp-changelog-20260417].
+
+### Flow 2: Checkout happy path (REST, 2026-04-17)
+
+1. **Create.** `POST /checkout_sessions` with headers `Authorization: Bearer <token>`, `Content-Type`, `API-Version`, `Idempotency-Key` (required), and recommended `Signature`, `Timestamp`, `Request-Id`, `Accept-Language`, `User-Agent`. Body: `CheckoutSessionCreateRequest` (`line_items`, `currency`, `capabilities` required). Response **201** with the full `CheckoutSession`, including the seller's `capabilities.payment.handlers` and the intersection of interventions (RFC-AC sections 3.1, 4.1; OpenAPI `createCheckoutSession`) [src-openai-acp-rfc-checkout] [src-openai-acp-openapi-checkout-20260417] [src-openai-acp-rfc-capability-negotiation].
+2. **Update.** `POST /checkout_sessions/{checkout_session_id}` with `CheckoutSessionUpdateRequest` (for example `fulfillment_details`, `selected_fulfillment_options`). Response **200** with the full authoritative state; the agent re-renders totals, messages and status (RFC-AC 4.2).
+3. **Retrieve.** `GET /checkout_sessions/{checkout_session_id}` returns **200** or **404** (RFC-AC 4.3).
+4. **Tokenize** (when the chosen handler has `requires_delegate_payment: true`): see Flow 3. The agent receives a token.
+5. **Complete.** `POST /checkout_sessions/{checkout_session_id}/complete` with `payment_data` { `handler_id`, `instrument` { `type`, `credential` { `type`, `token` } }, `billing_address` }, optional `buyer`, `risk_signals`, `authentication_result`, `marketing_consents`, `affiliate_attribution` (last touch). The merchant charges through its own PSP. The response **MUST** include `status: completed` and an `order` with `id`, `checkout_session_id`, `permalink_url` (RFC-AC 4.4). The OpenAPI file lists **200** for this operation; OpenAI's production checklist says to validate `HTTP 201 Created` (see Conflicts) [src-openai-acp-openapi-checkout-20260417] [src-openai-commerce-docs].
+6. **Order events.** The merchant sends `POST /agentic_checkout/webhooks/order_events` to the agent with `type` `order_create`, then `order_update` for later changes, signed with `Merchant-Signature` (Flow 7) (RFC-AC 2.3) [src-openai-acp-openapi-webhook-20260417].
+
+### Flow 3: Delegate Payment
+
+1. The agent prepares a one-time request with the user's card (`card_number_type` `fpan` or `network_token`), an `allowance` (`reason` `one_time`, `max_amount`, `currency`, `checkout_session_id`, `merchant_id`, `expires_at`), `billing_address`, `risk_signals` and `metadata` [src-openai-acp-schema-delegate-payment-20260417].
+2. `POST /agentic_commerce/delegate_payment` to the PSP or vault (or a PCI DSS Level 1 merchant's own vault) with `Authorization`, `Idempotency-Key` and `API-Version` required. RFC-DP section 2.2 says the client MUST compute a detached signature over canonical JSON, base64url-encode it in `Signature`, and include `Timestamp`; the same RFC's header list and the OpenAPI file mark `Signature` and `Timestamp` as recommended or optional (see Conflicts) [src-openai-acp-rfc-delegate-payment] [src-openai-acp-openapi-delegate-payment-20260417].
+3. Response **201** `DelegatePaymentResponse` { `id` (`vt_...`), `created`, `metadata` }. The token may be used by the merchant's PSP only within the allowance (RFC-DP introduction).
+4. The agent passes the token to the merchant in `payment_data.instrument.credential.token` on complete.
+5. **Failures:** `invalid_card`, `duplicate_request`, `idempotency_conflict` (422), `idempotency_in_flight` (409), `idempotency_key_required` (400), `too_many_requests` with `rate_limit_exceeded` (429); OpenAPI response codes 201, 400, 401, 409, 422, 429, 500, 503 [src-openai-acp-openapi-delegate-payment-20260417].
+6. **Stripe variant (not spec text).** With Stripe, the agent creates a Shared Payment Token (`spt_...`) with `usage_limits` (`currency`, `max_amount`, `expires_at`) and `seller_details`; the seller confirms a `PaymentIntent` with `payment_method_data[shared_payment_granted_token]`; Stripe clones the original `PaymentMethod` for the seller [src-stripe-spt].
+
+### Flow 4: 3DS authentication
+
+1. Seller's session declares `capabilities.interventions` (`required`, `enforcement` `always`, `conditional` or `optional`) and, when needed, sets `status` to `authentication_required` and includes `authentication_metadata` (`acquirer_details`, `directory_server`) (RFC-AC 4.4 and 8) [src-openai-acp-rfc-checkout].
+2. Agent runs 3DS2 itself, either with its own provider or through Delegate Authentication: `POST /delegate_authentication` (201; status `action_required`, `pending` or `not_supported`), device fingerprint through a hidden iframe to `three_ds_method_url` (client waits up to 10 seconds, then reports `fingerprint_completion` `Y`, `N` or `U`), `POST /delegate_authentication/{authentication_session_id}/authenticate` (200; challenge action or result), `GET /delegate_authentication/{authentication_session_id}` (200) [src-openai-acp-rfc-delegate-auth] [src-openai-acp-openapi-delegate-auth-20260417].
+3. Agent MUST send `authentication_result` on complete regardless of outcome. If it calls complete without it while the session is `authentication_required`, the server MUST return a 4XX error with `type` `invalid_request`, `code` `requires_3ds`, `param` `$.authentication_result` (RFC-AC 4.4).
+4. If the agent cannot perform a required intervention and enforcement is `always`, the seller SHOULD add a message with `code` `intervention_required` (RFC-AC section 5) [src-openai-acp-rfc-checkout].
+
+### Flow 5: Cancel with intent trace
+
+1. `POST /checkout_sessions/{checkout_session_id}/cancel`, optional body `CancelSessionRequest` { `intent_trace` { `reason_code`, `trace_summary`, `metadata` } } [src-openai-acp-rfc-intent-traces].
+2. **200** with `status: canceled`; **405** if the session is already `completed` or `canceled` (RFC-AC 4.5). Servers that do not implement intent traces MUST still accept a cancel request that carries an `intent_trace` body (`rfc.intent_traces.md`) [src-openai-acp-rfc-intent-traces].
+
+### Flow 6: Failure handling on checkout
+
+- **Idempotency** (RFC-AC section 6, mandatory since 2026-04-17): missing key 400 `idempotency_key_required`; same key with a different body 422 `idempotency_conflict`; same key still running 409 `idempotency_in_flight` with `Retry-After`; replays return the original status with `Idempotent-Replayed: true`; 5xx responses are not cached; keys kept at least 24 hours [src-openai-acp-rfc-checkout].
+- **Version mismatch:** 400 with `supported_versions`; well-known codes `unsupported_api_version`, `missing_api_version` (RFC-AC 2.1) [src-openai-acp-changelog-20260417].
+- **Business errors** come back inside a normal session response as `messages[]` entries (`MessageError` code such as `out_of_stock` or `payment_declined`, with `resolution` telling the agent whether it can recover or must ask the buyer) [src-openai-acp-schema-checkout-20260417].
+
+### Flow 7: Order webhooks
+
+1. Merchant computes `HMAC-SHA256(timestamp + "." + raw_body, secret)` and sends `Merchant-Signature: t=<unix_seconds>,v1=<64_hex>` to `/agentic_checkout/webhooks/order_events` [src-openai-acp-openapi-webhook-20260417].
+2. Receiver (the agent platform, "hosted by OpenAI" in the OpenAPI description) rejects with 401 when the header is missing, malformed, outside the time window (recommended tolerance 300 seconds) or fails verification.
+3. Payload `WebhookEvent` { `type` (`order_create` or `order_update`, open string), `data` (`Order` with `type` `order`) }. Refunds, returns and disputes are `adjustments[]` entries; the legacy `refunds[]` was removed in 2026-04-17 [src-openai-acp-openapi-webhook-20260417].
+
+### Flow 8: Cart (2026-04-17)
+
+`POST /carts` (201) creates a single-seller cart with estimated totals; `GET /carts/{id}` (200 or 404); `PUT /carts/{id}` replaces all lines; `POST /carts/{id}/cancel`. Carts have no status, no payment data and no capability negotiation; agents check for `carts` in the discovery `services` list first. Cart-to-checkout conversion was deferred [src-openai-acp-rfc-cart] [src-openai-acp-openapi-cart-20260417].
+
+### Flow 9: Product feed push (2026-04-17)
+
+The Feed API is hosted by the agent and called by the merchant: `POST /feeds` (201) creates feed metadata, `GET /feeds/{id}`, `GET /feeds/{id}/products`, `PATCH /feeds/{id}/products` upserts by `Product.id`. A file format (`metadata.json` plus `products.jsonl`) does full replacement. Promotions were deferred [src-openai-acp-changelog-20260417] [src-openai-acp-openapi-feed-20260417]. OpenAI's own feed endpoints are named differently (`POST /product_feeds`, `GET /product_feeds/{id}`, `GET` and `PATCH /product_feeds/{id}/products`, plus a promotions API and SFTP file upload) [src-openai-commerce-docs].
+
+### Flow 10: As deployed in ChatGPT (2026, outside the ACP spec)
+
+- **Product discovery:** merchants send product feeds and promotions to OpenAI through ACP, directly or through providers such as Salesforce and Stripe; Shopify merchants are covered through Shopify Catalog [src-openai-product-discovery].
+- **External checkout (generally available):** an app links or redirects the user to the merchant's own checkout [src-openai-apps-monetization].
+- **ChatGPT payment sheet (beta, select marketplace partners):** the widget calls `window.openai.requestCheckout(...)`; on "buy" ChatGPT sends a token for the selected payment method to the merchant's MCP server in a `complete_checkout` tool call; supported PSPs listed: Adyen, Checkout.com, Fiserv, PayPal, Stripe, Worldpay. PCI DSS Level 1 merchants can instead receive raw card data by implementing the ACP Delegate Payment endpoint; that request includes allowance constraints [src-openai-apps-monetization]. No source says the payment sheet token is an allowance-scoped delegated token in the general case.
+
 ## State machines
+
+### Checkout session `status`
+
+| Version | Enum in `schema.agentic_checkout.json` |
+| --- | --- |
+| 2025-09-29 | `not_ready_for_payment`, `ready_for_payment`, `completed`, `canceled`, `in_progress` |
+| 2025-12-12, 2026-01-16 | adds `authentication_required` |
+| 2026-01-30, 2026-04-17, unreleased | `incomplete`, `not_ready_for_payment`, `requires_escalation`, `authentication_required`, `ready_for_payment`, `pending_approval`, `complete_in_progress`, `completed`, `canceled`, `in_progress`, `expired` |
+
+Sources: [src-openai-acp-schema-checkout-20250929] [src-openai-acp-schema-checkout-20260130] [src-openai-acp-schema-checkout-20260417].
+
+Transitions stated in the text:
+- `not_ready_for_payment` to `ready_for_payment` as the buyer supplies address and fulfillment choices (implied by RFC-AC 4.1 to 4.2; not given as a formal table).
+- `ready_for_payment` to `authentication_required` when the seller requires 3DS; the client then completes with `authentication_result` (RFC-AC 4.4).
+- Complete to `completed` with an `order`; cancel to `canceled`; cancel on `completed` or `canceled` returns 405 (RFC-AC 4.4, 4.5).
+- The six statuses added in 2026-01-30 (`incomplete`, `requires_escalation`, `pending_approval`, `complete_in_progress`, `expired`, plus `authentication_required` from 2025-12-12) have no definitions in any RFC at commit 7fdd78d; `rfc.agentic_checkout.md` sections 4.1 and 8 still list only the original five values. Five of the names match UCP's checkout status enum (`incomplete`, `requires_escalation`, `complete_in_progress`, `completed`, `canceled`) [src-openai-acp-rfc-checkout] [src-ucp-checkout-schema].
+
+### Delegate Payment token
+
+The spec defines no token status field. Use is constrained by `allowance`: one use (`reason` `one_time`), up to `max_amount` in `currency`, only for `merchant_id` and `checkout_session_id`, until `expires_at` [src-openai-acp-schema-delegate-payment-20260417]. Enforcement is the PSP's job; the spec states the constraints but not the error codes a PSP returns when they are exceeded.
+
+### Stripe Shared Payment Token (Stripe docs, not ACP)
+
+`status` values `active`, `requires_action`, `deactivated` (terminal). `active` and `requires_action` can loop; an SPT can start in either. Deactivation happens when it is consumed, expires or is revoked (`POST /v1/shared_payment/issued_tokens/{id}/revoke`). Webhooks: `shared_payment.issued_token.requires_action`, `.active`, `.used`, `.deactivated` (agent side) and `shared_payment.granted_token.deactivated` (seller side) [src-stripe-spt].
+
+### Delegate Authentication session
+
+Create: `action_required`, `pending`, `not_supported`. Authenticate: `authenticated`, `action_required`, `attempted`, `not_authenticated`, `rejected`, `unavailable`, `expired`. Retrieve adds `challenge_abandoned`, `pending`, `not_supported` (`rfc.delegate_authentication.md` section 9) [src-openai-acp-rfc-delegate-auth].
+
+### Order, fulfillment and adjustment
+
+- Order `status` (open string, 2026-04-17 after PR #232): `created`, `confirmed`, `manual_review`, `processing`, `shipped`, `completed`, `canceled`. The 2026-04-17 changelog lists `delivered` instead of `completed`; the snapshot was changed on 2026-05-01 (see Conflicts) [src-openai-acp-schema-checkout-20260417] [src-openai-acp-changelog-20260417].
+- Fulfillment `status`: `pending`, `processing`, `shipped`, `in_transit`, `out_for_delivery`, `ready_for_pickup`, `delivered`, `failed`, `canceled`.
+- FulfillmentEvent `type`: `processing`, `shipped`, `in_transit`, `out_for_delivery`, `ready_for_pickup`, `delivered`, `failed_attempt`, `returned_to_sender`, `canceled`, `undeliverable`.
+- Adjustment `status`: `pending`, `completed`, `failed`.
+
+### Cart
+
+No state machine: a cart exists or returns 404 (`rfc.cart.md`) [src-openai-acp-rfc-cart].
 
 ## Transports
 
+- **REST over HTTPS** with JSON bodies is the primary binding. RFC-AC section 7 says TLS 1.3 MUST be used; OpenAI's production guide says TLS 1.2 or later on port 443 (see Conflicts) [src-openai-acp-rfc-checkout] [src-openai-commerce-docs].
+- **MCP binding** (`docs/mcp-binding.md`, added 2026-02-19 by PR #139, released in 2026-04-17): JSON-RPC 2.0 over MCP Streamable HTTP at a single endpoint such as `/mcp`. Five tools: `create_checkout_session`, `get_checkout_session`, `update_checkout_session`, `complete_checkout_session`, `cancel_checkout_session`. Arguments are `meta` (headers: `meta.api_version` required, `meta.idempotency_key`, `meta.request_id`, `meta.user_agent`, `meta.accept_language`, `meta.signature`, `meta.timestamp`), `id` and `payload`. `Authorization` moves to MCP server auth. ACP errors use JSON-RPC code `-32000` with the ACP `Error` object in `error.data`; `-32602` is reserved for malformed arguments. The OpenRPC schema is `spec/2026-04-17/openrpc/openrpc.agentic_checkout.json` [src-openai-acp-mcp-binding] [src-openai-acp-openrpc-20260417].
+- **Discovery** through `/.well-known/acp.json`; `transports` lists `rest` and `mcp` [src-openai-acp-rfc-discovery].
+- **Webhooks**: merchant to agent HTTPS POST [src-openai-acp-openapi-webhook-20260417].
+- **Feed files**: `metadata.json` plus `products.jsonl` in the spec; OpenAI also accepts SFTP uploads [src-openai-acp-changelog-20260417] [src-openai-commerce-docs].
+- **ChatGPT Apps SDK** (OpenAI product surface, not ACP): `window.openai.requestCheckout` in the widget and a `complete_checkout` MCP tool on the merchant's server [src-openai-apps-monetization].
+
 ## Cryptography and standards used
+
+- **Bearer tokens.** `Authorization: Bearer <token>` is REQUIRED on checkout and Delegate Payment; the OpenAPI security scheme is HTTP bearer with `bearerFormat: API Key`. Keys are exchanged bilaterally (out of band) [src-openai-acp-openapi-delegate-payment-20260417] [src-openai-acp-rfc-checkout].
+- **Request signatures.** `Signature` (base64url detached signature over canonical JSON) and `Timestamp` (RFC 3339) are RECOMMENDED on checkout. The server publishes accepted algorithms out of band; RFC-DP gives Ed25519 and ES256 as examples. No canonicalization algorithm is named for signing; RFC 8785 (JCS) is mentioned only as an informative option for idempotency body comparison [src-openai-acp-rfc-checkout] [src-openai-acp-rfc-delegate-payment]. The checkout OpenAPI file describes its `Signature` parameter as "HMAC signature for webhook verification", which does not match the RFC text [src-openai-acp-openapi-checkout-20260417].
+- **Webhook HMAC.** HMAC-SHA256 over `timestamp + "." + raw_body` with a shared secret, header `Merchant-Signature: t=<unix_seconds>,v1=<64_hex>`, 300-second recommended tolerance; the changelog says this format aligns with Stripe's webhook signature scheme [src-openai-acp-openapi-webhook-20260417] [src-openai-acp-changelog-20260417].
+- **Card data and tokens.** Delegate Payment carries an FPAN or a network token (`card_number_type`), optional `cryptogram` and `eci_value`; the result is an opaque vault token (`vt_...`). OpenAI says it intends to move to network tokens as they become supported and that eligible cards are upgraded through network tokenization [src-openai-acp-schema-delegate-payment-20260417] [src-openai-commerce-docs].
+- **3DS2 (EMV 3-D Secure).** Delegate Authentication carries 3DS Method fingerprinting, challenge (`acs_url`, `acs_trans_id`), and results (`three_ds_cryptogram`, `electronic_commerce_indicator`, `trans_status`) [src-openai-acp-rfc-delegate-auth] [src-openai-acp-rfc-checkout].
+- **Other standards referenced:** RFC 2119 and RFC 8174 (normative words), RFC 9535 JSONPath (`param`), RFC 8615 (well-known URIs), ISO 4217, ISO 3166-1 alpha-2, E.164, BCP 47, CommonMark 0.31.2, ISO/IEC 7812-1 (IIN length), JSON-RPC 2.0 and MCP Streamable HTTP [src-openai-acp-rfc-checkout] [src-openai-acp-rfc-discovery] [src-openai-acp-changelog-20260417] [src-openai-acp-mcp-binding].
+- **Not used:** no verifiable credentials, no user-signed mandates, no HTTP Message Signatures (RFC 9421), no DIDs and no on-chain components appear in the ACP repository (grep at commit 7fdd78d) [src-openai-acp-rfcs-dir].
 
 ## Security model and published attacks or CVEs
 
