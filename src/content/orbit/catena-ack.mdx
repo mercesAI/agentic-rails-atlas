@@ -1,0 +1,30 @@
+---
+slug: catena-ack
+name: Catena Labs Agent Commerce Kit (ACK)
+category: agent-identity
+starred: false
+oneLiner: An open-source toolkit from Catena Labs with two protocols, ACK-ID for agent identity and ACK-Pay for payments; a v2 redesign around JOSE grants and RFC 9421 signatures is an open proposal, not a release.
+steward: Catena Labs, Inc. (MIT license)
+status: v1 releases live (agentcommercekit 0.11.0); v2 is an open RFC pull request
+latestVersion:
+  label: agentcommercekit 0.11.0
+  date: "2026-08-04"
+relations:
+  - to: x402
+    type: embeds
+    note: Proposed only. The v2 RFC would make ACK-Pay adopt the x402 offer and receipt artifacts and bind receipts to an ACK grant.
+  - to: ap2
+    type: complements
+    note: Proposed only. The v2 RFC renames ACK mandates to grants to avoid a clash with AP2 and shapes its delegation chain to fit AP2 mandate chains.
+  - to: mastercard-agent-pay
+    type: compatible-with
+    note: Catena is listed among Agent Pay for Machines participants; no technical integration is documented.
+sources:
+  - src-orbit-kya-ack-repo
+  - src-orbit-kya-ack-docs
+  - src-orbit-kya-ack-v2-rfc
+  - src-mcap-ap4m-2026
+lastVerified: "2026-10-11"
+---
+
+ACK's v1 releases use W3C DIDs and Verifiable Credentials, with payment receipts issued as credentials; the latest release is `agentcommercekit` 0.11.0 of 2026-08-04. <Cite ids="src-orbit-kya-ack-repo src-orbit-kya-ack-docs" /> ACK v2 has not shipped. On 2026-08-27 Catena opened a draft pull request, "RFC: ACK-ID + ACK-Pay v2", which calls itself a proposal and was still open on 2026-10-11. It would replace credentials with plain JOSE grants (`typ` `grant+jwt` with a required `cnf.jkt` key binding), carry grants in a signed `Grant` header under RFC 9421 so Web Bot Auth infrastructure can check them, and give ACK-Pay a profile that adopts the [x402](/p/x402/) offer and receipt artifacts. It also renames "mandate" to "grant" to avoid confusion with [AP2](/p/ap2/). <Cite ids="src-orbit-kya-ack-v2-rfc" /> Catena appears among Agent Pay for Machines participants for [Mastercard Agent Pay](/p/mastercard-agent-pay/). <Cite ids="src-mcap-ap4m-2026" />
