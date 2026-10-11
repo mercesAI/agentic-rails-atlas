@@ -1,0 +1,95 @@
+---
+/**
+ * Base layout: every page uses it (ARCHITECTURE.md Section 4).
+ * Head, pre-paint theme and reading-mode bootstrap, skip link, nav, main,
+ * footer, view transitions, citation drawer, command palette, glossary
+ * tooltips, heading copy links and service worker registration.
+ */
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/ibm-plex-sans';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import Nav from '../components/site/Nav.astro';
+import Footer from '../components/site/Footer.astro';
+import CitationDrawer from '../components/islands/CitationDrawer';
+import CommandPalette from '../components/islands/CommandPalette';
+import { SITE_NAME, SITE_DESCRIPTION } from '../lib/constants';
+import { getCitationPayload, serializeForScript } from '../lib/citations';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  /** Wider main area for maps and the universe. */
+  wide?: boolean;
+  /** Extra class on <main>. */
+  mainClass?: string;
+}
+
+const { title, description = SITE_DESCRIPTION, wide = false, mainClass = '' } = Astro.props;
+const fullTitle = title && title !== SITE_NAME ? `${title} | ${SITE_NAME}` : SITE_NAME;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString() : undefined;
+const citations = getCitationPayload(Astro.url.pathname);
+---
+<!doctype html>
+<html lang="en" data-reading-mode="practitioner">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="referrer" content="no-referrer" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>{fullTitle}</title>
+    <script is:inline>
+      (function () {
+        function apply() {
+          var root = document.documentElement;
+          try {
+            var t = localStorage.getItem('atlas:theme');
+            if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
+            else root.removeAttribute('data-theme');
+          } catch (e) { /* storage blocked */ }
+          var mode = 'practitioner';
+          try {
+            var m = localStorage.getItem('atlas:reading-mode');
+            if (m === 'eli5' || m === 'practitioner' || m === 'spec' || m === 'ste') mode = m;
+          } catch (e) { /* storage blocked */ }
+          root.setAttribute('data-reading-mode', mode);
+          root.classList.add('js');
+        }
+        apply();
+        if (!window.__atlasBoot) {
+          window.__atlasBoot = true;
+          document.addEventListener('astro:after-swap', apply);
+        }
+      })();
+    </script>
+    <ClientRouter fallback="swap" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" tabindex="-1" class:list={['site-main', wide ? 'site-main--wide' : '', mainClass]}>
+      <slot />
+    </main>
+    <Footer />
+    <CitationDrawer client:idle />
+    <CommandPalette client:idle />
+    <script type="application/json" id="atlas-citations" set:html={serializeForScript(citations)} />
+    <div id="term-tooltip" class="term-tooltip" role="tooltip" hidden></div>
+    <script>
+      import { initGlossaryTooltips } from '../lib/client/glossary-tooltip';
+      import { initCopyLinks } from '../lib/client/copy-link';
+      import { registerServiceWorker } from '../lib/client/sw';
+      document.addEventListener('astro:page-load', () => {
+        initGlossaryTooltips();
+        initCopyLinks();
+      });
+      if (import.meta.env.PROD) registerServiceWorker();
+    </script>
+  </body>
+</html>
