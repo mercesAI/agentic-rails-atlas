@@ -1,0 +1,97 @@
+---
+/**
+ * /orbit/: related protocols and standards as cards, grouped by category.
+ * Starred items link to their mini page; the rest link to their primary
+ * external source with an external-link marker (ATLAS_FOLLOWUP.md 2.3.5).
+ */
+import { render } from 'astro:content';
+import Page from '../../layouts/Page.astro';
+import Cite from '../../components/ui/Cite.astro';
+import Callout from '../../components/ui/Callout.astro';
+import Mode from '../../components/ui/Mode.astro';
+import ExternalLink from '../../components/ui/ExternalLink.astro';
+import SourceList from '../../components/protocol/SourceList.astro';
+import { getOrbitEntries, getProtocols, getSourcesMap, scanCiteIds } from '../../lib/content';
+import { dedupe, setPageSources } from '../../lib/citations';
+import { groupOrbit, orbitLink, RELATION_LABELS } from '../../components/hub/lib/orbit';
+import { BUILD_DATE } from '../../lib/constants';
+import '../../components/hub/hub.css';
+
+const page = Astro.url.pathname;
+const entries = await getOrbitEntries();
+const sources = await getSourcesMap();
+const protocols = await getProtocols();
+const protocolBySlug = new Map(protocols.map((p) => [p.slug, p]));
+const items = await Promise.all(
+  entries.map(async (e) => ({ ...e.data, entry: e, Content: e.data.starred ? null : (await render(e)).Content })),
+);
+const groups = groupOrbit(items);
+const order = dedupe(
+  groups.flatMap((g) => g.items.flatMap((i) => [...i.sources, ...(i.starred ? [] : scanCiteIds(i.entry.body))])),
+);
+setPageSources(order, { page, sources });
+const starred = items.filter((i) => i.starred).length;
+const components = { Cite, Callout, Mode };
+---
+<Page
+  title="Orbit"
+  eyebrow="Related protocols and standards"
+  lede="The protocols, programs and standards that circle the eight: agent messaging, identity, wallet permissions, machine money, card programs and the court cases that shape them. Starred items have a short page of their own."
+  lastVerified={BUILD_DATE}
+  prose={false}
+  wide
+>
+  <div class="hub">
+    <p class="hub__summary">
+      {items.length === 0 ? 'Orbit items are being written.' : `${items.length} items in ${groups.length} groups; ${starred} with a page of their own. Cards without one link to their primary source.`}
+    </p>
+    {groups.map((g) => (
+      <section class="orbit-group" id={g.category} aria-labelledby={`${g.category}-h`}>
+        <h2 id={`${g.category}-h`}>{g.label}</h2>
+        <ul class="orbit-grid">
+          {g.items.map((i) => {
+            const link = orbitLink(i, sources);
+            const Content = i.Content;
+            return (
+              <li>
+                <article class="orbit-card" data-starred={i.starred || undefined} id={`orbit-${i.slug}`} aria-labelledby={`orbit-${i.slug}-h`}>
+                  <header class="orbit-card__head">
+                    <h3 class="orbit-card__name" id={`orbit-${i.slug}-h`}>{i.name}</h3>
+                    {i.starred && <span class="orbit-card__star">Has a page</span>}
+                  </header>
+                  <p class="orbit-card__line">{i.oneLiner}</p>
+                  <dl class="orbit-card__meta">
+                    <dt>Steward</dt><dd>{i.steward}</dd>
+                    <dt>Status</dt><dd>{i.status}</dd>
+                    {i.latestVersion && <><dt>Latest</dt><dd>{i.latestVersion.label} (<time datetime={i.latestVersion.date}>{i.latestVersion.date}</time>)</dd></>}
+                  </dl>
+                  {Content && <div class="orbit-card__body"><Content components={components} /></div>}
+                  {i.relations.length > 0 && (
+                    <ul class="orbit-rel" aria-label={`How ${i.name} relates to the eight`}>
+                      {i.relations.map((r) => {
+                        const p = protocolBySlug.get(r.to);
+                        return (
+                          <li data-family={p?.family}>
+                            <a href={`/p/${r.to}/`} title={r.note}><span class="orbit-rel__type">{RELATION_LABELS[r.type] ?? r.type}</span> {p?.name ?? r.to}</a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                  {link && (
+                    <p class="orbit-card__link">
+                      {link.external
+                        ? <ExternalLink href={link.href}>Primary source<span class="sr-only"> for {i.name}</span></ExternalLink>
+                        : <a href={link.href}>Read the {i.name} page</a>}
+                    </p>
+                  )}
+                </article>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))}
+    <SourceList page={page} />
+  </div>
+</Page>
