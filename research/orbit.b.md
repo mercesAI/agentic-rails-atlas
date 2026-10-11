@@ -270,3 +270,136 @@ Several of the eight protocols now carry Lightning as a payment method without L
 **Sources.** src-x402-cf-mg-beta; src-x402-cf-changelog; src-x402-cf-blog-foundation; src-x402-scheme-batch-cf; src-x402-gh-pr-1145; src-orbit-cloudflare-wallets-blog; src-orbit-cloudflare-wallets-pr; src-orbit-cloudflare-wallets-docs; src-orbit-cloudflare-net-dollar; src-orbit-cloudflare-radar-api; src-visa-tap-cf-blog; src-cf-verified-bots.
 
 ---
+
+## Tempo
+
+- **id:** `tempo`
+- **Category:** machine-payments
+- **What it is:** A payments-focused EVM Layer 1 incubated by Stripe and Paradigm, launched on mainnet together with the Machine Payments Protocol, and MPP's home rail.
+- **Steward:** Tempo Labs (company); node software `tempoxyz/tempo` (Apache-2.0).
+- **Status (as of 2026-10-11):** Live. Mainnet since 2026-03-18 (chain ID 4217 per Tempo docs); `tempoxyz/tempo` 1,031 stars, release `tempo-primitives@1.16.0` on 2026-10-06. Validator set is permissioned with a stated path to permissionless validation (reported, Everstake).
+- **Latest version:** node packages 1.16.0 (2026-10-06).
+- **Primary links:**
+  - https://tempo.xyz/blog/mainnet/ (mainnet and MPP announcement)
+  - https://tempo.xyz/developers/docs/ (developer docs)
+  - https://github.com/tempoxyz/tempo (node)
+  - https://github.com/tempoxyz/mpp-specs (MPP specs, maintained by Tempo Labs and Stripe)
+
+**Card data.** Tempo's mainnet post (2026-03-18) introduces MPP as an open standard co-authored by Stripe and Tempo and supporting stablecoins, cards and other methods; Tempo is one payment method among several in MPP, not a requirement. Coverage dates the project announcement to 2025-09-04 and the public testnet to 2025-12-09 (reported). ATLAS_FOLLOWUP.md 2.1.2 says Tempo, not Mastercard, lists Mastercard Agent Pay for Machines as MPP-compatible; that claim belongs to the MPP and Mastercard pages.
+
+**Status history.**
+- 2025-09-04: Tempo announced by Stripe and Paradigm (reported).
+- 2025-12-09: public testnet (reported).
+- 2026-03-18: mainnet live; MPP released.
+- 2026-10-06: node release 1.16.0.
+
+**Relations to the eight.**
+- stripe-mpp: same-steward. Tempo Labs co-authors and maintains MPP with Stripe; Tempo is MPP's native stablecoin rail.
+- x402: no documented relation.
+- Other six: no documented relation.
+
+**Sources.** src-orbit-tempo-mainnet; src-orbit-tempo-repo; src-orbit-mpp-specs-repo; src-orbit-tempo-testnet-theblock.
+
+---
+
+## Kite AI (Kite Chain and Agent Passport)
+
+- **id:** `kite-ai`
+- **Category:** machine-payments
+- **What it is:** A Layer 1 settlement chain for agent payments plus an "Agent Passport" that gives an agent a programmable wallet with user-set spending limits and allowed destinations.
+- **Steward:** Kite (company, San Francisco); member of the x402 Foundation.
+- **Status (as of 2026-10-11):** Live (mainnet and Agent Passport launched 2026-04-30 per Kite's press release). Kite says it integrates over 90 service providers (company figure). Support for x402, AP2 and MPP appears only on Kite's social account as seen through a mirror (unverified).
+- **Latest version:** mainnet (2026-04-30).
+- **Primary links:**
+  - https://www.theblock.co/press-releases/399534/kite-launches-kite-chain-and-kite-agent-passport-enabling-autonomous-ai-agent-payments (Kite press release via Chainwire)
+  - https://gokite.ai/ (company site)
+
+**Status history.**
+- 2026-04-30: Kite Chain mainnet and Kite Agent Passport launched.
+- 2026-07-14: Kite AI listed as a general member at the x402 Foundation's operational launch.
+
+**Relations to the eight.**
+- x402: compatible-with. Kite is an x402 Foundation member; product-level x402 support is claimed only on social media (unverified).
+- Other seven: no documented relation (AP2 and MPP claims unverified).
+
+**Sources.** src-orbit-kite-launch; src-x402-lf-july.
+
+---
+
+## Nevermined
+
+- **id:** `nevermined`
+- **Category:** machine-payments
+- **What it is:** A payments platform for AI agents that runs an x402 facilitator with an ERC-4337 smart-account scheme (`nvm:erc4337`) supporting plans, credits and subscriptions, and documents AP2 and A2A integration.
+- **Steward:** Nevermined (company); SDK `nevermined-io/payments` (Apache-2.0, pushed 2026-10-05).
+- **Status (as of 2026-10-11):** Live. Docs describe an x402 Smart Accounts Extension, an ADK demo carrying Nevermined x402 payments over AP2 and A2A messages, and a Payments Facilitator that also accepts MPP, which Nevermined's docs expand as "Merchant Payment Protocol" (a naming mismatch with the Machine Payments Protocol; see Appendix D on "MPP").
+- **Primary links:**
+  - https://nevermined.ai/docs/products/payments-facilitator/how-it-works.md (facilitator docs)
+  - https://nevermined.ai/docs/integrations/nevermined-x402-ap2.md (AP2 integration)
+  - https://github.com/nevermined-io/payments (SDK)
+
+**Status history.**
+- 2024-02-21: `nevermined-io/payments` repository created.
+- 2026-01: blog post on combining x402, A2A and AP2 (month per search summary; reported).
+
+**Relations to the eight.**
+- x402: complements. Nevermined runs an x402 facilitator and defines its own smart-account scheme on top.
+- ap2: complements. Docs show x402 payments carried inside AP2 and A2A messages (demo).
+- stripe-mpp: compatible-with. The facilitator documents accepting MPP payments, though it names the protocol differently.
+- visa-tap: none at protocol level; Nevermined published a third-party review of Visa Intelligent Commerce (see the Visa TAP research).
+
+**Sources.** src-orbit-nevermined-facilitator; src-orbit-nevermined-ap2; src-orbit-nevermined-repo; src-nevermined-vic.
+
+---
+
+## Crossmint Agentic Cards API
+
+- **id:** `crossmint`
+- **Category:** machine-payments
+- **What it is:** A Crossmint API, launched publicly on 2026-06-02, that lets developers connect eligible US-issued Visa credit and debit cards to AI agents as tokenized credentials through Visa Intelligent Commerce and Basis Theory, with spend limits.
+- **Steward:** Crossmint (company); SDK `Crossmint/crossmint-sdk` (Apache-2.0).
+- **Status (as of 2026-10-11):** Live (public launch 2026-06-02). Issuer approval and controls still apply per Crossmint. Crossmint also runs stablecoin wallets and publishes a protocol comparison page.
+- **Latest version:** public launch (2026-06-02).
+- **Primary links:**
+  - https://crossmint.com/announcement/agentic-cards-api-launch-visa-basistheory (launch)
+  - https://www.crossmint.com/products/agentic-cards (product)
+  - https://github.com/Crossmint/crossmint-sdk (SDK)
+
+**Status history.**
+- 2026-06-02: Agentic Cards API public launch on Visa Intelligent Commerce and Basis Theory.
+
+**Relations to the eight.**
+- visa-tap: compatible-with. The product runs on Visa Intelligent Commerce tokens; TAP use is not stated in the launch post.
+- Other seven: no documented relation in the launch post.
+
+**Sources.** src-orbit-crossmint-launch; src-orbit-crossmint-sdk.
+
+---
+
+## x402r (refunds) and A402 (academic proposal)
+
+- **id:** `x402r-a402`
+- **Category:** machine-payments
+- **What it is:** Two x402-adjacent proposals with confusable names. x402r is a third-party, non-custodial refund and arbitration protocol for x402 payments (`@x402r/sdk`). A402 is an academic paper that binds crypto payments to service execution with Atomic Service Channels.
+- **Steward:** x402r: BackTrackCo (GitHub organization). A402: authors Li et al. (arXiv).
+- **Status (as of 2026-10-11):** x402r: live SDK, listed by the x402 docs as a third-party extension; npm `@x402r/sdk` 0.2.1 (first published 2026-03-20, last modified 2026-05-23); `BackTrackCo/x402r-sdk` created 2026-01-26, pushed 2026-09-23, 1 star. A402: paper only (arXiv:2603.01179, 2026-03-01), no deployment found.
+- **Latest version:** `@x402r/sdk` 0.2.1; arXiv 2603.01179.
+- **Primary links:**
+  - https://x402r.org (x402r)
+  - https://github.com/BackTrackCo/x402r-sdk (x402r SDK)
+  - https://arxiv.org/abs/2603.01179 (A402)
+
+**Card data.** x402's `exact` scheme defines no refund; refunds exist only in the later `auth-capture` scheme and batch-settlement channels, or through third parties such as x402r and zauth. A402 argues that x402 does not make execution, payment and delivery atomic and proposes TEE-assisted adaptor signatures as a fix.
+
+**Status history.**
+- 2026-01-26: x402r SDK repository created.
+- 2026-03-01: A402 paper posted (arXiv:2603.01179).
+- 2026-03-20: `@x402r/sdk` first published on npm.
+
+**Relations to the eight.**
+- x402: complements (x402r adds refunds and arbitration; listed in the x402 docs). A402: competes-with (an alternative design motivated by x402's lack of atomicity).
+- Other seven: no documented relation.
+
+**Sources.** src-x402-docs-devtools; src-orbit-x402r-sdk; src-x402-arxiv-2603-01179.
+
+---
