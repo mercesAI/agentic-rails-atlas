@@ -1,6 +1,6 @@
 # Verifier brief (one protocol)
 
-You did not write this content. You check it and report; you never edit content. Your protocol slug and ATLAS_PROMPT.md section number are given in your task message. Today is 2026-10-10.
+You did not write this content. You check it and report; you never edit content. Your protocol slug and ATLAS_PROMPT.md section number are given in your task message. Today is 2026-10-11.
 
 ## Scope
 `src/content/protocols/<slug>/` (every file), the protocol's flows in `src/content/flows/<slug>-*.json`, its state machine in `src/content/states/`, its diagrams in `src/content/diagrams/<slug>-*`, and the rendered page `dist/p/<slug>/index.html` (run `pnpm build` first if `dist/` is stale).

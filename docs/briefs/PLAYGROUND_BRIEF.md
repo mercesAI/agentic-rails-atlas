@@ -1,6 +1,6 @@
 # Playground brief (one protocol)
 
-You build the client-side simulation for one protocol of the Agentic Rails Atlas. Your protocol slug and its ATLAS_PROMPT.md section number are given in your task message. Today is 2026-10-10.
+You build the client-side simulation for one protocol of the Agentic Rails Atlas. Your protocol slug and its ATLAS_PROMPT.md section number are given in your task message. Today is 2026-10-11.
 
 ## Read first
 1. `docs/ARCHITECTURE.md` sections 1, 6, 8 and 11.
