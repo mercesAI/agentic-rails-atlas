@@ -159,7 +159,9 @@ export function shapeChecks(p: PublicationT): string[] {
   if (p.arxiv && !/^(\d{4}\.\d{4,5}|[a-z-]+(\.[A-Z]{2})?\/\d{7})(v\d+)?$/.test(p.arxiv)) problems.push(`arxiv id "${p.arxiv}" has an unexpected format`);
   if (p.doi && !/^10\.\d{4,9}\/\S+$/i.test(p.doi)) problems.push(`doi "${p.doi}" has an unexpected format`);
   if (!/^@\w+\s*\{/.test(p.bibtex.trim())) problems.push('bibtex does not start with an @type{ entry');
-  if (!p.arxiv && !p.doi) problems.push('no DOI or arXiv id to re-verify against');
+  // Grey literature verified on the publisher page may lack a DOI or arXiv id;
+  // it is re-checked by fetching its URL instead (see verifyCitations).
+  if (!p.arxiv && !p.doi && p.verifiedVia !== 'publisher') problems.push('no DOI or arXiv id to re-verify against');
   return problems;
 }
 
@@ -178,6 +180,24 @@ export async function verifyCitations(options: { root?: string; offline?: boolea
     }
     if (options.offline) {
       results.push({ id: p.id, status: 'skipped', message: 'offline' });
+      continue;
+    }
+    if (!p.doi && !p.arxiv) {
+      // Publisher-verified entry: confirm the page still resolves; a block or timeout only warns.
+      let status = 0;
+      try {
+        const r = await fetch(p.url, { method: 'GET', redirect: 'follow', headers: { 'user-agent': UA } });
+        status = r.status;
+      } catch {
+        status = 0;
+      }
+      results.push(
+        status >= 200 && status < 400
+          ? { id: p.id, status: 'ok', message: `publisher page HTTP ${status}` }
+          : status === 404 || status === 410
+            ? { id: p.id, status: 'not-found', message: `publisher page HTTP ${status}` }
+            : { id: p.id, status: 'unreachable', message: `publisher page ${status ? `HTTP ${status}` : 'unreachable'}` },
+      );
       continue;
     }
     const lookups: (() => Promise<Lookup>)[] = [];
