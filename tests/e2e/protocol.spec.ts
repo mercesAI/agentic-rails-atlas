@@ -144,9 +144,10 @@ test.describe('reading modes on /p/x402/', () => {
   for (const mode of Object.keys(expected) as (keyof typeof expected)[]) {
     test(`${mode} mode shows the right content and both switches agree`, async ({ page }) => {
       await page.goto('/p/x402/');
-      const groups = page.getByRole('radiogroup', { name: 'Reading mode' });
+      // The nav switch is hidden on narrow screens; both instances stay in the DOM and must agree.
+      const groups = page.locator('[role="radiogroup"][aria-label="Reading mode"]');
       await expect(groups).toHaveCount(2);
-      await groups.nth(1).getByRole('radio', { name: labels[mode] }).click();
+      await page.getByRole('radiogroup', { name: 'Reading mode' }).last().getByRole('radio', { name: labels[mode] }).click();
       await expect(page.locator('html')).toHaveAttribute('data-reading-mode', mode);
       const e = expected[mode];
       const body = page.locator('#b-explanation .protocol-body');
@@ -156,7 +157,7 @@ test.describe('reading modes on /p/x402/', () => {
       await expect(page.locator('#d-ste')).toBeVisible();
       await expect(page.locator('.mode-banner__line:visible').first()).toContainText(`${labels[mode]} mode`);
       for (const i of [0, 1]) {
-        await expect(groups.nth(i).getByRole('radio', { name: labels[mode] })).toHaveAttribute('aria-checked', 'true');
+        await expect(groups.nth(i).locator(`[data-value="${mode}"]`)).toHaveAttribute('aria-checked', 'true');
         await expect(groups.nth(i).locator('[aria-checked="true"]')).toHaveCount(1);
       }
     });
