@@ -130,3 +130,75 @@ Result: 113 pass, 0 fail, 0 unreachable. Advisory notes (not failures):
 | clm-stripe-mpp-170 | random sample | pass | Core and intent drafts define no protocol fee field (grep fee in core: none normative) |
 | clm-stripe-mpp-172 | random sample | pass | MPPscan tRPC protocolStats timeframeDays=30; value moves daily (2026-10-13: 960,520 tx, 8,837 USD); the claim is dated |
 | clm-stripe-mpp-173 | random sample | pass | MPPscan 7-day window moves daily (2026-10-13: 125,063 tx, 1,454 USD); the claim is dated 2026-10-11 |
+
+## Check 2. Field names, headers, enums, endpoints, events and error codes
+
+Method: extracted every identifier from the `<FieldTable>` blocks and `<Mode spec>` backticks in `index.mdx`, from all eight flow payloads and step texts (`src/content/flows/stripe-mpp-*.json`), and from `observability.json` and `security.json`. 129 distinct tokens plus 8 extras (TransferWithMemo, Transfer, settle, timeframeDays, stats.protocolStats, x-service-info, x-payment-info, Idempotent-Replayed) = 137 identifiers. Each was grepped (fixed string) across `research/vendor/mpp-specs/specs`, `mpp-specs/pages`, `mppx/src`, `mppx/CHANGELOG.md`, `mpp/src` and `mpp/schemas`. The short generic words (id, type, name, code) were then re-checked in the right file by context. Problem types, MCP codes, session problem types and the method-specific fields (acceptedCumulative, minVoucherDelta, supportedModes, panLastFour, encryptionJwk, jwksUri, kid, merchantName, networkId, paymentMethodTypes, spt, feePayer, authorizedSigner, splits, operator) were grepped per owning spec file.
+
+Result: 137 checked, 0 wrong. Three needed a non-vendor check:
+
+| Identifier | Verdict | Evidence |
+|---|---|---|
+| `timeframeDays`, `stats.protocolStats` | pass (live) | Not in any cloned repo. `GET https://www.mppscan.com/api/trpc/stats.protocolStats?input={"json":{"timeframeDays":7}}` returned totals on 2026-10-13; timeframeDays 0, 7 and 30 all accepted |
+| `capabilities.experimental.payment.methods` | pass | Compound path; `draft-payment-transport-mcp-00.md` lines 166-216 show `capabilities.experimental.payment.methods` |
+| `specs/core/draft-httpauth-payment-01.md` | pass | File path, exists |
+
+| Group | Identifiers | Verdict | Evidence |
+|---|---|---|---|
+| Challenge auth-params | id, realm, method, intent, request, digest, expires, description, header, opaque | pass | `core/draft-httpauth-payment-01.md` lines 273-340 |
+| Credential and receipt | challenge, source, payload, status, method, timestamp, reference, subscriptionId | pass | core lines 606-725; `intents/draft-payment-intent-subscription-00.md` line 433 |
+| Headers | WWW-Authenticate, Authorization, Payment-Authorization, Payment-Receipt, Accept-Payment, Cache-Control, Idempotency-Key | pass | core lines 105-120, 702, 780, 1012, 1071 |
+| Problem types (11) | payment-required, payment-insufficient, payment-expired, verification-failed, method-unsupported (400), malformed-credential, invalid-challenge, bad-request (400), invalid-payload, internal-payment-error (500), payment-action-required | pass | core Error Codes table lines 852-863; statuses match the page text at `index.mdx` line 201 |
+| Intent request fields | amount, currency, recipient, description, externalId, methodDetails, periodUnit, periodCount, subscriptionExpires | pass | charge intent lines 149-161; subscription intent lines 204-242 |
+| Tempo session | action (open, topUp, voucher, close), channelId, cumulativeAmount, signature, unitType, suggestedDeposit, escrowContract, chainId, sessionProtocol, acceptedCumulative, spent, txHash, requestClose, withdraw, settle, open(payee, token, deposit, salt, authorizedSigner), CloseRequestCancelled | pass | `methods/tempo/draft-tempo-session-00.md` lines 127-156, 224-233, 420-527, 575-615, 1548-1562 |
+| Session problem types (8) | session/amount-exceeds-deposit, challenge-not-found, channel-finalized, channel-not-found, delta-too-small, insufficient-balance, invalid-signature, signer-mismatch | pass | `draft-tempo-session-00.md` problem table lines 1294-1300 and IANA table 1820 |
+| Tempo charge and subscription | supportedModes, feePayer, splits, memo, accessKey, accessKeyAddress, keyType, keyAuthorization, type "transaction" and "hash" | pass | `draft-tempo-charge-00.md` lines 79-184; `draft-tempo-subscription-00.md` lines 211-345 |
+| stripe and card methods | networkId, paymentMethodTypes, spt, externalId, shared_payment_granted_token, metadata.challenge_id, acceptedNetworks, merchantName, encryptionJwk, jwksUri, kid, encryptedPayload, network, panLastFour, panExpirationMonth, panExpirationYear | pass | `methods/stripe/draft-stripe-charge-00.md` lines 124-289; `methods/card/draft-card-charge-00.md` lines 242-482 |
+| MCP transport | -32042, -32043, -32602, -32603, httpStatus, challenges, _meta, org.paymentauth/credential, org.paymentauth/receipt | pass | `extensions/transports/draft-payment-transport-mcp-00.md` lines 259-446, 667-685 |
+| Discovery | /openapi.json, x-service-info, x-payment-info | pass | `extensions/draft-payment-discovery-01.md` lines 105-160 |
+| Method ids (11) | tempo, stripe, card, lightning, evm, solana, stellar, hedera, usdc, nearintents, xrpl | pass | `ls specs/methods` |
+| SDK and misc | Idempotent-Replayed, TransferWithMemo | pass | `mppx/CHANGELOG.md` line 877, `mppx/src/stripe/server/Charge.ts` line 384; Tempo token spec (memo) in charge draft |
+
+Schema validation: the only JSON Schema in the clones is `mpp/schemas/discovery.schema.json` (services registry). No page or flow payload is a registry record, so there was nothing to validate with `ajv`. Illustrative payloads were compared field by field to the tables above instead: the Tempo charge credential (`type: transaction`), the Tempo subscription request, the session voucher and the `payment-need-voucher` data all match the spec shapes. One cosmetic point: the SSE receipt example in `stripe-mpp-tempo-session.json` step 10 lists `method, intent, status, reference, channelId, acceptedCumulative, spent, txHash`; the spec's receipt table also has `timestamp` and `challengeId`, which the example omits. Illustrative, not a failure.
+
+## Check 3. Dates, versions and numbers
+
+Every `timeline.json` event (26), `facts.changedRecently` (8), frontmatter dates and `ecosystem.metrics` (9) were checked against Datatracker, GitHub, npm and the live pages.
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| 2026-01-05 specs repo created | pass | `gh api repos/tempoxyz/mpp-specs` created_at 2026-01-05T22:26:21Z |
+| 2026-02-12 mppx package created | pass | npm `time.created` 2026-02-12T23:38:06Z |
+| 2026-02-16 draft-ryan -00 | pass | Datatracker newrevisiondocevent 2026-02-16T00:31:03Z (the page notes the evening of 2026-02-15 US time) |
+| 2026-03-18 launch (Stripe blog, Tempo mainnet post, draft-ryan -01) | pass | both posts dated March 18, 2026; draft-ryan rev 01 2026-03-18T02:45:29Z |
+| 2026-03-24 Solana charge merged | pass | first commit for `solana/draft-solana-charge-00.md` 2026-03-24T16:35:15Z |
+| 2026-03-26 advisories and 0.4.11 | pass | GHSA published 2026-03-26T20:56 to 21:33Z; npm 0.4.11 2026-03-26T21:19Z |
+| 2026-03-29 Rust advisory | pass | GHSA-fxc9-7j2w-vx54 published_at 2026-03-29T15:20:45Z |
+| 2026-03-31 NVD publication (detail text) | pass | NVD API: CVE-2026-34209 and -34210 published 2026-03-31T15:16Z |
+| 2026-04-13 Accept-Payment merged | pass | `gh api pulls/231` merged 2026-04-13T21:54:52Z |
+| 2026-04-17 EVM charge merged | pass | first commit for `evm/draft-evm-charge-00.md` 2026-04-17T05:01Z |
+| 2026-04-29 Stripe Sessions | pass | post header "April 29" |
+| 2026-05-12 subscriptions blog and mppx 0.6.20 | pass | blog `publishedAt: "2026-05-12"`; npm 0.6.20 2026-05-12T21:33Z |
+| 2026-06-02 mppx 0.6.29 x402 exact | pass | npm 0.6.29 2026-06-02; CHANGELOG line 531 "EVM charge support with x402 exact compatibility" is under 0.6.29 |
+| 2026-06-10 Mastercard AP4M release | pass | release PDF dated 2026-06-10 |
+| 2026-06-16 usdc method | pass | first commit for `usdc/draft-usdc-charge-00.md` 2026-06-16T17:10Z |
+| 2026-06-19 draft-httpauth-payment-00 | pass | Datatracker 2026-06-19T18:09:03Z |
+| 2026-06-25 session v2 merged | pass | PR #278 merged 2026-06-25T17:55Z; blog 2026-06-17 |
+| 2026-07-01 fee payer advisories | pass | GHSA-727h and GHSA-vc9j published 2026-07-01T17:23Z, CVE ids 2026-63627 and 2026-63628 |
+| 2026-07-29 subscription intent | pass | PR #230 merged 2026-07-29T16:11Z |
+| 2026-08-04 TAP and Web Bot Auth in mppx | pass | mppx PR #732 merged 2026-08-04T22:34Z; npm 0.8.17 2026-08-10; blog 2026-08-12 |
+| 2026-08-25 header parameter | pass | PR #328 merged 2026-08-25T16:26Z |
+| 2026-08-27 mppx 0.9.0 | pass | npm 0.9.0 2026-08-27T03:10Z |
+| 2026-09-08 XRPL | pass | PR #346 merged 2026-09-08T10:58Z |
+| 2026-09-09 draft -01 | pass | Datatracker 2026-09-09T16:08:12Z; expires 2027-03-13T16:08:12Z; PR #351 |
+| 2026-09-18 draft-ryan expired | pass | Datatracker expired_document 2026-09-18T07:09:06Z (expires field 2026-09-19T02:45Z) |
+| 2026-09-28 PR #280 closed unmerged | pass | `gh api pulls/280` closed_at 2026-09-28T17:30:21Z, merged_at null |
+| 2026-10-08 mppx 0.13.4 | pass | npm; still `latest` on 2026-10-13 |
+| Hedera 2026-05-14 / 2026-08-07, NEAR Intents 2026-06-21 | pass | PRs #251, #258, #284 |
+| metrics: 4,072,426 tx / 435,476 USD all time; 998,771 / 8,774 (30d); 126,902 / 1,484 (7d) | pass (dated) | MPPscan live on 2026-10-13: all time 4,121,980 / 436,012; 30d 960,520 / 8,837; these move daily and the page dates them 2026-10-11 |
+| metrics: 129 directory services (126 tempo, 10 stripe, 1 evm) | pass (dated) | Live 2026-10-13: 130 services (127 tempo, 10 stripe, 1 evm); one listing added since |
+| metrics: about 25,000 USD over about 115,000 transfers (2026-04-21) | pass | Forkast article text confirms; marked secondary in the caveat |
+| metrics: GitHub stars mpp-specs 95, mppx 186 | pass (dated) | live 95 and 185; star counts drift |
+| Version labels: mppx 0.13.4, pympp 0.11.0, mpp 0.15.0, mpp-go v0.2.0, mpp-rb 0.1.6 | see "Writer's uncertain items" below | |
+
+Dates wrong: 0.
