@@ -62,6 +62,21 @@ The site is a static build in `dist/`, so any static host works. The default tar
 
 The STE linter checks the public ASD-STE100 Issue 9 writing rules. If you have your own copy of the standard, put the approved words one per line in `ste/approved-words.local.txt`; the linter then also flags words that are neither approved nor in the technical-noun list. That file is gitignored and must never be committed, because ASD holds the copyright.
 
+## Contribute
+
+Corrections and additions are welcome. Agent payment protocols change monthly, so if you spot a claim that is out of date, a field name that no longer matches a spec, a missing paper, or a protocol or standard that deserves a page, please open an issue or a pull request at https://github.com/mercesAI/agentic-rails-atlas.
+
+What makes a pull request easy to merge:
+
+- **Every factual change carries a source.** Add or update a `Source` record in the owning protocol's `sources.json` and cite it from the claim. Primary sources first: spec repositories, official documentation, official announcements, standards records. Mark the confidence honestly (`verified` only when you read the primary source yourself).
+- **Numbers and dates carry an `asOf` date.**
+- **Field names come from the spec files, never from memory or blog posts.**
+- **Run the gates before you push:** `pnpm check`, `pnpm lint:style`, `pnpm lint:ste`, `pnpm verify:sources`, `pnpm verify:coverage`, `pnpm build`. The GitHub workflow runs the same set on every pull request.
+- **Style:** plain, direct sentences; no em dashes; US spelling; sentence-case headings; no logos or copied spec text. The two exemplars in `CLAUDE.md` show the register.
+- **Scope:** small, focused pull requests are reviewed faster than large rewrites. For a new protocol or orbit page, open an issue first so we can agree on sources and scope.
+
+If you are unsure where something belongs, open an issue with the source link and a sentence on what is wrong or missing; that alone is useful.
+
 ## Project records
 
 `PLAN.md`, `PROGRESS.md` (log), `DECISIONS.md` (judgment calls), `SOURCES.md` (source policy), `ATLAS_ERRATA.md` (corrections to the seed prompts), `AUDIT.md`, `verification/` (independent fact-check reports), `REPORT.md` and `REPORT_v1.1.md`, `REFRESH_PROMPT.md` (how to update the atlas).
