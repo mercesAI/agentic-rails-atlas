@@ -1,5 +1,5 @@
 /* x402 playground. Colors come from src/styles/tokens.css only. Status never relies on color alone: every tag carries text. */
-.x4 { display: grid; gap: 1rem; font-size: 0.92rem; min-width: 0; }
+.x4 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; font-size: 0.92rem; min-width: 0; }
 .x4 code { font-family: var(--font-mono); font-size: 0.85em; overflow-wrap: anywhere; }
 .x4 h3 { font-family: var(--font-heading); font-size: 1.05rem; margin: 0 0 0.5rem; }
 .x4 p { margin: 0 0 0.5rem; }
@@ -17,7 +17,7 @@
 .x4-radio:focus-within .x4-radio__label { text-decoration: underline; }
 
 .x4-amounts { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; grid-column: 1 / -1; }
-.x4-field { display: grid; gap: 0.25rem; min-width: 0; }
+.x4-field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.25rem; min-width: 0; }
 .x4-field label { font-weight: 600; font-size: 0.85rem; }
 .x4-field input, .x4-field select, .x4-field textarea {
   font: inherit; font-family: var(--font-mono); font-size: 0.85rem; color: var(--fg); background: var(--surface);
@@ -56,7 +56,7 @@
 .x4-lanes:has(.x4-lane--to-left) .x4-lane--from::after { left: 0; right: 50%; }
 .x4-lane--self::after { content: ''; position: absolute; left: calc(50% - 0.35rem); top: 0.05rem; width: 0.7rem; height: 0.7rem; border: 2px solid var(--accent); border-radius: 50%; box-sizing: border-box; }
 
-.x4-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.x4-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
 .x4-step { border: 1px solid var(--border); border-left-width: 4px; border-radius: var(--radius-sm); padding: 0.5rem 0.7rem; background: var(--bg-elevated); min-width: 0; }
 .x4-step--ok { border-left-color: var(--confidence-verified); }
 .x4-step--fail { border-left-color: var(--confidence-unverified); }
@@ -75,7 +75,7 @@
 .x4-code p { margin: 0.1rem 0; }
 
 .x4-more summary { cursor: pointer; font-size: 0.85rem; color: var(--link); }
-.x4-checks { list-style: none; padding: 0; margin: 0.4rem 0; font-size: 0.82rem; display: grid; gap: 0.15rem; }
+.x4-checks { list-style: none; padding: 0; margin: 0.4rem 0; font-size: 0.82rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.15rem; }
 .x4-checks__mark { display: inline-block; min-width: 2.6rem; font-weight: 700; font-size: 0.72rem; text-transform: uppercase; }
 .x4-checks .is-ok .x4-checks__mark { color: var(--confidence-verified); }
 .x4-checks .is-fail .x4-checks__mark { color: var(--confidence-unverified); }

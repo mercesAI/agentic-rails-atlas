@@ -33,25 +33,30 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 - Steps: open the page, scroll to the first flow player.
 - Expected: player fits the 760 px column. Actual: stage, toolbar and step text are 1605 px wide, run under the right rail (text overlapped by Key facts), page gets a horizontal scrollbar.
 - Cause: `.fp__detail` and the player grids have no `min-width: 0` / `minmax(0,1fr)`, so the long unbreakable payload line (for example the Signature-Input header) sets the track width. `src/components/protocol/protocol.css` (~lines 190 to 232, `.fp`, `.fp__detail`, `.fp__payload pre`). Screenshot: `screenshots/hs-mastercard-agent-pay-fp.png`.
+- **Status:** Fixed 2026-10-14. Root cause was single-column grids with an implicit auto track (min-content blow-out). Flow player, detail and payload now use minmax(0,1fr) and min-width 0; payload scrolls inside its own box. Checked at 360, 375, 768 and 1440 px.
 
 ### QA-003 (major) Scenario pages scroll sideways at 375 px
 - All 8 /scenarios/<slug>/ at 375, both themes (+225 to +655 px). The protocol chip list `ul.scn__chips` and `.prose` render 600 to 1030 px wide.
 - Cause: `.scn__chips` is wrapping flex in `src/pages/scenarios/[slug].astro:154`, but the parent grid/prose column lacks `min-width: 0` (or something inside forces nowrap), so content widens the page. Also unbreakable code in prose. Needs a check of `.scn` layout.
+- **Status:** Fixed 2026-10-14. .scn grid had an auto track; now minmax(0,1fr). Verified on all 8 scenario pages at 360, 375, 768, 1440 px.
 
 ### QA-004 (major) /stack/ scrolls sideways at both widths
 - /stack/ at 1440 (+79 px) and 375 (+1048 px).
 - Cause: `.react-flow__viewport` extends past its container, which has `overflow: visible`; the layer table also exceeds the width. Check `src/components/crosscut/` StackMap container (needs `overflow: hidden` on the flow wrapper and a scroll wrapper for the table).
+- **Status:** Fixed 2026-10-14. The overflow came from .sr-only (position: absolute) cells in the layer table whose containing block was the page; td, th, .table-wrap and .cc-frame are now position: relative so they clip inside the scroll frame. The flow canvas was already clipped.
 
 ### QA-005 (major) Offline support is a stub
 - Steps: load /, /p/x402/, /glossary/ with the service worker allowed, wait, go offline (`context.setOffline(true)`), load /, /p/x402/ (visited) and /p/ap2/ (unvisited).
 - Expected: visited pages served from cache, unvisited pages at least a fallback.
 - Actual: every navigation fails with ERR_INTERNET_DISCONNECTED. `caches.keys()` is empty. `dist/sw.js` is the one-line placeholder, and `dist/manifest.webmanifest` does not exist although `Base.astro:45` links it (404).
 - Source: `scripts/build-sw.ts` lines 4 and 5 only write a placeholder.
+- **Status:** Fixed 2026-10-14. scripts/build-sw.ts writes dist/sw.js (precache of 245 files, 35.2 MB of an 80 MB cap; network-first HTML with cache fallback; cache-first /_astro/; stale-while-revalidate otherwise; cache name atlas-<content hash>; old caches deleted on activate) and dist/manifest.webmanifest (colors read from tokens.css). Base.astro already registers /sw.js in production and links the manifest (confirmed). Playwright offline test reloads a visited page and opens unvisited ones.
 
 ### QA-006 (minor) j and k shortcuts stall on protocol pages
 - /p/x402/, 1440. Press `j` repeatedly then `k`.
 - Actual: first `j` goes to section A (scrollY 377); later `j` and `k` do nothing. Expected: step through sections.
 - Cause: both `html{scroll-padding-top}` (src/styles/global.css:15) and `.psec{scroll-margin-top}` (protocol.css:129) apply, so section tops land 264 px down; `jumpSection` in src/lib/shortcuts.ts assumes 96 px and re-picks section A. TOC and heading anchors also land 264 px below the top.
+- **Status:** Fixed 2026-10-14. Removed the duplicate scroll-margin-top (.psec, source list items, glossary terms); jumpSection now reads the real scroll-padding-top plus scroll-margin-top and re-aligns after lazy diagrams change the layout. TOC and heading anchors now land at one offset.
 
 ### QA-007 (minor) Glossary tooltip shows raw markdown and out-of-scope definitions
 - /p/x402/, hover the first underlined term "charge". Tooltip shows the Stripe MPP definition with literal backticks around `amount` and `currency`, while the x402 sentence uses "charge" as an ordinary verb. The tooltip has no glossary link until clicked.
@@ -72,6 +77,7 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 
 ### QA-012 (minor) Other 375 px overflow
 - /methodology/ (+90, long list items with unbreakable text in Blocked sources), /orbit/erc-3643/ (+20, table), /p/mastercard-agent-pay/ timeline table (+55), /p/stripe-mpp/ (+37, `sup.cite` at right edge).
+- **Status:** Fixed 2026-10-14. Causes: auto grid tracks (methodology lists, finding lists), bare Markdown tables (now scroll inside themselves), long hex strings (overflow-wrap), wide cite lists (now wrap), persona columns at 768. Sweep of all 63 pages at 360, 375, 768 and 1440 px shows no sideways scroll.
 
 ### QA-013 (minor) Controls cell details appear off-screen
 - /controls/, 1440. Click a cell in the first rows. The detail panel renders below the table's scroll box (about 600 px lower), outside the viewport, so nothing seems to happen. Source: `src/components/crosscut/ControlsMap.tsx:162`. The ninth table column is also cut at 1440 with no scroll cue.

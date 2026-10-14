@@ -77,13 +77,25 @@ export function createShortcutMatcher(now: () => number = () => Date.now()) {
   };
 }
 
+/**
+ * Distance from the viewport top where `scrollIntoView` places a target: the root's
+ * `scroll-padding-top` plus the target's own `scroll-margin-top`. Reading both keeps
+ * the comparison below consistent with where the browser actually lands.
+ */
+export function scrollOffsetFor(target: Element, doc: Document = document): number {
+  const view = doc.defaultView;
+  if (!view) return 0;
+  const px = (v: string) => (Number.isFinite(parseFloat(v)) ? parseFloat(v) : 0);
+  return px(view.getComputedStyle(doc.documentElement).scrollPaddingTop) + px(view.getComputedStyle(target).scrollMarginTop);
+}
+
 /** Scrolls to the next or previous section (`[data-section]`, falling back to `h2[id]`). */
 export function jumpSection(dir: 1 | -1, doc: Document = document): void {
   let targets = Array.from(doc.querySelectorAll<HTMLElement>('[data-section]'));
   if (targets.length === 0) targets = Array.from(doc.querySelectorAll<HTMLElement>('main h2[id]'));
   if (targets.length === 0) return;
-  const offset = 96;
-  const tops = targets.map((t) => t.getBoundingClientRect().top - offset);
+  // Distance of each section top from the place a jump would put it (negative: already above).
+  const tops = targets.map((t) => t.getBoundingClientRect().top - scrollOffsetFor(t, doc));
   let index: number;
   if (dir === 1) {
     index = tops.findIndex((top) => top > 4);
@@ -97,4 +109,25 @@ export function jumpSection(dir: 1 | -1, doc: Document = document): void {
   if (!target) return;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  settleOn(target, doc);
+}
+
+let settleToken = 0;
+
+/**
+ * Lazy diagrams above the target can change its height after the jump, which leaves the
+ * target far from the offset. After the scroll ends, re-align a few times until it is stable.
+ */
+function settleOn(target: HTMLElement, doc: Document): void {
+  const token = ++settleToken;
+  let tries = 0;
+  const check = () => {
+    if (token !== settleToken || !target.isConnected) return;
+    const delta = target.getBoundingClientRect().top - scrollOffsetFor(target, doc);
+    if (Math.abs(delta) <= 2 || tries >= 6) return;
+    tries += 1;
+    target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    window.setTimeout(check, 150);
+  };
+  window.setTimeout(check, 450);
 }

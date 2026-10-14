@@ -18,6 +18,9 @@
   :root { --header-h: 3.75rem; }
 }
 
+/* Make table cells and scroll frames the containing block for .sr-only (position: absolute) text, so hidden text cannot widen the page. */
+:where(td, th, .table-wrap, .cc-frame) { position: relative; }
+
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

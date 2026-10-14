@@ -1,6 +1,7 @@
 /* Article typography: tables, code blocks (Shiki dual theme), callouts, cite markers, diagrams. */
 
 .prose {
+  overflow-wrap: break-word;
   max-width: var(--content-width);
   font-size: 1.0625rem;
   line-height: 1.7;
@@ -46,6 +47,9 @@
 .table-wrap:focus-visible { outline-offset: 0; }
 .prose table, .table-wrap table { width: 100%; border-collapse: collapse; font-size: 0.9rem; line-height: 1.5; }
 .table-wrap table { border: 0; }
+/* Bare Markdown tables scroll inside their own box instead of widening the page. */
+.prose table:not(.table-wrap table) { display: block; max-width: 100%; overflow-x: auto; }
+.prose :where(p, li, td, th, dd) code { overflow-wrap: anywhere; }
 .prose table caption, .table-wrap caption {
   caption-side: top; text-align: left; padding: 0.7rem 0.9rem;
   font-family: var(--font-heading); font-weight: 600; color: var(--fg);
@@ -134,7 +138,7 @@ pre:not(.astro-code) {
 .callout__body > * + * { margin-top: 0.6em; }
 
 /* Citation markers */
-.cite { font-size: 0.7em; line-height: 0; margin-left: 0.1em; white-space: nowrap; }
+.cite { font-size: 0.7em; line-height: 0; margin-left: 0.1em; overflow-wrap: anywhere; }
 .cite a { font-family: var(--font-mono); text-decoration: none; color: var(--link); padding: 0 0.1em; border-radius: var(--radius-sm); }
 .cite a:hover { background: var(--selection); }
 .cite a[data-missing] { color: var(--confidence-unverified); }
