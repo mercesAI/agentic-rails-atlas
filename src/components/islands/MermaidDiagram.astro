@@ -49,8 +49,26 @@ const load = async (key: string, table: Record<string, () => Promise<string>>) =
   const fn = table[key];
   return fn ? await fn().catch(() => null) : null;
 };
-const light = await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS);
-const dark = await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS);
+/**
+ * Pins the SVG to its natural size (from the viewBox) so text keeps the size it
+ * was drawn at; the canvas scrolls sideways instead of shrinking the diagram.
+ */
+const natural = (svg: string | null): string | null => {
+  if (!svg) return svg;
+  return svg.replace(/<svg\b[^>]*>/, (tag) => {
+    const vb = /viewBox="\s*[-\d.]+[ ,]+[-\d.]+[ ,]+([\d.]+)[ ,]+([\d.]+)\s*"/.exec(tag);
+    if (!vb) return tag;
+    const w = Math.round(Number(vb[1]));
+    const h = Math.round(Number(vb[2]));
+    return tag
+      .replace(/\swidth="[^"]*"/, '')
+      .replace(/\sheight="[^"]*"/, '')
+      .replace(/\sstyle="[^"]*"/, '')
+      .replace(/^<svg\b/, `<svg width="${w}" height="${h}" data-natural-width="${w}"`);
+  });
+};
+const light = natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS));
+const dark = natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS));
 const rendered = Boolean(light || dark);
 const mmd = rendered
   ? null
@@ -60,10 +78,15 @@ const domId = `diagram-${p.id}`;
 <figure class="diagram-figure" id={domId} data-diagram={p.id} data-rendered={rendered ? 'true' : 'false'}>
   <Level class="diagram-figure__title" id={`${domId}-title`}>{title}</Level>
   {rendered ? (
+    <div class="diagram-figure__tools">
+      <p class="diagram-figure__hint" data-scroll-hint hidden>Scroll to see the whole diagram</p>
+      <button type="button" class="btn btn--ghost diagram-figure__fs" data-diagram-fullscreen aria-haspopup="dialog">View full screen<span class="sr-only">: {title}</span></button>
+    </div>
     <div
       class="diagram-figure__canvas"
-      role="img"
-      aria-labelledby={`${domId}-title`}
+      role="region"
+      tabindex="0"
+      aria-label={`${title} (scrollable diagram)`}
       aria-describedby={caption ? `${domId}-cap` : undefined}
       data-lazy-diagram={lazy ? '' : undefined}
     >
@@ -115,16 +138,29 @@ const domId = `diagram-${p.id}`;
 
 <script>
   // Swaps each lazy diagram's <template> into the live DOM near the viewport, and all of them before printing.
+  // Also shows the "scroll" hint when a diagram overflows, and runs the full-screen dialog.
+  const updateHint = (canvas: Element) => {
+    const hint = canvas.parentElement?.querySelector<HTMLElement>('[data-scroll-hint]');
+    if (!hint) return;
+    hint.hidden = !(canvas.scrollWidth > canvas.clientWidth + 1);
+  };
+  const ro = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver((entries) => entries.forEach((e) => updateHint(e.target)));
+  const watch = (canvas: Element) => {
+    updateHint(canvas);
+    ro?.observe(canvas);
+  };
   const reveal = (el: Element) => {
     const tpl = el.querySelector(':scope > template');
     if (!(tpl instanceof HTMLTemplateElement)) return;
     el.replaceChildren(tpl.content.cloneNode(true));
     el.removeAttribute('data-lazy-diagram');
+    watch(el);
   };
   const revealAll = () => document.querySelectorAll('[data-lazy-diagram]').forEach(reveal);
   let io: IntersectionObserver | undefined;
   document.addEventListener('astro:page-load', () => {
     io?.disconnect();
+    document.querySelectorAll('.diagram-figure__canvas:not([data-lazy-diagram])').forEach(watch);
     const items = document.querySelectorAll('[data-lazy-diagram]');
     if (!items.length) return;
     if (!('IntersectionObserver' in window)) return revealAll();
@@ -142,4 +178,91 @@ const domId = `diagram-${p.id}`;
     items.forEach((el) => io?.observe(el));
   });
   window.addEventListener('beforeprint', revealAll);
+
+  const ZOOM_MIN = 0.25;
+  const ZOOM_MAX = 3;
+  const ZOOM_STEP = 1.25;
+  let dialog: HTMLDialogElement | null = null;
+
+  const ensureDialog = (): HTMLDialogElement => {
+    if (dialog?.isConnected) return dialog;
+    const d = document.createElement('dialog');
+    d.className = 'diagram-dialog';
+    d.setAttribute('aria-labelledby', 'diagram-dialog-title');
+    d.innerHTML = `
+      <div class="diagram-dialog__bar">
+        <h2 id="diagram-dialog-title" class="diagram-dialog__title"></h2>
+        <div class="diagram-dialog__tools" role="group" aria-label="Zoom">
+          <button type="button" class="btn" data-zoom="out" aria-label="Zoom out">Zoom out</button>
+          <button type="button" class="btn" data-zoom="reset" aria-label="Reset zoom">Reset</button>
+          <button type="button" class="btn" data-zoom="in" aria-label="Zoom in">Zoom in</button>
+          <output class="diagram-dialog__level" aria-live="polite"></output>
+          <button type="button" class="btn" data-zoom="close">Close</button>
+        </div>
+      </div>
+      <div class="diagram-dialog__body" role="region" tabindex="0" aria-label="Diagram, scroll to pan"></div>`;
+    document.body.append(d);
+    d.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t === d) return d.close();
+      const act = t.closest<HTMLElement>('[data-zoom]')?.dataset.zoom;
+      if (act) zoom(d, act);
+    });
+    d.addEventListener('close', () => {
+      d.querySelector('.diagram-dialog__body')?.replaceChildren();
+    });
+    dialog = d;
+    return d;
+  };
+
+  const applyZoom = (d: HTMLDialogElement, scale: number) => {
+    d.dataset.scale = String(scale);
+    d.querySelectorAll<SVGSVGElement>('.diagram-dialog__body svg').forEach((svg) => {
+      const w = Number(svg.dataset.naturalWidth);
+      const vb = svg.viewBox.baseVal;
+      if (!w || !vb.width) return;
+      svg.setAttribute('width', String(Math.round(w * scale)));
+      svg.setAttribute('height', String(Math.round(((vb.height / vb.width) * w) * scale)));
+    });
+    const out = d.querySelector('.diagram-dialog__level');
+    if (out) out.textContent = `${Math.round(scale * 100)}%`;
+  };
+
+  const zoom = (d: HTMLDialogElement, act: string) => {
+    if (act === 'close') return d.close();
+    const cur = Number(d.dataset.scale || '1');
+    const next = act === 'in' ? cur * ZOOM_STEP : act === 'out' ? cur / ZOOM_STEP : 1;
+    applyZoom(d, Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next)));
+  };
+
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element | null)?.closest<HTMLElement>('[data-diagram-fullscreen]');
+    if (!btn) return;
+    const figure = btn.closest('.diagram-figure');
+    const canvas = figure?.querySelector('.diagram-figure__canvas');
+    if (!figure || !canvas) return;
+    reveal(canvas);
+    const d = ensureDialog();
+    const title = figure.querySelector('.diagram-figure__title')?.textContent ?? 'Diagram';
+    const titleEl = d.querySelector('.diagram-dialog__title');
+    if (titleEl) titleEl.textContent = title;
+    const body = d.querySelector('.diagram-dialog__body');
+    body?.replaceChildren(...[...canvas.querySelectorAll('.diagram')].map((n) => n.cloneNode(true)));
+    // Cloned SVG ids would duplicate the page's; suffix them so aria references stay unique.
+    d.querySelectorAll('.diagram-dialog__body [id]').forEach((n) => (n.id = `${n.id}-fs`));
+    d.querySelectorAll('.diagram-dialog__body [aria-labelledby], .diagram-dialog__body [aria-describedby]').forEach((n) => {
+      for (const a of ['aria-labelledby', 'aria-describedby']) {
+        const v = n.getAttribute(a);
+        if (v) n.setAttribute(a, v.split(/\s+/).map((x) => `${x}-fs`).join(' '));
+      }
+    });
+    applyZoom(d, 1);
+    d.showModal();
+    (d.querySelector('.diagram-dialog__body') as HTMLElement | null)?.focus();
+  });
+  document.addEventListener('astro:before-swap', () => {
+    dialog?.close();
+    dialog?.remove();
+    dialog = null;
+  });
 </script>

@@ -173,3 +173,45 @@ test.describe('reading modes on /p/x402/', () => {
     await expect(page.locator('#mode-live')).toHaveText('ELI5 applied to section B');
   });
 });
+
+test.describe('diagrams stay readable', () => {
+  test.skip(!slugs.includes('ap2'), 'ap2 content missing');
+
+  async function stateFigure(page: Page) {
+    await page.goto('/p/ap2/');
+    const figure = page.locator('.diagram-figure').filter({ hasText: 'mandate lifecycle' }).first();
+    await figure.scrollIntoViewIfNeeded();
+    await expect(figure.locator('svg:visible').first()).toBeVisible();
+    return figure;
+  }
+
+  test('state machine text renders at 11 px or more and the canvas scrolls', async ({ page }) => {
+    const figure = await stateFigure(page);
+    const size = await figure.evaluate((f) => {
+      const svg = [...f.querySelectorAll('svg')].find((s) => s.getBoundingClientRect().width > 0)!;
+      const label = svg.querySelector('.nodeLabel, text')!;
+      const scale = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
+      return parseFloat(getComputedStyle(label).fontSize) * scale;
+    });
+    expect(size).toBeGreaterThanOrEqual(11);
+    const canvas = figure.getByRole('region', { name: /scrollable diagram/ });
+    await expect(canvas).toHaveAttribute('tabindex', '0');
+    await expect(figure.getByText('Scroll to see the whole diagram')).toBeVisible();
+  });
+
+  test('full-screen dialog opens and closes with the keyboard', async ({ page }) => {
+    const figure = await stateFigure(page);
+    const button = figure.getByRole('button', { name: /View full screen/ });
+    await button.focus();
+    await page.keyboard.press('Enter');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Zoom in' }).click();
+    await expect(dialog.locator('.diagram-dialog__level')).toHaveText('125%');
+    await dialog.getByRole('button', { name: 'Reset zoom' }).click();
+    await expect(dialog.locator('.diagram-dialog__level')).toHaveText('100%');
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(button).toBeFocused();
+  });
+});
