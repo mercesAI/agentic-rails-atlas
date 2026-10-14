@@ -236,3 +236,38 @@ Sources used: `gh api` on 2026-10-13 (commits, tags, releases, repository), vend
 
 Date failures: 0. Note items: 2.
 
+## Check 4: "Do not get wrong" list (ATLAS_PROMPT.md Section 5.4)
+
+Rendered page checked at `dist/p/openai-acp/index.html` (text extracted) and the source files.
+
+| Item | Verdict | Where the page states it | Note |
+|---|---|---|---|
+| Not the IBM Agent Communication Protocol | pass | Frontmatter `disambiguation` (index.mdx:58, shown in the page header); Section A "What it is not" box; faq.json "Is ACP the same as IBM's Agent Communication Protocol?"; claims 226, 227, 230 | Also separates Virtuals, ERC-8183 and the Agent Client Protocol. Checked against IBM post, PyPI JSON, ERC-8183 text, Agent Client Protocol README. |
+| OpenAI is not the merchant of record | pass | Section A: "OpenAI is not the merchant of record. The merchant is ..." (claim 045); keyFacts "Merchant of record: The merchant, never OpenAI"; faq.json; Section B "Actors and roles" | Source: developers.openai.com FAQ, quoted in check 1. |
+| The SPT is Stripe's product used with ACP, not the ACP spec | pass | Section A: "The Shared Payment Token is Stripe's product used with ACP, not the ACP specification"; index.mdx:61 and :888; faq.json "Is the Shared Payment Token part of ACP?"; claim 050 | Schema has `spt` only as an example credential type (schema.agentic_checkout.json:2064). |
+| Instant Checkout in its 2025 form was scaled back | pass | statusNote ("the 2025 in-chat Instant Checkout was scaled back in March 2026"); Section A "Not the 2025 Instant Checkout"; index.mdx:880; faq.json | Correctly caveated: no primary source gives a shutdown date (claim 225); the "moving to apps" quote is `reported`. |
+
+Do-not-get-wrong failures: 0.
+
+## Check 5: diagrams against the spec
+
+| Artifact | Verdict | Evidence and note |
+|---|---|---|
+| Flow checkout-happy-path (13 steps) | pass with payload issues | Order: discovery, create (201), update, buyer confirms, delegate payment, complete, merchant PSP charge, 200 completed with order, `order_create` webhook. Matches rfc.agentic_checkout.md sections 4.1 to 4.4, the RFC delegate payment sequence and the webhook OpenAPI. The 200 vs 201 note is correct. Payload faults are in check 2d (step 4 `fulfillment_options` lacks `totals`; step 12 abbreviated). |
+| Flow 3ds-authentication | pass | `authentication_required` plus `authentication_metadata` (rfc:159-160, 339); missing `authentication_result` returns 4XX `requires_3ds` (rfc:715, :201); delegate authentication create returns action_required, pending or not_supported; 10 second fingerprint timeout and Y, N, U; result sent even if denied (rfc:160). |
+| Flow delegate-payment | pass | Required headers and the RFC 2.2 versus header-list signature conflict (R22) described correctly; the PSP-specific failure behavior is flagged as undefined by the spec. |
+| Flow failure-idempotency-conflict | pass | 409 `idempotency_in_flight` with `Retry-After`, replay header `Idempotent-Replayed: true` (rfc:267, SHOULD), 422 `idempotency_conflict`, and the OpenAI 409 divergence. |
+| Flow order-webhook | pass with payload issue | HMAC over `timestamp.rawbody`, `t=...,v1=...`, 2xx acknowledgment. Payload misses `occurred_at` in the adjustment (check 2d). |
+| Flow cancel-intent-trace | pass | rfc.intent_traces.md:33, :200, :222. |
+| Flow product-feed-push | fail (minor) | Paths, PATCH upsert, file replacement and OpenAI daily-file advice are right; the POST /feeds payload sends `id` and the PATCH payload uses a lowercase currency (check 2d). |
+| State machine checkout-session | pass with note | 11 states equal the 2026-04-17 enum; terminal states and the 405 on repeat cancel match rfc:168; every transition without RFC text is labeled "inferred from name" or "schema only". Note: the `ready_for_payment -> in_progress` transition cites "2025-09-29 schema", which defines only the enum value, not a transition; add "(inferred)". The `expired` and `incomplete` transitions are honestly marked inferred. |
+| Diagram allowance-scoping | pass | The six Allowance fields are real; caption states that the PSP enforces them and ACP defines no error code (agrees with check 1 claim 239). |
+| Diagram mcp-tool-mapping | pass | Five tool names equal the OpenRPC methods; `meta.api_version`, `idempotency_key`, `signature`, `timestamp`, `request_id` exist (docs/mcp-binding.md header mapping). The diagram does not show that `meta.idempotency_key` is optional in the MCP binding while REST requires `Idempotency-Key`; optional addition. |
+| Diagram versions | pass | Per-version contents agree with the five changelog files; edit dates match `gh api` (check 1 claim 041); 18 commits (check 3). |
+| Diagram docs-vs-spec | pass | Five contrasts verified against llms-full.txt and the spec (claims 132, 157, 219, 220, 115). |
+| Diagram models-2025-2026 | pass | Matches the OpenAI discovery post and apps monetization docs. |
+| Diagram composition | pass | Solid lines have sources (claims 049, 164, 210); dotted lines are honest "no bridge or no documented link". |
+| Diagram context and data-model | pass | Zones, paths and class fields match the schemas (field names verified in check 2). Data-model class `Order.status` string is fine. |
+
+Diagram issues: 4 (feed payloads, happy-path step 4 payload, webhook adjustment payload, in_progress transition citation). Hand-written diagrams make no unsupported claim.
+
