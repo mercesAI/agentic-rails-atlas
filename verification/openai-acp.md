@@ -199,3 +199,40 @@ Script: Ajv 8.20 (2020-12, formats off) against the dated 2026-04-17 JSON Schema
 
 Totals for check 2: 96 table segments and 60 Mode spec identifiers checked (156), 0 non-existent identifiers, 2 wrong required flags, 5 payload failures (4 genuine schema errors, 1 abbreviated).
 
+## Check 3: dates, versions and numbers
+
+Sources used: `gh api` on 2026-10-13 (commits, tags, releases, repository), vendor changelog and governance files, Wayback snapshots and live pages for the third-party dates (all returned HTTP 200).
+
+| Item | Verdict | Evidence | Note |
+|---|---|---|---|
+| frontmatter `firstAnnounced` 2025-09-29 | pass | OpenAI launch post (Wayback), Stripe newsroom, repo created 2025-09-29T04:09:29Z | |
+| frontmatter `latestVersion` 2026-04-17 | pass | changelog/2026-04-17.md; RELEASE PR #227 at 2026-04-17T21:48Z | Label states no tag or release: confirmed (tags 0, releases 0). |
+| Version labels vs tags (brief check 3) | pass | `gh api repos/.../tags` and `/releases` both empty | Labels are dated folders, as the page says (R24 applied). |
+| Timeline 2025-09-29 launch | pass | as above | |
+| Timeline 2025-10-14 Walmart | pass | corporate.walmart.com page dated "Oct. 14, 2025", Instant Checkout partnership | |
+| Timeline 2025-10-28 PayPal | pass | PayPal press release "Oct. 28, 2025 ... will adopt the Agentic Commerce Protocol" | |
+| Timeline 2025-11-21 Collaboration and Governance Agreement | pass | legal/cla/SIGNATORIES.md:3 | |
+| Timeline 2025-12-11 Stripe Agentic Commerce Suite | pass | stripe.com newsroom "11 December 2025" | |
+| Timeline 2025-12-12 and 2026-01-16 versions | pass with note | changelog files exist; the dated folders were created by commit "setup yyyy-mm-dd versioning (#81)" on 2026-01-22, so these two dated versions were labeled retroactively | The page does not say this; optional clarification. |
+| Timeline 2026-01-08 Copilot Checkout | pass | Microsoft Advertising blog "January 08, 2026"; "adopting open standards like the Agentic Commerce Protocol (ACP)" | |
+| Timeline 2026-01-21 4 percent fee | pass | PYMNTS article, reported label correct | Exact article date not shown in fetched text; sources.json records 2026-01-21. |
+| Timeline 2026-01-30 version | pass | "[admin] Release 2026-01-30 (#94)" committed 2026-01-31T00:16Z (2026-01-30 US Pacific) | |
+| Timeline 2026-03-10 TSC governance | pass | commit f38a41b "ADMIN: Revised governance model (#173)" 2026-03-10T17:28Z | |
+| Timeline 2026-03-10 "moving to apps" | pass | Retail Systems article dated 10/03/2026 (UK format) | |
+| Timeline 2026-03-24 discovery shift | pass | Wayback of OpenAI discovery post (published date taken from sources.json) | |
+| Timeline 2026-04-24 Meta joins TSC | pass | commit 02672ab "ADMIN: Add Meta as TSC member (#236)" 2026-04-24T16:44Z | |
+| Timeline 2026-05-01 schema edited | pass | commit 6b82868 2026-05-01 touches spec/2026-04-17 | |
+| Timeline 2026-07-18 last commit | pass | head 7fdd78d at 2026-07-18T04:51:51Z (2026-07-17 PT); no newer commit on 2026-10-13 | ATLAS_PROMPT says 2026-07-17 (local time); the page uses UTC. Consistent. |
+| facts.changedRecently (5 entries) | pass | each date matches the rows above; 2026-10-11 status of external checkout and payment sheet matches monetization docs | |
+| ecosystem.metrics acp-gh-stars 1570 | pass | live 1573 on 2026-10-13, asOf 2026-10-11 | normal drift |
+| ecosystem.metrics acp-gh-forks 253 | pass | live 253 | |
+| acp-cla-signatories 10 (asOf 2026-06-03) | pass | SIGNATORIES.md has 10 corporate rows, last updated 2026-06-03 | |
+| acp-tsc-seats "3 of up to 7" (asOf 2026-04-24) | pass | governance.md table, 3 rows | |
+| acp-commits-after-release 18 | pass | `gh api commits?since=2026-04-17T21:48:31Z` returns 18; the first is dated after 2026-04-24 | |
+| acp-discovery-retailers 7 | pass | OpenAI discovery post lists Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot, Wayfair | |
+| acp-chatgpt-weekly-users "more than 700 million" | pass | OpenAI launch post | |
+| acp-shopify-ai-merchants "around a dozen" | pass with note | Retail Systems: 3 March, Shopify president | The metric is flagged `disputed` against src-openai-buy-it, but the launch post (2025-09-29) does not contradict a March 2026 remark; consider dropping `disputed` or explaining the dispute. |
+| acp-volume "not published" | pass | no figure in OpenAI, Stripe or repo sources | |
+
+Date failures: 0. Note items: 2.
+
