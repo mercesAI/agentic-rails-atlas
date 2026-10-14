@@ -19,6 +19,8 @@ interface Props {
   sourceIndex?: Record<string, number>;
   /** Heading id prefix when several players share a page. */
   idPrefix?: string;
+  /** Heading level of the step title. Use 3 when the player sits directly under an h2. Default 4. */
+  headingLevel?: 3 | 4;
 }
 
 const PAYLOAD_LABELS: Record<string, string> = {
@@ -60,7 +62,8 @@ function usePrefersReducedMotion(): boolean {
  * Play, pause, step, speed, payload view, trust-boundary highlight, failure
  * branches toggle, spec links, keyboard (arrows, space, Home, End), aria-live.
  */
-export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix }: Props) {
+export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLevel = 4 }: Props) {
+  const StepHeading = `h${headingLevel}` as 'h3' | 'h4';
   const steps = useMemo(() => orderSteps(flow.steps), [flow.steps]);
   const actorIds = useMemo(() => flow.actors.map((a) => a.id), [flow.actors]);
   const labels = useMemo(() => new Map(flow.actors.map((a) => [a.id, a.label])), [flow.actors]);
@@ -227,9 +230,9 @@ export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix }: Props) 
             <span className="sr-only">to</span> {label(step.to)}
           </span>
         </p>
-        <h4 className="fp__title" id={`${baseId}-step-title`}>
+        <StepHeading className="fp__title" id={`${baseId}-step-title`}>
           {step.label}
-        </h4>
+        </StepHeading>
         <p className="fp__text">{step.detail}</p>
         {step.specRef && (
           <p className="fp__spec">

@@ -45,6 +45,20 @@ function position(tip: HTMLElement, anchor: HTMLElement): void {
   tip.style.top = `${r.bottom + window.scrollY + 8}px`;
 }
 
+/** Renders the plain definition as text, turning `code` spans into <code> instead of showing the backticks. */
+function fillPlain(el: HTMLElement, text: string): void {
+  text.split('`').forEach((part, i) => {
+    if (!part) return;
+    if (i % 2 === 1) {
+      const code = document.createElement('code');
+      code.textContent = part;
+      el.append(code);
+    } else {
+      el.append(part);
+    }
+  });
+}
+
 async function show(anchor: HTMLElement, pin: boolean): Promise<void> {
   const tip = tooltip();
   const id = anchor.dataset.term;
@@ -57,7 +71,7 @@ async function show(anchor: HTMLElement, pin: boolean): Promise<void> {
   title.className = 'term-tooltip__term';
   title.textContent = term?.term ?? anchor.textContent ?? id;
   const body = document.createElement('p');
-  body.textContent = term?.plain ?? 'Definition not available offline yet.';
+  fillPlain(body, term?.plain ?? 'Definition not available offline yet.');
   tip.append(title, body);
   if (pin) {
     const link = document.createElement('a');
@@ -67,6 +81,10 @@ async function show(anchor: HTMLElement, pin: boolean): Promise<void> {
     tip.setAttribute('role', 'dialog');
     tip.setAttribute('aria-label', `Definition: ${title.textContent}`);
   } else {
+    const hint = document.createElement('p');
+    hint.className = 'term-tooltip__hint';
+    hint.textContent = 'Select the term to pin this and open the glossary entry.';
+    tip.append(hint);
     tip.setAttribute('role', 'tooltip');
     tip.removeAttribute('aria-label');
   }

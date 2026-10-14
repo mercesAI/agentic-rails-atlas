@@ -128,7 +128,7 @@ export default function CompareMatrix({ protocols, dimensions, cells, numbers }:
             {grouped.length === 0 && (
               <tr>
                 <td colSpan={visibleProtocols.length + 1} className="cc-cell--empty">
-                  No dimension matches these filters.
+                  No dimension matches these filters. Clear the search text or choose Reset filters.
                 </td>
               </tr>
             )}

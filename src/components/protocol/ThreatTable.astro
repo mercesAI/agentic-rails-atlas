@@ -3,6 +3,7 @@
 import Cite from '../ui/Cite.astro';
 import ConfidenceBadge from '../ui/ConfidenceBadge.astro';
 import type { SecurityFile } from '../../lib/schemas';
+import { getPublications } from '../../lib/content';
 import { MITIGATION_LABELS, STRIDE_LABELS } from './labels';
 
 export interface Props {
@@ -10,6 +11,14 @@ export interface Props {
 }
 const { security } = Astro.props;
 const STRIDE_ORDER = ['S', 'T', 'R', 'I', 'D', 'E'];
+// A finding links to section G only when the paper is listed there (its `protocols` include this page's protocol).
+const publications = new Map((await getPublications()).map((p) => [p.id, p]));
+const paperLink = (id: string | undefined) => {
+  const pub = id ? publications.get(id) : undefined;
+  if (!pub) return null;
+  const inSectionG = (pub.protocols as string[]).includes(security.protocol);
+  return inSectionG ? { href: `#${pub.id}`, label: 'paper in section G', external: false } : { href: pub.url, label: 'paper (not listed in section G)', external: true };
+};
 const threats = [...security.threats].sort((a, b) => STRIDE_ORDER.indexOf(a.stride) - STRIDE_ORDER.indexOf(b.stride));
 ---
 <p>{security.summary}</p>
@@ -59,7 +68,7 @@ const threats = [...security.threats].sort((a, b) => STRIDE_ORDER.indexOf(a.stri
     {[...security.research].sort((a, b) => b.date.localeCompare(a.date)).map((r) => (
       <li>
         <time datetime={r.date}>{r.date}</time> <strong>{r.title}</strong>: {r.finding}
-        {r.publicationId && <> (<a href={`#${r.publicationId}`}>paper in section G</a>)</>} <Cite ids={r.sources.join(' ')} />
+        {paperLink(r.publicationId) && <> (<a href={paperLink(r.publicationId)!.href} rel={paperLink(r.publicationId)!.external ? 'noopener noreferrer external' : undefined}>{paperLink(r.publicationId)!.label}</a>)</>} <Cite ids={r.sources.join(' ')} />
       </li>
     ))}
   </ul>

@@ -114,6 +114,10 @@ export default function LibraryBrowser({ items, protocolNames, accessed }: Libra
       <p className="sr-only" role="status">
         {status}
       </p>
+      <h2 className="sr-only">Matching entries</h2>
+      {result.length === 0 ? (
+        <p className="cc-empty">No entries match these filters. Clear the search text or choose Reset to see all {items.length} entries.</p>
+      ) : null}
       <ul className="cc-lib-list">
         {result.slice(0, limit).map((i) => (
           <li key={i.id} className="cc-lib-item" id={i.id}>

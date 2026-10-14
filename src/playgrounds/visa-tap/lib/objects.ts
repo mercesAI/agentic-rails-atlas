@@ -133,7 +133,7 @@ export async function checkObject(
   const nonceOk = obj.nonce === ctx.messageNonce;
   checks.push({ label: 'Nonce matches the message signature', ok: nonceOk, detail: nonceOk ? 'Same nonce.' : `Object nonce ${JSON.stringify(obj.nonce)} differs from ${ctx.messageNonce}.` });
   const entry = typeof obj.kid === 'string' ? ctx.lookup(obj.kid) : undefined;
-  checks.push({ label: 'Key located for kid', ok: !!entry, detail: entry ? `kid ${String(obj.kid)} found.` : `No key for kid ${JSON.stringify(obj.kid)}.` });
+  checks.push({ label: 'Key located for kid', ok: !!entry, detail: entry ? `kid ${String(obj.kid)} found.` : obj.kid === undefined ? 'The object has no kid field, so no key can be located.' : `No key for kid ${JSON.stringify(obj.kid)}.` });
   let sigOk = false;
   if (entry && typeof obj.signature === 'string') {
     try {

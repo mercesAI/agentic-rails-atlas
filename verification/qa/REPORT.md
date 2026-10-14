@@ -61,16 +61,20 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 ### QA-007 (minor) Glossary tooltip shows raw markdown and out-of-scope definitions
 - /p/x402/, hover the first underlined term "charge". Tooltip shows the Stripe MPP definition with literal backticks around `amount` and `currency`, while the x402 sentence uses "charge" as an ordinary verb. The tooltip has no glossary link until clicked.
 - Source: `src/lib/glossary/rehype-glossary.ts` (no protocol scoping; term `charge` has protocols ["stripe-mpp"] in src/content/glossary/terms.json), `src/lib/client/glossary-tooltip.ts` (no markdown stripping).
+- **Status:** Fixed 2026-10-14. The glossary rehype plugin now drops terms scoped to other protocols on a protocol page (charge no longer annotates x402 prose); tooltips render backticks as code and show a hint that selecting the term opens the glossary entry.
 
 ### QA-008 (minor) "paper in section G" links point to a missing anchor
 - /p/visa-tap/ and /p/mastercard-agent-pay/: link `#pub-jiang-2026-formal` has no target (paper not listed in section G).
 - Source: `src/content/protocols/visa-tap/security.json:256` and the same field in mastercard-agent-pay.
+- **Status:** Fixed 2026-10-14. ThreatTable links to section G only when the paper is listed there; otherwise the link goes to the paper (arXiv) and reads 'paper (not listed in section G)'. The claim text and sources are unchanged.
 
 ### QA-009 (minor) Heading levels skip
 - /library/ (h1 to h3 on each paper), all 8 /scenarios/<slug>/ (h2 to h4 for step headings). axe heading-order (moderate), 36 page/viewport/theme combinations.
+- **Status:** Fixed 2026-10-14. FlowPlayer takes headingLevel (scenario pages use 3, so h2 is followed by h3); the library list has an h2 'Matching entries' before the paper h3s.
 
 ### QA-010 (minor) Scenario table with empty header cell
 - /scenarios/metered-inference/: axe empty-table-header (minor), first `th` of a table has no text. All four loads.
+- **Status:** Fixed 2026-10-14. Content bug: the first header cell of the comparison table in src/content/scenarios/metered-inference.mdx is now 'Aspect'. No claim changed.
 
 ### QA-011 (minor) Mobile "View universe" dialog is unreadable at first view
 - Home, 375: View universe. The chart fits at about 40 percent scale (labels about 4 px) in a short canvas with empty space; bubbles are 35 px. Needs zoom to read.
@@ -88,12 +92,14 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 ### QA-015 (minor) Visa TAP playground message "No key for kid undefined"
 - /p/visa-tap/ playground, objects tab, clearing the kid: check reads "Key located for kid: No key for kid undefined."
 - Source: `src/playgrounds/visa-tap/lib/objects.ts:136` (`JSON.stringify(undefined)`).
+- **Status:** Fixed 2026-10-14. The check now reads 'The object has no kid field, so no key can be located.' when kid is absent. Unit test added.
 
 ### QA-016 (minor) Quiz answers cluster on options B and C
 - All eight quiz.json files: correct answer is B in 53 of 80 questions, C in 25, A in 1 or 2, D in 1. Guessable. Source: `src/content/protocols/*/quiz.json`.
 
 ### QA-017 (minor) Empty search results have no message
 - /compare/ (search "zzzz") shows an empty table; /glossary/ and /library/ show only a zero count. No "no results" text or guidance.
+- **Status:** Fixed 2026-10-14. Glossary and compare already showed a message in the current build; the library had none and now shows one, and the compare and glossary texts now say how to recover. Regression test covers all three.
 
 ### QA-018 (cosmetic) Home universe
 - Persona panel stays open over the bubbles after a choice. In Orbit mode two satellites overlap the rotated "Card and wallet commerce" label. The universe starts at 620 px, below the fold at 900 px.

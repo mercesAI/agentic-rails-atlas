@@ -38,3 +38,20 @@ describe('rehype-glossary', () => {
     expect(JSON.stringify(tree)).toBe(before);
   });
 });
+
+describe('rehype-glossary scoping', () => {
+  const scoped = [
+    ...terms,
+    { id: 'charge', term: 'Charge', aliases: [], plain: 'The MPP intent.', protocols: ['stripe-mpp'] },
+  ];
+  const run = (path: string) => {
+    const tree = { type: 'root', children: [el('p', [text('We charge a fee.')])] };
+    rehypeGlossary({ terms: scoped })(tree as never, { path } as never);
+    return JSON.stringify(tree);
+  };
+  it('skips terms scoped to other protocols on a protocol page', () => {
+    expect(run('/x/src/content/protocols/x402/index.mdx')).not.toContain('button');
+    expect(run('/x/src/content/protocols/stripe-mpp/index.mdx')).toContain('"dataTerm":"charge"');
+    expect(run('/x/src/content/scenarios/a.mdx')).toContain('"dataTerm":"charge"');
+  });
+});

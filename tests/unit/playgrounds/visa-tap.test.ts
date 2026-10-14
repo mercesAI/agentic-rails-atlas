@@ -337,6 +337,7 @@ describe('body objects', () => {
     const { kid: _drop, ...noKid } = withIou;
     const missing = await checkObject('payment', noKid, { messageNonce: 'n-1', lookup });
     expect(missing.checks[0]?.detail).toMatch(/kid/);
+    expect(missing.checks.find((c) => c.label.startsWith('Key located'))?.detail).not.toMatch(/undefined/);
     expect(() => withValue(consumer, 'nonce.x', 1)).toThrow();
   });
   it('encodes the fixture ID token and its signing base', () => {

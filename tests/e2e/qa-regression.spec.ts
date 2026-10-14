@@ -1,6 +1,7 @@
 /** Regression tests for the 2026-10-14 QA sweep (verification/qa/REPORT.md). */
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 async function hydrated(page: Page) {
@@ -144,5 +145,56 @@ test.describe('QA-005 offline support', () => {
     } finally {
       await context.setOffline(false);
     }
+  });
+});
+
+test.describe('QA-009, QA-010 headings and table headers', () => {
+  const pages = ['/library/', '/scenarios/metered-inference/', '/scenarios/agent-buys-one-api-call/', '/scenarios/shopper-in-gemini/'];
+  for (const url of pages) {
+    test(`axe finds no heading-order or empty-table-header issue on ${url}`, async ({ page }) => {
+      await page.goto(url);
+      await page.waitForLoadState('networkidle');
+      const results = await new AxeBuilder({ page }).withRules(['heading-order', 'empty-table-header', 'empty-heading']).analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
+    });
+  }
+});
+
+test.describe('QA-007 glossary scoping and tooltip text', () => {
+  test('a Stripe MPP term does not annotate x402 prose, and tooltips show no backticks', async ({ page }) => {
+    await page.goto('/p/x402/');
+    expect(await page.locator('button.term[data-term="charge"]').count()).toBe(0);
+    await page.goto('/p/stripe-mpp/');
+    const term = page.locator('button.term[data-term="charge"]').first();
+    await term.scrollIntoViewIfNeeded();
+    await term.focus();
+    const tip = page.locator('#term-tooltip');
+    await expect(tip).toBeVisible();
+    expect(await tip.innerText()).not.toContain('`');
+    await expect(tip).toContainText(/glossary/i);
+  });
+});
+
+test.describe('QA-008 findings link to existing targets', () => {
+  for (const slug of ['visa-tap', 'mastercard-agent-pay']) {
+    test(`${slug}: every in-page paper link has a target`, async ({ page }) => {
+      await page.goto(`/p/${slug}/`);
+      const hrefs = await page.locator('.finding-list a[href^="#pub-"]').evaluateAll((els) => els.map((e) => e.getAttribute('href')!));
+      for (const h of hrefs) expect(await page.locator(h).count(), h).toBeGreaterThan(0);
+    });
+  }
+});
+
+test.describe('QA-017 empty search results', () => {
+  test('library, compare and glossary say when nothing matches', async ({ page }) => {
+    await page.goto('/library/');
+    await page.getByRole('searchbox').first().fill('zzzzqqq');
+    await expect(page.getByText(/No entries match/)).toBeVisible();
+    await page.goto('/compare/');
+    await page.getByRole('searchbox').first().fill('zzzzqqq');
+    await expect(page.getByText(/No dimension matches/)).toBeVisible();
+    await page.goto('/glossary/');
+    await page.locator('#gl-q').fill('zzzzqqq');
+    await expect(page.locator('#gl-empty')).toBeVisible();
   });
 });
