@@ -1,0 +1,59 @@
+---
+slug: erc-7715-7710
+name: ERC-7715 wallet execution permissions and ERC-7710 delegation
+category: wallet-permissions
+starred: true
+oneLiner: Two Draft Ethereum standards that let a user grant an app or agent scoped spending authority; ERC-7715 is how the app asks the wallet for permissions, and ERC-7710 is how the granted delegation is redeemed on-chain.
+steward: Ethereum ERCs process (community authors, including Dan Finlay on both); MetaMask ships the main implementation
+status: Draft (both); implemented in MetaMask Advanced Permissions
+latestVersion:
+  label: ERC-7715 Draft, last changed 2026-01-16 (ERC-7710 last changed 2025-06-10)
+  date: "2026-01-16"
+relations:
+  - to: x402
+    type: embeds
+    note: The x402 exact EVM scheme accepts erc7710 as a transfer method (delegationManager, permissionContext, delegator); x402 embeds ERC-7710, and MetaMask documents recurring x402 payments with an ERC-7715 periodic permission.
+sources:
+  - src-erc-7715
+  - src-erc-7710
+  - src-orbit-wallet-erc-7715-gitlog
+  - src-orbit-wallet-erc-7710-gitlog
+  - src-orbit-wallet-erc-7715-magicians
+  - src-orbit-wallet-erc-7710-magicians
+  - src-orbit-wallet-mm-advanced-permissions
+  - src-orbit-wallet-mm-supported-permissions
+  - src-orbit-wallet-mm-delegation-framework
+  - src-orbit-wallet-mm-sak-repo
+  - src-orbit-wallet-mm-sak-rebrand-pr
+  - src-orbit-wallet-mm-x402-recurring
+  - src-x402-scheme-exact-evm
+  - src-erc-8004-spec
+lastVerified: "2026-10-11"
+---
+
+## What they are
+
+ERC-7715, "Request Permissions from Wallets", is a wallet JSON-RPC standard. An app calls `wallet_requestExecutionPermissions` with a `chainId`, the session account `to` that will act, a `permission` with a `type` and `data`, and optional `rules` such as an `expiry`. The wallet answers with a `context` (the ERC-7710 permission context), any account `dependencies` and the `delegationManager` to call. Companion methods revoke a permission and list supported or granted ones. Permission types are open-ended; the text gives native token, ERC-20 and ERC-721 allowances as examples. <Cite ids="src-erc-7715" />
+
+ERC-7710, "Smart Contract Delegation", is the on-chain half. A delegate calls `redeemDelegations(bytes[] _permissionContexts, bytes32[] _modes, bytes[] _executionCallData)` on a Delegation Manager, which checks the delegation and has the delegator's account execute the call, with modes and calldata in ERC-7579 format. How a delegation is obtained is out of scope, and ERC-7715 is one route. <Cite ids="src-erc-7710" /> Read together, ERC-7715 is the request a user approves in the wallet, and ERC-7710 is the receipt the agent later redeems.
+
+## Status
+
+Both are Draft. ERC-7715 was created on 2024-05-24, entered the ERCs repository on 2025-02-18 under its earlier title "Grant Permissions from Wallets", and was last simplified on 2026-01-16. <Cite ids="src-erc-7715 src-orbit-wallet-erc-7715-gitlog src-orbit-wallet-erc-7715-magicians" /> ERC-7710 grew out of a 2023-11-19 forum proposal, was created on 2024-05-20, entered the repository on 2024-12-12 and was last revised on 2025-06-10. <Cite ids="src-erc-7710 src-orbit-wallet-erc-7710-gitlog src-orbit-wallet-erc-7710-magicians" />
+
+MetaMask Advanced Permissions implement ERC-7715 and redeem through ERC-7710. They need MetaMask v13.23.0 or later and a MetaMask smart account, and they offer allowance, periodic and stream permissions for ERC-20 and native tokens. <Cite ids="src-orbit-wallet-mm-advanced-permissions src-orbit-wallet-mm-supported-permissions" /> ERC-7710 names the MetaMask Delegation Framework as its complete reference implementation, and MetaMask renamed its Delegation Toolkit to the Smart Accounts Kit (docs change merged 2025-11-11). <Cite ids="src-erc-7710 src-orbit-wallet-mm-delegation-framework src-orbit-wallet-mm-sak-rebrand-pr src-orbit-wallet-mm-sak-repo" /> No other production wallet implementing ERC-7715 was confirmed.
+
+## How they relate to the eight
+
+[x402](/p/x402/) carries ERC-7710 directly: its `exact` EVM scheme has a third transfer method, `erc7710`, whose payload holds `delegationManager`, `permissionContext` and `delegator`, and the facilitator checks it by simulating `redeemDelegations`. The scheme lists ERC-7715 as one way to get such a delegation. <Cite ids="src-x402-scheme-exact-evm" /> MetaMask documents recurring x402 payments that pair an ERC-20 periodic permission with x402 clients. <Cite ids="src-orbit-wallet-mm-x402-recurring" /> This is the on-chain counterpart of a spending mandate: the user's limit lives in a delegation the wallet enforces, not in a signed document a merchant reads. ERC-8004 references neither standard, and no link to the other six was found. <Cite ids="src-erc-8004-spec" />
+
+## Status history
+
+- 2023-11-19: forum proposal that became ERC-7710. <Cite ids="src-orbit-wallet-erc-7710-magicians" />
+- 2024-05-20: ERC-7710 created. <Cite ids="src-erc-7710" />
+- 2024-05-24: ERC-7715 created. <Cite ids="src-erc-7715" />
+- 2024-12-12: ERC-7710 merged as Draft. <Cite ids="src-orbit-wallet-erc-7710-gitlog" />
+- 2025-02-18: ERC-7715 merged as Draft. <Cite ids="src-orbit-wallet-erc-7715-gitlog" />
+- 2025-06-10: ERC-7710 revised. <Cite ids="src-orbit-wallet-erc-7710-gitlog" />
+- 2025-11-11: MetaMask Delegation Toolkit docs renamed Smart Accounts Kit. <Cite ids="src-orbit-wallet-mm-sak-rebrand-pr" />
+- 2026-01-16: ERC-7715 simplified for wallet implementers. <Cite ids="src-orbit-wallet-erc-7715-gitlog" />

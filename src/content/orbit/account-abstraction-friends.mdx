@@ -1,0 +1,47 @@
+---
+slug: account-abstraction-friends
+name: ERC-4337, EIP-7702 and friends
+category: wallet-permissions
+starred: false
+oneLiner: The Ethereum building blocks the on-chain rails rely on, from smart accounts (ERC-4337, EIP-7702) and signatures (EIP-712, ERC-1271) to token authorizations (EIP-3009, Permit2), chain-agnostic ids (CAIP-2, CAIP-10, CAIP-122) and builder codes (ERC-8021).
+steward: Ethereum EIP and ERC processes; Chain Agnostic Standards Alliance (CAIPs); Uniswap (Permit2)
+status: Mixed; ERC-4337, EIP-7702, ERC-1271 and EIP-712 Final; EIP-3009 Draft; ERC-8021 an unmerged pull request
+relations:
+  - to: x402
+    type: embeds
+    note: x402 uses CAIP-2 network ids, EIP-3009 and Permit2 in its exact EVM scheme, CAIP-122 for sign-in, and ERC-8021 schema 2 in its builder-code extension.
+  - to: erc-8004
+    type: embeds
+    note: ERC-8004's setAgentWallet checks EIP-712 signatures for EOAs and ERC-1271 for contract wallets, and the spec mentions EIP-7702 for sponsored feedback.
+  - to: stripe-mpp
+    type: embeds
+    note: MPP's evm method accepts Permit2 (recommended) and EIP-3009 credentials, the Tempo proof is EIP-712, and the EVM session draft refers to ERC-4337 user operations.
+sources:
+  - src-orbit-wallet-erc-4337
+  - src-orbit-wallet-erc-4337-gitlog
+  - src-orbit-wallet-entrypoint-releases
+  - src-orbit-wallet-eip-7702
+  - src-orbit-wallet-eip-7600
+  - src-gloss-erc-1271
+  - src-gloss-eip-712
+  - src-gloss-erc-3009
+  - src-gloss-permit2
+  - src-gloss-caip-2
+  - src-gloss-caip-10
+  - src-gloss-caip-122
+  - src-orbit-wallet-erc-8021-pr
+  - src-x402-spec-v2
+  - src-x402-scheme-exact-evm
+  - src-x402-ext-siwx
+  - src-x402-ext-builder-code
+  - src-erc-8004-spec
+  - src-erc-8004-identity-sol
+  - src-stripe-mpp-evm
+  - src-stripe-mpp-tempo-charge
+  - src-x402-ap2-repo
+lastVerified: "2026-10-11"
+---
+
+ERC-4337 adds smart accounts without a protocol change: user operations go to a separate mempool and are bundled into calls to a shared EntryPoint contract. It became Final on 2026-06-02, and its EntryPoint has shipped versions 0.6 (2023-04-24) through 0.9 (2025-11-16), with 0.8 adding native EIP-7702 support. <Cite ids="src-orbit-wallet-erc-4337 src-orbit-wallet-erc-4337-gitlog src-orbit-wallet-entrypoint-releases" /> EIP-7702 lets an ordinary account (EOA) set delegated code through a new transaction type; it went live with the Pectra upgrade on 2025-05-07 and is Final. <Cite ids="src-orbit-wallet-eip-7702 src-orbit-wallet-eip-7600" /> ERC-1271 lets a contract validate signatures and EIP-712 defines typed-data signing, both Final; EIP-3009 transfer with authorization is Draft; Permit2 is Uniswap's signature-based approval contract. <Cite ids="src-gloss-erc-1271 src-gloss-eip-712 src-gloss-erc-3009 src-gloss-permit2" /> CAIP-2 and CAIP-10 name chains and accounts across ecosystems, and CAIP-122 defines Sign in With X. <Cite ids="src-gloss-caip-2 src-gloss-caip-10 src-gloss-caip-122" /> ERC-8021 builder codes (transaction attribution through a calldata suffix) carry a Draft header dated 2025-09-11, but their pull request was still open on 2026-10-11, so the standard has no published page. <Cite ids="src-orbit-wallet-erc-8021-pr" />
+
+Among the eight, [x402](/p/x402/) uses most of these: CAIP-2 network ids, EIP-3009 by default plus Permit2 in the `exact` EVM scheme, CAIP-122 in its sign-in extension and ERC-8021 schema 2 in its builder-code extension. <Cite ids="src-x402-spec-v2 src-x402-scheme-exact-evm src-x402-ext-siwx src-x402-ext-builder-code" /> [ERC-8004](/p/erc-8004/) checks EIP-712 or ERC-1271 signatures when an agent wallet is set, and its implementation accepts EIP-7702 delegated accounts. <Cite ids="src-erc-8004-spec src-erc-8004-identity-sol" /> [MPP](/p/stripe-mpp/)'s `evm` method accepts Permit2 and EIP-3009 credentials, and its Tempo proof is EIP-712. <Cite ids="src-stripe-mpp-evm src-stripe-mpp-tempo-charge" /> [AP2](/p/ap2/) touches them only in its x402 samples, which sign EIP-3009 authorizations. <Cite ids="src-x402-ap2-repo" /> No use was found in the specifications of Visa TAP, ACP, UCP or Mastercard Agent Pay.
