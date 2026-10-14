@@ -1,10 +1,10 @@
 # Verification report: openai-acp
 
-Verifier: independent verifier agent. Date: 2026-10-11. Scope per `docs/briefs/VERIFIER_BRIEF.md`, ATLAS_PROMPT.md Section 5.4, ATLAS_FOLLOWUP.md Section 2 (Scenario 6, fees), ATLAS_ERRATA.md rows R5, R20 to R25, R47, and the stewardship rule in ATLAS_PROMPT.md Section 0.
+Verifier: independent verifier agent. Date: 2026-10-13. Scope per `docs/briefs/VERIFIER_BRIEF.md`, ATLAS_PROMPT.md Section 5.4, ATLAS_FOLLOWUP.md Section 2 (Scenario 6, fees), ATLAS_ERRATA.md rows R5, R20 to R25, R47, and the stewardship rule in ATLAS_PROMPT.md Section 0.
 
 Spec snapshot: `research/vendor/acp/spec/2026-04-17` (JSON Schema and OpenAPI). Rendered page: `dist/p/openai-acp/index.html` (built 14:31, newer than all ACP content, so no rebuild).
 
-Status: in progress.
+Status: in progress (check 1 written; checks 2 to 8 follow).
 
 ## Check 1: claims against sources
 
@@ -66,7 +66,7 @@ Rule checks over all 248 claims: no `verified` claim has only non-primary source
 | 115 | verified | pass | llms-full.txt: GET/POST /product_feeds; Promotions API page (/commerce/specs/api/promotions) |
 | 118 | verified | pass | rfc.discovery.md:7, :105 (Cache-Control public, max-age=3600 SHOULD), no auth |
 | 120 | verified | pass | JSON Schema CheckoutSession.status enums per dated folder: 2025-09-29 five values; 2025-12-12 adds authentication_required; 2026-01-30 eleven values |
-| 121 | verified | pass | JSON Schema CheckoutSession.status enums per dated folder: 2025-09-29 five values; 2025-12-12 adds authentication_required; 2026-01-30 eleven values |
+| 121 | verified | pass (citation gap) | Claim cites the 2025-09-29 and 2026-01-30 schema records but not the 2025-12-12 schema, which is the one showing the first appearance (verified in research/vendor/acp/spec/2025-12-12). JSON Schema CheckoutSession.status enums per dated folder: 2025-09-29 five values; 2025-12-12 adds authentication_required; 2026-01-30 eleven values |
 | 122 | verified | pass | JSON Schema CheckoutSession.status enums per dated folder: 2025-09-29 five values; 2025-12-12 adds authentication_required; 2026-01-30 eleven values |
 | 128 | verified | pass | openrpc.agentic_checkout.json methods (five names match); docs/mcp-binding.md:5,23-24,70-78 (JSON-RPC 2.0, Streamable HTTP, meta/id/payload) |
 | 129 | verified | pass | openrpc.agentic_checkout.json methods (five names match); docs/mcp-binding.md:5,23-24,70-78 (JSON-RPC 2.0, Streamable HTTP, meta/id/payload) |
@@ -92,7 +92,7 @@ Rule checks over all 248 claims: no `verified` claim has only non-primary source
 | 206 | verified | pass | ACP 2026-04-17 status enum and ucp/source/schemas/shopping/checkout.json:60-80 (incomplete, requires_escalation, ready_for_complete, complete_in_progress, completed, canceled): five shared names |
 | 208 | verified | pass | rfc.discovery.md:7; ucp/docs/specification/reference.md:83 |
 | 212 | verified | pass | Absence check (no mandate/intent-signature objects in rfcs); Wayback buy-it: "explicitly confirm each step" |
-| 216 | verified | pass | rfc.agentic_checkout.md:103,349 and openapi.agentic_checkout.yaml example items with quantity: 1; schema requires line_items. Wording "still" is time-variant but claim lacks asOf (see required fixes) |
+| 216 | verified | fail (minor: no asOf) | rfc.agentic_checkout.md:103,349 and openapi.agentic_checkout.yaml example items with quantity: 1; schema requires line_items. Wording "still" is time-variant but claim lacks asOf (see required fixes) |
 | 219 | verified | pass | llms-full.txt: "idempotency_conflict with HTTP 409"; "HTTP 201 Created"; spec: 422 (rfc:278) and POST /complete only "200" in openapi.agentic_checkout.yaml |
 | 220 | verified | pass | llms-full.txt: "idempotency_conflict with HTTP 409"; "HTTP 201 Created"; spec: 422 (rfc:278) and POST /complete only "200" in openapi.agentic_checkout.yaml |
 | 221 | verified | pass | changelog/2026-04-17.md:503 order status list ends delivered; schema.agentic_checkout.json:2509 lists completed |
