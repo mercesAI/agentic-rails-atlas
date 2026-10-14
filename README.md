@@ -79,4 +79,4 @@ If you are unsure where something belongs, open an issue with the source link an
 
 ## Project records
 
-`PLAN.md`, `PROGRESS.md` (log), `DECISIONS.md` (judgment calls), `SOURCES.md` (source policy), `ATLAS_ERRATA.md` (corrections to the seed prompts), `AUDIT.md`, `verification/` (independent fact-check reports), `REPORT.md` and `REPORT_v1.1.md`, `REFRESH_PROMPT.md` (how to update the atlas).
+`PLAN.md`, `SOURCES.md` (source policy), `ATLAS_ERRATA.md` (corrections to the seed facts the research started from), `verification/` (independent fact-check reports), `REPORT.md` and `REPORT_v1.1.md`, `REFRESH_PROMPT.md` (how to update the atlas). The original research briefs, audit and session logs are kept privately by the maintainers.

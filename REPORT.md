@@ -1,6 +1,6 @@
 # REPORT.md: Agentic Rails Atlas v1.0
 
-Build completed 2026-10-13. Sources were read between 2026-10-10 and 2026-10-13. This report follows `ATLAS_PROMPT.md` Section 15.1. The v1.1 follow-up work (`ATLAS_FOLLOWUP.md`) was folded into the same build; see `REPORT_v1.1.md`.
+Build completed 2026-10-13. Sources were read between 2026-10-10 and 2026-10-13. This report follows `private/ATLAS_PROMPT.md` Section 15.1. The v1.1 follow-up work (`private/ATLAS_FOLLOWUP.md`) was folded into the same build; see `REPORT_v1.1.md`.
 
 ## What was built
 
@@ -87,5 +87,5 @@ See `research/blocked.md` and the Methodology page. The most frequent blocks wer
 
 - Run `REFRESH_PROMPT.md` monthly; the fee figures, SDK versions and live counters move fastest.
 - Write the three missing orbit pages and hand-written controls-layer annotations.
-- Local labs (ERC-8004 on Anvil first), the unified agent record and the decision helper from `ATLAS_PROMPT.md` Section 16.
+- Local labs (ERC-8004 on Anvil first), the unified agent record and the decision helper from `private/ATLAS_PROMPT.md` Section 16.
 - Optimize the universe bundle (D3 submodules) and move playground CSS into lazy chunks.

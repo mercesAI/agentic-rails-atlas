@@ -4,13 +4,13 @@ A reusable prompt for a future Claude Code session that brings the Agentic Rails
 
 ---
 
-Read `CLAUDE.md`, `PLAN.md`, the tail of `PROGRESS.md`, `DECISIONS.md`, `ATLAS_ERRATA.md` and `README.md` first. Today's date is the `accessed` date for every source you read. Work autonomously, log judgment calls in `DECISIONS.md`, and append a timestamped line to `PROGRESS.md` at each milestone.
+Read `CLAUDE.md`, `PLAN.md`, the tail of `private/PROGRESS.md`, `private/DECISIONS.md`, `ATLAS_ERRATA.md` and `README.md` first. Today's date is the `accessed` date for every source you read. Work autonomously, log judgment calls in `private/DECISIONS.md`, and append a timestamped line to `private/PROGRESS.md` at each milestone.
 
 **Budget rules (learned the hard way).** Run at most 2 or 3 subagents at a time. Use Sonnet for research, verification and fixes; keep the lead session for decisions, merges, gates and reports. Briefs must tell agents to write files early, commit by explicit path, never use `git commit -a` or rewrite history, and never spawn helper agents of their own.
 
 ## 1. Refresh the sources
 
-1. Re-clone or `git fetch` the spec repositories into `research/vendor/` (list in `ATLAS_PROMPT.md` 5.0), plus `agent-intent/verifiable-intent`, `ERC-3643/ERC-3643`, and fetch ERC-8226 from `ethereum/ERCs`.
+1. Re-clone or `git fetch` the spec repositories into `research/vendor/` (list in `private/ATLAS_PROMPT.md` 5.0), plus `agent-intent/verifiable-intent`, `ERC-3643/ERC-3643`, and fetch ERC-8226 from `ethereum/ERCs`.
 2. For each of the eight protocols, diff the repository since the commit recorded in `research/protocols/<slug>.md` (tags, releases, changed spec files, schema changes, new advisories via `gh api repos/<owner>/<repo>/security-advisories`). Check the official announcement pages and newsrooms named in each dossier's resources table.
 3. Re-check the IETF drafts on the Datatracker (`draft-httpauth-payment`, `draft-ietf-webbotauth-httpsig-protocol`), FIDO and EMVCo pages, and the EIP status of ERC-8004, ERC-8126, ERC-8183 and ERC-8226.
 
@@ -19,7 +19,7 @@ Read `CLAUDE.md`, `PLAN.md`, the tail of `PROGRESS.md`, `DECISIONS.md`, `ATLAS_E
 - **Fees and costs** (`research/fees.json`, each protocol's `ecosystem.json` costs): CDP facilitator pricing, PayAI pricing docs, Circle Nanopayments, Tempo fees, Stripe MPP minimums and SPT status, OpenAI and Shopify fees, Google's statements. Re-measure ERC-8004 `register` and `giveFeedback` gas with a read-only `eth_estimateGas` and label the method and date.
 - **Metrics** (`research/market.json`, ecosystem metrics): x402.org counter (it has been static since August 2026; say if it still is), 8004scan, mppscan, GitHub stars. Never present an old number as current; keep disputes visible.
 - **SDK versions**: pympp, Rust `mpp`, mpp-go, mpp-rb, `mppx`, `@x402/*`, PyPI `x402`, UCP SDKs.
-- **Every claim marked `reported`** and every item in `ATLAS_FOLLOWUP.md` Section 2.2 that was kept as reported: look for a primary source; upgrade to `verified` or leave it with the reason.
+- **Every claim marked `reported`** and every item in `private/ATLAS_FOLLOWUP.md` Section 2.2 that was kept as reported: look for a primary source; upgrade to `verified` or leave it with the reason.
 - **Known open items**: whether AP2 mandates or Verifiable Intent are used in any production flow; whether FIDO published a deliverable; Mastercard key directory location; whether the 2025 Instant Checkout form is fully retired; Soneium and Billions ERC-8004 deployments.
 
 ## 3. Update the content

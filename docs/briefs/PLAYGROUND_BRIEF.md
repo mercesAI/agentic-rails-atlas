@@ -1,10 +1,10 @@
 # Playground brief (one protocol)
 
-You build the client-side simulation for one protocol of the Agentic Rails Atlas. Your protocol slug and its ATLAS_PROMPT.md section number are given in your task message. Today is 2026-10-11.
+You build the client-side simulation for one protocol of the Agentic Rails Atlas. Your protocol slug and its private/ATLAS_PROMPT.md section number are given in your task message. Today is 2026-10-11.
 
 ## Read first
 1. `docs/ARCHITECTURE.md` sections 1, 6, 8 and 11.
-2. ATLAS_PROMPT.md Section 2.5 (safety: no real funds, no mainnet, no private keys from the user, no wallet connections, no sign-ups; ephemeral in-browser keys on fake chain ids or fixtures; the UI says it is a simulation), and the "Playground" paragraph of your Section 5.n, which is the feature list you implement.
+2. private/ATLAS_PROMPT.md Section 2.5 (safety: no real funds, no mainnet, no private keys from the user, no wallet connections, no sign-ups; ephemeral in-browser keys on fake chain ids or fixtures; the UI says it is a simulation), and the "Playground" paragraph of your Section 5.n, which is the feature list you implement.
 3. The spec files in `research/vendor/` for your protocol and the dossier `research/protocols/<slug>.md` (Core objects, Message flows). Every header, field name, enum and error code in the simulation must match the spec file; grep it, never guess.
 4. `src/components/islands/PlaygroundFrame.tsx` (wrap your component in it) and the flow JSON in `src/content/flows/<slug>-*.json` (reuse its step order and payload shapes where it exists).
 

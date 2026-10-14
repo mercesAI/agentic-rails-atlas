@@ -1,10 +1,10 @@
 # REPORT_v1.1.md: what the follow-up changed
 
-Completed 2026-10-13. Follows `ATLAS_FOLLOWUP.md` Section 4.5.
+Completed 2026-10-13. Follows `private/ATLAS_FOLLOWUP.md` Section 4.5.
 
 ## Audit summary
 
-The audit (`AUDIT.md`, 2026-10-10) found the first build paused at the start of Phase 1: one research dossier, schemas and tokens, no pages, no components, no gate scripts. Following the follow-up's own rule, the session finished the first prompt's P0 and P1 tiers and folded every v1.1 correction and gap into the research and writing briefs, so content was written correctly the first time instead of corrected afterwards. `ATLAS_ERRATA.md` records each correction as applied at authoring time.
+The audit (`private/AUDIT.md`, 2026-10-10) found the first build paused at the start of Phase 1: one research dossier, schemas and tokens, no pages, no components, no gate scripts. Following the follow-up's own rule, the session finished the first prompt's P0 and P1 tiers and folded every v1.1 correction and gap into the research and writing briefs, so content was written correctly the first time instead of corrected afterwards. `ATLAS_ERRATA.md` records each correction as applied at authoring time.
 
 ## Corrections applied
 
@@ -47,7 +47,7 @@ See `REPORT.md`: every gate passes on a clean install, with no coverage waivers.
 
 1. Orbit pages for ERC-8183, ERC-8126 and Virtuals ACP.
 2. Refresh SDK versions that moved after 2026-10-11 (pympp 0.14.0, Rust `mpp` 0.15.1).
-3. Local labs from `ATLAS_PROMPT.md` Section 16, ERC-8004 on Anvil first; then the unified agent record extended with ERC-3643 and ERC-8226 field mappings; then the decision helper.
+3. Local labs from `private/ATLAS_PROMPT.md` Section 16, ERC-8004 on Anvil first; then the unified agent record extended with ERC-3643 and ERC-8226 field mappings; then the decision helper.
 4. Hand-written controls-layer annotations for the Controls map.
 5. Bundle trims: D3 submodules for the universe; playground CSS out of every protocol page.
 

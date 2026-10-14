@@ -1,10 +1,10 @@
 # Scenario brief (one multi-protocol walkthrough)
 
-You write one end-to-end scenario of the Agentic Rails Atlas (ATLAS_PROMPT.md Appendix B). Your scenario number, slug and title are given in your task message. Today is 2026-10-11.
+You write one end-to-end scenario of the Agentic Rails Atlas (private/ATLAS_PROMPT.md Appendix B). Your scenario number, slug and title are given in your task message. Today is 2026-10-11.
 
 ## Read first
 1. `docs/ARCHITECTURE.md` sections 2, 5 (how Cite works), 12 and 13; the `ScenarioMeta`, `Flow` and `FlowStep` schemas in `src/lib/schemas.ts` (note `protocol`, `controlPoint`, `observable` and `failures` on steps).
-2. ATLAS_PROMPT.md Appendix B (your scenario line and the closing paragraph), Sections 2.3, 2.4 and 2.6.
+2. private/ATLAS_PROMPT.md Appendix B (your scenario line and the closing paragraph), Sections 2.3, 2.4 and 2.6.
 3. For every protocol in your scenario: `src/content/protocols/<slug>/index.mdx` (frontmatter and the flow subsection), `claims.json`, `controls.json`, `observability.json`, and the protocol's flows in `src/content/flows/`. Reuse their step shapes and cite their claim ids. When you need a fact that none of the claim files carries, verify it in `research/vendor/` or the dossier and add a Claim to `src/content/scenarios/<slug>.claims.json` (same `ClaimsFile` shape but with `protocol` set to the first protocol of the scenario and claim ids `clm-scn-<slug>-NNN`) together with its Source in `src/content/scenarios/<slug>.sources.json`.
 
 ## Files to produce

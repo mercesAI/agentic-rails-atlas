@@ -1,11 +1,11 @@
 # Writer brief (one protocol)
 
-You write all content files for one protocol of the Agentic Rails Atlas. Your protocol slug, its ATLAS_PROMPT.md section number and name are given in your task message. Today is 2026-10-11.
+You write all content files for one protocol of the Agentic Rails Atlas. Your protocol slug, its private/ATLAS_PROMPT.md section number and name are given in your task message. Today is 2026-10-11.
 
 ## Read first
 1. `docs/ARCHITECTURE.md` sections 2, 5, 7, 12 and 13 (file layout, page template, STE components, writing rules, merge pipeline).
 2. `src/lib/schemas.ts`: every file you write is validated against it at build time.
-3. ATLAS_PROMPT.md Sections 2.3, 2.4, 2.6 (truth contract, copyright, style), 4.4 (section acceptance criteria), 9.3 (STE structure), 14.2 (coverage thresholds), Appendix D (disambiguation), and your protocol's Section 5.n in full.
+3. private/ATLAS_PROMPT.md Sections 2.3, 2.4, 2.6 (truth contract, copyright, style), 4.4 (section acceptance criteria), 9.3 (STE structure), 14.2 (coverage thresholds), Appendix D (disambiguation), and your protocol's Section 5.n in full.
 4. Your dossier: `research/protocols/<slug>.md`, `<slug>.claims.json`, `<slug>.sources.json`. Use only claims present in the claims file. When you need a fact that is not there, verify it against a primary source (the cloned repositories in `research/vendor/` first), add the Source to your `sources.json` sidecar and the Claim to your `claims.json` with the right confidence, then use it.
 5. The reference slice: `src/content/protocols/x402/` (when your protocol is not x402). Match its structure, depth and tone.
 6. `src/content/glossary/terms.json` (or `research/glossary.draft.json` if the former is empty) so you link terms consistently, and `src/content/publications/publications.json` so you tag the right papers.
@@ -35,9 +35,9 @@ Run `pnpm tsx scripts/verify/validate-content.ts`, `pnpm lint:style`, `pnpm lint
 
 ## v1.1 additions (session 2, 2026-10-11)
 - Tone: match the two "Writing exemplars" in `CLAUDE.md`. The first paragraph of section B and the first STE procedure are re-read against them in review.
-- Corrections: `ATLAS_FOLLOWUP.md` Section 2 overrides `ATLAS_PROMPT.md` Section 5 wherever they differ. Check every item that touches your protocol; `ATLAS_ERRATA.md` lists them. `research/conflicts.md` lists the conflicts the researchers found; follow the primary source named there.
-- Costs: fill `costs` in `ecosystem.json` (schema `EcosystemFile.costs`: item, value, whoPays, asOf, confidence, caveat, sources) from the dossier's "Fees and costs" section and `ATLAS_FOLLOWUP.md` Appendix B. Fill the compare cells `fees-and-who-pays-them` and `who-pays` (a short phrase such as "payer pays gas", "merchant pays platform fee", "card economics unchanged"). A cell may read "not published" with a source that shows the absence.
-- Learning resources: include the `ATLAS_FOLLOWUP.md` Appendix A rows for your protocol in `resources.json` (types: talk, podcast, tutorial, tool for dashboards, analysis for long-form and newsletters, repo; badges: official for Cloudflare, Stripe, Google, Shopify, Mastercard and Visa posts, community for independent blogs and newsletters, academic for arXiv). Mark the best three `startHere`.
+- Corrections: `private/ATLAS_FOLLOWUP.md` Section 2 overrides `private/ATLAS_PROMPT.md` Section 5 wherever they differ. Check every item that touches your protocol; `ATLAS_ERRATA.md` lists them. `research/conflicts.md` lists the conflicts the researchers found; follow the primary source named there.
+- Costs: fill `costs` in `ecosystem.json` (schema `EcosystemFile.costs`: item, value, whoPays, asOf, confidence, caveat, sources) from the dossier's "Fees and costs" section and `private/ATLAS_FOLLOWUP.md` Appendix B. Fill the compare cells `fees-and-who-pays-them` and `who-pays` (a short phrase such as "payer pays gas", "merchant pays platform fee", "card economics unchanged"). A cell may read "not published" with a source that shows the absence.
+- Learning resources: include the `private/ATLAS_FOLLOWUP.md` Appendix A rows for your protocol in `resources.json` (types: talk, podcast, tutorial, tool for dashboards, analysis for long-form and newsletters, repo; badges: official for Cloudflare, Stripe, Google, Shopify, Mastercard and Visa posts, community for independent blogs and newsletters, academic for arXiv). Mark the best three `startHere`.
 - Claims: start `protocols/<slug>/claims.json` from `research/protocols/<slug>.claims.json` and `protocols/<slug>/sources.json` from `research/protocols/<slug>.sources.json`. Validate research-style files with `pnpm tsx research/validate.ts <slug>`; validate content with `pnpm tsx scripts/verify/validate-content.ts`.
 - Quiz and flashcards come from `verified` claims only; every item lists its `claimIds`.
 - Write early and commit: create `index.mdx` frontmatter and `facts.json` in your first few tool calls, then commit after every 2 or 3 files (`git add src/content/protocols/<slug> src/content/flows/<slug>-* src/content/states/<slug>-* src/content/diagrams/<slug>-* && git commit -m "content(<slug>): ..."`, message ending `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`). Usage limits have stopped agents before.

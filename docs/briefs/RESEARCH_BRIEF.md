@@ -1,11 +1,11 @@
 # Research brief (one protocol)
 
-You research one protocol for the Agentic Rails Atlas as of today, 2026-10-11. Your slug and ATLAS_PROMPT.md section are in your task message. You write files; a chat-only answer is a failure.
+You research one protocol for the Agentic Rails Atlas as of today, 2026-10-11. Your slug and private/ATLAS_PROMPT.md section are in your task message. You write files; a chat-only answer is a failure.
 
 ## Read first
-1. `ATLAS_PROMPT.md` Sections 2.3 (truth contract), 2.4 (copyright), 2.8 (tools and network), and your protocol's Section 5.n in full (`sed -n '/^### 5.n /,/^---$/p' ATLAS_PROMPT.md`).
-2. `ATLAS_FOLLOWUP.md` Section 2 (corrections to seed facts; the follow-up wins over the first prompt), Appendix A (learning resources for your protocol; include them in your resources list and re-check each URL with `curl -sSIL -A 'Mozilla/5.0' <url> | head -1`), Appendix B (fees and costs for your protocol; verify the primary ones), Appendix C (only for erc-8004).
-3. `docs/factcheck-of-ATLAS_PROMPT.md`.
+1. `private/ATLAS_PROMPT.md` Sections 2.3 (truth contract), 2.4 (copyright), 2.8 (tools and network), and your protocol's Section 5.n in full (`sed -n '/^### 5.n /,/^---$/p' private/ATLAS_PROMPT.md`).
+2. `private/ATLAS_FOLLOWUP.md` Section 2 (corrections to seed facts; the follow-up wins over the first prompt), Appendix A (learning resources for your protocol; include them in your resources list and re-check each URL with `curl -sSIL -A 'Mozilla/5.0' <url> | head -1`), Appendix B (fees and costs for your protocol; verify the primary ones), Appendix C (only for erc-8004).
+3. `private/docs/factcheck-of-private/ATLAS_PROMPT.md`.
 4. The reference dossier `research/protocols/x402.md` (first 220 lines) for the expected depth, table shapes and the inline `[src-...]` citation style.
 5. The schemas `Source`, `Claim` and `ClaimsFile` in `src/lib/schemas.ts` (ids: `src-<slug>-<topic>`, `clm-<slug>-NNN`).
 

@@ -1,12 +1,12 @@
 # PLAN.md: Agentic Rails Atlas build plan
 
-Scope: `ATLAS_PROMPT.md` (v1.0) plus `ATLAS_FOLLOWUP.md` (v1.1). Fact-check: `docs/factcheck-of-ATLAS_PROMPT.md`. Audit of the resumed state: `AUDIT.md`. Build date (used as `accessed` for all sources read in this session): **2026-10-11** (sources read before the pause keep 2026-10-10).
+Scope: `private/ATLAS_PROMPT.md` (v1.0) plus `private/ATLAS_FOLLOWUP.md` (v1.1). Fact-check: `private/docs/factcheck-of-private/ATLAS_PROMPT.md`. Audit of the resumed state: `private/AUDIT.md`. Build date (used as `accessed` for all sources read in this session): **2026-10-11** (sources read before the pause keep 2026-10-10).
 
 ## Status (2026-10-10, session 2)
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Bootstrap | done (2cb8ff1) |
-| A | v1.1 audit (`AUDIT.md`) | done |
+| A | v1.1 audit (`private/AUDIT.md`) | done |
 | 1 | Research: 8 dossiers, orbit a/b/c, policy, market, fees, prehistory, publications a/b/c, glossary | done |
 | 2 | Architecture, template, islands, universe, cross-cutting pages | done |
 | 3 | Content: 8 protocol pages, 8 scenarios | done |
@@ -28,7 +28,7 @@ Scope: `ATLAS_PROMPT.md` (v1.0) plus `ATLAS_FOLLOWUP.md` (v1.1). Fact-check: `do
 - P2: remaining sections and playgrounds; controls map; scenarios; timeline; personas hub; learn; notes; offline; what's new.
 - P3: stretch backlog.
 
-## Scope right-sizing (ATLAS_FOLLOWUP.md 3.6)
+## Scope right-sizing (private/ATLAS_FOLLOWUP.md 3.6)
 - Playground order: x402, AP2, UCP, TAP, MPP, ERC-8004, ACP, Agent Pay. Unfinished ones show "coming next".
 - Glossary: 80 fully written terms minimum; stubs flagged and excluded from the count.
 - Compare cells may read "not published" with a source showing the absence.
