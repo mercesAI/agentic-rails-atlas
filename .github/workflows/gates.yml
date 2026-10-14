@@ -4,6 +4,7 @@ on:
   push:
     branches: ['**']
     tags: ['v*']
+# Deployment is handled by the Cloudflare Pages Git integration (builds on every push to main).
   pull_request:
 
 permissions:
@@ -39,22 +40,3 @@ jobs:
           path: dist
           retention-days: 7
 
-  deploy:
-    name: Deploy to Cloudflare Pages
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: gates
-    runs-on: ubuntu-latest
-    environment: production
-    permissions:
-      contents: read
-      deployments: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name agentic-rails-atlas --branch main
