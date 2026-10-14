@@ -2,7 +2,21 @@
 
 Verifier: independent agent, 2026-10-11. Scope per `docs/briefs/VERIFIER_BRIEF.md`, ATLAS_PROMPT.md Section 5.8, ATLAS_FOLLOWUP.md Section 2 and the Agent Pay rows of ATLAS_ERRATA.md.
 
-Status: in progress (resumed 2026-10-13 after the first verifier hit a usage limit). Sections are filled as each check completes. Scope for this pass: every claim referenced from `index.mdx` frontmatter and body Cite tags, `facts.json`, `faq.json`, `quiz.json` and `flashcards.json` (161 claims), plus a seeded random sample of 30 further claims (191 distinct claims in all). Sources were fetched with curl on 2026-10-13 and searched as text; sources that blocked curl were retried once with WebFetch.
+Status: complete (resumed 2026-10-13 after the first verifier hit a usage limit). Sections are filled as each check completes. Scope for this pass: every claim referenced from `index.mdx` frontmatter and body Cite tags, `facts.json`, `faq.json`, `quiz.json` and `flashcards.json` (161 claims), plus a seeded random sample of 30 further claims (191 distinct claims in all). Sources were fetched with curl on 2026-10-13 and searched as text; sources that blocked curl were retried once with WebFetch.
+
+## Summary
+
+| Check | Pass | Fail | Unreachable |
+|---|---|---|---|
+| 1 Claims against sources (191 claims) | 184 | 4 (216, 007, 217, 195) | 3 (034, 035, 036) |
+| 2 Identifiers (about 120) | all | 0 | 0 |
+| 3 Dates, versions, numbers | all | 0 | 1 (2025-10-30 call date, reported) |
+| 4 Do not get wrong (3 items) | 3 | 0 | 0 |
+| 5 Diagrams (12 checked) | 10 | 2 (DTVC step order, DTVC failure text) | 0 |
+| 6 Specified versus deployed, stewardship | all | 0 | 0 |
+| 7 Style gates | lint:style 0 errors, STE pass, no em dashes | 4 acronyms unexpanded | 0 |
+| 8 Coverage | pass | 0 | 0 |
+
 
 ## Structural findings (claims.json, all 243 claims)
 
