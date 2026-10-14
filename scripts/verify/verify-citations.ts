@@ -184,7 +184,7 @@ export async function verifyCitations(options: { root?: string; offline?: boolea
     }
     if (!p.doi && !p.arxiv) {
       // Publisher-verified entry: confirm the page still resolves; a block or timeout only warns.
-      let status = 0;
+      let status: number;
       try {
         const r = await fetch(p.url, { method: 'GET', redirect: 'follow', headers: { 'user-agent': UA } });
         status = r.status;

@@ -45,6 +45,8 @@ export interface LinkResult {
 
 interface BotConfig {
   hosts: string[];
+  /** URLs cited on purpose as evidence that something does not exist (a 404 there is the expected result). */
+  expectedMissing?: string[];
   challengeHeaders?: Record<string, string>;
 }
 
@@ -151,7 +153,10 @@ async function checkOne(t: LinkTarget, gate: HostGate, bot: BotConfig): Promise<
     const retryable = get.status === 0 || get.status === 429 || get.status >= 500;
     if (!retryable) break;
   }
-  const c = classify(last.status, host, last.headers, bot);
+  const c =
+    (last.status === 404 || last.status === 410) && (bot.expectedMissing ?? []).includes(t.url)
+      ? { outcome: 'ok' as const, reason: `HTTP ${last.status} (expected: cited as evidence of absence)` }
+      : classify(last.status, host, last.headers, bot);
   return {
     url: t.url,
     host,

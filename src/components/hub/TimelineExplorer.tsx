@@ -238,6 +238,8 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
 
       {view === 'lanes' ? (
         <>
+          {/* Scrollable region must be focusable so keyboard users can scroll it (WCAG 2.1.1). */}
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
           <div className="tl-lanes" role="region" aria-label="Timeline lanes" tabIndex={0}>
             <div className="tl-lanes__inner" style={{ minWidth: `max(44rem, calc(11rem + ${(range.to - range.from + 1) * (mode === 'month' ? 12 : 1) * 2}rem))` }}>
               <div className="tl-lanes__axis" aria-hidden="true">

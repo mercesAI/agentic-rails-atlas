@@ -104,9 +104,9 @@ export interface MdxFile<T> extends Loaded<T> {
 export function loadMdx<S extends z.ZodTypeAny>(path: string, schema: S): MdxFile<z.infer<S>> {
   if (!existsSync(path)) return { path, exists: false, body: '', bodyLine: 1 };
   const text = readFileSync(path, 'utf8');
-  let fm: Record<string, unknown> = {};
-  let body = text;
-  let bodyLine = 1;
+  let fm: Record<string, unknown>;
+  let body: string;
+  let bodyLine: number;
   try {
     const parsed = parseFrontmatter(text, { frontmatter: 'empty-with-lines' });
     fm = parsed.frontmatter;

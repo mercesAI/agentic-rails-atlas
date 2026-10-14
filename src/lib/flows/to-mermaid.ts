@@ -45,7 +45,7 @@ export function escapeMermaidText(text: string, options: { colons?: boolean } = 
   if (out.startsWith(':')) out = `#58;${out.slice(1)}`;
   if (out.endsWith(':')) out = `${out.slice(0, -1)}#58;`;
   // Mermaid treats "end" as a keyword in some positions; a lone "end" label is padded.
-  if (/^end$/i.test(out)) out = `${out}​`;
+  if (/^end$/i.test(out)) out = `${out}\u200b`;
   return out || '#32;';
 }
 
