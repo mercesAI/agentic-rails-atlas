@@ -8,6 +8,7 @@
 import Page from '../../layouts/Page.astro';
 import FreshnessBadge from '../../components/ui/FreshnessBadge.astro';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+import rehypeTableWrap from '../../lib/rehype-table-wrap';
 import { getGlossary, getPublications, getSourcesMap } from '../../lib/content';
 import { loadClaimsByProtocol, loadCompare, loadControlsMap, loadProtocolInfos } from '../../components/crosscut/lib/load';
 import { isFullTerm, openStubs, type GlossaryStub } from '../../components/crosscut/lib/glossary';
@@ -30,7 +31,7 @@ const waivers = first(import.meta.glob<{ waivers: { protocol?: string; check?: s
 const draft = first(import.meta.glob<{ stubs?: GlossaryStub[] }>('/research/glossary.draft.json', { eager: true, import: 'default' }));
 const RAW = import.meta.glob<string>(['/research/blocked.md', '/research/conflicts.md', '/ATLAS_ERRATA.md'], { eager: true, query: '?raw', import: 'default' });
 
-const md = await createMarkdownProcessor();
+const md = await createMarkdownProcessor({ rehypePlugins: [rehypeTableWrap] });
 async function renderMd(path: string): Promise<string | null> {
   const raw = RAW[path];
   if (!raw) return null;

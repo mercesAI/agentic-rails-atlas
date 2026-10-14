@@ -82,7 +82,7 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 
 ### QA-012 (minor) Other 375 px overflow
 - /methodology/ (+90, long list items with unbreakable text in Blocked sources), /orbit/erc-3643/ (+20, table), /p/mastercard-agent-pay/ timeline table (+55), /p/stripe-mpp/ (+37, `sup.cite` at right edge).
-- **Status:** Fixed 2026-10-14. Causes: auto grid tracks (methodology lists, finding lists), bare Markdown tables (now scroll inside themselves), long hex strings (overflow-wrap), wide cite lists (now wrap), persona columns at 768. Sweep of all 63 pages at 360, 375, 768 and 1440 px shows no sideways scroll.
+- **Status:** Fixed 2026-10-14. Causes: auto grid tracks (methodology lists, finding lists), bare Markdown tables (now wrapped by src/lib/rehype-table-wrap.ts in a focusable, labeled scroll region, also for the methodology Markdown), long hex strings (overflow-wrap), wide cite lists (now wrap), persona columns at 768. Sweep of all 63 pages at 360, 375, 768 and 1440 px shows no sideways scroll.
 
 ### QA-013 (minor) Controls cell details appear off-screen
 - /controls/, 1440. Click a cell in the first rows. The detail panel renders below the table's scroll box (about 600 px lower), outside the viewport, so nothing seems to happen. Source: `src/components/crosscut/ControlsMap.tsx:162`. The ninth table column is also cut at 1440 with no scroll cue.

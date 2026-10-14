@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeGlossary from './src/lib/glossary/rehype-glossary.ts';
+import rehypeTableWrap from './src/lib/rehype-table-wrap.ts';
 import cspHashes from './src/lib/build/csp-hashes.ts';
 
 // https://astro.build/config
@@ -15,7 +16,7 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
   build: { format: 'directory' },
-  integrations: [react(), mdx({ rehypePlugins: [rehypeGlossary] }), pagefind(), cspHashes()],
+  integrations: [react(), mdx({ rehypePlugins: [rehypeGlossary, rehypeTableWrap] }), pagefind(), cspHashes()],
   vite: { plugins: [tailwindcss()] },
   markdown: {
     remarkPlugins: [remarkGfm],

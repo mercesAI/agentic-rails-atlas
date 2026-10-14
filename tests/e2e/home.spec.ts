@@ -120,6 +120,9 @@ test.describe('home universe (desktop)', () => {
     await page.locator('.u-persona input[value="agent-dev"]').check();
     await expect(page.locator('.ub[data-relevance="high"]').first()).toBeAttached();
     await expect(page.locator('.u-persona__current')).not.toHaveText('All personas');
+    // The panel closes after a choice (QA-018); reopen it to pick another.
+    expect(await page.locator('.u-persona').evaluate((el) => (el as HTMLDetailsElement).open)).toBe(false);
+    await page.locator('.u-persona summary').click();
     await page.locator('.u-persona input[value=""]').check();
     await expect(page.locator('.ub[data-relevance="low"]')).toHaveCount(0);
   });
