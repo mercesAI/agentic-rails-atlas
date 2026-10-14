@@ -271,3 +271,38 @@ Do-not-get-wrong failures: 0.
 
 Diagram issues: 4 (feed payloads, happy-path step 4 payload, webhook adjustment payload, in_progress transition citation). Hand-written diagrams make no unsupported claim.
 
+## Check 6: specified versus deployed, errata rows, stewardship, scenario
+
+### 6a. ATLAS_ERRATA.md rows
+
+| Row | Rule | Verdict | Evidence |
+|---|---|---|---|
+| R5 | ACP and UCP: say "no bridge", never "converging" | pass | faq.json:94 "Are ACP and UCP converging? No source supports that"; index.mdx:844 and :886 "no bridge between the two"; claim 205; composition diagram "side by side, no bridge". The word "converge" appears only in an FAQ question and in open-questions.json:29 (spec versus OpenAI implementation, a different topic). |
+| R20 | `authentication_required` first appears 2025-12-12, not 2026-01-30 | pass | Verified in the schema enums (check 1, claim 121). Page text (index.mdx:707, :723), flashcards.json:102 and the status table say 2025-12-12; the glossary entry (terms.json:11) gives no date. States JSON note "From 2025-12-12". Minor: claim 121 should cite the 2025-12-12 schema record. |
+| R21 | CLA signatory is OpenCommerce Network Inc., not "nekuda" | pass | index.mdx:832 "OpenCommerce Network ... not nekuda, although a nekuda GitHub user is among its authorized users"; claim 023; SIGNATORIES.md row 6 (authorized users include `dean-harel-nekuda-ai`); Agentic Commerce Inc. (Catalog) is listed. |
+| R22 | Delegate Payment signing is mandatory only in RFC 2.2 | pass | faq.json:57 states exactly this; rfc.delegate_payment.md:38 (MUST, section 2.2) versus :53 (RECOMMENDED) and openapi.delegate_payment.yaml:269-272 (`required: false`); flow delegate-payment step 1 repeats it. |
+| R23 | Only discount uses the extensions framework | pass | index.mdx:836 "so far only one extension uses it: discount"; "Affiliate attribution and marketing consent are fields defined by their own RFCs" (claims 087 to 089). Matches rfc.extensions.md and the `ExtensionDeclaration` schema. |
+| R24 | Versions are dated folders; 0 releases and 0 tags; npm package not published; PyPI `acp-sdk` is IBM's | pass | `gh api` tags and releases both empty on 2026-10-13; npm registry returns 404 today for `@agentic-commerce-protocol/specification`; PyPI JSON shows IBM Corp. Page says so at index.mdx:828 and :834 and in frontmatter latestVersion; compare-cells.json:332 notes that Svix publishes unofficial types. |
+| R25 | Spec drift is wider than `items[{id, quantity}]` | pass with note | index.mdx and claim 216, 054, 237 cover `line_items`, no `quantity`, and edited snapshots (2026-04-17 edited 2026-05-01). The erratum also lists one example that uses `product_id`; the page does not mention it (openapi.agentic_checkout.yaml:1302, :1376). Optional addition. |
+| R47 | SPT is "Public preview" with no published price | pass | docs.stripe.com SPT page (fetched 2026-10-13) is labeled Public preview and shows no price; compare-cells.json:285 and compare.json:1540 say "SPT pricing not published (public preview)"; claim 197 `unverified` (absence), claim 166 correctly separates Stripe's agent-side features as private preview with a waitlist. |
+
+### 6b. Stewardship rule (ATLAS_PROMPT.md Section 0 "Naming accuracy")
+
+Pass. The page never calls ACP "OpenAI's protocol". Frontmatter `stewards`: "OpenAI and Stripe (founding maintainers)" and "Technical Steering Committee: OpenAI, Stripe, Meta"; keyFacts "Steward: OpenAI and Stripe (founding maintainers); MAINTAINERS.md lists OpenAI, Stripe and Meta"; ecosystem.json stewards lists OpenAI (seat 1), Stripe (seat 2), Meta (seat 3); relations.json says "Stripe co-maintains ACP"; README line 10 says "maintained by OpenAI and Stripe". Verified against README.md, MAINTAINERS.md (lead maintainers OpenAI, Stripe, Meta) and docs/governance.md. Elsewhere in the atlas (orbit pages, compare, relations, glossary, scenario, personas) no string attributes ACP to OpenAI alone; orbit/a2a.mdx:44 says "(not OpenAI's ACP)" when disambiguating from IBM's protocol, which is a loose label but not a stewardship claim; consider "not the Agentic Commerce Protocol" there (outside this protocol's folder, informational only).
+
+### 6c. Specified versus deployed, announced versus live
+
+Pass. The page separates: spec (dated folders, README beta, RFCs Draft or Proposal), OpenAI's documentation (where it differs: `/product_feeds`, `order_created`, 201, 409, TLS 1.2), and ChatGPT product state (feeds and discovery live, external checkout generally available, payment sheet private beta, Instant Checkout 2025 form scaled back). Reported items carry `reported` and are labeled "(reported)" in prose (4 percent fee, "moving to apps", Shopify merchant count). Playground status `coming-next` is honest. Unreleased changes are labeled unreleased.
+
+### 6d. Scenario `src/content/scenarios/chatgpt-discovery-to-checkout.mdx`
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| No claim that the payment sheet uses an allowance-scoped token | pass | Step 12 says "No source read says this token is an allowance-scoped delegated token in the general case" (claim 188, `unverified`, correct). developers.openai.com apps-sdk monetization.md says only "a token representing the selected payment method". Allowance appears only in the Level 1 raw-payment-method path (step 10), which the monetization guide supports ("allowance constraints, risk signals, and metadata"). Summary line repeats the Level 1 limitation. |
+| Path A (external checkout) vs path B (payment sheet) status | pass | Generally available and private beta, as in monetization.md. |
+| PSP list (claim 186), requestCheckout and `complete_checkout` (claims 185, 215) | pass | monetization.md. |
+| Feed onboarding limited to approved partners (117), daily file plus API (116), Salesforce and Stripe providers (181), seven retailers (179) | pass | llms-full.txt "currently available to approved partners"; "once a day via file upload"; discovery post. |
+| Fee statements (196, 193, 194) | pass | 193 is `unverified` (absence), 194 `reported`. |
+| Actor "built on OpenAI's Apps SDK rather than on ACP" | pass | Apps SDK `complete_checkout` is not the ACP `complete_checkout_session`. |
+| Scenario claims 187 to 189, 146 to 148, 151 to 154 | pass | Spot-checked: 187, 188, 186, 215, 117, 116, 151, 152, 181, 180, 179, 146, 147, 154. |
+
