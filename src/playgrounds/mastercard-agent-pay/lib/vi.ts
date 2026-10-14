@@ -139,10 +139,6 @@ async function checkoutJwtFor(keys: VIKeys, merchant: Merchant, amountMinor: num
   );
 }
 
-function replaceAll(text: string, from: string, to: string): string {
-  return text.split(from).join(to);
-}
-
 /** Re-encode a compact JWS payload without re-signing, so the signature no longer matches. */
 function editJwtPayload(jwt: string, edit: (p: Record<string, unknown>) => void): string {
   const [h, p, s] = jwt.split('.') as [string, string, string];
