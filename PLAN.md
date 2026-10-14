@@ -7,13 +7,13 @@ Scope: `ATLAS_PROMPT.md` (v1.0) plus `ATLAS_FOLLOWUP.md` (v1.1). Fact-check: `do
 |---|---|---|
 | 0 | Bootstrap | done (2cb8ff1) |
 | A | v1.1 audit (`AUDIT.md`) | done |
-| 1 | Research: 7 remaining dossiers + x402 claims and sources + orbit part b + policy + market + publications part c + glossary draft + prehistory, with v1.1 corrections folded in | doing (wave 1 agents) |
-| 2 | Architecture: foundation, scripts, STE linter, protocol template, islands, universe, cross-cutting pages | doing (wave 1 agents) |
-| 3 | Content: x402 slice, then 7 writers, diagram review, merge | todo (wave 2) |
-| 4 | Interactive: universe, flow player, state explorer, playgrounds in the 3.6 order, compare, stack, controls, notes, palette | todo (wave 2 and 3) |
-| 5 | Cross-cutting pages incl. ERC-3643 orbit page and 8 scenarios (corrected 1, 3, 6, 8) | todo (wave 3) |
-| 6 | Verification: independent fact-check per protocol, gates green, screenshots | todo (wave 4) |
-| 7 | Handover: README, REFRESH_PROMPT, REPORT, REPORT_v1.1, ATLAS_ERRATA, deploy target, tag v1.0 then v1.1 | todo |
+| 1 | Research: 8 dossiers, orbit a/b/c, policy, market, fees, prehistory, publications a/b/c, glossary | done |
+| 2 | Architecture, template, islands, universe, cross-cutting pages | done |
+| 3 | Content: 8 protocol pages, 8 scenarios | done |
+| 4 | Interactive: universe, flow player, state explorer, 8 playgrounds, compare, stack, controls | done |
+| 5 | Cross-cutting pages incl. ERC-3643 orbit page and 8 scenarios | done |
+| 6 | Verification: 8 independent reports, all fixes applied, gates green, screenshots | done |
+| 7 | Handover: README, REFRESH_PROMPT, REPORT, REPORT_v1.1, ATLAS_ERRATA, deploy target, tags v1.0 and v1.1 | done |
 | 8 | Stretch (labs, unified agent record, decision helper) | todo |
 
 ## Waves
