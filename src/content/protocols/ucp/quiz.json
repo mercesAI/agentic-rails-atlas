@@ -5,12 +5,12 @@
    "id": "ucp-q1",
    "question": "Where does a business publish its UCP profile?",
    "options": [
-    "/.well-known/agent-card.json",
     "/.well-known/ucp",
+    "/.well-known/agent-card.json",
     "/ucp/v1/profile",
     "/.well-known/openid-configuration"
    ],
-   "answer": 1,
+   "answer": 0,
    "explanation": "Businesses publish at /.well-known/ucp; platforms publish at the URL they name in UCP-Agent.",
    "claimIds": [
     "clm-ucp-054"
@@ -22,10 +22,10 @@
    "options": [
     "Google",
     "The platform",
-    "The business",
-    "The credential provider"
+    "The credential provider",
+    "The business"
    ],
-   "answer": 2,
+   "answer": 3,
    "explanation": "The business keeps financial liability and the order; Google is not the merchant of record.",
    "claimIds": [
     "clm-ucp-006"
@@ -51,11 +51,11 @@
    "question": "What must accompany status requires_escalation?",
    "options": [
     "An order id",
-    "A continue_url and an escalation-severity message",
     "A payment mandate",
+    "A continue_url and an escalation-severity message",
     "A 3DS action"
    ],
-   "answer": 1,
+   "answer": 2,
    "explanation": "The business must provide continue_url and at least one requires_buyer_input or requires_buyer_review message.",
    "claimIds": [
     "clm-ucp-098"
@@ -80,12 +80,12 @@
    "id": "ucp-q6",
    "question": "How does Update Checkout behave?",
    "options": [
-    "It patches only the fields sent",
     "It is a full replacement of the resource",
+    "It patches only the fields sent",
     "It appends line items",
     "It is not allowed after create"
    ],
-   "answer": 1,
+   "answer": 0,
    "explanation": "PUT replaces the whole checkout, so omitted fields are removed.",
    "claimIds": [
     "clm-ucp-096"
@@ -111,11 +111,11 @@
    "question": "What default lifetime does a checkout get when expires_at is not sent?",
    "options": [
     "15 minutes",
-    "1 hour",
     "6 hours",
+    "1 hour",
     "24 hours"
    ],
-   "answer": 2,
+   "answer": 1,
    "explanation": "expires_at defaults to 6 hours after creation.",
    "claimIds": [
     "clm-ucp-071"
@@ -126,11 +126,11 @@
    "question": "How does UCP handle replay protection?",
    "options": [
     "Signature timestamps only",
-    "A signed Idempotency-Key stored by the business",
     "A blockchain nonce",
-    "Session cookies"
+    "Session cookies",
+    "A signed Idempotency-Key stored by the business"
    ],
-   "answer": 1,
+   "answer": 3,
    "explanation": "Replay protection lives at the business through signed idempotency keys, stored at least 24 hours.",
    "claimIds": [
     "clm-ucp-136",

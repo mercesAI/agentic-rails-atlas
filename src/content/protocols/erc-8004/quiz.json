@@ -7,10 +7,10 @@
       "options": [
         "Final",
         "Last Call",
-        "Draft",
-        "Review"
+        "Review",
+        "Draft"
       ],
-      "answer": 2,
+      "answer": 3,
       "explanation": "An EIP editor returned it from Review to Draft on 2026-01-13, and it remains Draft.",
       "claimIds": [
         "clm-erc-8004-002",
@@ -36,12 +36,12 @@
       "id": "erc-8004-q3",
       "question": "Where does proofOfPayment live?",
       "options": [
-        "In the Reputation Registry storage",
         "In the off-chain feedback file",
+        "In the Reputation Registry storage",
         "In the registration file",
         "In the NewFeedback event"
       ],
-      "answer": 1,
+      "answer": 0,
       "explanation": "Only the off-chain feedback file carries it; the registry stores no payment data.",
       "claimIds": [
         "clm-erc-8004-076"
@@ -53,10 +53,10 @@
       "options": [
         "Returns all feedback",
         "Returns zero",
-        "Reverts",
-        "Uses the owner as reviewer"
+        "Uses the owner as reviewer",
+        "Reverts"
       ],
-      "answer": 2,
+      "answer": 3,
       "explanation": "It requires a non-empty list and reverts with \"clientAddresses required\".",
       "claimIds": [
         "clm-erc-8004-066"
@@ -81,12 +81,12 @@
       "id": "erc-8004-q6",
       "question": "Which fields does the Reputation Registry store for each feedback?",
       "options": [
-        "value, valueDecimals, tag1, tag2, isRevoked",
         "value, feedbackURI, feedbackHash",
         "value and endpoint only",
+        "value, valueDecimals, tag1, tag2, isRevoked",
         "The whole feedback file"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "endpoint, feedbackURI and feedbackHash are emitted in the event but not stored.",
       "claimIds": [
         "clm-erc-8004-057",
@@ -113,12 +113,12 @@
       "id": "erc-8004-q8",
       "question": "Who may not give feedback to an agent?",
       "options": [
+        "The agent owner and approved operators",
         "Any client agent",
         "Addresses without a registration",
-        "The agent owner and approved operators",
         "Validators"
       ],
-      "answer": 2,
+      "answer": 0,
       "explanation": "The owner and operators are barred; the reference code reverts with \"Self-feedback not allowed\".",
       "claimIds": [
         "clm-erc-8004-055",
@@ -130,11 +130,11 @@
       "question": "What did arXiv:2606.26028 find about live agents on Base (data to 2026-05-13)?",
       "options": [
         "About 90% were live",
-        "About 15% had a valid file and a live endpoint",
         "All were placeholders",
+        "About 15% had a valid file and a live endpoint",
         "About 50% were live"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "It found 3% on Ethereum, 4% on BSC and 15% on Base.",
       "claimIds": [
         "clm-erc-8004-153"
@@ -145,11 +145,11 @@
       "question": "How long ahead may the setAgentWallet deadline be in the reference code?",
       "options": [
         "No limit",
+        "5 minutes",
         "24 hours",
-        "1 hour",
-        "5 minutes"
+        "1 hour"
       ],
-      "answer": 3,
+      "answer": 1,
       "explanation": "MAX_DEADLINE_DELAY is 5 minutes; later deadlines revert with \"deadline too far\".",
       "claimIds": [
         "clm-erc-8004-038",

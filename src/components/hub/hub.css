@@ -36,10 +36,19 @@
 
 /* ---------------- Timeline ---------------- */
 .tl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
-.tl__controls { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: flex-end; padding: 1rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.tl__controls { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: flex-start; padding: 1rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); }
 .tl__group { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.4rem; border: 0; padding: 0; margin: 0; min-width: 0; }
 .tl__group legend, .tl__search > span, .tl__years label > span { font-size: 0.8rem; color: var(--fg-muted); margin-bottom: 0.3rem; }
+.tl__zoom { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.6rem 1rem; }
 .tl__years { display: flex; gap: 0.75rem; }
+/* The Reset button has no legend, so it is pushed down to line up with the controls under the legends. */
+.tl__controls > .btn { margin-top: 1.45rem; }
+.tl__search { min-width: min(100%, 12rem); }
+.seg button { white-space: nowrap; }
+@media (max-width: 520px) {
+  .tl__group .seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--border); }
+  .tl__group .seg button { border-right: 0; }
+}
 .tl__years label, .tl__search { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
 .tl__filters { flex-basis: 100%; }
 .tl__filters summary { cursor: pointer; font-size: 0.9rem; color: var(--link); }
@@ -59,6 +68,8 @@
 .tl-lanes__row { min-height: 2.4rem; border-bottom: 1px dashed var(--border); }
 .tl-lanes__row:last-child { border-bottom: 0; }
 .tl-lanes__label { font-size: 0.85rem; font-weight: 500; color: var(--family-ink, var(--fg-muted)); padding-right: 0.75rem; }
+a.tl-lanes__label { text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
+a.tl-lanes__label:hover { text-decoration-color: currentColor; }
 .tl-lanes__row[data-group='global'] .tl-lanes__label { color: var(--fg-muted); font-style: italic; }
 .tl-lanes__track { position: relative; height: 100%; min-height: 1.5rem; }
 .tl-lanes__tick { position: absolute; top: 0.25rem; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-subtle); }

@@ -84,6 +84,7 @@ export default function ControlsMap({ controls, protocols, cells, numbers, layer
           </li>
         ))}
       </ul>
+      <p className="cc-note">The table scrolls sideways and down inside its frame. The last column is where an independent controls layer fits.</p>
       {/* Focusable so keyboard users can scroll the wide table (WCAG 2.1.1). */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
       <div className="cc-frame" role="region" aria-labelledby={`${uid}-cap`} tabIndex={0}>
@@ -159,7 +160,7 @@ export default function ControlsMap({ controls, protocols, cells, numbers, layer
           </tbody>
         </table>
       </div>
-      <div id={`${uid}-detail`} className="cc-detail" aria-live="polite">
+      <div id={`${uid}-detail`} className="cc-detail cc-detail--sticky" aria-live="polite">
         {sel && selProtocol && selControl ? (
           <>
             <h3>

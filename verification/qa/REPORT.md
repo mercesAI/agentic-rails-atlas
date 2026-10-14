@@ -78,6 +78,7 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 
 ### QA-011 (minor) Mobile "View universe" dialog is unreadable at first view
 - Home, 375: View universe. The chart fits at about 40 percent scale (labels about 4 px) in a short canvas with empty space; bubbles are 35 px. Needs zoom to read.
+- **Status:** Fixed 2026-10-14. The mobile dialog now opens at 0.8 scale centered (labels readable) instead of the 0.34 fit scale; the Fit button still shows the whole canvas. Screenshot: screenshots/fixed-mobile-universe.png.
 
 ### QA-012 (minor) Other 375 px overflow
 - /methodology/ (+90, long list items with unbreakable text in Blocked sources), /orbit/erc-3643/ (+20, table), /p/mastercard-agent-pay/ timeline table (+55), /p/stripe-mpp/ (+37, `sup.cite` at right edge).
@@ -85,9 +86,11 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 
 ### QA-013 (minor) Controls cell details appear off-screen
 - /controls/, 1440. Click a cell in the first rows. The detail panel renders below the table's scroll box (about 600 px lower), outside the viewport, so nothing seems to happen. Source: `src/components/crosscut/ControlsMap.tsx:162`. The ninth table column is also cut at 1440 with no scroll cue.
+- **Status:** Fixed 2026-10-14. The detail panel is sticky at the bottom of the viewport so a selected cell always shows its note; a line above the table says it scrolls sideways and down and names the last column. Screenshot: screenshots/fixed-controls-detail.png.
 
 ### QA-014 (minor) Printing long tables and diagrams
 - /p/ap2/ and /p/x402/ with print media: tables 1000 to 3200 px tall and a 3170 px diagram figure have `break-inside: avoid` (src/styles/print.css) so Chrome splits them anyway, possibly mid-row. Add `tr { break-inside: avoid }` and allow tall tables to break. Sidebars, header, copy-link and mode switch are hidden correctly; AP2 prints to about 100 A4 pages.
+- **Status:** Fixed 2026-10-14. print.css lets tall tables and code break between rows or lines (tr, th, td keep rows whole), repeats table headers, and scales a tall diagram to one page. Measured with Chrome PDF: AP2 102 to 82 pages, x402 105 to 90 pages (the rest is content length).
 
 ### QA-015 (minor) Visa TAP playground message "No key for kid undefined"
 - /p/visa-tap/ playground, objects tab, clearing the kid: check reads "Key located for kid: No key for kid undefined."
@@ -96,6 +99,7 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 
 ### QA-016 (minor) Quiz answers cluster on options B and C
 - All eight quiz.json files: correct answer is B in 53 of 80 questions, C in 25, A in 1 or 2, D in 1. Guessable. Source: `src/content/protocols/*/quiz.json`.
+- **Status:** Fixed 2026-10-14. Content bug: option order in the eight quiz.json files rearranged so correct answers are spread A 16, B 26, C 22, D 16 (was A 2, B 54, C 23, D 1). Option text, answers and claim ids unchanged; two questions with position-dependent options ('None of them', 'Both ways') were left as they were.
 
 ### QA-017 (minor) Empty search results have no message
 - /compare/ (search "zzzz") shows an empty table; /glossary/ and /library/ show only a zero count. No "no results" text or guidance.
@@ -103,15 +107,19 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 
 ### QA-018 (cosmetic) Home universe
 - Persona panel stays open over the bubbles after a choice. In Orbit mode two satellites overlap the rotated "Card and wallet commerce" label. The universe starts at 620 px, below the fold at 900 px.
+- **Status:** Partly fixed 2026-10-14. Fixed: the persona panel closes after a choice; orbit category labels now sit clear of the satellite dots (Card and wallet commerce no longer overlaps); the universe now starts at about 416 px so the toolbar is above the fold at 900 px. Not fixed: in Orbit mode the lower-left category label 'Machine payments' still touches the inner guide label 'Payment execution' (both are SVG text; moving either needs a layout change). Screenshot: screenshots/fixed-orbit.png.
 
 ### QA-019 (minor) Timeline
 - Learn link `/timeline/#lane-Prehistory` does not scroll to the lane (target exists, scrollY stays 0, and the default zoom "2025 onward" hides pre-2020 events). Lane labels are coloured like links but are plain spans (no link to the protocol page).
+- **Status:** Fixed 2026-10-14. The #lane-<id> deep link now scrolls the lane into view after it renders (the full year range and single lane were already applied); protocol lane labels are real links to the protocol page and are underlined. Global lanes (Standards, Policy, Market, Prehistory) stay plain text.
 
 ### QA-020 (cosmetic) Timeline filter layout
 - /timeline/ 1440 and 375: Zoom group sits higher than View/From/To; at 375 "2025 onward" wraps inside the bordered group with a gap; Reset floats alone.
+- **Status:** Fixed 2026-10-14. Controls align at the top, Zoom presets and the From and To selects share one row, Reset lines up with the controls, and at 375 px the zoom presets form a 2 by 2 grid without stray borders. Screenshot: screenshots/fixed-timeline-controls-375.png.
 
 ### QA-021 (cosmetic) Short protocol names
 - Compare, Stack and Controls label Mastercard Agent Pay as "Agent Pay" while menus use the full name.
+- **Status:** Fixed 2026-10-14. The short name used on Compare, Stack, Controls, Library and Glossary for Mastercard Agent Pay is now 'Mastercard Agent Pay' (the home bubble keeps its short bubbleLabel by design).
 
 ## Checked and working
 HTTP 200 on all pages; 404 page returns 404; no console errors or failed requests (except during a rebuild at /personas/consumer/, ignored); no broken internal links or images in 252 loads; no duplicate ids; every citation marker has a footer entry; axe found only QA-009 and QA-010 (no contrast issues in either theme); command palette via Cmd/Ctrl+K and `/` finds protocol, term, paper; `g h`, `g c`, `g s`, `?`; cite drawer opens with the right source and closes on Escape; theme persists across reload and navigation; skip link; copy-link buttons; mobile menu closes after navigation; home layout modes without overlap; persona dimming; flow player play, pause, step, keys, payload, failures; state machine transitions; quiz and flashcard persistence; notes export, import and flag; BibTeX copy; library BibTeX, RIS, CSV downloads are well formed (432 entries each); compare filters, pick two and radar; glossary 224 terms and 10 stubs; learn checklists persist; random-walk playground runs produced no page errors or NaN.

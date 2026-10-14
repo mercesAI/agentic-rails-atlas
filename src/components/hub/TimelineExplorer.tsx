@@ -94,6 +94,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
   const [to, setTo] = useState<number | null>(preset.to);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
+  const [jumpLane, setJumpLane] = useState<string | null>(null);
 
   // Deep link: #lane-<id> preselects one lane (used by the learning path).
   useEffect(() => {
@@ -104,9 +105,20 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
         setLaneSel(new Set([id]));
         setFrom(null);
         setTo(null);
+        setJumpLane(id);
       }
     }
   }, [lanes]);
+
+  // After the deep-linked lane renders, bring it into view (the controls sit above it).
+  useEffect(() => {
+    if (!jumpLane) return;
+    const row = document.getElementById(`lane-${jumpLane}`);
+    if (!row) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    row.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    setJumpLane(null);
+  }, [jumpLane, laneSel]);
 
   const filtered = useMemo(
     () => filterEvents(events, { lanes: laneSel, kinds: kindSel, confidences: confSel, from, to, query }),
@@ -146,6 +158,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
         </fieldset>
         <fieldset className="tl__group">
           <legend>Zoom</legend>
+          <div className="tl__zoom">
           <div className="seg" role="group" aria-label="Zoom presets">
             {ZOOM_PRESETS.map((z) => (
               <button
@@ -185,6 +198,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
                 ))}
               </select>
             </label>
+          </div>
           </div>
         </fieldset>
         <label className="tl__search">
@@ -255,7 +269,13 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
               {visibleLanes.length === 0 && <p className="tl__empty">No events match these filters.</p>}
               {visibleLanes.map((l) => (
                 <div key={l.id} className="tl-lanes__row" id={`lane-${l.id}`} data-family={l.family} data-group={l.group}>
-                  <span className="tl-lanes__label">{l.label}</span>
+                  {l.group === 'protocol' ? (
+                    <a className="tl-lanes__label" href={`/p/${l.id}/`}>
+                      {l.label}
+                    </a>
+                  ) : (
+                    <span className="tl-lanes__label">{l.label}</span>
+                  )}
                   <div className="tl-lanes__track">
                     {markers
                       .filter((m) => m.lane === l.id)

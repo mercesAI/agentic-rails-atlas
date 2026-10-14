@@ -5,12 +5,12 @@
       "id": "ap2-q1",
       "question": "Which mandate types exist in AP2 v0.2?",
       "options": [
-        "Intent, Cart and Payment",
         "Checkout and Payment, each open or closed",
+        "Intent, Cart and Payment",
         "Cart and Payment only",
         "Intent and Checkout"
       ],
-      "answer": 1,
+      "answer": 0,
       "explanation": "v0.2 removed Intent and Cart; only Checkout and Payment Mandates remain, each closed or open.",
       "claimIds": [
         "clm-ap2-031"
@@ -21,11 +21,11 @@
       "question": "What is the vct of a closed Payment Mandate?",
       "options": [
         "mandate.payment",
-        "mandate.payment.1",
         "ap2.mandates.PaymentMandate",
+        "mandate.payment.1",
         "mandate.payment.open.1"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "The schema constant is mandate.payment.1; ap2.mandates.PaymentMandate was the v0.1 data key.",
       "claimIds": [
         "clm-ap2-059",
@@ -51,12 +51,12 @@
       "id": "ap2-q4",
       "question": "Which fields does an open Payment Mandate require?",
       "options": [
-        "vct, constraints and cnf",
         "vct and payee",
         "transaction_id and payee",
-        "checkout_jwt and cnf"
+        "checkout_jwt and cnf",
+        "vct, constraints and cnf"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "The schema requires vct, constraints and cnf, and the constraints must include payment.reference.",
       "claimIds": [
         "clm-ap2-064"
@@ -67,11 +67,11 @@
       "question": "What must a verifier do with a constraint type it does not recognize?",
       "options": [
         "Ignore it",
-        "Treat it as failing",
         "Ask the agent",
+        "Treat it as failing",
         "Accept it if the signature verifies"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "Unknown constraints must be treated as failing evaluation.",
       "claimIds": [
         "clm-ap2-074"
@@ -81,12 +81,12 @@
       "id": "ap2-q6",
       "question": "Which role must be non-agentic?",
       "options": [
+        "Trusted Surface",
         "Shopping Agent",
         "Merchant",
-        "Trusted Surface",
         "Credential Provider"
       ],
-      "answer": 2,
+      "answer": 0,
       "explanation": "The Trusted Surface must be non-agentic; the others may be agentic.",
       "claimIds": [
         "clm-ap2-041",
@@ -98,11 +98,11 @@
       "question": "What binds an agent-signed closed mandate to its open parent?",
       "options": [
         "checkout_hash",
-        "sd_hash",
         "payment_id",
-        "order_id"
+        "order_id",
+        "sd_hash"
       ],
-      "answer": 1,
+      "answer": 3,
       "explanation": "sd_hash in the key-binding JWT binds the closed mandate to the open mandate.",
       "claimIds": [
         "clm-ap2-092"
@@ -128,11 +128,11 @@
       "question": "Where did AP2 governance move in 2026?",
       "options": [
         "The Linux Foundation",
-        "The FIDO Alliance",
         "The IETF",
+        "The FIDO Alliance",
         "W3C"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "Google donated AP2 to the FIDO Alliance on 2026-04-28.",
       "claimIds": [
         "clm-ap2-012",

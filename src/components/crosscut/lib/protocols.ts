@@ -27,7 +27,7 @@ export const FALLBACK_NAMES: Record<ProtocolSlug, { name: string; short: string;
   ucp: { name: 'UCP: Universal Commerce Protocol', short: 'UCP', monogram: 'UCP' },
   'stripe-mpp': { name: 'Stripe MPP: Machine Payments Protocol', short: 'Stripe MPP', monogram: 'MPP' },
   ap2: { name: 'AP2: Agent Payments Protocol', short: 'AP2', monogram: 'AP2' },
-  'mastercard-agent-pay': { name: 'Mastercard Agent Pay', short: 'Agent Pay', monogram: 'MAP' },
+  'mastercard-agent-pay': { name: 'Mastercard Agent Pay', short: 'Mastercard Agent Pay', monogram: 'MAP' },
 };
 
 export interface ProtocolMetaLike {

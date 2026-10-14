@@ -324,8 +324,12 @@ function Stage(props: StageProps) {
     sel.call(z);
     // The dialog opens after this effect runs, so measure on the next frame.
     const raf = requestAnimationFrame(() => {
-      const fit = (vp.clientWidth || window.innerWidth) / (canvas.offsetWidth || 1000);
-      sel.call(z.transform, zoomIdentity.translate(0, 8).scale(fit));
+      // Start readable: at the fit scale on a phone the labels are about 4 px, so open at 0.8 centered
+      // and let "Fit" show the whole canvas.
+      const vpw = vp.clientWidth || window.innerWidth;
+      const cw = canvas.offsetWidth || 1000;
+      const k = Math.max(vpw / cw, 0.8);
+      sel.call(z.transform, zoomIdentity.translate(Math.min(0, (vpw - cw * k) / 2), 8).scale(k));
     });
     return () => {
       cancelAnimationFrame(raf);
@@ -382,7 +386,11 @@ function Stage(props: StageProps) {
                   name={`${uid}-persona`}
                   value={p.id}
                   checked={persona === p.id}
-                  onChange={() => props.onPersona(p.id)}
+                  onChange={(e) => {
+                    props.onPersona(p.id);
+                    // Close the panel after a choice so it does not cover the bubbles.
+                    e.currentTarget.closest('details')?.removeAttribute('open');
+                  }}
                 />
                 {p.name}
               </label>

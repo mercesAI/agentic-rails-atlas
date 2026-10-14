@@ -7,8 +7,16 @@
   .site-main { max-width: none; padding: 0; }
   .prose { max-width: none; font-size: 11pt; }
   h1, h2, h3 { break-after: avoid; }
-  pre, table, figure, .callout, .diagram { break-inside: avoid; }
-  .table-wrap { overflow: visible; border-color: #999; }
+  /* Short blocks stay whole; tall tables and code may break between rows or lines, never mid-row. */
+  figure, .callout { break-inside: avoid; }
+  table, pre, .astro-code { break-inside: auto; }
+  tr, th, td, img { break-inside: avoid; }
+  thead { display: table-header-group; }
+  .table-wrap { overflow: visible; border-color: #999; max-height: none; }
+  .cc-frame { overflow: visible; max-height: none; }
+  /* A diagram taller than a page is scaled down to fit one page instead of being cut. */
+  .diagram-figure__canvas { overflow: visible !important; max-height: none !important; }
+  .diagram svg { width: auto; height: auto; max-width: 100%; max-height: 235mm; break-inside: avoid; }
   .astro-code, pre { white-space: pre-wrap; border-color: #999; background: #f5f5f5 !important; }
   .astro-code span { color: var(--shiki-light) !important; }
   .diagram[data-theme-variant='light'] { display: block !important; }

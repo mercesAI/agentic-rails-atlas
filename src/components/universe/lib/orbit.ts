@@ -94,7 +94,7 @@ export function orbitLayout(
  */
 export function labelArc(cx: number, cy: number, rx: number, ry: number, mid: number, half: number): string {
   const lower = Math.sin(mid) > 0;
-  const inset = lower ? 7 : 15;
+  const inset = lower ? 17 : 27;
   const ex = rx - inset;
   const ey = ry - inset;
   const pt = (t: number) => `${round(cx + ex * Math.cos(t))} ${round(cy + ey * Math.sin(t))}`;

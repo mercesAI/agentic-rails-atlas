@@ -6,11 +6,11 @@
       "question": "Who is merchant of record in an ACP purchase made through ChatGPT?",
       "options": [
         "OpenAI",
-        "Stripe",
         "The merchant selling the goods",
+        "Stripe",
         "The buyer's card issuer"
       ],
-      "answer": 2,
+      "answer": 1,
       "explanation": "OpenAI's docs say the merchant is merchant of record and handles refunds and chargebacks.",
       "claimIds": [
         "clm-openai-acp-045",
@@ -21,12 +21,12 @@
       "id": "openai-acp-q2",
       "question": "Which header is required on every ACP POST since version 2026-04-17?",
       "options": [
-        "Signature",
         "Idempotency-Key",
+        "Signature",
         "Request-Id",
         "Timestamp"
       ],
-      "answer": 1,
+      "answer": 0,
       "explanation": "2026-04-17 made Idempotency-Key mandatory on all POSTs; Signature, Timestamp and Request-Id are recommended.",
       "claimIds": [
         "clm-openai-acp-035",
@@ -38,11 +38,11 @@
       "question": "Which allowance reason does ACP define?",
       "options": [
         "recurring",
-        "one_time",
         "subscription",
+        "one_time",
         "open"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "one_time is the only defined reason.",
       "claimIds": [
         "clm-openai-acp-077"
@@ -53,11 +53,11 @@
       "question": "Which of these is NOT a required Allowance field?",
       "options": [
         "merchant_id",
-        "checkout_session_id",
         "buyer_email",
+        "checkout_session_id",
         "expires_at"
       ],
-      "answer": 2,
+      "answer": 1,
       "explanation": "The allowance requires reason, max_amount, currency, checkout_session_id, merchant_id and expires_at.",
       "claimIds": [
         "clm-openai-acp-076"
@@ -68,11 +68,11 @@
       "question": "How are ACP versions published?",
       "options": [
         "GitHub releases with semver tags",
-        "Dated spec folders with no tags",
         "npm package versions",
-        "IETF drafts"
+        "IETF drafts",
+        "Dated spec folders with no tags"
       ],
-      "answer": 1,
+      "answer": 3,
       "explanation": "Versions are dated folders; the repository has no releases or tags.",
       "claimIds": [
         "clm-openai-acp-028"
@@ -83,11 +83,11 @@
       "question": "Which status signals that a merchant requires 3DS?",
       "options": [
         "requires_escalation",
-        "authentication_required",
         "pending_approval",
+        "authentication_required",
         "in_progress"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "The merchant sets authentication_required and must include authentication_metadata.",
       "claimIds": [
         "clm-openai-acp-101"
@@ -97,12 +97,12 @@
       "id": "openai-acp-q7",
       "question": "What does the spec return when the same Idempotency-Key arrives with a different body?",
       "options": [
+        "422 idempotency_conflict",
         "409 idempotency_in_flight",
         "400 idempotency_key_required",
-        "422 idempotency_conflict",
         "200 with Idempotent-Replayed"
       ],
-      "answer": 2,
+      "answer": 0,
       "explanation": "The spec uses 422 idempotency_conflict; OpenAI's docs say 409.",
       "claimIds": [
         "clm-openai-acp-108",
@@ -115,10 +115,10 @@
       "options": [
         "Bearer token",
         "RFC 9421 HTTP Message Signatures",
-        "HMAC-SHA256 in Merchant-Signature",
-        "Mutual TLS only"
+        "Mutual TLS only",
+        "HMAC-SHA256 in Merchant-Signature"
       ],
-      "answer": 2,
+      "answer": 3,
       "explanation": "Merchants sign with HMAC-SHA256 over timestamp, a dot and the raw body.",
       "claimIds": [
         "clm-openai-acp-135"
@@ -145,11 +145,11 @@
       "question": "Where does an ACP seller publish its discovery document?",
       "options": [
         "/.well-known/ucp",
-        "/.well-known/acp.json",
         "/acp/discovery",
+        "/.well-known/acp.json",
         "/.well-known/agent.json"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "Discovery lives at /.well-known/acp.json; UCP uses /.well-known/ucp.",
       "claimIds": [
         "clm-openai-acp-118",

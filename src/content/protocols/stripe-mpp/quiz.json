@@ -22,11 +22,11 @@
       "question": "Who co-authors MPP?",
       "options": [
         "Stripe alone",
-        "Tempo Labs and Stripe",
         "The x402 Foundation",
-        "Visa and Mastercard"
+        "Visa and Mastercard",
+        "Tempo Labs and Stripe"
       ],
-      "answer": 1,
+      "answer": 3,
       "explanation": "The README and core draft name Tempo Labs and Stripe; three authors are from Tempo Labs and two from Stripe.",
       "claimIds": [
         "clm-stripe-mpp-002",
@@ -52,12 +52,12 @@
       "id": "stripe-mpp-q4",
       "question": "What happened on 2026-09-09?",
       "options": [
-        "The draft was renamed",
         "draft-httpauth-payment-01 was posted",
+        "The draft was renamed",
         "The old draft expired",
         "IANA registered the scheme"
       ],
-      "answer": 1,
+      "answer": 0,
       "explanation": "The -01 revision was posted; the new name dates from 2026-06-19 and the old name expired 2026-09-18.",
       "claimIds": [
         "clm-stripe-mpp-024",
@@ -70,11 +70,11 @@
       "question": "Which intents are in specs/intents as of 2026-10-11?",
       "options": [
         "charge and session",
-        "charge and subscription",
         "charge, session and subscription",
-        "only charge"
+        "only charge",
+        "charge and subscription"
       ],
-      "answer": 1,
+      "answer": 3,
       "explanation": "Session is defined per method; the generic session intent PR closed unmerged.",
       "claimIds": [
         "clm-stripe-mpp-049",
@@ -86,11 +86,11 @@
       "question": "What does a 403 mean in MPP?",
       "options": [
         "Payment required",
-        "Malformed credential",
         "Payment valid but policy denies access",
+        "Malformed credential",
         "Challenge expired"
       ],
-      "answer": 2,
+      "answer": 1,
       "explanation": "403 means the payment was valid but access is denied, and it carries no new challenge.",
       "claimIds": [
         "clm-stripe-mpp-093"
@@ -101,11 +101,11 @@
       "question": "How long is the minimum grace period in a Tempo forced close?",
       "options": [
         "1 minute",
-        "15 minutes",
         "24 hours",
+        "15 minutes",
         "30 days"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "requestClose starts a grace period of at least 15 minutes; the spec advises waiting 16 before withdraw.",
       "claimIds": [
         "clm-stripe-mpp-103",
@@ -117,11 +117,11 @@
       "question": "Which JSON-RPC error code signals payment required over MCP?",
       "options": [
         "-32602",
-        "-32603",
         "-32042",
+        "-32603",
         "-32700"
       ],
-      "answer": 2,
+      "answer": 1,
       "explanation": "The MCP transport uses -32042 with challenges in error.data, and -32043 for failed verification.",
       "claimIds": [
         "clm-stripe-mpp-110",
@@ -132,12 +132,12 @@
       "id": "stripe-mpp-q9",
       "question": "Which x402 scheme maps to MPP charge?",
       "options": [
-        "upto",
         "exact",
+        "upto",
         "batch-settlement",
         "auth-capture"
       ],
-      "answer": 1,
+      "answer": 0,
       "explanation": "MPP's documentation maps x402 exact onto charge; upto and batch-settlement are comparable to sessions.",
       "claimIds": [
         "clm-stripe-mpp-178"
@@ -148,11 +148,11 @@
       "question": "What limits a payer's loss in a Tempo session?",
       "options": [
         "The challenge expires value",
-        "The channel deposit",
         "An SPT",
+        "The channel deposit",
         "The receipt"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "Vouchers cannot exceed the deposit, so it caps the payer's exposure.",
       "claimIds": [
         "clm-stripe-mpp-126"

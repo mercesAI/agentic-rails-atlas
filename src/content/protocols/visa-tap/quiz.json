@@ -37,12 +37,12 @@
       "id": "visa-tap-q3",
       "question": "How far apart may created and expires be?",
       "options": [
-        "60 seconds",
         "8 minutes",
+        "60 seconds",
         "1 hour",
         "24 hours"
       ],
-      "answer": 1,
+      "answer": 0,
       "explanation": "TAP caps the window at 8 minutes. The Web Bot Auth draft recommends 24 hours or less.",
       "claimIds": [
         "clm-visa-tap-043",
@@ -54,11 +54,11 @@
       "question": "What does TAP call the nonce?",
       "options": [
         "A one-time random value per request",
-        "A session identifier shared by all signatures and objects",
         "A hash of the body",
+        "A session identifier shared by all signatures and objects",
         "A counter"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "TAP reuses one nonce across all message signatures and signed body objects in an interaction.",
       "claimIds": [
         "clm-visa-tap-042"
@@ -85,11 +85,11 @@
       "question": "What did that key store hold on 2026-10-11?",
       "options": [
         "Ed25519 keys matching the examples",
-        "One RSA key from a Visa sandbox CA",
         "No keys",
-        "An EC P-256 key"
+        "An EC P-256 key",
+        "One RSA key from a Visa sandbox CA"
       ],
-      "answer": 1,
+      "answer": 3,
       "explanation": "One 2048-bit RSA key with a certificate from a Visa sandbox issuing CA, and no Ed25519 key.",
       "claimIds": [
         "clm-visa-tap-071",
@@ -101,11 +101,11 @@
       "question": "Which object carries contextualData?",
       "options": [
         "agenticPaymentContainer",
-        "agenticConsumer",
         "browsingIOU",
+        "agenticConsumer",
         "cardMetadata"
       ],
-      "answer": 1,
+      "answer": 2,
       "explanation": "The consumer recognition object agenticConsumer holds nonce, idToken, contextualData, kid, alg and signature.",
       "claimIds": [
         "clm-visa-tap-047"
@@ -115,12 +115,12 @@
       "id": "visa-tap-q8",
       "question": "When does a payment container carry a browsingIOU?",
       "options": [
-        "Always",
         "When the merchant asked for payment with HTTP 402",
+        "Always",
         "For key-entered guest checkout",
         "Only for Mastercard cards"
       ],
-      "answer": 1,
+      "answer": 0,
       "explanation": "browsingIOU is present when the merchant requested payment with a 402 response.",
       "claimIds": [
         "clm-visa-tap-063"
@@ -132,10 +132,10 @@
       "options": [
         "Mastercard",
         "Stripe",
-        "Visa",
-        "Cloudflare"
+        "Cloudflare",
+        "Visa"
       ],
-      "answer": 2,
+      "answer": 3,
       "explanation": "draft-card-charge-00 is authored by Jacob Brans of Visa and says a client may include TAP headers.",
       "claimIds": [
         "clm-visa-tap-185",
