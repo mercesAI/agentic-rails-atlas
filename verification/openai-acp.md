@@ -4,7 +4,25 @@ Verifier: independent verifier agent. Date: 2026-10-13. Scope per `docs/briefs/V
 
 Spec snapshot: `research/vendor/acp/spec/2026-04-17` (JSON Schema and OpenAPI). Rendered page: `dist/p/openai-acp/index.html` (built 14:31, newer than all ACP content, so no rebuild).
 
-Status: in progress (check 1 written; checks 2 to 8 follow).
+Status: complete.
+
+## Summary
+
+| Check | Pass | Fail | Unreachable |
+|---|---|---|---|
+| 1. Claims against sources (89 referenced + 30 sampled = 119) | 118 | 1 (claim 216 has no `asOf`) | 0 |
+| 1b. Rule checks over all 248 claims (non-primary-only verified, missing source ids) | 248 | 0 | 0 |
+| 2. Identifiers (96 table segments + 60 Mode spec identifiers = 156) | 154 | 2 (webhook `data.type`, `data.status` shown optional, required in spec) | 0 |
+| 2d. Illustrative payloads validated with ajv (19) | 14 | 5 | 0 |
+| 3. Dates, versions and numbers (28 items) | 28 | 0 (2 notes) | 0 |
+| 4. Do not get wrong (4 items) | 4 | 0 | 0 |
+| 5. Diagrams and flows (7 flows, 1 state machine, 9 hand-written diagrams) | 16 | 1 (product-feed-push flow, minor) | 0 |
+| 6. Errata R5, R20 to R25, R47, stewardship, scenario | all | 0 | 0 |
+| 7. Style gates | lint:style 0 errors, lint:ste pass, 0 em dashes | 8 minor (1 British spelling, 7 acronyms) | 0 |
+| 8. Coverage | PASS (8 pass, 0 fail, 0 missing) | 0 | 0 |
+
+Scope note: reduced as instructed (referenced claims plus 30 random, not 40; 19 payloads rather than 10). The verifier did not spawn helpers and did not edit content or run a build; `dist/` was used as is.
+
 
 ## Check 1: claims against sources
 
@@ -269,7 +287,7 @@ Do-not-get-wrong failures: 0.
 | Diagram composition | pass | Solid lines have sources (claims 049, 164, 210); dotted lines are honest "no bridge or no documented link". |
 | Diagram context and data-model | pass | Zones, paths and class fields match the schemas (field names verified in check 2). Data-model class `Order.status` string is fine. |
 
-Diagram issues: 4 (feed payloads, happy-path step 4 payload, webhook adjustment payload, in_progress transition citation). Hand-written diagrams make no unsupported claim.
+Diagram issues: 6 (five payload schema failures from check 2d: feed create, feed upsert, happy-path step 4, happy-path step 12 abbreviation, webhook adjustment; plus the `in_progress` transition citation). Hand-written diagrams make no unsupported claim.
 
 ## Check 6: specified versus deployed, errata rows, stewardship, scenario
 
@@ -306,3 +324,45 @@ Pass. The page separates: spec (dated folders, README beta, RFCs Draft or Propos
 | Actor "built on OpenAI's Apps SDK rather than on ACP" | pass | Apps SDK `complete_checkout` is not the ACP `complete_checkout_session`. |
 | Scenario claims 187 to 189, 146 to 148, 151 to 154 | pass | Spot-checked: 187, 188, 186, 215, 117, 116, 151, 152, 181, 180, 179, 146, 147, 154. |
 
+## Check 7: style gates
+
+| Gate | Result | Note |
+|---|---|---|
+| `pnpm lint:style` | pass | 0 errors across the repository; 0 warnings for `openai-acp` and the scenario (the 33 warnings are other protocols). |
+| `pnpm lint:ste --protocol openai-acp` | pass | 72 sentences, 0 errors, 0 warnings, 0 review. |
+| U+2014 in protocol folder, 7 flows, state machine, diagrams, scenario | pass | none found. |
+| US spelling sample (regex for 30 common British forms across the folder) | 1 issue | `compliance.json:116` "authorised" (paraphrase of UK regulation 67); use "authorized". |
+| Sentence-case headings | pass | no title-case headings found in index.mdx. |
+| Acronyms expanded on first use in index.mdx | 7 issues | Expanded correctly: REST, API, PSP, SPT, SDK, RFC, PCI DSS, PAN, HMAC, CVE, MCP, TSC, SEP, CLA, MPP, TAP, AP2, UCP, TLS, GMV. Not expanded: `ACP` is used in the opening paragraph (index.mdx:130) and in the ELI5 text before the expansion at :134 (the page title carries it); `JSON` (first at "JSON Schema"); `JSON-RPC` (RPC); `DNS` ("reverse-DNS"); `ERC-8004` (first mention in the composes paragraph); `URBN` (index.mdx:830); `HTML`, `IP`, `HTTP`, `URL`, `AI` are common and arguably exempt but not expanded. |
+
+## Check 8: coverage
+
+`pnpm verify:coverage --protocol openai-acp`: PASS. Claims 248 (reported 5, unverified 5), all 248 with sources; sections A to T present; practitioner words 3168; ELI5 276 words; FieldTable blocks present; 16 diagrams; 33 resources; 42 tagged publications; 6 personas; 11 STRIDE threats; 12 FAQ; 8 open questions; 10 quiz; 15 flashcards; 33 glossary terms; 17 timeline events; compare 34 of 34; controls 14 of 14. Coverage command left `src/generated/coverage.json` modified (it was already modified before this run); not committed here.
+
+## Required fixes (prioritized)
+
+Priority 1 (schema-invalid illustrative payloads; they teach wrong shapes)
+1. `src/content/flows/openai-acp-product-feed-push.json` step 1: the `POST /feeds` request body must contain only `target_country` (`CreateFeedRequest` has `additionalProperties: false`); `id` is returned in the `FeedMetadata` response. Change the payload to `{"target_country": "US"}` and the step detail from "Create feed metadata (id, target_country)" to "Create a feed (target_country); the response carries the server-assigned id".
+2. Same file, step 2: `variants[0].price.currency` must match `^[A-Z]{3}$` in the feed schema; change `"usd"` to `"USD"` (checkout uses lowercase, feed uses uppercase; worth a one-line note).
+3. `src/content/flows/openai-acp-checkout-happy-path.json` step 4: `fulfillment_options[0]` of type `shipping` requires `totals` (FulfillmentOptionShipping requires `type, id, title, totals`). Add `"totals": [{"type": "total", "display_text": "Standard", "amount": 0}]` or similar.
+4. `src/content/flows/openai-acp-order-webhook.json` step 2: `adjustments[0]` requires `occurred_at` (Adjustment requires `id, type, occurred_at, status`). Add an RFC 3339 `occurred_at`.
+5. `src/content/flows/openai-acp-checkout-happy-path.json` step 12: the payload is a fragment (`id`, `status`, `order`); either complete the session fields or mark the comment line "abbreviated".
+
+Priority 2 (field-table and claim accuracy)
+6. `src/content/protocols/openai-acp/index.mdx`, FieldTable "Order and order webhook (WebhookEvent)": set `required` to true for `data.type` and `data.status` (openapi.agentic_checkout_webhook.yaml:219 `required: [type, checkout_session_id, permalink_url, status]`).
+7. `src/content/protocols/openai-acp/claims.json` clm-openai-acp-216: add `"asOf": "2026-10-11"` (the text says "still").
+8. `src/content/protocols/openai-acp/claims.json` clm-openai-acp-121: add a source record for `spec/2025-12-12/json-schema/schema.agentic_checkout.json` in `sources.json` and cite it, since the claim is about the 2025-12-12 schema.
+
+Priority 3 (style and polish)
+9. `src/content/protocols/openai-acp/compliance.json:116`: "authorised" to "authorized".
+10. `src/content/protocols/openai-acp/index.mdx`: expand ACP before its first use at :130, and expand JSON, JSON-RPC, DNS, ERC-8004 and URBN on first use.
+11. `src/content/states/openai-acp-checkout-session.json`: the `ready_for_payment -> in_progress` transition cites "2025-09-29 schema", which defines only the status value; mark the transition "(inferred)" like its siblings.
+12. `src/content/protocols/openai-acp/ecosystem.json` metric `acp-shopify-ai-merchants`: remove `disputed`/`disputeSources` or explain what is disputed; the OpenAI launch post does not contradict a March 2026 remark.
+13. Optional: mention the `product_id` example in the drift section (R25, openapi.agentic_checkout.yaml:1302, :1376); note in the MCP mapping diagram that `meta.idempotency_key` is optional in the MCP binding while REST requires `Idempotency-Key`; note that the 2025-12-12 and 2026-01-16 dated folders were created retroactively on 2026-01-22 (commit #81).
+14. Optional wording: claim 228 says "on-chain agent economy"; the Virtuals page says "EconomyOS ... optional onchain tokenization", so "agent economy" without "on-chain" is safer. Claim 196 (no protocol fee) is an inference from absence; consider `unverified`.
+
+## Blocked or unreachable sources
+
+None in the sampled scope. openai.com returns 403 to curl, so the two OpenAI posts were read from the Wayback snapshots named in sources.json (20261007012440 and 20260929220135, both HTTP 200 and text matching). Not independently confirmed: claim 236 detail "rate not public" (non-primary article, `reported`); the exact publication date of the PYMNTS 4 percent article (the page text does not show it; sources.json says 2026-01-21). Claims outside the sampled scope (for example arXiv 2609.00060 and 2607.21824 results in claims 144 and following) were not re-fetched.
+
+Git note: all commits touched only `verification/openai-acp.md`. `src/generated/coverage.json` (modified before this run) and `src/playgrounds/openai-acp/` (untracked) are not part of this verification and were left alone.
