@@ -9,7 +9,6 @@ import Monogram from '../ui/Monogram.astro';
 import StatusDot from '../ui/StatusDot.astro';
 import FreshnessBadge from '../ui/FreshnessBadge.astro';
 import Chip from '../ui/Chip.astro';
-import ReadingModeSwitch from '../islands/ReadingModeSwitch';
 import { LAYER_LABELS, SECTION_IDS, SECTION_TITLES, type ProtocolMeta } from '../../lib/schemas';
 import { RAIL_LABELS } from './labels';
 
@@ -41,10 +40,6 @@ const layers = [meta.layerPrimary, ...meta.layersSecondary.filter((l) => l !== m
     <ul class="chip-row" aria-label="Layers">
       {layers.map((l, i) => <li><Chip family={i === 0 ? meta.family : undefined}>{LAYER_LABELS[l]}{i === 0 && <span class="sr-only"> (primary layer)</span>}</Chip></li>)}
     </ul>
-  </div>
-  <div class="proto-header__mode no-print">
-    <span class="proto-header__mode-label" id="mode-label">Reading mode</span>
-    <ReadingModeSwitch client:load />
   </div>
   <nav class="jump no-print" aria-label="Jump to section">
     <ul class="jump__list">

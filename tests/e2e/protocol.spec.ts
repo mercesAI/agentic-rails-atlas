@@ -142,12 +142,13 @@ test.describe('reading modes on /p/x402/', () => {
   const labels = { eli5: 'ELI5', practitioner: 'Practitioner', spec: 'Spec-deep', ste: 'STE' } as const;
 
   for (const mode of Object.keys(expected) as (keyof typeof expected)[]) {
-    test(`${mode} mode shows the right content and both switches agree`, async ({ page }) => {
+    test(`${mode} mode shows the right content and the single switch reflects it`, async ({ page }) => {
       await page.goto('/p/x402/');
-      // The nav switch is hidden on narrow screens; both instances stay in the DOM and must agree.
+      // One switch only, in the reading bar between section A and the explanation; visible in every mode.
       const groups = page.locator('[role="radiogroup"][aria-label="Reading mode"]');
-      await expect(groups).toHaveCount(2);
-      await page.getByRole('radiogroup', { name: 'Reading mode' }).last().getByRole('radio', { name: labels[mode] }).click();
+      await expect(groups).toHaveCount(1);
+      await page.getByRole('radiogroup', { name: 'Reading mode' }).getByRole('radio', { name: labels[mode] }).click();
+      await expect(page.locator('.reading-bar')).toBeVisible();
       await expect(page.locator('html')).toHaveAttribute('data-reading-mode', mode);
       const e = expected[mode];
       const body = page.locator('#b-explanation .protocol-body');
@@ -156,22 +157,18 @@ test.describe('reading modes on /p/x402/', () => {
       await expect(body.locator('.mode-block[data-modes="spec"] table').first())[e.table ? 'toBeVisible' : 'toBeHidden']();
       await expect(page.locator('#d-ste')).toBeVisible();
       await expect(page.locator('.mode-banner__line:visible').first()).toContainText(`${labels[mode]} mode`);
-      for (const i of [0, 1]) {
-        await expect(groups.nth(i).locator(`[data-value="${mode}"]`)).toHaveAttribute('aria-checked', 'true');
-        await expect(groups.nth(i).locator('[aria-checked="true"]')).toHaveCount(1);
-      }
+      await expect(groups.locator(`[data-value="${mode}"]`)).toHaveAttribute('aria-checked', 'true');
+      await expect(groups.locator('[aria-checked="true"]')).toHaveCount(1);
     });
   }
 
-  test('a toast links to section B when it is out of view', async ({ page }) => {
+  test('the switch sits above the explanation, so a change is announced without a toast', async ({ page }) => {
     await page.goto('/p/x402/');
-    await page.evaluate(() => window.scrollTo(0, 0));
-    const toast = page.locator('#mode-toast');
-    await page.getByRole('radiogroup', { name: 'Reading mode' }).first().getByRole('radio', { name: 'ELI5' }).click();
-    await expect(toast).toBeVisible();
-    await expect(toast).toContainText('ELI5 applied to section B');
-    await expect(toast.getByRole('link', { name: 'Go to section B' })).toHaveAttribute('href', '#b-explanation');
+    await page.locator('.reading-bar').scrollIntoViewIfNeeded();
+    await page.getByRole('radiogroup', { name: 'Reading mode' }).getByRole('radio', { name: 'ELI5', exact: true }).click();
     await expect(page.locator('#mode-live')).toHaveText('ELI5 applied to section B');
+    await expect(page.locator('#mode-toast')).toBeHidden();
+    await expect(page.locator('#b-explanation .mode-banner__line:visible').first()).toContainText('ELI5 mode');
   });
 });
 

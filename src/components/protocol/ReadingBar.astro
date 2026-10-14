@@ -1,0 +1,28 @@
+---
+/**
+ * The only reading-mode control on the site. It sits between section A and the
+ * explanation it changes (section B, or section D in STE mode), so the effect is
+ * visible right below the switch. It is not part of section B, so it stays
+ * visible in STE mode when section B is hidden.
+ */
+import ReadingModeSwitch from '../islands/ReadingModeSwitch';
+---
+<div class="reading-bar no-print" role="group" aria-labelledby="reading-bar-label">
+  <div class="reading-bar__text">
+    <p class="reading-bar__label" id="reading-bar-label">How to read this explanation</p>
+    <p class="reading-bar__hint">ELI5 is a short plain-language version. Practitioner is the full text. Spec-deep adds field tables and wire examples. STE shows the Simplified Technical English version instead.</p>
+  </div>
+  <ReadingModeSwitch client:load />
+</div>
+
+<style>
+  .reading-bar {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1.5rem;
+    margin: 0 0 -2rem; padding: 0.9rem 1.1rem;
+    border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--bg-elevated);
+  }
+  .reading-bar__text { flex: 1 1 18rem; min-width: 0; }
+  .reading-bar__label { font-family: var(--font-heading); font-weight: 600; font-size: 1rem; color: var(--fg); }
+  .reading-bar__hint { margin-top: 0.2rem; font-size: 0.85rem; color: var(--fg-muted); }
+  :global(:root[data-reading-mode='ste']) .reading-bar { order: -2; }
+</style>

@@ -7,7 +7,6 @@ import { getProtocols } from '../../lib/content';
 import { SITE_NAME } from '../../lib/constants';
 import Monogram from '../ui/Monogram.astro';
 import ThemeToggle from '../islands/ThemeToggle';
-import ReadingModeSwitch from '../islands/ReadingModeSwitch';
 import { PRIMARY_LINKS, MORE_LINKS, isCurrent } from './nav-links';
 
 const protocols = await getProtocols();
@@ -82,7 +81,6 @@ const inMore = MORE_LINKS.some((l) => isCurrent(path, l.href));
       </ul>
     </nav>
     <div class="site-header__controls">
-      <ReadingModeSwitch client:load />
       <ThemeToggle client:load />
     </div>
   </div>

@@ -55,3 +55,12 @@ test.describe('smoke', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Page not found' })).toBeVisible();
   });
 });
+
+test.describe('reading mode placement', () => {
+  for (const path of ['/', '/compare/', '/glossary/', '/scenarios/']) {
+    test(`no reading-mode switch on ${path}`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator('[role="radiogroup"][aria-label="Reading mode"]')).toHaveCount(0);
+    });
+  }
+});
