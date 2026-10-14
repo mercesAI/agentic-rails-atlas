@@ -45,10 +45,10 @@
   "steps": [
     {
       "n": 1,
-      "from": "agent",
-      "to": "network",
-      "label": "Request checkout for merchant domain",
-      "detail": "The integrator, here the agent platform, asks Mastercard for a checkout for a given merchant web domain.",
+      "from": "consumer",
+      "to": "agent",
+      "label": "User validation and consent",
+      "detail": "The user is validated and consents before a security code is requested.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
@@ -56,10 +56,10 @@
     },
     {
       "n": 2,
-      "from": "consumer",
-      "to": "agent",
-      "label": "User validation and consent",
-      "detail": "The user is validated and consents before a security code is requested.",
+      "from": "agent",
+      "to": "network",
+      "label": "Request checkout for merchant domain",
+      "detail": "The integrator, here the agent platform, asks Mastercard for a checkout for a given merchant web domain.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
@@ -108,7 +108,7 @@
       "failures": [
         {
           "condition": "DTVC wrong or already used",
-          "outcome": "Validation fails and the issuer is told (response code not published)"
+          "outcome": "Validation fails and the issuer is told (outcome and response code not published)"
         }
       ]
     },

@@ -1,7 +1,7 @@
 ---
 slug: mastercard-token-in-checkout-form
 order: 7
-title: A Mastercard agentic token in an existing checkout form
+title: A Mastercard Virtual Card Token in an existing checkout form
 summary: A registered agent signs its requests with RFC 9421 and Mastercard's single tag Agent-pay-auth, verified at the edge against a key directory whose public location is unknown. At checkout it types a Mastercard Virtual Card Token and a one-time DTVC into the merchant's standard card fields. Verifiable Intent L3a and L3b, linked by checkout_hash, are specified; live use is not shown publicly.
 protocols:
   - mastercard-agent-pay
@@ -62,7 +62,7 @@ Verifiable Intent's main branch has had no commits since 2026-04-20.<Cite ids="c
 
 ## Where controls apply
 
-- **Before authorization.** Mastercard says agentic tokens may be single-use, merchant-specific or time-limited.<Cite ids="clm-mastercard-agent-pay-076" /> Agents may not use a card already on file at the merchant, because the network could not see the purchase as agentic.<Cite ids="clm-mastercard-agent-pay-077" />
+- **Before authorization.** For the agentic-token path, Mastercard says agentic tokens may be single-use, merchant-specific or time-limited; the DTVC path in this scenario uses a Virtual Card Token, which is a different product.<Cite ids="clm-mastercard-agent-pay-076" /> Agents may not use a card already on file at the merchant, because the network could not see the purchase as agentic.<Cite ids="clm-mastercard-agent-pay-077" />
 - **At signing.** A controls layer can review L2 constraints before the consumer signs. Verifiable Intent registers eight constraint types, among them allowed merchants, amount range and budget.<Cite ids="clm-mastercard-agent-pay-152" />
 - **At the edge.** Mastercard's decision table sends requests without a scheme tag to the non-agent bot policy and blocks unknown keys.<Cite ids="clm-mastercard-agent-pay-243" /> With no public directory, only partners that Mastercard supplies with keys can verify.
 - **At settlement.** Budget enforcement cannot be done cryptographically and needs stateful tracking by the network.<Cite ids="clm-mastercard-agent-pay-173" /> Networks and EMVCo are still developing 3DS support for agentic flows.<Cite ids="clm-mastercard-agent-pay-221" />

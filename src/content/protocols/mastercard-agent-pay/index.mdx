@@ -142,7 +142,7 @@ Mastercard announced Agent Pay on 2025-04-29 as its Agentic Payments Program, in
 
 The problem is familiar to anyone who runs card fraud. An agent typing a card number into a web form looks like a bot, and a bot with a card number looks like fraud. Agent Pay replaces the card number with a token that only a registered agent can obtain, so the network can mark the transaction as agentic and the merchant never handles the real card.<Cite ids="clm-mastercard-agent-pay-077 clm-mastercard-agent-pay-079" /> Mastercard says agents may not even use a card the consumer already stored at the merchant, because the network could not then see that an agent was involved.<Cite ids="clm-mastercard-agent-pay-077" />
 
-Two things to keep apart from the start. The word "agentic token" means different things at Mastercard and at Visa: they are separate products on separate networks.<Cite ids="clm-mastercard-agent-pay-008" /> And Mastercard's pages describe the tokens as built on Mastercard tokenization; none of the pages read for this atlas name MDES (Mastercard Digital Enablement Service), so this page does not either.<Cite ids="clm-mastercard-agent-pay-007" />
+Two things to keep apart from the start. The word "agentic token" means different things at Mastercard and at Visa: they are separate products on separate networks.<Cite ids="clm-mastercard-agent-pay-008" /> And Mastercard's pages describe the tokens as built on Mastercard tokenization; the launch, regional and developer-guide pages do not name MDES (Mastercard Digital Enablement Service). Developer pages mention it only for Virtual Card Tokens and Token Connect enrollment, so this page does not call agentic tokens MDES tokens.<Cite ids="clm-mastercard-agent-pay-007" />
 
 ### Actors and roles
 
@@ -353,7 +353,7 @@ Verifiable Intent is a chain of SD-JWT (Selective Disclosure for JWTs) credentia
     "name": "header alg / typ / kid",
     "type": "string",
     "required": true,
-    "description": "ES256; sd+jwt; issuer key id in its JWKS.",
+    "description": "ES256; sd+jwt; issuer key id in its JWKS (JSON Web Key Set).",
     "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
   },
   {
@@ -374,7 +374,7 @@ Verifiable Intent is a chain of SD-JWT (Selective Disclosure for JWTs) credentia
     "name": "iat, exp",
     "type": "integer",
     "required": true,
-    "description": "exp at most one year after iat.",
+    "description": "exp should be no more than one year after iat (recommended).",
     "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
   },
   {
@@ -433,7 +433,7 @@ Verifiable Intent is a chain of SD-JWT (Selective Disclosure for JWTs) credentia
     "name": "iat, exp",
     "type": "integer",
     "required": true,
-    "description": "Immediate 15 minutes; Autonomous 24 hours to 30 days.",
+    "description": "Recommended: Immediate no more than 15 minutes; Autonomous 24 hours to 30 days, no more than 30 days.",
     "specRef": "https://github.com/agent-intent/verifiable-intent/blob/356c29635f1c44df7de02edb58699ca9f29bece6/spec/credential-format.md"
   },
   {
@@ -570,8 +570,8 @@ The main flow on this page is a Level 1 purchase with edge verification, because
 1. The agent requests a merchant page and signs the request with RFC 9421 HTTP Message Signatures. Signature-Input lists the covered components, in Mastercard's example `@authority` and `@path`, plus `keyid`, `created`, `expires`, `nonce`, `alg` and the tag.<Cite ids="clm-mastercard-agent-pay-089 clm-mastercard-agent-pay-227 clm-mastercard-agent-pay-080" />
 2. The CDN or the merchant backend fetches the public key for `keyid` from the directory Mastercard hosts.<Cite ids="clm-mastercard-agent-pay-086 clm-mastercard-agent-pay-241" /> Cloudflare names no Mastercard directory URL, and the only host in Mastercard's example, `agentpay-key-directory.mastercard.com`, did not resolve on 2026-10-11.<Cite ids="clm-mastercard-agent-pay-086 clm-mastercard-agent-pay-084 clm-mastercard-agent-pay-085" />
 3. The verifier checks that both headers are present, that `created` and `expires` bracket the current time, that the nonce is unused and the tag is valid, then rebuilds the signature base and verifies the Ed25519 signature.<Cite ids="clm-mastercard-agent-pay-088" /> The guide also lists `ecdsa-p256-sha256` as an example algorithm.<Cite ids="clm-mastercard-agent-pay-228" />
-4. The agent types the token into the normal card form. To the merchant it looks like any card number, and PCI scope does not change.<Cite ids="clm-mastercard-agent-pay-078 clm-mastercard-agent-pay-079" />
-5. The merchant's processor sends the authorization. The network detokenizes and routes to the issuer.<Cite ids="clm-mastercard-agent-pay-078" /> Stripe, which carries these tokens, says the network maps them to the latest funding PAN (primary account number) and adds agent information to the authorization message.<Cite ids="clm-mastercard-agent-pay-047" />
+4. The agent types the token into the normal card form. To the merchant it looks like any card number, and PCI (Payment Card Industry) scope does not change.<Cite ids="clm-mastercard-agent-pay-078 clm-mastercard-agent-pay-079" />
+5. The merchant's processor sends the authorization. The network detokenizes and routes to the issuer.<Cite ids="clm-mastercard-agent-pay-078" /> Stripe, which carries these tokens, says the network maps them to the latest funding PAN (primary account number) and includes additional information in the authorization message.<Cite ids="clm-mastercard-agent-pay-047" />
 6. The issuer approves or declines. Standard chargeback rights apply afterwards.<Cite ids="clm-mastercard-agent-pay-209" />
 
 Mastercard's decision table for step 3 is short: a request without Signature-Input and a scheme tag goes to the ordinary bot policy, and a missing field or a key not found in the directory means block.<Cite ids="clm-mastercard-agent-pay-243" /> One oddity is worth knowing before you copy code: the Level 1 guide's sample verifier accepts only the two Visa tags, not the Mastercard tag.<Cite ids="clm-mastercard-agent-pay-215" />
@@ -586,7 +586,7 @@ Mastercard publishes no state model for agentic tokens. The guides describe a se
 
 The Intent API has more structure. `orderExecutionType` is `IMMEDIATE` or `DEFERRED`, `orderExpiry` is in UTC epoch seconds, and validation needs `intentStatus` `ACTIVE`.<Cite ids="clm-mastercard-agent-pay-096 clm-mastercard-agent-pay-094" /> Other status values are not published.<Cite ids="clm-mastercard-agent-pay-005" />
 
-Verifiable Intent defines lifetimes per layer: L1 about one year, L2 Immediate 15 minutes, L2 Autonomous 24 hours to 30 days and never beyond L1, L3 five minutes recommended and one hour at most.<Cite ids="clm-mastercard-agent-pay-129 clm-mastercard-agent-pay-130 clm-mastercard-agent-pay-131 clm-mastercard-agent-pay-132" /> For Autonomous mandates the network must keep state, because budgets and occurrence counts cannot be enforced by cryptography alone.<Cite ids="clm-mastercard-agent-pay-173 clm-mastercard-agent-pay-154" /> The spec says networks must hold that state but defines no API for it.<Cite ids="clm-mastercard-agent-pay-164" />
+Verifiable Intent recommends lifetimes per layer: L1 about one year, L2 Immediate about 15 minutes, L2 Autonomous 24 hours to 30 days (never beyond L1), and L3 five minutes. Only the L3 ceiling of one hour and the rule that Autonomous L2 must not outlive L1 are hard limits.<Cite ids="clm-mastercard-agent-pay-129 clm-mastercard-agent-pay-130 clm-mastercard-agent-pay-131 clm-mastercard-agent-pay-132" /> For Autonomous mandates the network must keep state, because budgets and occurrence counts cannot be enforced by cryptography alone.<Cite ids="clm-mastercard-agent-pay-173 clm-mastercard-agent-pay-154" /> The spec says networks must hold that state but defines no API for it.<Cite ids="clm-mastercard-agent-pay-164" />
 
 ### Security and trust model (summary)
 
@@ -607,7 +607,7 @@ Agent Pay has no version numbers, no public changelog and no governance body; Ma
 | 2025-10 | Acceptance Framework launched (exact day not published) | launched | <Cite ids="clm-mastercard-agent-pay-030" /> |
 | 2025-10-30 | CEO: first agentic transaction on the network that quarter | reported | <Cite ids="clm-mastercard-agent-pay-034" /> |
 | 2025-12-03 | Latin America and the Caribbean from 2026 | announced | <Cite ids="clm-mastercard-agent-pay-037" /> |
-| 2026-01-28 | Australia's first authenticated agentic transactions (CBA, Westpac) | controlled trials | <Cite ids="clm-mastercard-agent-pay-040 clm-mastercard-agent-pay-042" /> |
+| 2026-01-28 | Australia's first authenticated agentic transactions (CBA, the Commonwealth Bank of Australia, and Westpac) | controlled trials | <Cite ids="clm-mastercard-agent-pay-040 clm-mastercard-agent-pay-042" /> |
 | 2026-03-02 | Santander: Europe's first live end-to-end agent payment | pilot, not a commercial rollout | <Cite ids="clm-mastercard-agent-pay-043 clm-mastercard-agent-pay-044" /> |
 | 2026-03-17 | Korea's first live authenticated agentic transaction | first transaction | <Cite ids="clm-mastercard-agent-pay-052" /> |
 | 2026-03-24 | 17 Latin American issuers and processors | controlled environments | <Cite ids="clm-mastercard-agent-pay-054 clm-mastercard-agent-pay-055" /> |
@@ -636,7 +636,7 @@ Agent Pay touches the other protocols mostly through Verifiable Intent and throu
 - No agent-specific dispute reason codes, liability shift or interchange categories have been published.<Cite ids="clm-mastercard-agent-pay-207" />
 - Verifiable Intent has no revocation protocol, an unresolved duplicate-digest conflict with RFC 9901, and no commits since 2026-04-20.<Cite ids="clm-mastercard-agent-pay-168 clm-mastercard-agent-pay-178 clm-mastercard-agent-pay-123" />
 - Mastercard says VI is being embedded in the payment flow, but no public document shows a VI chain checked in a live authorization.<Cite ids="clm-mastercard-agent-pay-056 clm-mastercard-agent-pay-051" />
-- Networks and EMVCo are still developing 3DS support and decoupled authentication for agentic flows, per Mastercard's own guide.<Cite ids="clm-mastercard-agent-pay-221" />
+- Networks and EMVCo are still developing 3DS (3-D Secure) support and decoupled authentication for agentic flows, per Mastercard's own guide.<Cite ids="clm-mastercard-agent-pay-221" />
 
 ### What changed in 2025 and 2026
 

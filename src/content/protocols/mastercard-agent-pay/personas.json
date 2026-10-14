@@ -17,7 +17,7 @@
       "implements": [
         "Network-level enablement for Agent Pay",
         "Passkey authentication for consumer consent where offered",
-        "Authorization rules that read the agent information in the message"
+        "Authorization rules that read the additional information in the message"
       ],
       "mustTrust": [
         "Mastercard to register and certify agents",
@@ -37,7 +37,7 @@
       "metrics": [
         "Agent transaction approval rate",
         "Fraud and dispute rate on agent transactions",
-        "Share of agent transactions with a reliable agent flag"
+        "Share of agent transactions that carry reliable agent information"
       ],
       "story": "Priya runs card authorization strategy at a mid-sized European bank. On 2026-06-02 Mastercard said all its European issuers were enabled for Agent Pay at network level, so agent transactions may already reach her systems. She wants to approve them without new friction, but her dispute team asks a hard question: when a cardholder says the agent bought the wrong hotel, which reason code applies? Nothing agent-specific is published. She asks Mastercard which message field marks agent involvement, sets a rule to review those transactions separately for a quarter, and reads the Verifiable Intent dispute evidence section to see what proof she could ask for later.",
       "sources": [
@@ -69,7 +69,7 @@
       "mustTrust": [
         "Agent developers to keep signing keys safe",
         "Acquirers to register merchants correctly",
-        "Issuers to make sensible decisions with the agent information"
+        "Issuers to make sensible decisions with the additional information"
       ],
       "questions": [
         "How do we revoke an agent across the network?",
@@ -198,7 +198,7 @@
         "Avoid blanket declines of agent purchases"
       ],
       "pains": [
-        "No public description of the agent flag or the probability score fields",
+        "No public description of the agent information or the probability score fields",
         "Verifiable Intent has no revocation protocol in 0.1",
         "Form-filling agents look like bots"
       ],
@@ -208,12 +208,12 @@
         "Dispute evidence collection"
       ],
       "mustTrust": [
-        "The network agent flag and score",
+        "The network's agent information and score",
         "Agent certification",
         "Merchant intent validation"
       ],
       "questions": [
-        "How reliable is the agent flag today?",
+        "How reliable is the agent information today?",
         "What does a Verifiable Intent chain prove in a dispute?",
         "Which attacks does the threat model leave open?"
       ],

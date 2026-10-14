@@ -1,6 +1,6 @@
 sequenceDiagram
   accTitle: Guest checkout with a Virtual Card Token and a DTVC
-  accDescr: Sequence diagram: Guest checkout with a Virtual Card Token and a DTVC. 6 participants: Consumer, Agent platform, Mastercard network, Merchant, Acquirer or PSP, and Issuer. 7 steps, 7 crossing a trust boundary, 1 failure branch. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to Mastercard network: Request checkout for merchant domain. This step crosses a trust boundary. Step 2: Consumer to Agent platform: User validation and consent. This step crosses a trust boundary. Step 3: Mastercard network to Agent platform: Return token, expiry and DTVC. This step crosses a trust boundary. Step 4: Agent platform to Merchant: Type values into card form. This step crosses a trust boundary. Step 5: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary. Step 6: Acquirer or PSP to Mastercard network: Authorization with token. This step crosses a trust boundary. If DTVC wrong or already used: Validation fails and the issuer is told (response code not published). Step 7: Mastercard network to Issuer: Tell issuer DTVC result. This step crosses a trust boundary.
+  accDescr: Sequence diagram: Guest checkout with a Virtual Card Token and a DTVC. 6 participants: Consumer, Agent platform, Mastercard network, Merchant, Acquirer or PSP, and Issuer. 7 steps, 7 crossing a trust boundary, 1 failure branch. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Consumer to Agent platform: User validation and consent. This step crosses a trust boundary. Step 2: Agent platform to Mastercard network: Request checkout for merchant domain. This step crosses a trust boundary. Step 3: Mastercard network to Agent platform: Return token, expiry and DTVC. This step crosses a trust boundary. Step 4: Agent platform to Merchant: Type values into card form. This step crosses a trust boundary. Step 5: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary. Step 6: Acquirer or PSP to Mastercard network: Authorization with token. This step crosses a trust boundary. If DTVC wrong or already used: Validation fails and the issuer is told (outcome and response code not published). Step 7: Mastercard network to Issuer: Tell issuer DTVC result. This step crosses a trust boundary.
   autonumber
   participant p_consumer as Consumer
   participant p_agent as Agent platform
@@ -8,10 +8,10 @@ sequenceDiagram
   participant p_merchant as Merchant
   participant p_acquirer as Acquirer or PSP
   participant p_issuer as Issuer
-  p_agent->>p_network: Request checkout for merchant domain
-  Note over p_agent,p_network: Crosses a trust boundary
   p_consumer->>p_agent: User validation and consent
   Note over p_consumer,p_agent: Crosses a trust boundary
+  p_agent->>p_network: Request checkout for merchant domain
+  Note over p_agent,p_network: Crosses a trust boundary
   p_network-->>p_agent: Return token, expiry and DTVC
   Note over p_network,p_agent: Crosses a trust boundary
   p_agent->>p_merchant: Type values into card form
@@ -22,7 +22,7 @@ sequenceDiagram
     p_acquirer->>p_network: Authorization with token
     Note over p_acquirer,p_network: Crosses a trust boundary
   else DTVC wrong or already used
-    Note over p_acquirer,p_network: Validation fails and the issuer is told (response code not published)
+    Note over p_acquirer,p_network: Validation fails and the issuer is told (outcome and response code not published)
   end
   p_network->>p_issuer: Tell issuer DTVC result
   Note over p_network,p_issuer: Crosses a trust boundary
