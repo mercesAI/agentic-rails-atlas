@@ -2,6 +2,8 @@
 /** /orbit/<slug>/: mini page for a starred orbit item (what it is, status, how it relates to the eight, sources). */
 import { render } from 'astro:content';
 import Page from '../../layouts/Page.astro';
+import { articleLd, breadcrumbLd, trimDescription } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import Cite from '../../components/ui/Cite.astro';
 import Callout from '../../components/ui/Callout.astro';
 import Mode from '../../components/ui/Mode.astro';
@@ -28,7 +30,7 @@ const { Content } = await render(entry);
 const primary = item.sources.map((id) => sources.get(id)).find((s) => s?.primary) ?? sources.get(item.sources[0] ?? '');
 const category = ORBIT_CATEGORY_LABELS[item.category as OrbitCategoryId] ?? item.category;
 ---
-<Page title={item.name} eyebrow={`Orbit: ${category}`} lede={item.oneLiner} lastVerified={item.lastVerified}>
+<Page title={item.name} seoTitle={`${item.name}: how it relates to agent payment protocols | ${SITE_NAME}`} ogType="article" eyebrow={`Orbit: ${category}`} lede={item.oneLiner} lastVerified={item.lastVerified} jsonLd={[articleLd({ path: `/orbit/${item.slug}/`, headline: item.name, description: trimDescription(item.oneLiner), dateModified: item.lastVerified, about: item.name }), breadcrumbLd([{ name: 'Orbit', path: '/orbit/' }, { name: item.name, path: `/orbit/${item.slug}/` }])]}>
   <dl class="orbit-facts">
     <dt>Steward</dt><dd>{item.steward}</dd>
     <dt>Status</dt><dd>{item.status}</dd>

@@ -53,7 +53,7 @@ describe('notes store', () => {
 
   it('round-trips through Markdown export', () => {
     const md = exportMarkdown(store, NOW, (k) => `Title for ${k}`);
-    expect(md).toContain('# My notes');
+    expect(md).toContain('# Notes');
     expect(md).toContain('## Title for x402/b-explanation');
     expect(md).not.toContain('—');
     expect(importMarkdown(md)).toEqual(store);

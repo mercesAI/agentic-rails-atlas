@@ -1,6 +1,6 @@
 # Agentic Rails Atlas
 
-A personal, offline-capable reference site for eight agent identity, checkout and payment protocols: ERC-8004, x402, Visa Trusted Agent Protocol (TAP), the Agentic Commerce Protocol (ACP, OpenAI and Stripe), the Universal Commerce Protocol (UCP), the Machine Payments Protocol (MPP, Stripe and Tempo), the Agent Payments Protocol (AP2) and Mastercard Agent Pay.
+A research atlas by [merces.ai](https://merces.ai), the controls platform for agentic transactions, covering eight agent identity, checkout and payment protocols: ERC-8004, x402, Visa Trusted Agent Protocol (TAP), the Agentic Commerce Protocol (ACP, OpenAI and Stripe), the Universal Commerce Protocol (UCP), the Machine Payments Protocol (MPP, Stripe and Tempo), the Agent Payments Protocol (AP2) and Mastercard Agent Pay.
 
 Every factual statement on the site is a claim with a source and a confidence (`verified`, `reported` or `unverified`). Numbers carry an "as of" date. Each protocol page has 20 sections, from a summary to a plain-language Simplified Technical English (STE) version, diagrams, a simulation playground, security, controls and observability lenses, and a self-test.
 

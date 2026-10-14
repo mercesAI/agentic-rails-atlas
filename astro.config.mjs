@@ -12,7 +12,10 @@ import rehypeTableWrap from './src/lib/rehype-table-wrap.ts';
 import cspHashes from './src/lib/build/csp-hashes.ts';
 
 // https://astro.build/config
+const site = (process.env.PUBLIC_SITE_URL && /^https?:\/\//.test(process.env.PUBLIC_SITE_URL) ? process.env.PUBLIC_SITE_URL : 'https://atlas.merces.ai').replace(/\/+$/, '');
+
 export default defineConfig({
+  site,
   output: 'static',
   trailingSlash: 'always',
   build: { format: 'directory' },

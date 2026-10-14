@@ -14,7 +14,8 @@ import Nav from '../components/site/Nav.astro';
 import Footer from '../components/site/Footer.astro';
 import CitationDrawer from '../components/islands/CitationDrawer';
 import CommandPalette from '../components/islands/CommandPalette';
-import { SITE_NAME, SITE_DESCRIPTION } from '../lib/constants';
+import { SITE_NAME, SITE_BRAND, SITE_DESCRIPTION, SITE_URL } from '../lib/constants';
+import { trimDescription, type JsonLd } from '../lib/seo';
 import { getCitationPayload, serializeForScript } from '../lib/citations';
 
 export interface Props {
@@ -24,11 +25,34 @@ export interface Props {
   wide?: boolean;
   /** Extra class on <main>. */
   mainClass?: string;
+  /** Full <title> text; when set, replaces the "title | site" pattern. */
+  seoTitle?: string;
+  /** Social preview image path (1200 by 630). Defaults to the site image. */
+  image?: string;
+  /** Open Graph type. */
+  ogType?: 'website' | 'article';
+  /** Keep the page out of search indexes (client-only personal pages). */
+  noindex?: boolean;
+  /** JSON-LD objects to emit; each gets its own script element. */
+  jsonLd?: JsonLd[];
 }
 
-const { title, description = SITE_DESCRIPTION, wide = false, mainClass = '' } = Astro.props;
-const fullTitle = title && title !== SITE_NAME ? `${title} | ${SITE_NAME}` : SITE_NAME;
-const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString() : undefined;
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  wide = false,
+  mainClass = '',
+  seoTitle,
+  image = '/og/default.png',
+  ogType = 'website',
+  noindex = false,
+  jsonLd = [],
+} = Astro.props;
+const fullTitle = seoTitle ?? (title && title !== SITE_NAME ? `${title} | ${SITE_NAME}` : SITE_BRAND);
+const metaDescription = trimDescription(description);
+const site = Astro.site ?? new URL(`${SITE_URL}/`);
+const canonical = new URL(Astro.url.pathname, site).toString();
+const imageUrl = new URL(image, site).toString();
 const citations = getCitationPayload(Astro.url.pathname);
 ---
 <!doctype html>
@@ -37,10 +61,28 @@ const citations = getCitationPayload(Astro.url.pathname);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     <meta name="color-scheme" content="dark light" />
     <meta name="referrer" content="no-referrer" />
-    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE_BRAND} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title ?? SITE_NAME} on ${SITE_BRAND}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={imageUrl} />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+    {jsonLd.map((obj) => <script type="application/ld+json" set:html={JSON.stringify(obj)} />)}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>{fullTitle}</title>

@@ -6,6 +6,8 @@
  * research/glossary.draft.json are listed separately and not counted.
  */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd, definedTermSetLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import SourceList from '../../components/protocol/SourceList.astro';
 import Cite from '../../components/ui/Cite.astro';
 import { getGlossary } from '../../lib/content';
@@ -33,6 +35,8 @@ const letterId = (l: string) => (l === '#' ? 'letter-digits' : `letter-${l.toLow
 ---
 <Page
   title="Glossary"
+  seoTitle={`Agentic commerce glossary: 200+ terms from agent identity, mandates, tokens and HTTP payments | ${SITE_NAME}`}
+  jsonLd={[breadcrumbLd([{ name: 'Glossary', path: '/glossary/' }]), definedTermSetLd(full.map((t) => ({ id: t.id, term: t.term, plain: t.plain })))]}
   eyebrow="Cross-cutting"
   lede="Terms used across the eight protocols, each with a plain definition, an ASD-STE100 definition, the protocols it applies to and its sources."
   prose={false}

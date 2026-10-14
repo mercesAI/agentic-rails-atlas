@@ -6,6 +6,8 @@
  * its controls.json sidecar.
  */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import SourceList from '../../components/protocol/SourceList.astro';
 import Cite from '../../components/ui/Cite.astro';
 import ControlsMap from '../../components/crosscut/ControlsMap';
@@ -64,6 +66,8 @@ const totals = supportCounts(cells);
 ---
 <Page
   title="Controls"
+  seoTitle={`Controls map: spending caps, consent, revocation and 14 other controls across eight agent payment protocols | ${SITE_NAME}`}
+  jsonLd={[breadcrumbLd([{ name: 'Controls', path: '/controls/' }])]}
   eyebrow="Cross-cutting"
   lede="Fourteen controls that a payer, merchant or platform may need around an agent payment, and how much of each the protocols provide themselves."
   prose={false}

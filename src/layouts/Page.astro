@@ -2,6 +2,7 @@
 /** Generic content page: Base plus a page header (title, lede, optional last-verified line) and a prose container. */
 import Base from './Base.astro';
 import FreshnessBadge from '../components/ui/FreshnessBadge.astro';
+import type { JsonLd } from '../lib/seo';
 
 export interface Props {
   title: string;
@@ -12,10 +13,16 @@ export interface Props {
   /** Set false for pages that lay out their own wide content (tables, maps). */
   prose?: boolean;
   wide?: boolean;
+  /** Full <title> text for search results; the h1 keeps `title`. */
+  seoTitle?: string;
+  image?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: JsonLd[];
 }
-const { title, lede, eyebrow, description, lastVerified, prose = true, wide = false } = Astro.props;
+const { title, lede, eyebrow, description, lastVerified, prose = true, wide = false, seoTitle, image, ogType, noindex, jsonLd } = Astro.props;
 ---
-<Base title={title} description={description ?? lede} wide={wide}>
+<Base title={title} seoTitle={seoTitle} description={description ?? lede} wide={wide} image={image} ogType={ogType} noindex={noindex} jsonLd={jsonLd}>
   <header class="page-header">
     {eyebrow && <p class="page-header__eyebrow">{eyebrow}</p>}
     <h1>{title}</h1>

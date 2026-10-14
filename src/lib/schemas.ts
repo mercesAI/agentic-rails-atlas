@@ -137,7 +137,7 @@ export const SECTION_TITLES: Record<SectionId, string> = {
   'q-faq': 'FAQ and misconceptions',
   'r-open-questions': 'Open questions and research frontier',
   's-self-test': 'Self-test',
-  't-notes': 'My notes',
+  't-notes': 'Notes',
 };
 
 export const READING_MODES = ['eli5', 'practitioner', 'spec', 'ste'] as const;

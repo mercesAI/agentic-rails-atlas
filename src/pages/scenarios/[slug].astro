@@ -11,6 +11,8 @@
  */
 import { render } from 'astro:content';
 import Page from '../../layouts/Page.astro';
+import { articleLd, breadcrumbLd, trimDescription } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import Cite from '../../components/ui/Cite.astro';
 import Callout from '../../components/ui/Callout.astro';
 import Mode from '../../components/ui/Mode.astro';
@@ -69,7 +71,7 @@ const legendProtocols = dedupe([...meta.protocols, ...stepProtocols]);
 const flowSot = flow?.steps.find((s) => s.specRef)?.specRef;
 const name = (slug: string) => protocolBySlug.get(slug)?.name ?? slug;
 ---
-<Page title={meta.title} eyebrow={`Scenario ${meta.order}`} lede={meta.summary} lastVerified={meta.lastVerified} prose={false}>
+<Page title={meta.title} seoTitle={`Scenario: ${meta.title} (${meta.protocols.map(name).join(', ')}) | ${SITE_NAME}`} ogType="article" eyebrow={`Scenario ${meta.order}`} lede={meta.summary} lastVerified={meta.lastVerified} prose={false} jsonLd={[articleLd({ type: 'Article', path: `/scenarios/${meta.slug}/`, headline: meta.title, description: trimDescription(meta.summary), dateModified: meta.lastVerified, keywords: meta.protocols.map(name) }), breadcrumbLd([{ name: 'Scenarios', path: '/scenarios/' }, { name: meta.title, path: `/scenarios/${meta.slug}/` }])]}>
   <div class="scn">
     <ul class="scn__chips" aria-label="Protocols in this scenario">
       {meta.protocols.map((slug) => (

@@ -44,6 +44,8 @@ import SectionS from '../components/protocol/sections/SectionS.astro';
 import SectionT from '../components/protocol/sections/SectionT.astro';
 import { splitBodyHtml } from '../components/protocol/lib/split-body';
 import type { ProtocolPageContext } from '../components/protocol/lib/load';
+import { PROTOCOL_SEO_TITLES, articleLd, breadcrumbLd, faqLd, trimDescription } from '../lib/seo';
+import { SITE_NAME } from '../lib/constants';
 
 export interface Props {
   ctx: ProtocolPageContext;
@@ -54,8 +56,25 @@ const { ctx, hasCompare = false } = Astro.props;
 const { meta } = ctx;
 const bodyHtml = Astro.slots.has('body') ? await Astro.slots.render('body') : '';
 const split = splitBodyHtml(bodyHtml);
+const seoTitle = `${PROTOCOL_SEO_TITLES[meta.slug] ?? `${meta.name}: ${meta.tagline}`} | ${SITE_NAME}`;
+const description = trimDescription(meta.intro);
+const ogImage = `/og/${meta.slug}.png`;
+const faqItems = ctx.loaded.sidecars.faq?.items ?? [];
+const jsonLd = [
+  articleLd({
+    path: `/p/${meta.slug}/`,
+    headline: PROTOCOL_SEO_TITLES[meta.slug] ?? `${meta.name}: ${meta.tagline}`,
+    description,
+    dateModified: meta.lastVerified,
+    about: meta.name,
+    keywords: [meta.name, meta.bubbleLabel, meta.tagline, 'agentic commerce', 'agent payments', ...meta.stewards],
+    image: ogImage,
+  }),
+  breadcrumbLd([{ name: 'Protocols', path: '/#protocols-h' }, { name: meta.name, path: `/p/${meta.slug}/` }]),
+  ...(faqItems.length ? [faqLd(faqItems)] : []),
+];
 ---
-<Base title={meta.name} description={`${meta.name}: ${meta.tagline}`} wide>
+<Base title={meta.name} seoTitle={seoTitle} description={description} image={ogImage} ogType="article" jsonLd={jsonLd} wide>
   <div class="proto" data-protocol-page={meta.slug} data-family={meta.family}>
     <ProtocolHeader meta={meta} />
     <div class="proto__grid">

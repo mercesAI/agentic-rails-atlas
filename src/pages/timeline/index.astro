@@ -1,6 +1,8 @@
 ---
 /** /timeline/: one lane per protocol plus Standards, Policy, Market and Prehistory. */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import SourceList from '../../components/protocol/SourceList.astro';
 import TimelineExplorer from '../../components/hub/TimelineExplorer';
 import { loadTimeline } from '../../components/hub/lib/build';
@@ -16,6 +18,8 @@ const byConf = countBy(data.events, (e) => e.confidence);
 ---
 <Page
   title="Timeline"
+  seoTitle={`Timeline of agent payments: every dated event across eight protocols, standards, policy and market | ${SITE_NAME}`}
+  jsonLd={[breadcrumbLd([{ name: 'Timeline', path: '/timeline/' }])]}
   eyebrow="Cross-cutting"
   lede="Every dated event in the atlas on one chart: a lane per protocol, plus lanes for standards, policy, market and the prehistory of paying over HTTP. Each event carries its sources and a confidence."
   lastVerified={BUILD_DATE}

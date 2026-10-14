@@ -13,7 +13,7 @@ const PAGES = [
   { path: '/orbit/', h1: 'Orbit' },
   { path: '/orbit/erc-3643/', h1: 'ERC-3643' },
   { path: '/learn/', h1: 'Learn' },
-  { path: '/notes/', h1: 'My notes' },
+  { path: '/notes/', h1: 'Notes' },
   { path: '/whats-new/', h1: "What's new" },
 ];
 

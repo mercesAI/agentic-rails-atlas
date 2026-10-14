@@ -4,6 +4,8 @@
  * publications, filterable, searchable and exportable (BibTeX, RIS, CSV).
  */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import LibraryBrowser from '../../components/crosscut/LibraryBrowser';
 import { getPublications } from '../../lib/content';
 import { loadProtocolInfos, safeAll } from '../../components/crosscut/lib/load';
@@ -25,6 +27,8 @@ const missing = protocols.filter((p) => !withResources.has(p.slug));
 ---
 <Page
   title="Library"
+  seoTitle={`Library: specifications, SDKs, talks and verified research papers on agent payments | ${SITE_NAME}`}
+  jsonLd={[breadcrumbLd([{ name: 'Library', path: '/library/' }])]}
   eyebrow="Cross-cutting"
   lede="Specifications, repositories, documentation, talks and research papers for all eight protocols in one searchable list."
   prose={false}

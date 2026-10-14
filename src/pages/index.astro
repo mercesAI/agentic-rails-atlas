@@ -6,6 +6,7 @@
  * Works with any subset of protocol pages.
  */
 import Base from '../layouts/Base.astro';
+import { webSiteLd, organizationLd } from '../lib/seo';
 import Monogram from '../components/ui/Monogram.astro';
 import StatusDot from '../components/ui/StatusDot.astro';
 import Chip from '../components/ui/Chip.astro';
@@ -35,6 +36,7 @@ import {
 } from '../lib/content';
 import { FAMILY_LABELS, LAYER_LABELS, SECTION_IDS } from '../lib/schemas';
 import { BUILD_DATE, SITE_NAME, SITE_TAGLINE } from '../lib/constants';
+import { SITE_BRAND, SITE_DESCRIPTION, ORG_URL, ORG_NAME } from '../lib/constants';
 
 const protocols = await getProtocols();
 const present = new Set<string>(protocols.map((p) => p.slug));
@@ -73,12 +75,12 @@ const WINDOW_DAYS = 60;
 const since = daysBefore(BUILD_DATE, WINDOW_DAYS);
 const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
 ---
-<Base title={SITE_NAME}>
+<Base title={SITE_NAME} seoTitle={`${SITE_BRAND}: agent identity, checkout and payment protocols explained`} description={SITE_DESCRIPTION} jsonLd={[webSiteLd(), { '@context': 'https://schema.org', ...organizationLd() }]}>
   <div class="home">
     <header class="home__intro">
-      <p class="home__eyebrow">{SITE_NAME}</p>
-      <h1 class="home__title">Atlas</h1>
-      <p class="home__lede">{SITE_TAGLINE} Eight protocols for agent identity, intent, checkout and payment, each with sourced claims, diagrams, a plain-language version and simulations you can run in the browser.</p>
+      <p class="home__eyebrow">Research atlas by {ORG_NAME}</p>
+      <h1 class="home__title">Agentic Rails Atlas</h1>
+      <p class="home__lede">{SITE_TAGLINE} A research tool by <a href={ORG_URL} rel="noopener">merces.ai</a> that explains eight agent identity, intent, checkout and payment protocols, each with sourced claims, diagrams, a plain-language version and simulations you can run in the browser.</p>
       <p class="home__actions">
         <a class="home__start" href="/learn/">Start here</a>
         <a href="#protocols-h">Skip to the protocol list</a>

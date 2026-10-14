@@ -129,7 +129,7 @@ export function initProtocolReader(): () => void {
       const next = appendFlag(normalizeStore(getJSON<unknown>(NOTES_KEY, {})), slug, text, now);
       setJSON(NOTES_KEY, next);
       document.dispatchEvent(new CustomEvent('atlas:notes', { detail: { key: `${slug}/flags` } }));
-      announce('A prefilled note was added under Flagged issues in My notes.');
+      announce('A prefilled note was added under Flagged issues in Notes.');
       document.getElementById('t-notes')?.scrollIntoView({ block: 'start' });
       return;
     }

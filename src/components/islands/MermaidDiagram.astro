@@ -67,8 +67,22 @@ const natural = (svg: string | null): string | null => {
       .replace(/^<svg\b/, `<svg width="${w}" height="${h}" data-natural-width="${w}"`);
   });
 };
-const light = natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS));
-const dark = natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS));
+/** Rewrites every id inside an SVG (and the url(), href and aria references to them) with a suffix so inlined diagrams never collide. */
+const suffixIds = (svg: string | null, suffix: string): string | null => {
+  if (!svg) return svg;
+  const ids = new Set([...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  if (ids.size === 0) return svg;
+  const has = (id: string) => ids.has(id);
+  return svg
+    .replace(/\sid="([^"]+)"/g, (m, id: string) => ` id="${id}${suffix}"`)
+    .replace(/url\(#([^)]+)\)/g, (m, id: string) => (has(id) ? `url(#${id}${suffix})` : m))
+    .replace(/(xlink:href|href)="#([^"]+)"/g, (m, attr: string, id: string) => (has(id) ? `${attr}="#${id}${suffix}"` : m))
+    .replace(/(aria-labelledby|aria-describedby)="([^"]+)"/g, (m, attr: string, list: string) =>
+      `${attr}="${list.split(/\s+/).map((id) => (has(id) ? `${id}${suffix}` : id)).join(' ')}"`);
+};
+// Pages inline many diagrams and Mermaid reuses ids such as actor3 in each, so every id gets the diagram id as a suffix.
+const light = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS)), `-${p.id}`);
+const dark = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS)), `-${p.id}-dark`);
 const rendered = Boolean(light || dark);
 const mmd = rendered
   ? null

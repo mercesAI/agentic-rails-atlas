@@ -89,7 +89,7 @@ export function importJSON(text: string): NotesStore {
  */
 export function exportMarkdown(store: NotesStore, now: string, titleFor: (key: string) => string = (k) => k): string {
   const keys = Object.keys(store).sort();
-  const parts = [`# My notes`, '', `Exported ${now.slice(0, 10)} from the Agentic Rails Atlas.`, ''];
+  const parts = [`# Notes`, '', `Exported ${now.slice(0, 10)} from the Agentic Rails Atlas.`, ''];
   for (const k of keys) {
     const n = store[k];
     if (!n) continue;

@@ -6,6 +6,8 @@
  * figure is computed at build time from the content and generated reports.
  */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import FreshnessBadge from '../../components/ui/FreshnessBadge.astro';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import rehypeTableWrap from '../../lib/rehype-table-wrap';
@@ -35,7 +37,14 @@ const md = await createMarkdownProcessor({ rehypePlugins: [rehypeTableWrap] });
 async function renderMd(path: string): Promise<string | null> {
   const raw = RAW[path];
   if (!raw) return null;
-  const body = raw.replace(/^# .*\n/, '').replace(/\u2014/g, ', ');
+  // The research logs name the internal brief files; readers see neutral names.
+  const body = raw
+    .replace(/^# .*\n/, '')
+    .replace(/\u2014/g, ', ')
+    .replace(/ATLAS_FOLLOWUP(?:\.md)?/g, 'the follow-up research brief')
+    .replace(/ATLAS_PROMPT(?:\.md)?/g, 'the initial research brief')
+    .replace(/First prompt said/g, 'Initial brief said')
+    .replace(/the first prompt/g, 'the initial brief');
   const { code } = await md.render(body);
   return code
     .replace(/<(\/?)h3/g, '<$1h4')
@@ -82,6 +91,8 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
 ---
 <Page
   title="Methodology"
+  seoTitle={`Methodology: how every claim in the atlas is sourced, verified and refreshed | ${SITE_NAME}`}
+  jsonLd={[breadcrumbLd([{ name: 'Methodology', path: '/methodology/' }])]}
   eyebrow="How this atlas is built"
   lede="How sources are chosen and checked, how much of the atlas is verified, what is still missing and how to refresh it. Every figure on this page is computed from the content at build time."
   lastVerified={BUILD_DATE}
@@ -228,7 +239,7 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
   {conflictsHtml ? <div class="cc-md" set:html={conflictsHtml} /> : <p>No conflicts are logged.</p>}
 
   <h2 id="errata">Errata</h2>
-  <p>Corrections to the seed facts this atlas started from, and where the corrected statement now lives.</p>
+  <p>Corrections to the seed facts the research started from (the initial and follow-up research briefs), and where the corrected statement now lives.</p>
   {errataHtml ? <div class="cc-md cc-scroll" set:html={errataHtml} /> : <p>No errata are logged.</p>}
 
   <h2 id="refresh">How to refresh</h2>

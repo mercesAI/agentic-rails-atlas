@@ -5,6 +5,8 @@
  * any subset of protocols; protocols without cells read "in progress".
  */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import SourceList from '../../components/protocol/SourceList.astro';
 import Cite from '../../components/ui/Cite.astro';
 import CompareMatrix from '../../components/crosscut/CompareMatrix';
@@ -32,6 +34,8 @@ for (const c of compare.cells) counts[c.confidence] += 1;
 ---
 <Page
   title="Compare"
+  seoTitle={`Compare agent payment protocols: ERC-8004, x402, TAP, ACP, UCP, MPP, AP2, Agent Pay side by side | ${SITE_NAME}`}
+  jsonLd={[breadcrumbLd([{ name: 'Compare', path: '/compare/' }])]}
   eyebrow="Cross-cutting"
   lede="The eight protocols side by side on the same dimensions. Every cell carries a value, a confidence and its sources. A cell may read “not published” when the source shows that nothing is public."
   prose={false}

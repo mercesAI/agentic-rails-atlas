@@ -4,6 +4,8 @@
  * with protocol chips. Generic: works for any number of scenario entries.
  */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import Chip from '../../components/ui/Chip.astro';
 import { getProtocols, getScenarioEntries } from '../../lib/content';
 import { BUILD_DATE } from '../../lib/constants';
@@ -14,6 +16,8 @@ const bySlug = new Map(protocols.map((p) => [p.slug, p]));
 ---
 <Page
   title="Scenarios"
+  seoTitle={`Agent payment scenarios: eight end-to-end walkthroughs across protocols | ${SITE_NAME}`}
+  jsonLd={[breadcrumbLd([{ name: 'Scenarios', path: '/scenarios/' }])]}
   eyebrow="End-to-end walkthroughs"
   lede="Each scenario follows one purchase or payment across several protocols: who acts, which protocol owns each step, where a control can act, what an outsider can see, and what can go wrong."
   lastVerified={BUILD_DATE}

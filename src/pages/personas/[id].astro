@@ -1,6 +1,8 @@
 ---
 /** /personas/<id>/: role, goals, pains, decisions, vocabulary and every protocol from this persona's seat. */
 import Page from '../../layouts/Page.astro';
+import { breadcrumbLd } from '../../lib/seo';
+import { SITE_NAME } from '../../lib/constants';
 import Cite from '../../components/ui/Cite.astro';
 import Monogram from '../../components/ui/Monogram.astro';
 import SourceList from '../../components/protocol/SourceList.astro';
@@ -39,7 +41,7 @@ const index = personas.findIndex((p) => p.id === persona.id);
 const prev = personas[index - 1];
 const next = personas[index + 1];
 ---
-<Page title={persona.name} eyebrow="Persona" lede={persona.oneLine} lastVerified={BUILD_DATE} prose={false}>
+<Page title={persona.name} seoTitle={`${persona.name}: agent payment protocols from this seat | ${SITE_NAME}`} eyebrow="Persona" lede={persona.oneLine} lastVerified={BUILD_DATE} prose={false} jsonLd={[breadcrumbLd([{ name: 'Personas', path: '/personas/' }, { name: persona.name, path: `/personas/${persona.id}/` }])]}>
   <span slot="meta" class="persona-mono" aria-hidden="true">{personaMonogram(persona.name)}</span>
   <div class="hub">
     <section class="hub-section" aria-labelledby="role-h">
