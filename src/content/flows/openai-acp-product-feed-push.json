@@ -23,10 +23,10 @@
       "from": "merchant",
       "to": "agent",
       "label": "POST /feeds",
-      "detail": "Create feed metadata (id, target_country). 201 on success.",
+      "detail": "Create a feed (target_country); the response carries the server-assigned id. 201 on success.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"id\": \"feed_us\",\n  \"target_country\": \"US\"\n}",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"target_country\": \"US\"\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -40,10 +40,10 @@
       "from": "merchant",
       "to": "agent",
       "label": "PATCH /feeds/{id}/products",
-      "detail": "Upsert products by Product.id. Each product needs id and variants; each variant needs id and title.",
+      "detail": "Upsert products by Product.id. Each product needs id and variants; each variant needs id and title. Feed prices use uppercase currency codes, while checkout uses lowercase.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"products\": [\n    {\n      \"id\": \"prod_1\",\n      \"title\": \"Denim jacket\",\n      \"variants\": [\n        {\n          \"id\": \"var_1_m\",\n          \"title\": \"Medium\",\n          \"price\": {\n            \"amount\": 3000,\n            \"currency\": \"usd\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"products\": [\n    {\n      \"id\": \"prod_1\",\n      \"title\": \"Denim jacket\",\n      \"variants\": [\n        {\n          \"id\": \"var_1_m\",\n          \"title\": \"Medium\",\n          \"price\": {\n            \"amount\": 3000,\n            \"currency\": \"USD\"\n          }\n        }\n      ]\n    }\n  ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
