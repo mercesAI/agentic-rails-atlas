@@ -34,7 +34,11 @@
       "to": "agent",
       "label": "Ask the agent to add a card",
       "detail": "The consumer links a Visa card to the agent.",
-      "crossesTrustBoundary": true
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/visa-intelligent-commerce/overview",
+        "section": "Visa Intelligent Commerce overview"
+      }
     },
     {
       "n": 2,
@@ -79,19 +83,35 @@
     {
       "n": 4,
       "from": "user",
-      "to": "vic",
+      "to": "agent",
       "label": "Approve with a passkey",
-      "detail": "The consumer approves the Payment Instruction with a Visa Payment Passkey.",
+      "detail": "The agent asks the consumer to approve the Payment Instruction with a Visa Payment Passkey.",
       "crossesTrustBoundary": true,
       "failures": [
         {
           "condition": "User declines",
           "outcome": "No credentials can be retrieved"
         }
-      ]
+      ],
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/visa-intelligent-commerce/overview",
+        "section": "Visa Intelligent Commerce overview"
+      }
     },
     {
       "n": 5,
+      "from": "agent",
+      "to": "vic",
+      "label": "Pass the passkey result with the instruction",
+      "detail": "The agent gives the passkey result to the Visa Intelligent Commerce platform. VIC then holds an authenticated Payment Instruction.",
+      "crossesTrustBoundary": true,
+      "specRef": {
+        "url": "https://developer.visa.com/capabilities/visa-intelligent-commerce/overview",
+        "section": "Visa Intelligent Commerce overview"
+      }
+    },
+    {
+      "n": 6,
       "from": "agent",
       "to": "vic",
       "label": "POST /vacp/v1/instructions/{instructionId}/credentials",
@@ -108,7 +128,7 @@
       }
     },
     {
-      "n": 6,
+      "n": 7,
       "from": "agent",
       "to": "merchant",
       "label": "TAP checkout with the payment container",
@@ -120,7 +140,7 @@
       }
     },
     {
-      "n": 7,
+      "n": 8,
       "from": "agent",
       "to": "vic",
       "label": "POST /vacp/v1/instructions/{instructionId}/confirmations",

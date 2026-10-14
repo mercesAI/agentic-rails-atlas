@@ -69,6 +69,12 @@
       "id": "blocked",
       "label": "Blocked",
       "terminal": true
+    },
+    {
+      "id": "declined",
+      "label": "Transaction declined",
+      "terminal": true,
+      "note": "Merchant declines the payment and does not use the payment data."
     }
   ],
   "transitions": [
@@ -170,8 +176,8 @@
     },
     {
       "from": "objects-checked",
-      "to": "blocked",
-      "trigger": "Payment container invalid or hash mismatch",
+      "to": "declined",
+      "trigger": "Payment container invalid or hash mismatch: decline the transaction",
       "specRef": "Processing of Payment Data"
     }
   ]
