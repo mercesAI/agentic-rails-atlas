@@ -202,3 +202,48 @@ Every `timeline.json` event (26), `facts.changedRecently` (8), frontmatter dates
 | Version labels: mppx 0.13.4, pympp 0.11.0, mpp 0.15.0, mpp-go v0.2.0, mpp-rb 0.1.6 | see "Writer's uncertain items" below | |
 
 Dates wrong: 0.
+
+## ATLAS_ERRATA.md rows for MPP
+
+| Row | Verdict | Evidence |
+|---|---|---|
+| 2.1.1 draft rename dates | pass | Datatracker API: draft-ryan -00 2026-02-16, -01 2026-03-18, expired 2026-09-18; draft-httpauth-payment -00 2026-06-19, -01 2026-09-09. Page: `timeline.json`, `facts.json` lines 15 and 21, `index.mdx` lines 343 and 413-427 state the same, and call -01 a revision, not a rename |
+| 2.1.2 AP4M "cites MPP compatibility" | pass | Page attributes the statement to Tempo only: `index.mdx` line 435, `relations.json` line 50, `compare-cells.json` line 326, claim 202. Mastercard release body has no MPP text (see AP4M below) |
+| 2.1.12 Visa card spec and TAP | pass | `draft-card-charge-00.md` line 98 "The client may include Trusted Agent Protocol signature headers"; the same sentence is in the first commit b3bc1ab (2026-03-18), checked with `gh api contents?ref=b3bc1ab`. Page (`index.mdx` line 433) says exactly that, and does not date "optional" to March only |
+| R26 draft dates | pass | Datatracker: ryan -00 2026-02-16T00:31Z, -01 2026-03-18T02:45Z, expired event 2026-09-18T07:09Z, expires field 2026-09-19T02:45Z; httpauth -00 2026-06-19, -01 2026-09-09, expires 2027-03-13; both group "Individual Submissions", stream null, no "replaces" relation (relateddocument API shows only refnorm links) |
+| R27 AP4M, "Tempo lists AP4M as MPP-compatible" | pass (superseded by R39) | The page contains no claim that a Tempo page lists AP4M; claim 203 and `index.mdx` line 435 say none was found |
+| R28 design partners | pass | Tempo mainnet post: only Visa is called an MPP "design partner"; Anthropic, DoorDash, Mastercard, Nubank, OpenAI, Ramp, Revolut, Shopify, Standard Chartered are "partners ... to bring these use cases onto mainnet". Page: claims 015 and 017, `faq.json` line 117, `index.mdx` line 414 |
+| R29 Tempo finality | pass | No "500 ms finality" in the folder. Tempo consensus page: "approximately every 600ms (500ms builder loop plus network latency)"; flows and scenario say about 600 ms with deterministic finality |
+| R30 MPP seed dates | pass | Timeline uses code and spec dates with blog dates as detail: subscriptions spec 2026-07-29 (blog and 0.6.20 on 2026-05-12 kept as announcement), x402 exact in mppx 0.6.29 2026-06-02, session v2 spec 2026-06-25, identity merged 2026-08-04 and npm 0.8.17 2026-08-10, advisories 2026-03-26 with NVD 2026-03-31 |
+| R31 session as an intent | pass | `ls specs/intents` shows only charge and subscription; PR #280 closed unmerged 2026-09-28. `index.mdx` line 351 and 429-ish, `facts.json`, `statusNote` say session is per method; the scenario opens with the same correction |
+| R32 "up to 72%" | pass | `sessions-improved.mdx` lines 24, 75, 78 (-72.1% open with existing reserve, +79.4% settle to new payee balance). `index.mdx` line 402 and the scenario state both |
+| R33 MPPScan figures | pass | Page uses all-time 4,072,426 tx and 435,476 USD dated 2026-10-11; claim 1741-ish explains the June article showed live values. Live API on 2026-10-13 gives 4,121,980 and 436,012, consistent with growth |
+| R34 Rivest DOI | pass | Crossref: 10.1007/3-540-63594-7_87 is "Electronic lottery tickets as micropayments", Rivest, 1997; `publications.json` pub-rivest-1997-lottery uses that DOI |
+| R39 refined AP4M | pass | Same as 2.1.2; the wording is Tempo's statement, sourced to the 2026-06-10 release |
+| R47 Stripe SPT preview status | pass | `docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens` shows "Public preview" and no price. Page: claim 209, `index.mdx` line 433, `ecosystem.json` line 353 |
+
+## The six security advisories
+
+Checked with `gh api repos/wevm/mppx/security-advisories` (five) and the GitHub advisory API for the Rust crate (one). `security.json` lists exactly these six; `index.mdx` lines 337 and 416 and `timeline.json` repeat them.
+
+| Advisory | Verdict | Evidence |
+|---|---|---|
+| GHSA-8x4m-qw58-3pcx | pass | mppx < 0.4.8, fixed 0.4.8, critical, no CVE, published 2026-03-26T20:56Z |
+| GHSA-mv9j-8jvg-j8mr / CVE-2026-34209 | pass | mppx < 0.4.11, fixed 0.4.11, high, "Tempo session close voucher bypass via settled amount equality"; NVD published 2026-03-31 |
+| GHSA-8mhj-rffc-rcvw / CVE-2026-34210 | pass | mppx < 0.4.11, medium, "Stripe charge credential replay"; description names the `Idempotent-Replayed` header; NVD published 2026-03-31 |
+| GHSA-fxc9-7j2w-vx54 (Rust crate `mpp`) | pass | GitHub advisory: critical, crates `mpp` < 0.8.0, patched 0.8.0, cve_id null, published 2026-03-29T15:20Z; seven behaviors match `security.json` |
+| GHSA-727h-3vm5-qwq6 / CVE-2026-63627 | pass | medium, "Gas Draining with padding", fixed 0.8.2, published 2026-07-01 |
+| GHSA-vc9j-9wph-qghj / CVE-2026-63628 | pass | medium, "Gas Draining with access list", fixed 0.8.2 (the API range is "> 0.8.1"), published 2026-07-01 |
+
+The page says "within two weeks of launch" for the two critical advisories (2026-03-26 and 2026-03-29 against a 2026-03-18 launch): correct. The "never expires" session channels and the cap of loss at the deposit match `draft-tempo-session-00.md` lines 375 and 1294.
+
+## Writer's three uncertain items
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| pympp 0.11.0 | pass as of 2026-10-11, now stale | PyPI: 0.11.0 uploaded 2026-08-28; it was the latest on 2026-10-11. PyPI now shows 0.14.0 (uploaded 2026-10-13T22:01Z, after the content was written). Not an error; refresh on the next data pass |
+| Rust crate `mpp` 0.15.0 | pass as of 2026-10-11, now stale | crates.io: 0.15.0 created 2026-10-06; 0.15.1 created 2026-10-12. Repo tempoxyz/mpp-rs, license MIT OR Apache-2.0 |
+| mpp-go v0.2.0 | pass | Go proxy `@latest`: v0.2.0, 2026-07-01T18:50:36Z, github.com/tempoxyz/mpp-go |
+| mpp-rb 0.1.6 | pass | RubyGems: 0.1.6 created 2026-09-01T19:35Z, license MIT, source github.com/stripe/mpp-rb (the page says it is hosted in stripe/mpp-rb, claim 1444) |
+| Tempo subscription example fields | pass | Flow `stripe-mpp-subscription-renewal.json` step 1 uses amount, currency, recipient, periodUnit "week", periodCount "1", subscriptionExpires, methodDetails.chainId 42431, methodDetails.accessKey.accessKeyAddress, keyType "p256". `draft-tempo-subscription-00.md` lines 185-215 require exactly these (recipient and subscriptionExpires REQUIRED; periodUnit day or week only; accessKey with accessKeyAddress and keyType in p256, secp256k1, webAuthn; chainId default 42431, which the spec mislabels as mainnet). The page flags that mislabel (`index.mdx` line 403) |
+| AP4M as Tempo's quote | pass | Mastercard IR PDF (2026-06-10), read with macOS PDFKit: "We're excited to work with Mastercard on Machine Payments Protocol compatibility, with Tempo providing stablecoin settlement ...", said Dan Romero, go-to-market at Tempo. The release body and the other quotes have no MPP text. Stripe and Tempo are in the 32-name initial participants list. The page's wording ("Tempo says ... Mastercard's own text makes no MPP claim") is exact |
