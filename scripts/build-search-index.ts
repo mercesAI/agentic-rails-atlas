@@ -124,7 +124,7 @@ export function buildSearchIndex(root: string = ROOT): { index: SearchIndex; war
   }
   for (const o of g.orbit) {
     if (!o.data) continue;
-    entries.push({ id: `orbit:${o.data.slug}`, kind: 'orbit', title: o.data.name, url: `/orbit/${o.data.slug}/`, text: clip(o.data.oneLiner) });
+    entries.push({ id: `orbit:${o.data.slug}`, kind: 'orbit', title: o.data.name, url: o.data.starred ? `/orbit/${o.data.slug}/` : `/orbit/#orbit-${o.data.slug}`, text: clip(o.data.oneLiner) });
   }
   for (const p of g.personas) {
     if (!p.data) continue;

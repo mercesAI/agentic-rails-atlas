@@ -7,7 +7,7 @@
 import Cite from '../ui/Cite.astro';
 import ConfidenceBadge from '../ui/ConfidenceBadge.astro';
 import type { CompareCell, ProtocolMeta, Relation } from '../../lib/schemas';
-import { getScenarioEntries } from '../../lib/content';
+import { getOrbitEntries, getScenarioEntries } from '../../lib/content';
 import { RELATION_LABELS } from './labels';
 
 export interface Props {
@@ -23,7 +23,9 @@ export interface Props {
 const { slug, name, relations, cells, dimensions, protocols, html = '' } = Astro.props;
 const names = new Map(protocols.map((p) => [p.slug as string, p.name]));
 const nameOf = (s: string) => names.get(s) ?? s;
-const linkOf = (s: string) => (names.has(s) ? `/p/${s}/` : `/orbit/${s}/`);
+const starredOrbit = new Set((await getOrbitEntries()).filter((e) => e.data.starred).map((e) => e.data.slug));
+// Only starred orbit items have a page; the others are cards on the orbit index.
+const linkOf = (s: string) => (names.has(s) ? `/p/${s}/` : starredOrbit.has(s) ? `/orbit/${s}/` : `/orbit/#orbit-${s}`);
 const dimOrder = [...dimensions.keys()];
 const sortedCells = [...cells].sort((a, b) => dimOrder.indexOf(a.dimension) - dimOrder.indexOf(b.dimension));
 const scenarios = (await getScenarioEntries()).filter((s) => s.data.protocols.includes(slug as never)).sort((a, b) => a.data.order - b.data.order);

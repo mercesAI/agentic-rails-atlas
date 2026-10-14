@@ -4,7 +4,16 @@
  */
 import type { ProtocolMeta } from '../../../lib/schemas';
 import type { PersonaMap, Relevance, UniverseOrbit, UniverseProtocol, UniverseRelation } from './types';
-import type { OrbitSeed } from '../data/orbit-items';
+import type { OrbitCategoryId } from './types';
+
+/** One orbit satellite before its link is resolved. Built from the orbit collection in index.astro. */
+export interface OrbitSeed {
+  slug: string;
+  name: string;
+  category: OrbitCategoryId;
+  oneLiner: string;
+  primaryLink: string;
+}
 
 export function toUniverseProtocol(m: ProtocolMeta): UniverseProtocol {
   return {
@@ -105,7 +114,7 @@ export function recentEvents<T extends DatedEvent>(events: readonly T[], buildDa
     });
 }
 
-/** Satellite link: the orbit mini page when it exists, otherwise the first primary link (external). */
+/** Satellite link: the orbit mini page when it exists (`pages` holds the slugs that get a page), otherwise the first primary link (external). */
 export function resolveOrbit(seeds: readonly OrbitSeed[], pages: ReadonlySet<string>): UniverseOrbit[] {
   return seeds.map((s) => {
     const internal = pages.has(s.slug);

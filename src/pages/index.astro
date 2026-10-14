@@ -11,7 +11,6 @@ import StatusDot from '../components/ui/StatusDot.astro';
 import Chip from '../components/ui/Chip.astro';
 import ProgressRing from '../components/islands/ProgressRing';
 import BubbleUniverse from '../components/universe/BubbleUniverse';
-import { ORBIT_SEEDS } from '../components/universe/data/orbit-items';
 import {
   buildPersonaMap,
   daysBefore,
@@ -20,14 +19,17 @@ import {
   resolveOrbit,
   toUniverseProtocol,
   type DatedEvent,
+  type OrbitSeed,
   type PersonaSidecar,
 } from '../components/universe/lib/data';
+import type { OrbitCategoryId } from '../components/universe/lib/types';
 import { RAIL_LABELS } from '../components/universe/lib/encoding';
 import {
   getOrbitEntries,
   getPersonas,
   getProtocols,
   getRelations,
+  getSourcesMap,
   getSidecar,
   getTimelineGlobal,
 } from '../lib/content';
@@ -55,8 +57,17 @@ const personas = (await getPersonas())
   .map((p) => ({ id: p.id, name: p.name }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
-const orbitPages = new Set((await getOrbitEntries()).map((e) => e.data.slug));
-const orbit = resolveOrbit(ORBIT_SEEDS, orbitPages);
+const orbitEntries = await getOrbitEntries();
+const sourcesById = await getSourcesMap();
+const orbitSeeds: OrbitSeed[] = orbitEntries.flatMap((e) => {
+  const resolved = e.data.sources.map((id) => sourcesById.get(id)).filter((s): s is NonNullable<typeof s> => Boolean(s));
+  const link = (resolved.find((s) => s.primary) ?? resolved[0])?.url;
+  if (!link) return [];
+  return [{ slug: e.data.slug, name: e.data.name, category: e.data.category as OrbitCategoryId, oneLiner: e.data.oneLiner, primaryLink: link }];
+});
+// Only starred entries get an /orbit/<slug>/ page (src/pages/orbit/[slug].astro).
+const orbitPages = new Set(orbitEntries.filter((e) => e.data.starred).map((e) => e.data.slug));
+const orbit = resolveOrbit(orbitSeeds, orbitPages);
 
 const WINDOW_DAYS = 60;
 const since = daysBefore(BUILD_DATE, WINDOW_DAYS);

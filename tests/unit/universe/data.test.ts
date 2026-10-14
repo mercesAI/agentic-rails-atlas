@@ -5,9 +5,8 @@ import {
   protocolRelations,
   recentEvents,
   resolveOrbit,
+  type OrbitSeed,
 } from '../../../src/components/universe/lib/data';
-import { ORBIT_SEEDS } from '../../../src/components/universe/data/orbit-items';
-import { ORBIT_CATEGORIES } from '../../../src/components/universe/lib/types';
 
 describe('recentEvents', () => {
   const events = [
@@ -54,20 +53,14 @@ describe('protocolRelations', () => {
   });
 });
 
-describe('orbit seeds', () => {
-  it('have unique slugs, known categories and https links', () => {
-    const slugs = ORBIT_SEEDS.map((s) => s.slug);
-    expect(new Set(slugs).size).toBe(slugs.length);
-    expect(slugs.length).toBeGreaterThanOrEqual(20);
-    for (const s of ORBIT_SEEDS) {
-      expect(ORBIT_CATEGORIES).toContain(s.category);
-      expect(s.primaryLink).toMatch(/^https:\/\//);
-      expect(s.oneLiner).not.toMatch(/—/);
-    }
-  });
+describe('orbit satellites', () => {
+  const seeds: OrbitSeed[] = [
+    { slug: 'a', name: 'A', category: 'agent-communication', oneLiner: 'One.', primaryLink: 'https://example.org/a' },
+    { slug: 'b', name: 'B', category: 'agent-identity', oneLiner: 'Two.', primaryLink: 'https://example.org/b' },
+  ];
   it('link to the orbit page only when it exists', () => {
-    const out = resolveOrbit(ORBIT_SEEDS.slice(0, 2), new Set([ORBIT_SEEDS[0]!.slug]));
-    expect(out[0]).toMatchObject({ href: `/orbit/${ORBIT_SEEDS[0]!.slug}/`, external: false });
-    expect(out[1]).toMatchObject({ href: ORBIT_SEEDS[1]!.primaryLink, external: true });
+    const out = resolveOrbit(seeds, new Set(['a']));
+    expect(out[0]).toMatchObject({ href: '/orbit/a/', external: false });
+    expect(out[1]).toMatchObject({ href: 'https://example.org/b', external: true });
   });
 });

@@ -26,6 +26,7 @@ Totals: blocker 0, major 5, minor 15 (counting QA-006 to QA-021 below), cosmetic
 - Expected: link to an existing `/orbit/<slug>/` page, or to the external source.
 - Actual: `/orbit/agntcy-oasf/` and 24 others return 404. Only 13 starred pages exist in dist.
 - Cause: `src/pages/index.astro:58` builds `orbitPages` from all orbit entries, but `src/pages/orbit/[slug].astro` only generates starred entries, so `resolveOrbit` (src/components/universe/lib/data.ts:108) marks them internal. Filter on `e.data.starred`.
+- **Status:** Fixed 2026-10-14. Satellites are now built from the orbit collection (45 items); only starred entries link to /orbit/<slug>/, the rest link to their primary source with the external marker. Relation links in section P and search results for unstarred items now point to /orbit/#orbit-<slug>. Regression test in tests/e2e/qa-regression.spec.ts.
 
 ### QA-002 (major) Flow player overflows its column and the page scrolls sideways
 - /p/mastercard-agent-pay/ (+502 px) and /p/visa-tap/ (+156 px) at 1440; also erc-8004, openai-acp, ucp, stripe-mpp, visa-tap, mastercard at 375 (up to +1259 px). Section C.
