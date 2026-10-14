@@ -1,4 +1,5 @@
 stateDiagram-v2
+  direction TB
   accTitle: AP2 v0.2 mandate lifecycle (open and closed mandates, presentation and receipts)
   accDescr: State diagram: AP2 v0.2 mandate lifecycle (open and closed mandates, presentation and receipts). 10 states: Mandate Content drafted, Open mandate signed, Closed mandate signed, Presented to a verifier, Accepted (receipt status Success), Rejected, fallback possible, Rejected, terminal, Open mandate narrowed or used up, Purchase evidence stored, and Expired. Starts in Mandate Content drafted. Ends in Rejected, terminal, Purchase evidence stored, and Expired. 14 transitions. From Mandate Content drafted to Open mandate signed when User approves constraints on the Trusted Surface (Trusted Surface signs with user_sk (or OpenID4VP transaction_data type delegate)). From Mandate Content drafted to Closed mandate signed when User approves the exact checkout on the Trusted Surface (Trusted Surface signs mandate.checkout.1 and mandate.payment.1 with user_sk). From Open mandate signed to Closed mandate signed when Agent finds a checkout that fits the constraints (Agent signs a key-binding JWT with the key in cnf (sd_hash over the open mandate)). From Closed mandate signed to Presented to a verifier when Agent presents the mandate chain (Payment Mandate to the Credential Provider Checkout Mandate with the token to the Merchant). From Presented to a verifier to Accepted (receipt status Success) when Verifier checks chain, bindings and constraints (Receipt JWT with status Success). From Presented to a verifier to Rejected, fallback possible when Constraint cannot be confirmed, unknown constraint, or mandates not used (Receipt JWT with status Error, error unresolved_constraint or mandates_not_supported). From Presented to a verifier to Rejected, terminal when Signature or chain fails, or the mandate does not approve the action (Receipt JWT with status Error, error invalid_credential or invalid_mandate). From Rejected, fallback possible to Mandate Content drafted when Fallback: user brought back to approve a closed mandate (New request to the Trusted Surface). From Rejected, fallback possible to Open mandate signed when Agent may try a different closed mandate from the same open mandate (Error receipt held by the agent). From Accepted (receipt status Success) to Open mandate narrowed or used up when Success receipt for an agent-signed mandate (Agent stores open, closed and receipt tuple). From Accepted (receipt status Success) to Purchase evidence stored when Both receipts returned (Payment Receipt from the processor, Checkout Receipt from the Merchant). From Open mandate narrowed or used up to Closed mandate signed when Budget or recurrence still allows another purchase (payment.budget and payment.agent_recurrence evaluated against earlier presentations). From Open mandate signed to Expired when exp reached before use (exp (Unix epoch) on the mandate). From Open mandate narrowed or used up to Expired when exp reached (exp (Unix epoch) on the mandate).
   state "Mandate Content drafted" as s_content
@@ -12,30 +13,30 @@ stateDiagram-v2
   state "Purchase evidence stored" as s_completed
   state "Expired" as s_expired
   [*] --> s_content
-  s_content --> s_open_signed : User approves constraints on the Trusted Surface
-  s_content --> s_closed_signed : User approves the exact checkout on the Trusted Surface
-  s_open_signed --> s_closed_signed : Agent finds a checkout that fits the constraints
+  s_content --> s_open_signed : User approves constraints on the Trusted<br/>Surface
+  s_content --> s_closed_signed : User approves the exact checkout on the<br/>Trusted Surface
+  s_open_signed --> s_closed_signed : Agent finds a checkout that fits the<br/>constraints
   s_closed_signed --> s_presented : Agent presents the mandate chain
-  s_presented --> s_accepted : Verifier checks chain, bindings and constraints
-  s_presented --> s_rejected_retryable : Constraint cannot be confirmed, unknown constraint, or mandates not used
-  s_presented --> s_rejected_terminal : Signature or chain fails, or the mandate does not approve the action
-  s_rejected_retryable --> s_content : Fallback: user brought back to approve a closed mandate
-  s_rejected_retryable --> s_open_signed : Agent may try a different closed mandate from the same open mandate
-  s_accepted --> s_scope_reduced : Success receipt for an agent-signed mandate
+  s_presented --> s_accepted : Verifier checks chain, bindings and<br/>constraints
+  s_presented --> s_rejected_retryable : Constraint cannot be confirmed, unknown<br/>constraint, or mandates not used
+  s_presented --> s_rejected_terminal : Signature or chain fails, or the mandate<br/>does not approve the action
+  s_rejected_retryable --> s_content : Fallback: user brought back to approve a<br/>closed mandate
+  s_rejected_retryable --> s_open_signed : Agent may try a different closed mandate<br/>from the same open mandate
+  s_accepted --> s_scope_reduced : Success receipt for an agent-signed<br/>mandate
   s_accepted --> s_completed : Both receipts returned
-  s_scope_reduced --> s_closed_signed : Budget or recurrence still allows another purchase
+  s_scope_reduced --> s_closed_signed : Budget or recurrence still allows<br/>another purchase
   s_open_signed --> s_expired : exp reached before use
   s_scope_reduced --> s_expired : exp reached
   s_rejected_terminal --> [*]
   s_completed --> [*]
   s_expired --> [*]
-  note right of s_content : Unsigned content built by the Shopping Agent#58; closed (exact checkout and payment) or open (constraints plus the agent key in cnf).
-  note right of s_open_signed : vct mandate.checkout.open.1 or mandate.payment.open.1, signed by the user or a trusted agent provider. Bound to the agent key, not to a transaction.
-  note right of s_closed_signed : vct mandate.checkout.1 or mandate.payment.1. Bound to one checkout through checkout_hash and transaction_id#59; agent-signed closed mandates carry sd_hash over the open parent.
-  note right of s_presented : Merchant, Credential Provider, Network or processor. The agent must not present another closed mandate from the same open mandate until it holds an error receipt.
-  note right of s_accepted : Signed Payment or Checkout Receipt whose reference is the hash of the closed mandate.
-  note right of s_rejected_retryable : unresolved_constraint or mandates_not_supported#58; a signal to fall back to a user-approved closed mandate or a non-agentic flow.
+  note right of s_content : Unsigned content built by the Shopping<br/>Agent#58; closed (exact checkout and<br/>payment) or open (constraints plus the<br/>agent key in cnf).
+  note right of s_open_signed : vct mandate.checkout.open.1 or<br/>mandate.payment.open.1, signed by the<br/>user or a trusted agent provider. Bound<br/>to the agent key, not to a transaction.
+  note right of s_closed_signed : vct mandate.checkout.1 or<br/>mandate.payment.1. Bound to one checkout<br/>through checkout_hash and<br/>transaction_id#59; agent-signed closed<br/>mandates carry sd_hash over the open<br/>parent.
+  note right of s_presented : Merchant, Credential Provider, Network<br/>or processor. The agent must not present<br/>another closed mandate from the same<br/>open mandate until it holds an error<br/>receipt.
+  note right of s_accepted : Signed Payment or Checkout Receipt whose<br/>reference is the hash of the closed<br/>mandate.
+  note right of s_rejected_retryable : unresolved_constraint or<br/>mandates_not_supported#58; a signal to fall<br/>back to a user-approved closed mandate<br/>or a non-agentic flow.
   note right of s_rejected_terminal : invalid_credential or invalid_mandate.
-  note right of s_scope_reduced : The agent stores the open, closed and receipt tuple and reduces the open mandate#39;s scope#59; payment.budget and payment.agent_recurrence allow bounded reuse.
-  note right of s_completed : Both mandates and both receipts can later be checked by a dispute verifier.
-  note right of s_expired : exp passed. v0.2 defines no revocation, so expiry is the only built-in end for an open mandate.
+  note right of s_scope_reduced : The agent stores the open, closed and<br/>receipt tuple and reduces the open<br/>mandate#39;s scope#59; payment.budget and<br/>payment.agent_recurrence allow bounded<br/>reuse.
+  note right of s_completed : Both mandates and both receipts can<br/>later be checked by a dispute verifier.
+  note right of s_expired : exp passed. v0.2 defines no revocation,<br/>so expiry is the only built-in end for<br/>an open mandate.

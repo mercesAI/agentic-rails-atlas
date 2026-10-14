@@ -1,4 +1,5 @@
 stateDiagram-v2
+  direction TB
   accTitle: Visa TAP: one request through verification (verifier-side state)
   accDescr: State diagram: Visa TAP: one request through verification (verifier-side state). 13 states: Request received, TAP tag found, Minimum fields present, Inside the window, Nonce not seen, Key resolved, Trusted agent, browsing, Trusted agent, paying, Body objects checked, Served, Not a trusted agent, Blocked, and Transaction declined. Starts in Request received. Ends in Served, Not a trusted agent, Blocked, and Transaction declined. 17 transitions. From Request received to TAP tag found when Signature-Input has a TAP tag. From Request received to Not a trusted agent when No TAP tag. From TAP tag found to Minimum fields present when All minimum fields present. From TAP tag found to Blocked when A field is missing. From Minimum fields present to Inside the window when Timestamps valid. From Minimum fields present to Blocked when Window over 8 minutes or outside now. From Inside the window to Nonce not seen when Nonce unseen, or no record kept. From Inside the window to Blocked when Nonce already recorded. From Nonce not seen to Key resolved when Key for keyid found (GET https://mcp.visa.com/.well-known/jwks). From Nonce not seen to Blocked when Key missing or expired (GET https://mcp.visa.com/.well-known/jwks). From Key resolved to Trusted agent, browsing when Signature valid, tag agent-browser-auth. From Key resolved to Trusted agent, paying when Signature valid, tag agent-payer-auth. From Key resolved to Blocked when Signature invalid. From Trusted agent, browsing to Served when Merchant serves the page. From Trusted agent, paying to Body objects checked when Nonce, kid and signature of each body object checked. From Body objects checked to Served when Payment data processed. From Body objects checked to Transaction declined when Payment container invalid or hash mismatch: decline the transaction.
   state "Request received" as s_received
@@ -29,20 +30,20 @@ stateDiagram-v2
   s_key_resolved --> s_verified_pay : Signature valid, tag agent-payer-auth
   s_key_resolved --> s_blocked : Signature invalid
   s_verified_browse --> s_served : Merchant serves the page
-  s_verified_pay --> s_objects_checked : Nonce, kid and signature of each body object checked
+  s_verified_pay --> s_objects_checked : Nonce, kid and signature of each body<br/>object checked
   s_objects_checked --> s_served : Payment data processed
-  s_objects_checked --> s_declined : Payment container invalid or hash mismatch: decline the transaction
+  s_objects_checked --> s_declined : Payment container invalid or hash<br/>mismatch: decline the transaction
   s_served --> [*]
   s_untrusted --> [*]
   s_blocked --> [*]
   s_declined --> [*]
-  note right of s_received : At the merchant or its Site Protection Provider.
+  note right of s_received : At the merchant or its Site Protection<br/>Provider.
   note right of s_tagged : agent-browser-auth or agent-payer-auth.
-  note right of s_fields_ok : @authority, @path, created, expires, keyid, alg, nonce, tag.
-  note right of s_in_window : created past, expires future, at most 8 minutes apart.
-  note right of s_nonce_fresh : Only if the verifier keeps nonces of the last 8 minutes.
+  note right of s_fields_ok : @authority, @path, created, expires,<br/>keyid, alg, nonce, tag.
+  note right of s_in_window : created past, expires future, at most 8<br/>minutes apart.
+  note right of s_nonce_fresh : Only if the verifier keeps nonces of the<br/>last 8 minutes.
   note right of s_key_resolved : From cache or the key store.
   note right of s_verified_pay : Body objects may follow.
-  note right of s_objects_checked : agenticConsumer and agenticPaymentContainer.
+  note right of s_objects_checked : agenticConsumer and<br/>agenticPaymentContainer.
   note right of s_untrusted : Merchant may block or use other means.
-  note right of s_declined : Merchant declines the payment and does not use the payment data.
+  note right of s_declined : Merchant declines the payment and does<br/>not use the payment data.

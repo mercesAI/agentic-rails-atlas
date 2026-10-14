@@ -7,16 +7,16 @@ stateDiagram-v2
   state "Exhausted" as s_exhausted
   state "Expired" as s_expired
   [*] --> s_unfulfilled
-  s_unfulfilled --> s_fulfilled : Network accepts the first L3a for the pair
-  s_unfulfilled --> s_recurring : First L3a accepted with mandate.payment.agent_recurrence present
+  s_unfulfilled --> s_fulfilled : Network accepts the first L3a for the<br/>pair
+  s_unfulfilled --> s_recurring : First L3a accepted with<br/>mandate.payment.agent_recurrence present
   s_recurring --> s_recurring : Further L3a within counters and budget
-  s_recurring --> s_exhausted : Counter, budget or end_date limit reached
+  s_recurring --> s_exhausted : Counter, budget or end_date limit<br/>reached
   s_unfulfilled --> s_expired : L2 exp passes before fulfillment
   s_fulfilled --> [*]
   s_exhausted --> [*]
   s_expired --> [*]
-  note right of s_unfulfilled : L2 Autonomous signed#59; no L3 pair accepted yet.
-  note right of s_fulfilled : One L3a and L3b pair accepted (base model).
-  note right of s_recurring : Counters occurrence_count and cumulative_spent advance with each L3a.
-  note right of s_exhausted : max_occurrences, budget max or end_date reached.
-  note right of s_expired : L2 exp passed#59; the user should be prompted to authorize again.
+  note right of s_unfulfilled : L2 Autonomous signed#59; no L3 pair<br/>accepted yet.
+  note right of s_fulfilled : One L3a and L3b pair accepted (base<br/>model).
+  note right of s_recurring : Counters occurrence_count and<br/>cumulative_spent advance with each L3a.
+  note right of s_exhausted : max_occurrences, budget max or end_date<br/>reached.
+  note right of s_expired : L2 exp passed#59; the user should be<br/>prompted to authorize again.

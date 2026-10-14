@@ -148,6 +148,27 @@ export function flowToSequenceDiagram(flow: Flow, options: SequenceOptions = {})
   return `${lines.join('\n')}\n`;
 }
 
+/** Wraps a label at word boundaries once it passes `max` characters; each line is escaped, lines are joined with <br/>. */
+export function wrapMermaidLabel(text: string, max = 40, options: { colons?: boolean } = {}): string {
+  const words = text.replace(/[\r\n\t]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let cur = '';
+  for (const w of words) {
+    if (cur && cur.length + 1 + w.length > max) {
+      lines.push(cur);
+      cur = w;
+    } else {
+      cur = cur ? `${cur} ${w}` : w;
+    }
+  }
+  if (cur) lines.push(cur);
+  if (lines.length <= 1) return escapeMermaidText(text, options);
+  return lines.map((l) => escapeMermaidText(l, options)).join('<br/>');
+}
+
+/** State machines with more states than this read top to bottom, which keeps them narrow. */
+export const STATE_TB_THRESHOLD = 6;
+
 export interface StateOptions {
   accessibility?: boolean;
   description?: string;
@@ -155,13 +176,14 @@ export interface StateOptions {
 
 export function stateMachineToStateDiagram(machine: StateMachine, options: StateOptions = {}): string {
   const lines: string[] = ['stateDiagram-v2'];
+  if (machine.states.length > STATE_TB_THRESHOLD) lines.push('  direction TB');
   if (options.accessibility ?? true) {
     lines.push(`  accTitle: ${accText(machine.title)}`);
     if (options.description) lines.push(`  accDescr: ${accText(options.description)}`);
   }
   const sid = makeIdFactory('s');
   const known = new Set(machine.states.map((s) => s.id));
-  for (const s of machine.states) lines.push(`  state "${escapeMermaidText(s.label)}" as ${sid(s.id)}`);
+  for (const s of machine.states) lines.push(`  state "${wrapMermaidLabel(s.label)}" as ${sid(s.id)}`);
   for (const t of machine.transitions) {
     for (const id of [t.from, t.to]) {
       if (!known.has(id)) {
@@ -174,11 +196,11 @@ export function stateMachineToStateDiagram(machine: StateMachine, options: State
   const starts = initial.length ? initial : machine.states.slice(0, 1);
   for (const s of starts) lines.push(`  [*] --> ${sid(s.id)}`);
   for (const t of machine.transitions) {
-    lines.push(`  ${sid(t.from)} --> ${sid(t.to)} : ${escapeMermaidText(t.trigger)}`);
+    lines.push(`  ${sid(t.from)} --> ${sid(t.to)} : ${wrapMermaidLabel(t.trigger)}`);
   }
   for (const s of machine.states) if (s.terminal) lines.push(`  ${sid(s.id)} --> [*]`);
   for (const s of machine.states) {
-    if (s.note) lines.push(`  note right of ${sid(s.id)} : ${escapeMermaidText(s.note, { colons: true })}`);
+    if (s.note) lines.push(`  note right of ${sid(s.id)} : ${wrapMermaidLabel(s.note, 40, { colons: true })}`);
   }
   return `${lines.join('\n')}\n`;
 }

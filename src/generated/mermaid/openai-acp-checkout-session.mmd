@@ -1,4 +1,5 @@
 stateDiagram-v2
+  direction TB
   accTitle: ACP checkout session status (2026-04-17, 11 values)
   accDescr: State diagram: ACP checkout session status (2026-04-17, 11 values). 11 states: incomplete, not_ready_for_payment, requires_escalation, authentication_required, ready_for_payment, pending_approval, in_progress, complete_in_progress, completed, canceled, and expired. Starts in not_ready_for_payment. Ends in completed, canceled, and expired. 16 transitions. From not_ready_for_payment to ready_for_payment when Buyer data and fulfillment choice complete (POST /checkout_sessions/ id ). From incomplete to not_ready_for_payment when Required data added (inferred from name) (POST /checkout_sessions/ id ). From ready_for_payment to not_ready_for_payment when Update invalidates the cart, for example out of stock (POST /checkout_sessions/ id ). From ready_for_payment to authentication_required when Merchant requires 3DS (session response). From authentication_required to completed when Complete with authentication_result (POST /checkout_sessions/ id /complete). From ready_for_payment to requires_escalation when Merchant needs buyer action outside the agent (inferred from name) (session response). From ready_for_payment to pending_approval when Approval required, for example B2B (inferred from name) (POST /checkout_sessions/ id /complete). From ready_for_payment to complete_in_progress when Complete accepted, payment still processing (inferred from name) (POST /checkout_sessions/ id /complete). From complete_in_progress to completed when Payment confirmed, order created (inferred) (GET /checkout_sessions/ id ). From ready_for_payment to in_progress when Processing (meaning not detailed inferred) (POST /checkout_sessions/ id /complete). From in_progress to completed when Order created (POST /checkout_sessions/ id /complete). From ready_for_payment to completed when Complete succeeds response carries an order (POST /checkout_sessions/ id /complete). From not_ready_for_payment to canceled when Agent cancels, optional intent_trace (POST /checkout_sessions/ id /cancel). From ready_for_payment to canceled when Agent cancels, optional intent_trace (POST /checkout_sessions/ id /cancel). From ready_for_payment to expired when expires_at passes (inferred from name) (none). From not_ready_for_payment to expired when expires_at passes (inferred from name) (none).
   state "incomplete" as s_incomplete
@@ -13,18 +14,18 @@ stateDiagram-v2
   state "canceled" as s_canceled
   state "expired" as s_expired
   [*] --> s_not_ready_for_payment
-  s_not_ready_for_payment --> s_ready_for_payment : Buyer data and fulfillment choice complete
+  s_not_ready_for_payment --> s_ready_for_payment : Buyer data and fulfillment choice<br/>complete
   s_incomplete --> s_not_ready_for_payment : Required data added (inferred from name)
-  s_ready_for_payment --> s_not_ready_for_payment : Update invalidates the cart, for example out of stock
+  s_ready_for_payment --> s_not_ready_for_payment : Update invalidates the cart, for example<br/>out of stock
   s_ready_for_payment --> s_authentication_required : Merchant requires 3DS
   s_authentication_required --> s_completed : Complete with authentication_result
-  s_ready_for_payment --> s_requires_escalation : Merchant needs buyer action outside the agent (inferred from name)
-  s_ready_for_payment --> s_pending_approval : Approval required, for example B2B (inferred from name)
-  s_ready_for_payment --> s_complete_in_progress : Complete accepted, payment still processing (inferred from name)
-  s_complete_in_progress --> s_completed : Payment confirmed, order created (inferred)
-  s_ready_for_payment --> s_in_progress : Processing (meaning not detailed#59; inferred)
+  s_ready_for_payment --> s_requires_escalation : Merchant needs buyer action outside the<br/>agent (inferred from name)
+  s_ready_for_payment --> s_pending_approval : Approval required, for example B2B<br/>(inferred from name)
+  s_ready_for_payment --> s_complete_in_progress : Complete accepted, payment still<br/>processing (inferred from name)
+  s_complete_in_progress --> s_completed : Payment confirmed, order created<br/>(inferred)
+  s_ready_for_payment --> s_in_progress : Processing (meaning not detailed#59;<br/>inferred)
   s_in_progress --> s_completed : Order created
-  s_ready_for_payment --> s_completed : Complete succeeds#59; response carries an order
+  s_ready_for_payment --> s_completed : Complete succeeds#59; response carries an<br/>order
   s_not_ready_for_payment --> s_canceled : Agent cancels, optional intent_trace
   s_ready_for_payment --> s_canceled : Agent cancels, optional intent_trace
   s_ready_for_payment --> s_expired : expires_at passes (inferred from name)
@@ -33,12 +34,12 @@ stateDiagram-v2
   s_canceled --> [*]
   s_expired --> [*]
   note right of s_incomplete : Added 2026-01-30#59; no RFC definition.
-  note right of s_not_ready_for_payment : Original value#59; usually the status after create.
+  note right of s_not_ready_for_payment : Original value#59; usually the status after<br/>create.
   note right of s_requires_escalation : Added 2026-01-30#59; no RFC definition.
-  note right of s_authentication_required : From 2025-12-12#59; RFC requires authentication_metadata.
+  note right of s_authentication_required : From 2025-12-12#59; RFC requires<br/>authentication_metadata.
   note right of s_ready_for_payment : Original value.
-  note right of s_pending_approval : Added 2026-01-30#59; no RFC definition (B2B approval fields exist).
-  note right of s_in_progress : Original value#59; meaning not detailed in the RFC.
+  note right of s_pending_approval : Added 2026-01-30#59; no RFC definition (B2B<br/>approval fields exist).
+  note right of s_in_progress : Original value#59; meaning not detailed in<br/>the RFC.
   note right of s_complete_in_progress : Added 2026-01-30#59; no RFC definition.
   note right of s_completed : Must carry an order.
   note right of s_canceled : Cancel again returns 405.

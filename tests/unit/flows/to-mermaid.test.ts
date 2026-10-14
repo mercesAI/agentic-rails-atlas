@@ -8,6 +8,7 @@ import {
   isResponseStep,
   makeIdFactory,
   stateMachineToStateDiagram,
+  wrapMermaidLabel,
 } from '../../../src/lib/flows/to-mermaid';
 import { describeFlow, describeFlowSteps, describeStateMachine } from '../../../src/lib/flows/describe';
 
@@ -122,7 +123,7 @@ describe('stateMachineToStateDiagram', () => {
     expect(out.startsWith('stateDiagram-v2\n')).toBe(true);
     expect(out).toContain('state "ready #quot;for#quot; payment #123;x#125;" as s_ready');
     expect(out).toContain('[*] --> s_not_ready');
-    expect(out).toContain('s_not_ready --> s_ready : POST /checkout_sessions/#123;id#125;: buyer details added');
+    expect(out).toContain('s_not_ready --> s_ready : POST /checkout_sessions/#123;id#125;: buyer<br/>details added');
     expect(out).toContain('s_ready --> s_completed : complete#59; payment token accepted');
     expect(out).toContain('s_completed --> [*]');
     expect(out).toContain('s_canceled --> [*]');
@@ -154,5 +155,19 @@ describe('describe', () => {
   });
   it('contains no em dash', () => {
     expect(describeFlow(flow) + describeStateMachine(machine)).not.toContain('\u2014');
+  });
+});
+
+describe('wrapMermaidLabel', () => {
+  it('leaves short labels alone and wraps long ones at word boundaries', () => {
+    expect(wrapMermaidLabel('short label')).toBe('short label');
+    const out = wrapMermaidLabel('one two three four five six seven eight nine ten eleven twelve');
+    expect(out).toContain('<br/>');
+    for (const l of out.split('<br/>')) expect(l.length).toBeLessThanOrEqual(40);
+  });
+  it('adds direction TB only for machines with more than six states', () => {
+    const many = { ...machine, states: Array.from({ length: 7 }, (_, i) => ({ id: `x${i}`, label: `X${i}` })), transitions: [] };
+    expect(stateMachineToStateDiagram(many)).toContain('direction TB');
+    expect(stateMachineToStateDiagram(machine)).not.toContain('direction TB');
   });
 });

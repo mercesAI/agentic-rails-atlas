@@ -1,4 +1,5 @@
 stateDiagram-v2
+  direction TB
   accTitle: Agentic token lifecycle (as described, not a published state model)
   accDescr: State diagram: Agentic token lifecycle (as described, not a published state model). 8 states: Agent registered, Agent certified, Consumer authorized, Token provisioned, Presented at checkout, Authorized, Declined, and Expired or no longer usable. Starts in Agent registered. Ends in Authorized, Declined, and Expired or no longer usable. 8 transitions. From Agent registered to Agent certified when Security review and certification pass. From Agent certified to Consumer authorized when Consumer authenticates with the platform and authorizes the agent. From Consumer authorized to Token provisioned when Platform requests an agentic token (Not published). From Token provisioned to Presented at checkout when Agent fills the card form or calls the merchant API. From Presented at checkout to Authorized when Network detokenizes and issuer approves (Card authorization message). From Presented at checkout to Declined when Outside token limits or issuer declines (Card authorization message). From Token provisioned to Expired or no longer usable when Time window passes or single use consumed. From Authorized to Expired or no longer usable when Single-use token cannot be used again.
   state "Agent registered" as s_agent_registered
@@ -11,21 +12,21 @@ stateDiagram-v2
   state "Expired or no longer usable" as s_expired_or_revoked
   [*] --> s_agent_registered
   s_agent_registered --> s_agent_certified : Security review and certification pass
-  s_agent_certified --> s_consumer_authorized : Consumer authenticates with the platform and authorizes the agent
+  s_agent_certified --> s_consumer_authorized : Consumer authenticates with the platform<br/>and authorizes the agent
   s_consumer_authorized --> s_token_provisioned : Platform requests an agentic token
-  s_token_provisioned --> s_presented : Agent fills the card form or calls the merchant API
+  s_token_provisioned --> s_presented : Agent fills the card form or calls the<br/>merchant API
   s_presented --> s_authorized : Network detokenizes and issuer approves
   s_presented --> s_declined : Outside token limits or issuer declines
-  s_token_provisioned --> s_expired_or_revoked : Time window passes or single use consumed
+  s_token_provisioned --> s_expired_or_revoked : Time window passes or single use<br/>consumed
   s_authorized --> s_expired_or_revoked : Single-use token cannot be used again
   s_authorized --> [*]
   s_declined --> [*]
   s_expired_or_revoked --> [*]
-  note right of s_agent_registered : Public key in the Mastercard key directory.
-  note right of s_agent_certified : Security review passed#59; on the trusted agent list.
-  note right of s_consumer_authorized : Consumer authenticated (passkeys in regional pilots) and set limits.
-  note right of s_token_provisioned : Single-use, merchant-specific or time-limited.
-  note right of s_presented : Typed into a card form or sent through a merchant API.
+  note right of s_agent_registered : Public key in the Mastercard key<br/>directory.
+  note right of s_agent_certified : Security review passed#59; on the trusted<br/>agent list.
+  note right of s_consumer_authorized : Consumer authenticated (passkeys in<br/>regional pilots) and set limits.
+  note right of s_token_provisioned : Single-use, merchant-specific or<br/>time-limited.
+  note right of s_presented : Typed into a card form or sent through a<br/>merchant API.
   note right of s_authorized : Issuer approved.
-  note right of s_declined : Issuer or network declined. Response codes are not published.
-  note right of s_expired_or_revoked : Inferred from time-limited and single-use tokens. Mastercard publishes no revocation API or state names.
+  note right of s_declined : Issuer or network declined. Response<br/>codes are not published.
+  note right of s_expired_or_revoked : Inferred from time-limited and<br/>single-use tokens. Mastercard publishes<br/>no revocation API or state names.
