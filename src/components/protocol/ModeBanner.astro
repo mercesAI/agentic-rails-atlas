@@ -1,0 +1,76 @@
+---
+/**
+ * One-line banner that states the current reading mode and what it shows.
+ * All four variants are rendered; CSS in protocol.css shows the one that matches
+ * <html data-reading-mode>. The "b" placement (top of section B) also hosts the
+ * polite live region and the toast that appears when a mode change happens
+ * while the affected section is out of view. Nothing scrolls automatically.
+ */
+import { READING_MODES, READING_MODE_LABELS, modeBannerText } from '../../lib/reading-mode';
+
+export interface Props {
+  placement: 'b' | 'd';
+  /** Number of spec-only blocks (field tables, wire examples) in section B. */
+  specCount?: number;
+}
+const { placement, specCount = 0 } = Astro.props;
+---
+<div class="mode-banner" data-mode-banner-for={placement}>
+  {READING_MODES.map((m) => (
+    <p class="mode-banner__line" data-mode-banner={m}>
+      <strong>{READING_MODE_LABELS[m]} mode:</strong> {modeBannerText(m, specCount)}.
+    </p>
+  ))}
+</div>
+{placement === 'b' && (
+  <>
+    <p id="mode-live" class="sr-only" aria-live="polite"></p>
+    <div id="mode-toast" class="mode-toast" hidden>
+      <span id="mode-toast-text"></span>
+      <a id="mode-toast-link" href="#b-explanation">Go to section B</a>
+      <button type="button" id="mode-toast-close" class="mode-toast__close" aria-label="Dismiss">Close</button>
+    </div>
+  </>
+)}
+
+<script>
+  import { isReadingMode, modeTarget, modeToastText } from '../../lib/reading-mode';
+
+  let timer: number | undefined;
+  const hide = () => {
+    const t = document.getElementById('mode-toast');
+    if (t) t.hidden = true;
+  };
+  const inView = (el: Element | null) => {
+    if (!el) return true;
+    const r = el.getBoundingClientRect();
+    return r.height > 0 && r.top < window.innerHeight && r.bottom > 0;
+  };
+  document.addEventListener('atlas:reading-mode-chosen', (e) => {
+    const mode = (e as CustomEvent).detail;
+    const toast = document.getElementById('mode-toast');
+    const live = document.getElementById('mode-live');
+    if (!isReadingMode(mode) || !toast || !live) return;
+    const target = modeTarget(mode);
+    const section = document.getElementById(target.id);
+    const text = modeToastText(mode);
+    live.textContent = '';
+    window.setTimeout(() => (live.textContent = text), 50);
+    window.clearTimeout(timer);
+    if (inView(section)) return hide();
+    const link = document.getElementById('mode-toast-link') as HTMLAnchorElement | null;
+    const label = document.getElementById('mode-toast-text');
+    if (link) {
+      link.href = `#${target.id}`;
+      link.textContent = `Go to section ${target.letter}`;
+    }
+    if (label) label.textContent = text;
+    toast.hidden = false;
+    timer = window.setTimeout(hide, 9000);
+  });
+  document.addEventListener('click', (e) => {
+    const t = e.target as Element | null;
+    if (t?.closest('#mode-toast-close') || t?.closest('#mode-toast-link')) hide();
+  });
+  document.addEventListener('astro:before-swap', hide);
+</script>

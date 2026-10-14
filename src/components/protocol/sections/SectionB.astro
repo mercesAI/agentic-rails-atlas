@@ -1,6 +1,7 @@
 ---
 /** Section B: the MDX body before the "Compare and compose" marker, rendered once by the layout and passed as HTML. */
 import Section from '../Section.astro';
+import ModeBanner from '../ModeBanner.astro';
 import type { ProtocolPageContext } from '../lib/load';
 
 export interface Props {
@@ -9,9 +10,9 @@ export interface Props {
 }
 const { ctx, html } = Astro.props;
 const empty = !html.trim();
+const specCount = (html.match(/data-modes="spec"/g) ?? []).length;
 ---
 <Section id="b-explanation" missing={empty ? `${ctx.contentPath}index.mdx (body)` : null}>
-  <p class="mode-hint" data-mode-hint="eli5">This is the plain version. Switch the reading mode to Practitioner for the full explanation.</p>
-  <p class="mode-hint" data-mode-hint="spec">Spec-deep adds field tables, headers, enums and wire examples to the practitioner text.</p>
+  <ModeBanner placement="b" specCount={specCount} />
   <div class="prose protocol-body" set:html={html} />
 </Section>

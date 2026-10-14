@@ -4,6 +4,7 @@ import Section from '../Section.astro';
 import SteView from '../../ste/SteView.astro';
 import SteCompare from '../../ste/SteCompare.astro';
 import { mdxParagraphToText, practitionerParagraphs } from '../lib/split-body';
+import ModeBanner from '../ModeBanner.astro';
 import type { ProtocolPageContext } from '../lib/load';
 
 export interface Props {
@@ -20,6 +21,7 @@ const steParas = firstDesc
   .slice(0, 3);
 ---
 <Section id="d-ste" missing={ste ? null : `${ctx.contentPath}ste.mdx`}>
+  <ModeBanner placement="d" />
   <SteView protocol={ctx.slug}>
     <slot />
   </SteView>

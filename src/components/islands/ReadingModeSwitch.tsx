@@ -1,6 +1,6 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
 import type { ReadingMode } from '../../lib/schemas';
-import { READING_MODES, READING_MODE_LABELS, readReadingMode, saveReadingMode } from '../../lib/reading-mode';
+import { READING_MODES, READING_MODE_LABELS, readReadingMode, saveReadingMode, syncFromStorageEvent } from '../../lib/reading-mode';
 
 const HINTS: Record<ReadingMode, string> = {
   eli5: 'Plain explanation for newcomers',
@@ -20,9 +20,29 @@ export default function ReadingModeSwitch({ compact = false }: Props) {
 
   useEffect(() => {
     setMode(readReadingMode());
+    // Every instance listens, so the nav and header switches always show the same radio.
     const onChange = (e: Event) => setMode((e as CustomEvent<ReadingMode>).detail);
+    const onStorage = (e: StorageEvent) => {
+      const m = syncFromStorageEvent(e);
+      if (m) setMode(m);
+    };
+    // After a View Transitions swap the new <html> is bootstrapped from storage; re-read it for this island.
+    const onSwap = () => setMode(readReadingMode());
+    // Anything else that changes the attribute (devtools, scripts) is mirrored too.
+    const mo = new MutationObserver(() => {
+      const v = document.documentElement.dataset.readingMode;
+      if (v && (READING_MODES as readonly string[]).includes(v)) setMode(v as ReadingMode);
+    });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-reading-mode'] });
     document.addEventListener('atlas:reading-mode', onChange);
-    return () => document.removeEventListener('atlas:reading-mode', onChange);
+    document.addEventListener('astro:after-swap', onSwap);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      mo.disconnect();
+      document.removeEventListener('atlas:reading-mode', onChange);
+      document.removeEventListener('astro:after-swap', onSwap);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
   const choose = (next: ReadingMode) => {

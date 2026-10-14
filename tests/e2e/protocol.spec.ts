@@ -130,3 +130,46 @@ test.describe('protocol page template', () => {
     });
   }
 });
+
+test.describe('reading modes on /p/x402/', () => {
+  test.skip(!slugs.includes('x402'), 'x402 content missing');
+  const expected = {
+    eli5: { eli5: true, practitioner: false, table: false, d: true },
+    practitioner: { eli5: false, practitioner: true, table: false, d: true },
+    spec: { eli5: false, practitioner: true, table: true, d: true },
+    ste: { eli5: false, practitioner: false, table: false, d: true },
+  } as const;
+  const labels = { eli5: 'ELI5', practitioner: 'Practitioner', spec: 'Spec-deep', ste: 'STE' } as const;
+
+  for (const mode of Object.keys(expected) as (keyof typeof expected)[]) {
+    test(`${mode} mode shows the right content and both switches agree`, async ({ page }) => {
+      await page.goto('/p/x402/');
+      const groups = page.getByRole('radiogroup', { name: 'Reading mode' });
+      await expect(groups).toHaveCount(2);
+      await groups.nth(1).getByRole('radio', { name: labels[mode] }).click();
+      await expect(page.locator('html')).toHaveAttribute('data-reading-mode', mode);
+      const e = expected[mode];
+      const body = page.locator('#b-explanation .protocol-body');
+      await expect(body.locator('> .mode-block[data-modes~="eli5"] p').first())[e.eli5 ? 'toBeVisible' : 'toBeHidden']();
+      await expect(body.locator('> p').first())[e.practitioner ? 'toBeVisible' : 'toBeHidden']();
+      await expect(body.locator('.mode-block[data-modes="spec"] table').first())[e.table ? 'toBeVisible' : 'toBeHidden']();
+      await expect(page.locator('#d-ste')).toBeVisible();
+      await expect(page.locator('.mode-banner__line:visible').first()).toContainText(`${labels[mode]} mode`);
+      for (const i of [0, 1]) {
+        await expect(groups.nth(i).getByRole('radio', { name: labels[mode] })).toHaveAttribute('aria-checked', 'true');
+        await expect(groups.nth(i).locator('[aria-checked="true"]')).toHaveCount(1);
+      }
+    });
+  }
+
+  test('a toast links to section B when it is out of view', async ({ page }) => {
+    await page.goto('/p/x402/');
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const toast = page.locator('#mode-toast');
+    await page.getByRole('radiogroup', { name: 'Reading mode' }).first().getByRole('radio', { name: 'ELI5' }).click();
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText('ELI5 applied to section B');
+    await expect(toast.getByRole('link', { name: 'Go to section B' })).toHaveAttribute('href', '#b-explanation');
+    await expect(page.locator('#mode-live')).toHaveText('ELI5 applied to section B');
+  });
+});

@@ -45,9 +45,24 @@
 @media screen {
   :root[data-reading-mode='eli5'] .protocol-body > :not(.mode-block) { display: none; }
 }
-.mode-hint { display: none; margin: 0 0 1rem; font-size: 0.875rem; color: var(--fg-muted); }
-:root[data-reading-mode='eli5'] .mode-hint[data-mode-hint='eli5'],
-:root[data-reading-mode='spec'] .mode-hint[data-mode-hint='spec'] { display: block; }
+/* Mode banner (top of B; a copy in D shows in STE only) and the change toast. */
+.mode-banner { display: block; margin: 0; padding: 0.5rem 0.75rem; font-size: 0.875rem; color: var(--fg-muted); background: var(--bg-sunken); border: 1px solid var(--border); border-left: 3px solid var(--family-fill, var(--accent)); border-radius: var(--radius-sm); }
+.mode-banner__line { display: none; margin: 0; }
+.mode-banner__line strong { color: var(--fg); font-weight: 600; }
+:root[data-reading-mode='eli5'] .mode-banner__line[data-mode-banner='eli5'],
+:root[data-reading-mode='practitioner'] .mode-banner__line[data-mode-banner='practitioner'],
+:root[data-reading-mode='spec'] .mode-banner__line[data-mode-banner='spec'],
+:root[data-reading-mode='ste'] .mode-banner__line[data-mode-banner='ste'] { display: block; }
+.mode-banner[data-mode-banner-for='d'] { display: none; }
+:root[data-reading-mode='ste'] .mode-banner[data-mode-banner-for='d'] { display: block; }
+.mode-toast {
+  position: fixed; z-index: 60; top: calc(var(--header-h, 4rem) + 0.5rem); right: 1rem; max-width: min(24rem, calc(100vw - 2rem));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; padding: 0.6rem 0.9rem; font-size: 0.875rem;
+  color: var(--fg); background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-2);
+}
+.mode-toast[hidden] { display: none; }
+.mode-toast__close { font: inherit; font-size: 0.8125rem; color: var(--fg-muted); background: none; border: 0; padding: 0.25rem 0.4rem; min-height: 24px; cursor: pointer; text-decoration: underline; }
+@media print { .mode-banner, .mode-toast { display: none !important; } }
 
 /* ---------------------------------------------------------------- header */
 .proto-header {
@@ -462,7 +477,6 @@
   .psec { max-width: none; break-before: auto; margin-bottom: 1.5rem; }
   .psec__h { break-after: avoid; }
   #b-explanation { display: block !important; }
-  .mode-hint { display: none !important; }
   .diagram-figure__alt { display: block; }
   .fp, .sm, .persona-card, .scenario-card, .faq__item { break-inside: avoid; }
 }
