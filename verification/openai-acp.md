@@ -140,3 +140,62 @@ Rule checks over all 248 claims: no `verified` claim has only non-primary source
 | 234 | verified | pass | Stripe newsroom: "passes the token to the merchant ... or ... another provider while still benefiting from Stripe's risk scores" |
 | 236 | reported | pass | ecommerce-platforms.com article updated Jul 29, 2026 (non-primary; reported label right); "rate not public" not independently confirmed |
 | 238 | verified | pass | schema.delegate_payment.json Error.code enum (six values) |
+## Check 2: field names, headers, enums, endpoints, events, error codes
+
+Method: parsed all 8 `<FieldTable>` blocks (96 name segments, 80 table rows) and the 4 `<Mode spec>` blocks (60 backticked identifiers) from `index.mdx`, then resolved every field path against `research/vendor/acp/spec/2026-04-17/json-schema/schema.agentic_checkout.json` and `schema.delegate_payment.json` (property existence and required flag, with `allOf` and `$ref` followed), the OpenAPI files (paths, headers, webhook events), the RFC header list and `docs/mcp-binding.md`. Flow payloads, `observability.json`, `security.json`, `code.json` and `controls.json` were scanned for identifiers and compared with the spec corpus. Stripe identifiers were checked on docs.stripe.com.
+
+### 2a. FieldTable rows
+
+| Table | Rows checked | Names not in spec | Required flag wrong | Note |
+|---|---|---|---|---|
+| CheckoutSession (CheckoutSessionBase) | 17 | 0 | 0 | Required set matches the schema (`id`, `status`, `currency`, `line_items`, `totals`, `fulfillment_options`, `messages`, `links`, `capabilities`). |
+| CheckoutSessionCreateRequest | 8 (12 names) | 0 | 0 | `locale`, `timezone`, `quote_id`, `metadata`, `order_notes` all exist. |
+| CheckoutSessionCompleteRequest | 9 | 0 | 0 | `payment_data.instrument.credential.{type,token}` required, matches PaymentData schema. `handler_id` optional in schema, optional in table. |
+| PaymentHandler | 9 | 0 | 0 | `display_name`, `display_order` optional, present. |
+| DelegatePaymentRequest and Allowance | 11 | 0 | 0 | Six Allowance fields and `reason` enum `one_time` match. |
+| DelegatePaymentResponse | 3 | 0 | 0 | |
+| Checkout request headers | 7 | 0 | 0 | rfc.agentic_checkout.md:63-70: Authorization, API-Version, Idempotency-Key and Content-Type REQUIRED; Signature, Timestamp, Request-Id RECOMMENDED. |
+| Order and order webhook (WebhookEvent) | 9 | 0 | 2 | `data.type` and `data.status` are shown as optional, but `EventDataOrder` in `openapi.agentic_checkout_webhook.yaml:219` requires `[type, checkout_session_id, permalink_url, status]`. The Order schema also requires `id`, which the table does list. |
+
+### 2b. Mode spec identifiers (60)
+
+All 60 resolve in the spec corpus except four that are intentional or file-level references: `/product_feeds...` (OpenAI's own docs path, in llms-full.txt, contrasted with the spec's `/feeds`); `order_updated` and `order_created` (OpenAI checklist spelling, contrasted with `order_create` and `order_update`); `CheckoutSession.status` (the spec defines it on `CheckoutSessionBase`, inherited by `CheckoutSession`; acceptable); `spec/2026-04-17/json-schema/` (directory path). Error codes (`out_of_stock`, `payment_declined`, `requires_sign_in`, `requires_3ds`, `intervention_required`, etc.), `Total.type` values, message `resolution` values (`recoverable`, `requires_buyer_input`, `requires_buyer_review`) and discount error codes were matched value by value against the schema enums. Wrong identifiers: 0.
+
+### 2c. Other files
+
+| File | Identifiers | Result |
+|---|---|---|
+| observability.json | `shared_payment.issued_token.{active,requires_action,used,deactivated}`, `shared_payment.granted_token.deactivated`, `product_feeds` | pass: the Stripe names appear on docs.stripe.com SPT page (2026-10-13); `product_feeds` is OpenAI's path |
+| security.json | 4 | pass |
+| code.json | `validate:json-schema`, `validate:all`, version 0.1.0, `Merchant-Signature` rule, snippet request body | pass: package.json lines 3, 6, 13 |
+| controls.json | `usage_limits` | pass (Stripe SPT parameter on docs.stripe.com) |
+| flows (7 files, 44 steps) | labels, paths, headers | pass; `POST /agentic_checkout/webhooks/order_events` is `openapi.agentic_checkout_webhook.yaml:30`; delegate authentication paths match the OpenAPI |
+
+### 2d. Illustrative payloads validated with ajv
+
+Script: Ajv 8.20 (2020-12, formats off) against the dated 2026-04-17 JSON Schemas; scratch script kept outside the repository. 19 payloads validated (the brief asks for up to 10).
+
+| Flow and step | Schema | Result | Detail |
+|---|---|---|---|
+| 3ds-authentication 3 | Error | pass | |
+| 3ds-authentication 7 | CheckoutSessionCompleteRequest | pass | |
+| cancel-intent-trace 2 | CancelSessionRequest | pass | |
+| checkout-happy-path 1 | DiscoveryResponse | pass | |
+| checkout-happy-path 3 | CheckoutSessionCreateRequest | pass | |
+| checkout-happy-path 4 | CheckoutSession | fail | `fulfillment_options[0]` (type shipping) lacks required `totals` (FulfillmentOptionShipping requires `type, id, title, totals`). |
+| checkout-happy-path 5 | CheckoutSessionUpdateRequest | pass | |
+| checkout-happy-path 8 | DelegatePaymentRequest | pass | |
+| checkout-happy-path 9 | DelegatePaymentResponse | pass | |
+| checkout-happy-path 10 | CheckoutSessionCompleteRequest | pass | |
+| checkout-happy-path 12 | CheckoutSessionWithOrder | fail (abbreviated) | Only `id`, `status`, `order`; the full session fields are omitted. The step detail says what the response must carry, but the payload is not marked as abbreviated. |
+| checkout-happy-path 13 | WebhookEvent plus Order | pass | |
+| delegate-payment 1 | DelegatePaymentRequest | pass | |
+| delegate-payment 3 | DelegatePaymentResponse | pass | |
+| failure-idempotency-conflict 2 | Error | pass | |
+| failure-idempotency-conflict 5 | Error | pass | |
+| order-webhook 2 | Order (adjustments) | fail | `adjustments[0]` lacks required `occurred_at` (Adjustment requires `id, type, occurred_at, status`). |
+| product-feed-push 1 | CreateFeedRequest | fail | Payload sends `{id, target_country}`; `CreateFeedRequest` has `additionalProperties: false` and only `target_country`. `id` is server-assigned in FeedMetadata (openapi.feed.yaml:36 example sends only `target_country`). The step label "Create feed metadata (id, target_country)" repeats the error. |
+| product-feed-push 2 | UpsertProductsRequest | fail | `variants[0].price.currency` is `"usd"`; the feed schema `Price.currency` pattern is `^[A-Z]{3}$` (uppercase, unlike checkout, which is lowercase). |
+
+Totals for check 2: 96 table segments and 60 Mode spec identifiers checked (156), 0 non-existent identifiers, 2 wrong required flags, 5 payload failures (4 genuine schema errors, 1 abbreviated).
+
