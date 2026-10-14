@@ -17,7 +17,7 @@ Status: complete. 0 claim failures, 0 wrong identifiers, 0 wrong dates, 0 "Do no
 | 5. Diagrams and flows (8 flows, 1 state machine, 7 diagrams) | all | 0 | 0 |
 | 6. Specified vs deployed, stewardship | pass | 0 | 0 |
 | Scenario `metered-inference.mdx` | pass | 0 | 0 |
-| 7. Style gates | lint:style 0 errors (7 length warnings); lint:ste pass; 0 em dashes | 9 acronym first-use gaps (low) | 0 |
+| 7. Style gates | lint:style 0 errors (7 length warnings); lint:ste pass; 0 em dashes | 9 acronym first-use gaps and 1 US-spelling line (low) | 0 |
 | 8. Coverage | 8 pass, 0 fail, 0 missing | 0 | 0 |
 
 ## Check 1. Claims against sources
@@ -314,7 +314,7 @@ Result: pass. All 47 cited ids exist (the 4 `clm-scn-metered-inference-*` ids li
 | `pnpm lint:style` | 0 errors, 33 warnings repo-wide. 7 are in `stripe-mpp/index.mdx` (long practitioner sentences, 36 to 42 words, lines 131, 143, 235 twice, 275, 320, 329); none in the scenario |
 | `pnpm lint:ste --protocol stripe-mpp` | pass: 77 sentences, max paragraph 14 and max document 16, 0 errors, 0 warnings, 0 review |
 | U+2014 em dash | none in `src/content/protocols/stripe-mpp`, the stripe-mpp flows, diagrams and states, the scenario, or `dist/p/stripe-mpp/index.html` |
-| US spelling sample | pass on a sample of 40 prose lines (no "colour", "behaviour", "authorise", "centre") |
+| US spelling | grep for common British forms across the folder and the scenario: 1 file with hits. `compliance.json` line 167 has "licence" and "finalised" (use "license" and "finalized"; the sentence describes Singapore rules, but site prose is US spelling). `index.mdx`, `ste.mdx`, FAQ, quiz and the scenario are clean |
 | Acronyms expanded on first use in `index.mdx` | 9 gaps, all low: ACP and AP2 are used at line 337 and expanded at line 395; IANA used at line 203, expanded at line 343; TLS (line 331), EVM (line 363, in the methods table), NVD (line 416), UCP (line 395), URI (line 283), SDK (line 337) and TIP-20 are never expanded; the ELI5 block says "MPP" at line 127 before the expansion at line 131 (ELI5 mode, acceptable). Expanded correctly: MPP, HTTP, HMAC, API, PSP, JCS, DID, SPT, JWE, MCP, SSE, CVE, TAP, VIC, AP4M |
 
 ## Check 8. Coverage
@@ -322,6 +322,8 @@ Result: pass. All 47 cited ids exist (the 4 `clm-scn-metered-inference-*` ids li
 `pnpm verify:coverage --protocol stripe-mpp`: 8 pass, 0 fail, 0 missing, all checks pass or waived (211 of 211 claims have sources; 34 of 34 compare cells; 14 of 14 controls cells; 13 FAQ; 10 quiz; 15 flashcards; 26 timeline events; 44 glossary terms). `pnpm verify:citations`: 170 of 171 publications ok, 1 unreachable (pub-schumacher-2025-mckinsey, HTTP 403, not an MPP publication). Side effect: those two commands rewrote `src/generated/coverage.json` and `src/generated/citation-report.json`; I did not stage them.
 
 ## Required fixes (prioritized, all low severity; no content is wrong)
+
+0. `src/content/protocols/stripe-mpp/compliance.json` line 167: change "licence" to "license" and "finalised" to "finalized" (US spelling rule).
 
 1. `src/content/protocols/stripe-mpp/index.mdx`: expand ACP and AP2 at their first use on line 337 (for example "ACP (Agentic Commerce Protocol) and AP2 (Agent Payments Protocol)") and drop the later expansion on line 395; expand IANA at line 203 (move the expansion from line 343); expand TLS (Transport Layer Security) at line 331, EVM (Ethereum Virtual Machine) at line 363, NVD (National Vulnerability Database) at line 416, UCP (Universal Commerce Protocol) at line 395, URI (Uniform Resource Identifier) at line 283, SDK (software development kit) at its first body use, and TIP-20 (Tempo token standard) at its first body use.
 2. `src/content/protocols/stripe-mpp/claims.json`: add `"asOf": "2026-10-11"` to clm-stripe-mpp-024 (draft expiry date) and clm-stripe-mpp-133 (40 findings), to satisfy the "number or date needs asOf" rule literally.
