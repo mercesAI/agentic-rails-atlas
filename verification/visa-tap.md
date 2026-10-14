@@ -2,7 +2,28 @@
 
 Verifier: independent verifier agent, 2026-10-11. Scope per `docs/briefs/VERIFIER_BRIEF.md` (ATLAS_PROMPT.md Section 5.3), plus ATLAS_FOLLOWUP.md Section 2, ATLAS_ERRATA.md rows that touch TAP, and `src/playgrounds/visa-tap/`.
 
-Status: in progress. Sections below are filled as each check completes.
+Status: complete (checks 1 to 6 by the first verifier on 2026-10-11; checks 7, 8, playground and scenario by the finishing verifier on 2026-10-13).
+
+## Summary
+
+| Check | Pass | Fail | Unreachable |
+|---|---|---|---|
+| 1 Claims against sources (126 claims) | 123 | 2 | 1 |
+| 2 Identifiers (106) | 106 | 0 | 0 |
+| 3 Dates, versions, numbers | all | 0 | 0 |
+| 4 Do not get wrong (2 items) | 2 | 0 | 0 |
+| 5 Diagrams | all | 0 (3 minor issues) | 0 |
+| 6 Specified vs deployed, stewardship | 6 | 2 minor | 0 |
+| 7 Style gates | lint:style 0 errors, lint:ste pass, 0 em dashes, spelling pass | 1 minor (acronyms) | 0 |
+| 8 Coverage | 8 pass | 0 | 0 |
+| Playground and scenario | pass | 0 | 0 |
+
+## Do not get wrong (ATLAS_PROMPT 5.3)
+
+| Item | Verdict | Where stated |
+|---|---|---|
+| TAP is a Visa specification under proprietary terms, not an IETF standard | pass | A, B, Q (see Check 4) |
+| It identifies agents; it does not move money by itself | pass | A, B, Q (see Check 4) |
 
 ## Sources fetched
 - Visa TAP merchant specification page, fetched 2026-10-11 with curl (HTTP 200, 57,571 bytes): https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications
@@ -246,3 +267,58 @@ Diagram issues: 2 minor (state machine payment-failure terminal; VIC passkey ste
 | Stewardship: Visa sole steward, developed with Cloudflare; MPP "Stripe and Tempo"; x402 Foundation Premier member | pass | |
 | Stewardship of ACP | minor fail | `index.mdx` line 327 "Visa says TAP complements OpenAI's ACP". ATLAS_PROMPT Section 0: ACP is co-maintained by OpenAI and Stripe. Write "ACP (Agentic Commerce Protocol, maintained by OpenAI and Stripe)". The bubble label "OpenAI ACP" in keyFacts and compare cells is allowed |
 | FAQ "Is the sample code open source?" ends "The terms text governs." | minor fail | Unsourced legal conclusion that contradicts the frontmatter "(unresolved conflict)". The Product Terms only say they prevail over the Developer Center Terms of Use. Suggest "Which text governs is not stated; treat the code as covered by Visa's terms until Visa clarifies." |
+
+## Check 7: style gates
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| `pnpm lint:style` | pass | 0 errors, 33 warnings repo wide. Warnings in visa-tap are long-sentence only (14, in `index.mdx` lines 124, 129, 143, 145, 249, 251, 285, 300, 313, 319, 341); advisory |
+| `pnpm lint:ste --protocol visa-tap` | pass | 79 sentences, 0 errors, 0 warnings, 0 review items |
+| U+2014 grep of `src/content/protocols/visa-tap` | pass | 0 matches |
+| US spelling sample | pass | no UK forms in `index.mdx` or the sidecars except `sources.json` lines 738 and 743 ("authorised", "unauthorised"), which are the titles and notes of UK Payment Services Regulations sources (quoted official wording; acceptable, a paraphrase in `notes` line 738 could use "authorized") |
+| Acronyms expanded on first use in `index.mdx` body | minor fail | Expanded: TAP, HTTP, IETF, CDN, VIC, JWT, JWS, IOU, MCP, SDK, MPP, CVE, CA, PAR. Not expanded at first body use: RFC (line 124), JSON (line 124), API (line 148), URI (FieldTable, line 157), JWK (line 217; expanded only at line 333 as JWKS then JWK), ACP (line 323; expanded at line 327), UCP and AP2 (line 327, never expanded in the body) |
+
+Style issues: 1 (acronyms).
+
+## Check 8: coverage
+
+`pnpm verify:coverage --protocol visa-tap` run 2026-10-13: 8 pass, 0 fail, 0 missing. Practitioner words 3,330 (>= 2,000), ELI5 297 (200 to 350), 15 diagrams, 28 resources, 45 verified publications, 6 personas, 11 STRIDE threats, 11 FAQ, 8 open questions, 10 quiz, 15 flashcards, 34 glossary terms, 16 timeline events, compare 34 of 34, controls 14 of 14, 237 of 237 claims sourced, playground present. Verdict: pass.
+
+## Playground (`src/playgrounds/visa-tap/`) and scenario
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| TAP identifiers (`agent-browser-auth`, `agent-payer-auth`, `created`, `expires`, `keyid`, `alg`, `nonce`, `tag`, `@authority`, `@path`, `agenticConsumer`, `agenticPaymentContainer`, `browsingIOU`, `contextualData`, `idToken`) | pass | README and `lib/*.ts` match the spec spellings; 8-minute cap and nonce seen-set of 8 minutes modeled |
+| Safety rules | pass | ephemeral WebCrypto key (Ed25519 with ECDSA P-256 fallback shown), no network calls, no Visa keys or JWKS, example domains `shop.example` and `agent.example` |
+| R16 (Visa JWKS holds one RSA key, no Ed25519) | pass | README "Spec quirks" item 6; scenario step 4 and "Unresolvable key" |
+| R17 (spec examples reuse Web Bot Auth vector E.2.2, same signature for both tags, 3,600 s window vs 8 minutes) | pass | README item 6; scenario warnings paragraph |
+| Scenario `agent-shops-with-visa-card.mdx`: identifiers and VIC paths | pass | `/vacp/v1/cards`, `/instructions`, `/credentials`, `/confirmations` match the vendor client (Check 2); tags and body fields match the spec; all claims cited |
+| Scenario passkey step order | minor | step 9 passkey approval before credentials is consistent with the VIC page; same note as the `visa-tap-vic-token-passkey` diagram (passkey result reaches VIC through the agent) |
+
+## Required fixes (prioritized)
+
+Priority 1 (factual or citation failures)
+1. `src/content/protocols/visa-tap/claims.json`, clm-visa-tap-191: the cited README has no 402 or X-Payment text. Replace the source with the sample code `research/vendor/visa-trusted-agent-protocol/merchant-backend/app/routes/cart.py` lines 484-618 (add a source record if missing); keep the text.
+2. `src/content/protocols/visa-tap/claims.json`, clm-visa-tap-215 and clm-visa-tap-213: the cited blog `mppx-identity-support.mdx` does not contain the sentence. Cite `research/vendor/mpp/src/pages/advanced/identity.mdx` (line 23 for 215, line 158 for 213).
+3. `src/content/protocols/visa-tap/index.mdx` line 327: change "OpenAI's ACP" to "ACP (Agentic Commerce Protocol, maintained by OpenAI and Stripe)" per ATLAS_PROMPT Section 0 naming accuracy.
+4. `src/content/protocols/visa-tap/faq.json`, FAQ "Is the sample code open source?": replace the ending "The terms text governs." with "Which text governs is not stated; treat the code as covered by Visa's terms until Visa clarifies."
+
+Priority 2 (precision)
+5. Same FieldTable in `index.mdx` (JWK table near line 218): the `required: true` marks on `kty`, `kid`, `use`, `alg` are not in the spec and the live key omits `alg` and `use`; mark as not stated.
+6. Claims with an explicit date or count and no `asOf` (rule-level finding from check 1): add `asOf` per `verification/erc-8004.md` precedent.
+7. `src/content/protocols/visa-tap/facts.json` and the page statement "no Signature-Agent": reword to "does not require `Signature-Agent`" because the spec's validation step mentions the signature agent in the base string.
+8. `src/content/states/visa-tap-request-verification.json`: edge `objects-checked -> blocked` ("Payment container invalid or hash mismatch"): add a terminal `declined` state or relabel, since the spec says decline the transaction, not block the request.
+9. `src/content/flows/visa-tap-browse-and-checkout.json` step 4 `specRef.section` "Verification Steps": the Cloudflare post has no such heading; use "Cloudflare will run the following checks".
+10. `src/content/diagrams/visa-tap-vic-token-passkey*` step 4 (and step 1): add `specRef` to the VIC page and draw the passkey result passing through the agent to VIC.
+11. `src/content/protocols/visa-tap/timeline.json`: add 2026-03-17 Agentic Ready Europe (21 issuers, verified); 2026-04-29 and 2026-07-01 are only in `changedRecently`.
+12. `src/content/protocols/visa-tap/claims.json`, clm-visa-tap-120: add NVD (keyword search "Trusted Agent Protocol", 2026-10-11, one unrelated hit) as a source.
+
+Priority 3 (style)
+13. `src/content/protocols/visa-tap/index.mdx`: expand on first body use RFC (Request for Comments, line 124), JSON (JavaScript Object Notation, line 124), API (application programming interface, line 148), JWK (JSON Web Key, line 217, or move the expansion from line 333), UCP (Universal Commerce Protocol) and AP2 (Agent Payments Protocol) (line 327), and place the ACP expansion at line 323 instead of line 327.
+14. Optional: split the 14 long practitioner sentences flagged by `lint:style` (lines listed in Check 7).
+15. Optional: `src/content/protocols/visa-tap/sources.json` line 738 note: write "authorized" outside the quoted title.
+
+## Blocked or unreachable sources
+- clm-visa-tap-168: merchantcostconsulting.com article of 2026-05-01, HTTP 403 for curl and WebFetch. Keep `reported`; add the retrieval limitation in the claim notes.
+- Mastercard Agent Pay developer page returned 403 (clm-visa-tap-201 supported by the Stripe post and the VIC page; `reported` is right).
+- Akamai release returned 403 to curl and was read through WebFetch (timeline 2025-12-17, pass).
