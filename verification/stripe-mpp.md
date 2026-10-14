@@ -2,7 +2,23 @@
 
 Verifier: independent verifier agent, 2026-10-13. Scope per `docs/briefs/VERIFIER_BRIEF.md` and ATLAS_PROMPT.md Section 5.6, plus the MPP errata rows. Vendor clones read at mpp-specs 50309c8 (2026-10-05), mppx d8d800f (2026-10-09), mpp 6c5a0c6 (2026-10-07). Live APIs queried on 2026-10-13.
 
-Status: in progress (check 1 recorded below; later checks are appended as they finish).
+Status: complete. 0 claim failures, 0 wrong identifiers, 0 wrong dates, 0 "Do not get wrong" failures, 0 diagram issues. Only low-severity polish items remain (see Required fixes).
+
+## Summary
+
+| Check | Pass | Fail | Unreachable |
+|---|---|---|---|
+| 1. Claims against sources (113 claims) | 113 | 0 | 0 |
+| 2. Identifiers (137) | 137 | 0 | 0 |
+| 3. Dates, versions, numbers (26 timeline events, 8 changedRecently, 9 metrics, 5 SDK versions, frontmatter) | all | 0 | 0 |
+| Errata rows (2.1.1, 2.1.2, 2.1.12, R26 to R34, R39, R47: 15 rows) | 15 | 0 | 0 |
+| Six security advisories | 6 | 0 | 0 |
+| 4. Do not get wrong (4 items) | 4 | 0 | 0 |
+| 5. Diagrams and flows (8 flows, 1 state machine, 7 diagrams) | all | 0 | 0 |
+| 6. Specified vs deployed, stewardship | pass | 0 | 0 |
+| Scenario `metered-inference.mdx` | pass | 0 | 0 |
+| 7. Style gates | lint:style 0 errors (7 length warnings); lint:ste pass; 0 em dashes | 9 acronym first-use gaps (low) | 0 |
+| 8. Coverage | 8 pass, 0 fail, 0 missing | 0 | 0 |
 
 ## Check 1. Claims against sources
 
@@ -215,9 +231,9 @@ Dates wrong: 0.
 | R28 design partners | pass | Tempo mainnet post: only Visa is called an MPP "design partner"; Anthropic, DoorDash, Mastercard, Nubank, OpenAI, Ramp, Revolut, Shopify, Standard Chartered are "partners ... to bring these use cases onto mainnet". Page: claims 015 and 017, `faq.json` line 117, `index.mdx` line 414 |
 | R29 Tempo finality | pass | No "500 ms finality" in the folder. Tempo consensus page: "approximately every 600ms (500ms builder loop plus network latency)"; flows and scenario say about 600 ms with deterministic finality |
 | R30 MPP seed dates | pass | Timeline uses code and spec dates with blog dates as detail: subscriptions spec 2026-07-29 (blog and 0.6.20 on 2026-05-12 kept as announcement), x402 exact in mppx 0.6.29 2026-06-02, session v2 spec 2026-06-25, identity merged 2026-08-04 and npm 0.8.17 2026-08-10, advisories 2026-03-26 with NVD 2026-03-31 |
-| R31 session as an intent | pass | `ls specs/intents` shows only charge and subscription; PR #280 closed unmerged 2026-09-28. `index.mdx` line 351 and 429-ish, `facts.json`, `statusNote` say session is per method; the scenario opens with the same correction |
+| R31 session as an intent | pass | `ls specs/intents` shows only charge and subscription; PR #280 closed unmerged 2026-09-28. `index.mdx` lines 351 and 401, `facts.json` and the frontmatter `statusNote` say session is per method; the scenario opens with the same correction |
 | R32 "up to 72%" | pass | `sessions-improved.mdx` lines 24, 75, 78 (-72.1% open with existing reserve, +79.4% settle to new payee balance). `index.mdx` line 402 and the scenario state both |
-| R33 MPPScan figures | pass | Page uses all-time 4,072,426 tx and 435,476 USD dated 2026-10-11; claim 1741-ish explains the June article showed live values. Live API on 2026-10-13 gives 4,121,980 and 436,012, consistent with growth |
+| R33 MPPScan figures | pass | Page uses all-time 4,072,426 tx and 435,476 USD dated 2026-10-11; claim 174 explains the June article showed live values. Live API on 2026-10-13 gives 4,121,980 and 436,012, consistent with growth |
 | R34 Rivest DOI | pass | Crossref: 10.1007/3-540-63594-7_87 is "Electronic lottery tickets as micropayments", Rivest, 1997; `publications.json` pub-rivest-1997-lottery uses that DOI |
 | R39 refined AP4M | pass | Same as 2.1.2; the wording is Tempo's statement, sourced to the 2026-06-10 release |
 | R47 Stripe SPT preview status | pass | `docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens` shows "Public preview" and no price. Page: claim 209, `index.mdx` line 433, `ecosystem.json` line 353 |
@@ -244,6 +260,76 @@ The page says "within two weeks of launch" for the two critical advisories (2026
 | pympp 0.11.0 | pass as of 2026-10-11, now stale | PyPI: 0.11.0 uploaded 2026-08-28; it was the latest on 2026-10-11. PyPI now shows 0.14.0 (uploaded 2026-10-13T22:01Z, after the content was written). Not an error; refresh on the next data pass |
 | Rust crate `mpp` 0.15.0 | pass as of 2026-10-11, now stale | crates.io: 0.15.0 created 2026-10-06; 0.15.1 created 2026-10-12. Repo tempoxyz/mpp-rs, license MIT OR Apache-2.0 |
 | mpp-go v0.2.0 | pass | Go proxy `@latest`: v0.2.0, 2026-07-01T18:50:36Z, github.com/tempoxyz/mpp-go |
-| mpp-rb 0.1.6 | pass | RubyGems: 0.1.6 created 2026-09-01T19:35Z, license MIT, source github.com/stripe/mpp-rb (the page says it is hosted in stripe/mpp-rb, claim 1444) |
+| mpp-rb 0.1.6 | pass | RubyGems: 0.1.6 created 2026-09-01T19:35Z, license MIT, source github.com/stripe/mpp-rb (the page says it is hosted in stripe/mpp-rb, claim 145) |
 | Tempo subscription example fields | pass | Flow `stripe-mpp-subscription-renewal.json` step 1 uses amount, currency, recipient, periodUnit "week", periodCount "1", subscriptionExpires, methodDetails.chainId 42431, methodDetails.accessKey.accessKeyAddress, keyType "p256". `draft-tempo-subscription-00.md` lines 185-215 require exactly these (recipient and subscriptionExpires REQUIRED; periodUnit day or week only; accessKey with accessKeyAddress and keyType in p256, secp256k1, webAuthn; chainId default 42431, which the spec mislabels as mainnet). The page flags that mislabel (`index.mdx` line 403) |
 | AP4M as Tempo's quote | pass | Mastercard IR PDF (2026-06-10), read with macOS PDFKit: "We're excited to work with Mastercard on Machine Payments Protocol compatibility, with Tempo providing stablecoin settlement ...", said Dan Romero, go-to-market at Tempo. The release body and the other quotes have no MPP text. Stripe and Tempo are in the 32-name initial participants list. The page's wording ("Tempo says ... Mastercard's own text makes no MPP claim") is exact |
+
+## Check 4. "Do not get wrong" list (ATLAS_PROMPT.md Section 5.6)
+
+| Item | Verdict | Where the page states it |
+|---|---|---|
+| Not only Stripe (co-authored with Tempo) | pass | Frontmatter `intro` line 8, `stewards`, `disambiguation` line 61; keyFacts Steward line 88; `faq.json` line 6 ("Not only ... three of the five core authors work at Tempo Labs and two at Stripe"); `facts.json` whatItIsNot; rendered `dist/p/stripe-mpp/index.html` contains "not a Stripe-only" 8 times |
+| Not an IETF standard yet (individual draft) | pass | Frontmatter `governance` and `disambiguation` line 62; Section A line 131 ("What MPP does not give you: an IETF standard"); Section C lines 339-345; `ste.mdx` line 13; dist contains "not an IETF standard" 11 times |
+| Not crypto-only (cards via Stripe and Visa, plus Lightning) | pass | Section A line 131 ("so MPP is not crypto-only"); keyFacts Rails line 109; `facts.json` whatItIsNot; Section D card and stripe method text lines 143-145 |
+| "MPP" in AP2 documents means Merchant Payment Processor | pass | Frontmatter `disambiguation` line 60; `faq.json` line 37; `ste.mdx` line 19; dist contains "Merchant Payment Processor" 20 times. The statement matches `research/vendor/AP2/docs/glossary.md` line 19 |
+
+## Check 5. Diagrams and flows against the spec
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Main flow `stripe-mpp-charge` (8 steps) | pass | Order request, 402 + challenge, client check, retry with `Authorization: Payment`, verify, co-sign and broadcast, confirm, 200 + `Payment-Receipt` matches core lines 105-160 and `draft-tempo-charge-00.md` pull mode (lines 79-91). `Cache-Control: no-store` on 402 and `private` on the receipt response match core lines 1071-1079. Failure branches (malformed-credential, invalid-challenge, payment-expired, verification-failed, 403 policy) match core lines 172-196 and the Error Codes table. The "401 first when ordinary authentication is also needed" branch matches core lines 185-232 |
+| `stripe-mpp-tempo-session` (10 steps) | pass | open, voucher, topUp, settle, close, forced close flow matches `draft-tempo-session-00.md` lines 127-160, 394-396, 500-527, 1494, 1534-1545. Failure outcomes are real problem types |
+| `stripe-mpp-stripe-spt-charge`, `stripe-mpp-card-charge` | pass | Stripe: `spt` payload, PaymentIntent with `shared_payment_granted_token` and `metadata.challenge_id`, receipt reference is the PaymentIntent id (`draft-stripe-charge-00.md` lines 124-289). Card: Client Enabler and Server Enabler, JWE (RSA-OAEP-256), `encryptedPayload` not parsed (`draft-card-charge-00.md`) |
+| `stripe-mpp-mcp-tool-call` | pass | -32042 with `error.data.httpStatus` and `challenges`; `_meta` `org.paymentauth/credential`; matches the MCP transport draft |
+| `stripe-mpp-subscription-renewal` | pass | Activation then at most one renewal per period; `subscriptionId` in the receipt; examples match Tempo subscription draft (see Writer's uncertain items) |
+| Three failure flows (expired, reused, policy denied) | pass | `payment-expired`, `invalid-challenge`, and 403 without challenge are in the core error table; the HMAC binds `expires`, so a client cannot extend it (core lines 358-366) |
+| State machine `stripe-mpp-session-channel` | pass | States and transitions match the Tempo session channel: close-requested returns to streaming on `topUp` (emits `CloseRequestCancelled`, line 462), forced close after the grace period then `withdraw`, cooperative close with `max(spent, settled)`. "rejected" is an HTTP-level outcome rather than a channel state; the model is labelled as a flow, so I do not count it |
+| Diagrams `anatomy`, `data-model`, `methods-map`, `x402-mapping`, `composition`, `context`, `attack-surface` | pass | Anatomy HMAC slot order matches core lines 380-440. Methods map intents per method match the spec folders (charge only for card, stellar, usdc, nearintents; stripe adds subscription; session for tempo, evm, solana, hedera, lightning, xrpl) and author orgs match the draft author blocks (Solana Foundation, Moonsong Labs for solana session, SDF, Hedera, Near One, Ripple). x402 mapping matches `mpp-vs-x402.mdx` lines 28-32. Composition marks AP2 and UCP as "no reference" (verified by grep, claim 187) and the Mastercard link as Tempo's statement. Attack surface items map to real spec text (channels have no expiry, line 375; forced close 15 minutes; Cache-Control guidance) and real advisories |
+
+Diagram issues: 0 (one cosmetic: the SSE receipt example omits `timestamp` and `challengeId`).
+
+## Check 6. Specified versus deployed, announced versus live, stewardship
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Stewardship rule: co-authored by Stripe and Tempo | pass | Frontmatter `stewards: Tempo Labs, Stripe`; `compare-cells.json` stewards cell "Tempo Labs and Stripe"; method authors named separately (Visa, Lightspark, Circle, Coinbase, MegaETH, Monad, OKG, Solana Foundation and others) and verified against draft author blocks. The label "Stripe MPP" is kept as the bubble label only, as Section 0 allows. No sentence in the folder calls MPP "Stripe's protocol"; the one third-party resource title that does ("Why Stripe's MPP signals a turning point") is a cited article title |
+| Specified versus deployed | pass | `status: mixed` and `statusNote` say payments are live (Tempo mainnet, Stripe) while the core is an individual draft with no IANA registrations, Stripe docs are Frontier with a preview API version, and session is per method |
+| Announced versus live | pass | Mastercard AP4M shown as announced and as Tempo's statement; Stripe SPT shown as public preview with no price; the blog's "formal MPP intent" is contradicted by the closed PR, and the page says so (claim 195) |
+| Method authorship and status | pass | `card` authored by Visa; no Mastercard method exists (claim 191); `mpp-rb` hosted by Stripe, `mpp-go` and `mpp-rs` by tempoxyz |
+
+## Scenario: src/content/scenarios/metered-inference.mdx
+
+Result: pass. All 47 cited ids exist (the 4 `clm-scn-metered-inference-*` ids live in `metered-inference.claims.json`). Checked against `draft-tempo-session-00.md`:
+- The opening correction (session is not a standardized intent; PR #280 closed 2026-09-28; only charge and subscription in `specs/intents`) is true.
+- Receipt fields `challengeId`, `channelId`, `acceptedCumulative`, `spent`, reference = `channelId` (lines 1548-1562); `payment-need-voucher` data fields `acceptedCumulative`, `channelId`, `deposit`, `requiredCumulative` (lines 1422-1445); `topUp` with `additionalDeposit` (line 939) and a HEAD request for a fresh challenge (lines 920-927); the server pays fees for settle and close regardless of `feePayer` (lines 752-762); vouchers have no `validUntil` and servers SHOULD close channels idle 30+ days (lines 1629-1638); `CloseRequestCancelled` (line 462); 15 minute grace and 16 minute advice (lines 500-527, 1510).
+- Cost figures: 72.1 percent less and 79.4 percent more gas from `sessions-improved.mdx` lines 75-78; Tempo fee cap about $0.0006 for 50,000 gas from the Tempo fees page.
+- x402 comparison table: `scheme_upto_evm.md` line 7 (Permit2, signs a maximum, server settles actual); `scheme_batch_settlement_evm.md` lines 25 and 94 (`withdrawDelay` 15 minutes to 30 days); claims x402-104, 106, 107 and 131 exist and say the same.
+- MPPScan 998,771 transactions and 8,774 USD (30 days to 2026-10-11) is dated; the "MPPScan by Merit Systems" attribution matches the MPPScan site footer.
+- Observed note (not a fault): "Both MPP SDKs had critical advisories within two weeks of launch" is true for mppx (2026-03-26) and the Rust crate (2026-03-29).
+
+## Check 7. Style gates
+
+| Gate | Result |
+|---|---|
+| `pnpm lint:style` | 0 errors, 33 warnings repo-wide. 7 are in `stripe-mpp/index.mdx` (long practitioner sentences, 36 to 42 words, lines 131, 143, 235 twice, 275, 320, 329); none in the scenario |
+| `pnpm lint:ste --protocol stripe-mpp` | pass: 77 sentences, max paragraph 14 and max document 16, 0 errors, 0 warnings, 0 review |
+| U+2014 em dash | none in `src/content/protocols/stripe-mpp`, the stripe-mpp flows, diagrams and states, the scenario, or `dist/p/stripe-mpp/index.html` |
+| US spelling sample | pass on a sample of 40 prose lines (no "colour", "behaviour", "authorise", "centre") |
+| Acronyms expanded on first use in `index.mdx` | 9 gaps, all low: ACP and AP2 are used at line 337 and expanded at line 395; IANA used at line 203, expanded at line 343; TLS (line 331), EVM (line 363, in the methods table), NVD (line 416), UCP (line 395), URI (line 283), SDK (line 337) and TIP-20 are never expanded; the ELI5 block says "MPP" at line 127 before the expansion at line 131 (ELI5 mode, acceptable). Expanded correctly: MPP, HTTP, HMAC, API, PSP, JCS, DID, SPT, JWE, MCP, SSE, CVE, TAP, VIC, AP4M |
+
+## Check 8. Coverage
+
+`pnpm verify:coverage --protocol stripe-mpp`: 8 pass, 0 fail, 0 missing, all checks pass or waived (211 of 211 claims have sources; 34 of 34 compare cells; 14 of 14 controls cells; 13 FAQ; 10 quiz; 15 flashcards; 26 timeline events; 44 glossary terms). `pnpm verify:citations`: 170 of 171 publications ok, 1 unreachable (pub-schumacher-2025-mckinsey, HTTP 403, not an MPP publication). Side effect: those two commands rewrote `src/generated/coverage.json` and `src/generated/citation-report.json`; I did not stage them.
+
+## Required fixes (prioritized, all low severity; no content is wrong)
+
+1. `src/content/protocols/stripe-mpp/index.mdx`: expand ACP and AP2 at their first use on line 337 (for example "ACP (Agentic Commerce Protocol) and AP2 (Agent Payments Protocol)") and drop the later expansion on line 395; expand IANA at line 203 (move the expansion from line 343); expand TLS (Transport Layer Security) at line 331, EVM (Ethereum Virtual Machine) at line 363, NVD (National Vulnerability Database) at line 416, UCP (Universal Commerce Protocol) at line 395, URI (Uniform Resource Identifier) at line 283, SDK (software development kit) at its first body use, and TIP-20 (Tempo token standard) at its first body use.
+2. `src/content/protocols/stripe-mpp/claims.json`: add `"asOf": "2026-10-11"` to clm-stripe-mpp-024 (draft expiry date) and clm-stripe-mpp-133 (40 findings), to satisfy the "number or date needs asOf" rule literally.
+3. `src/content/protocols/stripe-mpp/ecosystem.json` and `sources.json` (src-stripe-mpp-sdk-registries): on the next data pass update pympp 0.11.0 to 0.14.0 (uploaded 2026-10-13) and Rust `mpp` 0.15.0 to 0.15.1 (2026-10-12), directory services 129 to 130 (127 tempo), mppx stars 186 to 185. Dated 2026-10-11 values are correct as written.
+4. `src/content/protocols/stripe-mpp/index.mdx` lines 131, 143, 235, 275, 320, 329: split the seven practitioner sentences over 35 words (warnings only).
+5. `src/content/flows/stripe-mpp-tempo-session.json` step 10: add `timestamp` and `challengeId` to the SSE receipt example, or keep and leave as is (illustrative).
+6. clm-stripe-mpp-183: the Visa page shows no visible date; keep asOf 2026-03-18 but note "dated by reference to the Tempo mainnet launch" in the source note.
+
+## Blocked or unreachable sources
+
+None blocked. Reached by other means: `mastercard.com` press page returned HTTP 403 and `businesswire.com` closed the connection; the investor-relations PDF copy cited by the page (`s25.q4cdn.com`) downloaded and was read through PDFKit (poppler was absent). The Visa corporate page carries no publication date in its text.
