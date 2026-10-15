@@ -91,10 +91,10 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
 ---
 <Page
   title="Methodology"
-  seoTitle={`Methodology: how every claim in the atlas is sourced, verified and refreshed | ${SITE_NAME}`}
+  seoTitle={`Methodology: how every claim in the atlas is sourced and verified | ${SITE_NAME}`}
   jsonLd={[breadcrumbLd([{ name: 'Methodology', path: '/methodology/' }])]}
   eyebrow="How this atlas is built"
-  lede="How sources are chosen and checked, how much of the atlas is verified, what is still missing and how to refresh it. Every figure on this page is computed from the content at build time."
+  lede="How sources are chosen and checked, how much of the atlas is verified, and what is still missing. Every figure on this page is computed from the content at build time."
   lastVerified={BUILD_DATE}
 >
   <h2 id="policy">Sources policy</h2>
@@ -242,12 +242,4 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
   <p>Corrections to the seed facts the research started from (the initial and follow-up research briefs), and where the corrected statement now lives.</p>
   {errataHtml ? <div class="cc-md cc-scroll" set:html={errataHtml} /> : <p>No errata are logged.</p>}
 
-  <h2 id="refresh">How to refresh</h2>
-  <ol>
-    <li>Pull the spec repositories again into <code>research/vendor/</code> and read the changelogs since each protocol's last verified date.</li>
-    <li>Update the affected claims and sources (new <code>accessed</code> dates, new <code>asOf</code> dates on numbers) and the protocol's <code>lastVerified</code> date.</li>
-    <li>Run <code>pnpm data</code> for the GitHub, npm, PyPI and explorer snapshots (fetchers never fail the build).</li>
-    <li>Run <code>pnpm merge</code>, then <code>pnpm verify:sources</code>, <code>pnpm verify:links</code>, <code>pnpm verify:citations</code> and <code>pnpm verify:coverage</code>.</li>
-    <li>Run <code>pnpm lint:style</code>, <code>pnpm lint:ste</code>, <code>pnpm diagrams</code>, <code>pnpm check</code>, <code>pnpm test</code> and <code>pnpm build</code>. This page then shows the new counts.</li>
-  </ol>
 </Page>
