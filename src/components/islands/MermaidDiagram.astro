@@ -78,7 +78,9 @@ const suffixIds = (svg: string | null, suffix: string): string | null => {
     .replace(/url\(#([^)]+)\)/g, (m, id: string) => (has(id) ? `url(#${id}${suffix})` : m))
     .replace(/(xlink:href|href)="#([^"]+)"/g, (m, attr: string, id: string) => (has(id) ? `${attr}="#${id}${suffix}"` : m))
     .replace(/(aria-labelledby|aria-describedby)="([^"]+)"/g, (m, attr: string, list: string) =>
-      `${attr}="${list.split(/\s+/).map((id) => (has(id) ? `${id}${suffix}` : id)).join(' ')}"`);
+      `${attr}="${list.split(/\s+/).map((id) => (has(id) ? `${id}${suffix}` : id)).join(' ')}"`)
+    // Mermaid scopes its theme CSS with the root id (#mmd-... .node rect {...}); keep those selectors in step.
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, (block) => block.replace(/#([A-Za-z_][\w-]*)(?![\w-])/g, (m, id: string) => (has(id) ? `#${id}${suffix}` : m)));
 };
 // Pages inline many diagrams and Mermaid reuses ids such as actor3 in each, so every id gets the diagram id as a suffix.
 const light = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS)), `-${p.id}`);
