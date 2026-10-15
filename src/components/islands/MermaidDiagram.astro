@@ -200,6 +200,20 @@ const domId = `diagram-${p.id}`;
   const ZOOM_STEP = 1.25;
   let dialog: HTMLDialogElement | null = null;
 
+  /** Same rules as the build-time suffixIds: every id, url(#id), href="#id", aria id list and #id selector in <style>. */
+  const resuffix = (svg: string, suffix: string): string => {
+    const ids = new Set([...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    if (ids.size === 0) return svg;
+    const has = (id: string) => ids.has(id);
+    return svg
+      .replace(/\sid="([^"]+)"/g, (m, id: string) => ` id="${id}${suffix}"`)
+      .replace(/url\(#([^)]+)\)/g, (m, id: string) => (has(id) ? `url(#${id}${suffix})` : m))
+      .replace(/(xlink:href|href)="#([^"]+)"/g, (m, attr: string, id: string) => (has(id) ? `${attr}="#${id}${suffix}"` : m))
+      .replace(/(aria-labelledby|aria-describedby)="([^"]+)"/g, (m, attr: string, list: string) =>
+        `${attr}="${list.split(/\s+/).map((id) => (has(id) ? `${id}${suffix}` : id)).join(' ')}"`)
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, (block) => block.replace(/#([A-Za-z_][\w-]*)(?![\w-])/g, (m, id: string) => (has(id) ? `#${id}${suffix}` : m)));
+  };
+
   const ensureDialog = (): HTMLDialogElement => {
     if (dialog?.isConnected) return dialog;
     const d = document.createElement('dialog');
@@ -263,15 +277,9 @@ const domId = `diagram-${p.id}`;
     const titleEl = d.querySelector('.diagram-dialog__title');
     if (titleEl) titleEl.textContent = title;
     const body = d.querySelector('.diagram-dialog__body');
-    body?.replaceChildren(...[...canvas.querySelectorAll('.diagram')].map((n) => n.cloneNode(true)));
-    // Cloned SVG ids would duplicate the page's; suffix them so aria references stay unique.
-    d.querySelectorAll('.diagram-dialog__body [id]').forEach((n) => (n.id = `${n.id}-fs`));
-    d.querySelectorAll('.diagram-dialog__body [aria-labelledby], .diagram-dialog__body [aria-describedby]').forEach((n) => {
-      for (const a of ['aria-labelledby', 'aria-describedby']) {
-        const v = n.getAttribute(a);
-        if (v) n.setAttribute(a, v.split(/\s+/).map((x) => `${x}-fs`).join(' '));
-      }
-    });
+    // Clone through markup and run the same id rewrite the build uses, so the
+    // copy keeps its scoped theme CSS, markers and clip paths while its ids stay unique.
+    if (body) body.innerHTML = [...canvas.querySelectorAll('.diagram')].map((n) => resuffix(n.outerHTML, '-fs')).join('');
     applyZoom(d, 1);
     d.showModal();
     (d.querySelector('.diagram-dialog__body') as HTMLElement | null)?.focus();
