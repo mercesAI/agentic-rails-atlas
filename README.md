@@ -51,7 +51,7 @@ pnpm gates              # the fast set in one command
 
 ## Deploy
 
-The site is a static build in `dist/`, so any static host works. The default target is Cloudflare Pages: `wrangler.toml` points at `dist/`, and `public/_headers` sets the Content Security Policy (with hashes for inline scripts written at build time), `Referrer-Policy` and `Permissions-Policy`. Run `pnpm deploy:preview` to build and print the deploy command (`npx wrangler pages deploy dist --project-name agentic-rails-atlas`). The GitHub Actions workflow in `.github/workflows/gates.yml` runs the gates on every push without any secrets and deploys only on a `v*` tag, using `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets. No token is ever stored in the repository.
+The site is a static build in `dist/`, so any static host works. It runs on Cloudflare Workers with static assets: `wrangler.toml` points at `dist/`, and `public/_headers` sets the Content Security Policy (with hashes for inline scripts written at build time), `Referrer-Policy` and `Permissions-Policy`. Cloudflare's Git integration builds every push to `main` with `pnpm build` and deploys with `npx wrangler deploy`; no token is stored in the repository. Set `PUBLIC_SITE_URL` (default `https://atlas.merces.ai`) as a build variable if the address changes. The GitHub Actions workflow in `.github/workflows/gates.yml` runs the quality gates on every push without secrets.
 
 ## Optional data
 

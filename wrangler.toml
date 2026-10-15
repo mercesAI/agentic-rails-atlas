@@ -1,5 +1,11 @@
-# Cloudflare Pages: static output from `pnpm build` in dist/. No secrets here;
-# CI deploys with CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID from repository secrets.
+# Cloudflare Workers with static assets: serves the static `dist/` output from
+# `pnpm build`. No Worker code and no secrets; Cloudflare's Git integration
+# runs `pnpm build` and then `npx wrangler deploy` on every push to main.
+# `public/_headers` (CSP, caching) and `404.html` are honored by the assets host.
 name = "agentic-rails-atlas"
 compatibility_date = "2026-10-01"
-pages_build_output_dir = "dist"
+
+[assets]
+directory = "./dist"
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"
