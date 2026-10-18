@@ -24,7 +24,7 @@ See private/ATLAS_PROMPT.md 12.2. Content lives in `src/content/`; schemas in `s
 - `pnpm test` (Vitest), `pnpm e2e` (Playwright)
 - `pnpm verify:coverage`, `pnpm verify:links`, `pnpm verify:citations`, `pnpm verify:sources`
 - `pnpm lint:ste`, `pnpm lint:style`
-- `pnpm diagrams` (flow-to-mermaid + render), `pnpm data` (snapshot fetchers, never fail the build)
+- `pnpm diagrams` (flow-to-mermaid + render), `pnpm diagrams:check` (browser-free staleness check of the generated Mermaid sources and SVGs; also part of `pnpm check`), `pnpm data` (snapshot fetchers, never fail the build)
 
 ## Working rules for agents
 - Research agents write to `research/`; writer agents write to `src/content/`; verifier agents write to `verification/` and never edit content.
