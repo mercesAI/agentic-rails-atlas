@@ -5,9 +5,10 @@
  * citation drawer share one numbering.
  */
 import { getCollection, type CollectionEntry, type CollectionKey } from 'astro:content';
-import { getProtocols, getSourcesMap } from '../../../lib/content';
+import { getProtocols, getPublications, getSourcesMap } from '../../../lib/content';
 import { dedupe, setPageSources } from '../../../lib/citations';
-import type { Claim, CompareFile, ControlsMapFile } from '../../../lib/schemas';
+import type { Claim, CompareFile, ControlsMapFile, Resource } from '../../../lib/schemas';
+import { buildLibrary, type LibraryItem } from './library';
 import { buildProtocolInfos, type ProtocolInfo, type SourceNumbers } from './protocols';
 
 export async function safeAll<C extends CollectionKey>(name: C): Promise<CollectionEntry<C>[]> {
@@ -17,6 +18,12 @@ export async function safeAll<C extends CollectionKey>(name: C): Promise<Collect
     console.warn(`[crosscut] collection "${String(name)}" unavailable:`, (err as Error).message);
     return [];
   }
+}
+
+/** Every resource and publication as library entries, in list order (the page and /data/library.json share it). */
+export async function loadLibraryItems(): Promise<{ items: LibraryItem[]; resources: Resource[] }> {
+  const resources = (await safeAll('resources')).flatMap((e) => e.data.resources as Resource[]);
+  return { items: buildLibrary(resources, await getPublications()), resources };
 }
 
 export async function loadProtocolInfos(): Promise<ProtocolInfo[]> {

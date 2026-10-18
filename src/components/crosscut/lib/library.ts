@@ -6,6 +6,9 @@ import type { Publication, Resource } from '../../../lib/schemas';
 
 export type LibraryKind = 'resource' | 'publication';
 
+/** Entries shown at first and added by each "Show more"; the page renders this many on the server. */
+export const LIBRARY_PAGE = 60;
+
 export interface LibraryItem {
   id: string;
   kind: LibraryKind;

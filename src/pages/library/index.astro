@@ -7,17 +7,15 @@ import Page from '../../layouts/Page.astro';
 import { breadcrumbLd } from '../../lib/seo';
 import { SITE_NAME } from '../../lib/constants';
 import LibraryBrowser from '../../components/crosscut/LibraryBrowser';
-import { getPublications } from '../../lib/content';
-import { loadProtocolInfos, safeAll } from '../../components/crosscut/lib/load';
-import { buildLibrary } from '../../components/crosscut/lib/library';
+import { loadLibraryItems, loadProtocolInfos } from '../../components/crosscut/lib/load';
+import { libraryDataFile } from '../../components/crosscut/lib/data-files';
+import { LIBRARY_PAGE, facetsOf } from '../../components/crosscut/lib/library';
 import { BUILD_DATE } from '../../lib/constants';
-import type { Resource } from '../../lib/schemas';
 import '../../components/crosscut/crosscut.css';
 
 const protocols = await loadProtocolInfos();
-const resources = (await safeAll('resources')).flatMap((e) => e.data.resources as Resource[]);
-const publications = await getPublications();
-const items = buildLibrary(resources, publications);
+const { items, resources } = await loadLibraryItems();
+const data = await libraryDataFile();
 const protocolNames: Record<string, string> = Object.fromEntries(protocols.map((p) => [p.slug, p.short]));
 const nRes = items.filter((i) => i.kind === 'resource').length;
 const nPub = items.length - nRes;
@@ -38,5 +36,14 @@ const missing = protocols.filter((p) => !withResources.has(p.slug));
     {missing.length > 0 && <> Resource lists in progress: {missing.map((p) => p.short).join(', ')}.</>}
     {' '}Exports include only the entries that match the current filters.
   </p>
-  <LibraryBrowser client:visible items={items} protocolNames={protocolNames} accessed={BUILD_DATE} />
+  {/* The island carries the first page of entries; the whole list (a content-hashed /data/library.<hash>.json) loads on the first filter, search, "Show more" or export. */}
+  <LibraryBrowser
+    client:visible
+    initial={items.slice(0, LIBRARY_PAGE)}
+    total={items.length}
+    facets={facetsOf(items)}
+    dataUrl={data.path}
+    protocolNames={protocolNames}
+    accessed={BUILD_DATE}
+  />
 </Page>
