@@ -1,24 +1,30 @@
 /**
  * render-diagrams.ts (ARCHITECTURE.md §9, ATLAS_PROMPT.md 12.4). Renders every
  * Mermaid source in src/content/diagrams/*.mmd and src/generated/mermaid/*.mmd
- * to src/generated/diagrams/<id>.light.svg and <id>.dark.svg with Playwright
- * Chromium and the local Mermaid ESM build from node_modules (served by a tiny
- * local HTTP server; no network). Theme variables come from src/styles/tokens.css.
+ * with Playwright Chromium and the local Mermaid ESM build from node_modules
+ * (served by a tiny local HTTP server; no network). Theme variables come from
+ * src/styles/tokens.css. Each diagram is drawn once per theme and the two
+ * renders are folded into one theme-neutral src/generated/diagrams/<id>.svg
+ * whose theme colors are CSS variables (scripts/lib/neutral-svg.ts), defined
+ * for both themes in src/generated/diagrams/colors.css. When the two renders
+ * differ in structure the diagram keeps separate <id>.light.svg and
+ * <id>.dark.svg files, with a warning.
  *
  * Flags:
  *   --only <id>   render one diagram
  *   --force       ignore the content-hash cache
  *   --dir <path>  read .mmd inputs from this folder instead (fixtures, tests)
- *   --out <path>  write SVGs and index.json to this folder instead
- *   --check       recompute every hash and compare it with index.json and the
- *                 two SVG files; exit 1 when anything is stale or missing,
- *                 without a browser and without writing. `pnpm check` runs it,
- *                 since `pnpm diagrams` is not part of `pnpm build`.
+ *   --out <path>  write SVGs, colors.css and index.json to this folder instead
+ *   --check       recompute every hash and compare it with index.json, the SVG
+ *                 files and colors.css; exit 1 when anything is stale or
+ *                 missing, without a browser and without writing. `pnpm check`
+ *                 runs it, since `pnpm diagrams` is not part of `pnpm build`.
  *
  * Skips unchanged inputs: src/generated/diagrams/index.json stores a hash of
- * the source, the theme variables and the Mermaid version. On a Mermaid syntax
- * error it prints the failing diagram id and exits 1 (the site build is not
- * affected: MermaidDiagram falls back to the source text).
+ * the source, the theme variables, the render settings and the Mermaid and
+ * font versions. On a Mermaid syntax error it prints the failing diagram id
+ * and exits 1 (the site build is not affected: MermaidDiagram falls back to
+ * the source text).
  */
 import { createServer, type Server } from 'node:http';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
@@ -27,6 +33,7 @@ import type { AddressInfo } from 'node:net';
 import type { Browser } from 'playwright';
 import { launchBrowser } from './lib/browser.ts';
 import { ROOT, isMain, listDir, parseArgs, readJson, rel, sha256, writeJsonIfChanged, writeTextIfChanged } from './lib/io.ts';
+import { colorsCss, neutralizeSvg, type ColorPair } from './lib/neutral-svg.ts';
 
 // ---------------------------------------------------------------------------
 // Tokens to Mermaid theme variables
@@ -165,9 +172,12 @@ function pageHtml(): string {
   return `<!doctype html><html><head><meta charset="utf-8">${fontCss}</head><body><div id="work"></div>
 <script type="module">
 import mermaid from '/mermaid/mermaid.esm.min.mjs';
+// Font faces load lazily, on first use; measuring the first diagram with a fallback
+// font would give it a different layout from every later render, so load them all first.
+await Promise.all([...document.fonts].map((face) => face.load()));
+await document.fonts.ready;
 window.__renderMermaid = async (id, text, config) => {
   try {
-    await document.fonts.ready;
     mermaid.initialize(config);
     await mermaid.parse(text);
     const { svg } = await mermaid.render(id, text, document.getElementById('work'));
@@ -229,10 +239,14 @@ function startServer(root: string): Promise<{ server: Server; origin: string }> 
  * ranks, chosen by counting label overlaps over the nine machines in a
  * browser. The layout engine is dagre for every graph diagram: this
  * Mermaid build defaults to ELK, which ignores the spacing options and
- * stacked edge labels in the context diagrams.
+ * stacked edge labels in the context diagrams. handDrawnSeed pins the random
+ * control points roughjs puts on class, state and flowchart shapes even in the
+ * classic look; without it every render differs and the light and dark pass
+ * cannot be folded into one file.
  */
 const RENDER_CONFIG = {
   layout: 'dagre',
+  handDrawnSeed: 1,
   sequence: {
     useMaxWidth: true,
     mirrorActors: true,
@@ -254,12 +268,22 @@ const RENDER_CONFIG = {
   state: { useMaxWidth: true, wrappingWidth: 200, nodeSpacing: 90, rankSpacing: 110 },
   class: { useMaxWidth: true },
 };
+/** Bump when the written files change shape (including neutral-svg.ts output); every diagram is then stale. */
+const OUTPUT_FORMAT = 'neutral-svg-2';
+/** The stylesheet with the theme color variables, next to the SVGs. */
+export const COLORS_FILE = 'colors.css';
+const OUTPUT_SUFFIXES = ['.svg', '.light.svg', '.dark.svg'] as const;
 
 export interface DiagramIndexEntry {
   hash: string;
   source: string;
-  light: string;
-  dark: string;
+  /** The theme-neutral SVG (theme colors as CSS variables); the usual case. */
+  svg?: string;
+  /** Separate renders, kept only when the two themes did not share a skeleton. */
+  light?: string;
+  dark?: string;
+  /** Color pairs the neutral SVG refers to; colors.css defines a variable for each. */
+  colors?: ColorPair[];
 }
 export interface DiagramIndex {
   mermaidVersion: string;
@@ -278,6 +302,8 @@ export interface RenderResult {
   rendered: string[];
   skipped: string[];
   removed: string[];
+  /** Rendered diagrams kept as a light and a dark file because the two renders differed in structure. */
+  split: string[];
   failures: { id: string; source: string; message: string }[];
   total: number;
 }
@@ -304,13 +330,36 @@ export interface DiagramPlan {
   diagrams: Record<string, DiagramIndexEntry>;
   /** Hash of each input as index.json records it (only the --only id when set). */
   hashes: Map<string, string>;
-  /** Inputs whose committed hash matches and whose two SVG files exist. */
+  /** Inputs whose committed hash matches and whose SVG file(s) exist. */
   fresh: string[];
   /** Inputs that a render would draw again, with the reason. */
   stale: StaleDiagram[];
   /** Index entries whose input is gone; a full render drops them and their SVG files. */
   orphans: string[];
+  /** Why the committed colors.css does not match the index entries a render keeps; undefined when it does. */
+  colorsReason?: string;
   failures: RenderResult['failures'];
+}
+
+/** The files an index entry stands for, with the label the staleness message uses. */
+function expectedFiles(id: string, entry: DiagramIndexEntry | undefined): { label: string; file: string }[] {
+  if (entry?.svg) return [{ label: '', file: entry.svg }];
+  return [
+    { label: 'light', file: entry?.light ?? `${id}.light.svg` },
+    { label: 'dark', file: entry?.dark ?? `${id}.dark.svg` },
+  ];
+}
+
+function removeOutputs(outDir: string, id: string, suffixes: readonly string[]): void {
+  for (const suffix of suffixes) {
+    const p = join(outDir, `${id}${suffix}`);
+    if (existsSync(p)) rmSync(p);
+  }
+}
+
+/** colors.css as the given index entries imply it. */
+function expectedColorsCss(entries: Record<string, DiagramIndexEntry>): string {
+  return colorsCss(Object.values(entries).flatMap((e) => e.colors ?? []));
 }
 
 export function planDiagrams(options: RenderOptions = {}): DiagramPlan {
@@ -346,7 +395,7 @@ export function planDiagrams(options: RenderOptions = {}): DiagramPlan {
     prev = undefined; // a corrupt index (merge conflict) is an empty cache, not a crash
   }
   const diagrams: Record<string, DiagramIndexEntry> = { ...(prev?.diagrams ?? {}) };
-  const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + mermaidVersion + fontVersions.join(','));
+  const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + OUTPUT_FORMAT + mermaidVersion + fontVersions.join(','));
 
   const hashes = new Map<string, string>();
   const fresh: string[] = [];
@@ -356,19 +405,29 @@ export function planDiagrams(options: RenderOptions = {}): DiagramPlan {
     const hash = sha256(input.text + themeHash);
     hashes.set(id, hash);
     const entry = diagrams[id];
-    const missing = (['light', 'dark'] as const).filter((mode) => !existsSync(join(outDir, `${id}.${mode}.svg`)));
+    const missing = expectedFiles(id, entry)
+      .filter((f) => !existsSync(join(outDir, f.file)))
+      .map((f) => f.label);
     const reason = !entry
       ? 'not in index.json'
       : entry.hash !== hash
         ? 'source, theme, render config or Mermaid version changed since the last render'
         : missing.length
-          ? `${missing.join(' and ')} SVG missing`
+          ? `${missing.join(' and ')} SVG missing`.trim()
           : undefined;
     if (reason) stale.push({ id, source: rel(root, input.path), reason });
     else fresh.push(id);
   }
   const orphans = options.only ? [] : Object.keys(diagrams).filter((id) => !inputs.has(id)).sort();
-  return { root, outDir, indexPath, inputs, vars, mermaidVersion, diagrams, hashes, fresh, stale, orphans, failures };
+  // A render rewrites colors.css from the entries it keeps; the check expects the committed file to match them.
+  const kept = Object.fromEntries(Object.entries(diagrams).filter(([id]) => !orphans.includes(id)));
+  const colorsPath = join(outDir, COLORS_FILE);
+  const colorsReason = !existsSync(colorsPath)
+    ? 'missing; a render writes it'
+    : readFileSync(colorsPath, 'utf8') !== expectedColorsCss(kept)
+      ? 'does not match the color pairs in index.json'
+      : undefined;
+  return { root, outDir, indexPath, inputs, vars, mermaidVersion, diagrams, hashes, fresh, stale, orphans, colorsReason, failures };
 }
 
 export interface CheckResult {
@@ -380,8 +439,8 @@ export interface CheckResult {
 
 /**
  * Staleness check for the committed renders (`--check`): recomputes every hash
- * as a render would and compares it with index.json and the two SVG files.
- * Never launches a browser and never writes.
+ * as a render would and compares it with index.json, the SVG files and
+ * colors.css. Never launches a browser and never writes.
  */
 export function checkDiagrams(options: RenderOptions = {}): CheckResult {
   const plan = planDiagrams(options);
@@ -389,6 +448,7 @@ export function checkDiagrams(options: RenderOptions = {}): CheckResult {
   for (const id of plan.orphans) {
     stale.push({ id, source: plan.diagrams[id]?.source ?? '', reason: 'input removed; a render drops the index entry and the SVG files' });
   }
+  if (plan.colorsReason) stale.push({ id: COLORS_FILE, source: rel(plan.root, join(plan.outDir, COLORS_FILE)), reason: plan.colorsReason });
   return { fresh: plan.fresh, stale, failures: plan.failures, total: plan.inputs.size };
 }
 
@@ -398,16 +458,17 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
     const failures: RenderResult['failures'] = [
       { id: '', source: options.inputDirs.join(', '), message: '--dir needs --out: refusing to write fixture renders into src/generated/diagrams' },
     ];
-    return { rendered: [], skipped: [], removed: [], failures, total: 0 };
+    return { rendered: [], skipped: [], removed: [], split: [], failures, total: 0 };
   }
   const plan = planDiagrams(options);
   const { root, outDir, indexPath, inputs, vars, mermaidVersion, diagrams, hashes, failures } = plan;
-  if (options.only && !inputs.has(options.only)) return { rendered: [], skipped: [], removed: [], failures, total: inputs.size };
+  if (options.only && !inputs.has(options.only)) return { rendered: [], skipped: [], removed: [], split: [], failures, total: inputs.size };
 
   const todo = options.force ? [...hashes.keys()] : plan.stale.map((s) => s.id);
   const skipped = options.force ? [] : [...plan.fresh];
 
   const rendered: string[] = [];
+  const split: string[] = [];
   if (todo.length) {
     const { server, origin } = await startServer(root);
     let browser: Browser | undefined;
@@ -416,22 +477,26 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
       const page = await browser.newPage();
       const consoleErrors: string[] = [];
       page.on('pageerror', (e) => consoleErrors.push(e.message));
-      await page.goto(origin, { waitUntil: 'load' });
-      await page.waitForFunction(() => (window as unknown as { __ready?: boolean }).__ready === true, null, { timeout: 30_000 });
-      for (const id of todo) {
-        const input = inputs.get(id)!;
-        const svgs: Partial<Record<'light' | 'dark', string>> = {};
-        let failed = false;
-        for (const mode of ['light', 'dark'] as const) {
-          const config = {
-            startOnLoad: false,
-            securityLevel: 'strict',
-            theme: 'base',
-            fontFamily: vars[mode].fontFamily,
-            themeVariables: vars[mode],
-            ...RENDER_CONFIG,
-          };
-          const domId = `mmd-${id}-${mode}`;
+      const svgs = new Map<string, Partial<Record<'light' | 'dark', string>>>();
+      const failed = new Set<string>();
+      // One pass per theme, each on a fresh page load and in the same order: Mermaid numbers actors,
+      // markers and class ids with counters that only reset with the page, and the two renders must
+      // share every id for neutralizeSvg to fold them into one file.
+      for (const mode of ['light', 'dark'] as const) {
+        if (mode === 'light') await page.goto(origin, { waitUntil: 'load' });
+        else await page.reload({ waitUntil: 'load' });
+        await page.waitForFunction(() => (window as unknown as { __ready?: boolean }).__ready === true, null, { timeout: 30_000 });
+        const config = {
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: 'base',
+          fontFamily: vars[mode].fontFamily,
+          themeVariables: vars[mode],
+          ...RENDER_CONFIG,
+        };
+        for (const id of todo) {
+          if (failed.has(id)) continue;
+          const input = inputs.get(id)!;
           const r = await page.evaluate(
             async ({ domId, text, config }) =>
               (window as unknown as { __renderMermaid: (i: string, t: string, c: unknown) => Promise<{ svg?: string; error?: string }> }).__renderMermaid(
@@ -439,27 +504,36 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
                 text,
                 config,
               ),
-            { domId, text: input.text, config },
+            { domId: `mmd-${id}`, text: input.text, config },
           );
           if (r.error || !r.svg) {
             failures.push({ id, source: rel(root, input.path), message: (r.error ?? 'empty SVG').split('\n').slice(0, 4).join(' | ') });
-            failed = true;
-            break;
+            failed.add(id);
+            continue;
           }
-          svgs[mode] = r.svg;
+          svgs.set(id, { ...svgs.get(id), [mode]: r.svg });
         }
-        if (failed) continue;
-        writeTextIfChanged(join(outDir, `${id}.light.svg`), `${svgs.light}\n`);
-        writeTextIfChanged(join(outDir, `${id}.dark.svg`), `${svgs.dark}\n`);
-        diagrams[id] = {
-          hash: hashes.get(id)!,
-          source: rel(root, input.path),
-          light: `${id}.light.svg`,
-          dark: `${id}.dark.svg`,
-        };
-        rendered.push(id);
       }
       if (consoleErrors.length) console.warn(`warning: page errors: ${consoleErrors.join(' | ')}`);
+      for (const id of todo) {
+        const pair = svgs.get(id);
+        if (!pair?.light || !pair.dark) continue;
+        const source = rel(root, inputs.get(id)!.path);
+        const neutral = neutralizeSvg(pair.light, pair.dark);
+        if ('svg' in neutral) {
+          writeTextIfChanged(join(outDir, `${id}.svg`), `${neutral.svg}\n`);
+          removeOutputs(outDir, id, ['.light.svg', '.dark.svg']);
+          diagrams[id] = { hash: hashes.get(id)!, source, svg: `${id}.svg`, colors: neutral.colors };
+        } else {
+          console.warn(`warning: diagram ${id}: ${neutral.error}; keeping a light and a dark SVG`);
+          writeTextIfChanged(join(outDir, `${id}.light.svg`), `${pair.light}\n`);
+          writeTextIfChanged(join(outDir, `${id}.dark.svg`), `${pair.dark}\n`);
+          removeOutputs(outDir, id, ['.svg']);
+          diagrams[id] = { hash: hashes.get(id)!, source, light: `${id}.light.svg`, dark: `${id}.dark.svg` };
+          split.push(id);
+        }
+        rendered.push(id);
+      }
     } finally {
       await browser?.close();
       server.close();
@@ -470,15 +544,13 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
   const removed: string[] = [];
   for (const id of plan.orphans) {
     delete diagrams[id];
-    for (const v of ['light', 'dark']) {
-      const p = join(outDir, `${id}.${v}.svg`);
-      if (existsSync(p)) rmSync(p);
-    }
+    removeOutputs(outDir, id, OUTPUT_SUFFIXES);
     removed.push(id);
   }
   const sorted = Object.fromEntries(Object.entries(diagrams).sort(([a], [b]) => a.localeCompare(b)));
   writeJsonIfChanged(indexPath, { mermaidVersion, diagrams: sorted } satisfies DiagramIndex);
-  return { rendered, skipped, removed, failures, total: inputs.size };
+  writeTextIfChanged(join(outDir, COLORS_FILE), expectedColorsCss(sorted));
+  return { rendered, skipped, removed, split, failures, total: inputs.size };
 }
 
 if (isMain(import.meta.url)) {
@@ -515,7 +587,8 @@ if (isMain(import.meta.url)) {
     .then((r) => {
       printFailures(r.failures);
       console.log(
-        `render-diagrams: ${r.total} inputs; ${r.rendered.length} rendered, ${r.skipped.length} unchanged, ${r.removed.length} removed, ${r.failures.length} failed`,
+        `render-diagrams: ${r.total} inputs; ${r.rendered.length} rendered, ${r.skipped.length} unchanged, ${r.removed.length} removed, ${r.failures.length} failed` +
+          (r.split.length ? `; ${r.split.length} kept as a light and a dark file (${r.split.join(', ')})` : ''),
       );
       process.exit(r.failures.length ? 1 : 0);
     })

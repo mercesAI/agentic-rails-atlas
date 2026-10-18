@@ -1,11 +1,13 @@
 ---
 /**
  * Mermaid diagram rendered at build time (ARCHITECTURE.md Section 6).
- * Inlines both theme variants from src/generated/diagrams/<id>.{light,dark}.svg;
- * CSS shows the one matching the theme. Caption, a "text alternative"
- * disclosure and a "source of truth" link. When the SVG is missing, shows the
- * .mmd source in a <pre> with a "not rendered" note; never fails the build.
- * Named an island for the contract; it ships no JavaScript.
+ * Inlines the theme-neutral src/generated/diagrams/<id>.svg, whose theme
+ * colors are CSS variables defined for both themes in colors.css. A diagram
+ * the renderer could not fold keeps <id>.light.svg and <id>.dark.svg; both
+ * are inlined and CSS shows the one matching the theme. Caption, a "text
+ * alternative" disclosure and a "source of truth" link. When the SVG is
+ * missing, shows the .mmd source in a <pre> with a "not rendered" note; never
+ * fails the build. Named an island for the contract; it ships no JavaScript.
  */
 import { diagramMetaById } from '../protocol/lib/load';
 import { suffixIds as suffixSvgIds } from '../../lib/diagrams/suffix-ids';
@@ -66,16 +68,22 @@ const natural = (svg: string | null): string | null => {
     return tag
       .replace(/\swidth="[^"]*"/, '')
       .replace(/\sheight="[^"]*"/, '')
-      .replace(/\sstyle="[^"]*"/, '')
+      // Mermaid's max-width would cap the drawing; any other declaration (theme color variables) stays.
+      .replace(/\sstyle="([^"]*)"/, (_m, css: string) => {
+        const rest = css.replace(/max-width:[^;]*;?/g, '').trim();
+        return rest ? ` style="${rest}"` : '';
+      })
       .replace(/^<svg\b/, `<svg width="${w}" height="${h}" data-natural-width="${w}"`);
   });
 };
 /** Suffixes every id in an inlined SVG so diagrams never collide on one page (shared with the full-screen copy). */
 const suffixIds = (svg: string | null, suffix: string): string | null => (svg ? suffixSvgIds(svg, suffix) : svg);
 // Pages inline many diagrams and Mermaid reuses ids such as actor3 in each, so every id gets the diagram id as a suffix.
-const light = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS)), `-${p.id}`);
-const dark = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS)), `-${p.id}-dark`);
-const rendered = Boolean(light || dark);
+const neutral = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.svg`, SVGS)), `-${p.id}`);
+const light = neutral ? null : suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS)), `-${p.id}`);
+const dark = neutral ? null : suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS)), `-${p.id}-dark`);
+const single = neutral ?? light ?? dark;
+const rendered = Boolean(single);
 const mmd = rendered
   ? null
   : (await load(`/src/generated/mermaid/${p.id}.mmd`, MMD)) ?? (await load(`/src/content/diagrams/${p.id}.mmd`, MMD));
@@ -106,7 +114,7 @@ const domId = `diagram-${p.id}`;
                 <div class="diagram" data-theme-variant="dark" set:html={dark} />
               </>
             ) : (
-              <div class="diagram" set:html={light ?? dark} />
+              <div class="diagram" set:html={single} />
             )}
           </template>
           <p class="diagram-figure__loading">Diagram loads when it scrolls into view.</p>
@@ -118,7 +126,7 @@ const domId = `diagram-${p.id}`;
           <div class="diagram" data-theme-variant="dark" set:html={dark} />
         </>
       ) : (
-        <div class="diagram" set:html={light ?? dark} />
+        <div class="diagram" set:html={single} />
       )}
     </div>
   ) : (
