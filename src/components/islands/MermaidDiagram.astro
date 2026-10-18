@@ -1,16 +1,22 @@
 ---
 /**
  * Mermaid diagram rendered at build time (ARCHITECTURE.md Section 6).
- * Inlines the theme-neutral src/generated/diagrams/<id>.svg, whose theme
- * colors are CSS variables defined for both themes in colors.css. A diagram
- * the renderer could not fold keeps <id>.light.svg and <id>.dark.svg; both
- * are inlined and CSS shows the one matching the theme. Caption, a "text
- * alternative" disclosure and a "source of truth" link. When the SVG is
+ * The drawing is the theme-neutral src/generated/diagrams/<id>.svg, whose
+ * theme colors are CSS variables defined for both themes in colors.css. A lazy
+ * figure (the default) does not carry it: the build emits the file under
+ * /_astro/ with a content hash and the figure script fetches it when the
+ * figure nears the viewport, or earlier in idle time, and inlines it so the
+ * page's color variables apply. Until then a placeholder reserves the drawn
+ * size. A figure with lazy={false} inlines its drawing. A diagram the renderer
+ * could not fold keeps <id>.light.svg and <id>.dark.svg, both inlined (in a
+ * template when lazy), and CSS shows the one matching the theme. Caption, a
+ * "text alternative" disclosure and a "source of truth" link. When the SVG is
  * missing, shows the .mmd source in a <pre> with a "not rendered" note; never
- * fails the build. Named an island for the contract; it ships no JavaScript.
+ * fails the build. Named an island for the contract; it is not hydrated.
  */
 import { diagramMetaById } from '../protocol/lib/load';
 import { suffixIds as suffixSvgIds } from '../../lib/diagrams/suffix-ids';
+import { naturalSize, naturalSvg } from '../../lib/diagrams/natural';
 
 export interface Props {
   id: string;
@@ -28,14 +34,21 @@ export interface Props {
   /** Heading level for the title. */
   level?: 3 | 4;
   /**
-   * Keep the SVG in an inert <template> until the figure nears the viewport
-   * (default true). Mermaid SVGs hold thousands of nodes; this keeps the live
-   * DOM small. Printing and no-JS fall back to the inline SVG.
+   * Load the drawing when the figure nears the viewport (default true): it is
+   * fetched as a file and inlined then, which keeps the page small and the
+   * live DOM free of thousands of SVG nodes. Printing uses the drawings loaded
+   * by then (they are fetched in idle time); without JavaScript the figure
+   * shows its text alternative.
    */
   lazy?: boolean;
 }
 
 const SVGS = import.meta.glob<string>('/src/generated/diagrams/*.svg', { query: '?raw', import: 'default' });
+/**
+ * The same files as hashed build assets (/_astro/<id>.<hash>.svg), for the figures that load their drawing.
+ * no-inline: Vite would turn a file under 4 KB into a data: URL, which the site's connect-src 'self' blocks.
+ */
+const SVG_URLS = import.meta.glob<string>('/src/generated/diagrams/*.svg', { query: '?url&no-inline', import: 'default' });
 const MMD = {
   ...import.meta.glob<string>('/src/generated/mermaid/*.mmd', { query: '?raw', import: 'default' }),
   ...import.meta.glob<string>('/src/content/diagrams/*.mmd', { query: '?raw', import: 'default' }),
@@ -55,42 +68,21 @@ const load = async (key: string, table: Record<string, () => Promise<string>>) =
   return fn ? await fn().catch(() => null) : null;
 };
 /**
- * Pins the SVG to its natural size (from the viewBox) so text keeps the size it
- * was drawn at; the canvas scrolls sideways instead of shrinking the diagram.
+ * Natural size (naturalSvg) and ids suffixed with the diagram id: pages inline many diagrams and Mermaid
+ * reuses ids such as actor3 in each. The figure script applies the same two steps to a loaded file.
  */
-const natural = (svg: string | null): string | null => {
-  if (!svg) return svg;
-  return svg.replace(/<svg\b[^>]*>/, (tag) => {
-    const vb = /viewBox="\s*[-\d.]+[ ,]+[-\d.]+[ ,]+([\d.]+)[ ,]+([\d.]+)\s*"/.exec(tag);
-    if (!vb) return tag;
-    const w = Math.round(Number(vb[1]));
-    const h = Math.round(Number(vb[2]));
-    return tag
-      .replace(/\swidth="[^"]*"/, '')
-      .replace(/\sheight="[^"]*"/, '')
-      // Mermaid's max-width would cap the drawing; any other declaration (theme color variables) stays.
-      .replace(/\sstyle="([^"]*)"/, (_m, css: string) => {
-        const rest = css.replace(/max-width:[^;]*;?/g, '').trim();
-        return rest ? ` style="${rest}"` : '';
-      })
-      .replace(/^<svg\b/, `<svg width="${w}" height="${h}" data-natural-width="${w}"`);
-  });
-};
-/** Suffixes every id in an inlined SVG so diagrams never collide on one page (shared with the full-screen copy). */
-const suffixIds = (svg: string | null, suffix: string): string | null => (svg ? suffixSvgIds(svg, suffix) : svg);
-// Pages inline many diagrams and Mermaid reuses ids such as actor3 in each, so every id gets the diagram id as a suffix.
-const neutral = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.svg`, SVGS)), `-${p.id}`);
-const light = neutral ? null : suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS)), `-${p.id}`);
-const dark = neutral ? null : suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS)), `-${p.id}-dark`);
+const prepare = (svg: string | null, suffix: string): string | null => (svg ? suffixSvgIds(naturalSvg(svg), suffix) : null);
+const neutralRaw = await load(`/src/generated/diagrams/${p.id}.svg`, SVGS);
+/** URL of the drawing when the figure loads it as a file: lazy figures with a theme-neutral drawing. */
+const src = lazy && neutralRaw ? await load(`/src/generated/diagrams/${p.id}.svg`, SVG_URLS) : null;
+const neutral = src ? null : prepare(neutralRaw, `-${p.id}`);
+const light = neutralRaw ? null : prepare(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS), `-${p.id}`);
+const dark = neutralRaw ? null : prepare(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS), `-${p.id}-dark`);
 const single = neutral ?? light ?? dark;
-const rendered = Boolean(single);
-/** Natural size from the width and height that natural() wrote; a lazy placeholder reserves it so the reveal never moves the page. */
-const size = (() => {
-  const tag = single ? /<svg\b[^>]*>/.exec(single)?.[0] : undefined;
-  const w = Number(tag && /\swidth="(\d+)"/.exec(tag)?.[1]);
-  const h = Number(tag && /\sheight="(\d+)"/.exec(tag)?.[1]);
-  return w > 0 && h > 0 ? { w, h } : null;
-})();
+const rendered = Boolean(src || single);
+/** The drawn size a lazy placeholder reserves, so revealing the drawing never moves the page. */
+const size = naturalSize(src && neutralRaw ? naturalSvg(neutralRaw) : single ?? '');
+const placeholderStyle = size ? `--dw:${size.w};--dh:${size.h}` : undefined;
 const mmd = rendered
   ? null
   : (await load(`/src/generated/mermaid/${p.id}.mmd`, MMD)) ?? (await load(`/src/content/diagrams/${p.id}.mmd`, MMD));
@@ -111,8 +103,16 @@ const domId = `diagram-${p.id}`;
       aria-label={`${title} (diagram preview; use View full screen to read it)`}
       aria-describedby={caption ? `${domId}-cap` : undefined}
       data-lazy-diagram={lazy ? '' : undefined}
+      data-diagram-src={src ?? undefined}
     >
-      {lazy ? (
+      {src ? (
+        <>
+          <div class="diagram-figure__placeholder" style={placeholderStyle}>
+            <p class="diagram-figure__loading" role="status">Diagram loads when it scrolls into view.</p>
+          </div>
+          <noscript><p class="diagram-figure__note">Turn on JavaScript to see this diagram, or read the text alternative below.</p></noscript>
+        </>
+      ) : lazy ? (
         <>
           <template>
             {light && dark ? (
@@ -124,8 +124,8 @@ const domId = `diagram-${p.id}`;
               <div class="diagram" set:html={single} />
             )}
           </template>
-          <div class="diagram-figure__placeholder" style={size ? `--dw:${size.w};--dh:${size.h}` : undefined}>
-            <p class="diagram-figure__loading">Diagram loads when it scrolls into view.</p>
+          <div class="diagram-figure__placeholder" style={placeholderStyle}>
+            <p class="diagram-figure__loading" role="status">Diagram loads when it scrolls into view.</p>
           </div>
           <noscript><p class="diagram-figure__note">Turn on JavaScript to see this diagram, or read the text alternative below.</p></noscript>
         </>
@@ -174,10 +174,12 @@ const domId = `diagram-${p.id}`;
 </figure>
 
 <script>
+  import { naturalSvg } from '../../lib/diagrams/natural';
   import { suffixIds } from '../../lib/diagrams/suffix-ids';
   import { getItem, setItem } from '../../lib/storage';
-  // Swaps each lazy diagram's <template> into the live DOM near the viewport, and all of them before printing.
-  // A diagram wider than its column is shown fitted to the column as a preview (full screen is the reading
+  // Lazy diagrams: near the viewport the figure fetches its drawing (data-diagram-src) and inlines it, or swaps in
+  // its <template> (two-file diagrams). Drawings are also fetched in idle time so printing and full screen have
+  // them. A diagram wider than its column is shown fitted to the column as a preview (full screen is the reading
   // view); "Actual size" switches every canvas on the page to natural size with sideways scrolling.
   const SIZE_KEY = 'diagram-size';
   const prefersActual = () => getItem(SIZE_KEY) === 'actual';
@@ -201,14 +203,77 @@ const domId = `diagram-${p.id}`;
     updateFit(canvas);
     ro?.observe(canvas);
   };
-  const reveal = (el: Element) => {
-    const tpl = el.querySelector(':scope > template');
-    if (!(tpl instanceof HTMLTemplateElement)) return;
-    el.replaceChildren(tpl.content.cloneNode(true));
+  /** Drawings by URL once fetched (kept across page swaps), and the fetches in flight. */
+  const loaded = new Map<string, string>();
+  const loading = new Map<string, Promise<string | null>>();
+  const fetchSvg = (url: string): Promise<string | null> => {
+    let pending = loading.get(url);
+    if (!pending) {
+      pending = fetch(url)
+        .then((res) => (res.ok ? res.text() : null))
+        .catch(() => null)
+        .then((text) => {
+          // A failed fetch is forgotten, so the next attempt (back online) asks again.
+          if (text) loaded.set(url, text);
+          else loading.delete(url);
+          return text;
+        });
+      loading.set(url, pending);
+    }
+    return pending;
+  };
+  /** Canvases whose drawing failed to load; retried when the browser comes back online. */
+  const failed = new Set<Element>();
+  const settle = (el: Element, content: Node) => {
+    el.replaceChildren(content);
     el.removeAttribute('data-lazy-diagram');
+    failed.delete(el);
     watch(el);
   };
-  const revealAll = () => document.querySelectorAll('[data-lazy-diagram]').forEach(reveal);
+  const place = (el: Element, text: string) => {
+    const id = el.closest('.diagram-figure')?.getAttribute('data-diagram') ?? '';
+    const div = document.createElement('div');
+    div.className = 'diagram';
+    // Same steps as the build applies to an inlined drawing: natural size, then ids suffixed with the diagram id.
+    div.innerHTML = suffixIds(naturalSvg(text), `-${id}`);
+    settle(el, div);
+  };
+  /**
+   * Shows the drawing of a lazy canvas; resolves once it is in place or has failed to load. A drawing
+   * already fetched is placed synchronously (no await is reached), which printing relies on.
+   */
+  const reveal = async (el: Element): Promise<void> => {
+    if (!el.hasAttribute('data-lazy-diagram')) return;
+    const tpl = el.querySelector(':scope > template');
+    if (tpl instanceof HTMLTemplateElement) return settle(el, tpl.content.cloneNode(true));
+    const src = el.getAttribute('data-diagram-src');
+    if (!src) return;
+    const text = loaded.get(src) ?? (await fetchSvg(src));
+    if (!el.isConnected || !el.hasAttribute('data-lazy-diagram')) return;
+    if (text) return place(el, text);
+    failed.add(el);
+    const note = el.querySelector('.diagram-figure__loading');
+    if (note) note.textContent = 'This diagram could not load. The text alternative below describes it.';
+  };
+  const revealAll = () => document.querySelectorAll('[data-lazy-diagram]').forEach((el) => void reveal(el));
+  window.addEventListener('online', () => [...failed].forEach((el) => (el.isConnected ? void reveal(el) : failed.delete(el))));
+  const idle = (fn: () => void): void => {
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(fn, { timeout: 3000 });
+    else setTimeout(fn, 300);
+  };
+  /**
+   * Fetches every drawing of the page in idle time, two at a time, so printing (which cannot wait for a fetch)
+   * and full screen find them ready. The service worker precaches the same files, so this costs little.
+   */
+  const prefetch = () => {
+    const urls = [...new Set([...document.querySelectorAll('[data-diagram-src]')].map((el) => el.getAttribute('data-diagram-src') ?? ''))].filter(Boolean);
+    const next = () => {
+      const url = urls.shift();
+      if (url) void fetchSvg(url).then(() => idle(next));
+    };
+    idle(next);
+    idle(next);
+  };
   let io: IntersectionObserver | undefined;
   /** Lazy placeholders reserve the natural width instead of the fitted one when the reader prefers actual size. */
   const markLazySize = () => document.querySelectorAll('[data-lazy-diagram]').forEach((c) => c.toggleAttribute('data-actual-size', prefersActual()));
@@ -224,7 +289,7 @@ const domId = `diagram-${p.id}`;
       (entries) => {
         for (const e of entries) {
           if (e.isIntersecting) {
-            reveal(e.target);
+            void reveal(e.target);
             io?.unobserve(e.target);
           }
         }
@@ -232,9 +297,25 @@ const domId = `diagram-${p.id}`;
       { rootMargin: '800px 0px' },
     );
     items.forEach((el) => io?.observe(el));
+    prefetch();
   });
-  window.addEventListener('beforeprint', revealAll);
+  // Printing cannot wait for a fetch: every drawing fetched by now is placed, and a figure whose drawing is still
+  // missing prints its text alternative, opened for the print (browsers do not print a closed disclosure).
+  const openedForPrint: HTMLDetailsElement[] = [];
+  window.addEventListener('beforeprint', () => {
+    revealAll();
+    document.querySelectorAll('.diagram-figure__canvas[data-lazy-diagram]').forEach((canvas) => {
+      const alt = canvas.closest('.diagram-figure')?.querySelector<HTMLDetailsElement>('details.diagram-figure__alt');
+      if (alt && !alt.open) {
+        alt.open = true;
+        openedForPrint.push(alt);
+      }
+    });
+  });
+  window.addEventListener('afterprint', () => openedForPrint.splice(0).forEach((d) => (d.open = false)));
 
+  /** The latest full-screen request; a request still waiting for its drawing opens only if it is the latest. */
+  let openTicket = 0;
   const ZOOM_MIN = 0.25;
   const ZOOM_MAX = 3;
   const ZOOM_STEP = 1.25;
@@ -305,7 +386,7 @@ const domId = `diagram-${p.id}`;
     applyZoom(d, Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next)));
   };
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const target = e.target as Element | null;
     const sizeBtn = target?.closest<HTMLElement>('[data-diagram-size]');
     if (sizeBtn) {
@@ -321,7 +402,27 @@ const domId = `diagram-${p.id}`;
     const figure = (btn ?? preview)?.closest('.diagram-figure');
     const canvas = figure?.querySelector('.diagram-figure__canvas');
     if (!figure || !canvas) return;
-    reveal(canvas);
+    // The drawing may still be loading. Meanwhile the trigger is busy, and a newer click or any key press cancels
+    // the request, so a slow drawing never takes over a dialog opened since or pops up after the reader moved on.
+    // A figure whose drawing failed keeps its note (a status region) and opens nothing.
+    const ticket = ++openTicket;
+    const trigger = btn ?? preview;
+    const waiting = canvas.hasAttribute('data-lazy-diagram');
+    const cancel = () => {
+      if (openTicket === ticket) openTicket += 1;
+    };
+    if (waiting) {
+      trigger?.setAttribute('aria-busy', 'true');
+      document.addEventListener('pointerdown', cancel, { capture: true, once: true });
+      document.addEventListener('keydown', cancel, { capture: true, once: true });
+    }
+    await reveal(canvas);
+    if (waiting) {
+      trigger?.removeAttribute('aria-busy');
+      document.removeEventListener('pointerdown', cancel, { capture: true });
+      document.removeEventListener('keydown', cancel, { capture: true });
+    }
+    if (ticket !== openTicket || dialog?.open || !canvas.querySelector('.diagram')) return;
     const d = ensureDialog();
     const title = figure.querySelector('.diagram-figure__title')?.textContent ?? 'Diagram';
     const titleEl = d.querySelector('.diagram-dialog__title');
