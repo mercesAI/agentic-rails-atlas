@@ -16,4 +16,13 @@ describe('suffixIds', () => {
   it('leaves an svg without ids untouched', () => {
     expect(suffixIds('<svg><rect/></svg>', '-x')).toBe('<svg><rect/></svg>');
   });
+  it('keeps the id-ending and exact-id attribute selectors Mermaid uses for markers in step', () => {
+    const svg =
+      '<svg id="m"><style>[id$="-arrowhead"] path{fill:red;}[id=\'m-dot\']{fill:blue;}[id^="m-"]{opacity:1;}[id="other"]{fill:green;}</style>' +
+      '<marker id="m-arrowhead"><path/></marker><marker id="m-dot"/></svg>';
+    expect(suffixIds(svg, '-x')).toBe(
+      '<svg id="m-x"><style>[id$="-arrowhead-x"] path{fill:red;}[id=\'m-dot-x\']{fill:blue;}[id^="m-"]{opacity:1;}[id="other"]{fill:green;}</style>' +
+        '<marker id="m-arrowhead-x"><path/></marker><marker id="m-dot-x"/></svg>',
+    );
+  });
 });

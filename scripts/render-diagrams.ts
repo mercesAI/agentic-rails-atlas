@@ -34,6 +34,9 @@ import type { Browser } from 'playwright';
 import { launchBrowser } from './lib/browser.ts';
 import { ROOT, isMain, listDir, parseArgs, readJson, rel, sha256, writeJsonIfChanged, writeTextIfChanged } from './lib/io.ts';
 import { colorsCss, neutralizeSvg, type ColorPair } from './lib/neutral-svg.ts';
+import { PAINT_PROPS, collectPaint, matchSelectors, paintDiff, planStyle, pruneStyle } from './lib/svg-style.ts';
+import { naturalSvg } from '../src/lib/diagrams/natural.ts';
+import { suffixIds } from '../src/lib/diagrams/suffix-ids.ts';
 
 // ---------------------------------------------------------------------------
 // Tokens to Mermaid theme variables
@@ -272,9 +275,9 @@ const RENDER_CONFIG = {
  * Bump when renderDiagrams changes how it names or writes the files; every diagram is then
  * stale. Changes to the render page or to the neutralizer are picked up by rendererFingerprint.
  */
-const OUTPUT_FORMAT = 'neutral-svg-2';
+const OUTPUT_FORMAT = 'neutral-svg-4';
 /** Modules whose code shapes the written SVGs, relative to this file. */
-const RENDERER_MODULES = ['./lib/neutral-svg.ts'];
+const RENDERER_MODULES = ['./lib/neutral-svg.ts', './lib/svg-style.ts', '../src/lib/diagrams/natural.ts', '../src/lib/diagrams/suffix-ids.ts'];
 
 /**
  * A hash of the code that turns a Mermaid source into the committed files beyond
@@ -318,8 +321,10 @@ export interface RenderResult {
   rendered: string[];
   skipped: string[];
   removed: string[];
-  /** Rendered diagrams kept as a light and a dark file because the two renders differed in structure. */
+  /** Rendered diagrams kept as a light and a dark file because the two renders could not be folded safely. */
   split: string[];
+  /** Bytes of unused style rules dropped from the rendered files. */
+  prunedBytes: number;
   failures: { id: string; source: string; message: string }[];
   total: number;
 }
@@ -474,17 +479,18 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
     const failures: RenderResult['failures'] = [
       { id: '', source: options.inputDirs.join(', '), message: '--dir needs --out: refusing to write fixture renders into src/generated/diagrams' },
     ];
-    return { rendered: [], skipped: [], removed: [], split: [], failures, total: 0 };
+    return { rendered: [], skipped: [], removed: [], split: [], prunedBytes: 0, failures, total: 0 };
   }
   const plan = planDiagrams(options);
   const { root, outDir, indexPath, inputs, vars, mermaidVersion, diagrams, hashes, failures } = plan;
-  if (options.only && !inputs.has(options.only)) return { rendered: [], skipped: [], removed: [], split: [], failures, total: inputs.size };
+  if (options.only && !inputs.has(options.only)) return { rendered: [], skipped: [], removed: [], split: [], prunedBytes: 0, failures, total: inputs.size };
 
   const todo = options.force ? [...hashes.keys()] : plan.stale.map((s) => s.id);
   const skipped = options.force ? [] : [...plan.fresh];
 
   const rendered: string[] = [];
   const split: string[] = [];
+  let prunedBytes = 0;
   if (todo.length) {
     const { server, origin } = await startServer(root);
     let browser: Browser | undefined;
@@ -531,17 +537,63 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
         }
       }
       if (consoleErrors.length) console.warn(`warning: page errors: ${consoleErrors.join(' | ')}`);
+      // A blank page for the checks: the drawing alone, so only its own styles and the theme variables apply.
+      const check = await browser.newPage();
+      const show = async (svg: string, theme: 'light' | 'dark', css = ''): Promise<void> => {
+        await check.setContent(`<!doctype html><html data-theme="${theme}"><head><style>${css}</style></head><body>${svg}</body></html>`);
+      };
+      const paintOf = async (svg: string, theme: 'light' | 'dark', css = ''): Promise<string[][]> => {
+        await show(svg, theme, css);
+        return check.evaluate(collectPaint, PAINT_PROPS);
+      };
+      /**
+       * Paint of a written file as a page shows it (MermaidDiagram: natural size, ids suffixed). The suffix is
+       * taken off the end of the ids that url() values name (markers, filters), so they compare with the render's.
+       */
+      const pagePaintOf = async (svg: string, id: string, theme: 'light' | 'dark', css: string): Promise<string[][]> => {
+        const suffix = `-${id}`;
+        const idEnd = new RegExp(`${suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=["')])`, 'g');
+        const table = await paintOf(suffixIds(naturalSvg(svg), suffix), theme, css);
+        return table.map((row) => row.map((v) => v.replace(idEnd, '')));
+      };
       for (const id of todo) {
         const pair = svgs.get(id);
         if (!pair?.light || !pair.dark) continue;
         const source = rel(root, inputs.get(id)!.path);
-        const neutral = neutralizeSvg(pair.light, pair.dark);
-        if ('svg' in neutral) {
+        const folded = neutralizeSvg(pair.light, pair.dark);
+        let neutral: { svg: string; colors: ColorPair[] } | undefined;
+        let reason = 'error' in folded ? folded.error : '';
+        if ('svg' in folded) {
+          // Drop the style rules that match nothing in this drawing, then require the written file to paint every
+          // element as Mermaid's own light and dark renders do. Pruned first, unpruned second, two files last.
+          const plan = planStyle(folded.svg);
+          let pruned = folded.svg;
+          if (plan) {
+            await show(folded.svg, 'light');
+            pruned = pruneStyle(folded.svg, plan, await check.evaluate(matchSelectors, plan.selectors));
+          }
+          const css = colorsCss(folded.colors);
+          const expected = { light: await paintOf(pair.light, 'light'), dark: await paintOf(pair.dark, 'dark') };
+          for (const candidate of pruned === folded.svg ? [folded.svg] : [pruned, folded.svg]) {
+            const diffs = [
+              ...paintDiff(expected.light, await pagePaintOf(candidate, id, 'light', css)),
+              ...paintDiff(expected.dark, await pagePaintOf(candidate, id, 'dark', css)),
+            ];
+            if (!diffs.length) {
+              neutral = { svg: candidate, colors: folded.colors };
+              break;
+            }
+            reason = `the written file would paint differently (${diffs.slice(0, 2).join('; ')})`;
+            if (candidate === pruned && pruned !== folded.svg) console.warn(`warning: diagram ${id}: pruning its styles changes paint; keeping every rule`);
+          }
+        }
+        if (neutral) {
+          prunedBytes += Buffer.byteLength(('svg' in folded ? folded.svg : '')) - Buffer.byteLength(neutral.svg);
           writeTextIfChanged(join(outDir, `${id}.svg`), `${neutral.svg}\n`);
           removeOutputs(outDir, id, ['.light.svg', '.dark.svg']);
           diagrams[id] = { hash: hashes.get(id)!, source, svg: `${id}.svg`, colors: neutral.colors };
         } else {
-          console.warn(`warning: diagram ${id}: ${neutral.error}; keeping a light and a dark SVG`);
+          console.warn(`warning: diagram ${id}: ${reason}; keeping a light and a dark SVG`);
           writeTextIfChanged(join(outDir, `${id}.light.svg`), `${pair.light}\n`);
           writeTextIfChanged(join(outDir, `${id}.dark.svg`), `${pair.dark}\n`);
           removeOutputs(outDir, id, ['.svg']);
@@ -566,7 +618,7 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
   const sorted = Object.fromEntries(Object.entries(diagrams).sort(([a], [b]) => a.localeCompare(b)));
   writeJsonIfChanged(indexPath, { mermaidVersion, diagrams: sorted } satisfies DiagramIndex);
   writeTextIfChanged(join(outDir, COLORS_FILE), expectedColorsCss(sorted));
-  return { rendered, skipped, removed, split, failures, total: inputs.size };
+  return { rendered, skipped, removed, split, prunedBytes, failures, total: inputs.size };
 }
 
 if (isMain(import.meta.url)) {
@@ -604,6 +656,7 @@ if (isMain(import.meta.url)) {
       printFailures(r.failures);
       console.log(
         `render-diagrams: ${r.total} inputs; ${r.rendered.length} rendered, ${r.skipped.length} unchanged, ${r.removed.length} removed, ${r.failures.length} failed` +
+          (r.prunedBytes ? `; ${(r.prunedBytes / 1024).toFixed(0)} KB of unused style rules dropped` : '') +
           (r.split.length ? `; ${r.split.length} kept as a light and a dark file (${r.split.join(', ')})` : ''),
       );
       process.exit(r.failures.length ? 1 : 0);

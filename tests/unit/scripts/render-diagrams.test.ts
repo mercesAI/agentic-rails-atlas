@@ -9,26 +9,44 @@ import { walkFiles } from '../../../scripts/lib/io';
 
 // The render path needs a page that answers with an SVG; a stub stands in for Chromium so the suite stays
 // browser-free. It colors a style rule and a fill attribute with the theme background, so the light and dark
-// answers differ exactly where a real render does; `skeleton: 'differ'` adds a dark-only element to force the
-// two-file fallback.
-const state = vi.hoisted(() => ({ skeleton: 'same' as 'same' | 'differ', reloads: 0 }));
+// answers differ exactly where a real render does, and adds a rule that matches nothing (`.unused`) for the
+// pruning pass. `skeleton: 'differ'` adds a dark-only element to force the two-file fallback. The check page
+// answers selector matching (everything but `.unused` matches) and paint tables: equal by default,
+// `paint: 'neutral-differs'` makes every folded file paint differently, `paint: 'pruned-differs'` only the pruned one.
+const state = vi.hoisted(() => ({ skeleton: 'same' as 'same' | 'differ', paint: 'same' as 'same' | 'neutral-differs' | 'pruned-differs', reloads: 0 }));
 vi.mock('../../../scripts/lib/browser', () => ({
   launchBrowser: vi.fn(async () => ({
-    newPage: async () => ({
-      on: () => undefined,
-      goto: async () => undefined,
-      reload: async () => {
-        state.reloads++;
-      },
-      waitForFunction: async () => undefined,
-      evaluate: async (_fn: unknown, arg: { domId: string; text: string; config: { themeVariables: { darkMode: boolean; background: string } } }) => {
-        const { darkMode, background } = arg.config.themeVariables;
-        const extra = darkMode && state.skeleton === 'differ' ? '<g class="dark-only"/>' : '';
-        return {
-          svg: `<svg id="${arg.domId}"><style>#${arg.domId} .node{fill:${background};stroke:#777777;}</style><rect fill="${background}" stroke="#777777"/>${extra}<text>${arg.text.length}</text></svg>`,
-        };
-      },
-    }),
+    newPage: async () => {
+      let content = '';
+      return {
+        on: () => undefined,
+        goto: async () => undefined,
+        reload: async () => {
+          state.reloads++;
+        },
+        waitForFunction: async () => undefined,
+        setContent: async (html: string) => {
+          content = html;
+        },
+        evaluate: async (_fn: unknown, arg: unknown) => {
+          if (Array.isArray(arg)) {
+            // matchSelectors gets one selector list (or null) per rule; collectPaint gets the property names.
+            if (typeof arg[0] !== 'string') return (arg as (string[] | null)[]).map((list) => !list || !list.some((sel) => sel.includes('.unused')));
+            const folded = content.includes('var(--dc-');
+            const differs = (state.paint === 'neutral-differs' && folded) || (state.paint === 'pruned-differs' && folded && !content.includes('.unused'));
+            return [['svg', differs ? 'other paint' : 'paint']];
+          }
+          const r = arg as { domId: string; text: string; config: { themeVariables: { darkMode: boolean; background: string } } };
+          const { darkMode, background } = r.config.themeVariables;
+          const extra = darkMode && state.skeleton === 'differ' ? '<g class="dark-only"/>' : '';
+          return {
+            svg:
+              `<svg id="${r.domId}"><style>#${r.domId} .node{fill:${background};stroke:#777777;}#${r.domId} .unused{fill:#000000;}</style>` +
+              `<rect class="node" fill="${background}" stroke="#777777"/>${extra}<text>${r.text.length}</text></svg>`,
+          };
+        },
+      };
+    },
     close: async () => undefined,
   })),
 }));
@@ -64,17 +82,19 @@ beforeEach(() => {
   write('src/content/diagrams/alpha.mmd', 'flowchart LR\n  a --> b\n');
   write('src/generated/mermaid/beta.mmd', 'sequenceDiagram\n  A->>B: hello\n');
   state.skeleton = 'same';
+  state.paint = 'same';
   state.reloads = 0;
   vi.mocked(launchBrowser).mockClear();
 });
 afterEach(() => rmSync(root, { recursive: true, force: true }));
 
 describe('renderDiagrams', () => {
-  it('folds the two themes into one SVG with color variables and writes colors.css', async () => {
+  it('folds the two themes into one SVG with color variables, drops unused style rules and writes colors.css', async () => {
     const r = await renderDiagrams({ root });
     expect(r.rendered).toEqual(['alpha', 'beta']);
     expect(r.split).toEqual([]);
     expect(r.failures).toEqual([]);
+    expect(r.prunedBytes).toBe('#mmd-alpha .unused{fill:#000000;}'.length + '#mmd-beta .unused{fill:#000000;}'.length);
     expect(launchBrowser).toHaveBeenCalledTimes(1);
     expect(state.reloads).toBe(1);
     const bg = backgrounds();
@@ -84,13 +104,37 @@ describe('renderDiagrams', () => {
     const slug = v.slice('--dc-'.length);
     expect(read(`${OUT}/alpha.svg`)).toBe(
       `<svg id="mmd-alpha"><style>#mmd-alpha .node{fill:var(${v});stroke:#777777;}:where(#mmd-alpha [data-dc-fill="${slug}"]){fill:var(${v},${bg.light});}</style>` +
-        `<rect fill="${bg.light}" stroke="#777777" data-dc-fill="${slug}"/><text>23</text></svg>\n`,
+        `<rect class="node" fill="${bg.light}" stroke="#777777" data-dc-fill="${slug}"/><text>23</text></svg>\n`,
     );
     expect(has(`${OUT}/alpha.light.svg`)).toBe(false);
     expect(has(`${OUT}/alpha.dark.svg`)).toBe(false);
     const css = read(`${OUT}/colors.css`);
     expect(css).toContain(`:root {\n  ${v}: ${bg.dark};\n}\n:root[data-theme='light'] {\n  ${v}: ${bg.light};\n}\n`);
     expect(css).toContain(`@media print {\n  :root {\n    ${v}: ${bg.light};\n  }\n}\n`);
+  });
+
+  it('keeps every style rule when pruning would change paint, and two files when the folded file would', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    try {
+      state.paint = 'pruned-differs';
+      const pruned = await renderDiagrams({ root, only: 'alpha' });
+      expect(pruned.split).toEqual([]);
+      expect(pruned.prunedBytes).toBe(0);
+      expect(read(`${OUT}/alpha.svg`)).toContain('#mmd-alpha .unused{fill:#000000;}');
+      expect(warn.mock.calls.map((c) => String(c[0]))).toEqual(['warning: diagram alpha: pruning its styles changes paint; keeping every rule']);
+      warn.mockClear();
+      state.paint = 'neutral-differs';
+      const split = await renderDiagrams({ root, only: 'alpha', force: true });
+      expect(split.split).toEqual(['alpha']);
+      expect(has(`${OUT}/alpha.svg`)).toBe(false);
+      expect(read(`${OUT}/alpha.light.svg`)).toContain('<svg id="mmd-alpha">');
+      expect(warn.mock.calls.map((c) => String(c[0]))).toEqual([
+        'warning: diagram alpha: pruning its styles changes paint; keeping every rule',
+        'warning: diagram alpha: the written file would paint differently (svg fill: paint became other paint; svg fill: paint became other paint); keeping a light and a dark SVG',
+      ]);
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it('keeps a light and a dark file when the two renders differ in structure, and folds them on a later render', async () => {
