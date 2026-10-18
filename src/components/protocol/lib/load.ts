@@ -197,7 +197,11 @@ export async function loadProtocolPage(slug: string, page: string): Promise<Prot
       ...(machine?.sources ?? []),
       ...diagrams.flatMap((d) => d.meta?.sources ?? d.flow?.sources ?? d.machine?.sources ?? []),
     ]).filter((id) => id.startsWith('src-')),
-    'd-ste': expand(scanCiteIds(loaded.ste?.body)),
+    // The STE text is a rewrite of section B and rarely carries its own markers; fall back to B's sources.
+    'd-ste': (() => {
+      const own = expand(scanCiteIds(loaded.ste?.body));
+      return own.length ? own : expand(citeIdsIn(bodySplit.before));
+    })(),
     'e-personas': refs(sidecars.protocolPersonas),
     'f-resources': refs(sidecars.resources),
     'g-publications': [],

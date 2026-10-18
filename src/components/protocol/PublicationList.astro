@@ -35,7 +35,7 @@ const grouped = GROUPS.map((g) => ({ ...g, items: papers.filter((p) => groupOf(p
 const hasDirect = papers.some((p) => p.relation === 'direct');
 const authors = (a: string[]) => (a.length > 3 ? `${a.slice(0, 3).join(', ')} and others` : a.join(', '));
 ---
-{!hasDirect && (
+{!hasDirect && publications.length > 0 && (
   <p class="pub-none">
     As of {lastVerified}, no verified paper names {name} directly. The closest work follows.
   </p>

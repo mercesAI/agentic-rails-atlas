@@ -39,6 +39,41 @@ describe('rehype-glossary', () => {
   });
 });
 
+describe('rehype-glossary reading-mode blocks', () => {
+  const mode = (children: unknown[]) => ({ type: 'mdxJsxFlowElement', name: 'Mode', attributes: [], children });
+  it('lets the visible text keep its annotation when a Mode block used the term first', () => {
+    const tree = { type: 'root', children: [mode([el('p', [text('A facilitator helps.')])]), el('p', [text('The facilitator verifies.')])] };
+    rehypeGlossary({ terms })(tree as never);
+    expect(JSON.stringify(tree.children[0])).toContain('"dataTerm":"facilitator"');
+    expect(JSON.stringify(tree.children[1])).toContain('"dataTerm":"facilitator"');
+  });
+  it('still annotates a term only once inside one Mode block', () => {
+    const tree = { type: 'root', children: [mode([el('p', [text('A facilitator and another facilitator.')])])] };
+    rehypeGlossary({ terms })(tree as never);
+    expect((JSON.stringify(tree).match(/"tagName":"button"/g) ?? []).length).toBe(1);
+  });
+});
+
+describe('rehype-glossary matching rules', () => {
+  const t = [
+    { id: 'agent-provider', term: 'Agent Provider', aliases: ['Agent'], plain: 'An approved agent operator.' },
+    { id: 'x402', term: 'x402', aliases: [], plain: 'A payment protocol.' },
+  ];
+  const run = (s: string) => {
+    const tree = { type: 'root', children: [el('p', [text(s)])] };
+    rehypeGlossary({ terms: t })(tree as never);
+    return JSON.stringify(tree);
+  };
+  it('treats a single capitalized alias as case-sensitive', () => {
+    expect(run('an agent that pays')).not.toContain('button');
+    expect(run('the Agent that pays')).toContain('"dataTerm":"agent-provider"');
+  });
+  it('does not split a dotted name', () => {
+    expect(run('See x402.org for more')).not.toContain('button');
+    expect(run('See x402 for more')).toContain('"dataTerm":"x402"');
+  });
+});
+
 describe('rehype-glossary scoping', () => {
   const scoped = [
     ...terms,

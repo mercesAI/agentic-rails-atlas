@@ -12,6 +12,13 @@ export interface Props {
 }
 const { page, sectionSources } = Astro.props;
 const ctx = getPageContext(page);
+/** Sections that cite nothing by design get a sentence that says where their references live. */
+const EMPTY_NOTES: Partial<Record<SectionId, string>> = {
+  'f-resources': 'Each resource links to its own source.',
+  'g-publications': 'Each publication links to its verified record.',
+  'o-playground': 'The playground is a simulation; its steps follow the flows cited in section C.',
+  't-notes': 'Notes are yours and cite nothing.',
+};
 const lists = SECTION_IDS.map((id) => {
   const ids = sectionSources[id] ?? [];
   const items = ctx
@@ -26,7 +33,7 @@ const lists = SECTION_IDS.map((id) => {
     <div data-section-sources={id} hidden={i !== 0}>
       <p class="sec-sources__name">{id.charAt(0).toUpperCase()}. {SECTION_TITLES[id]}</p>
       {items.length === 0 ? (
-        <p class="sec-sources__empty">No sources cited in this section.</p>
+        <p class="sec-sources__empty">{EMPTY_NOTES[id] ?? 'No sources cited in this section.'}</p>
       ) : (
         <ol class="sec-sources__list">
           {items.map((it) => (

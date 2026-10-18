@@ -1,8 +1,5 @@
 ---
-/**
- * Field table for spec-deep blocks. Pass `fields` inline, or `source` naming
- * src/content/fieldtables/<id>.json ({caption?, specVersion?, fields[]}) for reuse.
- */
+/** Field table for spec-deep blocks; `fields` are passed inline from the MDX. */
 export interface Field {
   name: string;
   type: string;
@@ -14,17 +11,11 @@ export interface Props {
   fields?: Field[];
   caption?: string;
   specVersion?: string;
-  source?: string;
 }
-interface FieldFile { caption?: string; specVersion?: string; fields: Field[] }
 
-const files = import.meta.glob<FieldFile>('/src/content/fieldtables/*.json', { eager: true, import: 'default' });
-const { source } = Astro.props;
-const fromFile = source ? files[`/src/content/fieldtables/${source}.json`] : undefined;
-if (source && !fromFile) console.warn(`[FieldTable] missing src/content/fieldtables/${source}.json`);
-const fields = Astro.props.fields ?? fromFile?.fields ?? [];
-const caption = Astro.props.caption ?? fromFile?.caption ?? 'Fields';
-const specVersion = Astro.props.specVersion ?? fromFile?.specVersion;
+const fields = Astro.props.fields ?? [];
+const caption = Astro.props.caption ?? 'Fields';
+const specVersion = Astro.props.specVersion;
 ---
 <div class="table-wrap field-table" role="region" aria-label={caption} tabindex="0">
   <table>

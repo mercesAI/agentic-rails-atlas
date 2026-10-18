@@ -5,7 +5,8 @@ describe('reading mode helpers', () => {
   it('describes each mode in the banner', () => {
     expect(modeBannerText('eli5', 3)).toBe('plain-language version only');
     expect(modeBannerText('practitioner', 3)).toBe('the full explanation');
-    expect(modeBannerText('spec', 4)).toBe('the full explanation plus 4 field tables and wire examples');
+    expect(modeBannerText('spec', 4)).toBe('the full explanation plus 4 spec-deep blocks of field tables and wire examples');
+    expect(modeBannerText('spec', 1)).toBe('the full explanation plus 1 spec-deep block of field tables and wire examples');
     expect(modeBannerText('ste', 4)).toContain('section D');
   });
   it('points STE at section D and the rest at section B', () => {

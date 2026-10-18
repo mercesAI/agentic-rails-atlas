@@ -63,17 +63,21 @@ export interface Matcher {
 export function buildMatcher(terms: MatchableTerm[]): Matcher | null {
   const byPhrase = new Map<string, { id: string; original: string; strict: boolean }>();
   for (const t of terms) {
-    for (const phrase of [t.term, ...t.aliases]) {
+    const phrases: [string, boolean][] = [[t.term, false], ...t.aliases.map((a): [string, boolean] => [a, true])];
+    for (const [phrase, isAlias] of phrases) {
       const p = phrase.trim();
       const key = p.toLowerCase();
-      // Acronyms and mixed-case names (two or more capitals) match case-sensitively.
-      const strict = (p.match(/[A-Z]/g) ?? []).length >= 2;
+      // Acronyms and mixed-case names (two or more capitals) match case-sensitively. So does a
+      // single capitalized alias such as "Agent", which would otherwise annotate ordinary prose;
+      // a capitalized canonical term ("Charge", "Mandate") still matches its lowercase uses.
+      const strict = (p.match(/[A-Z]/g) ?? []).length >= 2 || (isAlias && /^[A-Z][a-z]+$/.test(p));
       if (p.length >= 2 && !byPhrase.has(key)) byPhrase.set(key, { id: t.id, original: p, strict });
     }
   }
   if (byPhrase.size === 0) return null;
   const phrases = [...byPhrase.keys()].sort((a, b) => b.length - a.length).map(escapeRegExp);
-  const regex = new RegExp(`(?<![\\w-])(${phrases.join('|')})(?![\\w-])`, 'gi');
+  // A dot followed by a word character continues a name (x402.org), so it is not a boundary either.
+  const regex = new RegExp(`(?<![\\w-])(?<!\\w\\.)(${phrases.join('|')})(?![\\w-])(?!\\.\\w)`, 'gi');
   return {
     regex,
     idFor: (m) => {

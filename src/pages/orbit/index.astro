@@ -13,8 +13,8 @@ import Callout from '../../components/ui/Callout.astro';
 import Mode from '../../components/ui/Mode.astro';
 import ExternalLink from '../../components/ui/ExternalLink.astro';
 import SourceList from '../../components/protocol/SourceList.astro';
-import { getOrbitEntries, getProtocols, getSourcesMap, scanCiteIds } from '../../lib/content';
-import { dedupe, setPageSources } from '../../lib/citations';
+import { getClaimsMap, getOrbitEntries, getProtocols, getSourcesMap, scanCiteIds } from '../../lib/content';
+import { claimIdsToSourceIds, dedupe, setPageSources } from '../../lib/citations';
 import { groupOrbit, orbitLink, RELATION_LABELS } from '../../components/hub/lib/orbit';
 import { BUILD_DATE } from '../../lib/constants';
 import '../../components/hub/hub.css';
@@ -22,6 +22,7 @@ import '../../components/hub/hub.css';
 const page = Astro.url.pathname;
 const entries = await getOrbitEntries();
 const sources = await getSourcesMap();
+const claims = await getClaimsMap();
 const protocols = await getProtocols();
 const protocolBySlug = new Map(protocols.map((p) => [p.slug, p]));
 const items = await Promise.all(
@@ -29,9 +30,9 @@ const items = await Promise.all(
 );
 const groups = groupOrbit(items);
 const order = dedupe(
-  groups.flatMap((g) => g.items.flatMap((i) => [...i.sources, ...(i.starred ? [] : scanCiteIds(i.entry.body))])),
-);
-setPageSources(order, { page, sources });
+  groups.flatMap((g) => g.items.flatMap((i) => [...i.sources, ...(i.starred ? [] : claimIdsToSourceIds(scanCiteIds(i.entry.body), claims))])),
+).filter((id) => id.startsWith('src-'));
+setPageSources(order, { page, sources, claims });
 const starred = items.filter((i) => i.starred).length;
 const components = { Cite, Callout, Mode };
 ---

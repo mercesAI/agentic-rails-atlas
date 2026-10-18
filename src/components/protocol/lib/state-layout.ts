@@ -85,7 +85,7 @@ export function layoutStateMachine(
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const maxLayer = Math.max(0, ...nodes.map((n) => n.layer));
   const maxRows = Math.max(1, ...rowsPerLayer.values());
-  const width = pad * 2 + (maxLayer + 1) * nodeW + maxLayer * colGap;
+  const contentW = pad * 2 + (maxLayer + 1) * nodeW + maxLayer * colGap;
   const contentH = maxRows * nodeH + (maxRows - 1) * rowGap;
   const height = pad * 2 + contentH + 56;
 
@@ -152,5 +152,8 @@ export function layoutStateMachine(
     };
   });
 
+  // Same-layer edges bulge past the last column and carry a label dot (radius 9); keep both inside the canvas.
+  const LABEL_R = 9;
+  const width = Math.max(contentW, ...edges.map((e) => e.labelX + LABEL_R + 4));
   return { nodes, edges, width, height, nodeW, nodeH };
 }

@@ -1,5 +1,5 @@
 ---
-/** Section P: text after the "Compare and compose" marker (or compare.mdx), plus relations and compare data. */
+/** Section P: text after the "Compare and compose" marker, an optional compare.mdx (rendered first when present), plus relations and compare data. */
 import Section from '../Section.astro';
 import CompareCompose from '../CompareCompose.astro';
 import type { ProtocolPageContext } from '../lib/load';
@@ -15,6 +15,7 @@ const hasCompareMdx = Astro.slots.has('default');
   {hasCompareMdx ? (
     <CompareCompose slug={ctx.slug} name={ctx.meta.name} relations={ctx.relations} cells={ctx.compareCells} dimensions={ctx.compareDimensions} protocols={ctx.protocols}>
       <slot />
+      {html.trim() && <div class="prose" set:html={html} />}
     </CompareCompose>
   ) : (
     <CompareCompose slug={ctx.slug} name={ctx.meta.name} relations={ctx.relations} cells={ctx.compareCells} dimensions={ctx.compareDimensions} protocols={ctx.protocols} html={html} />

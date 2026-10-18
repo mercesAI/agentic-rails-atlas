@@ -46,7 +46,7 @@ export function modeBannerText(mode: ReadingMode, specCount: number): string {
     case 'practitioner':
       return 'the full explanation';
     case 'spec':
-      return `the full explanation plus ${specCount} field ${specCount === 1 ? 'table or wire example' : 'tables and wire examples'}`;
+      return `the full explanation plus ${specCount} spec-deep ${specCount === 1 ? 'block' : 'blocks'} of field tables and wire examples`;
     case 'ste':
       return 'section B is hidden; the Simplified Technical English version (section D) is shown first';
   }

@@ -36,4 +36,19 @@ describe('state machine layered layout', () => {
     expect(l.width).toBeGreaterThan(0);
     expect(l.height).toBeGreaterThan(0);
   });
+
+  it('keeps every edge and label inside the canvas, including same-layer bulges in the last layer', () => {
+    const l = layoutStateMachine({
+      states: [{ id: 'a', label: 'a', initial: true }, { id: 'b', label: 'b' }, { id: 'c', label: 'c' }],
+      transitions: [{ from: 'a', to: 'b', trigger: 't' }, { from: 'a', to: 'c', trigger: 't' }, { from: 'b', to: 'c', trigger: 'bulge' }, { from: 'c', to: 'b', trigger: 'bulge back' }],
+    });
+    const sameLayer = l.edges.filter((e) => e.kind === 'same-layer');
+    expect(sameLayer.length).toBe(2);
+    for (const e of l.edges) {
+      const xs = [...e.path.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((m) => Number(m[1]));
+      for (const x of xs) expect(x).toBeLessThanOrEqual(l.width);
+      expect(e.labelX + 9).toBeLessThanOrEqual(l.width);
+      expect(e.labelY).toBeLessThanOrEqual(l.height);
+    }
+  });
 });

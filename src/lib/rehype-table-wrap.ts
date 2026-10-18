@@ -19,7 +19,11 @@ export default function rehypeTableWrap() {
   const walk = (node: HastNode, inWrap: boolean): void => {
     if (!node.children) return;
     node.children = node.children.map((child) => {
-      if (child.type !== 'element') return child;
+      if (child.type !== 'element') {
+        // MDX JSX blocks (<Mode>, <Callout>) carry their own children; a table inside them still needs the wrapper.
+        walk(child, inWrap);
+        return child;
+      }
       if (child.tagName === 'table' && !inWrap) {
         return {
           type: 'element',

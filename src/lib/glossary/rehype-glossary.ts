@@ -1,7 +1,10 @@
 /**
  * Rehype plugin: wraps the first occurrence per section (per h2) of each glossary
  * term or alias in `<button type="button" class="term" data-term="id">`.
- * Skips headings, code, links, buttons and existing terms. Reads
+ * Reading-mode blocks (<Mode>) are scoped separately: a term annotated inside a
+ * hidden ELI5 or spec block does not consume the one annotation the visible
+ * practitioner text gets (a term the practitioner text annotated first stays
+ * unannotated in a later block). Skips headings, code, links, buttons and existing terms. Reads
  * src/content/glossary/terms.json at build time; a no-op when it is empty.
  * No unist helpers are needed; the walk is a small recursive function.
  */
@@ -90,7 +93,15 @@ export default function rehypeGlossary(options: RehypeGlossaryOptions = {}) {
         const skip =
           (el.type === 'element' && el.tagName && (SKIP_TAGS.has(el.tagName) || hasTermClass(el))) ||
           ((el.type === 'mdxJsxFlowElement' || el.type === 'mdxJsxTextElement') && el.name && SKIP_COMPONENTS.test(el.name));
-        if (!skip) walk(el);
+        const isModeBlock = el.type === 'mdxJsxFlowElement' && el.name === 'Mode';
+        if (!skip && isModeBlock) {
+          const outer = seen;
+          seen = new Set(outer);
+          walk(el);
+          seen = outer;
+        } else if (!skip) {
+          walk(el);
+        }
         next.push(child);
       }
       node.children = next;

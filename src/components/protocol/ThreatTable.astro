@@ -65,12 +65,15 @@ const threats = [...security.threats].sort((a, b) => STRIDE_ORDER.indexOf(a.stri
   <p>No published research finding is recorded yet.</p>
 ) : (
   <ul class="finding-list">
-    {[...security.research].sort((a, b) => b.date.localeCompare(a.date)).map((r) => (
-      <li>
-        <time datetime={r.date}>{r.date}</time> <strong>{r.title}</strong>: {r.finding}
-        {paperLink(r.publicationId) && <> (<a href={paperLink(r.publicationId)!.href} rel={paperLink(r.publicationId)!.external ? 'noopener noreferrer external' : undefined}>{paperLink(r.publicationId)!.label}</a>)</>} <Cite ids={r.sources.join(' ')} />
-      </li>
-    ))}
+    {[...security.research].sort((a, b) => b.date.localeCompare(a.date)).map((r) => {
+      const link = paperLink(r.publicationId);
+      return (
+        <li>
+          <time datetime={r.date}>{r.date}</time> <strong>{r.title}</strong>: {r.finding}
+          {link && <> (<a href={link.href} rel={link.external ? 'noopener noreferrer external' : undefined}>{link.label}</a>)</>} <Cite ids={r.sources.join(' ')} />
+        </li>
+      );
+    })}
   </ul>
 )}
 <h3 id="h-security-cves">CVEs and advisories</h3>
