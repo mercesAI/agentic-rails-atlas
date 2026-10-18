@@ -26,12 +26,12 @@ sequenceDiagram
     p_cdn->>p_keystore: Fetch the key for keyid
     Note over p_cdn,p_keystore: Crosses a trust boundary
   else No key for keyid, or the key has expired
-    Note over p_cdn,p_keystore: Block the request#59; TAP has no revocation list or key status endpoint.
+    Note over p_cdn,p_keystore: Block the request#59; TAP has no<br/>revocation list or key status endpoint.
   end
   alt Expected path
     p_cdn->>p_cdn: Verify tag, fields, window, nonce and signature
   else Neither agent-browser-auth nor agent-payer-auth in Signature-Input
-    Note over p_cdn: Not signed by a trusted agent#59; block or apply ordinary bot policy.
+    Note over p_cdn: Not signed by a trusted agent#59;<br/>block or apply ordinary bot policy.
   else Missing field, window over 8 minutes, reused nonce or failed signature
     Note over p_cdn: Block the request.
   end
@@ -47,13 +47,13 @@ sequenceDiagram
   else The consumer declines or the passkey check fails
     Note over p_user,p_vic: No credentials can be retrieved#59; nothing is charged.
   end
-  p_agent->>p_vic: POST /vacp/v1/instructions/#123;instructionId#125;/credentials
+  p_agent->>p_vic: POST<br/>/vacp/v1/instructions/#123;instructionId#125;/credentials
   Note over p_agent,p_vic: Crosses a trust boundary
   alt Expected path
-    p_agent->>p_cdn: POST checkout, signed with tag agent-payer-auth, with agenticConsumer and agenticPaymentContainer
+    p_agent->>p_cdn: POST checkout, signed with tag agent-payer-auth,<br/>with agenticConsumer and agenticPaymentContainer
     Note over p_agent,p_cdn: Crosses a trust boundary
   else The body is altered in transit
-    Note over p_agent,p_cdn: The header signature still verifies#59; only the body object signatures can catch it.
+    Note over p_agent,p_cdn: The header signature still verifies#59; only<br/>the body object signatures can catch it.
   end
   alt Expected path
     p_cdn->>p_merchant: Verify the payer signature at the edge, forward
@@ -76,5 +76,5 @@ sequenceDiagram
   end
   p_merchant->>p_agent: Order confirmation
   Note over p_merchant,p_agent: Crosses a trust boundary
-  p_agent->>p_vic: POST /vacp/v1/instructions/#123;instructionId#125;/confirmations
+  p_agent->>p_vic: POST<br/>/vacp/v1/instructions/#123;instructionId#125;/confirmations
   Note over p_agent,p_vic: Crosses a trust boundary

@@ -17,7 +17,7 @@ sequenceDiagram
     p_business->>p_platform: Checkout + ap2.merchant_authorization
     Note over p_business,p_platform: Crosses a trust boundary
   else Signature missing or invalid
-    Note over p_business,p_platform: merchant_authorization_missing or merchant_authorization_invalid#59; the platform must not show the checkout.
+    Note over p_business,p_platform: merchant_authorization_missing or<br/>merchant_authorization_invalid#59; the<br/>platform must not show the checkout.
   end
   p_platform->>p_buyer: Verify, show, get consent
   Note over p_platform,p_buyer: Crosses a trust boundary
@@ -27,7 +27,7 @@ sequenceDiagram
   else No checkout mandate
     Note over p_platform,p_business: mandate_required#59; the business must reject the complete.
   else Mandate bound to another checkout, expired or badly signed
-    Note over p_platform,p_business: mandate_scope_mismatch, mandate_expired or mandate_invalid_signature.
+    Note over p_platform,p_business: mandate_scope_mismatch, mandate_expired<br/>or mandate_invalid_signature.
   end
   p_business->>p_psp: Verify mandate#59; pass payment mandate to PSP
   Note over p_business,p_psp: Crosses a trust boundary

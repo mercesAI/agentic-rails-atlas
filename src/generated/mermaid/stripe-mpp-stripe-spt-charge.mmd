@@ -16,7 +16,7 @@ sequenceDiagram
     p_server->>p_stripeS: Create PaymentIntent (confirm true)
     Note over p_server,p_stripeS: Crosses a trust boundary
   else Stripe answers with Idempotent-Replayed for a new challenge
-    Note over p_server,p_stripeS: Treat as replay#59; mppx before 0.4.11 missed this (CVE-2026-34210).
+    Note over p_server,p_stripeS: Treat as replay#59; mppx before 0.4.11<br/>missed this (CVE-2026-34210).
   end
   alt Expected path
     p_stripeS-->>p_server: PaymentIntent status

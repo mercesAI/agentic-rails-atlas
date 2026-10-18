@@ -11,7 +11,7 @@ sequenceDiagram
   alt Expected path
     p_platform->>p_platform: Layer 1: select version 2026-08-25
   else No version in common
-    Note over p_platform: version_unsupported (REST 422) as a transport error, with an optional continue_url.
+    Note over p_platform: version_unsupported (REST 422) as a transport<br/>error, with an optional continue_url.
   end
   p_platform->>p_business: Request with UCP-Agent: profile=#quot;...#quot;
   Note over p_platform,p_business: Crosses a trust boundary
@@ -24,5 +24,5 @@ sequenceDiagram
     Note over p_business,p_platform: profile_malformed (REST 422).
   end
   p_business->>p_business: Layer 2: intersect and prune
-  p_business-->>p_platform: Response ucp envelope: version and active capabilities
+  p_business-->>p_platform: Response ucp envelope: version<br/>and active capabilities
   Note over p_business,p_platform: Crosses a trust boundary

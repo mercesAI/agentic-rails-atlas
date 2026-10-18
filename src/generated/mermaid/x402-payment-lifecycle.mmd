@@ -16,31 +16,31 @@ stateDiagram-v2
   [*] --> s_unpaid
   s_unpaid --> s_payment_required : Server sends 402
   s_payment_required --> s_payload_received : Client retries with a signed payload
-  s_payload_received --> s_rejected : Malformed payload or unsupported scheme,<br/>network or flow
-  s_payload_received --> s_verified : authorization flow: facilitator returns<br/>isValid true
+  s_payload_received --> s_rejected : Malformed payload or unsupported scheme, network or flow
+  s_payload_received --> s_verified : authorization flow: facilitator returns isValid true
   s_payload_received --> s_rejected : Facilitator returns isValid false
-  s_payload_received --> s_rejected : Facilitator unreachable (@x402/express<br/>answers 502#59; SDK behavior, not in the<br/>spec)
-  s_payload_received --> s_held : upfront or escrow flow: first settle<br/>succeeds
+  s_payload_received --> s_rejected : Facilitator unreachable (@x402/express answers 502, SDK behavior, not in the spec)
+  s_payload_received --> s_held : upfront or escrow flow: first settle succeeds
   s_verified --> s_executed : Handler runs
   s_held --> s_executed : Handler runs
-  s_executed --> s_settled : authorization flow: settle succeeds, or<br/>escrow: capture succeeds
-  s_executed --> s_settle_pending : Settle broadcast but not confirmed, or<br/>timed out
-  s_settle_pending --> s_settled : Server reconciles on chain and finds the<br/>transfer
-  s_settle_pending --> s_rejected : Reconciliation shows no transfer and one<br/>retry fails
-  s_executed --> s_rejected : Settle fails (for example<br/>insufficient_funds)
+  s_executed --> s_settled : authorization flow: settle succeeds, or escrow: capture succeeds
+  s_executed --> s_settle_pending : Settle broadcast but not confirmed, or timed out
+  s_settle_pending --> s_settled : Server reconciles on chain and finds the transfer
+  s_settle_pending --> s_rejected : Reconciliation shows no transfer and one retry fails
+  s_executed --> s_rejected : Settle fails (for example insufficient_funds)
   s_executed --> s_voided : escrow: server voids the hold
-  s_executed --> s_voided : escrow: client reclaims an untouched<br/>hold after captureDeadline
+  s_executed --> s_voided : escrow: client reclaims an untouched hold after captureDeadline
   s_settled --> s_responded : Server returns the resource
-  s_executed --> s_responded : upfront: payment already settled, server<br/>returns the resource
+  s_executed --> s_responded : upfront: payment already settled, server returns the resource
   s_rejected --> [*]
   s_responded --> [*]
   s_voided --> [*]
   note right of s_unpaid : No PAYMENT-SIGNATURE header.
-  note right of s_payment_required : PAYMENT-REQUIRED header sent with the<br/>accepts list.
-  note right of s_payload_received : PAYMENT-SIGNATURE decoded#59; the flow<br/>comes from extra.paymentFlow.
-  note right of s_verified : authorization flow only. /verify is<br/>read-only.
-  note right of s_held : upfront#58; settled. escrow#58; deposit or<br/>hold placed.
-  note right of s_settle_pending : errorReason settlement_pending#59;<br/>transaction hash present.
-  note right of s_settled : success true#59; PAYMENT-RESPONSE carries<br/>the transaction hash.
-  note right of s_rejected : 400 for a malformed payload and 402 for<br/>a failed payment (spec)#59; the<br/>@x402/express middleware answers 502<br/>when the facilitator is unreachable (SDK<br/>behavior).
+  note right of s_payment_required : PAYMENT-REQUIRED header sent with the accepts list.
+  note right of s_payload_received : PAYMENT-SIGNATURE decoded#59; the flow comes from extra.paymentFlow.
+  note right of s_verified : authorization flow only. /verify is read-only.
+  note right of s_held : upfront#58; settled. escrow#58; deposit or hold placed.
+  note right of s_settle_pending : errorReason settlement_pending#59; transaction hash present.
+  note right of s_settled : success true#59; PAYMENT-RESPONSE carries the transaction hash.
+  note right of s_rejected : 400 for a malformed payload and 402 for a failed payment (spec)#59; the @x402/express middleware answers 502 when the facilitator is unreachable (SDK behavior).
   note right of s_voided : auth-capture escrow only.

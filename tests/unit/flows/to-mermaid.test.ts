@@ -7,6 +7,7 @@ import {
   flowToSequenceDiagram,
   isResponseStep,
   makeIdFactory,
+  sanitizeTransitionLabel,
   stateMachineToStateDiagram,
   wrapMermaidLabel,
 } from '../../../src/lib/flows/to-mermaid';
@@ -123,11 +124,18 @@ describe('stateMachineToStateDiagram', () => {
     expect(out.startsWith('stateDiagram-v2\n')).toBe(true);
     expect(out).toContain('state "ready #quot;for#quot; payment #123;x#125;" as s_ready');
     expect(out).toContain('[*] --> s_not_ready');
-    expect(out).toContain('s_not_ready --> s_ready : POST /checkout_sessions/#123;id#125;: buyer<br/>details added');
-    expect(out).toContain('s_ready --> s_completed : complete#59; payment token accepted');
+    expect(out).toContain('s_not_ready --> s_ready : POST /checkout_sessions/(id): buyer details added');
+    expect(out).toContain('s_ready --> s_completed : complete, payment token accepted');
     expect(out).toContain('s_completed --> [*]');
     expect(out).toContain('s_canceled --> [*]');
     expect(out).toContain('note right of s_completed : Order created#58; id returned#59; done');
+  });
+  it('always reads top to bottom and never puts entity codes or separators in transition labels', () => {
+    expect(out.split('\n')[1]).toBe('  direction TB');
+    for (const l of out.split('\n').filter((l) => / --> .* : /.test(l))) {
+      expect(l).not.toMatch(/#\d+;/);
+      expect(l).not.toMatch(/;/);
+    }
   });
   it('uses the first state when none is marked initial', () => {
     const m = { ...machine, states: machine.states.map((s) => ({ ...s, initial: false })) };
@@ -165,9 +173,27 @@ describe('wrapMermaidLabel', () => {
     expect(out).toContain('<br/>');
     for (const l of out.split('<br/>')) expect(l.length).toBeLessThanOrEqual(40);
   });
-  it('adds direction TB only for machines with more than six states', () => {
-    const many = { ...machine, states: Array.from({ length: 7 }, (_, i) => ({ id: `x${i}`, label: `X${i}` })), transitions: [] };
-    expect(stateMachineToStateDiagram(many)).toContain('direction TB');
-    expect(stateMachineToStateDiagram(machine)).not.toContain('direction TB');
+  it('balances the lines instead of leaving a short tail', () => {
+    // Greedy packing at 52 gives a 49-character line and a 10-character tail.
+    const out = wrapMermaidLabel('Choose an accepts entry, check the spend limits and sign the EIP-712 payload', 52);
+    const lines = out.split('<br/>');
+    expect(lines).toHaveLength(2);
+    expect(Math.abs(lines[0]!.length - lines[1]!.length)).toBeLessThan(12);
+    for (const l of lines) expect(l.length).toBeLessThanOrEqual(52);
+  });
+  it('escapes every line', () => {
+    expect(wrapMermaidLabel('a; b; c; d; e; f; g; h; i; j; k; l; m; n; o; p; q; r', 20)).not.toMatch(/[^#\d];/);
+  });
+});
+
+describe('sanitizeTransitionLabel', () => {
+  it('replaces the characters Mermaid cannot show in transition labels', () => {
+    expect(sanitizeTransitionLabel('Cooperative close: client sends action close; server captures max(spent, settled)')).toBe(
+      'Cooperative close: client sends action close, server captures max(spent, settled)',
+    );
+    expect(sanitizeTransitionLabel('POST /sessions/{id} with "token" | <x>')).toBe("POST /sessions/(id) with 'token' / #lt;x#gt;");
+    expect(sanitizeTransitionLabel('  spaced \n out  ')).toBe('spaced out');
+    expect(sanitizeTransitionLabel('end')).toBe('end\u200b');
+    expect(sanitizeTransitionLabel('')).toBe('#32;');
   });
 });

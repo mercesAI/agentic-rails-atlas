@@ -31,10 +31,10 @@ sequenceDiagram
   p_merchant-->>p_agent: 200 product page
   Note over p_merchant,p_agent: Crosses a trust boundary
   alt Expected path
-    p_agent->>p_cdn: POST checkout, signed agent-payer-auth, with body objects
+    p_agent->>p_cdn: POST checkout, signed<br/>agent-payer-auth, with body objects
     Note over p_agent,p_cdn: Crosses a trust boundary
   else Body altered in transit
-    Note over p_agent,p_cdn: The header signature still verifies#59; only the object signatures can catch it
+    Note over p_agent,p_cdn: The header signature still verifies#59;<br/>only the object signatures can catch it
   end
   p_cdn->>p_merchant: Verify header signature, forward
   Note over p_cdn,p_merchant: Crosses a trust boundary

@@ -14,17 +14,17 @@ sequenceDiagram
     p_sa->>p_merchant: Build a cart over the commerce protocol
     Note over p_sa,p_merchant: Crosses a trust boundary
   else The merchant does not accept mandates for this action
-    Note over p_sa,p_merchant: It can answer mandates_not_supported, a signal to fall back to a non-agentic flow.
+    Note over p_sa,p_merchant: It can answer mandates_not_supported, a<br/>signal to fall back to a non-agentic flow.
   end
   alt Expected path
     p_merchant-->>p_sa: Signed checkout (checkout_jwt)#59; mandate required
     Note over p_merchant,p_sa: Crosses a trust boundary
   else The cart changes after this point
-    Note over p_merchant,p_sa: The merchant will reject any mandate whose checkout_hash does not match its latest checkout_jwt.
+    Note over p_merchant,p_sa: The merchant will reject any mandate whose<br/>checkout_hash does not match its latest checkout_jwt.
   end
   p_sa->>p_cp: Fetch instrument options
   Note over p_sa,p_cp: Crosses a trust boundary
-  p_sa->>p_ts: Request approval of Checkout and Payment Mandate Content
+  p_sa->>p_ts: Request approval of Checkout<br/>and Payment Mandate Content
   Note over p_sa,p_ts: Crosses a trust boundary
   alt Expected path
     p_ts->>p_user: Show the content#59; authenticate and get consent
@@ -38,11 +38,11 @@ sequenceDiagram
     p_sa->>p_cp: Present the closed Payment Mandate
     Note over p_sa,p_cp: Crosses a trust boundary
   else The signature or chain does not verify
-    Note over p_sa,p_cp: Payment Receipt with status Error and error invalid_credential#59; terminal.
+    Note over p_sa,p_cp: Payment Receipt with status Error and<br/>error invalid_credential#59; terminal.
   else The mandate does not approve this payment
     Note over p_sa,p_cp: Payment Receipt with error invalid_mandate#59; terminal.
   end
-  p_cp->>p_network: Share the mandate, get a scoped credential (optional)
+  p_cp->>p_network: Share the mandate, get a<br/>scoped credential (optional)
   Note over p_cp,p_network: Crosses a trust boundary
   p_cp->>p_sa: Payment token
   Note over p_cp,p_sa: Crosses a trust boundary
@@ -52,16 +52,16 @@ sequenceDiagram
   else The hash of the merchant#39;s checkout_jwt does not equal checkout_hash
     Note over p_sa,p_merchant: The merchant returns a Checkout Receipt JWT with status Error.
   else A verification step fails for any other reason
-    Note over p_sa,p_merchant: The merchant must return a Checkout Receipt JWT carrying the error.
+    Note over p_sa,p_merchant: The merchant must return a Checkout<br/>Receipt JWT carrying the error.
   end
-  p_merchant->>p_mpp: Initiate payment with the token and the checkout_jwt hash
+  p_merchant->>p_mpp: Initiate payment with the token<br/>and the checkout_jwt hash
   Note over p_merchant,p_mpp: Crosses a trust boundary
   alt Expected path
     p_mpp->>p_mpp: Verify the Payment Mandate inside the token
   else transaction_id does not match the checkout_jwt hash
-    Note over p_mpp: The payment is refused and a Payment Receipt with status Error goes back.
+    Note over p_mpp: The payment is refused and a Payment<br/>Receipt with status Error goes back.
   end
-  p_mpp->>p_sa: Payment Receipt (also to the Credential Provider and Network)
+  p_mpp->>p_sa: Payment Receipt (also to the<br/>Credential Provider and Network)
   Note over p_mpp,p_sa: Crosses a trust boundary
   p_merchant->>p_sa: Checkout Receipt
   Note over p_merchant,p_sa: Crosses a trust boundary

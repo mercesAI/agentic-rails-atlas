@@ -20,7 +20,8 @@ import { createServer, type Server } from 'node:http';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import type { AddressInfo } from 'node:net';
-import { chromium, type Browser } from 'playwright';
+import type { Browser } from 'playwright';
+import { launchBrowser } from './lib/browser.ts';
 import { ROOT, isMain, listDir, parseArgs, readJson, rel, sha256, writeJsonIfChanged, writeTextIfChanged } from './lib/io.ts';
 
 // ---------------------------------------------------------------------------
@@ -93,7 +94,7 @@ export function themeVariables(tokens: TokenMap, mode: 'light' | 'dark'): Record
     darkMode: mode === 'dark',
     background: bg,
     fontFamily: font,
-    fontSize: '14px',
+    fontSize: '16px',
     primaryColor: node,
     primaryTextColor: text,
     primaryBorderColor: border,
@@ -208,34 +209,45 @@ function startServer(root: string): Promise<{ server: Server; origin: string }> 
   });
 }
 
-async function launchBrowser(): Promise<Browser> {
-  const attempts: { label: string; run: () => Promise<Browser> }[] = [];
-  const exe = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
-  if (exe) attempts.push({ label: exe, run: () => chromium.launch({ executablePath: exe }) });
-  attempts.push({ label: 'Playwright Chromium', run: () => chromium.launch() });
-  attempts.push({ label: 'installed Google Chrome', run: () => chromium.launch({ channel: 'chrome' }) });
-  const errors: string[] = [];
-  for (const a of attempts) {
-    try {
-      const browser = await a.run();
-      console.log(`render-diagrams: using ${a.label}`);
-      return browser;
-    } catch (err) {
-      errors.push(`${a.label}: ${(err instanceof Error ? err.message : String(err)).split('\n')[0]}`);
-    }
-  }
-  throw new Error(`no Chromium available (run "pnpm exec playwright install chromium").\n  ${errors.join('\n  ')}`);
-}
-
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
-/** Mermaid layout options shared by both themes (part of the cache key). */
+/**
+ * Mermaid layout options shared by both themes (part of the cache key).
+ * Diagrams are shown at natural size and opened full screen, so the settings
+ * favor wide and readable over compact. Sequence messages are pre-wrapped by
+ * src/lib/flows/to-mermaid.ts and Mermaid is told not to wrap again (it widens
+ * the actor gap to fit the longest line instead). Flowchart labels wrap at
+ * 300 px rather than Mermaid's 120 px default. State diagrams keep a 200 px
+ * wrap (wider labels pushed self-loop labels into their neighbors) and get
+ * more room between nodes and ranks, chosen by counting label overlaps over
+ * the nine machines. The layout engine is dagre for every graph diagram: this
+ * Mermaid build defaults to ELK, which ignores the spacing options and
+ * stacked edge labels in the context diagrams.
+ */
 const RENDER_CONFIG = {
-  sequence: { useMaxWidth: true, mirrorActors: true, wrap: true, width: 180 },
-  flowchart: { useMaxWidth: true, htmlLabels: false },
-  state: { useMaxWidth: true },
+  layout: 'dagre',
+  sequence: {
+    useMaxWidth: true,
+    mirrorActors: true,
+    wrap: false,
+    width: 180,
+    actorMargin: 60,
+    messageMargin: 40,
+    boxMargin: 12,
+    boxTextMargin: 6,
+    noteMargin: 12,
+    wrapPadding: 12,
+    actorFontSize: 16,
+    noteFontSize: 15,
+    messageFontSize: 16,
+    diagramMarginX: 24,
+    diagramMarginY: 16,
+  },
+  flowchart: { useMaxWidth: true, htmlLabels: false, wrappingWidth: 300, nodeSpacing: 50, rankSpacing: 90, padding: 16 },
+  state: { useMaxWidth: true, wrappingWidth: 200, nodeSpacing: 90, rankSpacing: 80 },
+  class: { useMaxWidth: true },
 };
 
 export interface DiagramIndexEntry {
@@ -271,6 +283,11 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
   const inputDirs = options.inputDirs ?? [join(root, 'src', 'content', 'diagrams'), join(root, 'src', 'generated', 'mermaid')];
   const inputs = new Map<string, { path: string; text: string }>();
   const failures: RenderResult['failures'] = [];
+  // Custom inputs with the default output folder would treat every committed diagram as stale and delete it.
+  if (options.inputDirs && !options.outDir) {
+    failures.push({ id: '', source: options.inputDirs.join(', '), message: '--dir needs --out: refusing to write fixture renders into src/generated/diagrams' });
+    return { rendered: [], skipped: [], removed: [], failures, total: 0 };
+  }
   for (const dir of inputDirs) {
     for (const f of listDir(dir).filter((f) => f.endsWith('.mmd'))) {
       const id = f.replace(/\.mmd$/, '');
@@ -291,16 +308,25 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
   const tokens = parseTokens(tokensCss);
   const vars = { light: themeVariables(tokens.light, 'light'), dark: themeVariables(tokens.dark, 'dark') };
   const mermaidVersion = (readJson<{ version: string }>(join(root, 'node_modules', 'mermaid', 'package.json')) ?? { version: 'unknown' }).version;
+  // Text metrics come from the self-hosted fonts, so a font update invalidates the cache too.
+  const fontVersions = FONT_PACKAGES.map((p) => (readJson<{ version: string }>(join(root, 'node_modules', '@fontsource-variable', p, 'package.json')) ?? { version: 'unknown' }).version);
   const indexPath = join(outDir, 'index.json');
-  const prev = readJson<DiagramIndex>(indexPath);
+  let prev: DiagramIndex | undefined;
+  try {
+    prev = readJson<DiagramIndex>(indexPath);
+  } catch {
+    prev = undefined; // a corrupt index (merge conflict) is an empty cache, not a crash
+  }
   const diagrams: Record<string, DiagramIndexEntry> = { ...(prev?.diagrams ?? {}) };
-  const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + mermaidVersion);
+  const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + mermaidVersion + fontVersions.join(','));
 
   const todo: string[] = [];
   const skipped: string[] = [];
+  const hashes = new Map<string, string>();
   for (const [id, input] of [...inputs.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     if (options.only && id !== options.only) continue;
     const hash = sha256(input.text + themeHash);
+    hashes.set(id, hash);
     const entry = diagrams[id];
     const fresh =
       !options.force && entry?.hash === hash && existsSync(join(outDir, `${id}.light.svg`)) && existsSync(join(outDir, `${id}.dark.svg`));
@@ -313,7 +339,7 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
     const { server, origin } = await startServer(root);
     let browser: Browser | undefined;
     try {
-      browser = await launchBrowser();
+      browser = await launchBrowser({ tag: 'render-diagrams' });
       const page = await browser.newPage();
       const consoleErrors: string[] = [];
       page.on('pageerror', (e) => consoleErrors.push(e.message));
@@ -353,7 +379,7 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
         writeTextIfChanged(join(outDir, `${id}.light.svg`), `${svgs.light}\n`);
         writeTextIfChanged(join(outDir, `${id}.dark.svg`), `${svgs.dark}\n`);
         diagrams[id] = {
-          hash: sha256(input.text + themeHash),
+          hash: hashes.get(id)!,
           source: rel(root, input.path),
           light: `${id}.light.svg`,
           dark: `${id}.dark.svg`,

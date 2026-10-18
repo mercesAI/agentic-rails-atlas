@@ -17,29 +17,29 @@ sequenceDiagram
     p_crawler->>p_edge: (a) Retry with PAYMENT-SIGNATURE
     Note over p_crawler,p_edge: Crosses a trust boundary
   else The wallet holds too little USDC
-    Note over p_crawler,p_edge: Verification fails, for example with insufficient_funds#59; nothing is served.
+    Note over p_crawler,p_edge: Verification fails, for example with<br/>insufficient_funds#59; nothing is served.
   end
   alt Expected path
     p_edge->>p_facilitator: (a) POST /verify, then POST /settle
     Note over p_edge,p_facilitator: Crosses a trust boundary
   else The settle call times out
-    Note over p_edge,p_facilitator: Indeterminate: settlement may still have happened#59; settlement_pending is retried and reconciled.
+    Note over p_edge,p_facilitator: Indeterminate: settlement may still have happened#59;<br/>settlement_pending is retried and reconciled.
   end
   p_facilitator->>p_base: (a) USDC transfer on Base
   Note over p_facilitator,p_base: Crosses a trust boundary
   p_edge->>p_crawler: (a) 200 with the resource and PAYMENT-RESPONSE
   Note over p_edge,p_crawler: Crosses a trust boundary
-  p_crawler->>p_keydir: (b) One-time setup: publish keys and register the signature agent
+  p_crawler->>p_keydir: (b) One-time setup: publish keys<br/>and register the signature agent
   Note over p_crawler,p_keydir: Crosses a trust boundary
   p_crawler->>p_edge: (b) GET the page
   Note over p_crawler,p_edge: Crosses a trust boundary
   alt Expected path
-    p_edge-->>p_crawler: (b) 402: batch-settlement on cloudflare:402, payTo merchant
+    p_edge-->>p_crawler: (b) 402: batch-settlement on<br/>cloudflare:402, payTo merchant
     Note over p_edge,p_crawler: Crosses a trust boundary
   else The signature agent is not recognized
-    Note over p_edge,p_crawler: The amount may be missing from accepts#59; the client should retry with authentication.
+    Note over p_edge,p_crawler: The amount may be missing from accepts#59; the<br/>client should retry with authentication.
   end
-  p_crawler->>p_edge: (b) Retry signed with RFC 9421 plus PAYMENT-SIGNATURE
+  p_crawler->>p_edge: (b) Retry signed with RFC<br/>9421 plus PAYMENT-SIGNATURE
   Note over p_crawler,p_edge: Crosses a trust boundary
   alt Expected path
     p_edge->>p_keydir: (b) Fetch the key, check the agent is known, verify
@@ -53,11 +53,11 @@ sequenceDiagram
   else Amount does not match
     Note over p_edge,p_keydir: price_not_acceptable.
   end
-  p_edge->>p_crawler: (b) 200 with the page and PAYMENT-RESPONSE (no transaction)
+  p_edge->>p_crawler: (b) 200 with the page and<br/>PAYMENT-RESPONSE (no transaction)
   Note over p_edge,p_crawler: Crosses a trust boundary
   alt Expected path
-    p_billing->>p_origin: (b) Batched billing and periodic payout over off-chain rails
+    p_billing->>p_origin: (b) Batched billing and periodic<br/>payout over off-chain rails
     Note over p_billing,p_origin: Crosses a trust boundary
   else The crawler#39;s account cannot be charged at the end of the period
-    Note over p_billing,p_origin: Handled under Cloudflare#39;s registration terms#59; x402 defines nothing.
+    Note over p_billing,p_origin: Handled under Cloudflare#39;s registration<br/>terms#59; x402 defines nothing.
   end

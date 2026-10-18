@@ -15,19 +15,19 @@ sequenceDiagram
     p_client->>p_bazaar: GET /discovery/resources (Bazaar)
     Note over p_client,p_bazaar: Crosses a trust boundary
   else The listing is stale and the server now asks for more
-    Note over p_client,p_bazaar: The live 402 response wins#59; the client must compare it with its budget again.
+    Note over p_client,p_bazaar: The live 402 response wins#59; the client<br/>must compare it with its budget again.
   end
   alt Expected path
     p_client->>p_identity: Read tokenURI and getAgentWallet (ERC-8004)
     Note over p_client,p_identity: Crosses a trust boundary
   else The agent NFT was transferred
-    Note over p_client,p_identity: agentWallet was cleared on transfer#59; getAgentWallet returns no wallet until the new owner binds one again.
+    Note over p_client,p_identity: agentWallet was cleared on transfer#59; getAgentWallet<br/>returns no wallet until the new owner binds one again.
   end
   alt Expected path
     p_client->>p_files: Fetch the registration file
     Note over p_client,p_files: Crosses a trust boundary
   else The file is gone or does not list the endpoint
-    Note over p_client,p_files: Nothing on chain flags it#59; the client should not pay that endpoint.
+    Note over p_client,p_files: Nothing on chain flags it#59; the<br/>client should not pay that endpoint.
   end
   p_client->>p_seller: GET /weather (no payment header)
   Note over p_client,p_seller: Crosses a trust boundary
@@ -36,7 +36,7 @@ sequenceDiagram
   alt Expected path
     p_client->>p_client: Check payTo against agentWallet, sign EIP-3009
   else payTo differs from the agent#39;s agentWallet
-    Note over p_client: Neither protocol forces this check#59; a client that skips it can pay an address the agent never verified.
+    Note over p_client: Neither protocol forces this check#59; a client that<br/>skips it can pay an address the agent never verified.
   else The amount is above the spend cap
     Note over p_client: The SDK rejects the entry and no payment is created.
   end
@@ -58,20 +58,20 @@ sequenceDiagram
     p_seller->>p_facilitator: POST /settle
     Note over p_seller,p_facilitator: Crosses a trust boundary
   else The settle call times out or returns settlement_pending
-    Note over p_seller,p_facilitator: The outcome is indeterminate#59; the server must reconcile the broadcast hash before it retries.
+    Note over p_seller,p_facilitator: The outcome is indeterminate#59; the server must<br/>reconcile the broadcast hash before it retries.
   end
   alt Expected path
     p_facilitator->>p_chain: transferWithAuthorization (facilitator pays gas)
     Note over p_facilitator,p_chain: Crosses a trust boundary
   else The nonce was used or the balance dropped
-    Note over p_facilitator,p_chain: The transaction reverts and the facilitator returns success false.
+    Note over p_facilitator,p_chain: The transaction reverts and the<br/>facilitator returns success false.
   end
   p_seller-->>p_client: 200 OK with PAYMENT-RESPONSE
   Note over p_seller,p_client: Crosses a trust boundary
   p_client->>p_files: Publish the feedback file with proofOfPayment
   Note over p_client,p_files: Crosses a trust boundary
   alt Expected path
-    p_client->>p_reputation: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash)
+    p_client->>p_reputation: giveFeedback(agentId, value, valueDecimals,<br/>tag1, tag2, endpoint, feedbackURI, feedbackHash)
     Note over p_client,p_reputation: Crosses a trust boundary
   else The caller owns or operates the agent
     Note over p_client,p_reputation: Reverts with #quot;Self-feedback not allowed#quot;.
@@ -82,5 +82,5 @@ sequenceDiagram
     p_reader->>p_files: Fetch the file, check hash and txHash
     Note over p_reader,p_files: Crosses a trust boundary
   else The txHash does not exist or pays someone else
-    Note over p_reader,p_files: Nothing on chain flags it and getSummary still counts the value#59; only off-chain scoring can discount it.
+    Note over p_reader,p_files: Nothing on chain flags it and getSummary still counts<br/>the value#59; only off-chain scoring can discount it.
   end

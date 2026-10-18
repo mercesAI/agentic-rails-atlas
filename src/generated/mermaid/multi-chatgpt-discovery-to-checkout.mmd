@@ -11,13 +11,13 @@ sequenceDiagram
     p_merchant->>p_chatgpt: Push the product feed (ACP Feed API)
     Note over p_merchant,p_chatgpt: Crosses a trust boundary
   else A feed file replaces the whole set with a partial file
-    Note over p_merchant,p_chatgpt: Products missing from the file drop out#59; the ACP file mode replaces the full product set.
+    Note over p_merchant,p_chatgpt: Products missing from the file drop out#59; the<br/>ACP file mode replaces the full product set.
   end
   p_user->>p_chatgpt: Ask for a product
   p_chatgpt-->>p_user: Show matching products from feeds
   p_chatgpt->>p_app: Open the merchant#39;s ChatGPT app (MCP tool call)
   Note over p_chatgpt,p_app: Crosses a trust boundary
-  p_app->>p_user: Path A (generally available): link to the merchant#39;s own checkout
+  p_app->>p_user: Path A (generally available): link<br/>to the merchant#39;s own checkout
   Note over p_app,p_user: Crosses a trust boundary
   p_user->>p_merchant: Path A: pay on the merchant#39;s site
   Note over p_user,p_merchant: Crosses a trust boundary
@@ -27,7 +27,7 @@ sequenceDiagram
   else The issuer declines
     Note over p_merchant,p_psp: An ordinary decline on the merchant#39;s site.
   end
-  p_app->>p_chatgpt: Path B (private beta): widget calls window.openai.requestCheckout
+  p_app->>p_chatgpt: Path B (private beta): widget calls<br/>window.openai.requestCheckout
   Note over p_app,p_chatgpt: Crosses a trust boundary
   alt Expected path
     p_user->>p_chatgpt: Path B: choose a payment method and buy
@@ -35,7 +35,7 @@ sequenceDiagram
     Note over p_user,p_chatgpt: No token is sent and nothing is charged.
   end
   alt Expected path
-    p_chatgpt->>p_merchant: Path B, PCI DSS Level 1 merchants only: POST /agentic_commerce/delegate_payment
+    p_chatgpt->>p_merchant: Path B, PCI DSS Level 1 merchants only#58;<br/>POST /agentic_commerce/delegate_payment
     Note over p_chatgpt,p_merchant: Crosses a trust boundary
   else Card data fails validation
     Note over p_chatgpt,p_merchant: Delegate Payment error invalid_card.
@@ -44,13 +44,13 @@ sequenceDiagram
   end
   p_merchant-->>p_chatgpt: Path B, PCI DSS Level 1: 201 with a vault token id
   Note over p_merchant,p_chatgpt: Crosses a trust boundary
-  p_chatgpt->>p_app: Path B: complete_checkout tool call with a payment-method token
+  p_chatgpt->>p_app: Path B: complete_checkout tool<br/>call with a payment-method token
   Note over p_chatgpt,p_app: Crosses a trust boundary
   alt Expected path
     p_app->>p_psp: Path B: charge the token through a supported PSP
     Note over p_app,p_psp: Crosses a trust boundary
   else A delegated token is used outside its allowance
-    Note over p_app,p_psp: Should fail, but ACP defines no error code for it#59; the error is PSP specific.
+    Note over p_app,p_psp: Should fail, but ACP defines no error<br/>code for it#59; the error is PSP specific.
   else The issuer declines
     Note over p_app,p_psp: An ordinary decline#59; the app tells the shopper.
   end

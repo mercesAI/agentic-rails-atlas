@@ -11,7 +11,7 @@ sequenceDiagram
     p_owner->>p_host: Publish registration file
     Note over p_owner,p_host: Crosses a trust boundary
   else The file is unreachable or not valid JSON
-    Note over p_owner,p_host: Nothing fails on-chain#59; explorers and clients mark the agent as unreachable or invalid.
+    Note over p_owner,p_host: Nothing fails on-chain#59; explorers and clients<br/>mark the agent as unreachable or invalid.
   end
   alt Expected path
     p_owner->>p_identity: register(agentURI)
@@ -19,7 +19,7 @@ sequenceDiagram
   else The metadata array uses the key agentWallet
     Note over p_owner,p_identity: Reverts with #quot;reserved key#quot;.
   end
-  p_identity-->>p_owner: Return events Transfer, MetadataUpdate, Registered, MetadataSet
+  p_identity-->>p_owner: Return events Transfer, MetadataUpdate,<br/>Registered, MetadataSet
   p_owner->>p_host: Write agentId into registrations
   Note over p_owner,p_host: Crosses a trust boundary
   alt Expected path
@@ -34,12 +34,12 @@ sequenceDiagram
     p_owner->>p_wallet: Ask the new wallet to sign AgentWalletSet
     Note over p_owner,p_wallet: Crosses a trust boundary
   else The wallet is a smart contract wallet
-    Note over p_owner,p_wallet: It does not sign with ECDSA#59; the registry calls its ERC-1271 isValidSignature instead.
+    Note over p_owner,p_wallet: It does not sign with ECDSA#59; the registry<br/>calls its ERC-1271 isValidSignature instead.
   end
   p_wallet-->>p_owner: Return signature
   Note over p_wallet,p_owner: Crosses a trust boundary
   alt Expected path
-    p_owner->>p_identity: setAgentWallet(agentId, newWallet, deadline, signature)
+    p_owner->>p_identity: setAgentWallet(agentId,<br/>newWallet, deadline, signature)
     Note over p_owner,p_identity: Crosses a trust boundary
   else newWallet is the zero address
     Note over p_owner,p_identity: Reverts with #quot;bad wallet#quot;.

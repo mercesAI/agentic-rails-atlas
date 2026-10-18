@@ -7,6 +7,12 @@
  * braces, angle brackets, newlines) with Mermaid entity codes. Identifiers are
  * replaced by generated safe ids, so actor or state ids with hyphens, spaces or
  * reserved words never reach the parser.
+ *
+ * Layout choices (see scripts/render-diagrams.ts for the matching Mermaid
+ * configuration): sequence messages are wrapped here at a generous width and
+ * Mermaid is told not to wrap again, so it widens the gap between actors to fit
+ * the longest line instead of stacking short lines. State diagrams read top to
+ * bottom and leave wrapping to Mermaid's pixel-based wrapping width.
  */
 import type { Flow, StateMachine } from '../schemas';
 
@@ -49,6 +55,29 @@ export function escapeMermaidText(text: string, options: { colons?: boolean } = 
   return out || '#32;';
 }
 
+/**
+ * Text for a state transition label. Mermaid does not decode entity codes in
+ * transition labels (they show up literally as "&#59;") and a raw semicolon
+ * ends the statement, so the characters that cannot be written are replaced
+ * with plain look-alikes instead of entity codes. Colons after the first one
+ * are part of the label and need no escaping.
+ */
+export function sanitizeTransitionLabel(text: string): string {
+  const out = text
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/;/g, ',')
+    .replace(/["`]/g, "'")
+    .replace(/[{[]/g, '(')
+    .replace(/[}\]]/g, ')')
+    .replace(/</g, '#lt;')
+    .replace(/>/g, '#gt;')
+    .replace(/\|/g, '/')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  if (/^end$/i.test(out)) return `${out}\u200b`;
+  return out || '#32;';
+}
+
 /** Accessible title and description lines accept plain text only; keep them single-line and separator-free. */
 function accText(text: string): string {
   return text
@@ -88,6 +117,52 @@ export function isResponseStep(step: FlowStep, prev?: FlowStep, prevWasResponse 
   return !!prev && !prevWasResponse && step.from === prev.to && step.to === prev.from;
 }
 
+/** Greedy word packing: each line holds as many words as fit in `max` characters. */
+function packWords(words: string[], max: number): string[] {
+  const lines: string[] = [];
+  let cur = '';
+  for (const w of words) {
+    if (cur && cur.length + 1 + w.length > max) {
+      lines.push(cur);
+      cur = w;
+    } else {
+      cur = cur ? `${cur} ${w}` : w;
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+/**
+ * Wraps a label at word boundaries once it passes `max` characters; each line
+ * is escaped, lines are joined with <br/>. Lines are balanced: a label that
+ * needs two lines gets two lines of similar length rather than one full line
+ * and a short tail.
+ */
+export function wrapMermaidLabel(text: string, max = 40, options: { colons?: boolean } = {}): string {
+  const words = text.replace(/[\r\n\t]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+  const greedy = packWords(words, max);
+  if (greedy.length <= 1) return escapeMermaidText(text, options);
+  let lines = greedy;
+  const total = words.reduce((n, w) => n + w.length, 0) + words.length - 1;
+  for (let target = Math.ceil(total / greedy.length); target < max; target++) {
+    const candidate = packWords(words, target);
+    if (candidate.length === greedy.length) {
+      lines = candidate;
+      break;
+    }
+  }
+  return lines.map((l) => escapeMermaidText(l, options)).join('<br/>');
+}
+
+/**
+ * Wrap widths in characters for generated sequence diagrams. Mermaid draws each
+ * line as given (its own wrapping is off) and widens the gap between actors to
+ * fit the longest line. Failure conditions are not wrapped here: Mermaid wraps
+ * alt and else labels to the width of their frame.
+ */
+const SEQUENCE_WRAP = { message: 52, note: 64 } as const;
+
 export interface SequenceOptions {
   /** Emit alt/else blocks for step failures (default true). */
   failures?: boolean;
@@ -126,7 +201,7 @@ export function flowToSequenceDiagram(flow: Flow, options: SequenceOptions = {})
     const to = pid(s.to);
     const response = isResponseStep(s, prev, prevWasResponse);
     const arrow = response ? '-->>' : '->>';
-    const message = `  ${from}${arrow}${to}: ${escapeMermaidText(s.label)}`;
+    const message = `  ${from}${arrow}${to}: ${wrapMermaidLabel(s.label, SEQUENCE_WRAP.message)}`;
     const over = from === to ? from : `${from},${to}`;
     const failures = withFailures ? (s.failures ?? []) : [];
     if (failures.length) {
@@ -135,7 +210,7 @@ export function flowToSequenceDiagram(flow: Flow, options: SequenceOptions = {})
       if (s.crossesTrustBoundary) lines.push(`    Note over ${over}: Crosses a trust boundary`);
       for (const f of failures) {
         lines.push(`  else ${escapeMermaidText(f.condition)}`);
-        lines.push(`    Note over ${over}: ${escapeMermaidText(f.outcome)}`);
+        lines.push(`    Note over ${over}: ${wrapMermaidLabel(f.outcome, SEQUENCE_WRAP.note)}`);
       }
       lines.push('  end');
     } else {
@@ -148,42 +223,26 @@ export function flowToSequenceDiagram(flow: Flow, options: SequenceOptions = {})
   return `${lines.join('\n')}\n`;
 }
 
-/** Wraps a label at word boundaries once it passes `max` characters; each line is escaped, lines are joined with <br/>. */
-export function wrapMermaidLabel(text: string, max = 40, options: { colons?: boolean } = {}): string {
-  const words = text.replace(/[\r\n\t]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let cur = '';
-  for (const w of words) {
-    if (cur && cur.length + 1 + w.length > max) {
-      lines.push(cur);
-      cur = w;
-    } else {
-      cur = cur ? `${cur} ${w}` : w;
-    }
-  }
-  if (cur) lines.push(cur);
-  if (lines.length <= 1) return escapeMermaidText(text, options);
-  return lines.map((l) => escapeMermaidText(l, options)).join('<br/>');
-}
-
-/** State machines with more states than this read top to bottom, which keeps them narrow. */
-export const STATE_TB_THRESHOLD = 6;
-
 export interface StateOptions {
   accessibility?: boolean;
   description?: string;
 }
 
+/**
+ * State machines read top to bottom (Mermaid's default, stated explicitly so a
+ * future default change cannot flip the layout; left to right grows several
+ * screens wide). Labels and notes are not pre-wrapped; Mermaid wraps them at the
+ * configured pixel width (state.wrappingWidth in scripts/render-diagrams.ts).
+ */
 export function stateMachineToStateDiagram(machine: StateMachine, options: StateOptions = {}): string {
-  const lines: string[] = ['stateDiagram-v2'];
-  if (machine.states.length > STATE_TB_THRESHOLD) lines.push('  direction TB');
+  const lines: string[] = ['stateDiagram-v2', '  direction TB'];
   if (options.accessibility ?? true) {
     lines.push(`  accTitle: ${accText(machine.title)}`);
     if (options.description) lines.push(`  accDescr: ${accText(options.description)}`);
   }
   const sid = makeIdFactory('s');
   const known = new Set(machine.states.map((s) => s.id));
-  for (const s of machine.states) lines.push(`  state "${wrapMermaidLabel(s.label)}" as ${sid(s.id)}`);
+  for (const s of machine.states) lines.push(`  state "${escapeMermaidText(s.label)}" as ${sid(s.id)}`);
   for (const t of machine.transitions) {
     for (const id of [t.from, t.to]) {
       if (!known.has(id)) {
@@ -196,11 +255,11 @@ export function stateMachineToStateDiagram(machine: StateMachine, options: State
   const starts = initial.length ? initial : machine.states.slice(0, 1);
   for (const s of starts) lines.push(`  [*] --> ${sid(s.id)}`);
   for (const t of machine.transitions) {
-    lines.push(`  ${sid(t.from)} --> ${sid(t.to)} : ${wrapMermaidLabel(t.trigger)}`);
+    lines.push(`  ${sid(t.from)} --> ${sid(t.to)} : ${sanitizeTransitionLabel(t.trigger)}`);
   }
   for (const s of machine.states) if (s.terminal) lines.push(`  ${sid(s.id)} --> [*]`);
   for (const s of machine.states) {
-    if (s.note) lines.push(`  note right of ${sid(s.id)} : ${wrapMermaidLabel(s.note, 40, { colons: true })}`);
+    if (s.note) lines.push(`  note right of ${sid(s.id)} : ${escapeMermaidText(s.note, { colons: true })}`);
   }
   return `${lines.join('\n')}\n`;
 }

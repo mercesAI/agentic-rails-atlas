@@ -14,9 +14,9 @@ sequenceDiagram
   p_reader->>p_reputation: getSummary(agentId, trustedClients, #quot;starred#quot;, #quot;#quot;)
   p_reputation-->>p_reader: Return count, summaryValue, summaryValueDecimals
   alt Expected path
-    p_reader->>p_reputation: readAllFeedback(agentId, trustedClients, tag1, tag2, false)
+    p_reader->>p_reputation: readAllFeedback(agentId,<br/>trustedClients, tag1, tag2, false)
   else The agent has very many entries
-    Note over p_reader,p_reputation: The loop grows with every entry#59; large reads can hit RPC gas limits, so indexers read events instead.
+    Note over p_reader,p_reputation: The loop grows with every entry#59; large reads can hit<br/>RPC gas limits, so indexers read events instead.
   end
   p_reader->>p_ipfs: Fetch feedback files
   Note over p_reader,p_ipfs: Crosses a trust boundary

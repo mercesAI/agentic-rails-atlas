@@ -11,46 +11,46 @@ sequenceDiagram
     p_platform->>p_business: GET /.well-known/ucp
     Note over p_platform,p_business: Crosses a trust boundary
   else The profile URL redirects or is not HTTPS
-    Note over p_platform,p_business: The platform must not use it#59; there is no profile to negotiate with.
+    Note over p_platform,p_business: The platform must not use it#59; there<br/>is no profile to negotiate with.
   end
   alt Expected path
     p_business-->>p_platform: 200 business profile (ucp, keys)
     Note over p_business,p_platform: Crosses a trust boundary
   else The profile advertises a non-date version such as draft
-    Note over p_business,p_platform: Not allowed in public discovery#59; the platform should treat it as malformed.
+    Note over p_business,p_platform: Not allowed in public discovery#59; the<br/>platform should treat it as malformed.
   end
   alt Expected path
     p_platform->>p_platform: Pick a version, check namespace authority
   else A capability schema URL is on a host that does not own the namespace
-    Note over p_platform: The platform rejects that capability before fetching anything from it.
+    Note over p_platform: The platform rejects that capability<br/>before fetching anything from it.
   end
   alt Expected path
     p_platform->>p_business: POST /checkout-sessions (UCP-Agent, signed)
     Note over p_platform,p_business: Crosses a trust boundary
   else Signature or key problem
-    Note over p_platform,p_business: signature_missing, signature_invalid or key_not_found (401)#59; digest_mismatch or algorithm_unsupported (400).
+    Note over p_platform,p_business: signature_missing, signature_invalid or key_not_found<br/>(401)#59; digest_mismatch or algorithm_unsupported (400).
   else Profile URL malformed, unreachable or invalid
-    Note over p_platform,p_business: invalid_profile_url (400), profile_unreachable (424) or profile_malformed (422), with an optional continue_url.
+    Note over p_platform,p_business: invalid_profile_url (400), profile_unreachable (424) or<br/>profile_malformed (422), with an optional continue_url.
   end
   alt Expected path
     p_business-->>p_platform: GET platform profile, verify key, intersect
     Note over p_business,p_platform: Crosses a trust boundary
   else The platform profile URL resolves to a special-use address such as 169.254.169.254
-    Note over p_business,p_platform: The business must refuse to fetch it (server-side request forgery guard).
+    Note over p_business,p_platform: The business must refuse to fetch it<br/>(server-side request forgery guard).
   else The intersection is empty
-    Note over p_business,p_platform: capabilities_incompatible as a UCP response (HTTP 200) with an optional continue_url#59; see the failure flow.
+    Note over p_business,p_platform: capabilities_incompatible as a UCP response (HTTP 200)<br/>with an optional continue_url#59; see the failure flow.
   end
   alt Expected path
     p_business-->>p_platform: 201 checkout, status incomplete
     Note over p_business,p_platform: Crosses a trust boundary
   else All items are unavailable
-    Note over p_business,p_platform: ucp.status error with an out_of_stock message and no checkout resource.
+    Note over p_business,p_platform: ucp.status error with an out_of_stock<br/>message and no checkout resource.
   end
   alt Expected path
     p_platform->>p_business: PUT /checkout-sessions/chk_123 (full replacement)
     Note over p_platform,p_business: Crosses a trust boundary
   else The business needs data its API cannot collect, or a policy needs buyer review
-    Note over p_platform,p_business: status requires_escalation with continue_url#59; see the escalation flow.
+    Note over p_platform,p_business: status requires_escalation with<br/>continue_url#59; see the escalation flow.
   else Idempotency key reused with a different payload
     Note over p_platform,p_business: HTTP 409.
   end
@@ -58,7 +58,7 @@ sequenceDiagram
     p_platform->>p_buyer: Show checkout in a trusted UI#59; buyer places order
     Note over p_platform,p_buyer: Crosses a trust boundary
   else The buyer declines
-    Note over p_platform,p_buyer: The platform may call POST /checkout-sessions/chk_123/cancel, or let the session expire.
+    Note over p_platform,p_buyer: The platform may call POST /checkout-sessions/chk_123/cancel,<br/>or let the session expire.
   end
   alt Expected path
     p_platform->>p_cp: Run the payment handler, get an opaque token
@@ -72,13 +72,13 @@ sequenceDiagram
   else More than one instrument without split payments
     Note over p_platform,p_business: payment_failed.
   else The response is lost
-    Note over p_platform,p_business: Poll Get Checkout, then resend only the identical request with the same Idempotency-Key#59; see the failure flow.
+    Note over p_platform,p_business: Poll Get Checkout, then resend only the identical request<br/>with the same Idempotency-Key#59; see the failure flow.
   end
   alt Expected path
     p_business->>p_psp: Authorize the token with the PSP (outside UCP)
     Note over p_business,p_psp: Crosses a trust boundary
   else The issuer asks for 3DS2
-    Note over p_business,p_psp: With the authentication extension, the business returns an action#59; see the 3DS flow.
+    Note over p_business,p_psp: With the authentication extension, the<br/>business returns an action#59; see the 3DS flow.
   end
   p_business-->>p_platform: 200 completed with order
   Note over p_business,p_platform: Crosses a trust boundary
@@ -86,5 +86,5 @@ sequenceDiagram
     p_business->>p_platform: POST webhook_url: signed order event
     Note over p_business,p_platform: Crosses a trust boundary
   else Unsigned webhook or signer does not match the order business
-    Note over p_business,p_platform: The platform must reject the event#59; it can reconcile with GET /orders/order_789.
+    Note over p_business,p_platform: The platform must reject the event#59; it<br/>can reconcile with GET /orders/order_789.
   end

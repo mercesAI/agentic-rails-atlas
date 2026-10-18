@@ -11,7 +11,7 @@ sequenceDiagram
     p_agent->>p_merchant: GET /.well-known/acp.json
     Note over p_agent,p_merchant: Crosses a trust boundary
   else Document missing (404)
-    Note over p_agent,p_merchant: Agent falls back to an out-of-band configuration#59; discovery is optional.
+    Note over p_agent,p_merchant: Agent falls back to an out-of-band<br/>configuration#59; discovery is optional.
   end
   p_buyer->>p_agent: Ask to buy an item
   alt Expected path
@@ -29,7 +29,7 @@ sequenceDiagram
     p_agent->>p_merchant: POST /checkout_sessions/#123;id#125; (update)
     Note over p_agent,p_merchant: Crosses a trust boundary
   else Item out of stock
-    Note over p_agent,p_merchant: 200 with a MessageError code out_of_stock#59; status stays not_ready_for_payment
+    Note over p_agent,p_merchant: 200 with a MessageError code out_of_stock#59;<br/>status stays not_ready_for_payment
   end
   p_merchant-->>p_agent: 200 session (ready_for_payment)
   p_agent->>p_buyer: Show total, buyer confirms

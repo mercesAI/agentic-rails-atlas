@@ -17,7 +17,7 @@ sequenceDiagram
   Note over p_client,p_ipfs: Crosses a trust boundary
   p_client->>p_client: Compute feedbackHash
   alt Expected path
-    p_client->>p_reputation: giveFeedback(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash)
+    p_client->>p_reputation: giveFeedback(agentId, value, valueDecimals,<br/>tag1, tag2, endpoint, feedbackURI, feedbackHash)
     Note over p_client,p_reputation: Crosses a trust boundary
   else The caller is the owner or an operator of the agent
     Note over p_client,p_reputation: Reverts with #quot;Self-feedback not allowed#quot;.
@@ -31,7 +31,7 @@ sequenceDiagram
     p_indexer->>p_ipfs: Fetch the file and check the proof
     Note over p_indexer,p_ipfs: Crosses a trust boundary
   else The file is gone or its hash does not match
-    Note over p_indexer,p_ipfs: The on-chain value still counts in getSummary#59; only off-chain scoring can discount it.
+    Note over p_indexer,p_ipfs: The on-chain value still counts in getSummary#59;<br/>only off-chain scoring can discount it.
   else The txHash does not exist or pays someone else
     Note over p_indexer,p_ipfs: Nothing on-chain flags it#59; the reader must reject it.
   end

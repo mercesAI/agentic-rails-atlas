@@ -30,20 +30,20 @@ stateDiagram-v2
   s_key_resolved --> s_verified_pay : Signature valid, tag agent-payer-auth
   s_key_resolved --> s_blocked : Signature invalid
   s_verified_browse --> s_served : Merchant serves the page
-  s_verified_pay --> s_objects_checked : Nonce, kid and signature of each body<br/>object checked
+  s_verified_pay --> s_objects_checked : Nonce, kid and signature of each body object checked
   s_objects_checked --> s_served : Payment data processed
-  s_objects_checked --> s_declined : Payment container invalid or hash<br/>mismatch: decline the transaction
+  s_objects_checked --> s_declined : Payment container invalid or hash mismatch: decline the transaction
   s_served --> [*]
   s_untrusted --> [*]
   s_blocked --> [*]
   s_declined --> [*]
-  note right of s_received : At the merchant or its Site Protection<br/>Provider.
+  note right of s_received : At the merchant or its Site Protection Provider.
   note right of s_tagged : agent-browser-auth or agent-payer-auth.
-  note right of s_fields_ok : @authority, @path, created, expires,<br/>keyid, alg, nonce, tag.
-  note right of s_in_window : created past, expires future, at most 8<br/>minutes apart.
-  note right of s_nonce_fresh : Only if the verifier keeps nonces of the<br/>last 8 minutes.
+  note right of s_fields_ok : @authority, @path, created, expires, keyid, alg, nonce, tag.
+  note right of s_in_window : created past, expires future, at most 8 minutes apart.
+  note right of s_nonce_fresh : Only if the verifier keeps nonces of the last 8 minutes.
   note right of s_key_resolved : From cache or the key store.
   note right of s_verified_pay : Body objects may follow.
-  note right of s_objects_checked : agenticConsumer and<br/>agenticPaymentContainer.
+  note right of s_objects_checked : agenticConsumer and agenticPaymentContainer.
   note right of s_untrusted : Merchant may block or use other means.
-  note right of s_declined : Merchant declines the payment and does<br/>not use the payment data.
+  note right of s_declined : Merchant declines the payment and does not use the payment data.

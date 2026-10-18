@@ -12,45 +12,45 @@ sequenceDiagram
   alt Expected path
     p_agent->>p_ts: Propose open Checkout and Payment Mandates
   else A constraint type a verifier does not know is included
-    Note over p_agent,p_ts: Every verifier must treat it as failing, so the mandate can never be used.
+    Note over p_agent,p_ts: Every verifier must treat it as failing,<br/>so the mandate can never be used.
   end
   p_ts->>p_user: Show the limits, authenticate, get consent
   p_ts-->>p_agent: Return user-signed open mandates#59; the owner leaves
   p_agent->>p_merchant: Stock runs low: build a cart
   Note over p_agent,p_merchant: Crosses a trust boundary
-  p_merchant-->>p_agent: Merchant-signed checkout (checkout_jwt)#59; mandate required
+  p_merchant-->>p_agent: Merchant-signed checkout<br/>(checkout_jwt)#59; mandate required
   Note over p_merchant,p_agent: Crosses a trust boundary
   alt Expected path
     p_agent->>p_agent: Deterministic pre-check before signing
   else A previous closed mandate has neither a success nor a rejection receipt
-    Note over p_agent: The agent must wait#59; signing a second checkout would risk a double spend.
+    Note over p_agent: The agent must wait#59; signing a second<br/>checkout would risk a double spend.
   end
-  p_agent-->>p_agent: Sign closed mandates with the agent key (cnf, sd_hash)
+  p_agent-->>p_agent: Sign closed mandates with<br/>the agent key (cnf, sd_hash)
   p_agent->>p_cp: Present open and closed Payment Mandates
   Note over p_agent,p_cp: Crosses a trust boundary
   alt Expected path
-    p_cp-->>p_agent: Verify the chain and constraints#59; issue a payment token
+    p_cp-->>p_agent: Verify the chain and constraints#59;<br/>issue a payment token
     Note over p_cp,p_agent: Crosses a trust boundary
   else Budget exceeded, too soon for the recurrence, or a payee not allowed
-    Note over p_cp,p_agent: Payment Receipt with status Error and unresolved_constraint#59; the agent may bring the owner back to approve a closed mandate (human present).
+    Note over p_cp,p_agent: Payment Receipt with status Error and<br/>unresolved_constraint#59; the agent may bring the owner<br/>back to approve a closed mandate (human present).
   else The closed mandate is not signed by the key in cnf, or sd_hash does not match
     Note over p_cp,p_agent: invalid_credential, a terminal error.
   end
-  p_agent->>p_merchant: Send the token and the open and closed Checkout Mandates
+  p_agent->>p_merchant: Send the token and the open<br/>and closed Checkout Mandates
   Note over p_agent,p_merchant: Crosses a trust boundary
   alt Expected path
     p_merchant->>p_merchant: Merchant verifies bindings and constraints
   else The merchant is not allowed or a line item cannot be matched
-    Note over p_merchant: Checkout Receipt with error unresolved_constraint. With that rejection receipt in hand, the agent may present a new closed mandate for a different checkout.
+    Note over p_merchant: Checkout Receipt with error unresolved_constraint.<br/>With that rejection receipt in hand, the agent may<br/>present a new closed mandate for a different checkout.
   end
   p_merchant->>p_mpp: Initiate payment with the token and both hashes
   Note over p_merchant,p_mpp: Crosses a trust boundary
   alt Expected path
-    p_mpp->>p_agent: Processor verifies the Payment Mandates in the token#59; Payment Receipt
+    p_mpp->>p_agent: Processor verifies the Payment<br/>Mandates in the token#59; Payment Receipt
     Note over p_mpp,p_agent: Crosses a trust boundary
   else A binding does not match or the card is declined
     Note over p_mpp,p_agent: Payment Receipt with status Error, error and error_description.
   end
   p_merchant->>p_agent: Checkout Receipt with order_id
   Note over p_merchant,p_agent: Crosses a trust boundary
-  p_agent->>p_agent: Store the tuple, add to the budget, narrow the open mandate
+  p_agent->>p_agent: Store the tuple, add to the<br/>budget, narrow the open mandate

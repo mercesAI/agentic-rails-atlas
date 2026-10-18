@@ -9,21 +9,21 @@ sequenceDiagram
   p_owner->>p_store: Store request data
   Note over p_owner,p_store: Crosses a trust boundary
   alt Expected path
-    p_owner->>p_validation: validationRequest(validatorAddress, agentId, requestURI, requestHash)
+    p_owner->>p_validation: validationRequest(validatorAddress,<br/>agentId, requestURI, requestHash)
     Note over p_owner,p_validation: Crosses a trust boundary
   else The requestHash was used before
-    Note over p_owner,p_validation: Reverts with #quot;exists#quot; in the reference code#59; the first owner to submit a hash occupies it.
+    Note over p_owner,p_validation: Reverts with #quot;exists#quot; in the reference code#59;<br/>the first owner to submit a hash occupies it.
   else validatorAddress is zero
     Note over p_owner,p_validation: Reverts with #quot;bad validator#quot;.
   end
   p_validator->>p_store: Fetch and check the work
   Note over p_validator,p_store: Crosses a trust boundary
   alt Expected path
-    p_validator->>p_validation: validationResponse(requestHash, response, responseURI, responseHash, #quot;soft#quot;)
+    p_validator->>p_validation: validationResponse(requestHash, response,<br/>responseURI, responseHash, #quot;soft#quot;)
     Note over p_validator,p_validation: Crosses a trust boundary
   else The caller is not the named validator
     Note over p_validator,p_validation: Reverts with #quot;not validator#quot;.
   else response is above 100
     Note over p_validator,p_validation: Reverts with #quot;resp#gt;100#quot;.
   end
-  p_validator->>p_validation: validationResponse(requestHash, response, ..., #quot;hard#quot;)
+  p_validator->>p_validation: validationResponse(requestHash,<br/>response, ..., #quot;hard#quot;)

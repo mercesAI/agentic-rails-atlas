@@ -1,4 +1,5 @@
 stateDiagram-v2
+  direction TB
   accTitle: Tempo session channel lifecycle (cooperative and forced close)
   accDescr: State diagram: Tempo session channel lifecycle (cooperative and forced close). 6 states: Session challenge issued, Channel open, Streaming with vouchers, Close requested (grace period), Closed and finalized, and Rejected. Starts in Session challenge issued. Ends in Closed and finalized and Rejected. 11 transitions. From Session challenge issued to Channel open when Client sends action open with a signed deposit transaction (open(payee, token, deposit, salt, authorizedSigner)). From Session challenge issued to Rejected when Open transaction or voucher signature invalid (HTTP 402 session/invalid-signature). From Channel open to Streaming with vouchers when Client sends rising vouchers to the same URI (Authorization: Payment action voucher (HEAD allowed)). From Streaming with vouchers to Streaming with vouchers when Server claims the newest voucher (settle(channelId, cumulativeAmount, signature)). From Streaming with vouchers to Streaming with vouchers when Deposit runs low (action topUp topUp(channelId, additionalDeposit)). From Streaming with vouchers to Closed and finalized when Cooperative close: client sends action close server captures max(spent, settled) (close(channelId, cumulativeAmount, signature)). From Streaming with vouchers to Close requested (grace period) when Server stops answering client starts a forced close (requestClose(channelId)). From Close requested (grace period) to Streaming with vouchers when Client tops up, which cancels the close request (topUp (emits CloseRequestCancelled)). From Close requested (grace period) to Closed and finalized when Server closes during the grace period (close(channelId, cumulativeAmount, signature)). From Close requested (grace period) to Closed and finalized when Grace period over (wait 16 minutes) client withdraws the rest (withdraw(channelId)). From Streaming with vouchers to Rejected when Voucher above deposit, below minVoucherDelta or from the wrong signer (HTTP 402 session/amount-exceeds-deposit, session/delta-too-small, session/signer-mismatch).
   state "Session challenge issued" as s_challenged
@@ -8,22 +9,22 @@ stateDiagram-v2
   state "Closed and finalized" as s_closed
   state "Rejected" as s_rejected
   [*] --> s_challenged
-  s_challenged --> s_open : Client sends action open with a signed<br/>deposit transaction
-  s_challenged --> s_rejected : Open transaction or voucher signature<br/>invalid
-  s_open --> s_streaming : Client sends rising vouchers to the same<br/>URI
+  s_challenged --> s_open : Client sends action open with a signed deposit transaction
+  s_challenged --> s_rejected : Open transaction or voucher signature invalid
+  s_open --> s_streaming : Client sends rising vouchers to the same URI
   s_streaming --> s_streaming : Server claims the newest voucher
   s_streaming --> s_streaming : Deposit runs low
-  s_streaming --> s_closed : Cooperative close: client sends action<br/>close#59; server captures max(spent,<br/>settled)
-  s_streaming --> s_close_requested : Server stops answering#59; client starts a<br/>forced close
-  s_close_requested --> s_streaming : Client tops up, which cancels the close<br/>request
+  s_streaming --> s_closed : Cooperative close: client sends action close, server captures max(spent, settled)
+  s_streaming --> s_close_requested : Server stops answering, client starts a forced close
+  s_close_requested --> s_streaming : Client tops up, which cancels the close request
   s_close_requested --> s_closed : Server closes during the grace period
-  s_close_requested --> s_closed : Grace period over (wait 16 minutes)#59;<br/>client withdraws the rest
-  s_streaming --> s_rejected : Voucher above deposit, below<br/>minVoucherDelta or from the wrong signer
+  s_close_requested --> s_closed : Grace period over (wait 16 minutes), client withdraws the rest
+  s_streaming --> s_rejected : Voucher above deposit, below minVoucherDelta or from the wrong signer
   s_closed --> [*]
   s_rejected --> [*]
-  note right of s_challenged : 402 with intent session#59; amount is price<br/>per unit.
+  note right of s_challenged : 402 with intent session#59; amount is price per unit.
   note right of s_open : Deposit in escrow#59; no expiry.
-  note right of s_streaming : Off-chain cumulative EIP-712 vouchers#59;<br/>receipts carry acceptedCumulative and<br/>spent.
-  note right of s_close_requested : At least 15 minutes#59; server may still<br/>settle or close.
+  note right of s_streaming : Off-chain cumulative EIP-712 vouchers#59; receipts carry acceptedCumulative and spent.
+  note right of s_close_requested : At least 15 minutes#59; server may still settle or close.
   note right of s_closed : Payee paid, remainder refunded.
-  note right of s_rejected : 400 malformed, 402 bad signature or<br/>signer, 410 channel not found or<br/>finalized.
+  note right of s_rejected : 400 malformed, 402 bad signature or signer, 410 channel not found or finalized.

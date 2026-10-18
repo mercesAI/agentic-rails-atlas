@@ -6,16 +6,16 @@ sequenceDiagram
   participant p_platform as Browser or OS (Digital Credentials API)
   participant p_wallet as Wallet (Trusted Surface)
   participant p_user as User
-  p_sa->>p_platform: OpenID4VP request with a delegate entry in transaction_data
+  p_sa->>p_platform: OpenID4VP request with a delegate<br/>entry in transaction_data
   Note over p_sa,p_platform: Crosses a trust boundary
   p_platform->>p_wallet: Route the request to the user#39;s wallet
   Note over p_platform,p_wallet: Crosses a trust boundary
   alt Expected path
     p_wallet->>p_user: Show the purchase#59; authenticate
   else No credential matches the DCQL query
-    Note over p_wallet,p_user: No response is returned#59; the agent cannot obtain a user-signed mandate this way.
+    Note over p_wallet,p_user: No response is returned#59; the agent cannot<br/>obtain a user-signed mandate this way.
   end
-  p_wallet->>p_platform: Authorization response: vp_token with key binding over delegate_payload
+  p_wallet->>p_platform: Authorization response: vp_token with<br/>key binding over delegate_payload
   Note over p_wallet,p_platform: Crosses a trust boundary
   p_platform-->>p_sa: Return the response to the agent
   Note over p_platform,p_sa: Crosses a trust boundary

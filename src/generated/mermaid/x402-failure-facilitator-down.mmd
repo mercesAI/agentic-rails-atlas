@@ -14,7 +14,7 @@ sequenceDiagram
     p_server->>p_facilitator: POST /settle (times out)
     Note over p_server,p_facilitator: Crosses a trust boundary
   else The facilitator answers settlement_pending
-    Note over p_server,p_facilitator: Non-terminal. The response carries the broadcast hash#59; the server checks it on chain and retries at most once.
+    Note over p_server,p_facilitator: Non-terminal. The response carries the broadcast hash#59;<br/>the server checks it on chain and retries at most once.
   end
   p_server->>p_chain: Reconcile: look up the transaction
   Note over p_server,p_chain: Crosses a trust boundary

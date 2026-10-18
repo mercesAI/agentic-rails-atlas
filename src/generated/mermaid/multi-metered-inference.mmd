@@ -7,21 +7,21 @@ sequenceDiagram
   participant p_escrow as Tempo channel escrow (TIP-20 precompile in v2)
   p_client->>p_server: POST /v1/chat/completions with Accept-Payment
   Note over p_client,p_server: Crosses a trust boundary
-  p_server-->>p_client: 402 with WWW-Authenticate: Payment, method tempo, intent session
+  p_server-->>p_client: 402 with WWW-Authenticate: Payment,<br/>method tempo, intent session
   Note over p_server,p_client: Crosses a trust boundary
-  p_client->>p_client: Choose a deposit, sign the open transaction and a zero voucher
+  p_client->>p_client: Choose a deposit, sign the open<br/>transaction and a zero voucher
   alt Expected path
     p_client->>p_server: Retry with Authorization: Payment, action open
     Note over p_client,p_server: Crosses a trust boundary
   else The challenge id is unknown, used or expired
-    Note over p_client,p_server: 402 with a fresh challenge and a matching problem type such as invalid-challenge or payment-expired.
+    Note over p_client,p_server: 402 with a fresh challenge and a matching problem<br/>type such as invalid-challenge or payment-expired.
   end
   p_server->>p_escrow: Broadcast the open transaction
   Note over p_server,p_escrow: Crosses a trust boundary
   p_server-->>p_client: 200, stream starts, Payment-Receipt in headers
   Note over p_server,p_client: Crosses a trust boundary
   alt Expected path
-    p_client->>p_server: Voucher per unit batch (action voucher, HEAD allowed)
+    p_client->>p_server: Voucher per unit batch (action<br/>voucher, HEAD allowed)
     Note over p_client,p_server: Crosses a trust boundary
   else The voucher total exceeds the deposit
     Note over p_client,p_server: Rejected (session/amount-exceeds-deposit).
@@ -33,7 +33,7 @@ sequenceDiagram
   alt Expected path
     p_server-->>p_client: SSE event payment-need-voucher
   else No voucher arrives within the server#39;s timeout (for example 60 seconds)
-    Note over p_server,p_client: The server should close the stream#59; the agent has paid only for what its vouchers covered.
+    Note over p_server,p_client: The server should close the stream#59; the agent<br/>has paid only for what its vouchers covered.
   end
   alt Expected path
     p_client->>p_server: Top up (action topUp)
@@ -49,10 +49,10 @@ sequenceDiagram
     p_server->>p_escrow: close: capture max(spent, settled), refund the rest
     Note over p_server,p_escrow: Crosses a trust boundary
   else The server never closes (forced close)
-    Note over p_server,p_escrow: The agent calls requestClose on chain#59; a grace period of at least 15 minutes starts in which the server can still settle or close#59; the spec advises waiting at least 16 minutes before withdraw, which returns all unsettled funds.
+    Note over p_server,p_escrow: The agent calls requestClose on chain#59; a grace period of at<br/>least 15 minutes starts in which the server can still<br/>settle or close#59; the spec advises waiting at least 16<br/>minutes before withdraw, which returns all unsettled funds.
   else The agent tops up while a close request is pending
-    Note over p_server,p_escrow: The topUp cancels the close request and emits CloseRequestCancelled.
+    Note over p_server,p_escrow: The topUp cancels the close request<br/>and emits CloseRequestCancelled.
   else A close voucher equal to the settled amount (mppx before 0.4.11, CVE-2026-34209)
-    Note over p_server,p_escrow: The vulnerable server accepted it, letting anyone close or grief a channel for free#59; fixed in 0.4.11.
+    Note over p_server,p_escrow: The vulnerable server accepted it, letting anyone<br/>close or grief a channel for free#59; fixed in 0.4.11.
   end
-  p_server->>p_client: Final receipt with txHash (SSE payment-receipt event)
+  p_server->>p_client: Final receipt with txHash<br/>(SSE payment-receipt event)

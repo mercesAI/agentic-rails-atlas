@@ -10,35 +10,35 @@ sequenceDiagram
   participant p_acquirer as Acquirer or PSP
   participant p_network as Mastercard network and token service
   participant p_issuer as Issuer
-  p_user->>p_agent: Delegate the purchase: sign Verifiable Intent L2 (specified#59; live use not shown publicly)
+  p_user->>p_agent: Delegate the purchase: sign Verifiable Intent<br/>L2 (specified#59; live use not shown publicly)
   Note over p_user,p_agent: Crosses a trust boundary
-  p_agent->>p_cdn: GET product page, RFC 9421 signature with tag Agent-pay-auth
+  p_agent->>p_cdn: GET product page, RFC 9421<br/>signature with tag Agent-pay-auth
   Note over p_agent,p_cdn: Crosses a trust boundary
   alt Expected path
-    p_cdn->>p_directory: Fetch the agent key by keyid (directory location unknown)
+    p_cdn->>p_directory: Fetch the agent key by keyid<br/>(directory location unknown)
     Note over p_cdn,p_directory: Crosses a trust boundary
   else Key not found in the directory
     Note over p_cdn,p_directory: Mastercard#39;s Level 1 decision table blocks the request.
   end
   alt Expected path
-    p_cdn->>p_merchant: Verify window, nonce, tag and signature, then forward
+    p_cdn->>p_merchant: Verify window, nonce, tag<br/>and signature, then forward
     Note over p_cdn,p_merchant: Crosses a trust boundary
   else No Signature-Input or no scheme tag
     Note over p_cdn,p_merchant: Sent to the merchant#39;s non-agent bot policy.
   else A required field is missing
     Note over p_cdn,p_merchant: Blocked.
   end
-  p_merchant->>p_agent: Checkout page with standard card fields (and a checkout_jwt, per spec)
+  p_merchant->>p_agent: Checkout page with standard card<br/>fields (and a checkout_jwt, per spec)
   Note over p_merchant,p_agent: Crosses a trust boundary
-  p_agent->>p_network: Request a Virtual Card Token checkout for the merchant domain
+  p_agent->>p_network: Request a Virtual Card Token<br/>checkout for the merchant domain
   Note over p_agent,p_network: Crosses a trust boundary
   p_network-->>p_agent: Return the token, its expiry and a one-time DTVC
   Note over p_network,p_agent: Crosses a trust boundary
-  p_agent->>p_agent: Sign L3a and L3b linked by checkout_hash (specified#59; live use not shown publicly)
-  p_agent->>p_cdn: POST the card form: token, expiry and DTVC in standard fields
+  p_agent->>p_agent: Sign L3a and L3b linked by checkout_hash<br/>(specified#59; live use not shown publicly)
+  p_agent->>p_cdn: POST the card form: token, expiry<br/>and DTVC in standard fields
   Note over p_agent,p_cdn: Crosses a trust boundary
   alt Expected path
-    p_agent->>p_merchant: Present L1, L2 and L3b to the merchant (specified#59; transport not defined)
+    p_agent->>p_merchant: Present L1, L2 and L3b to the merchant<br/>(specified#59; transport not defined)
     Note over p_agent,p_merchant: Crosses a trust boundary
   else checkout_hash differs from the merchant#39;s own checkout_jwt hash
     Note over p_agent,p_merchant: Checkout-payment mismatch#59; the merchant rejects the order.
@@ -46,14 +46,14 @@ sequenceDiagram
   p_merchant->>p_acquirer: Submit the authorization
   Note over p_merchant,p_acquirer: Crosses a trust boundary
   alt Expected path
-    p_acquirer->>p_network: Authorization: detokenize, validate the DTVC, check L3a (per spec)
+    p_acquirer->>p_network: Authorization: detokenize, validate<br/>the DTVC, check L3a (per spec)
     Note over p_acquirer,p_network: Crosses a trust boundary
   else The DTVC fails or was already used
     Note over p_acquirer,p_network: The issuer is told the DTVC result and can decline.
   else The amount exceeds the L2 amount_range or budget
-    Note over p_acquirer,p_network: Per spec the network rejects the chain#59; no published response code.
+    Note over p_acquirer,p_network: Per spec the network rejects the<br/>chain#59; no published response code.
   end
   p_network->>p_issuer: Route with the DTVC result and assurance data
   Note over p_network,p_issuer: Crosses a trust boundary
-  p_issuer->>p_merchant: Approve or decline, then disputes under standard rules
+  p_issuer->>p_merchant: Approve or decline, then<br/>disputes under standard rules
   Note over p_issuer,p_merchant: Crosses a trust boundary

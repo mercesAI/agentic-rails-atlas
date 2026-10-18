@@ -14,18 +14,18 @@ stateDiagram-v2
   state "canceled" as s_canceled
   state "expired" as s_expired
   [*] --> s_not_ready_for_payment
-  s_not_ready_for_payment --> s_ready_for_payment : Buyer data and fulfillment choice<br/>complete
+  s_not_ready_for_payment --> s_ready_for_payment : Buyer data and fulfillment choice complete
   s_incomplete --> s_not_ready_for_payment : Required data added (inferred from name)
-  s_ready_for_payment --> s_not_ready_for_payment : Update invalidates the cart, for example<br/>out of stock
+  s_ready_for_payment --> s_not_ready_for_payment : Update invalidates the cart, for example out of stock
   s_ready_for_payment --> s_authentication_required : Merchant requires 3DS
   s_authentication_required --> s_completed : Complete with authentication_result
-  s_ready_for_payment --> s_requires_escalation : Merchant needs buyer action outside the<br/>agent (inferred from name)
-  s_ready_for_payment --> s_pending_approval : Approval required, for example B2B<br/>(inferred from name)
-  s_ready_for_payment --> s_complete_in_progress : Complete accepted, payment still<br/>processing (inferred from name)
-  s_complete_in_progress --> s_completed : Payment confirmed, order created<br/>(inferred)
-  s_ready_for_payment --> s_in_progress : Processing (meaning not detailed#59;<br/>inferred)
+  s_ready_for_payment --> s_requires_escalation : Merchant needs buyer action outside the agent (inferred from name)
+  s_ready_for_payment --> s_pending_approval : Approval required, for example B2B (inferred from name)
+  s_ready_for_payment --> s_complete_in_progress : Complete accepted, payment still processing (inferred from name)
+  s_complete_in_progress --> s_completed : Payment confirmed, order created (inferred)
+  s_ready_for_payment --> s_in_progress : Processing (meaning not detailed, inferred)
   s_in_progress --> s_completed : Order created
-  s_ready_for_payment --> s_completed : Complete succeeds#59; response carries an<br/>order
+  s_ready_for_payment --> s_completed : Complete succeeds, response carries an order
   s_not_ready_for_payment --> s_canceled : Agent cancels, optional intent_trace
   s_ready_for_payment --> s_canceled : Agent cancels, optional intent_trace
   s_ready_for_payment --> s_expired : expires_at passes (inferred from name)
@@ -34,12 +34,12 @@ stateDiagram-v2
   s_canceled --> [*]
   s_expired --> [*]
   note right of s_incomplete : Added 2026-01-30#59; no RFC definition.
-  note right of s_not_ready_for_payment : Original value#59; usually the status after<br/>create.
+  note right of s_not_ready_for_payment : Original value#59; usually the status after create.
   note right of s_requires_escalation : Added 2026-01-30#59; no RFC definition.
-  note right of s_authentication_required : From 2025-12-12#59; RFC requires<br/>authentication_metadata.
+  note right of s_authentication_required : From 2025-12-12#59; RFC requires authentication_metadata.
   note right of s_ready_for_payment : Original value.
-  note right of s_pending_approval : Added 2026-01-30#59; no RFC definition (B2B<br/>approval fields exist).
-  note right of s_in_progress : Original value#59; meaning not detailed in<br/>the RFC.
+  note right of s_pending_approval : Added 2026-01-30#59; no RFC definition (B2B approval fields exist).
+  note right of s_in_progress : Original value#59; meaning not detailed in the RFC.
   note right of s_complete_in_progress : Added 2026-01-30#59; no RFC definition.
   note right of s_completed : Must carry an order.
   note right of s_canceled : Cancel again returns 405.

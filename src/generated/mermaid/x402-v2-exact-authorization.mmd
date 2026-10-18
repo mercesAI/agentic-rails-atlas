@@ -10,12 +10,12 @@ sequenceDiagram
   alt Expected path
     p_server-->>p_client: 402 Payment Required with PAYMENT-REQUIRED
   else A route has no registered scheme
-    Note over p_server,p_client: Since @x402/core 2.25.0 the SDK throws an error instead of answering 402 with an empty accepts list.
+    Note over p_server,p_client: Since @x402/core 2.25.0 the SDK throws an error<br/>instead of answering 402 with an empty accepts list.
   end
   alt Expected path
     p_client->>p_client: Choose an accepts entry, check limits, sign EIP-712
   else Amount is above the spend cap or the asset is not allowed
-    Note over p_client: The SDK rejects the entry#59; if no entry is left, no payment is created.
+    Note over p_client: The SDK rejects the entry#59; if no<br/>entry is left, no payment is created.
   else The entry names a paymentFlow the client does not recognize
     Note over p_client: The client must skip that entry.
   end
@@ -28,25 +28,25 @@ sequenceDiagram
     p_server->>p_facilitator: POST /verify
     Note over p_server,p_facilitator: Crosses a trust boundary
   else The facilitator is unreachable or times out
-    Note over p_server,p_facilitator: See the facilitator-down flow: the Express middleware answers 502 and the handler does not run.
+    Note over p_server,p_facilitator: See the facilitator-down flow: the Express<br/>middleware answers 502 and the handler does not run.
   end
   p_facilitator->>p_chain: Read balance and nonce state, simulate
   Note over p_facilitator,p_chain: Crosses a trust boundary
   alt Expected path
     p_facilitator-->>p_server: Return VerifyResponse isValid true
   else isValid is false (for example expired window, wrong recipient, used nonce, low balance)
-    Note over p_facilitator,p_server: The server answers 402 and the handler does not run. See the failure flows.
+    Note over p_facilitator,p_server: The server answers 402 and the handler<br/>does not run. See the failure flows.
   end
   alt Expected path
     p_server->>p_server: Run the handler
   else The handler fails
-    Note over p_server: The server does not settle, so the client is not charged (an SDK hook, settleOnCancel, can change this).
+    Note over p_server: The server does not settle, so the client is not<br/>charged (an SDK hook, settleOnCancel, can change this).
   end
   alt Expected path
     p_server->>p_facilitator: POST /settle
     Note over p_server,p_facilitator: Crosses a trust boundary
   else The settle call times out
-    Note over p_server,p_facilitator: The outcome is indeterminate: the transfer may still confirm, so the server must reconcile before it retries.
+    Note over p_server,p_facilitator: The outcome is indeterminate: the transfer may still<br/>confirm, so the server must reconcile before it retries.
   end
   alt Expected path
     p_facilitator->>p_chain: Broadcast transferWithAuthorization
@@ -58,6 +58,6 @@ sequenceDiagram
   alt Expected path
     p_facilitator-->>p_server: Return SettleResponse success true
   else errorReason is settlement_pending
-    Note over p_facilitator,p_server: Non-terminal: the transaction was broadcast but not confirmed. The response carries the hash, and the server reconciles before it decides.
+    Note over p_facilitator,p_server: Non-terminal: the transaction was broadcast but<br/>not confirmed. The response carries the hash,<br/>and the server reconciles before it decides.
   end
   p_server-->>p_client: 200 OK with PAYMENT-RESPONSE

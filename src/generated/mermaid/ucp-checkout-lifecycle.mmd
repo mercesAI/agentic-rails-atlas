@@ -1,4 +1,5 @@
 stateDiagram-v2
+  direction TB
   accTitle: UCP checkout session status (v2026-08-25), with the AP2 lock
   accDescr: State diagram: UCP checkout session status (v2026-08-25), with the AP2 lock. 6 states: incomplete, requires_escalation, ready_for_complete, complete_in_progress, completed, and canceled. Starts in incomplete. Ends in completed and canceled. 13 transitions. From incomplete to ready_for_complete when All information collected, no Action outstanding (PUT /checkout-sessions/ id (update_checkout)). From incomplete to requires_escalation when Business needs data its API cannot collect, or a policy needs buyer review (POST or PUT /checkout-sessions response). From requires_escalation to incomplete when Issue resolved through an update (PUT /checkout-sessions/ id ). From requires_escalation to completed when Buyer finishes on the business UI through continue_url (continue_url (browser), then GET /checkout-sessions/ id ). From ready_for_complete to completed when Complete Checkout succeeds synchronously (POST /checkout-sessions/ id /complete (complete_checkout)). From ready_for_complete to complete_in_progress when Complete Checkout accepted for asynchronous processing (POST /checkout-sessions/ id /complete). From ready_for_complete to incomplete when Complete returns a recoverable change (for example payment_failed or out_of_stock) (POST /checkout-sessions/ id /complete). From ready_for_complete to requires_escalation when Complete returns a buyer handoff (requires_buyer_input or requires_buyer_review) (POST /checkout-sessions/ id /complete). From complete_in_progress to completed when Business finishes processing any Action resolved (GET /checkout-sessions/ id (get_checkout)). From incomplete to canceled when Platform cancels, or the session expires (POST /checkout-sessions/ id /cancel (cancel_checkout)). From requires_escalation to canceled when Platform cancels, or the session expires (POST /checkout-sessions/ id /cancel). From ready_for_complete to canceled when Platform cancels, or the session expires (POST /checkout-sessions/ id /cancel). From complete_in_progress to canceled when Session invalid or expired (cancellation race rules apply) (POST /checkout-sessions/ id /cancel).
   state "incomplete" as s_incomplete
@@ -8,24 +9,24 @@ stateDiagram-v2
   state "completed" as s_completed
   state "canceled" as s_canceled
   [*] --> s_incomplete
-  s_incomplete --> s_ready_for_complete : All information collected, no Action<br/>outstanding
-  s_incomplete --> s_requires_escalation : Business needs data its API cannot<br/>collect, or a policy needs buyer review
+  s_incomplete --> s_ready_for_complete : All information collected, no Action outstanding
+  s_incomplete --> s_requires_escalation : Business needs data its API cannot collect, or a policy needs buyer review
   s_requires_escalation --> s_incomplete : Issue resolved through an update
-  s_requires_escalation --> s_completed : Buyer finishes on the business UI<br/>through continue_url
+  s_requires_escalation --> s_completed : Buyer finishes on the business UI through continue_url
   s_ready_for_complete --> s_completed : Complete Checkout succeeds synchronously
-  s_ready_for_complete --> s_complete_in_progress : Complete Checkout accepted for<br/>asynchronous processing
-  s_ready_for_complete --> s_incomplete : Complete returns a recoverable change<br/>(for example payment_failed or<br/>out_of_stock)
-  s_ready_for_complete --> s_requires_escalation : Complete returns a buyer handoff<br/>(requires_buyer_input or<br/>requires_buyer_review)
-  s_complete_in_progress --> s_completed : Business finishes processing#59; any Action<br/>resolved
+  s_ready_for_complete --> s_complete_in_progress : Complete Checkout accepted for asynchronous processing
+  s_ready_for_complete --> s_incomplete : Complete returns a recoverable change (for example payment_failed or out_of_stock)
+  s_ready_for_complete --> s_requires_escalation : Complete returns a buyer handoff (requires_buyer_input or requires_buyer_review)
+  s_complete_in_progress --> s_completed : Business finishes processing, any Action resolved
   s_incomplete --> s_canceled : Platform cancels, or the session expires
   s_requires_escalation --> s_canceled : Platform cancels, or the session expires
   s_ready_for_complete --> s_canceled : Platform cancels, or the session expires
-  s_complete_in_progress --> s_canceled : Session invalid or expired (cancellation<br/>race rules apply)
+  s_complete_in_progress --> s_canceled : Session invalid or expired (cancellation race rules apply)
   s_completed --> [*]
   s_canceled --> [*]
-  note right of s_incomplete : Data missing or a recoverable error or<br/>Action outstanding. Messages say what to<br/>fix. expires_at defaults to 6 hours<br/>after creation.
-  note right of s_requires_escalation : Needs buyer input or buyer review.<br/>continue_url is required, with a<br/>requires_buyer_input or<br/>requires_buyer_review message.
-  note right of s_ready_for_complete : All data present and no Action<br/>outstanding. The platform may call<br/>Complete Checkout. With AP2 negotiated,<br/>every response here carries<br/>ap2.merchant_authorization.
-  note right of s_complete_in_progress : Complete accepted for asynchronous<br/>processing#59; no order yet. An Action (for<br/>example a 3DS challenge) can be<br/>outstanding. No new Update or Complete#59;<br/>on trouble the platform follows<br/>fallback, handoff, then cancel.
-  note right of s_completed : Order placed#59; order.id and<br/>order.permalink_url present. Immutable.<br/>The business sends a confirmation email.
-  note right of s_canceled : Canceled by the platform or invalid or<br/>expired. Start a new session if needed.
+  note right of s_incomplete : Data missing or a recoverable error or Action outstanding. Messages say what to fix. expires_at defaults to 6 hours after creation.
+  note right of s_requires_escalation : Needs buyer input or buyer review. continue_url is required, with a requires_buyer_input or requires_buyer_review message.
+  note right of s_ready_for_complete : All data present and no Action outstanding. The platform may call Complete Checkout. With AP2 negotiated, every response here carries ap2.merchant_authorization.
+  note right of s_complete_in_progress : Complete accepted for asynchronous processing#59; no order yet. An Action (for example a 3DS challenge) can be outstanding. No new Update or Complete#59; on trouble the platform follows fallback, handoff, then cancel.
+  note right of s_completed : Order placed#59; order.id and order.permalink_url present. Immutable. The business sends a confirmation email.
+  note right of s_canceled : Canceled by the platform or invalid or expired. Start a new session if needed.

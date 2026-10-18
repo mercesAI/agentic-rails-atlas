@@ -11,7 +11,7 @@ sequenceDiagram
     p_business-->>p_platform: status requires_escalation + continue_url
     Note over p_business,p_platform: Crosses a trust boundary
   else continue_url is missing
-    Note over p_business,p_platform: The business broke a MUST#59; the platform cannot hand off and should treat the checkout as stuck.
+    Note over p_business,p_platform: The business broke a MUST#59; the platform cannot<br/>hand off and should treat the checkout as stuck.
   end
   p_platform->>p_platform: Resolve recoverable errors first
   p_platform->>p_buyer: Open continue_url for the buyer

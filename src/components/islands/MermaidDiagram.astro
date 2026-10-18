@@ -8,6 +8,7 @@
  * Named an island for the contract; it ships no JavaScript.
  */
 import { diagramMetaById } from '../protocol/lib/load';
+import { suffixIds as suffixSvgIds } from '../../lib/diagrams/suffix-ids';
 
 export interface Props {
   id: string;
@@ -67,21 +68,8 @@ const natural = (svg: string | null): string | null => {
       .replace(/^<svg\b/, `<svg width="${w}" height="${h}" data-natural-width="${w}"`);
   });
 };
-/** Rewrites every id inside an SVG (and the url(), href and aria references to them) with a suffix so inlined diagrams never collide. */
-const suffixIds = (svg: string | null, suffix: string): string | null => {
-  if (!svg) return svg;
-  const ids = new Set([...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
-  if (ids.size === 0) return svg;
-  const has = (id: string) => ids.has(id);
-  return svg
-    .replace(/\sid="([^"]+)"/g, (m, id: string) => ` id="${id}${suffix}"`)
-    .replace(/url\(#([^)]+)\)/g, (m, id: string) => (has(id) ? `url(#${id}${suffix})` : m))
-    .replace(/(xlink:href|href)="#([^"]+)"/g, (m, attr: string, id: string) => (has(id) ? `${attr}="#${id}${suffix}"` : m))
-    .replace(/(aria-labelledby|aria-describedby)="([^"]+)"/g, (m, attr: string, list: string) =>
-      `${attr}="${list.split(/\s+/).map((id) => (has(id) ? `${id}${suffix}` : id)).join(' ')}"`)
-    // Mermaid scopes its theme CSS with the root id (#mmd-... .node rect {...}); keep those selectors in step.
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, (block) => block.replace(/#([A-Za-z_][\w-]*)(?![\w-])/g, (m, id: string) => (has(id) ? `#${id}${suffix}` : m)));
-};
+/** Suffixes every id in an inlined SVG so diagrams never collide on one page (shared with the full-screen copy). */
+const suffixIds = (svg: string | null, suffix: string): string | null => (svg ? suffixSvgIds(svg, suffix) : svg);
 // Pages inline many diagrams and Mermaid reuses ids such as actor3 in each, so every id gets the diagram id as a suffix.
 const light = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.light.svg`, SVGS)), `-${p.id}`);
 const dark = suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS)), `-${p.id}-dark`);
@@ -153,6 +141,7 @@ const domId = `diagram-${p.id}`;
 </figure>
 
 <script>
+  import { suffixIds } from '../../lib/diagrams/suffix-ids';
   // Swaps each lazy diagram's <template> into the live DOM near the viewport, and all of them before printing.
   // Also shows the "scroll" hint when a diagram overflows, and runs the full-screen dialog.
   const updateHint = (canvas: Element) => {
@@ -176,6 +165,7 @@ const domId = `diagram-${p.id}`;
   let io: IntersectionObserver | undefined;
   document.addEventListener('astro:page-load', () => {
     io?.disconnect();
+    ro?.disconnect(); // observed canvases from the previous page would otherwise be retained
     document.querySelectorAll('.diagram-figure__canvas:not([data-lazy-diagram])').forEach(watch);
     const items = document.querySelectorAll('[data-lazy-diagram]');
     if (!items.length) return;
@@ -200,19 +190,6 @@ const domId = `diagram-${p.id}`;
   const ZOOM_STEP = 1.25;
   let dialog: HTMLDialogElement | null = null;
 
-  /** Same rules as the build-time suffixIds: every id, url(#id), href="#id", aria id list and #id selector in <style>. */
-  const resuffix = (svg: string, suffix: string): string => {
-    const ids = new Set([...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
-    if (ids.size === 0) return svg;
-    const has = (id: string) => ids.has(id);
-    return svg
-      .replace(/\sid="([^"]+)"/g, (m, id: string) => ` id="${id}${suffix}"`)
-      .replace(/url\(#([^)]+)\)/g, (m, id: string) => (has(id) ? `url(#${id}${suffix})` : m))
-      .replace(/(xlink:href|href)="#([^"]+)"/g, (m, attr: string, id: string) => (has(id) ? `${attr}="#${id}${suffix}"` : m))
-      .replace(/(aria-labelledby|aria-describedby)="([^"]+)"/g, (m, attr: string, list: string) =>
-        `${attr}="${list.split(/\s+/).map((id) => (has(id) ? `${id}${suffix}` : id)).join(' ')}"`)
-      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, (block) => block.replace(/#([A-Za-z_][\w-]*)(?![\w-])/g, (m, id: string) => (has(id) ? `#${id}${suffix}` : m)));
-  };
 
   const ensureDialog = (): HTMLDialogElement => {
     if (dialog?.isConnected) return dialog;
@@ -279,7 +256,7 @@ const domId = `diagram-${p.id}`;
     const body = d.querySelector('.diagram-dialog__body');
     // Clone through markup and run the same id rewrite the build uses, so the
     // copy keeps its scoped theme CSS, markers and clip paths while its ids stay unique.
-    if (body) body.innerHTML = [...canvas.querySelectorAll('.diagram')].map((n) => resuffix(n.outerHTML, '-fs')).join('');
+    if (body) body.innerHTML = [...canvas.querySelectorAll('.diagram')].map((n) => suffixIds(n.outerHTML, '-fs')).join('');
     applyZoom(d, 1);
     d.showModal();
     (d.querySelector('.diagram-dialog__body') as HTMLElement | null)?.focus();
