@@ -4,6 +4,7 @@
  * current selection as BibTeX, RIS or CSV. Grey literature is marked.
  */
 import { useId, useMemo, useState } from 'react';
+import { downloadText } from '../../lib/client/download';
 import {
   BADGE_LABELS,
   EMPTY_FILTER,
@@ -24,18 +25,6 @@ export interface LibraryBrowserProps {
 }
 
 const PAGE = 60;
-
-function download(name: string, mime: string, text: string) {
-  const blob = new Blob([text], { type: `${mime};charset=utf-8` });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
 
 export default function LibraryBrowser({ items, protocolNames, accessed }: LibraryBrowserProps) {
   const uid = useId();
@@ -65,9 +54,9 @@ export default function LibraryBrowser({ items, protocolNames, accessed }: Libra
 
   const exportAs = (kind: 'bib' | 'ris' | 'csv') => {
     const stamp = accessed;
-    if (kind === 'bib') download(`agentic-rails-library-${stamp}.bib`, 'application/x-bibtex', toBibTeX(result, accessed));
-    if (kind === 'ris') download(`agentic-rails-library-${stamp}.ris`, 'application/x-research-info-systems', toRIS(result, accessed));
-    if (kind === 'csv') download(`agentic-rails-library-${stamp}.csv`, 'text/csv', toCSV(result));
+    if (kind === 'bib') downloadText(`agentic-rails-library-${stamp}.bib`, toBibTeX(result, accessed), 'application/x-bibtex');
+    if (kind === 'ris') downloadText(`agentic-rails-library-${stamp}.ris`, toRIS(result, accessed), 'application/x-research-info-systems');
+    if (kind === 'csv') downloadText(`agentic-rails-library-${stamp}.csv`, toCSV(result), 'text/csv');
     setStatus(`Exported ${result.length} entries as ${kind === 'bib' ? 'BibTeX' : kind.toUpperCase()}.`);
   };
 

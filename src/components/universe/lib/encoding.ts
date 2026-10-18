@@ -2,8 +2,10 @@
  * Visual encoding rules for the bubble universe (ATLAS_PROMPT.md 4.3 and 13).
  * Fill hue = family, ring style = rails, size = equal base plus a small boost per layer covered.
  */
-import { LAYERS, type Layer, type Rail, type RelationType, type Status } from '../../../lib/schemas';
-import type { OrbitCategoryId, PersonaMap, Relevance, UniverseRelation } from './types';
+import { LAYERS, type Layer, type Rail, type RelationType } from '../../../lib/schemas';
+import type { PersonaMap, Relevance, UniverseRelation } from './types';
+
+export { ORBIT_CATEGORY_LABELS, ORBIT_CATEGORY_SHORT_LABELS, RAIL_LABELS, RELATION_LABELS, STATUS_LABELS } from '../../../lib/labels';
 
 export type RingStyle = 'solid' | 'dashed' | 'double' | 'dotted';
 
@@ -31,32 +33,6 @@ export const RING_LABELS: Record<RingStyle, string> = {
   dotted: 'Bank rails',
 };
 
-export const RAIL_LABELS: Record<Rail, string> = {
-  crypto: 'Crypto-native',
-  card: 'Card network',
-  bank: 'Bank rails',
-  'rail-agnostic': 'Rail-agnostic',
-  'multi-rail': 'Multi-rail',
-};
-
-export const STATUS_LABELS: Record<Status, string> = {
-  draft: 'Draft',
-  beta: 'Beta',
-  pilot: 'Pilot',
-  live: 'Live',
-  mixed: 'Mixed',
-};
-
-export const RELATION_LABELS: Record<RelationType, string> = {
-  embeds: 'Embeds',
-  'uses-as-rail': 'Uses as a rail',
-  complements: 'Complements',
-  'competes-with': 'Competes with',
-  'compatible-with': 'Compatible with',
-  'same-steward': 'Same steward',
-  lineage: 'Lineage',
-};
-
 /** SVG stroke-dasharray per relation type, so line style (not color) tells types apart. */
 export const RELATION_DASH: Record<RelationType, string> = {
   embeds: '',
@@ -66,15 +42,6 @@ export const RELATION_DASH: Record<RelationType, string> = {
   'compatible-with': '5 5',
   'same-steward': '1 7',
   lineage: '14 6',
-};
-
-export const ORBIT_CATEGORY_LABELS: Record<OrbitCategoryId, string> = {
-  'agent-communication': 'Agent communication',
-  'agent-identity': 'Agent identity',
-  'wallet-permissions': 'Wallet permissions',
-  'machine-payments': 'Machine payments',
-  'card-wallet-commerce': 'Card and wallet commerce',
-  'legal-policy': 'Legal and policy',
 };
 
 /** Distinct layers a protocol covers (primary plus secondary). */
@@ -147,5 +114,3 @@ export function relevanceOf(map: PersonaMap, persona: string | null, slug: strin
   if (!persona) return 'high';
   return map[persona]?.[slug] ?? 'low';
 }
-
-export const RELEVANCE_OPACITY: Record<Relevance, number> = { high: 1, medium: 0.62, low: 0.22 };

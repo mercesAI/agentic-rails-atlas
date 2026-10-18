@@ -1,13 +1,5 @@
-/** Display labels shared by protocol page components. */
-import type { Rail } from '../../lib/schemas';
-
-export const RAIL_LABELS: Record<Rail, string> = {
-  crypto: 'Crypto-native',
-  card: 'Card network',
-  bank: 'Bank rails',
-  'rail-agnostic': 'Rail-agnostic',
-  'multi-rail': 'Multi-rail',
-};
+/** Display labels shared by protocol page components; the cross-area tables live in src/lib/labels.ts. */
+export { RAIL_LABELS, RELATION_LABELS, SUPPORT_LABELS } from '../../lib/labels';
 
 export const STRIDE_LABELS: Record<string, string> = {
   S: 'Spoofing',
@@ -16,13 +8,6 @@ export const STRIDE_LABELS: Record<string, string> = {
   I: 'Information disclosure',
   D: 'Denial of service',
   E: 'Elevation of privilege',
-};
-
-export const SUPPORT_LABELS: Record<string, string> = {
-  native: 'Native',
-  partial: 'Partial',
-  external: 'External',
-  none: 'None',
 };
 
 export const MITIGATION_LABELS: Record<string, string> = { yes: 'Mitigated by spec', partial: 'Partly', no: 'Left to implementers' };
@@ -51,23 +36,6 @@ export const CONTROL_POINT_LABELS: Record<string, string> = {
   'at-edge': 'At the edge',
   'at-settlement': 'At settlement',
   'after-the-fact': 'After the fact',
-};
-
-export const RELATION_LABELS: Record<string, string> = {
-  embeds: 'Embeds',
-  'uses-as-rail': 'Uses as a rail',
-  complements: 'Complements',
-  'competes-with': 'Competes with',
-  'compatible-with': 'Compatible with',
-  'same-steward': 'Same steward',
-  lineage: 'Lineage',
-};
-
-export const PUBLICATION_RELATION_LABELS: Record<string, string> = {
-  direct: 'Directly about this protocol',
-  related: 'Closely related mechanisms',
-  foundation: 'Foundations',
-  grey: 'Grey literature',
 };
 
 export const PERSONA_MARK_LABELS: Record<string, string> = {

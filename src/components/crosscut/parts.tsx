@@ -1,13 +1,14 @@
 /** Small shared pieces for the cross-cutting islands. */
-import type { Confidence } from '../../lib/schemas';
 import { citeLabel, type ProtocolInfo, type SourceNumbers } from './lib/protocols';
 import { SUPPORT_TEXT, type Support } from './lib/controls';
+
+export { ConfBadge } from '../ui/ConfBadge';
 
 /** Citation marker the global CitationDrawer opens on click (it listens for [data-cite]). */
 export function CiteMarker({ sources, numbers }: { sources: string[]; numbers: SourceNumbers }) {
   if (sources.length === 0) return null;
   const label = citeLabel(sources, numbers);
-  const first = sources.map((s) => numbers[s]).find((n) => typeof n === 'number');
+  const first = sources.map((s) => numbers[s]).filter((n): n is number => typeof n === 'number').sort((a, b) => a - b)[0];
   return (
     <sup className="cite">
       <a href={first ? `#src-${first}` : '#sources'} data-cite={sources.join(' ')} data-missing={first ? undefined : sources.join(' ')}>
@@ -15,18 +16,6 @@ export function CiteMarker({ sources, numbers }: { sources: string[]; numbers: S
         {label}
       </a>
     </sup>
-  );
-}
-
-const CONF_LABELS: Record<Confidence, string> = { verified: 'Verified', reported: 'Reported', unverified: 'Unverified' };
-
-/** Confidence: a mark whose fill changes (full, half, dashed hollow) plus the word. */
-export function ConfBadge({ confidence }: { confidence: Confidence }) {
-  return (
-    <span className="cc-conf" data-confidence={confidence}>
-      <span className="cc-conf__mark" aria-hidden="true" />
-      {CONF_LABELS[confidence]}
-    </span>
   );
 }
 

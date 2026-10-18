@@ -65,13 +65,3 @@ export function gridRings(cx: number, cy: number, radius: number, levels = RADAR
   }
   return out;
 }
-
-export function groupRadar(entries: RadarEntry[]): Map<string, RadarEntry[]> {
-  const m = new Map<string, RadarEntry[]>();
-  for (const e of entries) {
-    const list = m.get(e.protocol) ?? [];
-    list.push(e);
-    m.set(e.protocol, list);
-  }
-  return m;
-}

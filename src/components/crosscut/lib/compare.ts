@@ -1,5 +1,5 @@
 /** Compare matrix logic: grouping, filtering and the pick-two diff. */
-import type { CompareCell, Confidence, ProtocolSlug } from '../../../lib/schemas';
+import type {CompareCell, ProtocolSlug} from '../../../lib/schemas';
 
 export interface Dimension {
   id: string;
@@ -116,14 +116,13 @@ export interface MatrixFilter {
   groups: Set<string>;
   protocols: Set<string>;
   query: string;
-  confidence?: Set<Confidence>;
 }
 
 export function normalize(s: string): string {
   return s
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/\p{M}/gu, '')
     .replace(/[^a-z0-9%$.]+/g, ' ')
     .trim();
 }

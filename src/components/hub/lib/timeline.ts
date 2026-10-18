@@ -47,11 +47,7 @@ export const KIND_LABELS: Record<string, string> = {
   prehistory: 'Prehistory',
 };
 
-export const CONFIDENCE_LABELS: Record<Confidence, string> = {
-  verified: 'Verified',
-  reported: 'Reported',
-  unverified: 'Unverified',
-};
+export { CONFIDENCE_LABELS } from '../../../lib/labels';
 
 export interface ZoomPreset {
   id: string;

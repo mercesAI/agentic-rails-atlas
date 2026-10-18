@@ -3,34 +3,9 @@
  * links to /orbit/<slug>/ only when it has a mini page (starred); otherwise
  * it links to its primary external source with an external-link marker.
  */
-export const ORBIT_CATEGORIES = [
-  'agent-communication',
-  'agent-identity',
-  'wallet-permissions',
-  'machine-payments',
-  'card-wallet-commerce',
-  'legal-policy',
-] as const;
-export type OrbitCategoryId = (typeof ORBIT_CATEGORIES)[number];
+import { ORBIT_CATEGORIES, ORBIT_CATEGORY_LABELS, type OrbitCategoryId } from '../../../lib/labels';
 
-export const ORBIT_CATEGORY_LABELS: Record<OrbitCategoryId, string> = {
-  'agent-communication': 'Agent communication and tooling',
-  'agent-identity': 'Agent identity and verification',
-  'wallet-permissions': 'Wallet permissions and on-chain agent commerce',
-  'machine-payments': 'Machine payments and money',
-  'card-wallet-commerce': 'Card, wallet and commerce programs',
-  'legal-policy': 'Legal and policy events',
-};
-
-export const RELATION_LABELS: Record<string, string> = {
-  embeds: 'Embeds',
-  'uses-as-rail': 'Uses as a rail',
-  complements: 'Complements',
-  'competes-with': 'Competes with',
-  'compatible-with': 'Compatible with',
-  'same-steward': 'Same steward',
-  lineage: 'Lineage',
-};
+export { ORBIT_CATEGORIES, ORBIT_CATEGORY_LABELS, RELATION_LABELS, type OrbitCategoryId } from '../../../lib/labels';
 
 export interface OrbitLike {
   slug: string;

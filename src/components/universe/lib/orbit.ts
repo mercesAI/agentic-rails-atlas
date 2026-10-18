@@ -3,7 +3,7 @@
  * grouped by category. In Constellation they sit on an outer ellipse in one
  * arc per category; in the other modes they sit in a band under the chart.
  */
-import { ORBIT_CATEGORY_LABELS } from './encoding';
+import { ORBIT_CATEGORY_SHORT_LABELS } from '../../../lib/labels';
 import { round } from './relax';
 import { ORBIT_CATEGORIES, type GuideLabel, type LayoutMode, type OrbitCategoryId, type PlacedNode, type UniverseOrbit } from './types';
 
@@ -62,7 +62,7 @@ export function orbitLayout(
       }
       const mid = (start + a - step) / 2;
       const half = Math.max((a - start) / 2, 0.34);
-      arcs.push({ key: cat, text: ORBIT_CATEGORY_LABELS[cat], d: labelArc(cx, cy, rx, ry, mid, half) });
+      arcs.push({ key: cat, text: ORBIT_CATEGORY_SHORT_LABELS[cat], d: labelArc(cx, cy, rx, ry, mid, half) });
       a += gapSlots * step;
     }
     return { nodes, labels, ring: { cx, cy, rx: round(rx), ry: round(ry) }, arcs, extraHeight: extra };
@@ -74,7 +74,7 @@ export function orbitLayout(
   const perRow = Math.max(3, Math.floor((colW - 24) / 30));
   groups.forEach(([cat, list], gi) => {
     const left = x0 + gi * colW;
-    labels.push({ x: round(left), y: top + 14, text: ORBIT_CATEGORY_LABELS[cat], anchor: 'start', kind: 'category' });
+    labels.push({ x: round(left), y: top + 14, text: ORBIT_CATEGORY_SHORT_LABELS[cat], anchor: 'start', kind: 'category' });
     list.forEach((item, i) => {
       nodes[item.slug] = {
         x: round(left + SATELLITE_R + (i % perRow) * 30),

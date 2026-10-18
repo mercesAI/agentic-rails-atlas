@@ -4,6 +4,7 @@
  * pick-two diff and a six-axis radar with an accessible table. Renders with
  * any subset of protocols; protocols without cells read "in progress".
  */
+import { protocolsWithCells } from '../../components/crosscut/lib/compare';
 import Page from '../../layouts/Page.astro';
 import { breadcrumbLd } from '../../lib/seo';
 import { SITE_NAME } from '../../lib/constants';
@@ -25,7 +26,7 @@ const numbers = await registerSources(page, [
   ...compare.cells.flatMap((c) => c.sources),
   ...radar.flatMap((r) => r.sources),
 ]);
-const covered = new Set(compare.cells.map((c) => c.protocol));
+const covered = protocolsWithCells(compare.cells);
 const inProgress = protocols.filter((p) => !covered.has(p.slug));
 const radarBy = (slug: string, axis: string) => radar.find((r) => r.protocol === slug && r.axis === axis);
 const radarProtocols = protocols.filter((p) => radar.some((r) => r.protocol === p.slug));

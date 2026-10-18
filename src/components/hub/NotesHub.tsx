@@ -1,16 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { getJSON, setJSON } from '../../lib/storage';
-import {
-  NOTES_KEY,
-  exportJSON,
-  exportMarkdown,
-  importJSON,
-  importMarkdown,
-  mergeStores,
-  normalizeStore,
-  setNote,
-  type NotesStore,
-} from '../protocol/lib/notes';
+import { downloadText } from '../../lib/client/download';
+import { NOTES_EVENT, NOTES_KEY, exportJSON, exportMarkdown, importJSON, importMarkdown, mergeStores, normalizeStore, setNote, type NotesStore } from '../protocol/lib/notes';
 import { excerpt, noteTitle, searchRows, toRows, type NoteSort, type ScopeInfo } from './lib/notes-hub';
 
 interface Props {
@@ -18,20 +9,8 @@ interface Props {
   titles: Record<string, string>;
 }
 
-const NOTES_EVENT = 'atlas:notes';
 const readStore = (): NotesStore => normalizeStore(getJSON<unknown>(NOTES_KEY, {}));
 
-function download(filename: string, text: string, type: string) {
-  const blob = new Blob([text], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.append(a);
-  a.click();
-  a.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
 
 /**
  * Every note from the shared atlas:notes store (written by each protocol
@@ -76,8 +55,8 @@ export default function NotesHub({ scopes, titles }: Props) {
     const data: NotesStore = onlyShown ? Object.fromEntries(shown.map((r) => [r.key, all[r.key]!]).filter(([, v]) => v)) : all;
     const now = new Date().toISOString();
     const base = onlyShown ? 'atlas-notes-filtered' : 'atlas-notes';
-    if (format === 'json') download(`${base}.json`, exportJSON(data, now), 'application/json');
-    else download(`${base}.md`, exportMarkdown(data, now, (k) => noteTitle(k, scopes, titles)), 'text/markdown');
+    if (format === 'json') downloadText(`${base}.json`, exportJSON(data, now), 'application/json');
+    else downloadText(`${base}.md`, exportMarkdown(data, now, (k) => noteTitle(k, scopes, titles)), 'text/markdown');
     setStatus(`Exported ${Object.keys(data).length} notes as ${format === 'json' ? 'JSON' : 'Markdown'}.`);
   };
 

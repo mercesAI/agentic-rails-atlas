@@ -42,15 +42,8 @@ export interface UniverseRelation {
   note: string;
 }
 
-export const ORBIT_CATEGORIES = [
-  'agent-communication',
-  'agent-identity',
-  'wallet-permissions',
-  'machine-payments',
-  'card-wallet-commerce',
-  'legal-policy',
-] as const;
-export type OrbitCategoryId = (typeof ORBIT_CATEGORIES)[number];
+import type { OrbitCategoryId } from '../../../lib/labels';
+export { ORBIT_CATEGORIES, type OrbitCategoryId } from '../../../lib/labels';
 
 export interface UniverseOrbit {
   slug: string;

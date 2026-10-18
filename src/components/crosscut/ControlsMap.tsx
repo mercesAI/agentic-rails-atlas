@@ -9,6 +9,7 @@ import type { ControlCell } from '../../lib/schemas';
 import { cellVisible, controlKey, indexControlCells, SUPPORT_HELP, SUPPORT_ORDER, SUPPORT_TEXT, type Support } from './lib/controls';
 import type { ProtocolInfo, SourceNumbers } from './lib/protocols';
 import { CiteMarker, InProgressTag, ProtocolLabel, SupportMark } from './parts';
+import { toggleInSet } from '../../lib/set-toggle';
 
 export interface ControlsMapProps {
   controls: { id: string; label: string; description: string }[];
@@ -32,17 +33,11 @@ export default function ControlsMap({ controls, protocols, cells, numbers, layer
   const selProtocol = sel ? protocols.find((p) => p.slug === sel.protocol) : undefined;
   const selControl = sel ? controls.find((c) => c.id === sel.control) : undefined;
 
-  const toggleSupport = (s: Support) => {
-    const next = new Set(supports);
-    if (next.has(s)) next.delete(s);
-    else next.add(s);
-    setSupports(next);
-  };
+  const toggleSupport = (s: Support) => setSupports(toggleInSet(supports, s));
   const toggleProto = (s: string) => {
-    const next = new Set(protoSel);
-    if (next.has(s)) next.delete(s);
-    else next.add(s);
+    const next = toggleInSet(protoSel, s);
     setProtoSel(next);
+    if (sel && sel.protocol === s && !next.has(s)) setSelected(null);
   };
 
   return (

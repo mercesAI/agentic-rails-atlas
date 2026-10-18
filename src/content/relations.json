@@ -12,21 +12,13 @@
   },
   {
     "from": "ap2",
-    "to": "ucp",
-    "type": "embeds",
-    "note": "UCP embeds AP2 through the extension dev.ucp.common.payment.ap2_mandate (renamed in v2026-08-25): merchant signature in ap2.merchant_authorization, Checkout Mandate in ap2.checkout_mandate, Payment Mandate in the credential token. Live use unverified.",
-    "sources": [
-      "src-ap2-ucp-ext",
-      "src-ucp-schema-ap2",
-      "src-ap2-faq"
-    ]
-  },
-  {
-    "from": "ap2",
     "to": "x402",
-    "type": "compatible-with",
-    "note": "The a2a-x402 Embedded Flow nests x402 inside AP2 mandates, but it targets the v0.1 CartMandate and PaymentMandate; AP2 v0.2 has no Cart mandate. The AP2 repository ships x402 samples.",
+    "type": "embeds",
+    "note": "AP2 can carry x402 as a payment method through the a2a-x402 extension launched on 2025-09-16; its embedded flow targets AP2 v0.1 mandates (CartMandate), which AP2 v0.2 no longer has. The AP2 repository ships x402 samples.",
     "sources": [
+      "src-x402-google-ap2-blog",
+      "src-x402-a2a-spec",
+      "src-x402-ap2-repo",
       "src-ap2-a2a-x402-v02",
       "src-ap2-repo"
     ]
@@ -353,17 +345,6 @@
       "src-visa-tap-spec",
       "src-x402-lf-july",
       "src-visa-tap-pr"
-    ]
-  },
-  {
-    "from": "x402",
-    "to": "ap2",
-    "type": "embeds",
-    "note": "AP2 can carry x402 as a payment method through the a2a-x402 extension launched on 2025-09-16; its embedded flow targets AP2 v0.1 mandates (CartMandate), which AP2 v0.2 no longer has.",
-    "sources": [
-      "src-x402-google-ap2-blog",
-      "src-x402-a2a-spec",
-      "src-x402-ap2-repo"
     ]
   },
   {

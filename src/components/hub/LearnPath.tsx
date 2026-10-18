@@ -160,7 +160,7 @@ export default function LearnPath({ levels, quizzes }: Props) {
                 {openQuiz && quizzes[openQuiz] && level.gates.some((g) => g.slug === openQuiz) && (
                   <div className="learn-quiz" id={`quiz-${openQuiz}`}>
                     <h3>{level.gates.find((g) => g.slug === openQuiz)?.name} self-test</h3>
-                    <Quiz slug={openQuiz} questions={quizzes[openQuiz]!} />
+                    <Quiz key={openQuiz} slug={openQuiz} questions={quizzes[openQuiz]!} />
                   </div>
                 )}
               </>

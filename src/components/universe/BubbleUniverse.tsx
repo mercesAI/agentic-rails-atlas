@@ -12,9 +12,9 @@ import {
   RAIL_LABELS,
   RELATION_DASH,
   RELATION_LABELS,
-  RELEVANCE_OPACITY,
   RING_LABELS,
   ORBIT_CATEGORY_LABELS,
+  ORBIT_CATEGORY_SHORT_LABELS,
   STATUS_LABELS,
   relationsFor,
   relevanceOf,
@@ -111,7 +111,8 @@ export default function BubbleUniverse({
   const W = layout.width;
   const H = layout.height + (orbitPlaced?.extraHeight ?? 0);
 
-  const active = hovered ?? focused;
+  // Focus wins over hover: a pointer resting on the canvas must not override the bubble a keyboard user moved to.
+  const active = focused ?? hovered;
   const activeProtocol = active ? bySlug.get(active) ?? null : null;
   const activeEdges = useMemo(
     () => (active ? relationsFor(active, relations, present) : []),
@@ -494,7 +495,6 @@ function Stage(props: StageProps) {
               top: pct(n.y - n.r, H),
               width: pct(n.r * 2, W),
               '--i': i,
-              '--dim': RELEVANCE_OPACITY[rel],
             } as CSSProperties;
             return (
               <a
@@ -561,7 +561,7 @@ function Stage(props: StageProps) {
                         {o.name}
                         {o.external ? <ExternalGlyph /> : null}
                       </span>
-                      <span className="usat__meta">{ORBIT_CATEGORY_LABELS[o.category]}</span>
+                      <span className="usat__meta">{ORBIT_CATEGORY_SHORT_LABELS[o.category]}</span>
                       <span className="usat__one">{o.oneLiner}</span>
                     </span>
                   </a>

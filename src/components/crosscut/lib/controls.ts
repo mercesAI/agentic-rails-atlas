@@ -4,12 +4,7 @@ import type { ControlCell } from '../../../lib/schemas';
 export type Support = ControlCell['support'];
 export const SUPPORT_ORDER: Support[] = ['native', 'partial', 'external', 'none'];
 
-export const SUPPORT_TEXT: Record<Support, string> = {
-  native: 'Native',
-  partial: 'Partial',
-  external: 'External',
-  none: 'None',
-};
+export { SUPPORT_LABELS as SUPPORT_TEXT } from '../../../lib/labels';
 
 export const SUPPORT_HELP: Record<Support, string> = {
   native: 'The protocol specifies the control itself.',

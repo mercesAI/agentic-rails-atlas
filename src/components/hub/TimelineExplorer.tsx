@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ConfBadge } from '../ui/ConfBadge';
+import { toggleInSet } from '../../lib/set-toggle';
 import {
   CONFIDENCE_LABELS,
   KIND_LABELS,
@@ -27,22 +29,6 @@ interface Props {
 
 const CONFIDENCES: Confidence[] = ['verified', 'reported', 'unverified'];
 
-function toggle<T>(set: Set<T>, v: T): Set<T> {
-  const next = new Set(set);
-  if (next.has(v)) next.delete(v);
-  else next.add(v);
-  return next;
-}
-
-function ConfBadge({ c }: { c: Confidence }) {
-  return (
-    <span className="hub-conf" data-confidence={c}>
-      <span className="hub-conf__mark" aria-hidden="true" />
-      {CONFIDENCE_LABELS[c]}
-    </span>
-  );
-}
-
 function EventBody({ e, laneLabel }: { e: HubEvent; laneLabel: string }) {
   return (
     <>
@@ -52,7 +38,7 @@ function EventBody({ e, laneLabel }: { e: HubEvent; laneLabel: string }) {
         </time>
         <span className="tl-event__lane">{laneLabel}</span>
         <span className="tl-event__kind">{KIND_LABELS[e.kind] ?? e.kind}</span>
-        <ConfBadge c={e.confidence} />
+        <ConfBadge confidence={e.confidence} />
       </div>
       <p className="tl-event__title">{e.title}</p>
       {e.detail && <p className="tl-event__detail">{e.detail}</p>}
@@ -120,11 +106,12 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
     setJumpLane(null);
   }, [jumpLane, laneSel]);
 
-  const filtered = useMemo(
-    () => filterEvents(events, { lanes: laneSel, kinds: kindSel, confidences: confSel, from, to, query }),
-    [events, laneSel, kindSel, confSel, from, to, query],
-  );
+  // The range is resolved first so a "from" later than "to" filters with the swapped pair the status line shows.
   const range = resolveRange(from, to, bounds);
+  const filtered = useMemo(
+    () => filterEvents(events, { lanes: laneSel, kinds: kindSel, confidences: confSel, from: range.from, to: range.to, query }),
+    [events, laneSel, kindSel, confSel, range.from, range.to, query],
+  );
   const mode = bucketing(range);
   const markers = useMemo(() => buildMarkers(filtered, mode), [filtered, mode]);
   const visibleLanes = lanes.filter((l) => (laneSel.size === 0 || laneSel.has(l.id)) && filtered.some((e) => e.lane === l.id));
@@ -214,7 +201,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
             <legend>Lanes</legend>
             {lanes.map((l) => (
               <label key={l.id} className="tl__check" data-family={l.family}>
-                <input type="checkbox" checked={laneSel.has(l.id)} onChange={() => setLaneSel(toggle(laneSel, l.id))} />
+                <input type="checkbox" checked={laneSel.has(l.id)} onChange={() => setLaneSel(toggleInSet(laneSel, l.id))} />
                 <span className="tl__swatch" data-group={l.group} aria-hidden="true" />
                 {l.label}
               </label>
@@ -224,7 +211,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
             <legend>Kinds</legend>
             {kinds.map((k) => (
               <label key={k} className="tl__check">
-                <input type="checkbox" checked={kindSel.has(k)} onChange={() => setKindSel(toggle(kindSel, k))} />
+                <input type="checkbox" checked={kindSel.has(k)} onChange={() => setKindSel(toggleInSet(kindSel, k))} />
                 {KIND_LABELS[k] ?? k}
               </label>
             ))}
@@ -233,8 +220,8 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
             <legend>Confidence</legend>
             {CONFIDENCES.map((c) => (
               <label key={c} className="tl__check">
-                <input type="checkbox" checked={confSel.has(c)} onChange={() => setConfSel(toggle(confSel, c))} />
-                <ConfBadge c={c} />
+                <input type="checkbox" checked={confSel.has(c)} onChange={() => setConfSel(toggleInSet(confSel, c))} />
+                <ConfBadge confidence={c} />
               </label>
             ))}
           </fieldset>
@@ -287,7 +274,7 @@ export default function TimelineExplorer({ lanes, events, kinds, initialZoom = '
                           data-confidence={m.confidence}
                           aria-pressed={selected === m.key}
                           style={{ left: `${position(m.date, range)}%` }}
-                          aria-label={`${l.label}, ${m.period}: ${m.events.length} ${m.events.length === 1 ? 'event' : 'events'}, ${CONFIDENCE_LABELS[m.confidence].toLowerCase()} or better`}
+                          aria-label={`${l.label}, ${m.period}: ${m.events.length} ${m.events.length === 1 ? 'event' : 'events'}, lowest confidence ${CONFIDENCE_LABELS[m.confidence].toLowerCase()}`}
                           title={`${m.period}: ${m.events.map((e) => e.title).join('; ')}`}
                           onClick={() => setSelected(selected === m.key ? null : m.key)}
                         >

@@ -6,9 +6,10 @@
  */
 import { useId, useMemo, useState } from 'react';
 import type { CompareCell } from '../../lib/schemas';
-import { cellKey, filterDimensions, groupOf, groupsFor, indexCells, type Dimension } from './lib/compare';
+import { cellKey, filterDimensions, groupOf, groupsFor, indexCells, protocolsWithCells, type Dimension } from './lib/compare';
 import type { ProtocolInfo, SourceNumbers } from './lib/protocols';
 import { CiteMarker, ConfBadge, InProgressTag, ProtocolLabel } from './parts';
+import { toggleInSet } from '../../lib/set-toggle';
 
 export interface CompareMatrixProps {
   protocols: ProtocolInfo[];
@@ -20,7 +21,7 @@ export interface CompareMatrixProps {
 export default function CompareMatrix({ protocols, dimensions, cells, numbers }: CompareMatrixProps) {
   const uid = useId();
   const idx = useMemo(() => indexCells(cells), [cells]);
-  const covered = useMemo(() => new Set(cells.map((c) => c.protocol)), [cells]);
+  const covered = useMemo(() => protocolsWithCells(cells), [cells]);
   const groups = useMemo(() => groupsFor(dimensions), [dimensions]);
   const [groupSel, setGroupSel] = useState<Set<string>>(new Set());
   const [protoSel, setProtoSel] = useState<Set<string>>(new Set(protocols.map((p) => p.slug)));
@@ -30,12 +31,7 @@ export default function CompareMatrix({ protocols, dimensions, cells, numbers }:
   const visibleProtocols = protocols.filter((p) => protoSel.has(p.slug));
   const rows = filterDimensions(dimensions, idx, { groups: groupSel, protocols: protoSel, query });
 
-  const toggle = (set: Set<string>, value: string, update: (s: Set<string>) => void) => {
-    const next = new Set(set);
-    if (next.has(value)) next.delete(value);
-    else next.add(value);
-    update(next);
-  };
+  const toggle = (set: Set<string>, value: string, update: (s: Set<string>) => void) => update(toggleInSet(set, value));
 
   // Rows grouped for group header rows, in display order.
   const grouped = groups

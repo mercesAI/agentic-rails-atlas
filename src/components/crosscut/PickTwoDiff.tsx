@@ -1,7 +1,7 @@
 /** "Pick two" side-by-side diff of two protocols across every compare dimension. */
 import { useId, useMemo, useState } from 'react';
 import type { CompareCell } from '../../lib/schemas';
-import { diffProtocols, diffSummary, indexCells, type DiffStatus, type Dimension } from './lib/compare';
+import { diffProtocols, diffSummary, indexCells, protocolsWithCells, type DiffStatus, type Dimension } from './lib/compare';
 import type { ProtocolInfo, SourceNumbers } from './lib/protocols';
 import { CiteMarker, ConfBadge, InProgressTag } from './parts';
 
@@ -21,7 +21,8 @@ const STATUS_TEXT: Record<DiffStatus, { glyph: string; text: string }> = {
 export default function PickTwoDiff({ protocols, dimensions, cells, numbers }: PickTwoDiffProps) {
   const uid = useId();
   const idx = useMemo(() => indexCells(cells), [cells]);
-  const covered = protocols.filter((p) => cells.some((c) => c.protocol === p.slug));
+  const withCells = protocolsWithCells(cells);
+  const covered = protocols.filter((p) => withCells.has(p.slug));
   const [a, setA] = useState(covered[0]?.slug ?? '');
   const [b, setB] = useState(covered[1]?.slug ?? covered[0]?.slug ?? '');
   const [onlyDiff, setOnlyDiff] = useState(false);
