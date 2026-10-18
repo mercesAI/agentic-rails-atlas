@@ -129,7 +129,10 @@ export function resolveCite(ids: string | string[], page?: string): ResolvedCite
   });
 }
 
-/** Data the CitationDrawer reads from `script#atlas-citations`. */
+/**
+ * Data the CitationDrawer reads from `script#atlas-citations`. Carries every claim of the page
+ * context; the build then drops the claims the page never mentions (src/lib/build/prune-citations.ts).
+ */
 export function getCitationPayload(page?: string): CitationPayload {
   const ctx = getPageContext(page);
   if (!ctx) return { sources: [], claims: [] };
