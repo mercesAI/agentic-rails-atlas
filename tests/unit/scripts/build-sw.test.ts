@@ -6,8 +6,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { INSTALL_CONCURRENCY, buildWorkerText, classify, collectEntries, planPrecache, type Entry } from '../../../scripts/build-sw';
 
 /**
- * A small dist folder: pages, hashed assets, a font, the manifest, the pagefind runtime and
- * its per-query data, server files and stray dotfiles.
+ * A small dist folder: pages, hashed assets, a font, the manifest, the pagefind runtime, its
+ * per-query data and the stock UI bundles the site never loads, server files and stray dotfiles.
  */
 const FILES: Record<string, string> = {
   'index.html': '<!doctype html><title>Home</title>',
@@ -24,6 +24,9 @@ const FILES: Record<string, string> = {
   'pagefind/wasm.en.pagefind': 'wasm',
   'pagefind/index/a.pf_index': 'idx',
   'pagefind/fragment/b.pf_fragment': 'frag',
+  'pagefind/pagefind-ui.js': 'stock ui',
+  'pagefind/pagefind-ui.css': 'stock ui css',
+  'pagefind/pagefind-highlight.js': 'highlighter',
   'sw.js': 'old worker',
   '_headers': '/*\n  X-Test: 1',
   'robots.txt': 'User-agent: *',
@@ -176,9 +179,10 @@ async function dispatch(h: Harness, path: string, init: Record<string, unknown> 
 const pathOf = (url: string): string => new URL(url, 'https://atlas.test').pathname;
 
 describe('build-sw', () => {
-  it('collects pages, assets, fonts, the manifest and pagefind files and skips dotfiles and server files', () => {
+  it('collects pages, assets, fonts, the manifest and pagefind files and skips dotfiles, server files and the unused pagefind UI', () => {
     const entries = collectEntries(dist);
     expect(entries.map((e) => e.url).sort()).toEqual(COLLECTED);
+    expect(entries.some((e) => /pagefind-(ui|highlight)/.test(e.url))).toBe(false);
     expect(entries.find((e) => e.url === '/fonts/body.woff2')?.kind).toBe('font');
     expect(entries.find((e) => e.url === '/compare/')?.kind).toBe('html');
     expect(entries.find((e) => e.url === '/_astro/app.abc123.js')?.kind).toBe('asset');
@@ -344,7 +348,7 @@ describe('build-sw', () => {
       expect(h.puts).toHaveLength(0);
       expect(await (await dispatch(h, '/pagefind/fragment/b.pf_fragment')).text()).toBe('network chunk');
       expect(fetched).toEqual(['/pagefind/fragment/b.pf_fragment']);
-      expect(h.puts.map((p) => (p.key as { url: string }).url)).toEqual(['https://atlas.test/pagefind/fragment/b.pf_fragment']);
+      expect(h.puts.map((p) => p.key)).toEqual(['/pagefind/fragment/b.pf_fragment']);
     });
 
     it('keeps the pagefind runtime on stale-while-revalidate: a cached copy is served and refreshed from the network', async () => {
@@ -360,6 +364,14 @@ describe('build-sw', () => {
       expect(await (await dispatch(h, '/pagefind/pagefind.js')).text()).toBe('stale runtime');
       expect(fetched).toEqual(['/pagefind/pagefind.js']);
       expect(h.puts).toHaveLength(1);
+    });
+
+    it('stores runtime copies under the pathname, so a cache-busting query never adds entries', async () => {
+      const h = loadWorker(workerFor(), async () => ok('{"languages":{}}'));
+      for (const ts of ['1760000000000', '1760000000001']) {
+        expect(await (await dispatch(h, `/pagefind/pagefind-entry.json?ts=${ts}`)).text()).toBe('{"languages":{}}');
+      }
+      expect(h.puts.map((p) => p.key)).toEqual(['/pagefind/pagefind-entry.json', '/pagefind/pagefind-entry.json']);
     });
   });
 });
@@ -380,9 +392,17 @@ describe('classify', () => {
     expect(classify('pagefind/wasm.unknown.pagefind')).toBe('pagefind');
     expect(classify('pagefind/pagefind-entry.json')).toBe('pagefind');
     expect(classify('pagefind/pagefind.en_62a1b4b8ee.pf_meta')).toBe('pagefind');
-    expect(classify('pagefind/pagefind-ui.css')).toBe('pagefind');
+    // A runtime file a later Pagefind version adds is precached by default.
+    expect(classify('pagefind/pagefind-new-runtime.js')).toBe('pagefind');
     expect(classify('pagefind/index/en_0293f07.pf_index')).toBe('pagefind-data');
     expect(classify('pagefind/fragment/en_16cc424.pf_fragment')).toBe('pagefind-data');
     expect(classify('pagefind/filter/en_0a1b2c3.pf_filter')).toBe('pagefind-data');
+  });
+
+  it('leaves out the stock pagefind UI bundles and the highlighter, which the site never loads', () => {
+    for (const f of ['pagefind-ui.js', 'pagefind-ui.css', 'pagefind-modular-ui.js', 'pagefind-modular-ui.css', 'pagefind-component-ui.js', 'pagefind-component-ui.css', 'pagefind-highlight.js']) {
+      expect(classify(`pagefind/${f}`), f).toBeNull();
+    }
+    expect(classify('pagefind/index/pagefind-ui.js')).toBe('pagefind-data');
   });
 });

@@ -12,13 +12,19 @@
  * served to a navigation.
  * Pagefind split (kinds 'pagefind' and 'pagefind-data'): the files directly under pagefind/
  * are the runtime that pagefind.js loads before the first query (pagefind.js itself,
- * pagefind-worker.js, wasm.*.pagefind, pagefind-entry.json, pagefind.*.pf_meta and the stock
- * UI bundles), so they are precached and the palette opens offline. The per-query chunks in
- * the pagefind/index/, pagefind/fragment/ and pagefind/filter/ folders are content-hashed,
- * immutable and only fetched for the terms and results a query touches, so they are left out
- * of the precache and cached cache-first the first time a search loads them.
+ * pagefind-worker.js, wasm.*.pagefind, pagefind-entry.json and pagefind.*.pf_meta), so they
+ * are precached and the palette opens offline. The per-query chunks in the pagefind/index/,
+ * pagefind/fragment/ and pagefind/filter/ folders are content-hashed, immutable and only
+ * fetched for the terms and results a query touches, so they are left out of the precache and
+ * cached cache-first the first time a search loads them. The stock Pagefind UI bundles and the
+ * highlight script (PAGEFIND_UNUSED) are never requested: the palette imports pagefind.js
+ * directly. They stay deployed but out of the worker; a file a later Pagefind version adds
+ * is precached until it is listed there.
  * Runtime: network-first for HTML with a cache fallback, cache-first for hashed /_astro/
  * assets and the Pagefind chunks, stale-while-revalidate for everything else on the same origin.
+ * Runtime copies are stored under the pathname, as lookups ignore the query string; Pagefind
+ * requests pagefind-entry.json with a fresh ?ts= on every start, which would otherwise add one
+ * cache entry per search.
  * The cache name carries a hash of the precached content, so a new build installs a new
  * cache and the activate step deletes the old ones. The new worker does not skip waiting:
  * it takes over once every page of the old build is closed (src/lib/client/sw.ts asks for
@@ -47,6 +53,12 @@ export const RUNTIME_KINDS: readonly Entry['kind'][] = ['pagefind-data'];
 export const PAGEFIND_DATA_DIRS: readonly string[] = ['pagefind/index/', 'pagefind/fragment/', 'pagefind/filter/'];
 /** URL prefixes the worker serves cache-first: content-hashed, immutable files. */
 export const CACHE_FIRST_PREFIXES: readonly string[] = ['/_astro/', ...PAGEFIND_DATA_DIRS.map((dir) => `/${dir}`)];
+/**
+ * Files Pagefind writes that the site never loads: the stock search UIs and the result
+ * highlighter. Listed by name rather than allowing a fixed runtime set, so that a runtime
+ * file a Pagefind upgrade adds is precached by default instead of silently missing offline.
+ */
+export const PAGEFIND_UNUSED = /^pagefind\/pagefind-(?:ui|modular-ui|component-ui|highlight)\.(?:js|css)$/;
 
 export interface Entry {
   url: string;
@@ -93,6 +105,7 @@ function tokenColor(cssPath: string, name: string, fallback: string): string {
 export function classify(rel: string): Entry['kind'] | null {
   if (rel === 'sw.js' || rel === '_headers' || rel === '_redirects' || rel === 'robots.txt') return null;
   if (rel === 'manifest.webmanifest') return 'manifest';
+  if (PAGEFIND_UNUSED.test(rel)) return null;
   if (PAGEFIND_DATA_DIRS.some((dir) => rel.startsWith(dir))) return 'pagefind-data';
   if (rel.startsWith('pagefind/')) return 'pagefind';
   if (/\.(woff2?|ttf|otf)$/.test(rel)) return 'font';
@@ -263,15 +276,17 @@ async function cacheFirst(event, request, url) {
   // Cloned before the response is returned: the page starts reading the body as soon as
   // respondWith settles, and a clone taken after that throws, so nothing would be stored.
   const copy = res.clone();
-  event.waitUntil(caches.open(CACHE).then((cache) => store(cache, request, copy)).catch(() => undefined));
+  event.waitUntil(caches.open(CACHE).then((cache) => store(cache, url.pathname, copy)).catch(() => undefined));
   return res;
 }
 
+// Runtime copies are keyed by pathname: lookups ignore the query string, and Pagefind asks for
+// pagefind-entry.json?ts=<now> on every start, so a full-URL key would add an entry per search.
 async function staleWhileRevalidate(event, request, url) {
   const cached = await fromCache(request, url);
   const refresh = fetch(request)
     .then(async (res) => {
-      await store(await caches.open(CACHE), request, res.clone());
+      await store(await caches.open(CACHE), url.pathname, res.clone());
       return res;
     })
     .catch(() => undefined);
