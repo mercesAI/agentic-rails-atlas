@@ -1,26 +1,15 @@
 ---
-/** Claim confidence: verified, reported, unverified. Shape and text, not color alone. */
+/** Claim confidence: verified, reported, unverified. Shape and text, not color alone. Styles in site.css (shared with the React twin ConfBadge.tsx). */
 import type { Confidence } from '../../lib/schemas';
+import { CONFIDENCE_LABELS } from '../../lib/labels';
 
 export interface Props {
   confidence: Confidence;
   compact?: boolean;
 }
-const LABELS: Record<Confidence, string> = { verified: 'Verified', reported: 'Reported', unverified: 'Unverified' };
 const { confidence, compact = false } = Astro.props;
 ---
-<span class="conf" data-confidence={confidence}>
-  <span class="conf__mark" aria-hidden="true"></span>
-  {compact ? <span class="sr-only">{LABELS[confidence]}</span> : LABELS[confidence]}
+<span class="conf-badge" data-confidence={confidence}>
+  <span class="conf-badge__mark" aria-hidden="true"></span>
+  {compact ? <span class="sr-only">{CONFIDENCE_LABELS[confidence]}</span> : CONFIDENCE_LABELS[confidence]}
 </span>
-
-<style>
-  .conf { display: inline-flex; align-items: center; gap: 0.35em; font-size: 0.75rem; font-weight: 500; color: var(--c); letter-spacing: 0.01em; }
-  .conf__mark { width: 0.6em; height: 0.6em; border-radius: 50%; border: 1.5px solid var(--c); }
-  [data-confidence='verified'] { --c: var(--confidence-verified); }
-  [data-confidence='verified'] .conf__mark { background: var(--c); }
-  [data-confidence='reported'] { --c: var(--confidence-reported); }
-  [data-confidence='reported'] .conf__mark { background: linear-gradient(90deg, var(--c) 50%, transparent 50%); }
-  [data-confidence='unverified'] { --c: var(--confidence-unverified); }
-  [data-confidence='unverified'] .conf__mark { border-style: dashed; }
-</style>

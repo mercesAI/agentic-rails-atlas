@@ -38,6 +38,8 @@ async function settle(page: Page) {
     window.scrollTo(0, 0);
   });
   await page.waitForLoadState('networkidle');
+  // Web fonts swap in after load; axe must measure the settled layout.
+  await page.evaluate(() => document.fonts.ready);
 }
 
 for (const { path, h1 } of PAGES) {

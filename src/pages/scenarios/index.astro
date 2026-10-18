@@ -5,10 +5,9 @@
  */
 import Page from '../../layouts/Page.astro';
 import { breadcrumbLd } from '../../lib/seo';
-import { SITE_NAME } from '../../lib/constants';
+import { BUILD_DATE, SITE_NAME } from '../../lib/constants';
 import Chip from '../../components/ui/Chip.astro';
 import { getProtocols, getScenarioEntries } from '../../lib/content';
-import { BUILD_DATE } from '../../lib/constants';
 
 const entries = (await getScenarioEntries()).sort((a, b) => a.data.order - b.data.order);
 const protocols = await getProtocols();
@@ -78,5 +77,5 @@ const bySlug = new Map(protocols.map((p) => [p.slug, p]));
   .scn-card__title a:hover, .scn-card__title a:focus-visible { text-decoration: underline; }
   .scn-card__summary { margin: 0; color: var(--fg-muted); flex: 1; }
   .scn-card__chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
-  .scn-card__meta { margin: 0; font-size: 0.8rem; color: var(--fg-muted); }
+  .scn-card__meta { margin: 0; font-size: 0.875rem; color: var(--fg-muted); }
 </style>

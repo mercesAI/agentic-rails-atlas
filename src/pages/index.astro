@@ -73,7 +73,9 @@ const orbit = resolveOrbit(orbitSeeds, orbitPages);
 
 const WINDOW_DAYS = 60;
 const since = daysBefore(BUILD_DATE, WINDOW_DAYS);
-const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
+const CHANGED_MAX = 12;
+const changedAll = recentEvents(events, BUILD_DATE, WINDOW_DAYS);
+const changed = changedAll.slice(0, CHANGED_MAX);
 ---
 <Base title={SITE_NAME} seoTitle={`${SITE_BRAND}: agent identity, checkout and payment protocols explained`} description={SITE_DESCRIPTION} jsonLd={[webSiteLd(), { '@context': 'https://schema.org', ...organizationLd() }]}>
   <div class="home">
@@ -160,7 +162,10 @@ const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
 
     <section class="home__changed" aria-labelledby="changed-h">
       <h2 id="changed-h">Changed in the last 60 days</h2>
-      <p class="home__note">Timeline events dated <time datetime={since}>{since}</time> to <time datetime={BUILD_DATE}>{BUILD_DATE}</time>, newest first.</p>
+      <p class="home__note">
+        Timeline events dated <time datetime={since}>{since}</time> to <time datetime={BUILD_DATE}>{BUILD_DATE}</time>, newest first.
+        {changedAll.length > changed.length && <> The latest {changed.length} of {changedAll.length}; the full list is on <a href="/whats-new/">what's new</a> and the <a href="/timeline/">timeline</a>.</>}
+      </p>
       {changed.length === 0 ? (
         <p class="home__empty">No dated events in this window.</p>
       ) : (
@@ -199,7 +204,7 @@ const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
   .home__start:hover { color: var(--accent-fg); background: var(--link-hover); }
   .home__section-title { font-size: 1.05rem; margin-bottom: 0.75rem; }
   h2 { font-size: 1.05rem; margin-bottom: 0.9rem; }
-  .home__empty, .home__note { color: var(--fg-muted); font-size: 0.9rem; }
+  .home__empty, .home__note { color: var(--fg-muted); font-size: 0.9375rem; }
   .home__protocols .home__note { margin: -0.5rem 0 0.75rem; }
 
   .home__below {
@@ -209,9 +214,9 @@ const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
   @media (max-width: 900px) { .home__below { grid-template-columns: 1fr; } }
   .home__side { display: grid; gap: 1.25rem; align-content: start; }
   .home__panel { padding: 1.1rem 1.2rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-elevated); }
-  .home__panel p { font-size: 0.9rem; color: var(--fg-muted); }
+  .home__panel p { font-size: 0.9375rem; color: var(--fg-muted); }
   .home__panel .home__note { margin-top: 0.75rem; }
-  .home__links { margin-top: 0.75rem; display: grid; gap: 0.3rem; font-size: 0.9rem; }
+  .home__links { margin-top: 0.75rem; display: grid; gap: 0.3rem; font-size: 0.9375rem; }
   #protocols-h:focus { outline: none; }
 
   .protocol-list { display: grid; border-top: 1px solid var(--border); }
@@ -222,9 +227,9 @@ const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
   .protocol-list__link:hover .protocol-list__name { color: var(--family-ink); }
   .protocol-list__text { display: grid; }
   .protocol-list__name { font-family: var(--font-heading); font-weight: 600; font-size: 1.1rem; }
-  .protocol-list__tagline { font-size: 0.9rem; color: var(--fg-muted); }
+  .protocol-list__tagline { font-size: 0.9375rem; color: var(--fg-muted); }
   .protocol-list__intro { font-size: 0.9375rem; color: var(--fg-muted); max-width: 68ch; }
-  .protocol-list__facts { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; font-size: 0.8125rem; }
+  .protocol-list__facts { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; font-size: 0.875rem; }
   .protocol-list__facts div { display: flex; gap: 0.4rem; }
   .protocol-list__facts dt { color: var(--fg-subtle); }
   .protocol-list__facts dd { margin: 0; color: var(--fg); }
@@ -239,8 +244,8 @@ const changed = recentEvents(events, BUILD_DATE, WINDOW_DAYS).slice(0, 12);
     border-bottom: 1px solid var(--border); border-left: 2px solid var(--border);
   }
   .changes__item[data-family] { border-left-color: var(--family-fill); }
-  .changes__date { font-family: var(--font-mono); font-size: 0.75rem; color: var(--fg-subtle); }
+  .changes__date { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--fg-subtle); }
   .changes__lane { font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .changes__title { font-size: 0.9rem; color: var(--fg); }
+  .changes__title { font-size: 0.9375rem; color: var(--fg); }
   a.changes__title { color: var(--link); }
 </style>
