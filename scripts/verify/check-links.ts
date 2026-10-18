@@ -10,16 +10,17 @@
  *   403 or 429 from a host in scripts/verify/bot-blocking-hosts.json, or a
  *   Cloudflare challenge            -> warning
  *   other 4xx                       -> failure
- *   5xx, timeouts, network errors   -> warning
+ *   host not found (ENOTFOUND after the retries) -> failure
+ *   5xx, timeouts, other network errors -> warning
  * Writes src/generated/link-report.json. Exits 1 on any failure.
  * Flags: --host <name> (only URLs on that host), --limit <n>, --concurrency <n> (global, default 8).
  */
 import { join } from 'node:path';
 import { z } from 'zod';
 import { Publication, Source } from '../../src/lib/schemas.ts';
-import { ROOT, isMain, listDir, parseArgs, readJson, rel, writeJsonIfChanged } from '../lib/io.ts';
+import { ROOT, checkedAtFor, isMain, listDir, parseArgs, readJson, rel, writeJsonIfChanged } from '../lib/io.ts';
 import { loadJson, loadProtocol } from '../lib/content.ts';
-import { sleep } from '../data/lib.ts';
+import { type ProbeResult, probe, sleep } from '../lib/net.ts';
 
 const PER_HOST = 2;
 const HOST_SPACING_MS = 400;
@@ -74,24 +75,12 @@ export function isBotBlockingHost(host: string, hosts: string[]): boolean {
   return hosts.some((b) => h === b || h.endsWith(`.${b}`));
 }
 
-async function request(url: string, method: 'HEAD' | 'GET'): Promise<{ status: number; headers: Headers; finalUrl: string; error?: string }> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    const res = await fetch(url, {
-      method,
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: { 'user-agent': UA, accept: 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8' },
-    });
-    await res.body?.cancel().catch(() => undefined);
-    return { status: res.status, headers: res.headers, finalUrl: res.url };
-  } catch (err) {
-    const cause = err instanceof Error && 'cause' in err && err.cause instanceof Error ? `: ${err.cause.message}` : '';
-    return { status: 0, headers: new Headers(), finalUrl: url, error: `${err instanceof Error ? err.message : String(err)}${cause}` };
-  } finally {
-    clearTimeout(timer);
-  }
+function request(url: string, method: 'HEAD' | 'GET'): Promise<ProbeResult> {
+  return probe(url, {
+    method,
+    timeoutMs: TIMEOUT_MS,
+    headers: { 'user-agent': UA, accept: 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8' },
+  });
 }
 
 /** Per-host limiter: at most PER_HOST in flight and HOST_SPACING_MS between starts. */
@@ -115,7 +104,8 @@ class HostGate {
   }
 }
 
-export function classify(status: number, host: string, headers: Headers, bot: BotConfig): { outcome: LinkResult['outcome']; reason?: string } {
+/** `code` is the system error code behind status 0 (ENOTFOUND, ECONNRESET, ...), when known. */
+export function classify(status: number, host: string, headers: Headers, bot: BotConfig, code?: string): { outcome: LinkResult['outcome']; reason?: string } {
   if (status >= 200 && status < 400) return { outcome: 'ok' };
   const challenge = Object.entries(bot.challengeHeaders ?? {}).some(([k, v]) => headers.get(k)?.toLowerCase() === v.toLowerCase());
   if (status === 404 || status === 410) return { outcome: 'fail', reason: `HTTP ${status}` };
@@ -124,7 +114,11 @@ export function classify(status: number, host: string, headers: Headers, bot: Bo
     if (isBotBlockingHost(host, bot.hosts)) return { outcome: 'warn', reason: `HTTP ${status} from a known bot-blocking host` };
     return { outcome: 'fail', reason: `HTTP ${status}` };
   }
-  if (status === 0) return { outcome: 'warn', reason: 'network error or timeout' };
+  if (status === 0) {
+    // A host that does not resolve after every retry is gone; resets, refusals and timeouts come and go.
+    if (code === 'ENOTFOUND') return { outcome: 'fail', reason: 'host not found (ENOTFOUND)' };
+    return { outcome: 'warn', reason: 'network error or timeout' };
+  }
   if (status >= 500) return { outcome: 'warn', reason: `HTTP ${status} (server error)` };
   return { outcome: 'fail', reason: `HTTP ${status}` };
 }
@@ -136,7 +130,7 @@ async function checkOne(t: LinkTarget, gate: HostGate, bot: BotConfig): Promise<
   } catch {
     return { url: t.url, host, status: 0, method: '', outcome: 'fail', reason: 'invalid URL', refs: t.refs };
   }
-  let last: { status: number; headers: Headers; finalUrl: string; error?: string; method: 'HEAD' | 'GET' } = {
+  let last: ProbeResult & { method: 'HEAD' | 'GET' } = {
     status: 0,
     headers: new Headers(),
     finalUrl: t.url,
@@ -156,7 +150,7 @@ async function checkOne(t: LinkTarget, gate: HostGate, bot: BotConfig): Promise<
   const c =
     (last.status === 404 || last.status === 410) && (bot.expectedMissing ?? []).includes(t.url)
       ? { outcome: 'ok' as const, reason: `HTTP ${last.status} (expected: cited as evidence of absence)` }
-      : classify(last.status, host, last.headers, bot);
+      : classify(last.status, host, last.headers, bot, last.code);
   return {
     url: t.url,
     host,
@@ -202,7 +196,7 @@ if (isMain(import.meta.url)) {
         else console.warn(`warn: ${line}`);
       }
       const out = join(root, 'src', 'generated', 'link-report.json');
-      writeJsonIfChanged(out, { checkedAt: new Date().toISOString().slice(0, 10), results });
+      writeJsonIfChanged(out, { checkedAt: checkedAtFor(out, results), results });
       const n = (o: LinkResult['outcome']): number => results.filter((r) => r.outcome === o).length;
       console.log(`check-links: ${results.length} URLs; ${n('ok')} ok, ${n('warn')} warnings, ${n('fail')} failures; report ${rel(root, out)}`);
       process.exit(n('fail') ? 1 : 0);

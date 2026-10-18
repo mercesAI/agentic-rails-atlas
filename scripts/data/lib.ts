@@ -5,13 +5,15 @@
  *
  * Snapshots: src/data/snapshots/<source>/<YYYY-MM-DD>.json (one per day, the
  * last run of the day wins) and a copy of the latest at
- * src/generated/<source>/latest.json. The date comes from the system clock.
+ * src/generated/<source>/latest.json. The date is the UTC date of the system
+ * clock (`today()` in scripts/lib/io.ts, the one clock of the build scripts).
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { ROOT, today } from '../lib/io.ts';
 
-export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+export { ROOT, isMain, today } from '../lib/io.ts';
+export { fetchJson, sleep, type JsonResponse } from '../lib/net.ts';
 export const SNAPSHOT_DIR = join(ROOT, 'src', 'data', 'snapshots');
 export const GENERATED_DIR = join(ROOT, 'src', 'generated');
 
@@ -30,60 +32,8 @@ export interface FetchResult<T = unknown> {
   durationMs?: number;
 }
 
-/** Today's date from the system clock as YYYY-MM-DD (local time). */
-export function today(now: Date = new Date()): string {
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const d = String(now.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
 export function nowIso(): string {
   return new Date().toISOString();
-}
-
-export function sleep(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-export interface JsonResponse<T = unknown> {
-  status: number;
-  ok: boolean;
-  headers: Headers;
-  json: T | null;
-  text: string;
-}
-
-/**
- * fetch with a timeout that returns a structured response instead of throwing
- * on HTTP errors. Network errors are converted into status 0.
- */
-export async function fetchJson<T = unknown>(
-  url: string,
-  init: RequestInit = {},
-  timeoutMs = 20_000,
-): Promise<JsonResponse<T>> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const headers = new Headers(init.headers ?? {});
-    if (!headers.has('accept')) headers.set('accept', 'application/json');
-    if (!headers.has('user-agent')) headers.set('user-agent', 'agentic-rails-atlas-data (build-time fetcher)');
-    const res = await fetch(url, { ...init, headers, signal: controller.signal });
-    const text = await res.text();
-    let json: T | null = null;
-    try {
-      json = text ? (JSON.parse(text) as T) : null;
-    } catch {
-      json = null;
-    }
-    return { status: res.status, ok: res.ok, headers: res.headers, json, text };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return { status: 0, ok: false, headers: new Headers(), json: null, text: message };
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 export function readJsonFile<T>(path: string): T | null {
@@ -153,15 +103,4 @@ export function countBy<T>(items: T[], pick: (item: T) => string | string[] | un
     for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
   }
   return Object.fromEntries([...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
-}
-
-/** True when the module is the entry point of the current process. */
-export function isMain(moduleUrl: string): boolean {
-  const entry = process.argv[1];
-  if (!entry) return false;
-  try {
-    return resolve(entry) === fileURLToPath(moduleUrl);
-  } catch {
-    return false;
-  }
 }

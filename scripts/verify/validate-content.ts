@@ -35,6 +35,9 @@ export function validateContent(root: string = ROOT): ValidationResult {
     ...PAGE_SIDECAR_NAMES.map((n) => `${n}.json`),
     ...Object.keys(MERGE_SIDECARS).map((n) => `${n}.json`),
   ]);
+  // Ids that src/lib/content.ts merges across files into one map or list.
+  const claimFiles: { path: string; ids: string[] }[] = [];
+  const resourceFiles: { path: string; ids: string[] }[] = [];
   for (const dir of listDir(join(content, 'protocols'))) {
     if (dir.startsWith('.')) continue;
     if (!(PROTOCOL_SLUGS as readonly string[]).includes(dir)) {
@@ -53,6 +56,8 @@ export function validateContent(root: string = ROOT): ValidationResult {
       if (proto && proto !== dir) err(l.path, `protocol "${proto}" does not match folder "${dir}"`);
     }
     for (const l of Object.values(b.mergeInputs)) check(l);
+    claimFiles.push({ path: b.sidecars.claims.path, ids: (b.sidecars.claims.data?.claims ?? []).map((c) => c.id) });
+    resourceFiles.push({ path: b.sidecars.resources.path, ids: (b.sidecars.resources.data?.resources ?? []).map((r) => r.id) });
     for (const f of listDir(b.dir)) {
       if (!known.has(f) && !f.startsWith('.')) res.warnings.push({ file: rel(root, join(b.dir, f)), message: 'unexpected file in protocol folder' });
     }
@@ -85,7 +90,11 @@ export function validateContent(root: string = ROOT): ValidationResult {
     if (l.data && l.data.slug !== basename(l.path, '.mdx')) err(l.path, `slug "${l.data.slug}" does not match the file name`);
   }
   for (const f of listDir(join(content, 'scenarios'))) {
-    if (f.endsWith('.claims.json')) check(loadJson(join(content, 'scenarios', f), ClaimsFile));
+    if (f.endsWith('.claims.json')) {
+      const l = loadJson(join(content, 'scenarios', f), ClaimsFile);
+      check(l);
+      claimFiles.push({ path: l.path, ids: (l.data?.claims ?? []).map((c) => c.id) });
+    }
     if (f.endsWith('.sources.json')) check(loadJson(join(content, 'scenarios', f), z.array(Source)));
   }
   for (const l of g.orbit) {
@@ -105,6 +114,25 @@ export function validateContent(root: string = ROOT): ValidationResult {
   dupes(g.sources.path, (g.sources.data ?? []).map((s) => s.id), 'source');
   dupes(g.publications.path, (g.publications.data ?? []).map((p) => p.id), 'publication');
   dupes(g.glossary.path, (g.glossary.data ?? []).map((t) => t.id), 'glossary');
+
+  // Duplicate ids across files: a claim id repeated in two claims files, or a
+  // resource id repeated in two resources files, would silently overwrite in the
+  // merged maps of src/lib/content.ts.
+  const dupesAcross = (files: { path: string; ids: string[] }[], what: string): void => {
+    const firstSeen = new Map<string, string>();
+    for (const f of files) {
+      const local = new Set<string>();
+      for (const id of f.ids) {
+        const first = firstSeen.get(id);
+        if (first && first !== f.path) err(f.path, `duplicate ${what} id ${id} (also in ${rel(root, first)})`);
+        else if (local.has(id)) err(f.path, `duplicate ${what} id ${id}`);
+        local.add(id);
+        if (!first) firstSeen.set(id, f.path);
+      }
+    }
+  };
+  dupesAcross(claimFiles, 'claim');
+  dupesAcross(resourceFiles, 'resource');
 
   check(loadJson(join(root, 'src', 'data', 'manual-metrics.json'), ManualMetricsFile));
   check(loadJson(join(root, 'coverage-waivers.json'), CoverageWaiversFile));

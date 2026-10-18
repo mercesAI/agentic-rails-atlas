@@ -94,11 +94,7 @@ export function setPageSources(
 }
 
 export function getPageContext(page?: string): CitationContext | undefined {
-  return contexts.get(page ?? DEFAULT_PAGE) ?? (page ? undefined : contexts.get(DEFAULT_PAGE));
-}
-
-export function clearPageSources(page?: string): void {
-  contexts.delete(page ?? DEFAULT_PAGE);
+  return contexts.get(page ?? DEFAULT_PAGE);
 }
 
 /** Number for a source id on a page; unknown source ids are appended so they still get a number. */

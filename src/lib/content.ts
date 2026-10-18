@@ -60,11 +60,6 @@ export async function getProtocols(): Promise<ProtocolMeta[]> {
   return entries.map((e) => e.data).sort((a, b) => a.order - b.order);
 }
 
-export async function getProtocolEntries(): Promise<CollectionEntry<'protocols'>[]> {
-  const entries = await safeCollection('protocols');
-  return entries.sort((a, b) => a.data.order - b.data.order);
-}
-
 export async function getSidecar<K extends SidecarCollection>(
   name: K,
   slug: string,
@@ -136,13 +131,13 @@ export function scanCiteIds(body: string | undefined): string[] {
   return out;
 }
 
-/** Collects every value under `sources` and `claimIds` keys, depth-first, in document order. */
+/** Collects every value under `sources`, `disputeSources` and `claimIds` keys, depth-first, in document order. */
 export function collectRefs(value: unknown, out: string[] = []): string[] {
   if (Array.isArray(value)) {
     for (const v of value) collectRefs(v, out);
   } else if (value && typeof value === 'object') {
     for (const [k, v] of Object.entries(value)) {
-      if ((k === 'sources' || k === 'claimIds') && Array.isArray(v)) {
+      if ((k === 'sources' || k === 'disputeSources' || k === 'claimIds') && Array.isArray(v)) {
         for (const id of v) if (typeof id === 'string') out.push(id);
       } else {
         collectRefs(v, out);

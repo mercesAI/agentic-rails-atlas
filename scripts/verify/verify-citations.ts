@@ -15,20 +15,21 @@
 import { join } from 'node:path';
 import { z } from 'zod';
 import { Publication } from '../../src/lib/schemas.ts';
-import { ROOT, isMain, parseArgs, rel, writeJsonIfChanged } from '../lib/io.ts';
+import { ROOT, checkedAtFor, isMain, parseArgs, rel, writeJsonIfChanged } from '../lib/io.ts';
 import { loadJson } from '../lib/content.ts';
-import { fetchJson, sleep } from '../data/lib.ts';
+import { fetchJson, probe, sleep } from '../lib/net.ts';
 
 type PublicationT = z.infer<typeof Publication>;
 
 export const TITLE_THRESHOLD = 0.85;
 const DELAY_MS = 300;
+const PUBLISHER_TIMEOUT_MS = 20_000;
 const UA = 'agentic-rails-atlas-citation-check (build-time verifier)';
 
 export function normalizeTitle(t: string): string[] {
   return t
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/\p{M}/gu, '')
     .toLowerCase()
     .replace(/<[^>]+>/g, ' ')
     .replace(/[{}$\\]/g, '')
@@ -59,7 +60,7 @@ export function titleOverlap(a: string, b: string): number {
 const fold = (s: string): string =>
   s
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/\p{M}/gu, '')
     .toLowerCase()
     .replace(/[^a-z]+/g, ' ')
     .trim();
@@ -183,14 +184,8 @@ export async function verifyCitations(options: { root?: string; offline?: boolea
       continue;
     }
     if (!p.doi && !p.arxiv) {
-      // Publisher-verified entry: confirm the page still resolves; a block or timeout only warns.
-      let status: number;
-      try {
-        const r = await fetch(p.url, { method: 'GET', redirect: 'follow', headers: { 'user-agent': UA } });
-        status = r.status;
-      } catch {
-        status = 0;
-      }
+      // Publisher-verified entry: confirm the page still resolves (body discarded, PUBLISHER_TIMEOUT_MS); a block or timeout only warns.
+      const { status } = await probe(p.url, { method: 'GET', timeoutMs: PUBLISHER_TIMEOUT_MS, headers: { 'user-agent': UA } });
       results.push(
         status >= 200 && status < 400
           ? { id: p.id, status: 'ok', message: `publisher page HTTP ${status}` }
@@ -239,10 +234,8 @@ if (isMain(import.meta.url)) {
         else console.error(`error: ${line}`);
       }
       if (!offline) {
-        writeJsonIfChanged(join(root, 'src', 'generated', 'citation-report.json'), {
-          checkedAt: new Date().toISOString().slice(0, 10),
-          results,
-        });
+        const out = join(root, 'src', 'generated', 'citation-report.json');
+        writeJsonIfChanged(out, { checkedAt: checkedAtFor(out, results), results });
       }
       const failures = count('mismatch') + count('not-found') + count('shape-error');
       console.log(

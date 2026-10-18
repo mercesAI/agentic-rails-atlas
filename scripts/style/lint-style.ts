@@ -1,7 +1,8 @@
 /**
  * lint-style.ts (ARCHITECTURE.md §9, ATLAS_PROMPT.md 14.1).
  *   - Fails on U+2014 (em dash) anywhere under src/content/** and in UI strings
- *     (anything outside code comments) under src/components/** and src/pages/**.
+ *     (anything outside code comments) under src/components/**, src/layouts/**,
+ *     src/pages/** and src/playgrounds/**.
  *   - Fails on banned phrases from scripts/style/banned-phrases.json under
  *     src/content/** (case-insensitive, whole phrase; URLs are ignored).
  *   - Warns on practitioner sentences over 35 words in protocols/<slug>/index.mdx
@@ -108,7 +109,7 @@ export function lintStyle(root: string = ROOT): StyleFinding[] {
     }
   }
 
-  for (const dir of ['components', 'pages']) {
+  for (const dir of ['components', 'layouts', 'pages', 'playgrounds']) {
     for (const file of walkFiles(join(root, 'src', dir), (p) => UI_EXT.test(p))) {
       const text = readFileSync(file, 'utf8');
       emDashes(file, text, blankComments(text));

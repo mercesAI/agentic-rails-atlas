@@ -7,6 +7,8 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from '
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BUILD_DATE, ORG_NAME, ORG_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../src/lib/constants';
+import { SECTION_IDS } from '../src/lib/schemas';
+import { readJson } from './lib/io';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist');
@@ -80,12 +82,22 @@ const orbit = readdirSync(join(CONTENT, 'orbit'))
   .filter((o) => o.starred === 'true')
   .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
 
+// The figures quoted below come from the content files, not from the prose.
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
+const spell = (n: number): string => NUMBER_WORDS[n] ?? String(n);
+const dimensions = readJson<{ dimensions: unknown[] }>(join(CONTENT, 'compare.json'))?.dimensions.length ?? 0;
+const controls = (readJson<{ controls: { label: string }[] }>(join(CONTENT, 'controls-map.json'))?.controls ?? []).map((c) =>
+  c.label.replace(/^[A-Z](?=[a-z])/, (ch) => ch.toLowerCase()),
+);
+const terms = (readJson<{ stub?: boolean }[]>(join(CONTENT, 'glossary', 'terms.json')) ?? []).filter((t) => !t.stub).length;
+const personas = readdirSync(join(CONTENT, 'personas')).filter((f) => f.endsWith('.json')).length;
+
 const llms = `# ${SITE_NAME}
 
 > ${SITE_DESCRIPTION}
 
 Published by ${ORG_NAME} (${ORG_URL}), the controls platform for agentic transactions. Built ${BUILD_DATE}.
-Every factual statement on the site is a claim with a source record and a confidence level (verified, reported or unverified); numbers carry an "as of" date. Each protocol page has twenty sections: summary and key facts, a detailed explanation in four reading modes (plain language, practitioner, spec-deep and Simplified Technical English), diagrams and an interactive flow player, personas, resources, verified publications, a security threat model, a controls lens, compliance, an observability lens, ecosystem and costs, timeline, code, a browser-only playground simulation, comparison with the other seven protocols, FAQ, open questions and a self-test.
+Every factual statement on the site is a claim with a source record and a confidence level (verified, reported or unverified); numbers carry an "as of" date. Each protocol page has ${spell(SECTION_IDS.length)} sections: summary and key facts, a detailed explanation in four reading modes (plain language, practitioner, spec-deep and Simplified Technical English), diagrams and an interactive flow player, personas, resources, verified publications, a security threat model, a controls lens, compliance, an observability lens, ecosystem and costs, timeline, code, a browser-only playground simulation, comparison with the other ${spell(protocols.length - 1)} protocols, FAQ, open questions and a self-test.
 When citing, link to the page URL and quote the "as of" date shown with any number. Content is not legal, financial or security advice.
 
 ## Protocol pages
@@ -94,15 +106,15 @@ ${protocols.map((p) => `- [${p.name}](${SITE_URL}/p/${p.slug}/): ${p.intro ?? p.
 
 ## Cross-cutting pages
 
-- [Compare](${SITE_URL}/compare/): the eight protocols on 34 dimensions, each cell with a value, confidence and sources.
+- [Compare](${SITE_URL}/compare/): the ${spell(protocols.length)} protocols on ${dimensions} dimensions, each cell with a value, confidence and sources.
 - [Stack](${SITE_URL}/stack/): where each protocol sits, from discovery to reputation.
-- [Controls](${SITE_URL}/controls/): fourteen controls (consent, caps, scoping, expiry, revocation, step-up, replay protection, receipts, disputes, reputation, monitoring, kill switch) and how much each protocol provides natively.
-- [Scenarios](${SITE_URL}/scenarios/): eight end-to-end walkthroughs across protocols.
+- [Controls](${SITE_URL}/controls/): ${spell(controls.length)} controls (${controls.join(', ')}) and how much each protocol provides natively.
+- [Scenarios](${SITE_URL}/scenarios/): ${spell(scenarios.length)} end-to-end walkthroughs across protocols.
 - [Timeline](${SITE_URL}/timeline/): every dated event, with lanes for standards, policy, market and prehistory.
-- [Glossary](${SITE_URL}/glossary/): 200+ terms with plain and Simplified Technical English definitions.
+- [Glossary](${SITE_URL}/glossary/): ${terms} terms with plain and Simplified Technical English definitions.
 - [Library](${SITE_URL}/library/): specifications, SDKs, talks and verified research papers, exportable as BibTeX, RIS and CSV.
 - [Orbit](${SITE_URL}/orbit/): related standards and programs.
-- [Personas](${SITE_URL}/personas/): each protocol from nineteen seats, from the delegating consumer to the agent itself.
+- [Personas](${SITE_URL}/personas/): each protocol from ${spell(personas)} seats, from the delegating consumer to the agent itself.
 - [Methodology](${SITE_URL}/methodology/): sources policy, verification method, claim counts by confidence, known gaps and errata.
 - [What's new](${SITE_URL}/whats-new/): spec repository activity and events from the last 90 days.
 

@@ -38,6 +38,45 @@ export function stableJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+/** Compact JSON with object keys sorted at every level: equal for records that differ only in key order. */
+export function canonicalJson(value: unknown): string {
+  return JSON.stringify(sortKeys(value));
+}
+
+function sortKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortKeys);
+  if (value && typeof value === 'object') {
+    const rec = value as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.keys(rec)
+        .sort()
+        .map((k) => [k, sortKeys(rec[k])]),
+    );
+  }
+  return value;
+}
+
+/** Today's date as YYYY-MM-DD in UTC: the one clock for build dates, snapshots and report stamps. */
+export function today(now: Date = new Date()): string {
+  return now.toISOString().slice(0, 10);
+}
+
+/**
+ * Stamp (YYYY-MM-DD, UTC) for a report with a `results` array: the previous
+ * file's `checkedAt` when its results are byte-identical, so that a re-run with
+ * the same outcome does not churn a committed report.
+ */
+export function checkedAtFor(path: string, results: unknown): string {
+  let prev: { checkedAt?: unknown; results?: unknown } | undefined;
+  try {
+    prev = readJson(path);
+  } catch {
+    prev = undefined;
+  }
+  if (typeof prev?.checkedAt === 'string' && JSON.stringify(prev.results) === JSON.stringify(results)) return prev.checkedAt;
+  return today();
+}
+
 /** Writes JSON when the content differs. Returns true when the file changed. */
 export function writeJsonIfChanged(path: string, value: unknown): boolean {
   return writeTextIfChanged(path, stableJson(value));

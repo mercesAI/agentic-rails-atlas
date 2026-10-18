@@ -195,6 +195,20 @@ describe('merge-content', () => {
       expect(r.warnings.some((w) => w.includes('term[2]'))).toBe(true);
     });
 
+    it('reports a writer term that disagrees with the research draft, and ignores key order in source conflicts', () => {
+      write('src/content/protocols/ap2/glossary-additions.json', [term('facilitator', { plain: 'A different definition.' })]);
+      // The same record as research/ste.sources.json with its keys in another order.
+      const { id, url, ...rest } = source('src-r-one', 'https://example.com/one/');
+      write('src/content/protocols/ap2/sources.json', [{ ...rest, url, id }]);
+      const r = mergeContent({ root });
+      expect(r.errors).toEqual([]);
+      expect(r.warnings.some((w) => w.includes('glossary term facilitator') && w.includes('research/glossary.draft.json'))).toBe(true);
+      expect(r.warnings.some((w) => w.includes('src-r-one'))).toBe(false);
+      const terms = read<{ id: string; plain: string; protocols: string[] }[]>('src/content/glossary/terms.json');
+      expect(terms.find((t) => t.id === 'facilitator')?.plain).toBe('Plain definition.');
+      expect(terms.find((t) => t.id === 'facilitator')?.protocols).toEqual(['x402', 'ap2']);
+    });
+
     it('merges relations, timeline, compare cells, controls cells and metrics', () => {
       mergeContent({ root });
       expect(read<unknown[]>('src/content/relations.json')).toHaveLength(1);

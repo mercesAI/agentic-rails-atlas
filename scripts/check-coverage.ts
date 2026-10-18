@@ -12,7 +12,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ClaimsFile, CoverageWaiversFile, PROTOCOL_SLUGS, type ProtocolSlug } from '../src/lib/schemas.ts';
-import { ROOT, isMain, listDir, parseArgs, readJson, rel, writeJsonIfChanged } from './lib/io.ts';
+import { ROOT, isMain, listDir, parseArgs, readJson, rel, today, writeJsonIfChanged } from './lib/io.ts';
 import {
   PAGE_SIDECAR_NAMES,
   citeIds,
@@ -73,8 +73,6 @@ export interface CoverageReport {
   protocols: ProtocolCoverage[];
   summary: { pass: number; fail: number; missing: number };
 }
-
-const today = (): string => new Date().toISOString().slice(0, 10);
 
 function checkProtocol(root: string, slug: ProtocolSlug, g: GlobalContent, allClaimIds: Set<string>): ProtocolCoverage {
   const content = join(root, 'src', 'content');

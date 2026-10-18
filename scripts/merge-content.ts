@@ -43,6 +43,7 @@ import {
 import {
   JsonReadError,
   ROOT,
+  canonicalJson,
   isMain,
   listDir,
   normalizeUrl,
@@ -173,7 +174,7 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
     for (const s of parseEach(Source, items, origin, 'sources')) {
       const prev = sources.get(s.id);
       if (prev) {
-        if (JSON.stringify(prev.source) !== JSON.stringify(s)) {
+        if (canonicalJson(prev.source) !== canonicalJson(s)) {
           if (wins) {
             warn(`source ${s.id}: ${origin} overrides the record from ${prev.origin}`);
             sources.set(s.id, { source: s, origin });
@@ -300,6 +301,7 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
   // Glossary: research/glossary.draft.json, then per-protocol additions.
   // -------------------------------------------------------------------------
   const terms = new Map<string, GlossaryTermT>();
+  const termOrigin = new Map<string, string>();
   let glossaryStubs = 0;
   const draftPath = join(research, 'glossary.draft.json');
   const draft = readInput(draftPath);
@@ -317,23 +319,34 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
         return;
       }
       terms.set(r.data.id, isStub ? { ...r.data, stub: true } : r.data);
+      termOrigin.set(r.data.id, rel(root, draftPath));
     });
   }
+  /** The definition without the fields that are merged (protocols) or derived (stub), for conflict detection. */
+  const definition = ({ protocols: _protocols, stub: _stub, ...rest }: GlossaryTermT): string => canonicalJson(rest);
   for (const slug of protocolDirs) {
     const path = sidecar(slug, 'glossary-additions.json');
     const data = readInput(path);
     if (data === undefined) continue;
-    for (const t of parseEach(GlossaryTerm, arrayFrom(data, ['terms']), rel(root, path), 'terms')) {
+    const where = rel(root, path);
+    for (const t of parseEach(GlossaryTerm, arrayFrom(data, ['terms']), where, 'terms')) {
       const prev = terms.get(t.id);
       if (prev) {
         const protos = new Set([...prev.protocols, ...t.protocols, slug]);
-        prev.protocols = [...protos];
         if (prev.stub) {
           // A full definition from a writer replaces a stub.
           terms.set(t.id, { ...t, protocols: [...protos] });
+          termOrigin.set(t.id, where);
+        } else {
+          // The first full definition wins; a different one from a writer is reported, not merged silently.
+          prev.protocols = [...protos];
+          if (definition(prev) !== definition(t)) {
+            warn(`glossary term ${t.id}: conflicting definition in ${where}; kept the one from ${termOrigin.get(t.id) ?? 'an earlier file'}`);
+          }
         }
       } else {
         terms.set(t.id, { ...t, protocols: [...new Set([...t.protocols, slug])] });
+        termOrigin.set(t.id, where);
       }
     }
   }

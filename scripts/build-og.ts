@@ -1,14 +1,15 @@
 /**
- * Renders social preview images (1200 by 630 PNG) into public/og/ with the
- * system Chrome through Playwright: one default image and one per protocol.
+ * Renders social preview images (1200 by 630 PNG) into public/og/ with
+ * Playwright Chromium or the installed Chrome (scripts/lib/browser.ts): one
+ * default image and one per protocol.
  * Run once after content changes: `pnpm tsx scripts/build-og.ts`. The PNGs are
  * committed, so the normal build needs no browser.
  */
 import { mkdirSync, readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
 import { SITE_URL } from '../src/lib/constants';
+import { launchBrowser } from './lib/browser.ts';
 
 const HOST = new URL(SITE_URL).host;
 
@@ -55,8 +56,6 @@ function card(opts: { eyebrow: string; title: string; sub: string; mono?: string
   <div class="foot"><span><b>Agentic Rails Atlas</b> by merces.ai</span><span>${HOST}</span></div></div></body></html>`;
 }
 
-const browser = await chromium.launch({ channel: 'chrome' });
-const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
 const jobs: { file: string; html: string }[] = [
   {
     file: 'default.png',
@@ -78,9 +77,14 @@ for (const slug of readdirSync(protocolsDir)) {
     html: card({ eyebrow: `Protocol: ${fm.tagline ?? ''}`, title: fm.name ?? slug, sub: (fm.intro ?? '').split(/(?<=\.)\s/).slice(0, 2).join(' '), mono: fm.monogram, hue: token(`family-${fam}-fill`, '#c9d4ff') }),
   });
 }
-for (const job of jobs) {
-  await page.setContent(job.html, { waitUntil: 'load' });
-  await page.screenshot({ path: join(OUT, job.file), type: 'png' });
-  console.log('wrote public/og/' + job.file);
+const browser = await launchBrowser({ tag: 'build-og' });
+try {
+  const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
+  for (const job of jobs) {
+    await page.setContent(job.html, { waitUntil: 'load' });
+    await page.screenshot({ path: join(OUT, job.file), type: 'png' });
+    console.log('wrote public/og/' + job.file);
+  }
+} finally {
+  await browser.close();
 }
-await browser.close();
