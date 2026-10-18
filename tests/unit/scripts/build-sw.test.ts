@@ -53,10 +53,10 @@ const COLLECTED = [
   '/pagefind/pagefind.js',
   '/pagefind/wasm.en.pagefind',
 ];
-/** The per-query Pagefind data: collected, never precached, cached cache-first at runtime. */
+/** The per-query Pagefind data: precached last and best effort, served cache-first. */
 const PAGEFIND_DATA = ['/pagefind/fragment/b.pf_fragment', '/pagefind/index/a.pf_index'];
-/** What the worker precaches, sorted. */
-const PRECACHED = COLLECTED.filter((u) => !PAGEFIND_DATA.includes(u));
+/** What the worker precaches, sorted: everything collected. */
+const PRECACHED = COLLECTED;
 
 let dist: string;
 beforeAll(() => {
@@ -193,30 +193,27 @@ describe('build-sw', () => {
     expect(entries.find((e) => e.url === '/manifest.webmanifest')?.kind).toBe('manifest');
   });
 
-  it('puts shell assets first, never precaches the pagefind data and leaves the largest files to runtime caching when the cap is reached', () => {
+  it('puts shell assets first and the pagefind chunks last, and leaves the largest files to runtime caching when the cap is reached', () => {
     const entries = collectEntries(dist);
     const all = planPrecache(entries);
     expect(all.skipped).toEqual([]);
     expect(all.precache[0]?.kind).toBe('manifest');
     expect(all.precache.map((e) => e.url).sort()).toEqual(PRECACHED);
-    expect(all.runtime.map((e) => e.url).sort()).toEqual(PAGEFIND_DATA);
+    expect(all.precache.slice(-PAGEFIND_DATA.length).map((e) => e.url).sort()).toEqual(PAGEFIND_DATA);
     expect(all.total).toBe(all.precache.reduce((n, e) => n + e.bytes, 0));
     const capped = planPrecache(entries, 60);
     expect(capped.total).toBeLessThanOrEqual(60);
     expect(capped.skipped.length).toBeGreaterThan(0);
-    expect(capped.skipped.every((e) => e.kind !== 'pagefind-data')).toBe(true);
-    expect(capped.precache.length + capped.skipped.length + capped.runtime.length).toBe(entries.length);
+    expect(capped.precache.length + capped.skipped.length).toBe(entries.length);
   });
 
-  it('precaches the pagefind runtime but not the index chunks and fragments, which the fetch handler serves cache-first', () => {
+  it('precaches the pagefind runtime and its index chunks and fragments, which the fetch handler serves cache-first', () => {
     const text = workerFor();
     const precache = JSON.parse(/const PRECACHE = (\[.*?\]);/.exec(text)?.[1] ?? '[]') as string[];
     expect(precache).toEqual(PRECACHED);
     expect(precache).toEqual(
-      expect.arrayContaining(['/pagefind/pagefind.js', '/pagefind/pagefind-worker.js', '/pagefind/wasm.en.pagefind', '/pagefind/pagefind-entry.json', '/pagefind/pagefind.en_abc.pf_meta']),
+      expect.arrayContaining(['/pagefind/pagefind.js', '/pagefind/pagefind-worker.js', '/pagefind/wasm.en.pagefind', '/pagefind/pagefind-entry.json', '/pagefind/pagefind.en_abc.pf_meta', ...PAGEFIND_DATA]),
     );
-    expect(text).not.toContain('/pagefind/index/a.pf_index');
-    expect(text).not.toContain('/pagefind/fragment/b.pf_fragment');
     const prefixes = JSON.parse(/const CACHE_FIRST_PREFIXES = (\[.*?\]);/.exec(text)?.[1] ?? '[]') as string[];
     expect(prefixes).toEqual(['/_astro/', '/pagefind/index/', '/pagefind/fragment/', '/pagefind/filter/']);
     expect(text).toContain('else if (CACHE_FIRST_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) event.respondWith(cacheFirst(event, request, url));');
@@ -239,11 +236,13 @@ describe('build-sw', () => {
     expect(buildWorkerText(planPrecache(collectEntries(dist)).precache).text).toBe(text);
   });
 
-  it('marks the pagefind runtime and the manifest optional and everything else required', () => {
+  it('marks every pagefind file and the manifest optional and everything else required', () => {
     const text = workerFor();
     const optional = JSON.parse(/const OPTIONAL = new Set\((\[.*?\])\);/.exec(text)?.[1] ?? '[]') as string[];
     expect(optional.sort()).toEqual([
       '/manifest.webmanifest',
+      '/pagefind/fragment/b.pf_fragment',
+      '/pagefind/index/a.pf_index',
       '/pagefind/pagefind-entry.json',
       '/pagefind/pagefind-worker.js',
       '/pagefind/pagefind.en_abc.pf_meta',
