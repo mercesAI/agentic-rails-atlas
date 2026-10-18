@@ -423,29 +423,31 @@ export default function UcpPlayground() {
                 {ap2Locked && (
                   <p className="ucp-warn">AP2 mandates are in the intersection: the session is security locked.</p>
                 )}
-                <table className="ucp-table">
-                  <caption className="ucp-label">Active capabilities ({negotiation.active.length})</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Name</th>
-                      <th scope="col">Version</th>
-                      <th scope="col">Extends</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {negotiation.active.map((c) => (
-                      <tr key={c.name}>
-                        <td className="ucp-ok">
-                          <code>{c.name}</code>
-                        </td>
-                        <td>
-                          <code>{c.version}</code>
-                        </td>
-                        <td>{c.extends ? <code>{c.extends.join(', ')}</code> : 'root'}</td>
+                <div className="pg-scroll">
+                  <table className="ucp-table">
+                    <caption className="ucp-label">Active capabilities ({negotiation.active.length})</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Version</th>
+                        <th scope="col">Extends</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {negotiation.active.map((c) => (
+                        <tr key={c.name}>
+                          <td className="ucp-ok">
+                            <code>{c.name}</code>
+                          </td>
+                          <td>
+                            <code>{c.version}</code>
+                          </td>
+                          <td>{c.extends ? <code>{c.extends.join(', ')}</code> : 'root'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 {negotiation.warnings.map((w) => (
                   <p key={w} className="ucp-warn">
                     {w}
@@ -761,30 +763,32 @@ export default function UcpPlayground() {
                   </div>
                 )}
                 {session.messages.length > 0 && (
-                  <table className="ucp-table">
-                    <caption className="ucp-label">messages[]</caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">Code</th>
-                        <th scope="col">Severity</th>
-                        <th scope="col">Path</th>
-                        <th scope="col">Content</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {session.messages.map((m) => (
-                        <tr key={`${m.code}-${m.path ?? ''}-${m.content}`}>
-                          <td>
-                            <code>{m.code}</code>
-                            {FIXTURE_CODES.includes(m.code) ? ` (${SIMPLIFICATION_LABEL}: the spec names no code)` : ''}
-                          </td>
-                          <td>{m.severity ?? m.type}</td>
-                          <td>{m.path ? <code>{m.path}</code> : ''}</td>
-                          <td>{m.content}</td>
+                  <div className="pg-scroll">
+                    <table className="ucp-table">
+                      <caption className="ucp-label">messages[]</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Code</th>
+                          <th scope="col">Severity</th>
+                          <th scope="col">Path</th>
+                          <th scope="col">Content</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {session.messages.map((m) => (
+                          <tr key={`${m.code}-${m.path ?? ''}-${m.content}`}>
+                            <td>
+                              <code>{m.code}</code>
+                              {FIXTURE_CODES.includes(m.code) ? ` (${SIMPLIFICATION_LABEL}: the spec names no code)` : ''}
+                            </td>
+                            <td>{m.severity ?? m.type}</td>
+                            <td>{m.path ? <code>{m.path}</code> : ''}</td>
+                            <td>{m.content}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
                 {conflict && <Wire title="Idempotency conflict" text={conflict} />}
                 <h4>Transitions</h4>

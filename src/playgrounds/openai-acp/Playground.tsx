@@ -423,50 +423,52 @@ export default function OpenAiAcpPlayground() {
           {!session && <p>Create a session to see its transitions.</p>}
           {session && outgoing.length === 0 && <p>No transition leaves {status} in this spec version (terminal or not listed).</p>}
           {outgoing.length > 0 && (
-            <table className="acp-table">
-              <caption className="acp-label">Edges from the status state file. Inferred edges are labeled, not hidden.</caption>
-              <thead>
-                <tr>
-                  <th scope="col">To</th>
-                  <th scope="col">Trigger</th>
-                  <th scope="col">Call</th>
-                  <th scope="col">Basis</th>
-                  <th scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {outgoing.map((t) => (
-                  <tr key={`${t.from}-${t.to}`}>
-                    <td><code>{t.to}</code></td>
-                    <td>{t.trigger}</td>
-                    <td>{t.api}</td>
-                    <td className={t.basis === 'inferred' ? 'acp-warn' : 'acp-ok'}>{t.basis === 'inferred' ? 'Inferred' : t.basis === 'implied' ? 'Implied' : 'Spec'}: {BASIS_TEXT[t.basis]}</td>
-                    <td>
-                      {t.kind === 'event' && (
-                        <button
-                          type="button"
-                          className="btn"
-                          onClick={() => {
-                            const r = applyEvent(server, session!.id, t.to);
-                            if ('error' in r) return setAnnounce(r.error);
-                            setServer(r.state);
-                            event(r.text);
-                          }}
-                        >
-                          Merchant event: {t.to}
-                        </button>
-                      )}
-                      {t.kind === 'clock' && (
-                        <button type="button" className="btn" onClick={() => advance(SESSION_TTL_MS + 60_000, 'forward 31 minutes')}>
-                          Clock +31 min
-                        </button>
-                      )}
-                      {(t.kind === 'update' || t.kind === 'complete' || t.kind === 'cancel') && `Use the ${t.kind} button`}
-                    </td>
+            <div className="pg-scroll">
+              <table className="acp-table">
+                <caption className="acp-label">Edges from the status state file. Inferred edges are labeled, not hidden.</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">To</th>
+                    <th scope="col">Trigger</th>
+                    <th scope="col">Call</th>
+                    <th scope="col">Basis</th>
+                    <th scope="col">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {outgoing.map((t) => (
+                    <tr key={`${t.from}-${t.to}`}>
+                      <td><code>{t.to}</code></td>
+                      <td>{t.trigger}</td>
+                      <td>{t.api}</td>
+                      <td className={t.basis === 'inferred' ? 'acp-warn' : 'acp-ok'}>{t.basis === 'inferred' ? 'Inferred' : t.basis === 'implied' ? 'Implied' : 'Spec'}: {BASIS_TEXT[t.basis]}</td>
+                      <td>
+                        {t.kind === 'event' && (
+                          <button
+                            type="button"
+                            className="btn"
+                            onClick={() => {
+                              const r = applyEvent(server, session!.id, t.to);
+                              if ('error' in r) return setAnnounce(r.error);
+                              setServer(r.state);
+                              event(r.text);
+                            }}
+                          >
+                            Merchant event: {t.to}
+                          </button>
+                        )}
+                        {t.kind === 'clock' && (
+                          <button type="button" className="btn" onClick={() => advance(SESSION_TTL_MS + 60_000, 'forward 31 minutes')}>
+                            Clock +31 min
+                          </button>
+                        )}
+                        {(t.kind === 'update' || t.kind === 'complete' || t.kind === 'cancel') && `Use the ${t.kind} button`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
           <Note kind="simplification">
             The state file marks {TRANSITIONS.filter((t) => t.basis === 'inferred').length} of {TRANSITIONS.length} edges as inferred. The spec lists the status values but gives no transition rules for them, so
@@ -689,15 +691,17 @@ export default function OpenAiAcpPlayground() {
           </div>
           <p className="acp-label">Step 3 swaps the cart for a different item. Keys are kept at least 24 hours, so step 6 is treated as a new request.</p>
           {iRuns.length > 0 && (
-            <table className="acp-table">
-              <caption className="acp-label">Attempts in this tab</caption>
-              <thead><tr><th scope="col">Attempt</th><th scope="col">HTTP status</th><th scope="col">Result</th></tr></thead>
-              <tbody>
-                {iRuns.map((r, i) => (
-                  <tr key={i}><td>{r.label}</td><td>{r.status}</td><td>{r.code}{r.replayed ? ' (Idempotent-Replayed: true)' : ''}</td></tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="pg-scroll">
+              <table className="acp-table">
+                <caption className="acp-label">Attempts in this tab</caption>
+                <thead><tr><th scope="col">Attempt</th><th scope="col">HTTP status</th><th scope="col">Result</th></tr></thead>
+                <tbody>
+                  {iRuns.map((r, i) => (
+                    <tr key={i}><td>{r.label}</td><td>{r.status}</td><td>{r.code}{r.replayed ? ' (Idempotent-Replayed: true)' : ''}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
           <Note kind="simplification">Body equality is semantic JSON equality of the body only: key order does not matter, array order does, and null differs from absent. Keys are scoped to the fixture identity plus the endpoint path.</Note>
         </section>
@@ -741,24 +745,26 @@ export default function OpenAiAcpPlayground() {
                   ))}
                 </fieldset>
               </div>
-              <table className="acp-table">
-                <caption className="acp-label">Seller handlers on the session, in display_order</caption>
-                <thead><tr><th scope="col">id</th><th scope="col">Usable</th><th scope="col">requires_delegate_payment</th><th scope="col">requires_pci_compliance</th><th scope="col">psp</th></tr></thead>
-                <tbody>
-                  {selection.offered.map((h) => {
-                    const skip = selection.skipped.find((s) => s.handler.id === h.id);
-                    return (
-                      <tr key={h.id}>
-                        <td><code>{h.id}</code></td>
-                        <td className={skip ? 'acp-bad' : 'acp-ok'}>{skip ? `No: ${skip.reason}` : 'Yes'}</td>
-                        <td>{String(h.requires_delegate_payment)}</td>
-                        <td>{String(h.requires_pci_compliance)}</td>
-                        <td>{h.psp}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <div className="pg-scroll">
+                <table className="acp-table">
+                  <caption className="acp-label">Seller handlers on the session, in display_order</caption>
+                  <thead><tr><th scope="col">id</th><th scope="col">Usable</th><th scope="col">requires_delegate_payment</th><th scope="col">requires_pci_compliance</th><th scope="col">psp</th></tr></thead>
+                  <tbody>
+                    {selection.offered.map((h) => {
+                      const skip = selection.skipped.find((s) => s.handler.id === h.id);
+                      return (
+                        <tr key={h.id}>
+                          <td><code>{h.id}</code></td>
+                          <td className={skip ? 'acp-bad' : 'acp-ok'}>{skip ? `No: ${skip.reason}` : 'Yes'}</td>
+                          <td>{String(h.requires_delegate_payment)}</td>
+                          <td>{String(h.requires_pci_compliance)}</td>
+                          <td>{h.psp}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
               <p>
                 In the checkout tab, pick a <code>handler_id</code> and complete. A handler with <code>requires_delegate_payment: true</code> needs a token from step 2; the bank transfer fixture does not, so no allowance applies to it.
               </p>

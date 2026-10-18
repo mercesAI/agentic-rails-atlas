@@ -108,29 +108,31 @@ function Steps({ steps }: { steps: Step[] }) {
 
 function FieldTable({ caption, rows }: { caption: string; rows: FieldDoc[] }) {
   return (
-    <table className="vt-table">
-      <caption className="vt-src" style={{ textAlign: 'left' }}>
-        {caption}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">Field</th>
-          <th scope="col">Required</th>
-          <th scope="col">Meaning</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.field}>
-            <td>
-              <code>{r.field}</code>
-            </td>
-            <td>{r.required}</td>
-            <td>{r.meaning}</td>
+    <div className="pg-scroll">
+      <table className="vt-table">
+        <caption className="vt-src" style={{ textAlign: 'left' }}>
+          {caption}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Field</th>
+            <th scope="col">Required</th>
+            <th scope="col">Meaning</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.field}>
+              <td>
+                <code>{r.field}</code>
+              </td>
+              <td>{r.required}</td>
+              <td>{r.meaning}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -496,43 +498,45 @@ function Decoded({ signed }: { signed: Signed }) {
   const bytes = parseSignatureHeader(signed.signature).get(TAP_LABEL);
   if (!p) return null;
   return (
-    <table className="vt-table">
-      <tbody>
-        <tr>
-          <th scope="row">Label</th>
-          <td>
-            <code>{p.label}</code>
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Covered</th>
-          <td>
-            <code>{p.components.map((c) => c.name).join(', ') || '(none)'}</code>
-          </td>
-        </tr>
-        {p.params.map(([k, v]) => (
-          <tr key={k}>
-            <th scope="row">
-              <code>{k}</code>
-            </th>
-            <td>
-              <code>{String(v)}</code>
-              {k === 'created' || k === 'expires' ? ` (${new Date(Number(v) * 1000).toISOString()})` : ''}
-            </td>
-          </tr>
-        ))}
-        {bytes && (
+    <div className="pg-scroll">
+      <table className="vt-table">
+        <tbody>
           <tr>
-            <th scope="row">Signature bytes</th>
+            <th scope="row">Label</th>
             <td>
-              <code>
-                {bytes.length} bytes: {bytesToHex(bytes, ' ')}
-              </code>
+              <code>{p.label}</code>
             </td>
           </tr>
-        )}
-      </tbody>
-    </table>
+          <tr>
+            <th scope="row">Covered</th>
+            <td>
+              <code>{p.components.map((c) => c.name).join(', ') || '(none)'}</code>
+            </td>
+          </tr>
+          {p.params.map(([k, v]) => (
+            <tr key={k}>
+              <th scope="row">
+                <code>{k}</code>
+              </th>
+              <td>
+                <code>{String(v)}</code>
+                {k === 'created' || k === 'expires' ? ` (${new Date(Number(v) * 1000).toISOString()})` : ''}
+              </td>
+            </tr>
+          ))}
+          {bytes && (
+            <tr>
+              <th scope="row">Signature bytes</th>
+              <td>
+                <code>
+                  {bytes.length} bytes: {bytesToHex(bytes, ' ')}
+                </code>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -750,24 +754,26 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
         Web Bot Auth keyid is the JWK thumbprint <code>{thumb}</code>; its keys live at <code>{WBA_DIRECTORY_PATH}</code> on the Signature-Agent host, served as{' '}
         <code>{WBA_DIRECTORY_MEDIA_TYPE}</code>. Neither directory is contacted here.
       </p>
-      <table className="vt-table">
-        <thead>
-          <tr>
-            <th scope="col">Aspect</th>
-            <th scope="col">Visa TAP</th>
-            <th scope="col">Web Bot Auth draft -00</th>
-          </tr>
-        </thead>
-        <tbody>
-          {COMPARISON.map((r) => (
-            <tr key={r.aspect}>
-              <th scope="row">{r.aspect}</th>
-              <td>{r.tap}</td>
-              <td>{r.wba}</td>
+      <div className="pg-scroll">
+        <table className="vt-table">
+          <thead>
+            <tr>
+              <th scope="col">Aspect</th>
+              <th scope="col">Visa TAP</th>
+              <th scope="col">Web Bot Auth draft -00</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {COMPARISON.map((r) => (
+              <tr key={r.aspect}>
+                <th scope="row">{r.aspect}</th>
+                <td>{r.tap}</td>
+                <td>{r.wba}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Note kind="simplification">
         Both requests use one ephemeral key so the only differences are in the message shape. The cross-checks show why a TAP verifier blocks a Web Bot Auth
         request (no nonce, no alg) and a Web Bot Auth verifier blocks a TAP request (no Signature-Agent).

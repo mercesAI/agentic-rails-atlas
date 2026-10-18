@@ -35,6 +35,15 @@
 .pg-note--quirk { border-left-color: var(--confidence-unverified); border-left-style: dashed; }
 .pg-note__tag { font-weight: 700; color: var(--fg); }
 
+/* Tables wider than a phone column scroll sideways instead of breaking words in their cells */
+.pg-scroll { overflow-x: auto; max-width: 100%; }
+
 /* Fields: the surrounding playground styles the input and select elements */
 .pg-field { display: inline-flex; gap: 0.35rem; align-items: center; min-width: 0; }
 .pg-check { display: inline-flex; gap: 0.35rem; align-items: center; }
+
+/* Phone widths: no row grows past the frame. Fieldsets drop the UA min-content floor, and a select or
+   text input shrinks to the column it sits in instead of keeping its longest option's width. */
+.pg :is(fieldset, label, .pg-field, .pg-group, .segmented) { min-width: 0; max-width: 100%; }
+.pg :is(select, textarea, input:not([type='checkbox']):not([type='radio'])) { max-width: 100%; min-width: 0; }
+.pg .segmented { flex-wrap: wrap; }

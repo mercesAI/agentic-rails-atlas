@@ -26,6 +26,8 @@
   overflow-wrap: anywhere;
 }
 .prose a > code { color: inherit; }
+/* Uppercase 12 px header cells: code inside keeps that size instead of shrinking again. */
+.prose thead th code, .table-wrap thead th code { font-size: 1em; }
 
 /* Headings wrapped by rehype-autolink-headings keep heading color. */
 .prose :is(h2, h3, h4) > a { color: inherit; text-decoration: none; }
@@ -33,7 +35,7 @@
 /* Copy-link buttons added by lib/client/copy-link.ts */
 .copy-link {
   margin-left: 0.4em; padding: 0 0.3em;
-  font-family: var(--font-mono); font-size: 0.8em; font-weight: 400;
+  font-family: var(--font-mono); font-size: max(0.75rem, 0.8em); font-weight: 400;
   color: var(--fg-subtle); background: none; border: 0; border-radius: var(--radius-sm);
   cursor: pointer; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out);
 }
@@ -156,13 +158,13 @@ pre:not(.astro-code) {
 .callout__body > * + * { margin-top: 0.6em; }
 
 /* Citation markers */
-.cite { font-size: 0.7em; line-height: 0; margin-left: 0.1em; overflow-wrap: anywhere; }
+.cite { font-size: max(0.75rem, 0.7em); line-height: 0; margin-left: 0.1em; overflow-wrap: anywhere; }
 .cite a { font-family: var(--font-mono); text-decoration: none; color: var(--link); padding: 0 0.1em; border-radius: var(--radius-sm); }
 .cite a:hover { background: var(--selection); }
 .cite a[data-missing] { color: var(--confidence-unverified); }
 .cite__flag {
   display: inline-grid; place-items: center; width: 1.1em; height: 1.1em; margin-left: 0.15em;
-  font-family: var(--font-mono); font-size: 0.85em; color: var(--confidence-unverified);
+  font-family: var(--font-mono); font-size: max(0.75rem, 0.85em); color: var(--confidence-unverified);
   border: 1px dashed var(--confidence-unverified); border-radius: 50%;
 }
 
