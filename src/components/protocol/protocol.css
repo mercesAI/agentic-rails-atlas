@@ -165,8 +165,17 @@
 .diagram-figure { margin: 1.25rem 0 0; padding: 1rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); }
 .diagram-figure__title { margin: 0 0 0.75rem !important; font-size: 1rem !important; }
 /* scrolling is set in prose.css */
-.diagram-figure__canvas[data-lazy-diagram] { min-height: 12rem; display: grid; place-items: center; }
-.diagram-figure__loading { font-size: 0.875rem; color: var(--fg-muted); }
+/* A lazy diagram's placeholder reserves the size the drawing will take: the fitted width rule of prose.css
+   (column width at most, natural width at least) applied to its build-time natural size, or the natural size
+   when the reader chose "Actual size". Revealing it then never moves the page, so section jumps, contents
+   links and deep links stay where they landed. Without scripting the drawing never loads and the box stays
+   one line tall. */
+.diagram-figure__placeholder { display: grid; place-items: center; min-height: 3rem; }
+@media (scripting: enabled) {
+  .diagram-figure__placeholder[style] { width: min(100%, calc(var(--dw) * 1px)); aspect-ratio: var(--dw) / var(--dh); min-height: 0; }
+  .diagram-figure__canvas[data-actual-size] .diagram-figure__placeholder[style] { width: calc(var(--dw) * 1px); max-width: none; }
+}
+.diagram-figure__loading { margin: 0; font-size: 0.875rem; color: var(--fg-muted); }
 .diagram-figure__missing pre { max-height: 22rem; }
 .diagram-figure__note { font-size: 0.875rem; color: var(--fg-muted); margin-bottom: 0.5rem; }
 .diagram-figure figcaption { margin-top: 0.75rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.4rem; font-size: 0.875rem; color: var(--fg-muted); }

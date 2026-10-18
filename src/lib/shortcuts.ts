@@ -114,8 +114,9 @@ export function jumpSection(dir: 1 | -1, doc: Document = document): void {
 let settleToken = 0;
 
 /**
- * Lazy diagrams above the target can change its height after the jump, which leaves the
- * target far from the offset. After the scroll ends, re-align while the target keeps moving
+ * Content above the target can still change height after the jump (lazy diagrams reserve
+ * their drawn size, but a late font or an island can shift a few lines), which leaves the
+ * target away from the offset. After the scroll ends, re-align while the target keeps moving
  * in document coordinates. A viewport the user moved is left alone: only a layout shift
  * counts, and any wheel, touch or key input cancels the loop.
  */

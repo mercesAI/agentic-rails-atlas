@@ -84,6 +84,13 @@ const light = neutral ? null : suffixIds(natural(await load(`/src/generated/diag
 const dark = neutral ? null : suffixIds(natural(await load(`/src/generated/diagrams/${p.id}.dark.svg`, SVGS)), `-${p.id}-dark`);
 const single = neutral ?? light ?? dark;
 const rendered = Boolean(single);
+/** Natural size from the width and height that natural() wrote; a lazy placeholder reserves it so the reveal never moves the page. */
+const size = (() => {
+  const tag = single ? /<svg\b[^>]*>/.exec(single)?.[0] : undefined;
+  const w = Number(tag && /\swidth="(\d+)"/.exec(tag)?.[1]);
+  const h = Number(tag && /\sheight="(\d+)"/.exec(tag)?.[1]);
+  return w > 0 && h > 0 ? { w, h } : null;
+})();
 const mmd = rendered
   ? null
   : (await load(`/src/generated/mermaid/${p.id}.mmd`, MMD)) ?? (await load(`/src/content/diagrams/${p.id}.mmd`, MMD));
@@ -117,7 +124,9 @@ const domId = `diagram-${p.id}`;
               <div class="diagram" set:html={single} />
             )}
           </template>
-          <p class="diagram-figure__loading">Diagram loads when it scrolls into view.</p>
+          <div class="diagram-figure__placeholder" style={size ? `--dw:${size.w};--dh:${size.h}` : undefined}>
+            <p class="diagram-figure__loading">Diagram loads when it scrolls into view.</p>
+          </div>
           <noscript><p class="diagram-figure__note">Turn on JavaScript to see this diagram, or read the text alternative below.</p></noscript>
         </>
       ) : light && dark ? (
@@ -201,9 +210,12 @@ const domId = `diagram-${p.id}`;
   };
   const revealAll = () => document.querySelectorAll('[data-lazy-diagram]').forEach(reveal);
   let io: IntersectionObserver | undefined;
+  /** Lazy placeholders reserve the natural width instead of the fitted one when the reader prefers actual size. */
+  const markLazySize = () => document.querySelectorAll('[data-lazy-diagram]').forEach((c) => c.toggleAttribute('data-actual-size', prefersActual()));
   document.addEventListener('astro:page-load', () => {
     io?.disconnect();
     ro?.disconnect(); // observed canvases from the previous page would otherwise be retained
+    markLazySize();
     document.querySelectorAll('.diagram-figure__canvas:not([data-lazy-diagram])').forEach(watch);
     const items = document.querySelectorAll('[data-lazy-diagram]');
     if (!items.length) return;
@@ -299,6 +311,7 @@ const domId = `diagram-${p.id}`;
     if (sizeBtn) {
       setItem(SIZE_KEY, prefersActual() ? 'fit' : 'actual');
       document.querySelectorAll('.diagram-figure__canvas:not([data-lazy-diagram])').forEach(updateFit);
+      markLazySize();
       return;
     }
     const btn = target?.closest<HTMLElement>('[data-diagram-fullscreen]');
