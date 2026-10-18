@@ -11,6 +11,11 @@ async function hydrated(page: Page) {
   });
 }
 
+/** The j, k and g shortcuts are installed by the command palette island (client:idle); a key pressed before it hydrates is lost. */
+async function shortcutsReady(page: Page) {
+  await page.locator('astro-island[component-url*="CommandPalette"]:not([ssr])').waitFor({ state: 'attached' });
+}
+
 test.describe('QA-001 orbit satellites', () => {
   test.skip(({ viewport }) => (viewport?.width ?? 0) < 640, 'desktop canvas only');
 
@@ -86,6 +91,7 @@ test.describe('QA-006 j and k move through sections', () => {
   test('j steps forward one section at a time, k steps back', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/p/x402/');
+    await shortcutsReady(page);
     await page.locator('main').click({ position: { x: 5, y: 5 } }).catch(() => undefined);
     const ids = await page.locator('[data-section]').evaluateAll((els) => els.map((e) => e.id));
     expect(ids.length).toBeGreaterThan(6);
@@ -110,6 +116,7 @@ test.describe('QA-006 j and k move through sections', () => {
     await page.addInitScript(() => localStorage.setItem('atlas:reading-mode', 'ste'));
     await page.goto('/p/x402/');
     await expect(page.locator('html')).toHaveAttribute('data-reading-mode', 'ste');
+    await shortcutsReady(page);
     await page.locator('main').click({ position: { x: 5, y: 5 } }).catch(() => undefined);
     const offset = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop));
     const topOf = (id: string) => page.evaluate((i) => document.getElementById(i)!.getBoundingClientRect().top, id);
