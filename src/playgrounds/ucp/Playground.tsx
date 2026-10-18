@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import './ucp.css';
 import {
   DEFAULT_POLICY,
@@ -37,6 +37,7 @@ import {
   parseProfile,
   responseCapabilities,
   ucpAgentHeader,
+  type NegotiationFailure,
 } from './lib/negotiate';
 import { handlersForResponse, resolveHandlers, validateSubmission } from './lib/payment';
 import {
@@ -256,6 +257,13 @@ export default function UcpPlayground() {
 
   const negotiation = useMemo(() => negotiate(businessText, platformText, LEAF_PROFILES), [businessText, platformText]);
   const nOk = negotiation.ok ? negotiation : null;
+  // The failure block is a polite status region whose content settles 500 ms after typing stops,
+  // so it is announced once per pause instead of on every keystroke.
+  const [shownFailure, setShownFailure] = useState<NegotiationFailure | null>(null);
+  useEffect(() => {
+    const t = setTimeout(() => setShownFailure(negotiation.ok ? null : negotiation), 500);
+    return () => clearTimeout(t);
+  }, [negotiation]);
 
   const data: CheckoutData = useMemo(
     () => ({
@@ -297,6 +305,12 @@ export default function UcpPlayground() {
     setBusinessText(pretty(business));
     setPlatformText(pretty(platform));
     setSession(null);
+    // The retry key, the idempotency cache and the clock belonged to the cleared session.
+    lastKey.current = null;
+    idem.current = new Map();
+    setConflict(null);
+    setLastOp('create');
+    setNow(T0);
     setAnnounce(`Loaded scenario: ${preset.label}. The checkout session was cleared.`);
   }
 
@@ -461,17 +475,19 @@ export default function UcpPlayground() {
           </div>
 
           {!negotiation.ok ? (
-            <div className="ucp-error" role="alert">
-              <p className="ucp-bad">
-                <code>{negotiation.code}</code> (REST {negotiation.httpStatus}, MCP {negotiation.mcpCode})
-                {negotiation.side ? `, in the ${negotiation.side} profile` : ''}
-              </p>
-              <p>{negotiation.detail}</p>
-              <p className="ucp-label">
-                Discovery and version failures are transport errors and may carry a <code>continue_url</code> back to
-                the store.
-              </p>
-            </div>
+            shownFailure && (
+              <div className="ucp-error" role="status">
+                <p className="ucp-bad">
+                  <code>{shownFailure.code}</code> (REST {shownFailure.httpStatus}, MCP {shownFailure.mcpCode})
+                  {shownFailure.side ? `, in the ${shownFailure.side} profile` : ''}
+                </p>
+                <p>{shownFailure.detail}</p>
+                <p className="ucp-label">
+                  Discovery and version failures are transport errors and may carry a <code>continue_url</code> back to
+                  the store.
+                </p>
+              </div>
+            )
           ) : (
             <div className="ucp-grid">
               <div className="ucp-card">

@@ -45,6 +45,9 @@ import {
 import { AGENT_WALLET_TYPE_STRING, agentWalletTypedData, checkSetAgentWallet, type SetWalletResult } from './lib/wallet';
 import './erc-8004.css';
 
+/** Lets a scrollable <pre> take keyboard focus (axe: scrollable-region-focusable). */
+const SCROLL_TAB = 0;
+
 type Tab = 'registration' | 'reputation' | 'wallet';
 const TABS: [Tab, string][] = [
   ['registration', 'Registration file and global id'],
@@ -278,14 +281,23 @@ function RegistrationPanel({ say }: { say: (s: string) => void }) {
         )}
       </Field>
       <Field label="Registration file JSON (you can edit it)" note={ILLUSTRATIVE}>
-        {(id) => <textarea id={id} rows={14} value={text} spellCheck={false} onChange={(e) => setOverride(e.target.value)} />}
+        {(id) => (
+          <textarea
+            id={id}
+            rows={14}
+            value={text}
+            spellCheck={false}
+            onChange={(e) => setOverride(e.target.value)}
+            onBlur={() => say(validation.ok ? 'Registration file is valid against the local schema.' : `Registration file has ${errors} error${errors === 1 ? '' : 's'} against the local schema.`)}
+          />
+        )}
       </Field>
       {override !== null && (
         <button type="button" className="btn" onClick={() => setOverride(null)}>
           Discard edits and rebuild from the form
         </button>
       )}
-      <p aria-live="polite">
+      <p>
         <strong>{validation.ok ? 'Valid' : `${errors} error${errors === 1 ? '' : 's'}`}</strong> against a local schema ({SCHEMA_LABEL}).
       </p>
       <Issues issues={validation.issues} />
@@ -295,7 +307,9 @@ function RegistrationPanel({ say }: { say: (s: string) => void }) {
       </p>
       <details>
         <summary>Show the derived JSON Schema</summary>
-        <pre>{JSON.stringify(REGISTRATION_SCHEMA, null, 2)}</pre>
+        <pre tabIndex={SCROLL_TAB} aria-label="Derived JSON Schema">
+          {JSON.stringify(REGISTRATION_SCHEMA, null, 2)}
+        </pre>
       </details>
 
       <h3>agentURI</h3>
@@ -316,7 +330,9 @@ function RegistrationPanel({ say }: { say: (s: string) => void }) {
       {agentUri ? (
         <>
           <p className="e8-tag">{ILLUSTRATIVE}</p>
-          <pre>{scheme === 'data' && decoded ? JSON.stringify(fromDataUri(agentUri), null, 2) : agentUri}</pre>
+          <pre tabIndex={SCROLL_TAB} aria-label={scheme === 'data' && decoded ? 'agentURI, decoded' : 'agentURI'}>
+            {scheme === 'data' && decoded ? JSON.stringify(fromDataUri(agentUri), null, 2) : agentUri}
+          </pre>
           {scheme === 'data' && (
             <button type="button" className="btn" aria-pressed={decoded} onClick={() => setDecoded((d) => !d)}>
               {decoded ? 'Show the encoded URI' : 'Decode the data URI'}
@@ -361,6 +377,7 @@ function ReputationPanel({ say }: { say: (s: string) => void }) {
     setScenario(next);
     setState(next.state);
     setCustom([]);
+    say(`Scenario rebuilt: ${o.honest} honest client${o.honest === 1 ? '' : 's'}, ${o.sybils} sybil reviewer${o.sybils === 1 ? '' : 's'}, ${next.state.entries.length} feedback entries.`);
   };
   const reviewers: Reviewer[] = scenario.reviewers;
   const byAddr = new Map(reviewers.map((r) => [r.address, r]));
@@ -449,11 +466,26 @@ function ReputationPanel({ say }: { say: (s: string) => void }) {
           )}
         </Field>
         <Field label={`Off-chain weight of feedback without a matching proof: ${unpaidWeight}`}>
-          {(id) => <input id={id} type="range" min={0} max={1} step={0.1} value={unpaidWeight} onChange={(e) => setUnpaidWeight(Number(e.target.value))} />}
+          {(id) => (
+            <input
+              id={id}
+              type="range"
+              min={0}
+              max={1}
+              step={0.1}
+              value={unpaidWeight}
+              onChange={(e) => {
+                const w = Number(e.target.value);
+                setUnpaidWeight(w);
+                const m = weightedSummary(current, trust === 'none' ? null : list, tag1, { paid: 1, unpaid: w });
+                say(`Unpaid weight ${w}: weighted mean ${m.mean === null ? 'has no entries' : m.mean.toFixed(2)}.`);
+              }}
+            />
+          )}
         </Field>
       </div>
 
-      <div className="e8-results" aria-live="polite">
+      <div className="e8-results">
         <p className={`e8-out e8-out--${trusted.ok ? 'ok' : 'fail'}`}>
           <strong>getSummary with your list:</strong> {fmt(trusted)}
         </p>
@@ -623,7 +655,9 @@ function WalletPanel({ say }: { say: (s: string) => void }) {
       {td && signed && (
         <>
           <p className="e8-tag">{ILLUSTRATIVE}</p>
-          <pre>{showDecoded ? JSON.stringify(td, (_k, v: unknown) => (typeof v === 'bigint' ? v.toString() : v), 2) : signed.signature}</pre>
+          <pre tabIndex={SCROLL_TAB} aria-label={showDecoded ? 'AgentWalletSet typed data' : 'Signature bytes'}>
+            {showDecoded ? JSON.stringify(td, (_k, v: unknown) => (typeof v === 'bigint' ? v.toString() : v), 2) : signed.signature}
+          </pre>
           <button type="button" className="btn" aria-pressed={!showDecoded} onClick={() => setShowDecoded((d) => !d)}>
             {showDecoded ? 'Show the signature bytes' : 'Show the typed data'}
           </button>
@@ -692,9 +726,16 @@ export default function Playground() {
           </button>
         ))}
       </div>
-      {tab === 'registration' && <RegistrationPanel say={setAnnounce} />}
-      {tab === 'reputation' && <ReputationPanel say={setAnnounce} />}
-      {tab === 'wallet' && <WalletPanel say={setAnnounce} />}
+      {/* Every panel stays mounted; a hidden panel keeps its edited JSON, scenario and generated key. */}
+      <div hidden={tab !== 'registration'}>
+        <RegistrationPanel say={setAnnounce} />
+      </div>
+      <div hidden={tab !== 'reputation'}>
+        <ReputationPanel say={setAnnounce} />
+      </div>
+      <div hidden={tab !== 'wallet'}>
+        <WalletPanel say={setAnnounce} />
+      </div>
       <p className="e8-sr" aria-live="polite">
         {announce}
       </p>

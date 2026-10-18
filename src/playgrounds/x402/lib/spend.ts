@@ -30,6 +30,23 @@ export function convertToTokenAmount(decimalAmount: string, decimals: number): s
   return (intPart + padded).replace(/^0+/, '') || '0';
 }
 
+/** Prices above this many whole units are refused before any value reaches viem, which throws outside the uint256 range. */
+export const MAX_WHOLE_UNITS = 10n ** 12n;
+
+export type AmountParse = { ok: true; atomic: string } | { ok: false; reason: 'format' | 'range' };
+
+/** parseMoney plus convertToTokenAmount with the range check above. Never throws. */
+export function parseUsdAmount(usd: string, decimals: number = FIXTURE_TOKEN.decimals): AmountParse {
+  let atomic: string;
+  try {
+    atomic = convertToTokenAmount(parseMoney(usd), decimals);
+  } catch {
+    return { ok: false, reason: 'format' };
+  }
+  if (BigInt(atomic) > MAX_WHOLE_UNITS * 10n ** BigInt(decimals)) return { ok: false, reason: 'range' };
+  return { ok: true, atomic };
+}
+
 /** Atomic units to a decimal string with trailing zeros trimmed (at least two decimals). */
 export function formatAtomic(atomic: string | bigint, decimals: number = FIXTURE_TOKEN.decimals): string {
   const s = BigInt(atomic).toString().padStart(decimals + 1, '0');

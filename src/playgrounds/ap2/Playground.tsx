@@ -322,6 +322,8 @@ function V02Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
       setDispute(await disputeChecks(r));
       setStale(false);
       announce(r.outcome.ok ? 'Run complete: every verifier accepted and both receipts say Success.' : `Run stopped at the ${r.outcome.stoppedAt} with error ${r.outcome.code}.`);
+    } catch (e) {
+      announce(`The run stopped with an error: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setBusy(false);
     }
@@ -597,32 +599,43 @@ function V01Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
   const [lines, setLines] = useState<CartLine[]>([{ sku: 'sku_trail_shoe_red_9', quantity: 1 }]);
   const [tamper, setTamper] = useState<V01Tamper>('none');
   const [run, setRun] = useState<V01Run | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const execute = async () => {
-    const now = nowSec();
-    const r = await runV01(
-      {
-        humanPresent,
-        intent: {
-          description,
-          merchants: merchantNames.length ? merchantNames : null,
-          skus: skus.length ? skus : null,
-          requiresRefundability: refundable,
-          userCartConfirmationRequired: confirm,
-          expiry: new Date((now + (expiryHours ?? 24) * 3600) * 1000).toISOString(),
+    setBusy(true);
+    try {
+      const now = nowSec();
+      // Clamp to one hour and one year so the ISO date stays in range.
+      const requested = expiryHours ?? 24;
+      const hours = Number.isFinite(requested) ? Math.min(Math.max(requested, 1), 24 * 365) : 24;
+      const r = await runV01(
+        {
+          humanPresent,
+          intent: {
+            description,
+            merchants: merchantNames.length ? merchantNames : null,
+            skus: skus.length ? skus : null,
+            requiresRefundability: refundable,
+            userCartConfirmationRequired: confirm,
+            expiry: new Date((now + hours * 3600) * 1000).toISOString(),
+          },
+          merchantId,
+          merchant: merchantById(merchantId)!,
+          lines,
+          instrument: INSTRUMENTS[0]!,
+          currency: CURRENCY,
+          tamper,
+          now,
         },
-        merchantId,
-        merchant: merchantById(merchantId)!,
-        lines,
-        instrument: INSTRUMENTS[0]!,
-        currency: CURRENCY,
-        tamper,
-        now,
-      },
-      keys,
-    );
-    setRun(r);
-    announce(r.verify.ok ? 'v0.1 run accepted.' : 'v0.1 run rejected. v0.1 defines no error codes.');
+        keys,
+      );
+      setRun(r);
+      announce(r.verify.ok ? 'v0.1 run accepted.' : 'v0.1 run rejected. v0.1 defines no error codes.');
+    } catch (e) {
+      announce(`The v0.1 run stopped with an error: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setBusy(false);
+    }
   };
   const t = V01_TAMPERS.find((x) => x.id === tamper)!;
   const v: Version = 'v0.1';
@@ -678,8 +691,8 @@ function V01Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
         </fieldset>
       </div>
       <div className="ap2pg__row">
-        <button type="button" className="btn" onClick={execute}>
-          Sign and verify (v0.1)
+        <button type="button" className="btn" onClick={execute} disabled={busy}>
+          {busy ? 'Signing and verifying' : 'Sign and verify (v0.1)'}
         </button>
       </div>
       <Simplification>

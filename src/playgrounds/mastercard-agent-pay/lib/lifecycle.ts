@@ -151,7 +151,8 @@ export function stateAfterAttempt(current: TokenState, usable: boolean, approved
 export interface Consent {
   challenge: string;
   signature: string;
-  verified: boolean;
+  /** The signature checked against the same key that just signed: a self-check, not a verification by a relying party. */
+  selfCheck: boolean;
 }
 
 /**
@@ -161,8 +162,8 @@ export interface Consent {
 export async function signConsent(passkey: Es256Key, agentKeyid: string, controls: Controls): Promise<Consent> {
   const challenge = b64urlEncodeJson({ agent: agentKeyid, controls, nonce: randomB64url(12) });
   const sig = await signBytes(challenge, passkey.privateKey);
-  const verified = await verifyBytes(challenge, sig, passkey.publicKey);
-  return { challenge, signature: b64urlEncode(sig), verified };
+  const selfCheck = await verifyBytes(challenge, sig, passkey.publicKey);
+  return { challenge, signature: b64urlEncode(sig), selfCheck };
 }
 
 export async function consentDigest(c: Consent): Promise<string> {

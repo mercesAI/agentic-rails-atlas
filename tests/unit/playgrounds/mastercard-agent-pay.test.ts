@@ -223,10 +223,10 @@ describe('lifecycle', () => {
     expect(revoke('agent-registered')).toBeUndefined();
   });
 
-  it('signs and verifies a passkey consent challenge', async () => {
+  it('signs a passkey consent challenge and passes its own self-check', async () => {
     const pk = await generateEs256Key('passkey');
     const c = await signConsent(pk, 'keyid-1', controls);
-    expect(c.verified).toBe(true);
+    expect(c.selfCheck).toBe(true);
     expect(b64urlDecodeJson<{ agent: string }>(c.challenge).agent).toBe('keyid-1');
     expect(await consentDigest(c)).toMatch(/^[A-Za-z0-9_-]{43}$/);
   });

@@ -11,7 +11,7 @@ import { FIXTURE_PAY_TO, FIXTURE_TOKEN, SIM_NETWORK_V2, illustrativeLabel, netwo
 import { reasonOf, type Check, type ErrorCode } from './lib/facilitator';
 import { FLOW_ORDER_TEXT, resolveFlow } from './lib/flows';
 import { ACTOR_LABEL, FAILURES, runSimulation, type Actor, type FailureId, type SimResult, type Signing, type Step, type Wire } from './lib/simulate';
-import { DEFAULT_MAX_AMOUNT_PER_PAYMENT, checkSpendControls, convertToTokenAmount, formatAtomic, parseMoney, type SpendCap } from './lib/spend';
+import { DEFAULT_MAX_AMOUNT_PER_PAYMENT, MAX_WHOLE_UNITS, checkSpendControls, formatAtomic, parseUsdAmount, type AmountParse, type SpendCap } from './lib/spend';
 import { recoverSigner, sameAddress, tamperAmount, type TypedDataSigner } from './lib/typed-data';
 import './x402.css';
 
@@ -39,12 +39,11 @@ const DEFAULTS: Options = {
 
 const ACTORS: Actor[] = ['client', 'server', 'facilitator', 'chain'];
 
-function toAtomic(usd: string): string | null {
-  try {
-    return convertToTokenAmount(parseMoney(usd), FIXTURE_TOKEN.decimals);
-  } catch {
-    return null;
-  }
+function amountError(label: string, example: string, parsed: AmountParse): string | null {
+  if (parsed.ok) return null;
+  return parsed.reason === 'format'
+    ? `Enter the ${label} as a dollar amount, for example ${example}.`
+    : `The ${label} is above the simulation limit of ${MAX_WHOLE_UNITS.toLocaleString('en-US')} whole units.`;
 }
 
 function capValue(c: CapChoice): SpendCap {
@@ -66,17 +65,17 @@ export default function Playground() {
   const [busy, setBusy] = useState(false);
   const [announce, setAnnounce] = useState('');
 
-  const amount = toAtomic(opt.price);
-  const metered = toAtomic(opt.metered);
-  const inputError =
-    amount === null
-      ? 'Enter the price as a dollar amount, for example 0.01.'
-      : opt.scheme === 'upto' && metered === null
-        ? 'Enter the metered charge as a dollar amount, for example 0.004.'
-        : null;
+  const priceIn = parseUsdAmount(opt.price);
+  const meteredIn = parseUsdAmount(opt.metered);
+  const amount = priceIn.ok ? priceIn.atomic : null;
+  const metered = meteredIn.ok ? meteredIn.atomic : null;
+  const meteredNeeded = opt.scheme === 'upto';
+  // One predicate for the error line and the run guard, so a result never outlives the inputs it came from.
+  const blocked = amount === null || (meteredNeeded && metered === null);
+  const inputError = blocked ? (amountError('price', '0.01', priceIn) ?? amountError('metered charge', '0.004', meteredIn)) : null;
 
   useEffect(() => {
-    if (amount === null || metered === null) return;
+    if (blocked) return;
     let alive = true;
     setBusy(true);
     runSimulation(
@@ -86,7 +85,8 @@ export default function Playground() {
         flow: opt.flow,
         failure: opt.failure,
         amount,
-        metered,
+        // Only the upto paths read metered; exact runs pass the price so the type stays a string.
+        metered: metered ?? amount,
         spendCap: capValue(opt.cap),
         now: Math.floor(Date.now() / 1000),
       },
@@ -99,14 +99,14 @@ export default function Playground() {
       })
       .catch((e: unknown) => {
         if (!alive) return;
-        setResult(null);
+        // The previous timeline stays on screen; the status line reports the error.
         setAnnounce(`The simulation stopped: ${e instanceof Error ? e.message : String(e)}`);
       })
       .finally(() => alive && setBusy(false));
     return () => {
       alive = false;
     };
-  }, [opt.version, opt.scheme, opt.flow, opt.failure, opt.cap, amount, metered, signer, runId]);
+  }, [opt.version, opt.scheme, opt.flow, opt.failure, opt.cap, amount, metered, blocked, signer, runId]);
 
   const set = <K extends keyof Options>(k: K, v: Options[K]) => setOpt((o) => ({ ...o, [k]: v }));
   const setVersion = (v: Version) =>
@@ -195,7 +195,7 @@ export default function Playground() {
               { value: 'off', label: 'false (no cap)' },
             ]}
           />
-          <button type="button" className="btn" onClick={() => setRunId((n) => n + 1)} disabled={busy || inputError !== null}>
+          <button type="button" className="btn" onClick={() => setRunId((n) => n + 1)} disabled={busy || blocked}>
             Sign again with a new nonce
           </button>
         </div>
@@ -474,13 +474,16 @@ function SpendPanel({ price, amount, cap, onPrice }: { price: string; amount: st
 function Eip712Panel({ signing, label }: { signing?: Signing; label: string }) {
   const [tamper, setTamper] = useState<{ sig: string; recovered: string } | null>(null);
   const [pending, setPending] = useState(false);
+  const [tamperError, setTamperError] = useState<string | null>(null);
   const shownTamper = tamper && signing && tamper.sig === signing.signature ? tamper : null;
 
   const runTamper = () => {
     if (!signing) return;
     setPending(true);
+    setTamperError(null);
     recoverSigner(tamperAmount(signing.typedData), signing.signature)
       .then((recovered) => setTamper({ sig: signing.signature, recovered }))
+      .catch((e: unknown) => setTamperError(`Recovery failed: ${e instanceof Error ? e.message : String(e)}`))
       .finally(() => setPending(false));
   };
 
@@ -524,6 +527,11 @@ function Eip712Panel({ signing, label }: { signing?: Signing; label: string }) {
               Recover after adding 1 to the amount
             </button>
           </div>
+          {tamperError && (
+            <p className="x4-error" role="status">
+              {tamperError}
+            </p>
+          )}
           {shownTamper && (
             <p aria-live="polite">
               With the amount changed by one unit the same signature recovers <code>{shownTamper.recovered}</code>{' '}

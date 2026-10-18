@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import './playground.css';
 import { b64urlDecodeJson, ellipsize, pretty } from './lib/encoding';
 import { AGENT_KEY_HOST, MERCHANTS, PROGRAM_LABEL, SHOP_AUTHORITY, SHOP_PATH, SPEC_LABEL, formatMinor, merchantById } from './lib/fixtures';
@@ -115,6 +115,44 @@ function Wire({ title, raw, decoded, example }: { title: string; raw: string; de
   );
 }
 
+/** Radiogroup with roving focus: arrows, Home and End move the selection and the focus together. */
+function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const onKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
+    let next = -1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % options.length;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + options.length) % options.length;
+    if (e.key === 'Home') next = 0;
+    if (e.key === 'End') next = options.length - 1;
+    const o = options[next];
+    if (!o) return;
+    e.preventDefault();
+    onChange(o.value);
+    refs.current[next]?.focus();
+  };
+  return (
+    <div className="segmented" role="radiogroup" aria-label={label}>
+      {options.map((o, i) => (
+        <button
+          key={o.value}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          type="button"
+          role="radio"
+          aria-checked={value === o.value}
+          tabIndex={value === o.value ? 0 : -1}
+          className="segmented__btn"
+          onClick={() => onChange(o.value)}
+          onKeyDown={(e) => onKey(e, i)}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ------------------------------------------------------------------ token lifecycle
 
 type Injection = 'none' | 'no-signature' | 'unregistered-key' | 'expired-window' | 'replayed-nonce' | 'wrong-tag' | 'tampered-path';
@@ -201,7 +239,7 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
     const c = await signConsent(passkey, keyid, controls);
     setConsent(c);
     setState('consumer-authorized');
-    say(`Consumer authorized: passkey signature ${c.verified ? 'verified' : 'failed'} over limit ${formatMinor(controls.limitMinor)}, ${scope.length} merchant(s), ${hours ?? 0} hour(s).`);
+    say(`Consumer authorized: passkey signature self-check ${c.selfCheck ? 'passed' : 'failed'} (same key signs and checks) over limit ${formatMinor(controls.limitMinor)}, ${scope.length} merchant(s), ${hours ?? 0} hour(s).`);
   };
   const provision = () => {
     const t = provisionToken(controls, clock);
@@ -530,7 +568,7 @@ function ViResult({ view }: { view: ViView }) {
   });
   return (
     <div className="mcpg__section">
-      <div className="mcpg__outcome" data-ok={String(report.ok)} role="status">
+      <div className="mcpg__outcome" data-ok={String(report.ok)}>
         {report.ok ? 'Verifier accepts the chain.' : `Verifier rejects the chain. First break: ${report.firstFailure?.layer} / ${report.firstFailure?.label}. ${report.failures.length - 1 ? `${report.failures.length - 1} more check(s) break with it.` : 'No other check breaks.'}`}
       </div>
 
@@ -643,40 +681,38 @@ function ViResult({ view }: { view: ViView }) {
 
 type Tab = 'lifecycle' | 'vi';
 
+const TABS: { value: Tab; label: string }[] = [
+  { value: 'lifecycle', label: 'Agentic token lifecycle' },
+  { value: 'vi', label: 'Verifiable Intent layers' },
+];
+
 export default function Playground() {
   const [tab, setTab] = useState<Tab>('lifecycle');
   const [message, setMessage] = useState('');
   const [cryptoOk] = useState(() => typeof crypto !== 'undefined' && !!crypto.subtle);
+  // Both panels stay mounted so keys, logs and built chains survive a tab switch. Only the visible panel
+  // may write the shared status line; a hidden panel (the VI chain builds at mount) stays quiet.
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  const announceLifecycle = useCallback((s: string) => {
+    if (tabRef.current === 'lifecycle') setMessage(s);
+  }, []);
+  const announceVi = useCallback((s: string) => {
+    if (tabRef.current === 'vi') setMessage(s);
+  }, []);
   if (!cryptoOk) return <p role="alert">This browser does not offer WebCrypto here, so the simulation cannot run.</p>;
   return (
     <div className="mcpg">
-      <div className="segmented" role="radiogroup" aria-label="Simulator">
-        {(
-          [
-            ['lifecycle', 'Agentic token lifecycle'],
-            ['vi', 'Verifiable Intent layers'],
-          ] as [Tab, string][]
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            role="radio"
-            aria-checked={tab === id}
-            tabIndex={tab === id ? 0 : -1}
-            className="segmented__btn"
-            onClick={() => setTab(id)}
-            onKeyDown={(e) => {
-              if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') setTab(tab === 'vi' ? 'lifecycle' : 'vi');
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Segmented<Tab> label="Simulator" value={tab} options={TABS} onChange={setTab} />
       <p aria-live="polite" role="status" className="mcpg__note">
         {message}
       </p>
-      {tab === 'lifecycle' ? <LifecyclePanel announce={setMessage} /> : <VIPanel announce={setMessage} />}
+      <div hidden={tab !== 'lifecycle'}>
+        <LifecyclePanel announce={announceLifecycle} />
+      </div>
+      <div hidden={tab !== 'vi'}>
+        <VIPanel announce={announceVi} />
+      </div>
     </div>
   );
 }

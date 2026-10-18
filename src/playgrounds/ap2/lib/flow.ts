@@ -275,7 +275,8 @@ export async function runV02(cfg: V02Config, keys: Keys): Promise<V02Run> {
 
   const expiredShift = tamper === 'expired' ? -7200 : 0;
   const iat = now - 60 + expiredShift;
-  const openExp = iat + Math.max(60, cfg.openTtlSeconds);
+  // The lifetime counts from signing (now), as the UI label says, so the one minute minimum still verifies (exp > now).
+  const openExp = now + expiredShift + Math.max(60, cfg.openTtlSeconds);
   const closedExp = iat + 900;
 
   // ---- Phase 1a (HNP): open mandates signed on the Trusted Surface

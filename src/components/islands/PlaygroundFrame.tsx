@@ -87,7 +87,8 @@ export default function PlaygroundFrame({ slug, specVersion, title, children }: 
           Reset
         </button>
       </div>
-      <div className="pg__body" aria-busy={state === 'loading'} aria-label={title}>
+      {/* A labeled region, so the title is exposed; a plain div ignores aria-label. */}
+      <div className="pg__body" role={title ? 'region' : undefined} aria-busy={state === 'loading'} aria-label={title}>
         {state === 'ready' && (
           <Boundary key={resetKey} onReset={() => setResetKey((k) => k + 1)}>
             {children ?? (Comp ? <Comp /> : null)}

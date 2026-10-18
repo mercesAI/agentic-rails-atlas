@@ -5,7 +5,7 @@
  * Auth comparison. Everything runs in this browser; nothing is stored and nothing is sent to a network.
  * PlaygroundFrame wraps this component.
  */
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { generateAgentKey, jwkThumbprint, randomNonce, supportsEd25519, tapAlgLabel, type AgentKey } from './lib/keys';
 import {
   parseSignatureHeader,
@@ -77,6 +77,8 @@ const OBJECT_TAMPERS: Array<{ value: ObjectTamper; label: string }> = [
 const STATUS_WORD: Record<Step['status'], string> = { pass: 'Pass', fail: 'Blocked', skip: 'Not reached', note: 'Note' };
 
 const nowSec = () => Math.floor(Date.now() / 1000);
+/** Lets a scrollable <pre> take keyboard focus (axe: scrollable-region-focusable). */
+const SCROLL_TAB = 0;
 
 interface Signed extends SignedOutput {
   req: HttpRequest;
@@ -248,8 +250,12 @@ export default function Playground() {
     return m;
   }, [key, thumb]);
 
-  const sign = useCallback(async () => {
+  // Signing runs inside the effect with a cancellation flag, so a slower earlier signRequest cannot
+  // overwrite a later one. The button bumps signId to run the same path again.
+  const [signId, setSignId] = useState(0);
+  useEffect(() => {
     if (!key) return;
+    let alive = true;
     const req = requestFor(tag);
     const created = nowSec();
     const nonce = randomNonce();
@@ -262,30 +268,39 @@ export default function Playground() {
       ['nonce', nonce],
       ['tag', tag],
     ];
-    try {
-      const out = await signRequest(req, { label: TAP_LABEL, components, params, alg: key.alg, privateKey: key.privateKey });
-      setSigned({ ...out, req, nonce, created });
-      setSignError(null);
-      setResult(null);
-      setAnnounce(`Signed a new ${req.method} ${req.path} request with tag ${tag} and a fresh nonce.`);
-    } catch (e) {
-      setSignError(e instanceof Error ? e.message : String(e));
-    }
-  }, [key, tag, covered, windowSec]);
-
-  useEffect(() => {
-    void sign();
-  }, [sign]);
+    signRequest(req, { label: TAP_LABEL, components, params, alg: key.alg, privateKey: key.privateKey })
+      .then((out) => {
+        if (!alive) return;
+        setSigned({ ...out, req, nonce, created });
+        setSignError(null);
+        setResult(null);
+        setAnnounce(`Signed a new ${req.method} ${req.path} request with tag ${tag} and a fresh nonce.`);
+      })
+      .catch((e: unknown) => {
+        if (!alive) return;
+        setSignError(e instanceof Error ? e.message : String(e));
+      });
+    return () => {
+      alive = false;
+    };
+  }, [key, tag, covered, windowSec, signId]);
 
   const sent = useMemo(() => (signed ? tamperRequest(signed, tamper) : null), [signed, tamper]);
 
+  // One verification at a time, so a double click cannot record the nonce twice.
+  const [sending, setSending] = useState(false);
   const send = async () => {
-    if (!signed || !sent) return;
-    const now = signed.created + skip;
-    const r = await verifyRequest({ req: sent.req, signatureInput: sent.signatureInput, signature: sent.signature }, { now, directory, seen, profile: 'tap' });
-    setResult(r);
-    if (r.ok && r.nonce) setSeen((s) => rememberNonce(s, r.nonce!, now));
-    setAnnounce(r.outcome);
+    if (!signed || !sent || sending) return;
+    setSending(true);
+    try {
+      const now = signed.created + skip;
+      const r = await verifyRequest({ req: sent.req, signatureInput: sent.signatureInput, signature: sent.signature }, { now, directory, seen, profile: 'tap' });
+      setResult(r);
+      if (r.ok && r.nonce) setSeen((s) => rememberNonce(s, r.nonce!, now));
+      setAnnounce(r.outcome);
+    } finally {
+      setSending(false);
+    }
   };
 
   const toggle = (label: string) => setCovered((c) => (c.includes(label) ? c.filter((x) => x !== label) : [...c, label]));
@@ -378,7 +393,7 @@ export default function Playground() {
                     ))}
                   </select>
                 </label>
-                <button type="button" className="btn" onClick={() => void sign()} disabled={!key}>
+                <button type="button" className="btn" onClick={() => setSignId((n) => n + 1)} disabled={!key}>
                   Sign again with a fresh nonce
                 </button>
               </form>
@@ -391,11 +406,11 @@ export default function Playground() {
               {signed ? (
                 <>
                   <h4>Signature base (the exact bytes signed)</h4>
-                  <pre className="vt-pre" aria-label="Signature base">
+                  <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Signature base">
                     {signed.base}
                   </pre>
                   <h4>Headers</h4>
-                  <pre className="vt-pre" aria-label="Signature headers">
+                  <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Signature headers">
                     {`Signature-Input: ${signed.signatureInput}\nSignature: ${signed.signature}`}
                   </pre>
                   <label>
@@ -435,8 +450,8 @@ export default function Playground() {
                   </select>
                 </label>
                 <div className="vt-row">
-                  <button type="button" className="btn" onClick={() => void send()} disabled={!sent}>
-                    Send request
+                  <button type="button" className="btn" onClick={() => void send()} disabled={!sent || sending}>
+                    {sending ? 'Sending' : 'Send request'}
                   </button>
                   <button
                     type="button"
@@ -454,13 +469,13 @@ export default function Playground() {
               {sent && (
                 <>
                   <h4>Request as received</h4>
-                  <pre className="vt-pre" aria-label="Request as received">
+                  <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Request as received">
                     {renderHttp(sent.req, [['Signature-Input', sent.signatureInput], ...(sent.signature ? ([['Signature', sent.signature]] as Array<[string, string]>) : [])])}
                   </pre>
                 </>
               )}
               <h4>Local fixture key directory (JWKS)</h4>
-              <pre className="vt-pre" aria-label="Fixture JWKS">
+              <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Fixture JWKS">
                 {jwks ? JSON.stringify(jwks, null, 2) : 'Generating.'}
               </pre>
               <Note kind="simpl">A real verifier fetches and caches keys from the agent&apos;s published directory; here the directory is an in-memory fixture.</Note>
@@ -478,7 +493,9 @@ export default function Playground() {
                   {result.base && result.base !== signed?.base && (
                     <>
                       <h4>Base the verifier rebuilt (differs from what was signed)</h4>
-                      <pre className="vt-pre">{result.base}</pre>
+                      <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Base the verifier rebuilt">
+                        {result.base}
+                      </pre>
                     </>
                   )}
                 </>
@@ -630,13 +647,15 @@ function Objects({ agentKey, signed, directory, onAnnounce }: { agentKey: AgentK
           <h3>
             <code>agenticConsumer</code>
           </h3>
-          <pre className="vt-pre">{state ? JSON.stringify(state.consumer, null, 2) : 'Signing.'}</pre>
+          <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="agenticConsumer object">
+            {state ? JSON.stringify(state.consumer, null, 2) : 'Signing.'}
+          </pre>
           <label>
             <input type="checkbox" checked={showToken} onChange={(e) => setShowToken(e.target.checked)} />
             Decode the ID Token
           </label>
           {showToken && token.length === 3 && (
-            <pre className="vt-pre" aria-label="Decoded ID Token">
+            <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Decoded ID Token">
               {`header: ${JSON.stringify(decodeJwtPart(token[0]!), null, 2)}\nclaims: ${JSON.stringify(decodeJwtPart(token[1]!), null, 2)}\nsignature: ${token[2]!}`}
             </pre>
           )}
@@ -649,7 +668,9 @@ function Objects({ agentKey, signed, directory, onAnnounce }: { agentKey: AgentK
           <h3>
             <code>agenticPaymentContainer</code>
           </h3>
-          <pre className="vt-pre">{state ? JSON.stringify(state.payment, null, 2) : 'Signing.'}</pre>
+          <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="agenticPaymentContainer object">
+            {state ? JSON.stringify(state.payment, null, 2) : 'Signing.'}
+          </pre>
           <h4>Merchant checks</h4>
           <Verdict v={state?.pv ?? null} />
           <FieldTable caption="Payment container fields (spec tables, paraphrased)" rows={PAYMENT_FIELDS} />
@@ -735,9 +756,13 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
     <div className="vt-card">
       <h3>{title}</h3>
       <Note kind="example">{s.label}</Note>
-      <pre className="vt-pre">{s.http}</pre>
+      <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label={`${title} request`}>
+        {s.http}
+      </pre>
       <h4>Signature base</h4>
-      <pre className="vt-pre">{s.base}</pre>
+      <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label={`${title} signature base`}>
+        {s.base}
+      </pre>
       <p>
         <span className={`vt-s vt-s--${s.own.ok ? 'pass' : 'fail'}`}>Own verifier: {s.own.outcome}</span>
       </p>

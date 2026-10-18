@@ -53,6 +53,9 @@ import {
 import { sampleX402, translatePaymentRequired, translatePaymentResponse, translatePaymentSignature, type Translation } from './lib/translate';
 import './stripe-mpp.css';
 
+/** Lets a scrollable <pre> take keyboard focus (axe: scrollable-region-focusable). */
+const SCROLL_TAB = 0;
+
 type Tab = 'builder' | 'session' | 'methods' | 'translator';
 const TABS: [Tab, string][] = [
   ['builder', 'Challenge and credential'],
@@ -90,13 +93,19 @@ function Wire({ label, value, decoded }: { label: string; value: string; decoded
       <p>
         <strong>{label}</strong> <span className="mp-tag">{ILLUSTRATIVE}</span>
       </p>
-      <pre>{value}</pre>
+      <pre tabIndex={SCROLL_TAB} aria-label={label}>
+        {value}
+      </pre>
       {decoded !== undefined && (
         <>
           <button type="button" className="btn" aria-expanded={show} onClick={() => setShow((s) => !s)}>
             {show ? 'Hide decoded JSON' : 'Decode'}
           </button>
-          {show && <pre>{decoded}</pre>}
+          {show && (
+            <pre tabIndex={SCROLL_TAB} aria-label={`${label}, decoded`}>
+              {decoded}
+            </pre>
+          )}
         </>
       )}
     </div>
@@ -158,10 +167,19 @@ export default function Playground() {
         <p>Generating the server key.</p>
       ) : (
         <>
-          {tab === 'builder' && <Builder uid={uid} serverKey={serverKey} used={used.current} payer={account.address} signer={signer} onAnnounce={setAnnounce} />}
-          {tab === 'session' && <SessionMeter uid={uid} signer={signer} onAnnounce={setAnnounce} />}
-          {tab === 'methods' && <Methods uid={uid} />}
-          {tab === 'translator' && <Translator uid={uid} serverKey={serverKey} payer={account.address} onAnnounce={setAnnounce} />}
+          {/* Every panel stays mounted; a hidden panel keeps its channel, challenge and translator state. */}
+          <div hidden={tab !== 'builder'}>
+            <Builder uid={uid} serverKey={serverKey} used={used.current} payer={account.address} signer={signer} onAnnounce={setAnnounce} />
+          </div>
+          <div hidden={tab !== 'session'}>
+            <SessionMeter uid={uid} signer={signer} onAnnounce={setAnnounce} />
+          </div>
+          <div hidden={tab !== 'methods'}>
+            <Methods uid={uid} />
+          </div>
+          <div hidden={tab !== 'translator'}>
+            <Translator uid={uid} serverKey={serverKey} payer={account.address} onAnnounce={setAnnounce} />
+          </div>
         </>
       )}
       <p className="mp-sr" aria-live="polite">
@@ -196,6 +214,7 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
   const [result, setResult] = useState<{ text: string; tone: 'ok' | 'fail' | 'warn'; summary: string }[]>([]);
   const [paste, setPaste] = useState('');
   const [issuedAt, setIssuedAt] = useState(() => new Date());
+  const [busy, setBusy] = useState(false);
 
   let amount: bigint | null = null;
   let amountError = '';
@@ -266,7 +285,27 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
     { method: 'stripe', intent: 'charge', q: 0.5 },
   ]);
 
+  // One run at a time: a second click while a run is in flight would consume the challenge id twice.
   async function send() {
+    if (!challenge || !payload || busy) return;
+    setBusy(true);
+    try {
+      await sendOnce();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function adoptFresh() {
+    if (!fresh) return;
+    setChallenge(fresh);
+    setIssuedAt(new Date());
+    setFresh(null);
+    setResult([]);
+    onAnnounce(`Using the fresh challenge ${fresh.id}. The credential below is rebuilt for it; send it again.`);
+  }
+
+  async function sendOnce() {
     if (!challenge || !payload) return;
     const now = failure === 'expired' && challenge.expires ? new Date(Date.parse(challenge.expires) + 1000) : new Date(Math.max(Date.now(), issuedAt.getTime()));
     let sentChallenge = challenge;
@@ -334,7 +373,15 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
         </div>
         <div className="mp-row">
           <label>
-            <input type="checkbox" checked={withExpires} onChange={(e) => setWithExpires(e.target.checked)} /> <code>expires</code> (5 minutes)
+            <input
+              type="checkbox"
+              checked={withExpires}
+              onChange={(e) => {
+                setWithExpires(e.target.checked);
+                if (!e.target.checked && failure === 'expired') setFailure('none');
+              }}
+            />{' '}
+            <code>expires</code> (5 minutes)
           </label>
           <label>
             <input type="checkbox" checked={withHeader} onChange={(e) => setWithHeader(e.target.checked)} /> <code>header=&quot;Payment-Authorization&quot;</code>
@@ -370,22 +417,26 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
         <p>
           <strong>Challenge id binding</strong> (HMAC-SHA256 with a server key made in this tab)
         </p>
-        <pre>{`input = "${bindingInput(challenge)}"\nid    = base64url(HMAC-SHA256(server_secret, input)) = ${challenge.id}`}</pre>
+        <pre tabIndex={SCROLL_TAB} aria-label="Challenge id binding">{`input = "${bindingInput(challenge)}"\nid    = base64url(HMAC-SHA256(server_secret, input)) = ${challenge.id}`}</pre>
       </div>
       <Wire label={`3. Retry with the credential in ${field}`} value={`GET ${FIXTURE_PATH} HTTP/1.1\nHost: ${FIXTURE_HOST}\n${field === PAYMENT_AUTHORIZATION ? 'Authorization: Bearer sim-token\n' : ''}${field}: ${credValue}`} decoded={JSON.stringify(credential, null, 2)} />
       <div className="mp-row">
         <label className="mp-field" htmlFor={`${uid}-fail`}>
           Failure to inject
           <select id={`${uid}-fail`} value={failure} onChange={(e) => setFailure(e.target.value as Failure)}>
-            {FAILURES.map(([id, label]) => (
-              <option key={id} value={id}>
-                {label}
-              </option>
-            ))}
+            {FAILURES.map(([id, label]) => {
+              const needsExpires = id === 'expired' && !withExpires;
+              return (
+                <option key={id} value={id} disabled={needsExpires}>
+                  {label}
+                  {needsExpires ? ' (tick expires first)' : ''}
+                </option>
+              );
+            })}
           </select>
         </label>
-        <button type="button" className="btn" onClick={() => void send()}>
-          Send credential
+        <button type="button" className="btn" onClick={() => void send()} disabled={busy}>
+          {busy ? 'Sending' : 'Send credential'}
         </button>
       </div>
       {result.map((r, i) => (
@@ -393,17 +444,37 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
           <p>
             <strong>{r.summary}</strong> <span className="mp-tag">{ILLUSTRATIVE}</span>
           </p>
-          <pre>{r.text}</pre>
-          {r.tone === 'ok' && <pre>{decodedReceipt(r.text)}</pre>}
+          <pre tabIndex={SCROLL_TAB} aria-label={`Response ${i + 1}`}>
+            {r.text}
+          </pre>
+          {r.tone === 'ok' && (
+            <pre tabIndex={SCROLL_TAB} aria-label={`Decoded receipt ${i + 1}`}>
+              {decodedReceipt(r.text)}
+            </pre>
+          )}
         </div>
       ))}
-      {fresh && <p className="mp-tag">The fresh challenge has a new id: {fresh.id}. Each id is single use.</p>}
+      {fresh && (
+        <div className="mp-row">
+          <p className="mp-tag">The fresh challenge has a new id: {fresh.id}. Each id is single use.</p>
+          <button type="button" className="btn" onClick={adoptFresh} disabled={busy}>
+            Use the fresh challenge
+          </button>
+        </div>
+      )}
       <Simplification>the payment proof is not checked on a chain; the failure menu decides it. Each sent credential consumes its id, so press Send again to see a replay rejected.</Simplification>
       <label className="mp-field" htmlFor={`${uid}-paste`}>
         Decode any base64url value (request, opaque, credential or receipt)
         <textarea id={`${uid}-paste`} rows={3} value={paste} onChange={(e) => setPaste(e.target.value)} />
       </label>
-      {decodedPaste && (decodedPaste.ok ? <pre>{decodedPaste.json}</pre> : <p className="mp-out mp-out--fail">{decodedPaste.error}</p>)}
+      {decodedPaste &&
+        (decodedPaste.ok ? (
+          <pre tabIndex={SCROLL_TAB} aria-label="Decoded value">
+            {decodedPaste.json}
+          </pre>
+        ) : (
+          <p className="mp-out mp-out--fail">{decodedPaste.error}</p>
+        ))}
     </section>
   );
 }
@@ -427,6 +498,8 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
   const [last, setLast] = useState<StepResult | null>(null);
   const [lastVoucher, setLastVoucher] = useState<{ v: SignedVoucher; action: 'voucher' | 'close' } | null>(null);
   const [badSigner] = useState(() => privateKeyToAccount(generatePrivateKey()));
+  // One channel action at a time: a second click while a voucher is being signed would start from the same base state.
+  const [busy, setBusy] = useState(false);
 
   let parsed: { price: bigint; deposit: bigint; delta: bigint } | null = null;
   let err = '';
@@ -451,23 +524,34 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
   }
 
   async function voucher(kind: 'next' | 'lower' | 'wrong-key' | 'over-deposit') {
-    if (!ch.channelId) return;
-    const n = BigInt(Math.max(0, Number.parseInt(voucherUnits, 10) || 0));
-    let amount = ch.acceptedCumulative + ch.pricePerUnit * n;
-    if (kind === 'lower') amount = ch.acceptedCumulative > 0n ? ch.acceptedCumulative - 1n : 0n;
-    if (kind === 'over-deposit') amount = ch.deposit + ch.pricePerUnit;
-    const s: VoucherSigner = kind === 'wrong-key' ? { address: badSigner.address, signTypedData: (td) => badSigner.signTypedData(td) } : signer;
-    const v = await signVoucher(s, ch.channelId, amount);
-    setLastVoucher({ v, action: 'voucher' });
-    apply(await acceptVoucher(ch, v, signer.address));
+    if (!ch.channelId || busy) return;
+    setBusy(true);
+    try {
+      const n = BigInt(Math.max(0, Number.parseInt(voucherUnits, 10) || 0));
+      let amount = ch.acceptedCumulative + ch.pricePerUnit * n;
+      if (kind === 'lower') amount = ch.acceptedCumulative > 0n ? ch.acceptedCumulative - 1n : 0n;
+      if (kind === 'over-deposit') amount = ch.deposit + ch.pricePerUnit;
+      const s: VoucherSigner = kind === 'wrong-key' ? { address: badSigner.address, signTypedData: (td) => badSigner.signTypedData(td) } : signer;
+      const v = await signVoucher(s, ch.channelId, amount);
+      setLastVoucher({ v, action: 'voucher' });
+      apply(await acceptVoucher(ch, v, signer.address));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function closeCoop() {
-    if (ch.channelId && ch.phase === 'open') {
-      const v = await signVoucher(signer, ch.channelId, ch.acceptedCumulative);
-      setLastVoucher({ v, action: 'close' });
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (ch.channelId && ch.phase === 'open') {
+        const v = await signVoucher(signer, ch.channelId, ch.acceptedCumulative);
+        setLastVoucher({ v, action: 'close' });
+      }
+      apply(cooperativeClose(ch));
+    } finally {
+      setBusy(false);
     }
-    apply(cooperativeClose(ch));
   }
 
   const exp = exposure(ch);
@@ -524,34 +608,34 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
           Voucher covers this many more units
           <input id={`${uid}-vu`} type="text" inputMode="numeric" value={voucherUnits} onChange={(e) => setVoucherUnits(e.target.value)} />
         </label>
-        <button type="button" className="btn" onClick={() => void voucher('next')} disabled={ch.phase === 'idle'}>
+        <button type="button" className="btn" onClick={() => void voucher('next')} disabled={ch.phase === 'idle' || busy}>
           Sign voucher (action voucher)
         </button>
         <label className="mp-field" htmlFor={`${uid}-units`}>
           Units to consume
           <input id={`${uid}-units`} type="text" inputMode="numeric" value={units} onChange={(e) => setUnits(e.target.value)} />
         </label>
-        <button type="button" className="btn" onClick={() => apply(consume(ch, Math.max(0, Number.parseInt(units, 10) || 0)))} disabled={ch.phase === 'idle'}>
+        <button type="button" className="btn" onClick={() => apply(consume(ch, Math.max(0, Number.parseInt(units, 10) || 0)))} disabled={ch.phase === 'idle' || busy}>
           Consume
         </button>
-        <button type="button" className="btn" onClick={() => parsed && apply(topUp(ch, parsed.deposit))} disabled={ch.phase === 'idle'}>
+        <button type="button" className="btn" onClick={() => parsed && apply(topUp(ch, parsed.deposit))} disabled={ch.phase === 'idle' || busy}>
           Top up by the deposit amount (action topUp)
         </button>
-        <button type="button" className="btn" onClick={() => apply(settle(ch))} disabled={ch.phase === 'idle'}>
+        <button type="button" className="btn" onClick={() => apply(settle(ch))} disabled={ch.phase === 'idle' || busy}>
           Server settles
         </button>
       </div>
       <div className="mp-row">
-        <button type="button" className="btn" onClick={() => void closeCoop()} disabled={ch.phase !== 'open'}>
+        <button type="button" className="btn" onClick={() => void closeCoop()} disabled={ch.phase !== 'open' || busy}>
           Cooperative close (action close)
         </button>
-        <button type="button" className="btn" onClick={() => apply(requestClose(ch))} disabled={ch.phase !== 'open'}>
+        <button type="button" className="btn" onClick={() => apply(requestClose(ch))} disabled={ch.phase !== 'open' || busy}>
           Forced close: requestClose()
         </button>
-        <button type="button" className="btn" onClick={() => setCh(advanceClock(ch, 300))} disabled={ch.phase === 'idle' || ch.phase === 'closed'}>
+        <button type="button" className="btn" onClick={() => setCh(advanceClock(ch, 300))} disabled={ch.phase === 'idle' || ch.phase === 'closed' || busy}>
           Advance clock 5 minutes
         </button>
-        <button type="button" className="btn" onClick={() => apply(withdraw(ch))} disabled={ch.phase !== 'close-requested'}>
+        <button type="button" className="btn" onClick={() => apply(withdraw(ch))} disabled={ch.phase !== 'close-requested' || busy}>
           withdraw()
         </button>
       </div>
@@ -564,13 +648,13 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
       <fieldset>
         <legend>Failure injection</legend>
         <div className="mp-row">
-          <button type="button" className="btn" onClick={() => void voucher('lower')} disabled={ch.phase === 'idle'}>
+          <button type="button" className="btn" onClick={() => void voucher('lower')} disabled={ch.phase === 'idle' || busy}>
             Voucher lower than accepted
           </button>
-          <button type="button" className="btn" onClick={() => void voucher('wrong-key')} disabled={ch.phase === 'idle'}>
+          <button type="button" className="btn" onClick={() => void voucher('wrong-key')} disabled={ch.phase === 'idle' || busy}>
             Voucher from another key
           </button>
-          <button type="button" className="btn" onClick={() => void voucher('over-deposit')} disabled={ch.phase === 'idle'}>
+          <button type="button" className="btn" onClick={() => void voucher('over-deposit')} disabled={ch.phase === 'idle' || busy}>
             Voucher above the deposit
           </button>
         </div>
@@ -581,7 +665,7 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
             <strong>{last.ok ? `${last.status} OK` : `Rejected with status ${last.status}`}</strong>: {last.message}
           </p>
           {last.problemType && (
-            <pre>
+            <pre tabIndex={SCROLL_TAB} aria-label="Problem details">
               {JSON.stringify(
                 {
                   type: last.problemType,

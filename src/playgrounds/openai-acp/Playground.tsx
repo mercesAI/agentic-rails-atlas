@@ -573,7 +573,7 @@ export default function OpenAiAcpPlayground() {
                 <code>reason</code> is always <code>one_time</code>, the only value the schema allows. <code>currency</code> is <code>usd</code>.
               </p>
               <label className="acp-field">
-                max_amount (minor units; session total is {total})
+                max_amount (minor units{session ? `; session total is ${total}` : ''})
                 <input type="number" min={0} value={dMax ?? total} onChange={(e) => setDMax(Number(e.target.value))} />
               </label>
               <label className="acp-field">

@@ -231,9 +231,11 @@ export async function verifyChain(a: ViArtifacts, trust: ViTrust): Promise<ViRep
     add('Chain', 'c-amount', 'mandate.payment.amount_range satisfied', flag(ok), `amount ${amount} in ${String(min ?? '-')} to ${String(max ?? '-')} ${String(range.currency)} (minor units)`, 'constraints.md 4.4');
   }
   const budget = payConstraints.find((c) => c.type === 'mandate.payment.budget');
-  if (budget) {
+  if (budget && pa) {
     const total = trust.spentSoFar + amount;
     add('Chain', 'c-budget', 'mandate.payment.budget satisfied (network state)', flag(total <= (budget.max as number)), `${trust.spentSoFar} already spent + ${amount} = ${total} against max ${String(budget.max)}. The network must hold this state; no API is defined`, 'constraints.md 4.5');
+  } else if (budget) {
+    add('Chain', 'c-budget', 'mandate.payment.budget satisfied (network state)', 'skipped', 'The final payment mandate is not available', 'constraints.md 4.5');
   }
   if (allowedC) {
     let merchantId: unknown;
