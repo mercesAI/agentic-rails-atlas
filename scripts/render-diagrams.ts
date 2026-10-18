@@ -21,8 +21,8 @@
  *                 runs it, since `pnpm diagrams` is not part of `pnpm build`.
  *
  * Skips unchanged inputs: src/generated/diagrams/index.json stores a hash of
- * the source, the theme variables, the render settings and the Mermaid and
- * font versions. On a Mermaid syntax error it prints the failing diagram id
+ * the source, the theme variables, the render settings, the renderer code (the
+ * render page and the neutralizer) and the Mermaid and font versions. On a Mermaid syntax error it prints the failing diagram id
  * and exits 1 (the site build is not affected: MermaidDiagram falls back to
  * the source text).
  */
@@ -268,8 +268,24 @@ const RENDER_CONFIG = {
   state: { useMaxWidth: true, wrappingWidth: 200, nodeSpacing: 90, rankSpacing: 110 },
   class: { useMaxWidth: true },
 };
-/** Bump when the written files change shape (including neutral-svg.ts output); every diagram is then stale. */
+/**
+ * Bump when renderDiagrams changes how it names or writes the files; every diagram is then
+ * stale. Changes to the render page or to the neutralizer are picked up by rendererFingerprint.
+ */
 const OUTPUT_FORMAT = 'neutral-svg-2';
+/** Modules whose code shapes the written SVGs, relative to this file. */
+const RENDERER_MODULES = ['./lib/neutral-svg.ts'];
+
+/**
+ * A hash of the code that turns a Mermaid source into the committed files beyond
+ * RENDER_CONFIG: the render page (font loading, the Mermaid call) and the neutralizer. Part
+ * of the cache key, so editing either marks every diagram stale without a manual bump. Line
+ * endings are normalized so a checkout with CRLF files hashes the same.
+ */
+export function rendererFingerprint(): string {
+  const modules = RENDERER_MODULES.map((m) => readFileSync(new URL(m, import.meta.url), 'utf8').replace(/\r\n/g, '\n'));
+  return sha256([pageHtml(), ...modules].join('\n'));
+}
 /** The stylesheet with the theme color variables, next to the SVGs. */
 export const COLORS_FILE = 'colors.css';
 const OUTPUT_SUFFIXES = ['.svg', '.light.svg', '.dark.svg'] as const;
@@ -395,7 +411,7 @@ export function planDiagrams(options: RenderOptions = {}): DiagramPlan {
     prev = undefined; // a corrupt index (merge conflict) is an empty cache, not a crash
   }
   const diagrams: Record<string, DiagramIndexEntry> = { ...(prev?.diagrams ?? {}) };
-  const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + OUTPUT_FORMAT + mermaidVersion + fontVersions.join(','));
+  const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + OUTPUT_FORMAT + rendererFingerprint() + mermaidVersion + fontVersions.join(','));
 
   const hashes = new Map<string, string>();
   const fresh: string[] = [];

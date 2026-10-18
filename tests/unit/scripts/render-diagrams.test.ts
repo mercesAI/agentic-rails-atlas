@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { checkDiagrams, parseTokens, planDiagrams, renderDiagrams, themeVariables, type DiagramIndex } from '../../../scripts/render-diagrams';
+import { checkDiagrams, parseTokens, planDiagrams, renderDiagrams, rendererFingerprint, themeVariables, type DiagramIndex } from '../../../scripts/render-diagrams';
 import { colorVariable } from '../../../scripts/lib/neutral-svg';
 import { launchBrowser } from '../../../scripts/lib/browser';
 import { walkFiles } from '../../../scripts/lib/io';
@@ -81,8 +81,10 @@ describe('renderDiagrams', () => {
     expect(bg.light).not.toBe(bg.dark);
     const v = colorVariable(bg);
     expect(readIndex().diagrams.alpha).toEqual({ hash: expect.any(String), source: 'src/content/diagrams/alpha.mmd', svg: 'alpha.svg', colors: [bg] });
+    const slug = v.slice('--dc-'.length);
     expect(read(`${OUT}/alpha.svg`)).toBe(
-      `<svg id="mmd-alpha"><style>#mmd-alpha .node{fill:var(${v});stroke:#777777;}</style><rect fill="${bg.light}" stroke="#777777" style="fill:var(${v})"/><text>23</text></svg>\n`,
+      `<svg id="mmd-alpha"><style>#mmd-alpha .node{fill:var(${v});stroke:#777777;}:where(#mmd-alpha [data-dc-fill="${slug}"]){fill:var(${v},${bg.light});}</style>` +
+        `<rect fill="${bg.light}" stroke="#777777" data-dc-fill="${slug}"/><text>23</text></svg>\n`,
     );
     expect(has(`${OUT}/alpha.light.svg`)).toBe(false);
     expect(has(`${OUT}/alpha.dark.svg`)).toBe(false);
@@ -195,6 +197,14 @@ describe('checkDiagrams', () => {
     // The first :root block wins in parseTokens, so a new one in front changes the theme variables.
     write('src/styles/tokens.css', `:root { --bg: #123456; }\n${read('src/styles/tokens.css')}`);
     expect(checkDiagrams({ root }).stale.map((s) => s.id)).toEqual(['alpha', 'beta']);
+  });
+
+  it('keys the cache on the renderer code, so a change to the render page or the neutralizer marks every diagram stale', () => {
+    const fp = rendererFingerprint();
+    expect(fp).toMatch(/^[0-9a-f]{64}$/);
+    expect(rendererFingerprint()).toBe(fp);
+    const plain = readFileSync(join(REPO, 'scripts', 'lib', 'neutral-svg.ts'), 'utf8');
+    expect(plain).not.toContain('\r');
   });
 
   it('flags index entries whose input is gone', async () => {
