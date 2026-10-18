@@ -8,6 +8,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'rea
 import { keccak256, toHex, type Hex } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { Note } from '@/components/playground/Note';
+import { ScrollRegion } from '@/components/playground/ScrollRegion';
 import { Tabs } from '@/components/playground/Tabs';
 import { Wire as KitWire } from '@/components/playground/Wire';
 import { bytesToBase64Url } from '@/lib/playground/bytes';
@@ -705,7 +706,7 @@ function Methods({ uid }: { uid: string }) {
         label="Accept-Payment for this method"
         value={`Accept-Payment: ${serializeAcceptPayment(info.intents.map((i) => ({ method: info.id, intent: i })))}`}
       />
-      <div className="mp-scroll">
+      <ScrollRegion label="Methods and intents table">
         <table>
           <caption className="mp-sr">Which methods define which intents</caption>
           <thead>
@@ -731,7 +732,7 @@ function Methods({ uid }: { uid: string }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
       <p>
         Session is defined by {methodsFor('session').length} methods ({methodsFor('session').join(', ')}), each in its own document. Subscription:{' '}
         {methodsFor('subscription').join(', ')}.

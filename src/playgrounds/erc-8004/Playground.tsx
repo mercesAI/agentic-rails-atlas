@@ -8,6 +8,7 @@ import { useId, useMemo, useState, type ReactNode } from 'react';
 import type { Address, Hex } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { Note } from '@/components/playground/Note';
+import { ScrollRegion } from '@/components/playground/ScrollRegion';
 import { Tabs } from '@/components/playground/Tabs';
 import {
   FIXTURE_IDENTITY_REGISTRY,
@@ -509,7 +510,7 @@ function ReputationPanel({ say }: { say: (s: string) => void }) {
         </p>
       )}
 
-      <div className="e8-scroll">
+      <ScrollRegion label="Feedback entries table">
         <table>
           <caption className="e8-tag">Feedback entries ({ILLUSTRATIVE})</caption>
           <thead>
@@ -560,7 +561,7 @@ function ReputationPanel({ say }: { say: (s: string) => void }) {
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
       <div className="e8-row">
         <button type="button" className="btn" onClick={() => selfFeedback('owner')}>
           Try feedback from the agent owner

@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import './playground.css';
 import { Check } from '@/components/playground/Check';
+import { ScrollRegion } from '@/components/playground/ScrollRegion';
 import { Note } from '@/components/playground/Note';
 import { NumberField } from '@/components/playground/NumberField';
 import { Segmented } from '@/components/playground/Segmented';
@@ -72,7 +73,7 @@ function Wire({ title, raw, decoded, version }: { title: string; raw: string; de
 function ConstraintTable({ results, caption }: { results: ConstraintResult[]; caption: string }) {
   if (!results.length) return null;
   return (
-    <div className="ap2pg__tablewrap">
+    <ScrollRegion label={caption}>
       <table>
         <caption className="ap2pg__note" style={{ textAlign: 'left' }}>
           {caption}
@@ -102,7 +103,7 @@ function ConstraintTable({ results, caption }: { results: ConstraintResult[]; ca
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollRegion>
   );
 }
 
@@ -118,7 +119,7 @@ function VerifierCard({ result }: { result: VerifyResult }) {
       <h4>
         {ROLE_NAME[result.role]}: {result.error ? <code>{result.error}</code> : 'accepted'}
       </h4>
-      <div className="ap2pg__tablewrap">
+      <ScrollRegion label={`${ROLE_NAME[result.role]} checks table`}>
         <table>
           <thead>
             <tr>
@@ -147,7 +148,7 @@ function VerifierCard({ result }: { result: VerifyResult }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
       <ConstraintTable results={result.constraints} caption={`Constraints evaluated by the ${ROLE_NAME[result.role]}`} />
       {result.deferred.map((d) => (
         <Note kind="quirk" key={d.type}>
@@ -599,7 +600,7 @@ function V01Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
           <p className="ap2pg__outcome" data-ok={String(run.verify.ok)}>
             {run.verify.ok ? 'Accepted.' : 'Rejected (v0.1 defines no error code for this).'}
           </p>
-          <div className="ap2pg__tablewrap">
+          <ScrollRegion label="Verifier checks table">
             <table>
               <thead>
                 <tr>
@@ -620,7 +621,7 @@ function V01Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollRegion>
           {humanPresent && <p className="ap2pg__note">Human present: the user confirms the cart, so intent checks are shown but do not decide the outcome.</p>}
           <Wire title="IntentMandate (ap2.mandates.IntentMandate)" raw={pretty(run.intent)} decoded={run.intent} version={v} />
           <Wire title="CartMandate merchant_authorization (JWT)" raw={run.cart.merchant_authorization ?? ''} decoded={peekJwt(run.cart.merchant_authorization ?? '')} version={v} />

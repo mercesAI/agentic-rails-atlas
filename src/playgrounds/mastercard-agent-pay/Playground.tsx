@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './playground.css';
 import { Check } from '@/components/playground/Check';
+import { ScrollRegion } from '@/components/playground/ScrollRegion';
 import { Note } from '@/components/playground/Note';
 import { NumberField } from '@/components/playground/NumberField';
 import { Select } from '@/components/playground/Select';
@@ -474,7 +475,7 @@ function ViResult({ view }: { view: ViView }) {
         {report.ok ? 'Verifier accepts the chain.' : `Verifier rejects the chain. First break: ${report.firstFailure?.layer} / ${report.firstFailure?.label}. ${report.failures.length - 1 ? `${report.failures.length - 1} more check(s) break with it.` : 'No other check breaks.'}`}
       </div>
 
-      <div className="mcpg__tablewrap">
+      <ScrollRegion label="Layers, signers, lifetimes and bindings table">
         <table>
           <caption className="mcpg__note" style={{ textAlign: 'left' }}>
             Layers, signers, lifetimes and bindings (lifetimes are recommendations unless noted)
@@ -508,7 +509,7 @@ function ViResult({ view }: { view: ViView }) {
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
 
       {constraints.length > 0 && (
         <details open>
@@ -534,7 +535,7 @@ function ViResult({ view }: { view: ViView }) {
         )}
       </div>
 
-      <div className="mcpg__tablewrap">
+      <ScrollRegion label="Verifier checks table">
         <table>
           <caption className="mcpg__note" style={{ textAlign: 'left' }}>
             Verifier checks, recomputed from the serialized strings
@@ -564,7 +565,7 @@ function ViResult({ view }: { view: ViView }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
 
       {layers.map((l) => (
         <Wire
