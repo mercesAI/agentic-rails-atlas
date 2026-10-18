@@ -14,6 +14,7 @@ import CompareMatrix from '../../components/crosscut/CompareMatrix';
 import PickTwoDiff from '../../components/crosscut/PickTwoDiff';
 import RadarChart from '../../components/crosscut/RadarChart';
 import { loadCompare, loadProtocolInfos, registerSources } from '../../components/crosscut/lib/load';
+import { compareCellsFile } from '../../components/crosscut/lib/data-files';
 import { RADAR_AXIS_LABELS, RADAR_MAX, type RadarEntry } from '../../components/crosscut/lib/radar';
 import { C_RADAR_AXES } from '../../components/crosscut/lib/constants';
 import '../../components/crosscut/crosscut.css';
@@ -28,6 +29,10 @@ const numbers = await registerSources(page, [
 ]);
 const covered = protocolsWithCells(compare.cells);
 const inProgress = protocols.filter((p) => !covered.has(p.slug));
+/** The pick-two diff gets the default pair's cells only; the matrix already carries all of them. */
+const coveredSlugs = protocols.filter((p) => covered.has(p.slug)).map((p) => p.slug);
+const pairCells = compare.cells.filter((c) => coveredSlugs.slice(0, 2).includes(c.protocol));
+const cellsFile = await compareCellsFile();
 const radarBy = (slug: string, axis: string) => radar.find((r) => r.protocol === slug && r.axis === axis);
 const radarProtocols = protocols.filter((p) => radar.some((r) => r.protocol === p.slug));
 const counts = { verified: 0, reported: 0, unverified: 0 };
@@ -56,7 +61,15 @@ for (const c of compare.cells) counts[c.confidence] += 1;
   <section class="cc-section" aria-labelledby="diff-h">
     <h2 id="diff-h">Pick two</h2>
     <p>Choose two protocols. Rows whose values differ are marked. The comparison is textual, so “same” means the same wording, not a judgment that the designs are equivalent.</p>
-    <PickTwoDiff client:visible protocols={protocols} dimensions={compare.dimensions} cells={compare.cells} numbers={numbers} />
+    <PickTwoDiff
+      client:visible
+      protocols={protocols}
+      dimensions={compare.dimensions}
+      covered={coveredSlugs}
+      cells={pairCells}
+      dataUrl={cellsFile.path}
+      numbers={numbers}
+    />
   </section>
 
   <section class="cc-section" aria-labelledby="radar-h">
