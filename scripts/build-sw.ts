@@ -51,8 +51,16 @@ export const REQUIRED_KINDS: readonly Entry['kind'][] = ['html', 'asset', 'font'
  * dist; precached after the runtime and served cache-first.
  */
 export const PAGEFIND_DATA_DIRS: readonly string[] = ['pagefind/index/', 'pagefind/fragment/', 'pagefind/filter/'];
-/** URL prefixes the worker serves cache-first: content-hashed, immutable files. */
-export const CACHE_FIRST_PREFIXES: readonly string[] = ['/_astro/', ...PAGEFIND_DATA_DIRS.map((dir) => `/${dir}`)];
+/**
+ * URL prefixes the worker serves cache-first: content-hashed, immutable files (the Vite bundles and
+ * diagram drawings, Pagefind's chunks, and the /data/ files, whose names carry a hash of their content).
+ */
+export const CACHE_FIRST_PREFIXES: readonly string[] = ['/_astro/', ...PAGEFIND_DATA_DIRS.map((dir) => `/${dir}`), '/data/'];
+/**
+ * The fixed-name data files earlier builds used, written once more for their pages (see
+ * src/pages/data/[file].json.ts). Not precached: this build's pages never ask for them.
+ */
+export const LEGACY_DATA = new Set(['data/glossary.json', 'data/search-index.json']);
 /**
  * Files Pagefind writes that the site never loads: the stock search UIs and the result
  * highlighter. Listed by name rather than allowing a fixed runtime set, so that a runtime
@@ -105,7 +113,7 @@ function tokenColor(cssPath: string, name: string, fallback: string): string {
 export function classify(rel: string): Entry['kind'] | null {
   if (rel === 'sw.js' || rel === '_headers' || rel === '_redirects' || rel === 'robots.txt') return null;
   if (rel === 'manifest.webmanifest') return 'manifest';
-  if (PAGEFIND_UNUSED.test(rel)) return null;
+  if (PAGEFIND_UNUSED.test(rel) || LEGACY_DATA.has(rel)) return null;
   if (PAGEFIND_DATA_DIRS.some((dir) => rel.startsWith(dir))) return 'pagefind-data';
   if (rel.startsWith('pagefind/')) return 'pagefind';
   if (/\.(woff2?|ttf|otf)$/.test(rel)) return 'font';

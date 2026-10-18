@@ -18,6 +18,12 @@ interface Props {
   flow: Flow;
   /** Source id to footer number, so the player can show [N] for the flow sources. */
   sourceIndex?: Record<string, number>;
+  /**
+   * Steps whose example payload is not in `flow` but in `payloadsUrl`, a JSON object keyed by
+   * step number (lib/flows/player-props.ts): the server renders only the first step.
+   */
+  deferred?: number[];
+  payloadsUrl?: string | null;
   /** Heading id prefix when several players share a page. */
   idPrefix?: string;
   /** Heading level of the step title. Use 3 when the player sits directly under an h2. Default 4. */
@@ -63,7 +69,9 @@ function usePrefersReducedMotion(): boolean {
  * Play, pause, step, speed, payload view, trust-boundary highlight, failure
  * branches toggle, spec links, keyboard (arrows, space, Home, End), aria-live.
  */
-export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLevel = 4 }: Props) {
+type Payload = NonNullable<Flow['steps'][number]['payload']>;
+
+export default function FlowPlayer({ flow, sourceIndex = {}, deferred = [], payloadsUrl = null, idPrefix, headingLevel = 4 }: Props) {
   const StepHeading = `h${headingLevel}` as 'h3' | 'h4';
   const steps = useMemo(() => orderSteps(flow.steps), [flow.steps]);
   const actorIds = useMemo(() => flow.actors.map((a) => a.id), [flow.actors]);
@@ -77,6 +85,37 @@ export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLe
   );
   const [showPayload, setShowPayload] = useState(true);
   const [showFailures, setShowFailures] = useState(false);
+  // The deferred payloads load as soon as the player hydrates, before the reader leaves the first step.
+  // A failed load is tried again when the browser comes back online and when the reader reaches a step
+  // whose payload is missing (attempt counts the tries).
+  const [payloads, setPayloads] = useState<Record<string, Payload> | null>(null);
+  const [payloadsFailed, setPayloadsFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!payloadsUrl || payloads) return;
+    let live = true;
+    fetch(payloadsUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json() as Promise<Record<string, Payload>>;
+      })
+      .then((data) => {
+        if (!live) return;
+        setPayloads(data);
+        setPayloadsFailed(false);
+      })
+      .catch(() => live && setPayloadsFailed(true));
+    return () => {
+      live = false;
+    };
+    // payloads is read only to skip a fetch once they are in; a change of it must not start one.
+  }, [payloadsUrl, attempt]);
+  useEffect(() => {
+    if (!payloadsFailed) return;
+    const retry = () => setAttempt((n) => n + 1);
+    window.addEventListener('online', retry);
+    return () => window.removeEventListener('online', retry);
+  }, [payloadsFailed]);
   const reduced = usePrefersReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const baseId = idPrefix ?? `fp-${flow.id}`;
@@ -108,6 +147,12 @@ export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLe
   }, [dispatch]);
 
   const step = steps[state.index];
+  const payload = step?.payload ?? (step ? payloads?.[String(step.n)] : undefined);
+  const payloadPending = !payload && step !== undefined && deferred.includes(step.n);
+  useEffect(() => {
+    if (payloadPending && payloadsFailed) setAttempt((n) => n + 1);
+    // Only a step change is a reason to try again; the failure itself is handled above.
+  }, [state.index]);
   if (!step) return <p className="fp-empty">This flow has no steps yet.</p>;
   const geo = arrowGeometry(step, actorIds);
   const n = actorIds.length;
@@ -121,6 +166,8 @@ export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLe
   return (
     <div
       className="fp"
+      // The step title is an h3 on scenario pages; a copy-link button added before hydration would break it.
+      data-no-copy-link=""
       ref={stageRef}
       data-reduced-motion={reduced ? 'true' : undefined}
       data-playing={state.playing ? 'true' : undefined}
@@ -245,19 +292,23 @@ export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLe
             </a>
           </p>
         )}
-        {showPayload && step.payload && (
+        {showPayload && payload && (
           <figure className="fp__payload">
             <figcaption>
-              {PAYLOAD_LABELS[step.payload.format] ?? step.payload.format} payload. Illustrative example, spec version{' '}
+              {PAYLOAD_LABELS[payload.format] ?? payload.format} payload. Illustrative example, spec version{' '}
               {flow.specVersion}.
             </figcaption>
             {/* Focusable so a long payload can be scrolled with the keyboard. */}
             {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
             <pre tabIndex={0}>
-              <code>{formatPayload(step.payload.format, step.payload.content)}</code>
+              <code>{formatPayload(payload.format, payload.content)}</code>
             </pre>
           </figure>
         )}
+        {/* One status element that stays in place, so a change of its text is announced. */}
+        <p className="fp__payload-note" role="status">
+          {showPayload && payloadPending ? (payloadsFailed ? 'The example payload for this step could not load. It loads again when the connection is back.' : 'Loading the example payload for this step.') : ''}
+        </p>
         {showFailures && (
           <div className="fp__failures">
             <p className="fp__failures-title">Failure branches at this step</p>

@@ -215,7 +215,7 @@ describe('build-sw', () => {
       expect.arrayContaining(['/pagefind/pagefind.js', '/pagefind/pagefind-worker.js', '/pagefind/wasm.en.pagefind', '/pagefind/pagefind-entry.json', '/pagefind/pagefind.en_abc.pf_meta', ...PAGEFIND_DATA]),
     );
     const prefixes = JSON.parse(/const CACHE_FIRST_PREFIXES = (\[.*?\]);/.exec(text)?.[1] ?? '[]') as string[];
-    expect(prefixes).toEqual(['/_astro/', '/pagefind/index/', '/pagefind/fragment/', '/pagefind/filter/']);
+    expect(prefixes).toEqual(['/_astro/', '/pagefind/index/', '/pagefind/fragment/', '/pagefind/filter/', '/data/']);
     expect(text).toContain('else if (CACHE_FIRST_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) event.respondWith(cacheFirst(event, request, url));');
   });
 
@@ -376,9 +376,11 @@ describe('build-sw', () => {
 });
 
 describe('classify', () => {
-  it('precaches the static JSON endpoints as assets, like the hashed bundles', () => {
-    expect(classify('data/glossary.json')).toBe('asset');
-    expect(classify('data/search-index.json')).toBe('asset');
+  it('precaches the hashed data files as assets, like the hashed bundles, and leaves out the legacy fixed names', () => {
+    expect(classify('data/glossary.6bcea499a66d.json')).toBe('asset');
+    expect(classify('data/flow-x402-v2-exact-authorization.0a1b2c3d4e5f.json')).toBe('asset');
+    expect(classify('data/glossary.json')).toBeNull();
+    expect(classify('data/search-index.json')).toBeNull();
     expect(classify('_astro/app.abc123.js')).toBe('asset');
     expect(classify('fonts/body.woff2')).toBe('font');
     expect(classify('sw.js')).toBeNull();

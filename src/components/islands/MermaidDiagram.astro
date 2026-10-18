@@ -41,6 +41,11 @@ export interface Props {
    * shows its text alternative.
    */
   lazy?: boolean;
+  /**
+   * Fetch the drawing as soon as the page loads instead of when the figure nears the viewport,
+   * for the figure readers meet first (the main flow). Still a file, never inlined.
+   */
+  eager?: boolean;
 }
 
 const SVGS = import.meta.glob<string>('/src/generated/diagrams/*.svg', { query: '?raw', import: 'default' });
@@ -104,11 +109,12 @@ const domId = `diagram-${p.id}`;
       aria-describedby={caption ? `${domId}-cap` : undefined}
       data-lazy-diagram={lazy ? '' : undefined}
       data-diagram-src={src ?? undefined}
+      data-eager={src && p.eager ? '' : undefined}
     >
       {src ? (
         <>
           <div class="diagram-figure__placeholder" style={placeholderStyle}>
-            <p class="diagram-figure__loading" role="status">Diagram loads when it scrolls into view.</p>
+            <p class="diagram-figure__loading" role="status">{p.eager ? 'Diagram is loading.' : 'Diagram loads when it scrolls into view.'}</p>
           </div>
           <noscript><p class="diagram-figure__note">Turn on JavaScript to see this diagram, or read the text alternative below.</p></noscript>
         </>
@@ -297,6 +303,7 @@ const domId = `diagram-${p.id}`;
       { rootMargin: '800px 0px' },
     );
     items.forEach((el) => io?.observe(el));
+    document.querySelectorAll('[data-lazy-diagram][data-eager]').forEach((el) => void reveal(el));
     prefetch();
   });
   // Printing cannot wait for a fetch: every drawing fetched by now is placed, and a figure whose drawing is still

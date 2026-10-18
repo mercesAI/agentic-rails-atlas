@@ -5,6 +5,7 @@ import InProgress from '../InProgress.astro';
 import ResolvedDiagramView from '../ResolvedDiagramView.astro';
 import MermaidDiagram from '../../islands/MermaidDiagram.astro';
 import FlowPlayer from '../../islands/FlowPlayer';
+import { flowPlayerProps } from '../../../lib/flows/player-props';
 import StateMachineExplorer from '../../islands/StateMachineExplorer';
 import { describeFlow, describeFlowSteps, describeStateMachine, describeStateTransitions } from '../../../lib/flows/describe';
 import type { ProtocolPageContext } from '../lib/load';
@@ -26,7 +27,7 @@ const flowSot = flow?.steps.find((s) => s.specRef)?.specRef;
   {flow ? (
     <>
       {flow.summary && <p>{flow.summary}</p>}
-      <FlowPlayer client:visible flow={flow} sourceIndex={sourceIndex} />
+      <FlowPlayer client:visible {...flowPlayerProps(flow, sourceIndex)} />
       <MermaidDiagram
         id={flow.id}
         title={`Sequence diagram: ${flow.title}`}
@@ -36,7 +37,7 @@ const flowSot = flow?.steps.find((s) => s.specRef)?.specRef;
         sourceOfTruth={flowSot ? { url: flowSot.url, label: flowSot.section ?? 'Specification' } : sot(flow.sources)}
         generatedFrom={`src/content/flows/${flow.id}.json`}
         level={4}
-        lazy={false}
+        eager
       />
     </>
   ) : (

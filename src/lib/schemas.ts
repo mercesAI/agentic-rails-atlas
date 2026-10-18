@@ -339,7 +339,11 @@ export const Flow = z.object({
   specVersion: z.string(),
   specVersionDate: isoDate,
   actors: z.array(FlowActor).min(2),
-  steps: z.array(FlowStep).min(2),
+  // Step numbers key the player's order and its deferred payloads (lib/flows/player-props.ts).
+  steps: z
+    .array(FlowStep)
+    .min(2)
+    .refine((steps) => new Set(steps.map((s) => s.n)).size === steps.length, { message: 'step numbers must be unique within a flow' }),
   sources: z.array(z.string()).min(1),
 });
 export type Flow = z.infer<typeof Flow>;

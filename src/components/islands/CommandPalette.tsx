@@ -5,21 +5,22 @@ import { createShortcutMatcher, jumpSection, SHORTCUTS } from '../../lib/shortcu
 import { fetchSearchIndex, isInternalUrl, stripTags, type SearchItem } from '../../lib/search-client';
 
 /**
- * The index is a static file (/data/search-index.json, served by
- * src/pages/data/search-index.json.ts) fetched once per page load, the first
+ * The index is a content-hashed static file (`indexUrl`, /data/search-index.<hash>.json
+ * written by src/pages/data/[file].json.ts) fetched once per page load, the first
  * time the palette opens. A failed fetch gives [] (the palette then reports an
  * empty index) and is not kept, so a later mount can try again.
  */
-let indexPromise: Promise<SearchItem[]> | null = null;
+let indexPromise: { url: string; items: Promise<SearchItem[]> } | null = null;
 
-function loadIndex(): Promise<SearchItem[]> {
-  if (!indexPromise) {
-    indexPromise = fetchSearchIndex().catch(() => {
+function loadIndex(url: string): Promise<SearchItem[]> {
+  if (indexPromise?.url !== url) {
+    const items = fetchSearchIndex(globalThis.fetch, url).catch(() => {
       indexPromise = null;
       return [];
     });
+    indexPromise = { url, items };
   }
-  return indexPromise;
+  return indexPromise.items;
 }
 
 interface PagefindResult {
@@ -43,7 +44,7 @@ function loadPagefind(): Promise<PagefindApi | null> {
 
 type Mode = 'search' | 'help';
 
-export default function CommandPalette() {
+export default function CommandPalette({ indexUrl }: { indexUrl: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<Mode>('search');
@@ -72,7 +73,7 @@ export default function CommandPalette() {
     const d = dialogRef.current;
     if (d && !d.open) d.showModal();
     if (next === 'search') {
-      if (items === null) void loadIndex().then(setItems);
+      if (items === null) void loadIndex(indexUrl).then(setItems);
       requestAnimationFrame(() => inputRef.current?.focus());
     }
   }, [items]);

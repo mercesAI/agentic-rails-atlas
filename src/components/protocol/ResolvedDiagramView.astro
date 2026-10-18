@@ -6,6 +6,7 @@
  */
 import MermaidDiagram from '../islands/MermaidDiagram.astro';
 import FlowPlayer from '../islands/FlowPlayer';
+import { flowPlayerProps } from '../../lib/flows/player-props';
 import StateMachineExplorer from '../islands/StateMachineExplorer';
 import InProgress from './InProgress.astro';
 import { describeFlow, describeFlowSteps, describeStateMachine, describeStateTransitions } from '../../lib/flows/describe';
@@ -40,7 +41,7 @@ const flowRef = d.flow?.steps.find((s) => s.specRef)?.specRef;
     />
     <details class="resolved-diagram__play">
       <summary>Play this flow step by step</summary>
-      <FlowPlayer client:visible flow={d.flow} sourceIndex={sourceIndex} />
+      <FlowPlayer client:visible {...flowPlayerProps(d.flow, sourceIndex)} />
     </details>
   </div>
 )}

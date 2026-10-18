@@ -1,8 +1,8 @@
 /**
  * Client-side search helpers for the command palette. The build-time index
  * (src/generated/search-index.json, written by scripts/build-search-index.ts)
- * is served as a static file at /data/search-index.json by
- * src/pages/data/search-index.json.ts and normalized tolerantly here so small
+ * is served as a content-hashed static file (/data/search-index.<hash>.json, written by
+ * src/pages/data/[file].json.ts) and normalized tolerantly here so small
  * shape changes never break the palette.
  */
 
@@ -16,6 +16,10 @@ export interface SearchItem {
 }
 
 /** Where the build serves the index (same origin, precached by the service worker). */
+/**
+ * Where the index lives: Base.astro passes the content-hashed /data/search-index.<hash>.json of the
+ * build (lib/site-data-files.ts) to the palette; this fixed name is only the default of fetchSearchIndex.
+ */
 export const SEARCH_INDEX_URL = '/data/search-index.json';
 
 type Raw = Record<string, unknown>;

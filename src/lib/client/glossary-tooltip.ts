@@ -2,20 +2,32 @@
  * Glossary tooltips for `<button class="term" data-term="id">` (inserted at build
  * time by lib/glossary/rehype-glossary.ts). Hover or focus shows the plain
  * definition; click pins it with a link to /glossary/#id. Definitions load once
- * from /data/glossary.json (same origin, cached by the service worker).
+ * from the content-hashed /data/glossary.<hash>.json that Base.astro names in the
+ * tooltip element's data-src (same origin, cached by the service worker).
  */
 import type { TooltipTerm } from '../glossary/lookup';
 
-let termsPromise: Promise<Map<string, TooltipTerm>> | null = null;
+/** Definitions by file: a page swap into another build names another file. A failed load is forgotten, so the next hover tries again. */
+let terms: { src: string; map: Promise<Map<string, TooltipTerm>> } | null = null;
 
 function loadTerms(): Promise<Map<string, TooltipTerm>> {
-  if (!termsPromise) {
-    termsPromise = fetch('/data/glossary.json')
-      .then((r) => (r.ok ? (r.json() as Promise<TooltipTerm[]>) : []))
+  const src = document.getElementById('term-tooltip')?.dataset.src;
+  if (!src) return Promise.resolve(new Map());
+  if (terms?.src !== src) {
+    const entry: { src: string; map: Promise<Map<string, TooltipTerm>> } = { src, map: Promise.resolve(new Map()) };
+    entry.map = fetch(src)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<TooltipTerm[]>;
+      })
       .then((list) => new Map(list.map((t) => [t.id, t])))
-      .catch(() => new Map());
+      .catch(() => {
+        if (terms === entry) terms = null;
+        return new Map<string, TooltipTerm>();
+      });
+    terms = entry;
   }
-  return termsPromise;
+  return terms.map;
 }
 
 let current: HTMLElement | null = null;
