@@ -3,6 +3,7 @@ import './acp.css';
 import { Note } from '@/components/playground/Note';
 import { NumberField } from '@/components/playground/NumberField';
 import { Segmented } from '@/components/playground/Segmented';
+import { ScrollRegion } from '@/components/playground/ScrollRegion';
 import { TabList } from '@/components/playground/Tabs';
 import { Wire } from '@/components/playground/Wire';
 import { bytesToHex } from '@/lib/playground/bytes';
@@ -423,7 +424,7 @@ export default function OpenAiAcpPlayground() {
           {!session && <p>Create a session to see its transitions.</p>}
           {session && outgoing.length === 0 && <p>No transition leaves {status} in this spec version (terminal or not listed).</p>}
           {outgoing.length > 0 && (
-            <div className="pg-scroll">
+            <ScrollRegion label="Status transitions table">
               <table className="acp-table">
                 <caption className="acp-label">Edges from the status state file. Inferred edges are labeled, not hidden.</caption>
                 <thead>
@@ -468,7 +469,7 @@ export default function OpenAiAcpPlayground() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollRegion>
           )}
           <Note kind="simplification">
             The state file marks {TRANSITIONS.filter((t) => t.basis === 'inferred').length} of {TRANSITIONS.length} edges as inferred. The spec lists the status values but gives no transition rules for them, so
@@ -691,7 +692,7 @@ export default function OpenAiAcpPlayground() {
           </div>
           <p className="acp-label">Step 3 swaps the cart for a different item. Keys are kept at least 24 hours, so step 6 is treated as a new request.</p>
           {iRuns.length > 0 && (
-            <div className="pg-scroll">
+            <ScrollRegion label="Idempotency attempts table">
               <table className="acp-table">
                 <caption className="acp-label">Attempts in this tab</caption>
                 <thead><tr><th scope="col">Attempt</th><th scope="col">HTTP status</th><th scope="col">Result</th></tr></thead>
@@ -701,7 +702,7 @@ export default function OpenAiAcpPlayground() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollRegion>
           )}
           <Note kind="simplification">Body equality is semantic JSON equality of the body only: key order does not matter, array order does, and null differs from absent. Keys are scoped to the fixture identity plus the endpoint path.</Note>
         </section>
@@ -745,7 +746,7 @@ export default function OpenAiAcpPlayground() {
                   ))}
                 </fieldset>
               </div>
-              <div className="pg-scroll">
+              <ScrollRegion label="Seller payment handlers table">
                 <table className="acp-table">
                   <caption className="acp-label">Seller handlers on the session, in display_order</caption>
                   <thead><tr><th scope="col">id</th><th scope="col">Usable</th><th scope="col">requires_delegate_payment</th><th scope="col">requires_pci_compliance</th><th scope="col">psp</th></tr></thead>
@@ -764,7 +765,7 @@ export default function OpenAiAcpPlayground() {
                     })}
                   </tbody>
                 </table>
-              </div>
+              </ScrollRegion>
               <p>
                 In the checkout tab, pick a <code>handler_id</code> and complete. A handler with <code>requires_delegate_payment: true</code> needs a token from step 2; the bank transfer fixture does not, so no allowance applies to it.
               </p>

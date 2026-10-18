@@ -3,6 +3,7 @@ import './ucp.css';
 import { Note } from '@/components/playground/Note';
 import { NumberField } from '@/components/playground/NumberField';
 import { Segmented } from '@/components/playground/Segmented';
+import { ScrollRegion } from '@/components/playground/ScrollRegion';
 import { TabList } from '@/components/playground/Tabs';
 import { Wire as KitWire } from '@/components/playground/Wire';
 import { clone, pretty } from '@/lib/playground/util';
@@ -423,7 +424,7 @@ export default function UcpPlayground() {
                 {ap2Locked && (
                   <p className="ucp-warn">AP2 mandates are in the intersection: the session is security locked.</p>
                 )}
-                <div className="pg-scroll">
+                <ScrollRegion label="Active capabilities table">
                   <table className="ucp-table">
                     <caption className="ucp-label">Active capabilities ({negotiation.active.length})</caption>
                     <thead>
@@ -447,7 +448,7 @@ export default function UcpPlayground() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </ScrollRegion>
                 {negotiation.warnings.map((w) => (
                   <p key={w} className="ucp-warn">
                     {w}
@@ -763,7 +764,7 @@ export default function UcpPlayground() {
                   </div>
                 )}
                 {session.messages.length > 0 && (
-                  <div className="pg-scroll">
+                  <ScrollRegion label="Checkout messages table">
                     <table className="ucp-table">
                       <caption className="ucp-label">messages[]</caption>
                       <thead>
@@ -788,7 +789,7 @@ export default function UcpPlayground() {
                         ))}
                       </tbody>
                     </table>
-                  </div>
+                  </ScrollRegion>
                 )}
                 {conflict && <Wire title="Idempotency conflict" text={conflict} />}
                 <h4>Transitions</h4>

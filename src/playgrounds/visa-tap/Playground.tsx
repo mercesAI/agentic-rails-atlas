@@ -7,6 +7,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Note } from '@/components/playground/Note';
+import { ScrollRegion } from '@/components/playground/ScrollRegion';
 import { TabList } from '@/components/playground/Tabs';
 import { bytesToHex, randomBase64Url } from '@/lib/playground/bytes';
 import { jwkThumbprint } from '@/lib/playground/es256';
@@ -108,7 +109,7 @@ function Steps({ steps }: { steps: Step[] }) {
 
 function FieldTable({ caption, rows }: { caption: string; rows: FieldDoc[] }) {
   return (
-    <div className="pg-scroll">
+    <ScrollRegion label={caption}>
       <table className="vt-table">
         <caption className="vt-src" style={{ textAlign: 'left' }}>
           {caption}
@@ -132,7 +133,7 @@ function FieldTable({ caption, rows }: { caption: string; rows: FieldDoc[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollRegion>
   );
 }
 
@@ -498,7 +499,7 @@ function Decoded({ signed }: { signed: Signed }) {
   const bytes = parseSignatureHeader(signed.signature).get(TAP_LABEL);
   if (!p) return null;
   return (
-    <div className="pg-scroll">
+    <ScrollRegion label="Decoded signature table">
       <table className="vt-table">
         <tbody>
           <tr>
@@ -536,7 +537,7 @@ function Decoded({ signed }: { signed: Signed }) {
           )}
         </tbody>
       </table>
-    </div>
+    </ScrollRegion>
   );
 }
 
@@ -754,7 +755,7 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
         Web Bot Auth keyid is the JWK thumbprint <code>{thumb}</code>; its keys live at <code>{WBA_DIRECTORY_PATH}</code> on the Signature-Agent host, served as{' '}
         <code>{WBA_DIRECTORY_MEDIA_TYPE}</code>. Neither directory is contacted here.
       </p>
-      <div className="pg-scroll">
+      <ScrollRegion label="Visa TAP and Web Bot Auth comparison table">
         <table className="vt-table">
           <thead>
             <tr>
@@ -773,7 +774,7 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
       <Note kind="simplification">
         Both requests use one ephemeral key so the only differences are in the message shape. The cross-checks show why a TAP verifier blocks a Web Bot Auth
         request (no nonce, no alg) and a Web Bot Auth verifier blocks a TAP request (no Signature-Agent).

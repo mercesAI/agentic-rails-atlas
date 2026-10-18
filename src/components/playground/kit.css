@@ -37,6 +37,7 @@
 
 /* Tables wider than a phone column scroll sideways instead of breaking words in their cells */
 .pg-scroll { overflow-x: auto; max-width: 100%; }
+.pg-scroll:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 /* Fields: the surrounding playground styles the input and select elements */
 .pg-field { display: inline-flex; gap: 0.35rem; align-items: center; min-width: 0; }
@@ -44,6 +45,7 @@
 
 /* Phone widths: no row grows past the frame. Fieldsets drop the UA min-content floor, and a select or
    text input shrinks to the column it sits in instead of keeping its longest option's width. */
-.pg :is(fieldset, label, .pg-field, .pg-group, .segmented) { min-width: 0; max-width: 100%; }
-.pg :is(select, textarea, input:not([type='checkbox']):not([type='radio'])) { max-width: 100%; min-width: 0; }
+/* :where() keeps these at the specificity of .pg alone, so a playground's own caps (a 14rem select) still win. */
+.pg :where(fieldset, label, .pg-field, .pg-group, .segmented) { min-width: 0; max-width: 100%; }
+.pg :where(select, textarea, input:not([type='checkbox']):not([type='radio'])) { max-width: 100%; min-width: 0; }
 .pg .segmented { flex-wrap: wrap; }
