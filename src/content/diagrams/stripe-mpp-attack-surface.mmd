@@ -15,9 +15,10 @@ flowchart LR
   subgraph CH["Channel"]
     A8["Never-expiring channel left open"]
     A9["Server unresponsive at close"]
+    M9["forced close after 15 minutes"]
   end
   A1 -- "client checks before paying" --> SV
   A2 -- "TLS, never log credentials" --> SV
   A3 -- "Cache-Control private or no-store" --> SV
   A4 -- "402 challenge is authoritative" --> SV
-  A9 -- "forced close after 15 minutes" --> CH
+  A9 --> M9
