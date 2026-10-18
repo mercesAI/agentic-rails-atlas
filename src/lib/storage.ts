@@ -8,6 +8,8 @@
 export const STORAGE_PREFIX = 'atlas:';
 
 const memory = new Map<string, string>();
+/** Keys whose last write to localStorage failed (quota, blocked): memory wins for them until a write succeeds. */
+const shadowed = new Set<string>();
 
 /** Ensures a key carries the `atlas:` prefix. */
 export function storageKey(key: string): string {
@@ -26,6 +28,7 @@ function backend(): Storage | null {
 
 export function getItem(key: string): string | null {
   const k = storageKey(key);
+  if (shadowed.has(k) && memory.has(k)) return memory.get(k) as string;
   try {
     const ls = backend();
     if (ls) {
@@ -43,14 +46,16 @@ export function setItem(key: string, value: string): void {
   memory.set(k, value);
   try {
     backend()?.setItem(k, value);
+    shadowed.delete(k);
   } catch {
-    // memory copy stays authoritative for this session
+    shadowed.add(k); // memory copy stays authoritative for this key until a write succeeds
   }
 }
 
 export function removeItem(key: string): void {
   const k = storageKey(key);
   memory.delete(k);
+  shadowed.delete(k);
   try {
     backend()?.removeItem(k);
   } catch {
@@ -98,4 +103,5 @@ export function keysWithPrefix(prefix: string): string[] {
 /** Test helper: clears the in-memory fallback. */
 export function __resetMemory(): void {
   memory.clear();
+  shadowed.clear();
 }

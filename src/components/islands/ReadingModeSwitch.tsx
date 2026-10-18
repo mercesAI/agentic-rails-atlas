@@ -1,6 +1,7 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
 import type { ReadingMode } from '../../lib/schemas';
 import { READING_MODES, READING_MODE_LABELS, readReadingMode, saveReadingMode, syncFromStorageEvent } from '../../lib/reading-mode';
+import { nextRadioValue } from '../../lib/client/roving-radio';
 
 const HINTS: Record<ReadingMode, string> = {
   eli5: 'Plain explanation for newcomers',
@@ -9,38 +10,25 @@ const HINTS: Record<ReadingMode, string> = {
   ste: 'Simplified Technical English version',
 };
 
-interface Props {
-  /** Shorter visual labels for tight spaces; accessible names stay full. */
-  compact?: boolean;
-}
-
-/** Four segmented buttons. Sets data-reading-mode on <html> and stores atlas:reading-mode. */
-export default function ReadingModeSwitch({ compact = false }: Props) {
+/**
+ * Four segmented radios. Sets data-reading-mode on <html> and stores atlas:reading-mode.
+ * Islands are unmounted on every ClientRouter swap, so the mount effect reads the stored
+ * mode once; the custom event and the storage event keep several instances in step.
+ */
+export default function ReadingModeSwitch() {
   const [mode, setMode] = useState<ReadingMode>('practitioner');
 
   useEffect(() => {
     setMode(readReadingMode());
-    // Every instance listens, so the nav and header switches always show the same radio.
     const onChange = (e: Event) => setMode((e as CustomEvent<ReadingMode>).detail);
     const onStorage = (e: StorageEvent) => {
       const m = syncFromStorageEvent(e);
       if (m) setMode(m);
     };
-    // After a View Transitions swap the new <html> is bootstrapped from storage; re-read it for this island.
-    const onSwap = () => setMode(readReadingMode());
-    // Anything else that changes the attribute (devtools, scripts) is mirrored too.
-    const mo = new MutationObserver(() => {
-      const v = document.documentElement.dataset.readingMode;
-      if (v && (READING_MODES as readonly string[]).includes(v)) setMode(v as ReadingMode);
-    });
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-reading-mode'] });
     document.addEventListener('atlas:reading-mode', onChange);
-    document.addEventListener('astro:after-swap', onSwap);
     window.addEventListener('storage', onStorage);
     return () => {
-      mo.disconnect();
       document.removeEventListener('atlas:reading-mode', onChange);
-      document.removeEventListener('astro:after-swap', onSwap);
       window.removeEventListener('storage', onStorage);
     };
   }, []);
@@ -51,11 +39,9 @@ export default function ReadingModeSwitch({ compact = false }: Props) {
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const next = nextRadioValue(READING_MODES, mode, e.key);
+    if (!next) return;
     e.preventDefault();
-    const i = READING_MODES.indexOf(mode);
-    const n = READING_MODES.length;
-    const next = READING_MODES[(i + (e.key === 'ArrowRight' ? 1 : n - 1)) % n] ?? 'practitioner';
     choose(next);
     e.currentTarget.querySelector<HTMLButtonElement>(`[data-value="${next}"]`)?.focus();
   };
@@ -76,14 +62,7 @@ export default function ReadingModeSwitch({ compact = false }: Props) {
           className="segmented__btn"
           onClick={() => choose(m)}
         >
-          {compact && m === 'practitioner' ? (
-            <>
-              <span aria-hidden="true">Pro</span>
-              <span className="sr-only">Practitioner</span>
-            </>
-          ) : (
-            READING_MODE_LABELS[m]
-          )}
+          {READING_MODE_LABELS[m]}
         </button>
       ))}
     </div>

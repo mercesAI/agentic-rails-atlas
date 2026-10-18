@@ -6,8 +6,12 @@
  */
 
 export const NOTES_KEY = 'atlas:notes';
+/** DOM event fired after the store changes (detail: { key }). */
+export const NOTES_EVENT = 'atlas:notes';
 /** Section key used for "flag an issue" notes. */
 export const FLAG_SECTION = 'flags';
+/** Storage key of the read-progress array for one protocol page. */
+export const readKey = (slug: string): string => `atlas:read:${slug}`;
 
 export interface Note {
   text: string;

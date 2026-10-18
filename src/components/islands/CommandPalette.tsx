@@ -78,6 +78,8 @@ export default function CommandPalette() {
     const match = createShortcutMatcher();
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (dialogRef.current?.open) return;
+      // Another modal (citation drawer, diagram view) owns the keyboard while it is open.
+      if (document.querySelector('dialog[open]')) return;
       const action = match(e);
       if (!action) return;
       e.preventDefault();
@@ -169,7 +171,10 @@ export default function CommandPalette() {
       onClick={(e) => {
         if (e.target === dialogRef.current) close();
       }}
-      onClose={() => setQuery('')}
+      onClose={() => {
+        setQuery('');
+        setActive(0);
+      }}
     >
       {mode === 'help' ? (
         <div className="palette__body">

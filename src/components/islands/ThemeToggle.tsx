@@ -1,5 +1,6 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
 import { THEMES, readTheme, saveTheme, type ThemePref } from '../../lib/theme';
+import { nextRadioValue } from '../../lib/client/roving-radio';
 
 const LABELS: Record<ThemePref, string> = { system: 'System theme', light: 'Light theme', dark: 'Dark theme' };
 
@@ -44,10 +45,9 @@ export default function ThemeToggle() {
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const next = nextRadioValue(THEMES, theme, e.key);
+    if (!next) return;
     e.preventDefault();
-    const i = THEMES.indexOf(theme);
-    const next = THEMES[(i + (e.key === 'ArrowRight' ? 1 : THEMES.length - 1)) % THEMES.length] ?? 'system';
     choose(next);
     const el = e.currentTarget.querySelector<HTMLButtonElement>(`[data-value="${next}"]`);
     el?.focus();

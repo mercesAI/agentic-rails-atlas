@@ -32,6 +32,7 @@ function hide(): void {
     tip.hidden = true;
     tip.setAttribute('role', 'tooltip');
   }
+  current?.removeAttribute('aria-describedby');
   current = null;
   pinned = false;
 }
@@ -64,8 +65,11 @@ async function show(anchor: HTMLElement, pin: boolean): Promise<void> {
   const id = anchor.dataset.term;
   if (!tip || !id) return;
   const term = (await loadTerms()).get(id);
+  if (current && current !== anchor) current.removeAttribute('aria-describedby');
   current = anchor;
   pinned = pin;
+  // Only the anchor the tooltip currently shows is described by it.
+  anchor.setAttribute('aria-describedby', 'term-tooltip');
   tip.replaceChildren();
   const title = document.createElement('p');
   title.className = 'term-tooltip__term';
@@ -94,8 +98,6 @@ async function show(anchor: HTMLElement, pin: boolean): Promise<void> {
 }
 
 export function initGlossaryTooltips(): void {
-  const terms = document.querySelectorAll<HTMLElement>('button.term[data-term]');
-  terms.forEach((t) => t.setAttribute('aria-describedby', 'term-tooltip'));
   hide();
   if (bound) return;
   bound = true;

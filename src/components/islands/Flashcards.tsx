@@ -29,7 +29,8 @@ export default function Flashcards({ slug, cards }: Props) {
   useEffect(() => {
     const raw = getJSON<Stored | null>(key, null);
     const ids = new Set(cards.map((c) => c.id));
-    setKnown(new Set((raw?.known ?? []).filter((id) => ids.has(id))));
+    const list = Array.isArray(raw?.known) ? raw.known.filter((id): id is string => typeof id === 'string' && ids.has(id)) : [];
+    setKnown(new Set(list));
   }, [key, cards]);
 
   const deck = useMemo(() => (onlyUnknown ? cards.filter((c) => !known.has(c.id)) : cards), [cards, known, onlyUnknown]);

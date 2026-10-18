@@ -1,20 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { getJSON, setJSON } from '../../lib/storage';
-import {
-  FLAG_SECTION,
-  NOTES_KEY,
-  exportJSON,
-  exportMarkdown,
-  importJSON,
-  importMarkdown,
-  mergeStores,
-  normalizeStore,
-  noteKey,
-  notesForScope,
-  setNote,
-  splitKey,
-  type NotesStore,
-} from '../protocol/lib/notes';
+import { FLAG_SECTION, NOTES_EVENT, NOTES_KEY, exportJSON, exportMarkdown, importJSON, importMarkdown, mergeStores, normalizeStore, noteKey, notesForScope, setNote, splitKey, type NotesStore } from '../protocol/lib/notes';
 
 interface SectionRef {
   id: string;
@@ -28,8 +14,6 @@ interface Props {
   name: string;
   sections: SectionRef[];
 }
-
-export const NOTES_EVENT = 'atlas:notes';
 
 function readStore(): NotesStore {
   return normalizeStore(getJSON<unknown>(NOTES_KEY, {}));
@@ -70,6 +54,14 @@ export default function NotesPanel({ scope, name, sections }: Props) {
       }
     };
     refresh();
+    // "Flag an issue" may fire before this island hydrates; the page leaves the target section on the root element.
+    const root = document.querySelector<HTMLElement>('[data-protocol-page]');
+    const pending = root?.dataset.notesFocus;
+    if (pending) {
+      delete root.dataset.notesFocus;
+      const { scope: sc, section: sec } = splitKey(pending);
+      if (sc === scope) setSection(sec);
+    }
     document.addEventListener(NOTES_EVENT, refresh);
     window.addEventListener('storage', refresh);
     return () => {

@@ -127,6 +127,7 @@ const citations = getCitationPayload(Astro.url.pathname);
     <CommandPalette client:idle />
     <script type="application/json" id="atlas-citations" set:html={serializeForScript(citations)} />
     <div id="term-tooltip" class="term-tooltip" role="tooltip" hidden></div>
+    <div id="copy-link-live" class="sr-only" aria-live="polite"></div>
     <script>
       import { initGlossaryTooltips } from '../lib/client/glossary-tooltip';
       import { initCopyLinks } from '../lib/client/copy-link';

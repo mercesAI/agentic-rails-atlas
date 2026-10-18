@@ -9,7 +9,7 @@
  * Safe to call on every astro:page-load; returns a cleanup function.
  */
 import { getJSON, setJSON } from '../../../lib/storage';
-import { NOTES_KEY, appendFlag, flagTemplate, normalizeStore } from './notes';
+import { NOTES_EVENT, NOTES_KEY, appendFlag, flagTemplate, normalizeStore, readKey as readKeyFor } from './notes';
 
 function announce(text: string): void {
   const live = document.getElementById('proto-live');
@@ -20,7 +20,7 @@ export function initProtocolReader(): () => void {
   const root = document.querySelector<HTMLElement>('[data-protocol-page]');
   if (!root) return () => {};
   const slug = root.dataset.protocolPage ?? '';
-  const readKey = `atlas:read:${slug}`;
+  const readKey = readKeyFor(slug);
   const sections = Array.from(root.querySelectorAll<HTMLElement>('[data-section]'));
   const total = sections.length;
   const tocLinks = new Map(
@@ -81,15 +81,26 @@ export function initProtocolReader(): () => void {
     frame = 0;
     const vh = window.innerHeight || document.documentElement.clientHeight;
     const probe = vh * 0.3;
+    // Visual order, not DOM order: STE mode moves section D above C with CSS order, so the
+    // section in view is the visible one whose top is closest to the probe from above.
     let active = '';
+    let activeTop = -Infinity;
+    let first = '';
+    let firstTop = Infinity;
     for (const s of sections) {
       const r = s.getBoundingClientRect();
       if (r.height === 0) continue; // hidden by the reading mode
-      if (r.top <= probe) active = s.id;
+      if (r.top <= probe && r.top > activeTop) {
+        activeTop = r.top;
+        active = s.id;
+      }
+      if (r.top < firstTop) {
+        firstTop = r.top;
+        first = s.id;
+      }
       if (r.top < vh && r.bottom <= vh * 0.95 && r.bottom > 0) markRead(s.id);
     }
-    const first = sections.find((s) => s.getBoundingClientRect().height > 0);
-    setCurrent(active || first?.id || '');
+    setCurrent(active || first);
   };
   const schedule = () => {
     if (!frame) frame = window.requestAnimationFrame(evaluate);
@@ -128,7 +139,8 @@ export function initProtocolReader(): () => void {
       });
       const next = appendFlag(normalizeStore(getJSON<unknown>(NOTES_KEY, {})), slug, text, now);
       setJSON(NOTES_KEY, next);
-      document.dispatchEvent(new CustomEvent('atlas:notes', { detail: { key: `${slug}/flags` } }));
+      root.dataset.notesFocus = `${slug}/flags`; // picked up by the NotesPanel island if it hydrates later
+      document.dispatchEvent(new CustomEvent(NOTES_EVENT, { detail: { key: `${slug}/flags` } }));
       announce('A prefilled note was added under Flagged issues in Notes.');
       document.getElementById('t-notes')?.scrollIntoView({ block: 'start' });
       return;

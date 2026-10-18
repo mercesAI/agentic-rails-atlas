@@ -1,3 +1,4 @@
+import { isTypingTarget } from '../../lib/shortcuts';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { Flow } from '../../lib/schemas';
 import {
@@ -70,11 +71,10 @@ export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLe
   const label = (id: string) => labels.get(id) ?? id;
   const total = steps.length;
 
-  const [state, dispatchRaw] = useReducer(
+  const [state, dispatch] = useReducer(
     (s: PlayerState, a: PlayerAction) => playerReducer(s, a, total),
     initialPlayerState,
   );
-  const dispatch = dispatchRaw;
   const [showPayload, setShowPayload] = useState(true);
   const [showFailures, setShowFailures] = useState(false);
   const reduced = usePrefersReducedMotion();
@@ -93,7 +93,10 @@ export default function FlowPlayer({ flow, sourceIndex = {}, idPrefix, headingLe
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName;
-      if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (isTypingTarget(target)) return;
+      // The payload scrolls with every key; the step list (a column of buttons) keeps the vertical keys for scrolling; links keep Enter and Space.
+      if (target?.closest('pre, a')) return;
+      if (target?.closest('.fp__steps') && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'].includes(e.key)) return;
       if ((e.key === ' ' || e.key === 'Spacebar') && tag === 'BUTTON') return;
       const action = keyToAction(e.key);
       if (!action) return;

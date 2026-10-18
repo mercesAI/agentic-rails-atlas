@@ -104,6 +104,25 @@ test.describe('QA-006 j and k move through sections', () => {
       await expect.poll(async () => Math.abs((await topOf(ids[n]!)) - offset), { timeout: 3000 }).toBeLessThan(3);
     }
   });
+
+  test('in STE mode j and k follow the visual order (A, D, C, E) and skip the hidden section B', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.addInitScript(() => localStorage.setItem('atlas:reading-mode', 'ste'));
+    await page.goto('/p/x402/');
+    await expect(page.locator('html')).toHaveAttribute('data-reading-mode', 'ste');
+    await page.locator('main').click({ position: { x: 5, y: 5 } }).catch(() => undefined);
+    const offset = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop));
+    const topOf = (id: string) => page.evaluate((i) => document.getElementById(i)!.getBoundingClientRect().top, id);
+    for (const id of ['a-tldr', 'd-ste', 'c-diagrams', 'e-personas']) {
+      await page.keyboard.press('j');
+      await expect.poll(async () => Math.abs((await topOf(id)) - offset), { timeout: 3000 }).toBeLessThan(3);
+      await expect(page.locator(`[data-toc-link="${id}"]`)).toHaveAttribute('aria-current', 'location');
+    }
+    await page.keyboard.press('k');
+    await expect.poll(async () => Math.abs((await topOf('c-diagrams')) - offset), { timeout: 3000 }).toBeLessThan(3);
+    await page.keyboard.press('k');
+    await expect.poll(async () => Math.abs((await topOf('d-ste')) - offset), { timeout: 3000 }).toBeLessThan(3);
+  });
 });
 
 test.describe('QA-005 offline support', () => {
@@ -187,11 +206,14 @@ test.describe('QA-008 findings link to existing targets', () => {
 
 test.describe('QA-017 empty search results', () => {
   test('library, compare and glossary say when nothing matches', async ({ page }) => {
+    // The library and compare search boxes live in client:visible islands; typing before
+    // hydration leaves the text in the input without a React change event.
+    const hydratedSearch = () => page.locator('astro-island:not([ssr]) input[type="search"]').first();
     await page.goto('/library/');
-    await page.getByRole('searchbox').first().fill('zzzzqqq');
+    await hydratedSearch().fill('zzzzqqq');
     await expect(page.getByText(/No entries match/)).toBeVisible();
     await page.goto('/compare/');
-    await page.getByRole('searchbox').first().fill('zzzzqqq');
+    await hydratedSearch().fill('zzzzqqq');
     await expect(page.getByText(/No dimension matches/)).toBeVisible();
     await page.goto('/glossary/');
     await page.locator('#gl-q').fill('zzzzqqq');
