@@ -1,7 +1,9 @@
 /**
  * Client-side search helpers for the command palette. The build-time index
  * (src/generated/search-index.json, written by scripts/build-search-index.ts)
- * is normalized tolerantly so small shape changes never break the palette.
+ * is served as a static file at /data/search-index.json by
+ * src/pages/data/search-index.json.ts and normalized tolerantly here so small
+ * shape changes never break the palette.
  */
 
 export interface SearchItem {
@@ -12,6 +14,9 @@ export interface SearchItem {
   context?: string;
   keywords?: string[];
 }
+
+/** Where the build serves the index (same origin, precached by the service worker). */
+export const SEARCH_INDEX_URL = '/data/search-index.json';
 
 type Raw = Record<string, unknown>;
 
@@ -42,6 +47,17 @@ export function normalizeSearchIndex(input: unknown): SearchItem[] {
     });
   }
   return out;
+}
+
+/**
+ * Fetches the index from the same origin and normalizes it. Rejects on a
+ * network error or a non-ok status, so the caller decides what an unavailable
+ * index means (the palette shows an empty list).
+ */
+export async function fetchSearchIndex(fetchFn: typeof fetch = globalThis.fetch, url: string = SEARCH_INDEX_URL): Promise<SearchItem[]> {
+  const res = await fetchFn(url);
+  if (!res.ok) throw new Error(`${url}: ${res.status} ${res.statusText}`);
+  return normalizeSearchIndex(await res.json());
 }
 
 /** Same-origin internal links only; anything else opens as a normal link. */

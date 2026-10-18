@@ -2,19 +2,24 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import Fuse from 'fuse.js';
 import { navigate } from 'astro:transitions/client';
 import { createShortcutMatcher, jumpSection, SHORTCUTS } from '../../lib/shortcuts';
-import { isInternalUrl, normalizeSearchIndex, stripTags, type SearchItem } from '../../lib/search-client';
+import { fetchSearchIndex, isInternalUrl, stripTags, type SearchItem } from '../../lib/search-client';
 
-/** Lazy loader: resolves to [] when the generated index does not exist yet. */
-const indexModules = import.meta.glob<unknown>('../../generated/search-index.json', { import: 'default' });
+/**
+ * The index is a static file (/data/search-index.json, served by
+ * src/pages/data/search-index.json.ts) fetched once per page load, the first
+ * time the palette opens. A failed fetch gives [] (the palette then reports an
+ * empty index) and is not kept, so a later mount can try again.
+ */
+let indexPromise: Promise<SearchItem[]> | null = null;
 
-async function loadIndex(): Promise<SearchItem[]> {
-  const loader = Object.values(indexModules)[0];
-  if (!loader) return [];
-  try {
-    return normalizeSearchIndex(await loader());
-  } catch {
-    return [];
+function loadIndex(): Promise<SearchItem[]> {
+  if (!indexPromise) {
+    indexPromise = fetchSearchIndex().catch(() => {
+      indexPromise = null;
+      return [];
+    });
   }
+  return indexPromise;
 }
 
 interface PagefindResult {

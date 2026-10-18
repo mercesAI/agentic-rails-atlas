@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { runInNewContext } from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { INSTALL_CONCURRENCY, buildWorkerText, collectEntries, planPrecache, type Entry } from '../../../scripts/build-sw';
+import { INSTALL_CONCURRENCY, buildWorkerText, classify, collectEntries, planPrecache, type Entry } from '../../../scripts/build-sw';
 
 /** A small dist folder: pages, hashed assets, a font, the manifest, pagefind, server files and stray dotfiles. */
 const FILES: Record<string, string> = {
@@ -248,5 +248,16 @@ describe('build-sw', () => {
       expect(h.puts[0]?.key).toBe('/compare');
       expect(h.puts[0]?.res.redirected).toBe(false);
     });
+  });
+});
+
+describe('classify', () => {
+  it('precaches the static JSON endpoints as assets, like the hashed bundles', () => {
+    expect(classify('data/glossary.json')).toBe('asset');
+    expect(classify('data/search-index.json')).toBe('asset');
+    expect(classify('_astro/app.abc123.js')).toBe('asset');
+    expect(classify('pagefind/index/a.pf_index')).toBe('pagefind');
+    expect(classify('fonts/body.woff2')).toBe('font');
+    expect(classify('sw.js')).toBeNull();
   });
 });

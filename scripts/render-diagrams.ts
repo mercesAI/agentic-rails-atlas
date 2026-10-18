@@ -10,6 +10,10 @@
  *   --force       ignore the content-hash cache
  *   --dir <path>  read .mmd inputs from this folder instead (fixtures, tests)
  *   --out <path>  write SVGs and index.json to this folder instead
+ *   --check       recompute every hash and compare it with index.json and the
+ *                 two SVG files; exit 1 when anything is stale or missing,
+ *                 without a browser and without writing. `pnpm check` runs it,
+ *                 since `pnpm diagrams` is not part of `pnpm build`.
  *
  * Skips unchanged inputs: src/generated/diagrams/index.json stores a hash of
  * the source, the theme variables and the Mermaid version. On a Mermaid syntax
@@ -278,17 +282,43 @@ export interface RenderResult {
   total: number;
 }
 
-export async function renderDiagrams(options: RenderOptions = {}): Promise<RenderResult> {
+export interface StaleDiagram {
+  id: string;
+  /** Input path relative to the root; for a dropped input, the path recorded in index.json. */
+  source: string;
+  reason: string;
+}
+
+/**
+ * Inputs, hashes and the committed state, shared by the render and the check
+ * so that both see the same staleness. Building the plan reads files only.
+ */
+export interface DiagramPlan {
+  root: string;
+  outDir: string;
+  indexPath: string;
+  inputs: Map<string, { path: string; text: string }>;
+  vars: Record<'light' | 'dark', ReturnType<typeof themeVariables>>;
+  mermaidVersion: string;
+  /** Committed index entries (empty when index.json is missing or corrupt). */
+  diagrams: Record<string, DiagramIndexEntry>;
+  /** Hash of each input as index.json records it (only the --only id when set). */
+  hashes: Map<string, string>;
+  /** Inputs whose committed hash matches and whose two SVG files exist. */
+  fresh: string[];
+  /** Inputs that a render would draw again, with the reason. */
+  stale: StaleDiagram[];
+  /** Index entries whose input is gone; a full render drops them and their SVG files. */
+  orphans: string[];
+  failures: RenderResult['failures'];
+}
+
+export function planDiagrams(options: RenderOptions = {}): DiagramPlan {
   const root = options.root ?? ROOT;
   const outDir = options.outDir ?? join(root, 'src', 'generated', 'diagrams');
   const inputDirs = options.inputDirs ?? [join(root, 'src', 'content', 'diagrams'), join(root, 'src', 'generated', 'mermaid')];
   const inputs = new Map<string, { path: string; text: string }>();
   const failures: RenderResult['failures'] = [];
-  // Custom inputs with the default output folder would treat every committed diagram as stale and delete it.
-  if (options.inputDirs && !options.outDir) {
-    failures.push({ id: '', source: options.inputDirs.join(', '), message: '--dir needs --out: refusing to write fixture renders into src/generated/diagrams' });
-    return { rendered: [], skipped: [], removed: [], failures, total: 0 };
-  }
   for (const dir of inputDirs) {
     for (const f of listDir(dir).filter((f) => f.endsWith('.mmd'))) {
       const id = f.replace(/\.mmd$/, '');
@@ -300,10 +330,7 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
       inputs.set(id, { path, text: readFileSync(path, 'utf8') });
     }
   }
-  if (options.only && !inputs.has(options.only)) {
-    failures.push({ id: options.only, source: '', message: 'no .mmd input with this id' });
-    return { rendered: [], skipped: [], removed: [], failures, total: inputs.size };
-  }
+  if (options.only && !inputs.has(options.only)) failures.push({ id: options.only, source: '', message: 'no .mmd input with this id' });
 
   const tokensCss = readFileSync(join(root, 'src', 'styles', 'tokens.css'), 'utf8');
   const tokens = parseTokens(tokensCss);
@@ -321,19 +348,64 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
   const diagrams: Record<string, DiagramIndexEntry> = { ...(prev?.diagrams ?? {}) };
   const themeHash = sha256(JSON.stringify(vars) + JSON.stringify(RENDER_CONFIG) + mermaidVersion + fontVersions.join(','));
 
-  const todo: string[] = [];
-  const skipped: string[] = [];
   const hashes = new Map<string, string>();
+  const fresh: string[] = [];
+  const stale: StaleDiagram[] = [];
   for (const [id, input] of [...inputs.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     if (options.only && id !== options.only) continue;
     const hash = sha256(input.text + themeHash);
     hashes.set(id, hash);
     const entry = diagrams[id];
-    const fresh =
-      !options.force && entry?.hash === hash && existsSync(join(outDir, `${id}.light.svg`)) && existsSync(join(outDir, `${id}.dark.svg`));
-    if (fresh) skipped.push(id);
-    else todo.push(id);
+    const missing = (['light', 'dark'] as const).filter((mode) => !existsSync(join(outDir, `${id}.${mode}.svg`)));
+    const reason = !entry
+      ? 'not in index.json'
+      : entry.hash !== hash
+        ? 'source, theme, render config or Mermaid version changed since the last render'
+        : missing.length
+          ? `${missing.join(' and ')} SVG missing`
+          : undefined;
+    if (reason) stale.push({ id, source: rel(root, input.path), reason });
+    else fresh.push(id);
   }
+  const orphans = options.only ? [] : Object.keys(diagrams).filter((id) => !inputs.has(id)).sort();
+  return { root, outDir, indexPath, inputs, vars, mermaidVersion, diagrams, hashes, fresh, stale, orphans, failures };
+}
+
+export interface CheckResult {
+  fresh: string[];
+  stale: StaleDiagram[];
+  failures: RenderResult['failures'];
+  total: number;
+}
+
+/**
+ * Staleness check for the committed renders (`--check`): recomputes every hash
+ * as a render would and compares it with index.json and the two SVG files.
+ * Never launches a browser and never writes.
+ */
+export function checkDiagrams(options: RenderOptions = {}): CheckResult {
+  const plan = planDiagrams(options);
+  const stale = [...plan.stale];
+  for (const id of plan.orphans) {
+    stale.push({ id, source: plan.diagrams[id]?.source ?? '', reason: 'input removed; a render drops the index entry and the SVG files' });
+  }
+  return { fresh: plan.fresh, stale, failures: plan.failures, total: plan.inputs.size };
+}
+
+export async function renderDiagrams(options: RenderOptions = {}): Promise<RenderResult> {
+  // Custom inputs with the default output folder would treat every committed diagram as stale and delete it.
+  if (options.inputDirs && !options.outDir) {
+    const failures: RenderResult['failures'] = [
+      { id: '', source: options.inputDirs.join(', '), message: '--dir needs --out: refusing to write fixture renders into src/generated/diagrams' },
+    ];
+    return { rendered: [], skipped: [], removed: [], failures, total: 0 };
+  }
+  const plan = planDiagrams(options);
+  const { root, outDir, indexPath, inputs, vars, mermaidVersion, diagrams, hashes, failures } = plan;
+  if (options.only && !inputs.has(options.only)) return { rendered: [], skipped: [], removed: [], failures, total: inputs.size };
+
+  const todo = options.force ? [...hashes.keys()] : plan.stale.map((s) => s.id);
+  const skipped = options.force ? [] : [...plan.fresh];
 
   const rendered: string[] = [];
   if (todo.length) {
@@ -394,18 +466,15 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
     }
   }
 
-  // Remove outputs whose inputs are gone (full runs only).
+  // Remove outputs whose inputs are gone (full runs only: the plan lists no orphans under --only).
   const removed: string[] = [];
-  if (!options.only) {
-    for (const id of Object.keys(diagrams)) {
-      if (inputs.has(id)) continue;
-      delete diagrams[id];
-      for (const v of ['light', 'dark']) {
-        const p = join(outDir, `${id}.${v}.svg`);
-        if (existsSync(p)) rmSync(p);
-      }
-      removed.push(id);
+  for (const id of plan.orphans) {
+    delete diagrams[id];
+    for (const v of ['light', 'dark']) {
+      const p = join(outDir, `${id}.${v}.svg`);
+      if (existsSync(p)) rmSync(p);
     }
+    removed.push(id);
   }
   const sorted = Object.fromEntries(Object.entries(diagrams).sort(([a], [b]) => a.localeCompare(b)));
   writeJsonIfChanged(indexPath, { mermaidVersion, diagrams: sorted } satisfies DiagramIndex);
@@ -414,18 +483,37 @@ export async function renderDiagrams(options: RenderOptions = {}): Promise<Rende
 
 if (isMain(import.meta.url)) {
   const args = parseArgs(process.argv.slice(2));
-  const root = args.values.get('root') ?? ROOT;
   const dir = args.values.get('dir');
   const out = args.values.get('out');
-  renderDiagrams({
-    root,
+  const options: RenderOptions = {
+    root: args.values.get('root') ?? ROOT,
     only: args.values.get('only'),
     force: args.flags.has('force'),
     inputDirs: dir ? [resolve(dir)] : undefined,
     outDir: out ? resolve(out) : undefined,
-  })
+  };
+  const printFailures = (failures: RenderResult['failures']): void => {
+    for (const f of failures) console.error(`error: diagram ${f.id}${f.source ? ` (${f.source})` : ''}: ${f.message}`);
+  };
+  if (args.flags.has('check')) {
+    try {
+      const r = checkDiagrams(options);
+      printFailures(r.failures);
+      for (const s of r.stale) console.error(`stale: ${s.id}${s.source ? ` (${s.source})` : ''}: ${s.reason}`);
+      const bad = r.stale.length + r.failures.length;
+      console.log(
+        `render-diagrams --check: ${r.total} inputs; ${r.fresh.length} fresh, ${r.stale.length} stale, ${r.failures.length} failed` +
+          (bad ? '. Run pnpm diagrams and commit src/generated/diagrams.' : ''),
+      );
+      process.exit(bad ? 1 : 0);
+    } catch (err: unknown) {
+      console.error(`render-diagrams --check failed: ${err instanceof Error ? err.message : String(err)}`);
+      process.exit(1);
+    }
+  }
+  renderDiagrams(options)
     .then((r) => {
-      for (const f of r.failures) console.error(`error: diagram ${f.id}${f.source ? ` (${f.source})` : ''}: ${f.message}`);
+      printFailures(r.failures);
       console.log(
         `render-diagrams: ${r.total} inputs; ${r.rendered.length} rendered, ${r.skipped.length} unchanged, ${r.removed.length} removed, ${r.failures.length} failed`,
       );

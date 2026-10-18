@@ -164,14 +164,14 @@ export const SourceType = z.enum([
 
 export const Source = z.object({
   id: z.string().regex(/^src-[a-z0-9-]+$/, 'source ids look like src-<topic>-<slug>'),
-  url: z.string().url(),
+  url: z.url(),
   title: z.string().min(1),
   publisher: z.string().min(1),
   type: SourceType,
   primary: z.boolean(),
   published: isoDate.optional(),
   accessed: isoDate,
-  archiveUrl: z.string().url().optional(),
+  archiveUrl: z.url().optional(),
   notes: z.string().optional(),
 });
 export type Source = z.infer<typeof Source>;
@@ -323,7 +323,7 @@ export const FlowStep = z.object({
     })
     .optional(),
   crossesTrustBoundary: z.boolean().optional(),
-  specRef: z.object({ url: z.string().url(), section: z.string().optional() }).optional(),
+  specRef: z.object({ url: z.url(), section: z.string().optional() }).optional(),
   failures: z.array(z.object({ condition: z.string(), outcome: z.string() })).optional(),
   /** Where an independent controls layer could act on this step (scenarios). */
   controlPoint: z.string().optional(),
@@ -392,7 +392,7 @@ export const DiagramMeta = z.object({
   caption: z.string(),
   /** Accessible text alternative. */
   alt: z.string(),
-  sourceOfTruth: z.object({ url: z.string().url(), label: z.string() }),
+  sourceOfTruth: z.object({ url: z.url(), label: z.string() }),
   sources: z.array(z.string()).optional(),
 });
 export type DiagramMeta = z.infer<typeof DiagramMeta>;
@@ -471,7 +471,7 @@ export const Resource = z.object({
   id: z.string().regex(/^res-[a-z0-9-]+$/),
   protocols: z.array(z.string()).min(1),
   title: z.string(),
-  url: z.string().url(),
+  url: z.url(),
   publisher: z.string(),
   type: ResourceType,
   badge: z.enum(['official', 'partner', 'community', 'academic']),
@@ -494,7 +494,7 @@ export const Publication = z.object({
   peerReviewed: z.boolean(),
   arxiv: z.string().optional(),
   doi: z.string().optional(),
-  url: z.string().url(),
+  url: z.url(),
   themes: z.array(z.string()),
   protocols: z.array(z.string()),
   relation: z.enum(['direct', 'related', 'foundation', 'grey']),
@@ -680,7 +680,7 @@ export const EcosystemFile = z.object({
       registry: z.enum(['npm', 'pypi', 'crates', 'go', 'rubygems', 'maven', 'other']),
       name: z.string(),
       version: z.string().optional(),
-      url: z.string().url(),
+      url: z.url(),
       note: z.string().optional(),
     }),
   ),
@@ -845,7 +845,7 @@ export const CodeSnippet = z.object({
   language: z.string(),
   side: z.enum(['client', 'server', 'contract', 'cli', 'other']),
   code: z.string(),
-  docsUrl: z.string().url(),
+  docsUrl: z.url(),
   note: z.string().optional(),
   sources: z.array(z.string()).min(1),
 });
