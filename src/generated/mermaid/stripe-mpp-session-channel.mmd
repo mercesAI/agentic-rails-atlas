@@ -22,9 +22,3 @@ stateDiagram-v2
   s_streaming --> s_rejected : Voucher above deposit, below minVoucherDelta or from the wrong signer
   s_closed --> [*]
   s_rejected --> [*]
-  note right of s_challenged : 402 with intent session#59; amount is price per unit.
-  note right of s_open : Deposit in escrow#59; no expiry.
-  note right of s_streaming : Off-chain cumulative EIP-712 vouchers#59; receipts carry acceptedCumulative and spent.
-  note right of s_close_requested : At least 15 minutes#59; server may still settle or close.
-  note right of s_closed : Payee paid, remainder refunded.
-  note right of s_rejected : 400 malformed, 402 bad signature or signer, 410 channel not found or finalized.

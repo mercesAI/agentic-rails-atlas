@@ -18,6 +18,8 @@ export interface Props {
   alt?: string;
   /** Text alternative as an ordered list (flow steps, transitions). */
   altSteps?: string[];
+  /** Per-state notes of a state machine, shown as a list under the figure (they are no longer drawn inside it). */
+  notes?: { label: string; note: string }[];
   sourceOfTruth?: { url: string; label: string };
   /** Repository path of the data the diagram is generated from. */
   generatedFrom?: string;
@@ -84,13 +86,14 @@ const domId = `diagram-${p.id}`;
   {rendered ? (
     <div class="diagram-figure__tools">
       <p class="diagram-figure__hint" data-scroll-hint hidden>Scroll to see the whole diagram</p>
+      <button type="button" class="btn btn--ghost diagram-figure__size" data-diagram-size aria-pressed="false" hidden>Actual size<span class="sr-only">: {title}</span></button>
       <button type="button" class="btn btn--ghost diagram-figure__fs" data-diagram-fullscreen aria-haspopup="dialog">View full screen<span class="sr-only">: {title}</span></button>
     </div>
     <div
       class="diagram-figure__canvas"
       role="region"
       tabindex="0"
-      aria-label={`${title} (scrollable diagram)`}
+      aria-label={`${title} (diagram preview; use View full screen to read it)`}
       aria-describedby={caption ? `${domId}-cap` : undefined}
       data-lazy-diagram={lazy ? '' : undefined}
     >
@@ -132,6 +135,19 @@ const domId = `diagram-${p.id}`;
       {p.altSteps && p.altSteps.length > 0 && <ol>{p.altSteps.map((s) => <li>{s}</li>)}</ol>}
       {!alt && !(p.altSteps && p.altSteps.length) && <p>Text alternative in progress.</p>}
     </details>
+    {p.notes && p.notes.length > 0 && (
+      <details class="diagram-figure__notes">
+        <summary>State notes ({p.notes.length})</summary>
+        <dl>
+          {p.notes.map((n) => (
+            <>
+              <dt>{n.label}</dt>
+              <dd>{n.note}</dd>
+            </>
+          ))}
+        </dl>
+      </details>
+    )}
     <p class="diagram-figure__sot">
       Source of truth:{' '}
       {sot ? <a href={sot.url} rel="noopener noreferrer external">{sot.label}<span class="sr-only"> (external link)</span></a> : 'not recorded'}
@@ -142,16 +158,30 @@ const domId = `diagram-${p.id}`;
 
 <script>
   import { suffixIds } from '../../lib/diagrams/suffix-ids';
+  import { getItem, setItem } from '../../lib/storage';
   // Swaps each lazy diagram's <template> into the live DOM near the viewport, and all of them before printing.
-  // Also shows the "scroll" hint when a diagram overflows, and runs the full-screen dialog.
-  const updateHint = (canvas: Element) => {
-    const hint = canvas.parentElement?.querySelector<HTMLElement>('[data-scroll-hint]');
-    if (!hint) return;
-    hint.hidden = !(canvas.scrollWidth > canvas.clientWidth + 1);
+  // A diagram wider than its column is shown fitted to the column as a preview (full screen is the reading
+  // view); "Actual size" switches every canvas on the page to natural size with sideways scrolling.
+  const SIZE_KEY = 'diagram-size';
+  const prefersActual = () => getItem(SIZE_KEY) === 'actual';
+  const updateFit = (canvas: Element) => {
+    const figure = canvas.closest('.diagram-figure');
+    const svg = canvas.querySelector<SVGSVGElement>('svg');
+    const natural = Number(svg?.dataset.naturalWidth);
+    const overflows = natural > 0 && natural > canvas.clientWidth + 1;
+    const fit = overflows && !prefersActual();
+    canvas.toggleAttribute('data-fit', fit);
+    const toggle = figure?.querySelector<HTMLButtonElement>('[data-diagram-size]');
+    if (toggle) {
+      toggle.hidden = !overflows;
+      toggle.setAttribute('aria-pressed', String(overflows && !fit));
+    }
+    const hint = figure?.querySelector<HTMLElement>('[data-scroll-hint]');
+    if (hint) hint.hidden = fit || !(canvas.scrollWidth > canvas.clientWidth + 1);
   };
-  const ro = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver((entries) => entries.forEach((e) => updateHint(e.target)));
+  const ro = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver((entries) => entries.forEach((e) => updateFit(e.target)));
   const watch = (canvas: Element) => {
-    updateHint(canvas);
+    updateFit(canvas);
     ro?.observe(canvas);
   };
   const reveal = (el: Element) => {
@@ -200,6 +230,7 @@ const domId = `diagram-${p.id}`;
       <div class="diagram-dialog__bar">
         <h2 id="diagram-dialog-title" class="diagram-dialog__title"></h2>
         <div class="diagram-dialog__tools" role="group" aria-label="Zoom">
+          <button type="button" class="btn" data-zoom="fit" aria-label="Fit the whole diagram in the window">Fit</button>
           <button type="button" class="btn" data-zoom="out" aria-label="Zoom out">Zoom out</button>
           <button type="button" class="btn" data-zoom="reset" aria-label="Reset zoom">Reset</button>
           <button type="button" class="btn" data-zoom="in" aria-label="Zoom in">Zoom in</button>
@@ -235,17 +266,38 @@ const domId = `diagram-${p.id}`;
     if (out) out.textContent = `${Math.round(scale * 100)}%`;
   };
 
+  /** Largest scale (at most 100%) at which the whole diagram fits inside the dialog body. */
+  const fitScale = (d: HTMLDialogElement): number => {
+    const body = d.querySelector<HTMLElement>('.diagram-dialog__body');
+    const svg = body?.querySelector<SVGSVGElement>('svg');
+    const w = Number(svg?.dataset.naturalWidth);
+    const vb = svg?.viewBox.baseVal;
+    if (!body || !svg || !w || !vb?.width) return 1;
+    const h = (vb.height / vb.width) * w;
+    const pad = 40;
+    return Math.min(1, (body.clientWidth - pad) / w, (body.clientHeight - pad) / h);
+  };
+
   const zoom = (d: HTMLDialogElement, act: string) => {
     if (act === 'close') return d.close();
     const cur = Number(d.dataset.scale || '1');
-    const next = act === 'in' ? cur * ZOOM_STEP : act === 'out' ? cur / ZOOM_STEP : 1;
+    const next = act === 'in' ? cur * ZOOM_STEP : act === 'out' ? cur / ZOOM_STEP : act === 'fit' ? fitScale(d) : 1;
     applyZoom(d, Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next)));
   };
 
   document.addEventListener('click', (e) => {
-    const btn = (e.target as Element | null)?.closest<HTMLElement>('[data-diagram-fullscreen]');
-    if (!btn) return;
-    const figure = btn.closest('.diagram-figure');
+    const target = e.target as Element | null;
+    const sizeBtn = target?.closest<HTMLElement>('[data-diagram-size]');
+    if (sizeBtn) {
+      setItem(SIZE_KEY, prefersActual() ? 'fit' : 'actual');
+      document.querySelectorAll('.diagram-figure__canvas:not([data-lazy-diagram])').forEach(updateFit);
+      return;
+    }
+    const btn = target?.closest<HTMLElement>('[data-diagram-fullscreen]');
+    // A fitted preview opens full screen when selected; links inside the figure keep working.
+    const preview = btn ? null : target?.closest<HTMLElement>('.diagram-figure__canvas[data-fit]');
+    if (preview && target?.closest('a, button')) return;
+    const figure = (btn ?? preview)?.closest('.diagram-figure');
     const canvas = figure?.querySelector('.diagram-figure__canvas');
     if (!figure || !canvas) return;
     reveal(canvas);

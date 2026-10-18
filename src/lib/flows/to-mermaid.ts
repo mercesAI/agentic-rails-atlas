@@ -226,12 +226,18 @@ export function flowToSequenceDiagram(flow: Flow, options: SequenceOptions = {})
 export interface StateOptions {
   accessibility?: boolean;
   description?: string;
+  /**
+   * Draw state notes inside the diagram (default false). dagre places notes as
+   * extra nodes, which pushed them far from their states and widened every
+   * machine; the page shows the notes as a list under the figure instead.
+   */
+  notes?: boolean;
 }
 
 /**
  * State machines read top to bottom (Mermaid's default, stated explicitly so a
  * future default change cannot flip the layout; left to right grows several
- * screens wide). Labels and notes are not pre-wrapped; Mermaid wraps them at the
+ * screens wide). Labels are not pre-wrapped; Mermaid wraps them at the
  * configured pixel width (state.wrappingWidth in scripts/render-diagrams.ts).
  */
 export function stateMachineToStateDiagram(machine: StateMachine, options: StateOptions = {}): string {
@@ -258,8 +264,10 @@ export function stateMachineToStateDiagram(machine: StateMachine, options: State
     lines.push(`  ${sid(t.from)} --> ${sid(t.to)} : ${sanitizeTransitionLabel(t.trigger)}`);
   }
   for (const s of machine.states) if (s.terminal) lines.push(`  ${sid(s.id)} --> [*]`);
-  for (const s of machine.states) {
-    if (s.note) lines.push(`  note right of ${sid(s.id)} : ${escapeMermaidText(s.note, { colons: true })}`);
+  if (options.notes) {
+    for (const s of machine.states) {
+      if (s.note) lines.push(`  note right of ${sid(s.id)} : ${escapeMermaidText(s.note, { colons: true })}`);
+    }
   }
   return `${lines.join('\n')}\n`;
 }

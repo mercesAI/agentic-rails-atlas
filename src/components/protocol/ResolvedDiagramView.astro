@@ -52,6 +52,7 @@ const flowRef = d.flow?.steps.find((s) => s.specRef)?.specRef;
       caption={`Generated from the state machine definition (spec version ${d.machine.specVersion}).`}
       alt={generatedDescription(d.id) ?? describeStateMachine(d.machine)}
       altSteps={describeStateTransitions(d.machine)}
+      notes={d.machine.states.filter((s) => s.note).map((s) => ({ label: s.label, note: s.note! }))}
       sourceOfTruth={sot(d.machine.sources)}
       generatedFrom={`src/content/states/${d.id}.json`}
       level={level}

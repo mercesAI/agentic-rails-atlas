@@ -182,19 +182,39 @@ test.describe('diagrams stay readable', () => {
     await expect(figure.locator('svg:visible').first()).toBeVisible();
     return figure;
   }
+  function stateFigureCanvas(page: Page) {
+    const figure = page.locator('.diagram-figure').filter({ hasText: 'mandate lifecycle' }).first();
+    return figure.getByRole('region', { name: /diagram preview/ });
+  }
 
-  test('state machine text renders at 11 px or more and the canvas scrolls', async ({ page }) => {
+  test('a wide state diagram is fitted to the column; "Actual size" restores readable text and sideways scrolling', async ({ page }) => {
     const figure = await stateFigure(page);
+    const canvas = figure.getByRole('region', { name: /diagram preview/ });
+    await expect(canvas).toHaveAttribute('tabindex', '0');
+    await expect(canvas).toHaveAttribute('data-fit', '');
+    const fitted = await figure.evaluate((f) => {
+      const svg = [...f.querySelectorAll('svg')].find((s) => s.getBoundingClientRect().width > 0)!;
+      const region = f.querySelector('.diagram-figure__canvas')!;
+      return svg.getBoundingClientRect().width <= region.clientWidth + 1 && region.scrollWidth <= region.clientWidth + 1;
+    });
+    expect(fitted).toBe(true);
+    const toggle = figure.getByRole('button', { name: /Actual size/ });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(canvas).not.toHaveAttribute('data-fit', '');
     const size = await figure.evaluate((f) => {
       const svg = [...f.querySelectorAll('svg')].find((s) => s.getBoundingClientRect().width > 0)!;
       const label = svg.querySelector('.nodeLabel, text')!;
       const scale = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width;
       return parseFloat(getComputedStyle(label).fontSize) * scale;
     });
-    expect(size).toBeGreaterThanOrEqual(11);
-    const canvas = figure.getByRole('region', { name: /scrollable diagram/ });
-    await expect(canvas).toHaveAttribute('tabindex', '0');
+    expect(size).toBeGreaterThanOrEqual(14);
     await expect(figure.getByText('Scroll to see the whole diagram')).toBeVisible();
+    // The preference is remembered for the page and the next one.
+    await page.reload();
+    await expect(stateFigureCanvas(page)).not.toHaveAttribute('data-fit', '');
+    await page.evaluate(() => localStorage.removeItem('atlas:diagram-size'));
   });
 
   test('full-screen dialog opens and closes with the keyboard', async ({ page }) => {

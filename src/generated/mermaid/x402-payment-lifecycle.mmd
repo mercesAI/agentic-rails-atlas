@@ -35,12 +35,3 @@ stateDiagram-v2
   s_rejected --> [*]
   s_responded --> [*]
   s_voided --> [*]
-  note right of s_unpaid : No PAYMENT-SIGNATURE header.
-  note right of s_payment_required : PAYMENT-REQUIRED header sent with the accepts list.
-  note right of s_payload_received : PAYMENT-SIGNATURE decoded#59; the flow comes from extra.paymentFlow.
-  note right of s_verified : authorization flow only. /verify is read-only.
-  note right of s_held : upfront#58; settled. escrow#58; deposit or hold placed.
-  note right of s_settle_pending : errorReason settlement_pending#59; transaction hash present.
-  note right of s_settled : success true#59; PAYMENT-RESPONSE carries the transaction hash.
-  note right of s_rejected : 400 for a malformed payload and 402 for a failed payment (spec)#59; the @x402/express middleware answers 502 when the facilitator is unreachable (SDK behavior).
-  note right of s_voided : auth-capture escrow only.

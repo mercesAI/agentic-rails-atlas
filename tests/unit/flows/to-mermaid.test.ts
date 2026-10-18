@@ -128,7 +128,11 @@ describe('stateMachineToStateDiagram', () => {
     expect(out).toContain('s_ready --> s_completed : complete, payment token accepted');
     expect(out).toContain('s_completed --> [*]');
     expect(out).toContain('s_canceled --> [*]');
-    expect(out).toContain('note right of s_completed : Order created#58; id returned#59; done');
+  });
+  it('keeps state notes out of the drawing unless asked', () => {
+    expect(out).not.toContain('note right of');
+    const withNotes = stateMachineToStateDiagram(machine, { notes: true });
+    expect(withNotes).toContain('note right of s_completed : Order created#58; id returned#59; done');
   });
   it('always reads top to bottom and never puts entity codes or separators in transition labels', () => {
     expect(out.split('\n')[1]).toBe('  direction TB');

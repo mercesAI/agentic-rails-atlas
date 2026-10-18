@@ -220,9 +220,10 @@ function startServer(root: string): Promise<{ server: Server; origin: string }> 
  * src/lib/flows/to-mermaid.ts and Mermaid is told not to wrap again (it widens
  * the actor gap to fit the longest line instead). Flowchart labels wrap at
  * 300 px rather than Mermaid's 120 px default. State diagrams keep a 200 px
- * wrap (wider labels pushed self-loop labels into their neighbors) and get
- * more room between nodes and ranks, chosen by counting label overlaps over
- * the nine machines. The layout engine is dagre for every graph diagram: this
+ * wrap (wider labels pushed self-loop labels into their neighbors), draw no
+ * notes (the figure lists them instead) and get more room between nodes and
+ * ranks, chosen by counting label overlaps over the nine machines in a
+ * browser. The layout engine is dagre for every graph diagram: this
  * Mermaid build defaults to ELK, which ignores the spacing options and
  * stacked edge labels in the context diagrams.
  */
@@ -246,7 +247,7 @@ const RENDER_CONFIG = {
     diagramMarginY: 16,
   },
   flowchart: { useMaxWidth: true, htmlLabels: false, wrappingWidth: 300, nodeSpacing: 50, rankSpacing: 90, padding: 16 },
-  state: { useMaxWidth: true, wrappingWidth: 200, nodeSpacing: 90, rankSpacing: 80 },
+  state: { useMaxWidth: true, wrappingWidth: 200, nodeSpacing: 90, rankSpacing: 110 },
   class: { useMaxWidth: true },
 };
 

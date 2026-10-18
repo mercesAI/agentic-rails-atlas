@@ -26,9 +26,3 @@ stateDiagram-v2
   s_registered_no_uri --> s_wallet_cleared : Transfer or unset before a URI is set
   s_wallet_verified --> s_wallet_verified : Bind a different wallet
   s_wallet_cleared --> s_declared_inactive : Owner publishes a file with active false
-  note right of s_unregistered : No token id yet.
-  note right of s_registered_no_uri : register() with no argument#59; Registered carries an empty agentURI.
-  note right of s_registered : agentWallet defaults to the owner address at mint. Wallet state and URI state change independently.
-  note right of s_wallet_verified : agentWallet set to another address by setAgentWallet with a signature from that address.
-  note right of s_wallet_cleared : agentWallet is the zero address after unsetAgentWallet or a transfer.
-  note right of s_declared_inactive : active is false in the registration file. The registry has no such state and no burn function, so the token persists. The wallet keeps whatever value it had.

@@ -30,13 +30,3 @@ stateDiagram-v2
   s_rejected_terminal --> [*]
   s_completed --> [*]
   s_expired --> [*]
-  note right of s_content : Unsigned content built by the Shopping Agent#58; closed (exact checkout and payment) or open (constraints plus the agent key in cnf).
-  note right of s_open_signed : vct mandate.checkout.open.1 or mandate.payment.open.1, signed by the user or a trusted agent provider. Bound to the agent key, not to a transaction.
-  note right of s_closed_signed : vct mandate.checkout.1 or mandate.payment.1. Bound to one checkout through checkout_hash and transaction_id#59; agent-signed closed mandates carry sd_hash over the open parent.
-  note right of s_presented : Merchant, Credential Provider, Network or processor. The agent must not present another closed mandate from the same open mandate until it holds an error receipt.
-  note right of s_accepted : Signed Payment or Checkout Receipt whose reference is the hash of the closed mandate.
-  note right of s_rejected_retryable : unresolved_constraint or mandates_not_supported#58; a signal to fall back to a user-approved closed mandate or a non-agentic flow.
-  note right of s_rejected_terminal : invalid_credential or invalid_mandate.
-  note right of s_scope_reduced : The agent stores the open, closed and receipt tuple and reduces the open mandate#39;s scope#59; payment.budget and payment.agent_recurrence allow bounded reuse.
-  note right of s_completed : Both mandates and both receipts can later be checked by a dispute verifier.
-  note right of s_expired : exp passed. v0.2 defines no revocation, so expiry is the only built-in end for an open mandate.

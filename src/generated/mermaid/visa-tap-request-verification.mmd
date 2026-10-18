@@ -37,13 +37,3 @@ stateDiagram-v2
   s_untrusted --> [*]
   s_blocked --> [*]
   s_declined --> [*]
-  note right of s_received : At the merchant or its Site Protection Provider.
-  note right of s_tagged : agent-browser-auth or agent-payer-auth.
-  note right of s_fields_ok : @authority, @path, created, expires, keyid, alg, nonce, tag.
-  note right of s_in_window : created past, expires future, at most 8 minutes apart.
-  note right of s_nonce_fresh : Only if the verifier keeps nonces of the last 8 minutes.
-  note right of s_key_resolved : From cache or the key store.
-  note right of s_verified_pay : Body objects may follow.
-  note right of s_objects_checked : agenticConsumer and agenticPaymentContainer.
-  note right of s_untrusted : Merchant may block or use other means.
-  note right of s_declined : Merchant declines the payment and does not use the payment data.

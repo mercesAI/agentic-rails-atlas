@@ -24,9 +24,3 @@ stateDiagram-v2
   s_complete_in_progress --> s_canceled : Session invalid or expired (cancellation race rules apply)
   s_completed --> [*]
   s_canceled --> [*]
-  note right of s_incomplete : Data missing or a recoverable error or Action outstanding. Messages say what to fix. expires_at defaults to 6 hours after creation.
-  note right of s_requires_escalation : Needs buyer input or buyer review. continue_url is required, with a requires_buyer_input or requires_buyer_review message.
-  note right of s_ready_for_complete : All data present and no Action outstanding. The platform may call Complete Checkout. With AP2 negotiated, every response here carries ap2.merchant_authorization.
-  note right of s_complete_in_progress : Complete accepted for asynchronous processing#59; no order yet. An Action (for example a 3DS challenge) can be outstanding. No new Update or Complete#59; on trouble the platform follows fallback, handoff, then cancel.
-  note right of s_completed : Order placed#59; order.id and order.permalink_url present. Immutable. The business sends a confirmation email.
-  note right of s_canceled : Canceled by the platform or invalid or expired. Start a new session if needed.
