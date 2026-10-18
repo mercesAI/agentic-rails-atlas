@@ -2,16 +2,23 @@
  * After `astro build`: walks dist/, writes dist/sw.js (precache + runtime caching) and
  * dist/manifest.webmanifest (docs/ARCHITECTURE.md section 9).
  *
- * Precache: HTML, CSS, JS, SVG, fonts, the web manifest and the Pagefind index, in that
+ * Precache: HTML, CSS, JS, SVG, fonts, the web manifest and the Pagefind runtime, in that
  * priority order, until PRECACHE_CAP_BYTES is reached (files over the cap are left out
  * and fall back to the runtime strategies below). The install fetches INSTALL_CONCURRENCY
  * files at a time and fails when a page, asset or font cannot be fetched, so the browser
- * keeps the previous worker and retries on the next update check; Pagefind chunks and the
- * manifest are best effort. A response that followed a redirect is never stored: the host
+ * keeps the previous worker and retries on the next update check; the Pagefind runtime and
+ * the manifest are best effort. A response that followed a redirect is never stored: the host
  * answers 307 for /404.html under auto-trailing-slash, and a redirected response cannot be
  * served to a navigation.
+ * Pagefind split (kinds 'pagefind' and 'pagefind-data'): the files directly under pagefind/
+ * are the runtime that pagefind.js loads before the first query (pagefind.js itself,
+ * pagefind-worker.js, wasm.*.pagefind, pagefind-entry.json, pagefind.*.pf_meta and the stock
+ * UI bundles), so they are precached and the palette opens offline. The per-query chunks in
+ * the pagefind/index/, pagefind/fragment/ and pagefind/filter/ folders are content-hashed,
+ * immutable and only fetched for the terms and results a query touches, so they are left out
+ * of the precache and cached cache-first the first time a search loads them.
  * Runtime: network-first for HTML with a cache fallback, cache-first for hashed /_astro/
- * assets, stale-while-revalidate for everything else on the same origin.
+ * assets and the Pagefind chunks, stale-while-revalidate for everything else on the same origin.
  * The cache name carries a hash of the precached content, so a new build installs a new
  * cache and the activate step deletes the old ones. The new worker does not skip waiting:
  * it takes over once every page of the old build is closed (src/lib/client/sw.ts asks for
@@ -31,11 +38,20 @@ export const CACHE_PREFIX = 'atlas-';
 export const INSTALL_CONCURRENCY = 8;
 /** Kinds whose failed precache fails the install; the others are fetched at runtime instead. */
 export const REQUIRED_KINDS: readonly Entry['kind'][] = ['html', 'asset', 'font'];
+/** Kinds that are never precached: cached cache-first the first time a request touches them. */
+export const RUNTIME_KINDS: readonly Entry['kind'][] = ['pagefind-data'];
+/**
+ * Pagefind folders of per-query data (index chunks, fragments, filter chunks), relative to
+ * dist. Every other file under pagefind/ is the runtime and stays in the precache.
+ */
+export const PAGEFIND_DATA_DIRS: readonly string[] = ['pagefind/index/', 'pagefind/fragment/', 'pagefind/filter/'];
+/** URL prefixes the worker serves cache-first: content-hashed, immutable files. */
+export const CACHE_FIRST_PREFIXES: readonly string[] = ['/_astro/', ...PAGEFIND_DATA_DIRS.map((dir) => `/${dir}`)];
 
 export interface Entry {
   url: string;
   bytes: number;
-  kind: 'html' | 'asset' | 'font' | 'pagefind' | 'manifest';
+  kind: 'html' | 'asset' | 'font' | 'pagefind' | 'pagefind-data' | 'manifest';
   hash: string;
 }
 
@@ -77,6 +93,7 @@ function tokenColor(cssPath: string, name: string, fallback: string): string {
 export function classify(rel: string): Entry['kind'] | null {
   if (rel === 'sw.js' || rel === '_headers' || rel === '_redirects' || rel === 'robots.txt') return null;
   if (rel === 'manifest.webmanifest') return 'manifest';
+  if (PAGEFIND_DATA_DIRS.some((dir) => rel.startsWith(dir))) return 'pagefind-data';
   if (rel.startsWith('pagefind/')) return 'pagefind';
   if (/\.(woff2?|ttf|otf)$/.test(rel)) return 'font';
   if (/\.html$/.test(rel)) return 'html';
@@ -101,9 +118,13 @@ export function collectEntries(dist: string): Entry[] {
   return entries;
 }
 
-/** Splits the entries into the precache list and the files left to runtime caching by the size cap. */
-export function planPrecache(entries: Entry[], cap: number = PRECACHE_CAP_BYTES): { precache: Entry[]; skipped: Entry[]; total: number } {
-  // Priority: shell assets first, then pages (smallest first so the cap drops the largest), then the search index.
+/**
+ * Splits the entries into the precache list, the files left to runtime caching by the size
+ * cap (skipped) and the kinds that are never precached (runtime, see RUNTIME_KINDS).
+ */
+export function planPrecache(entries: Entry[], cap: number = PRECACHE_CAP_BYTES): { precache: Entry[]; skipped: Entry[]; runtime: Entry[]; total: number } {
+  const runtime = entries.filter((e) => RUNTIME_KINDS.includes(e.kind));
+  // Priority: shell assets first, then pages (smallest first so the cap drops the largest), then the search runtime.
   const order: Entry['kind'][] = ['manifest', 'asset', 'font', 'html', 'pagefind'];
   const sorted = order.flatMap((k) => entries.filter((e) => e.kind === k).sort((a, b) => a.bytes - b.bytes || a.url.localeCompare(b.url)));
   const precache: Entry[] = [];
@@ -116,7 +137,7 @@ export function planPrecache(entries: Entry[], cap: number = PRECACHE_CAP_BYTES)
       total += e.bytes;
     }
   }
-  return { precache, skipped, total };
+  return { precache, skipped, runtime, total };
 }
 
 /** The service worker source for a precache list. Pure: the same entries give the same text. */
@@ -137,6 +158,10 @@ const PRECACHE = ${JSON.stringify(urls)};
 const OPTIONAL = new Set(${JSON.stringify(optional)});
 const NETWORK_TIMEOUT_MS = 4000;
 const INSTALL_CONCURRENCY = ${INSTALL_CONCURRENCY};
+// Content-hashed, immutable files served cache-first: the /_astro/ bundles and the Pagefind
+// index chunks, fragments and filter chunks, which are not precached but cached the first
+// time a query loads them.
+const CACHE_FIRST_PREFIXES = ${JSON.stringify(CACHE_FIRST_PREFIXES)};
 
 // A response that followed a redirect cannot be served to a navigation request from the
 // cache (the host answers 307 for /404.html under auto-trailing-slash), so the body is
@@ -235,7 +260,10 @@ async function cacheFirst(event, request, url) {
   const cached = await fromCache(request, url);
   if (cached) return cached;
   const res = await fetch(request);
-  event.waitUntil(caches.open(CACHE).then((cache) => store(cache, request, res.clone())).catch(() => undefined));
+  // Cloned before the response is returned: the page starts reading the body as soon as
+  // respondWith settles, and a clone taken after that throws, so nothing would be stored.
+  const copy = res.clone();
+  event.waitUntil(caches.open(CACHE).then((cache) => store(cache, request, copy)).catch(() => undefined));
   return res;
 }
 
@@ -259,7 +287,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin || url.pathname === '/sw.js') return;
   if (isHtmlRequest(request, url)) event.respondWith(networkFirst(event, request, url));
-  else if (url.pathname.startsWith('/_astro/')) event.respondWith(cacheFirst(event, request, url));
+  else if (CACHE_FIRST_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) event.respondWith(cacheFirst(event, request, url));
   else event.respondWith(staleWhileRevalidate(event, request, url));
 });
 `;
@@ -286,15 +314,17 @@ function main(): void {
   // The manifest is written first so that it is part of the precache list.
   writeFileSync(join(DIST, 'manifest.webmanifest'), `${JSON.stringify(buildManifest(), null, 2)}\n`);
 
-  const { precache, skipped, total } = planPrecache(collectEntries(DIST));
+  const { precache, skipped, runtime, total } = planPrecache(collectEntries(DIST));
   const { text, version } = buildWorkerText(precache);
   writeFileSync(join(DIST, 'sw.js'), text);
 
   const mb = (n: number) => (n / 1024 / 1024).toFixed(2);
   const byKind = (k: Entry['kind']) => precache.filter((e) => e.kind === k).length;
+  const runtimeBytes = runtime.reduce((n, e) => n + e.bytes, 0);
   console.log(
     `build-sw: wrote dist/sw.js (cache ${CACHE_PREFIX}${version}) and dist/manifest.webmanifest; precaching ${precache.length} files, ${mb(total)} MB of the ${mb(PRECACHE_CAP_BYTES)} MB cap ` +
-      `(${byKind('html')} html, ${byKind('asset')} css/js/svg/json, ${byKind('font')} fonts, ${byKind('pagefind')} pagefind)` +
+      `(${byKind('html')} html, ${byKind('asset')} css/js/svg/json, ${byKind('font')} fonts, ${byKind('pagefind')} pagefind runtime)` +
+      `; ${runtime.length} pagefind index chunks and fragments (${mb(runtimeBytes)} MB) cached cache-first on first use` +
       (skipped.length ? `; ${skipped.length} files over the cap left to runtime caching` : ''),
   );
 }

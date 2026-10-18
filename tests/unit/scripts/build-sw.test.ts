@@ -5,7 +5,10 @@ import { runInNewContext } from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { INSTALL_CONCURRENCY, buildWorkerText, classify, collectEntries, planPrecache, type Entry } from '../../../scripts/build-sw';
 
-/** A small dist folder: pages, hashed assets, a font, the manifest, pagefind, server files and stray dotfiles. */
+/**
+ * A small dist folder: pages, hashed assets, a font, the manifest, the pagefind runtime and
+ * its per-query data, server files and stray dotfiles.
+ */
 const FILES: Record<string, string> = {
   'index.html': '<!doctype html><title>Home</title>',
   '404.html': '<!doctype html><title>Not found</title>',
@@ -15,7 +18,12 @@ const FILES: Record<string, string> = {
   'fonts/body.woff2': 'font bytes',
   'manifest.webmanifest': '{}',
   'pagefind/pagefind.js': 'pf',
+  'pagefind/pagefind-worker.js': 'worker',
+  'pagefind/pagefind-entry.json': '{"languages":{"en":{"hash":"en_abc"}}}',
+  'pagefind/pagefind.en_abc.pf_meta': 'meta',
+  'pagefind/wasm.en.pagefind': 'wasm',
   'pagefind/index/a.pf_index': 'idx',
+  'pagefind/fragment/b.pf_fragment': 'frag',
   'sw.js': 'old worker',
   '_headers': '/*\n  X-Test: 1',
   'robots.txt': 'User-agent: *',
@@ -25,7 +33,8 @@ const FILES: Record<string, string> = {
   '.well-known/hidden.json': '{}',
 };
 
-const CACHEABLE = [
+/** Every URL collectEntries reports for FILES, sorted. */
+const COLLECTED = [
   '/',
   '/404.html',
   '/_astro/app.abc123.css',
@@ -33,9 +42,18 @@ const CACHEABLE = [
   '/compare/',
   '/fonts/body.woff2',
   '/manifest.webmanifest',
+  '/pagefind/fragment/b.pf_fragment',
   '/pagefind/index/a.pf_index',
+  '/pagefind/pagefind-entry.json',
+  '/pagefind/pagefind-worker.js',
+  '/pagefind/pagefind.en_abc.pf_meta',
   '/pagefind/pagefind.js',
+  '/pagefind/wasm.en.pagefind',
 ];
+/** The per-query Pagefind data: collected, never precached, cached cache-first at runtime. */
+const PAGEFIND_DATA = ['/pagefind/fragment/b.pf_fragment', '/pagefind/index/a.pf_index'];
+/** What the worker precaches, sorted. */
+const PRECACHED = COLLECTED.filter((u) => !PAGEFIND_DATA.includes(u));
 
 let dist: string;
 beforeAll(() => {
@@ -54,15 +72,22 @@ interface Harness {
   puts: { key: unknown; res: Response }[];
 }
 
-/** Evaluates the worker text in a bare context with fake service worker globals. */
-function loadWorker(text: string, fetchImpl: (url: string) => Promise<Response>): Harness {
+/**
+ * Evaluates the worker text in a bare context with fake service worker globals. `cached`
+ * answers cache lookups by pathname (the worker matches by request and by pathname).
+ */
+function loadWorker(
+  text: string,
+  fetchImpl: (url: string) => Promise<Response>,
+  cached: (pathname: string) => Response | undefined = () => undefined,
+): Harness {
   const handlers: Record<string, Handler> = {};
   const puts: Harness['puts'] = [];
   const cache = {
     put: async (key: unknown, res: Response) => {
       puts.push({ key, res });
     },
-    match: async () => undefined,
+    match: async (key: string | { url: string }) => cached(typeof key === 'string' ? key : new URL(key.url).pathname),
     keys: async () => [],
   };
   class FakeRequest {
@@ -83,7 +108,9 @@ function loadWorker(text: string, fetchImpl: (url: string) => Promise<Response>)
         throw new Error('skipWaiting must not be called');
       },
     },
-    caches: { open: async () => cache, keys: async () => [], delete: async () => true },
+    // caches.open answers in a later task, as in a browser, so that work scheduled after it
+    // runs once the page has started reading a response handed to respondWith.
+    caches: { open: () => new Promise<typeof cache>((resolve) => setTimeout(() => resolve(cache), 0)), keys: async () => [], delete: async () => true },
     fetch: (req: string | { url: string }) => fetchImpl(typeof req === 'string' ? req : req.url),
     Request: FakeRequest,
     Response,
@@ -123,26 +150,72 @@ const redirected = (body: string): Response => {
 };
 const workerFor = (entries: Entry[] = planPrecache(collectEntries(dist)).precache): string => buildWorkerText(entries).text;
 
+/**
+ * Dispatches a same-origin GET through the fetch handler and settles its waitUntil promises.
+ * The body is read as soon as the response settles, as the browser streams it to the page,
+ * so a clone taken later in a waitUntil task fails here as it does in a browser.
+ */
+async function dispatch(h: Harness, path: string, init: Record<string, unknown> = {}): Promise<Response> {
+  let response: unknown;
+  const pending: unknown[] = [];
+  h.handlers.fetch!({
+    request: { method: 'GET', cache: 'default', mode: 'cors', url: `https://atlas.test${path}`, headers: new Headers(), ...init },
+    respondWith: (p: unknown) => {
+      response = p;
+    },
+    waitUntil: (p: unknown) => {
+      pending.push(p);
+    },
+  });
+  const res = (await Promise.resolve(response)) as Response;
+  const body = res.text();
+  await Promise.all(pending.map((p) => Promise.resolve(p)));
+  return new Response(await body, { status: res.status, statusText: res.statusText, headers: res.headers });
+}
+
+const pathOf = (url: string): string => new URL(url, 'https://atlas.test').pathname;
+
 describe('build-sw', () => {
   it('collects pages, assets, fonts, the manifest and pagefind files and skips dotfiles and server files', () => {
     const entries = collectEntries(dist);
-    expect(entries.map((e) => e.url).sort()).toEqual(CACHEABLE);
+    expect(entries.map((e) => e.url).sort()).toEqual(COLLECTED);
     expect(entries.find((e) => e.url === '/fonts/body.woff2')?.kind).toBe('font');
     expect(entries.find((e) => e.url === '/compare/')?.kind).toBe('html');
     expect(entries.find((e) => e.url === '/_astro/app.abc123.js')?.kind).toBe('asset');
     expect(entries.find((e) => e.url === '/pagefind/pagefind.js')?.kind).toBe('pagefind');
+    expect(entries.find((e) => e.url === '/pagefind/wasm.en.pagefind')?.kind).toBe('pagefind');
+    expect(entries.find((e) => e.url === '/pagefind/index/a.pf_index')?.kind).toBe('pagefind-data');
+    expect(entries.find((e) => e.url === '/pagefind/fragment/b.pf_fragment')?.kind).toBe('pagefind-data');
     expect(entries.find((e) => e.url === '/manifest.webmanifest')?.kind).toBe('manifest');
   });
 
-  it('puts shell assets first and leaves the largest files to runtime caching when the cap is reached', () => {
+  it('puts shell assets first, never precaches the pagefind data and leaves the largest files to runtime caching when the cap is reached', () => {
     const entries = collectEntries(dist);
     const all = planPrecache(entries);
     expect(all.skipped).toEqual([]);
     expect(all.precache[0]?.kind).toBe('manifest');
+    expect(all.precache.map((e) => e.url).sort()).toEqual(PRECACHED);
+    expect(all.runtime.map((e) => e.url).sort()).toEqual(PAGEFIND_DATA);
+    expect(all.total).toBe(all.precache.reduce((n, e) => n + e.bytes, 0));
     const capped = planPrecache(entries, 60);
     expect(capped.total).toBeLessThanOrEqual(60);
     expect(capped.skipped.length).toBeGreaterThan(0);
-    expect(capped.precache.length + capped.skipped.length).toBe(entries.length);
+    expect(capped.skipped.every((e) => e.kind !== 'pagefind-data')).toBe(true);
+    expect(capped.precache.length + capped.skipped.length + capped.runtime.length).toBe(entries.length);
+  });
+
+  it('precaches the pagefind runtime but not the index chunks and fragments, which the fetch handler serves cache-first', () => {
+    const text = workerFor();
+    const precache = JSON.parse(/const PRECACHE = (\[.*?\]);/.exec(text)?.[1] ?? '[]') as string[];
+    expect(precache).toEqual(PRECACHED);
+    expect(precache).toEqual(
+      expect.arrayContaining(['/pagefind/pagefind.js', '/pagefind/pagefind-worker.js', '/pagefind/wasm.en.pagefind', '/pagefind/pagefind-entry.json', '/pagefind/pagefind.en_abc.pf_meta']),
+    );
+    expect(text).not.toContain('/pagefind/index/a.pf_index');
+    expect(text).not.toContain('/pagefind/fragment/b.pf_fragment');
+    const prefixes = JSON.parse(/const CACHE_FIRST_PREFIXES = (\[.*?\]);/.exec(text)?.[1] ?? '[]') as string[];
+    expect(prefixes).toEqual(['/_astro/', '/pagefind/index/', '/pagefind/fragment/', '/pagefind/filter/']);
+    expect(text).toContain('else if (CACHE_FIRST_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) event.respondWith(cacheFirst(event, request, url));');
   });
 
   it('writes a deterministic worker that cleans every stored response, never skips waiting and ignores only-if-cached requests', () => {
@@ -162,17 +235,24 @@ describe('build-sw', () => {
     expect(buildWorkerText(planPrecache(collectEntries(dist)).precache).text).toBe(text);
   });
 
-  it('marks pagefind chunks and the manifest optional and everything else required', () => {
+  it('marks the pagefind runtime and the manifest optional and everything else required', () => {
     const text = workerFor();
     const optional = JSON.parse(/const OPTIONAL = new Set\((\[.*?\])\);/.exec(text)?.[1] ?? '[]') as string[];
-    expect(optional.sort()).toEqual(['/manifest.webmanifest', '/pagefind/index/a.pf_index', '/pagefind/pagefind.js']);
+    expect(optional.sort()).toEqual([
+      '/manifest.webmanifest',
+      '/pagefind/pagefind-entry.json',
+      '/pagefind/pagefind-worker.js',
+      '/pagefind/pagefind.en_abc.pf_meta',
+      '/pagefind/pagefind.js',
+      '/pagefind/wasm.en.pagefind',
+    ]);
   });
 
   describe('install', () => {
     it('succeeds when only optional files fail and stores the rest', async () => {
       const h = loadWorker(workerFor(), async (url) => (url.startsWith('/pagefind/') ? new Response('', { status: 404 }) : ok()));
       expect(await install(h)).toEqual({ ok: true });
-      expect(h.puts.map((p) => p.key).sort()).toEqual(CACHEABLE.filter((u) => !u.startsWith('/pagefind/')));
+      expect(h.puts.map((p) => p.key).sort()).toEqual(PRECACHED.filter((u) => !u.startsWith('/pagefind/')));
     });
 
     it('rejects when a page, an asset or a font cannot be fetched', async () => {
@@ -248,6 +328,39 @@ describe('build-sw', () => {
       expect(h.puts[0]?.key).toBe('/compare');
       expect(h.puts[0]?.res.redirected).toBe(false);
     });
+
+    it('serves a pagefind index chunk or fragment cache-first: a cached copy without a network request, else the network response, stored', async () => {
+      const fetched: string[] = [];
+      const h = loadWorker(
+        workerFor(),
+        async (url) => {
+          fetched.push(pathOf(url));
+          return ok('network chunk');
+        },
+        (path) => (path === '/pagefind/index/a.pf_index' ? new Response('cached chunk') : undefined),
+      );
+      expect(await (await dispatch(h, '/pagefind/index/a.pf_index')).text()).toBe('cached chunk');
+      expect(fetched).toEqual([]);
+      expect(h.puts).toHaveLength(0);
+      expect(await (await dispatch(h, '/pagefind/fragment/b.pf_fragment')).text()).toBe('network chunk');
+      expect(fetched).toEqual(['/pagefind/fragment/b.pf_fragment']);
+      expect(h.puts.map((p) => (p.key as { url: string }).url)).toEqual(['https://atlas.test/pagefind/fragment/b.pf_fragment']);
+    });
+
+    it('keeps the pagefind runtime on stale-while-revalidate: a cached copy is served and refreshed from the network', async () => {
+      const fetched: string[] = [];
+      const h = loadWorker(
+        workerFor(),
+        async (url) => {
+          fetched.push(pathOf(url));
+          return ok('fresh runtime');
+        },
+        (path) => (path === '/pagefind/pagefind.js' ? new Response('stale runtime') : undefined),
+      );
+      expect(await (await dispatch(h, '/pagefind/pagefind.js')).text()).toBe('stale runtime');
+      expect(fetched).toEqual(['/pagefind/pagefind.js']);
+      expect(h.puts).toHaveLength(1);
+    });
   });
 });
 
@@ -256,8 +369,20 @@ describe('classify', () => {
     expect(classify('data/glossary.json')).toBe('asset');
     expect(classify('data/search-index.json')).toBe('asset');
     expect(classify('_astro/app.abc123.js')).toBe('asset');
-    expect(classify('pagefind/index/a.pf_index')).toBe('pagefind');
     expect(classify('fonts/body.woff2')).toBe('font');
     expect(classify('sw.js')).toBeNull();
+  });
+
+  it('splits pagefind into the precached runtime (top-level files) and the per-query data (index, fragment and filter folders)', () => {
+    expect(classify('pagefind/pagefind.js')).toBe('pagefind');
+    expect(classify('pagefind/pagefind-worker.js')).toBe('pagefind');
+    expect(classify('pagefind/wasm.en.pagefind')).toBe('pagefind');
+    expect(classify('pagefind/wasm.unknown.pagefind')).toBe('pagefind');
+    expect(classify('pagefind/pagefind-entry.json')).toBe('pagefind');
+    expect(classify('pagefind/pagefind.en_62a1b4b8ee.pf_meta')).toBe('pagefind');
+    expect(classify('pagefind/pagefind-ui.css')).toBe('pagefind');
+    expect(classify('pagefind/index/en_0293f07.pf_index')).toBe('pagefind-data');
+    expect(classify('pagefind/fragment/en_16cc424.pf_fragment')).toBe('pagefind-data');
+    expect(classify('pagefind/filter/en_0a1b2c3.pf_filter')).toBe('pagefind-data');
   });
 });
