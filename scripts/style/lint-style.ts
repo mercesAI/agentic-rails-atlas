@@ -86,7 +86,8 @@ export function lintStyle(root: string = ROOT): StyleFinding[] {
     }
     if (/\/protocols\/[^/]+\/index\.mdx$/.test(file.split('\\').join('/'))) {
       const body = text.replace(/^---\r?\n[\s\S]*?\r?\n---/, (m) => m.replace(/[^\n]/g, ' '));
-      const plain = mdxToPlainText(outsideModeBlocks(body));
+      // Table rows are cells, not sentences: blank them before the prose conversion (the line count stays the same).
+      const plain = mdxToPlainText(outsideModeBlocks(body).replace(/^[ \t]*\|.*$/gm, ''));
       // Sentences: paragraphs are separated by blank lines; sentences end with
       // terminal punctuation followed by whitespace and a capital, digit, quote or parenthesis.
       for (const para of plain.matchAll(/\S[\s\S]*?(?=\n[ \t]*\n|$(?![\s\S]))/g)) {

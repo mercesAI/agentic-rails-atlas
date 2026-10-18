@@ -36,7 +36,7 @@ import { z } from 'zod';
 const PROTOCOLS_BASE = './src/content/protocols';
 
 /** One collection per per-protocol sidecar file. Entry ids are "<slug>/<file>". */
-const sidecar = <T extends z.ZodTypeAny>(name: string, schema: T) =>
+const sidecar = <T extends z.ZodType>(name: string, schema: T) =>
   defineCollection({ loader: glob({ base: PROTOCOLS_BASE, pattern: `*/${name}.json` }), schema });
 
 /** STE pages: a frontmatter object with the protocol slug; body is MDX. */

@@ -144,7 +144,7 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
     return [];
   };
 
-  const parseEach = <S extends z.ZodTypeAny>(schema: S, items: unknown[], where: string, label: string): z.infer<S>[] => {
+  const parseEach = <S extends z.ZodType>(schema: S, items: unknown[], where: string, label: string): z.infer<S>[] => {
     const out: z.infer<S>[] = [];
     items.forEach((item, i) => {
       const r = schema.safeParse(item);
@@ -527,7 +527,7 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
   // -------------------------------------------------------------------------
   // Validate every output, then write.
   // -------------------------------------------------------------------------
-  const outputs: { path: string; schema: z.ZodTypeAny; value: unknown }[] = [
+  const outputs: { path: string; schema: z.ZodType; value: unknown }[] = [
     { path: join(content, 'sources', 'sources.json'), schema: z.array(Source), value: sortedSources },
     { path: join(root, 'src', 'generated', 'source-aliases.json'), schema: z.record(z.string(), z.string()), value: aliases },
     { path: join(content, 'publications', 'publications.json'), schema: z.array(Publication), value: publications },

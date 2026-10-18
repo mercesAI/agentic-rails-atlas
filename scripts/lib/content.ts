@@ -83,7 +83,7 @@ export interface Loaded<T> {
   error?: string;
 }
 
-export function loadJson<S extends z.ZodTypeAny>(path: string, schema: S): Loaded<z.infer<S>> {
+export function loadJson<S extends z.ZodType>(path: string, schema: S): Loaded<z.infer<S>> {
   let raw: unknown;
   try {
     raw = readJson(path);
@@ -101,7 +101,7 @@ export interface MdxFile<T> extends Loaded<T> {
   bodyLine: number;
 }
 
-export function loadMdx<S extends z.ZodTypeAny>(path: string, schema: S): MdxFile<z.infer<S>> {
+export function loadMdx<S extends z.ZodType>(path: string, schema: S): MdxFile<z.infer<S>> {
   if (!existsSync(path)) return { path, exists: false, body: '', bodyLine: 1 };
   const text = readFileSync(path, 'utf8');
   let fm: Record<string, unknown>;
@@ -153,7 +153,7 @@ export function loadProtocol(contentDir: string, slug: string): ProtocolBundle {
 }
 
 /** Loads every file of a folder collection (JSON or MDX). */
-export function loadFolder<S extends z.ZodTypeAny>(dir: string, ext: '.json' | '.mdx', schema: S, skip?: RegExp): Loaded<z.infer<S>>[] | MdxFile<z.infer<S>>[] {
+export function loadFolder<S extends z.ZodType>(dir: string, ext: '.json' | '.mdx', schema: S, skip?: RegExp): Loaded<z.infer<S>>[] | MdxFile<z.infer<S>>[] {
   const files = listDir(dir).filter((f) => f.endsWith(ext) && !(skip && skip.test(f)));
   return ext === '.json' ? files.map((f) => loadJson(join(dir, f), schema)) : files.map((f) => loadMdx(join(dir, f), schema));
 }
