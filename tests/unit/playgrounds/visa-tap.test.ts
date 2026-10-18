@@ -1,44 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import {
-  base64ToBytes,
-  base64UrlToBytes,
-  bytesToBase64,
-  bytesToBase64Url,
-  parseDictionary,
-  parseItemText,
-  serializeBareItem,
-  serializeDictionary,
-  serializeString,
-} from '@/playgrounds/visa-tap/lib/sf';
-import {
-  algFromLabel,
-  generateAgentKey,
-  importPrivateJwk,
-  importPublicJwk,
-  jwkThumbprint,
-  randomNonce,
-  signText,
-  supportsEd25519,
-  tapAlgLabel,
-  verifyText,
-} from '@/playgrounds/visa-tap/lib/keys';
+import { base64ToBytes, base64UrlToBytes, bytesToBase64, bytesToBase64Url, randomBase64Url } from '@/lib/playground/bytes';
+import { jwkThumbprint } from '@/lib/playground/es256';
 import {
   buildSignatureBase,
   componentValue,
   normalizeAuthority,
   paramValue,
+  parseDictionary,
+  parseItemText,
   parseSignatureHeader,
   parseSignatureInput,
   renderHttp,
   rewriteParam,
+  serializeBareItem,
   serializeComponentId,
+  serializeDictionary,
   serializeSignatureParams,
-  signRequest,
+  serializeString,
   signatureHeader,
   signatureInputHeader,
   type HttpRequest,
   type SigParams,
-} from '@/playgrounds/visa-tap/lib/signature';
+} from '@/lib/playground/http-sig';
+import { algFromLabel, generateAgentKey, importPrivateJwk, importPublicJwk, signText, supportsEd25519, tapAlgLabel, verifyText } from '@/playgrounds/visa-tap/lib/keys';
+import { signRequest } from '@/playgrounds/visa-tap/lib/signature';
 import {
   STEP_ORDER,
   isNonceSeen,
@@ -215,9 +200,9 @@ describe('keys', () => {
     await expect(jwkThumbprint({ kty: 'oct' })).rejects.toThrow();
   });
   it('makes distinct random nonces', () => {
-    const a = randomNonce();
+    const a = randomBase64Url(32);
     expect(a).toMatch(/^[A-Za-z0-9_-]{43}$/);
-    expect(randomNonce()).not.toBe(a);
+    expect(randomBase64Url(32)).not.toBe(a);
   });
   it('detects Ed25519 support without throwing', async () => {
     expect(typeof (await supportsEd25519())).toBe('boolean');

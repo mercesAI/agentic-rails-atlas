@@ -5,9 +5,9 @@
  * payment network receives L3a with the payment view and the merchant receives L3b.
  * The network state (`spentSoFar`) is typed in; the spec says networks must hold it but defines no API.
  */
-import { sha256B64url } from './encoding';
-import { decodeJws, sameJwk, verifyJws, type Jwk } from './jws';
-import { decodeDisclosure, parseSdJwt, resolveRefs } from './sdjwt';
+import { sha256Base64Url } from '@/lib/playground/bytes';
+import { decodeJws, sameJwk, verifyJws, type EcJwk as Jwk } from '@/lib/playground/es256';
+import { decodeDisclosure, parseSdJwt, resolveDisclosures } from '@/lib/playground/sd-jwt';
 import { LIFETIMES, TYP, VCT, humanDuration, type ViArtifacts, type ViTrust } from './vi';
 
 export type CheckStatus = 'pass' | 'fail' | 'warn' | 'skipped';
@@ -51,7 +51,7 @@ async function load(serialized: string | undefined): Promise<Layer | undefined> 
     const d = decodeJws(jwt);
     const refs = Array.isArray(d.payload.delegate_payload) ? (d.payload.delegate_payload as unknown[]) : [];
     const byDigest = new Map<string, string>();
-    for (const enc of disclosures) byDigest.set(await sha256B64url(enc), enc);
+    for (const enc of disclosures) byDigest.set(await sha256Base64Url(enc), enc);
     const mandates: Layer['mandates'] = [];
     const missingRefs: string[] = [];
     for (const r of refs) {
@@ -107,7 +107,7 @@ export async function verifyChain(a: ViArtifacts, trust: ViTrust): Promise<ViRep
   const modeVct = auto ? [VCT.checkoutOpen, VCT.paymentOpen] : [VCT.checkoutFinal, VCT.paymentFinal];
 
   add('L2', 'l2-sig', 'Signature verifies against the key in L1 cnf.jwk', l1Jwk ? flag(await verifyJws(l2.jwt, l1Jwk)) : 'fail', 'The user key was bound by the issuer in L1', 'credential-format.md 4.7 rule 1');
-  add('L2', 'l2-sd-hash', 'sd_hash equals B64U(SHA-256(serialized L1))', flag(l2.payload.sd_hash === (await sha256B64url(a.l1))), 'Recomputed over the L1 string as received, including disclosures', 'credential-format.md 6.1');
+  add('L2', 'l2-sd-hash', 'sd_hash equals B64U(SHA-256(serialized L1))', flag(l2.payload.sd_hash === (await sha256Base64Url(a.l1))), 'Recomputed over the L1 string as received, including disclosures', 'credential-format.md 6.1');
   add('L2', 'l2-typ', 'typ matches the mandate vct values', flag((auto || imm) && checkoutM?.value.vct === modeVct[0] && paymentM?.value.vct === modeVct[1]), `typ=${String(l2.header.typ)}; mode is inferred from the vct values`, 'credential-format.md 4.6, 4.7 rule 3');
   const l2Life = typeof l2.payload.exp === 'number' && typeof l2.payload.iat === 'number' ? l2.payload.exp - l2.payload.iat : undefined;
   add('L2', 'l2-exp', 'Not expired, and iat is not in the future (300 second skew)', flag(typeof l2.payload.exp === 'number' && l2.payload.exp + skew >= now && typeof l2.payload.iat === 'number' && l2.payload.iat <= now + skew), `exp=${String(l2.payload.exp)}, iat=${String(l2.payload.iat)}`, 'credential-format.md 4.7 rule 4');
@@ -137,7 +137,7 @@ export async function verifyChain(a: ViArtifacts, trust: ViTrust): Promise<ViRep
   // ---------------- Immediate: checkout_hash link inside L2
   if (imm) {
     const cj = String(checkoutM?.value.checkout_jwt ?? '');
-    const h = await sha256B64url(cj);
+    const h = await sha256Base64Url(cj);
     add('Chain', 'imm-checkout-hash', 'checkout_hash equals B64U(SHA-256(checkout_jwt))', flag(checkoutM?.value.checkout_hash === h), 'Recomputed from the checkout_jwt string', 'credential-format.md 6.2');
     add('Chain', 'imm-transaction-id', 'transaction_id equals checkout_hash', flag(paymentM?.value.transaction_id === checkoutM?.value.checkout_hash), 'Links the payment mandate to this checkout', 'credential-format.md 4.4.2, 6.2');
     add('Chain', 'imm-merchant-sig', 'checkout_jwt signature verifies (fixture merchant key)', flag(await verifyJws(cj, trust.merchantJwk), true), 'v0.1 leaves checkout_jwt signing implementation-defined; verifying is SHOULD', 'credential-format.md 6.3');
@@ -155,7 +155,7 @@ export async function verifyChain(a: ViArtifacts, trust: ViTrust): Promise<ViRep
   const l2Base = parseSdJwt(a.l2).jwt;
   const l2Discs = parseSdJwt(a.l2).disclosures;
   const encOf = async (m?: { digest: string }) => {
-    for (const e of l2Discs) if ((await sha256B64url(e)) === m?.digest) return e;
+    for (const e of l2Discs) if ((await sha256Base64Url(e)) === m?.digest) return e;
     return '';
   };
   const payDisc = await encOf(paymentM);
@@ -163,7 +163,7 @@ export async function verifyChain(a: ViArtifacts, trust: ViTrust): Promise<ViRep
 
   // allowed merchants resolved from the checkout mandate
   const allowedC = (checkoutM?.value.constraints as Obj[] | undefined)?.find((c) => c.type === 'mandate.checkout.allowed_merchants');
-  const resolved = allowedC ? await resolveRefs(allowedC.allowed, l2Discs) : { value: [], undisclosed: [] };
+  const resolved = allowedC ? await resolveDisclosures(allowedC.allowed, l2Discs) : { value: [], undisclosed: [] };
   const allowedMerchants = (Array.isArray(resolved.value) ? resolved.value : []).filter(isObj);
 
   const finals: Record<'L3a' | 'L3b', Obj | undefined> = { L3a: undefined, L3b: undefined };
@@ -196,7 +196,7 @@ export async function verifyChain(a: ViArtifacts, trust: ViTrust): Promise<ViRep
       }
       view = `${l2Base}~${payDisc}~${sel ? sel + '~' : ''}`;
     } else view = `${l2Base}~${chkDisc}~`;
-    add(id, `${id}-sd-hash`, 'sd_hash equals the hash of the recipient view of L2', flag(l3.payload.sd_hash === (await sha256B64url(view))), id === 'L3a' ? 'L2 base JWT + payment disclosure + selected merchant disclosure' : 'L2 base JWT + checkout disclosure (teaching simplification: no item disclosures)', 'credential-format.md 5.4, 6.1');
+    add(id, `${id}-sd-hash`, 'sd_hash equals the hash of the recipient view of L2', flag(l3.payload.sd_hash === (await sha256Base64Url(view))), id === 'L3a' ? 'L2 base JWT + payment disclosure + selected merchant disclosure' : 'L2 base JWT + checkout disclosure (teaching simplification: no item disclosures)', 'credential-format.md 5.4, 6.1');
     add(id, `${id}-refs`, 'Every delegate_payload digest has a matching disclosure', flag(l3.missingRefs.length === 0), 'All references resolve', 'credential-format.md 9.1');
     add(id, `${id}-no-cnf`, 'No cnf in the final mandate (terminal delegation)', flag(!('cnf' in m.value) && !('cnf' in l3.payload)), 'No further key binding is allowed', 'credential-format.md 4.6, 5.7 rule 5');
     const life = typeof l3.payload.exp === 'number' && typeof l3.payload.iat === 'number' ? l3.payload.exp - l3.payload.iat : undefined;
@@ -212,7 +212,7 @@ export async function verifyChain(a: ViArtifacts, trust: ViTrust): Promise<ViRep
   const co = finals.L3b;
   const pa = finals.L3a;
   const cj = String(co?.checkout_jwt ?? '');
-  const recomputed = await sha256B64url(cj);
+  const recomputed = await sha256Base64Url(cj);
   add('Chain', 'hash-checkout', 'L3b checkout_hash equals B64U(SHA-256(checkout_jwt))', co ? flag(co.checkout_hash === recomputed) : 'skipped', 'Recomputed from the checkout_jwt string in L3b', 'credential-format.md 6.2');
   add('Chain', 'hash-link', 'L3a transaction_id equals L3b checkout_hash', co && pa ? flag(pa.transaction_id === co.checkout_hash) : 'skipped', pa && co ? `transaction_id ${String(pa.transaction_id).slice(0, 10)}..., checkout_hash ${String(co.checkout_hash).slice(0, 10)}...` : 'A final mandate is missing', 'credential-format.md 5.7 rule 10, 6.2');
   add('Chain', 'merchant-sig', 'checkout_jwt signature verifies (fixture merchant key)', flag(await verifyJws(cj, trust.merchantJwk), true), 'v0.1 leaves checkout_jwt signing implementation-defined; verifying is SHOULD', 'credential-format.md 6.3');

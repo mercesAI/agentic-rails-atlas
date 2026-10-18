@@ -7,6 +7,8 @@
 import { useId, useMemo, useState, type ReactNode } from 'react';
 import type { Address, Hex } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+import { Note } from '@/components/playground/Note';
+import { Tabs } from '@/components/playground/Tabs';
 import {
   FIXTURE_IDENTITY_REGISTRY,
   ILLUSTRATIVE,
@@ -15,7 +17,6 @@ import {
   REGISTRATION_TYPE,
   SIM_CHAIN_ID,
   SIM_NAMESPACE,
-  SIMPLIFICATION,
   TRUST_EXAMPLES,
 } from './lib/fixtures';
 import {
@@ -301,10 +302,10 @@ function RegistrationPanel({ say }: { say: (s: string) => void }) {
         <strong>{validation.ok ? 'Valid' : `${errors} error${errors === 1 ? '' : 's'}`}</strong> against a local schema ({SCHEMA_LABEL}).
       </p>
       <Issues issues={validation.issues} />
-      <p className="e8-tag">
-        {SIMPLIFICATION}: the text gives the structure as an example. This page treats x402Support and active as required, as the protocol page
+      <Note kind="simplification">
+        the text gives the structure as an example. This page treats x402Support and active as required, as the protocol page
         does; the best-practices guide treats active as optional.
-      </p>
+      </Note>
       <details>
         <summary>Show the derived JSON Schema</summary>
         <pre tabIndex={SCROLL_TAB} aria-label="Derived JSON Schema">
@@ -340,10 +341,10 @@ function RegistrationPanel({ say }: { say: (s: string) => void }) {
           )}
           {uriCheck?.issue && <Issues issues={[uriCheck.issue]} />}
           {scheme !== 'data' && (
-            <p className="e8-tag">
-              {SIMPLIFICATION}: the IPFS and HTTPS URIs are placeholders; nothing is uploaded or fetched. With HTTPS, a service domain can be
+            <Note kind="simplification">
+              the IPFS and HTTPS URIs are placeholders; nothing is uploaded or fetched. With HTTPS, a service domain can be
               proven by serving a matching registrations entry at /.well-known/agent-registration.json.
-            </p>
+            </Note>
           )}
         </>
       ) : (
@@ -497,10 +498,10 @@ function ReputationPanel({ say }: { say: (s: string) => void }) {
           {weighted.mean === null ? 'no entries count' : `${weighted.mean.toFixed(2)} over ${weighted.count} entries (weight total ${weighted.weightTotal.toFixed(1)})`}
           {trust === 'none' ? ', over every client' : ', over your list'}
         </p>
-        <p className="e8-tag">
-          {SIMPLIFICATION}: the weighting runs off chain. The registry stores only value, valueDecimals, tag1, tag2 and the revoked flag; the
+        <Note kind="simplification">
+          the weighting runs off chain. The registry stores only value, valueDecimals, tag1, tag2 and the revoked flag; the
           proofOfPayment lives in the feedback file and nothing checks it. A real indexer would look the transaction up on the chain.
-        </p>
+        </Note>
       </div>
       {!tag1 && opt.watchtower && (
         <p className="e8-out e8-out--warn">
@@ -706,10 +707,10 @@ function WalletPanel({ say }: { say: (s: string) => void }) {
           )}
         </div>
       )}
-      <p className="e8-tag">
-        {SIMPLIFICATION}: the clock is simulated from your device time plus the delay above. There is no smart contract wallet, so the ERC-1271
+      <Note kind="simplification">
+        the clock is simulated from your device time plus the delay above. There is no smart contract wallet, so the ERC-1271
         fallback is skipped and a failed recovery ends in &quot;invalid wallet sig&quot;. Nothing is broadcast.
-      </p>
+      </Note>
     </div>
   );
 }
@@ -717,25 +718,15 @@ function WalletPanel({ say }: { say: (s: string) => void }) {
 export default function Playground() {
   const [tab, setTab] = useState<Tab>('registration');
   const [announce, setAnnounce] = useState('');
+  const panels: Record<Tab, ReactNode> = {
+    registration: <RegistrationPanel say={setAnnounce} />,
+    reputation: <ReputationPanel say={setAnnounce} />,
+    wallet: <WalletPanel say={setAnnounce} />,
+  };
   return (
     <div className="e8">
-      <div className="e8-tabs" role="group" aria-label="Simulator">
-        {TABS.map(([t, label]) => (
-          <button key={t} type="button" className="btn" aria-pressed={tab === t} onClick={() => setTab(t)}>
-            {label}
-          </button>
-        ))}
-      </div>
       {/* Every panel stays mounted; a hidden panel keeps its edited JSON, scenario and generated key. */}
-      <div hidden={tab !== 'registration'}>
-        <RegistrationPanel say={setAnnounce} />
-      </div>
-      <div hidden={tab !== 'reputation'}>
-        <ReputationPanel say={setAnnounce} />
-      </div>
-      <div hidden={tab !== 'wallet'}>
-        <WalletPanel say={setAnnounce} />
-      </div>
+      <Tabs<Tab> label="Simulator" idPrefix="e8" value={tab} onChange={setTab} tabs={TABS.map(([id, label]) => ({ id, label, content: panels[id] }))} />
       <p className="e8-sr" aria-live="polite">
         {announce}
       </p>

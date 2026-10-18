@@ -1,19 +1,7 @@
 import { describe, expect, it, beforeAll } from 'vitest';
-import {
-  b64urlDecode,
-  b64urlDecodeJson,
-  b64urlEncode,
-  b64urlEncodeJson,
-  canonicalJson,
-  ellipsize,
-  fromUtf8,
-  jsonEqual,
-  pretty,
-  randomB64url,
-  sha256B64url,
-  utf8,
-} from '@/playgrounds/ap2/lib/encoding';
-import { decodeJws, generateEs256Key, importEs256PublicJwk, sameJwk, signJws, verifyJws } from '@/playgrounds/ap2/lib/jws';
+import { base64UrlDecodeJson, base64UrlEncodeJson, base64UrlToBytes, bytesToBase64Url, fromUtf8, randomBase64Url, sha256Base64Url, utf8 } from '@/lib/playground/bytes';
+import { canonicalize, jsonEqual } from '@/lib/playground/canonical-json';
+import { decodeJws, generateEs256Key, importEs256PublicJwk, sameJwk, signJws, verifyJws } from '@/lib/playground/es256';
 import {
   concealArray,
   concealProperty,
@@ -23,7 +11,8 @@ import {
   parseSdJwt,
   resolveDisclosures,
   serializeSdJwt,
-} from '@/playgrounds/ap2/lib/sdjwt';
+} from '@/lib/playground/sd-jwt';
+import { ellipsize, pretty } from '@/lib/playground/util';
 import { buildCheckout, checkoutTotal, formatMinor, itemFor, merchantById, MERCHANTS } from '@/playgrounds/ap2/lib/fixtures';
 import {
   constraintOutcome,
@@ -106,24 +95,24 @@ describe('spec identifiers', () => {
 describe('encoding', () => {
   it('round-trips base64url without padding', () => {
     const bytes = new Uint8Array([251, 255, 0, 1, 2]);
-    const enc = b64urlEncode(bytes);
+    const enc = bytesToBase64Url(bytes);
     expect(enc).not.toMatch(/[+/=]/);
-    expect([...b64urlDecode(enc)]).toEqual([...bytes]);
-    expect(b64urlDecodeJson(b64urlEncodeJson({ a: 1 }))).toEqual({ a: 1 });
+    expect([...base64UrlToBytes(enc)]).toEqual([...bytes]);
+    expect(base64UrlDecodeJson(base64UrlEncodeJson({ a: 1 }))).toEqual({ a: 1 });
     expect(fromUtf8(utf8('é'))).toBe('é');
-    expect(() => b64urlDecode('a+b')).toThrow();
+    expect(() => base64UrlToBytes('a+b')).toThrow();
   });
   it('canonicalizes, compares and formats JSON', () => {
-    expect(canonicalJson({ b: 1, a: { d: 2, c: 3 } })).toBe('{"a":{"c":3,"d":2},"b":1}');
+    expect(canonicalize({ b: 1, a: { d: 2, c: 3 } })).toBe('{"a":{"c":3,"d":2},"b":1}');
     expect(jsonEqual({ a: 1, b: 2 }, { b: 2, a: 1 })).toBe(true);
     expect(pretty({ a: 1 })).toContain('\n');
     expect(ellipsize('x'.repeat(100), 4)).toBe('xxxx...xxxx');
     expect(ellipsize('short')).toBe('short');
   });
   it('hashes with SHA-256 and makes random salts', async () => {
-    expect(await sha256B64url('abc')).toBe('ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0');
-    expect(randomB64url(16)).toHaveLength(22);
-    expect(randomB64url()).not.toBe(randomB64url());
+    expect(await sha256Base64Url('abc')).toBe('ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0');
+    expect(randomBase64Url(16)).toHaveLength(22);
+    expect(randomBase64Url()).not.toBe(randomBase64Url());
   });
 });
 
@@ -138,7 +127,7 @@ describe('ES256 JWS', () => {
     expect(await verifyJws(jws, await importEs256PublicJwk(k.publicJwk))).toBe(true);
     expect(await verifyJws(jws, other.publicKey)).toBe(false);
     const [h, , s] = jws.split('.');
-    const forged = `${h}.${b64urlEncodeJson({ hello: 'mars' })}.${s}`;
+    const forged = `${h}.${base64UrlEncodeJson({ hello: 'mars' })}.${s}`;
     expect(await verifyJws(forged, k.publicKey)).toBe(false);
     expect(await verifyJws('not.a.jws', k.publicKey)).toBe(false);
     expect(decodeJws(jws).payload).toEqual({ hello: 'world' });
@@ -157,10 +146,10 @@ describe('SD-JWT core', () => {
   it('builds array and property disclosures with digests over the encoded string', async () => {
     const d = await makeArrayDisclosure({ id: 'm1' }, 'salt');
     expect(decodeDisclosure(d.encoded)).toEqual({ salt: 'salt', value: { id: 'm1' } });
-    expect(d.digest).toBe(await sha256B64url(d.encoded));
+    expect(d.digest).toBe(await sha256Base64Url(d.encoded));
     const p = await makePropertyDisclosure('checkout_jwt', 'abc', 'salt2');
     expect(decodeDisclosure(p.encoded)).toEqual({ salt: 'salt2', name: 'checkout_jwt', value: 'abc' });
-    expect(() => decodeDisclosure(b64urlEncodeJson(['only-one']))).toThrow();
+    expect(() => decodeDisclosure(base64UrlEncodeJson(['only-one']))).toThrow();
   });
   it('conceals, serializes, parses and resolves', async () => {
     const arr = await concealArray([{ id: 'a' }, { id: 'b' }]);
@@ -176,7 +165,7 @@ describe('SD-JWT core', () => {
     expect(r.value).toEqual({ list: [{ id: 'a' }], obj: { vct: 'x', secret: 's' } });
     expect(r.undisclosed).toEqual([arr.disclosures[1]!.digest]);
     expect(r.unreferenced).toEqual([]);
-    const bad = await resolveDisclosures(payload, [b64urlEncodeJson(['z', { id: 'evil' }]), 'not base64!']);
+    const bad = await resolveDisclosures(payload, [base64UrlEncodeJson(['z', { id: 'evil' }]), 'not base64!']);
     expect(bad.unreferenced).toHaveLength(1);
     expect(bad.malformed).toHaveLength(1);
   });
@@ -310,16 +299,16 @@ describe('mandate builders and signers', () => {
     const checkout = buildCheckout(trailhead, [{ sku: 'sku_wool_socks', quantity: 1 }], 'c');
     const jwt = await signCheckout(checkout, keys.merchant);
     expect(await verifyJws(jwt, keys.merchant.publicKey)).toBe(true);
-    expect(await checkoutHashOf(jwt)).toBe(await sha256B64url(jwt));
+    expect(await checkoutHashOf(jwt)).toBe(await sha256Base64Url(jwt));
     const open = await issueUserSigned(openCheckoutContent([], keys.agent, 1, 2) as never, [], keys.user, { iat: 1 });
     expect(decodeJws(open.jwt).header).toMatchObject({ alg: 'ES256', typ: 'example+sd-jwt' });
-    expect(await openCheckoutDigestOf(open.jwt)).toBe(await sha256B64url(open.jwt));
+    expect(await openCheckoutDigestOf(open.jwt)).toBe(await sha256Base64Url(open.jwt));
     const openPres = present(open, open.disclosures);
     const closed = await closeWithKeyBinding({ vct: VCT.checkout }, [], keys.agent, { iat: 1, aud: 'merchant', nonce: 'n', parentPresentation: openPres });
     const kb = decodeJws(closed.jwt);
     expect(kb.header).toMatchObject({ typ: 'kb+sd-jwt' });
-    expect(kb.payload).toMatchObject({ aud: 'merchant', nonce: 'n', sd_hash: await sha256B64url(openPres), _sd_alg: 'sha-256' });
-    expect(await receiptReferenceOf('x~')).toBe(await sha256B64url('x~'));
+    expect(kb.payload).toMatchObject({ aud: 'merchant', nonce: 'n', sd_hash: await sha256Base64Url(openPres), _sd_alg: 'sha-256' });
+    expect(await receiptReferenceOf('x~')).toBe(await sha256Base64Url('x~'));
     const unpacked = await unpackMandate(present(closed, closed.disclosures));
     expect(unpacked.content).toEqual({ vct: VCT.checkout });
   });

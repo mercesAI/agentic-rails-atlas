@@ -9,6 +9,7 @@
  * other assets unless allowedAssets lists them. The playground treats its fixture token as a
  * recognized default asset so the USD cap applies.
  */
+import { formatMinor, parseDecimalToMinor } from '@/lib/playground/money';
 import { FIXTURE_TOKEN } from './fixtures';
 
 export const DEFAULT_MAX_AMOUNT_PER_PAYMENT = '$1';
@@ -25,9 +26,9 @@ export function parseMoney(money: string): string {
 /** Decimal string to atomic units (extra decimals are cut, as in the SDK). */
 export function convertToTokenAmount(decimalAmount: string, decimals: number): string {
   if (!/^\d+\.?\d*$/.test(decimalAmount)) throw new Error(`Invalid amount: ${decimalAmount}`);
+  // The SDK cuts extra decimals instead of rejecting them, so they are cut before the shared parser runs.
   const [intPart = '0', decPart = ''] = decimalAmount.split('.');
-  const padded = decPart.padEnd(decimals, '0').slice(0, decimals);
-  return (intPart + padded).replace(/^0+/, '') || '0';
+  return parseDecimalToMinor(`${intPart}.${decPart.slice(0, decimals)}`, decimals).toString();
 }
 
 /** Prices above this many whole units are refused before any value reaches viem, which throws outside the uint256 range. */
@@ -49,11 +50,7 @@ export function parseUsdAmount(usd: string, decimals: number = FIXTURE_TOKEN.dec
 
 /** Atomic units to a decimal string with trailing zeros trimmed (at least two decimals). */
 export function formatAtomic(atomic: string | bigint, decimals: number = FIXTURE_TOKEN.decimals): string {
-  const s = BigInt(atomic).toString().padStart(decimals + 1, '0');
-  const int = s.slice(0, s.length - decimals);
-  let dec = s.slice(s.length - decimals).replace(/0+$/, '');
-  if (dec.length < 2) dec = dec.padEnd(2, '0');
-  return `${int}.${dec}`;
+  return formatMinor(atomic, decimals, '', { trimZeros: true, minFractionDigits: 2 });
 }
 
 export type SpendCheck =

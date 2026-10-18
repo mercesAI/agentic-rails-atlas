@@ -1,9 +1,16 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './playground.css';
-import { b64urlDecodeJson, ellipsize, pretty } from './lib/encoding';
+import { Check } from '@/components/playground/Check';
+import { Note } from '@/components/playground/Note';
+import { NumberField } from '@/components/playground/NumberField';
+import { Select } from '@/components/playground/Select';
+import { Tabs } from '@/components/playground/Tabs';
+import { Wire as KitWire } from '@/components/playground/Wire';
+import { base64UrlDecodeJson } from '@/lib/playground/bytes';
+import { generateEs256Key, jwkThumbprint, type Es256Key } from '@/lib/playground/es256';
+import { ellipsize, nowSec, pretty } from '@/lib/playground/util';
 import { AGENT_KEY_HOST, MERCHANTS, PROGRAM_LABEL, SHOP_AUTHORITY, SHOP_PATH, SPEC_LABEL, formatMinor, merchantById } from './lib/fixtures';
 import { MASTERCARD_TAG, addToDirectory, signRequest, verifyAtEdge, type EdgeResult, type FixtureDirectory, type SignedRequest } from './lib/httpsig';
-import { generateEs256Key, jwkThumbprint, type Es256Key } from './lib/jws';
 import {
   NOT_PUBLISHED,
   REASON_TEXT,
@@ -26,30 +33,11 @@ import { FAULTS, defaultViConfig, buildChain, generateViKeys, humanDuration, ins
 import { verifyChain, type CheckStatus, type ViReport } from './lib/vi-verify';
 
 const SCROLL_TAB = 0;
-const nowSec = () => Math.floor(Date.now() / 1000);
 
 // ------------------------------------------------------------------ small UI pieces
 
-function Tag({ kind, children }: { kind: 'simplification' | 'example' | 'unpublished'; children: ReactNode }) {
-  return <span className={`mcpg__tag${kind === 'example' ? ' mcpg__tag--example' : kind === 'unpublished' ? ' mcpg__tag--quirk' : ''}`}>{children}</span>;
-}
-
-function Simplification({ children }: { children: ReactNode }) {
-  return (
-    <p className="mcpg__simpl">
-      <Tag kind="simplification">Teaching simplification</Tag>
-      {children}
-    </p>
-  );
-}
-
 function Example({ label }: { label: string }) {
-  return (
-    <p className="mcpg__note">
-      <Tag kind="example">Example</Tag>
-      {label}
-    </p>
-  );
+  return <Note kind="example">{label}</Note>;
 }
 
 const STATUS_TEXT: Record<CheckStatus, string> = { pass: 'Pass', fail: 'Fail', warn: 'Warning', skipped: 'Skipped' };
@@ -62,95 +50,9 @@ function Status({ status }: { status: CheckStatus }) {
   );
 }
 
-function Select<T extends string>({ label, value, options, onChange, disabled }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void; disabled?: boolean }) {
-  const id = useId();
-  return (
-    <span>
-      <label htmlFor={id}>{label}</label>{' '}
-      <select id={id} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value as T)}>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </span>
-  );
-}
-
-function Num({ label, value, onChange, step = 1, min, disabled }: { label: string; value: number | undefined; onChange: (v: number | undefined) => void; step?: number | 'any'; min?: number; disabled?: boolean }) {
-  const id = useId();
-  return (
-    <span>
-      <label htmlFor={id}>{label}</label>{' '}
-      <input id={id} type="number" step={step} min={min} disabled={disabled} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} />
-    </span>
-  );
-}
-
-function Check({ label, checked, onChange, disabled }: { label: ReactNode; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
-  return (
-    <label>
-      <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
-      {label}
-    </label>
-  );
-}
-
+/** A wire-format artifact with a decode toggle and the example label it illustrates. */
 function Wire({ title, raw, decoded, example }: { title: string; raw: string; decoded: unknown; example: string }) {
-  const [showDecoded, setShowDecoded] = useState(false);
-  return (
-    <div className="mcpg__wire">
-      <div className="mcpg__row">
-        <h4>{title}</h4>
-        <button type="button" className="btn btn--ghost" aria-pressed={showDecoded} onClick={() => setShowDecoded((v) => !v)}>
-          {showDecoded ? 'Show encoded' : 'Decode'}
-        </button>
-      </div>
-      <Example label={example} />
-      <pre tabIndex={SCROLL_TAB} aria-label={`${title}, ${showDecoded ? 'decoded' : 'encoded'}`}>
-        {showDecoded ? (typeof decoded === 'string' ? decoded : pretty(decoded)) : raw}
-      </pre>
-    </div>
-  );
-}
-
-/** Radiogroup with roving focus: arrows, Home and End move the selection and the focus together. */
-function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
-  const refs = useRef<(HTMLButtonElement | null)[]>([]);
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
-    let next = -1;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % options.length;
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + options.length) % options.length;
-    if (e.key === 'Home') next = 0;
-    if (e.key === 'End') next = options.length - 1;
-    const o = options[next];
-    if (!o) return;
-    e.preventDefault();
-    onChange(o.value);
-    refs.current[next]?.focus();
-  };
-  return (
-    <div className="segmented" role="radiogroup" aria-label={label}>
-      {options.map((o, i) => (
-        <button
-          key={o.value}
-          ref={(el) => {
-            refs.current[i] = el;
-          }}
-          type="button"
-          role="radio"
-          aria-checked={value === o.value}
-          tabIndex={value === o.value ? 0 : -1}
-          className="segmented__btn"
-          onClick={() => onChange(o.value)}
-          onKeyDown={(e) => onKey(e, i)}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
+  return <KitWire title={title} text={raw} decoded={decoded} note={<Example label={example} />} />;
 }
 
 // ------------------------------------------------------------------ token lifecycle
@@ -318,8 +220,8 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
       <fieldset>
         <legend>Consumer controls</legend>
         <div className="mcpg__row">
-          <Num label="Limit per purchase (USD)" value={limit} min={0} step={1} disabled={locked} onChange={setLimit} />
-          <Num label="Expiry (hours from now)" value={hours} min={0} step="any" disabled={locked} onChange={setHours} />
+          <NumberField label="Limit per purchase (USD)" value={limit} min={0} step={1} disabled={locked} onChange={(v) => setLimit(v ?? undefined)} />
+          <NumberField label="Expiry (hours from now)" value={hours} min={0} step="any" disabled={locked} onChange={(v) => setHours(v ?? undefined)} />
           <Check label="Single use" checked={singleUse} disabled={locked} onChange={setSingleUse} />
         </div>
         <div className="mcpg__row" role="group" aria-label="Merchant scope">
@@ -327,9 +229,9 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
             <Check key={m.id} label={m.name} checked={scope.includes(m.id)} disabled={locked} onChange={(on) => setScope((s) => (on ? [...new Set([...s, m.id])] : s.filter((x) => x !== m.id)))} />
           ))}
         </div>
-        <Simplification>
+        <Note kind="simplification">
           The passkey is a fresh WebCrypto P-256 key that signs a challenge naming the agent keyid and the controls. A real passkey is a WebAuthn credential bound to a relying party. Mastercard publishes no schema for the controls or the provisioning request.
-        </Simplification>
+        </Note>
       </fieldset>
 
       <div className="mcpg__row" role="group" aria-label="Lifecycle steps">
@@ -354,7 +256,7 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
       </div>
       <p className="mcpg__note">Simulated time: {new Date(clock * 1000).toISOString().replace('.000Z', 'Z')}</p>
       {consent && (
-        <Wire title="Passkey consent challenge (simulated)" raw={consent.challenge} decoded={b64urlDecodeJson(consent.challenge)} example="Illustrative example, not a Mastercard format" />
+        <Wire title="Passkey consent challenge (simulated)" raw={consent.challenge} decoded={base64UrlDecodeJson(consent.challenge)} example="Illustrative example, not a Mastercard format" />
       )}
       {token && (
         <p className="mcpg__note">
@@ -366,15 +268,15 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
         <legend>5. Purchase through the edge</legend>
         <div className="mcpg__row">
           <Select label="Merchant" value={merchantId} options={MERCHANTS.map((m) => ({ value: m.id, label: m.name }))} onChange={setMerchantId} />
-          <Num label="Amount (USD)" value={amount} min={0} step="any" onChange={setAmount} />
+          <NumberField label="Amount (USD)" value={amount} min={0} step="any" onChange={(v) => setAmount(v ?? undefined)} />
           <Select<Injection> label="Failure to inject" value={injection} options={INJECTIONS} onChange={setInjection} />
           <button type="button" className="btn" onClick={purchase}>
             Sign, verify at edge, authorize
           </button>
         </div>
-        <Simplification>
+        <Note kind="simplification">
           Signing uses ECDSA P-256 (<code>ecdsa-p256-sha256</code>) and covers only <code>@authority</code> and <code>@path</code>; the guide example uses Ed25519. The key set is a local fixture, because the Mastercard directory location is not public and Mastercard publishes no URL for it.
-        </Simplification>
+        </Note>
       </fieldset>
 
       {request && (
@@ -515,13 +417,13 @@ function VIPanel({ announce }: { announce: (s: string) => void }) {
             onChange={(m) => set({ mode: m, fault: 'none' })}
           />
           <Select<string> label="Merchant" value={cfg.merchantId} options={MERCHANTS.map((m) => ({ value: m.id, label: m.name }))} onChange={(v) => set({ merchantId: v })} />
-          <Num label="Purchase amount (USD)" value={cfg.amountMinor / 100} min={0} step="any" onChange={(v) => set({ amountMinor: Math.round((v ?? 0) * 100) })} />
+          <NumberField label="Purchase amount (USD)" value={cfg.amountMinor / 100} min={0} step="any" onChange={(v) => set({ amountMinor: Math.round((v ?? 0) * 100) })} />
         </div>
         {mode === 'autonomous' && (
           <>
             <div className="mcpg__row">
-              <Num label="mandate.payment.amount_range min (USD)" value={cfg.amountMin / 100} min={0} step="any" onChange={(v) => set({ amountMin: Math.round((v ?? 0) * 100) })} />
-              <Num label="max (USD)" value={cfg.amountMax / 100} min={0} step="any" onChange={(v) => set({ amountMax: Math.round((v ?? 0) * 100) })} />
+              <NumberField label="mandate.payment.amount_range min (USD)" value={cfg.amountMin / 100} min={0} step="any" onChange={(v) => set({ amountMin: Math.round((v ?? 0) * 100) })} />
+              <NumberField label="max (USD)" value={cfg.amountMax / 100} min={0} step="any" onChange={(v) => set({ amountMax: Math.round((v ?? 0) * 100) })} />
             </div>
             <div className="mcpg__row" role="group" aria-label="mandate.checkout.allowed_merchants">
               <span className="mcpg__grouplabel">mandate.checkout.allowed_merchants</span>
@@ -531,8 +433,8 @@ function VIPanel({ announce }: { announce: (s: string) => void }) {
             </div>
             <div className="mcpg__row">
               <Check label="Add mandate.payment.budget" checked={budgetOn} onChange={(v) => { setBudgetOn(v); setStale(true); }} />
-              <Num label="Budget max (USD)" value={budgetUsd} min={0} step="any" disabled={!budgetOn} onChange={(v) => { setBudgetUsd(v); setStale(true); }} />
-              <Num label="Already spent under this mandate (USD, network state)" value={cfg.spentSoFar / 100} min={0} step="any" disabled={!budgetOn} onChange={(v) => set({ spentSoFar: Math.round((v ?? 0) * 100) })} />
+              <NumberField label="Budget max (USD)" value={budgetUsd} min={0} step="any" disabled={!budgetOn} onChange={(v) => { setBudgetUsd(v ?? undefined); setStale(true); }} />
+              <NumberField label="Already spent under this mandate (USD, network state)" value={cfg.spentSoFar / 100} min={0} step="any" disabled={!budgetOn} onChange={(v) => set({ spentSoFar: Math.round((v ?? 0) * 100) })} />
             </div>
           </>
         )}
@@ -544,9 +446,9 @@ function VIPanel({ announce }: { announce: (s: string) => void }) {
         </div>
         <p className="mcpg__note">Expected: {fault.expect}.</p>
         {stale && <p className="mcpg__note">Inputs changed. Build again to update the layers and the verifier.</p>}
-        <Simplification>
+        <Note kind="simplification">
           The <code>line_items</code> constraint and item disclosures are not modeled, so L3b <code>sd_hash</code> covers the L2 base JWT plus the checkout disclosure only. <code>checkout_jwt</code> is an ES256 JWS from a fixture merchant key; v0.1 leaves its format implementation-defined. One verifier sees the full L2 and both L3 credentials. Network state (budget spend) is typed in; the spec defines no API for it.
-        </Simplification>
+        </Note>
       </fieldset>
 
       {view && <ViResult view={view} />}
@@ -681,11 +583,6 @@ function ViResult({ view }: { view: ViView }) {
 
 type Tab = 'lifecycle' | 'vi';
 
-const TABS: { value: Tab; label: string }[] = [
-  { value: 'lifecycle', label: 'Agentic token lifecycle' },
-  { value: 'vi', label: 'Verifiable Intent layers' },
-];
-
 export default function Playground() {
   const [tab, setTab] = useState<Tab>('lifecycle');
   const [message, setMessage] = useState('');
@@ -703,16 +600,19 @@ export default function Playground() {
   if (!cryptoOk) return <p role="alert">This browser does not offer WebCrypto here, so the simulation cannot run.</p>;
   return (
     <div className="mcpg">
-      <Segmented<Tab> label="Simulator" value={tab} options={TABS} onChange={setTab} />
       <p aria-live="polite" role="status" className="mcpg__note">
         {message}
       </p>
-      <div hidden={tab !== 'lifecycle'}>
-        <LifecyclePanel announce={announceLifecycle} />
-      </div>
-      <div hidden={tab !== 'vi'}>
-        <VIPanel announce={announceVi} />
-      </div>
+      <Tabs<Tab>
+        label="Simulator"
+        idPrefix="mcpg"
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { id: 'lifecycle', label: 'Agentic token lifecycle', content: <LifecyclePanel announce={announceLifecycle} /> },
+          { id: 'vi', label: 'Verifiable Intent layers', content: <VIPanel announce={announceVi} /> },
+        ]}
+      />
     </div>
   );
 }

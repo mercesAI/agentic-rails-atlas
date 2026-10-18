@@ -5,19 +5,24 @@
  * Auth comparison. Everything runs in this browser; nothing is stored and nothing is sent to a network.
  * PlaygroundFrame wraps this component.
  */
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { generateAgentKey, jwkThumbprint, randomNonce, supportsEd25519, tapAlgLabel, type AgentKey } from './lib/keys';
+import { useEffect, useMemo, useState } from 'react';
+import { Note } from '@/components/playground/Note';
+import { TabList } from '@/components/playground/Tabs';
+import { bytesToHex, randomBase64Url } from '@/lib/playground/bytes';
+import { jwkThumbprint } from '@/lib/playground/es256';
 import {
   parseSignatureHeader,
   parseSignatureInput,
   renderHttp,
   rewriteParam,
-  signRequest,
   type ComponentId,
   type HttpRequest,
   type SigParams,
   type SignedOutput,
-} from './lib/signature';
+} from '@/lib/playground/http-sig';
+import { nowSec } from '@/lib/playground/util';
+import { generateAgentKey, supportsEd25519, tapAlgLabel, type AgentKey } from './lib/keys';
+import { signRequest } from './lib/signature';
 import { rememberNonce, verifyRequest, type KeyDirectory, type NonceStore, type Step, type VerifyResult } from './lib/verifier';
 import {
   AGENT_DIRECTORY_ORIGIN,
@@ -76,7 +81,6 @@ const OBJECT_TAMPERS: Array<{ value: ObjectTamper; label: string }> = [
 
 const STATUS_WORD: Record<Step['status'], string> = { pass: 'Pass', fail: 'Blocked', skip: 'Not reached', note: 'Note' };
 
-const nowSec = () => Math.floor(Date.now() / 1000);
 /** Lets a scrollable <pre> take keyboard focus (axe: scrollable-region-focusable). */
 const SCROLL_TAB = 0;
 
@@ -84,16 +88,6 @@ interface Signed extends SignedOutput {
   req: HttpRequest;
   nonce: string;
   created: number;
-}
-
-function Note({ kind, children }: { kind: 'quirk' | 'simpl' | 'example'; children: ReactNode }) {
-  const tag = kind === 'quirk' ? 'Spec quirk' : kind === 'simpl' ? 'Teaching simplification' : 'Example';
-  return (
-    <p className={`vt-note${kind === 'quirk' ? ' vt-note--quirk' : kind === 'simpl' ? ' vt-note--simpl' : ''}`}>
-      <span className="vt-tag">{tag}</span>
-      {children}
-    </p>
-  );
 }
 
 function Steps({ steps }: { steps: Step[] }) {
@@ -159,10 +153,6 @@ function Verdict({ v }: { v: ObjectVerdict | null }) {
       </p>
     </>
   );
-}
-
-function hex(bytes: Uint8Array): string {
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join(' ');
 }
 
 /** Apply a tamper to the request as it leaves the agent. */
@@ -258,7 +248,7 @@ export default function Playground() {
     let alive = true;
     const req = requestFor(tag);
     const created = nowSec();
-    const nonce = randomNonce();
+    const nonce = randomBase64Url(32);
     const components: ComponentId[] = COMPONENT_CHOICES.filter((c) => covered.includes(c.label)).map((c) => c.id);
     const params: SigParams = [
       ['created', created],
@@ -322,40 +312,17 @@ export default function Playground() {
         fixture, never Visa&apos;s.
       </p>
       {fallback && (
-        <p className="vt-note vt-note--quirk" role="note">
-          <span className="vt-tag">Fallback</span>This browser has no WebCrypto Ed25519, so the playground signs with ECDSA P-256 (
-          <code>ecdsa-p256-sha256</code>). TAP&apos;s examples use Ed25519; the signature base and checks are the same.
-        </p>
+        <Note kind="quirk" tag="Fallback">
+          This browser has no WebCrypto Ed25519, so the playground signs with ECDSA P-256 (<code>ecdsa-p256-sha256</code>). TAP&apos;s examples use
+          Ed25519; the signature base and checks are the same.
+        </Note>
       )}
 
       <p className="vt-live" role="status" aria-live="polite">
         {announce || 'Ready.'}
       </p>
 
-      <div role="tablist" aria-label="Visa TAP playground parts" className="vt-tabs">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            id={`vt-tab-${t.id}`}
-            aria-controls={`vt-panel-${t.id}`}
-            aria-selected={tab === t.id}
-            tabIndex={tab === t.id ? 0 : -1}
-            className="vt-tab"
-            onClick={() => setTab(t.id)}
-            onKeyDown={(e) => {
-              if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-              const i = tabs.findIndex((x) => x.id === tab);
-              const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]!;
-              setTab(next.id);
-              document.getElementById(`vt-tab-${next.id}`)?.focus();
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <TabList label="Visa TAP playground parts" idPrefix="vt" tabs={tabs} value={tab} onChange={setTab} />
 
       {tab === 'sign' && (
         <section id="vt-panel-sign" role="tabpanel" aria-labelledby="vt-tab-sign" className="vt">
@@ -478,7 +445,7 @@ export default function Playground() {
               <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Fixture JWKS">
                 {jwks ? JSON.stringify(jwks, null, 2) : 'Generating.'}
               </pre>
-              <Note kind="simpl">A real verifier fetches and caches keys from the agent&apos;s published directory; here the directory is an in-memory fixture.</Note>
+              <Note kind="simplification">A real verifier fetches and caches keys from the agent&apos;s published directory; here the directory is an in-memory fixture.</Note>
             </div>
 
             <div className="vt-card">
@@ -559,7 +526,7 @@ function Decoded({ signed }: { signed: Signed }) {
             <th scope="row">Signature bytes</th>
             <td>
               <code>
-                {bytes.length} bytes: {hex(bytes)}
+                {bytes.length} bytes: {bytesToHex(bytes, ' ')}
               </code>
             </td>
           </tr>
@@ -591,7 +558,7 @@ function Objects({ agentKey, signed, directory, onAnnounce }: { agentKey: AgentK
   useEffect(() => {
     let alive = true;
     (async () => {
-      const parts = { nonce: tamper === 'nonce' ? randomNonce() : signed.nonce, kid: TAP_KEYID, alg: tapAlgLabel(agentKey.alg) };
+      const parts = { nonce: tamper === 'nonce' ? randomBase64Url(32) : signed.nonce, kid: TAP_KEYID, alg: tapAlgLabel(agentKey.alg) };
       const alg = agentKey.alg;
       let consumer = await signObject(consumerObject(parts, signed.created), alg, agentKey.privateKey);
       const iou = variant === 'browsingIOU' ? await signObject(browsingIou(parts), alg, agentKey.privateKey) : undefined;
@@ -618,7 +585,7 @@ function Objects({ agentKey, signed, directory, onAnnounce }: { agentKey: AgentK
   return (
     <>
       <Note kind="example">{ILLUSTRATIVE_LABEL}. Fixture values; the nonce and kid come from the request signed on the first tab.</Note>
-      <Note kind="simpl">
+      <Note kind="simplification">
         The spec signs each object over &quot;all fields in the order received except the signature&quot; but names no canonical form, and its examples use PS256. Here each
         object is signed as compact JSON of those fields with the same ephemeral key as the message signature. The ID Token has a real header and claims encoding but a
         placeholder signature; in production Visa signs it.
@@ -705,7 +672,7 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
         ['keyid', TAP_KEYID],
         ['alg', tapAlgLabel(agentKey.alg)],
         ['expires', now + 480],
-        ['nonce', randomNonce()],
+        ['nonce', randomBase64Url(32)],
         ['tag', 'agent-browser-auth'],
       ];
       const tap = await signRequest(tapReq, { label: TAP_LABEL, components: [{ name: '@authority' }, { name: '@path' }], params: tapParams, alg: agentKey.alg, privateKey: agentKey.privateKey });
@@ -801,7 +768,7 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
           ))}
         </tbody>
       </table>
-      <Note kind="simpl">
+      <Note kind="simplification">
         Both requests use one ephemeral key so the only differences are in the message shape. The cross-checks show why a TAP verifier blocks a Web Bot Auth
         request (no nonce, no alg) and a Web Bot Auth verifier blocks a TAP request (no Signature-Agent).
       </Note>

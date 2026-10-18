@@ -1,17 +1,31 @@
 /**
- * RFC 9421 style HTTP message signature for the Agent Pay edge check.
+ * RFC 9421 HTTP message signature for the Agent Pay edge check, built on the shared http-sig module.
  * Header and parameter names follow the Level 1 guide: Signature-Agent, Signature-Input, Signature, with
  * keyid, alg, created, expires, nonce and the Mastercard tag `Agent-pay-auth`.
  * Teaching simplifications: ES256 (`ecdsa-p256-sha256`) instead of the guide's Ed25519 example, only
  * `@authority` and `@path` are covered, and the key set is a local fixture, not a Mastercard directory
  * (its location is not public).
  */
-import { b64Decode, b64Encode, randomB64url } from './encoding';
-import { jwkThumbprint, signBytes, verifyBytes, importEs256PublicJwk, type Es256Key, type Jwk } from './jws';
+import { randomBase64Url } from '@/lib/playground/bytes';
+import { importEs256PublicJwk, jwkThumbprint, signBytes, verifyBytes, type EcJwk as Jwk, type Es256Key } from '@/lib/playground/es256';
+import {
+  buildSignatureBase,
+  parseSignatureHeader,
+  parseSignatureInput as parseSignatureInputHeader,
+  paramValue,
+  serializeSignatureParams,
+  signatureHeader,
+  signatureInputHeader,
+  type ComponentId,
+  type HttpRequest,
+  type SigParams,
+} from '@/lib/playground/http-sig';
 
 export const MASTERCARD_TAG = 'Agent-pay-auth';
 export const SIG_ALG = 'ecdsa-p256-sha256';
 export const COVERED = ['@authority', '@path'] as const;
+const COMPONENTS: ComponentId[] = COVERED.map((name) => ({ name }));
+const LABEL = 'sig1';
 
 export interface SignedRequest {
   authority: string;
@@ -33,21 +47,47 @@ export interface SignOptions {
   keyid: string;
 }
 
-export function paramsLine(p: { created: number; expires: number; keyid: string; alg: string; nonce: string; tag: string }): string {
-  const comps = COVERED.map((c) => `"${c}"`).join(' ');
-  return `(${comps});created=${p.created};expires=${p.expires};keyid="${p.keyid}";alg="${p.alg}";nonce="${p.nonce}";tag="${p.tag}"`;
+export interface EdgeParams {
+  created: number;
+  expires: number;
+  keyid: string;
+  alg: string;
+  nonce: string;
+  tag: string;
 }
 
-export function signatureBase(authority: string, path: string, params: string): string {
-  return [`"@authority": ${authority}`, `"@path": ${path}`, `"@signature-params": ${params}`].join('\n');
+/** The signature parameters in the order the Level 1 guide writes them. */
+export function sigParams(p: EdgeParams): SigParams {
+  return [
+    ['created', p.created],
+    ['expires', p.expires],
+    ['keyid', p.keyid],
+    ['alg', p.alg],
+    ['nonce', p.nonce],
+    ['tag', p.tag],
+  ];
+}
+
+/** `("@authority" "@path");created=...;expires=...;keyid="...";alg="...";nonce="...";tag="..."` */
+export function paramsLine(p: EdgeParams): string {
+  return serializeSignatureParams(COMPONENTS, sigParams(p));
+}
+
+function toRequest(authority: string, path: string): HttpRequest {
+  return { method: 'GET', scheme: 'https', authority, path, query: '', headers: {} };
+}
+
+/** The RFC 9421 signature base over `@authority`, `@path` and the parameters. */
+export function signatureBase(authority: string, path: string, params: SigParams): string {
+  return buildSignatureBase(toRequest(authority, path), COMPONENTS, params);
 }
 
 export async function signRequest(req: { authority: string; path: string }, key: Es256Key, o: SignOptions): Promise<SignedRequest & { base: string }> {
   const expires = o.created + (o.ttlSeconds ?? 480);
-  const params = paramsLine({ created: o.created, expires, keyid: o.keyid, alg: SIG_ALG, nonce: o.nonce ?? randomB64url(32), tag: o.tag ?? MASTERCARD_TAG });
+  const params = sigParams({ created: o.created, expires, keyid: o.keyid, alg: SIG_ALG, nonce: o.nonce ?? randomBase64Url(32), tag: o.tag ?? MASTERCARD_TAG });
   const base = signatureBase(req.authority, req.path, params);
   const sig = await signBytes(base, key.privateKey);
-  return { ...req, signatureAgent: o.signatureAgent, signatureInput: `sig1=${params}`, signature: `sig1=:${b64Encode(sig)}:`, base };
+  return { ...req, signatureAgent: o.signatureAgent, signatureInput: signatureInputHeader(LABEL, COMPONENTS, params), signature: signatureHeader(LABEL, sig), base };
 }
 
 export interface ParsedInput {
@@ -58,27 +98,36 @@ export interface ParsedInput {
   alg?: string;
   nonce?: string;
   tag?: string;
-  params: string;
+  /** The parsed parameters, which rebuild the signature base. */
+  params: SigParams;
 }
 
+/** The `sig1` member of a Signature-Input header, or undefined when the header does not parse or has no sig1. */
 export function parseSignatureInput(value: string): ParsedInput | undefined {
-  const m = /^sig1=(\(([^)]*)\)(.*))$/.exec(value);
-  if (!m) return undefined;
-  const rest = m[3] ?? '';
-  const str = (k: string) => new RegExp(`;${k}="([^"]*)"`).exec(rest)?.[1];
+  let sig;
+  try {
+    sig = parseSignatureInputHeader(value).find((p) => p.label === LABEL);
+  } catch {
+    return undefined;
+  }
+  if (!sig) return undefined;
+  const str = (k: string) => {
+    const v = paramValue(sig.params, k);
+    return typeof v === 'string' ? v : undefined;
+  };
   const num = (k: string) => {
-    const v = new RegExp(`;${k}=(\\d+)`).exec(rest)?.[1];
-    return v === undefined ? undefined : Number(v);
+    const v = paramValue(sig.params, k);
+    return typeof v === 'number' ? v : undefined;
   };
   return {
-    components: [...(m[2] ?? '').matchAll(/"([^"]+)"/g)].map((x) => x[1] as string),
+    components: sig.components.map((c) => c.name),
     created: num('created'),
     expires: num('expires'),
     keyid: str('keyid'),
     alg: str('alg'),
     nonce: str('nonce'),
     tag: str('tag'),
-    params: m[1] as string,
+    params: sig.params,
   };
 }
 
@@ -148,14 +197,12 @@ export async function verifyAtEdge(req: SignedRequest, dir: FixtureDirectory, no
   ok('nonce', 'First use of this nonce');
   if (input.tag !== MASTERCARD_TAG) return stop('tag', `Tag is "${input.tag}", expected "${MASTERCARD_TAG}"`, 'blocked', 'Block the request', input.nonce);
   ok('tag', `Tag is "${MASTERCARD_TAG}"`);
-  const sigMatch = /^sig1=:([A-Za-z0-9+/=]+):$/.exec(req.signature);
   let valid = false;
-  if (sigMatch) {
-    try {
-      valid = await verifyBytes(signatureBase(req.authority, req.path, input.params), b64Decode(sigMatch[1] as string), await importEs256PublicJwk(jwk));
-    } catch {
-      valid = false;
-    }
+  try {
+    const sig = parseSignatureHeader(req.signature).get(LABEL);
+    if (sig) valid = await verifyBytes(signatureBase(req.authority, req.path, input.params), sig, await importEs256PublicJwk(jwk));
+  } catch {
+    valid = false;
   }
   if (!valid) return stop('signature', 'The signature does not match the rebuilt signature base', 'blocked', 'Block the request', input.nonce);
   ok('signature', 'Signature verifies against the covered components');

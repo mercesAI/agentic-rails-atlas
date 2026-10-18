@@ -3,9 +3,9 @@
  * `docs/ap2/flows.md`, with optional failure injection. Pure apart from WebCrypto calls.
  */
 import { checkoutTotal, buildCheckout, INSTRUMENTS, ISSUERS, merchantById, CATALOG, CURRENCY, type CartLine } from './fixtures';
-import { b64urlDecodeJson, b64urlEncodeJson, randomB64url } from './encoding';
-import { decodeJws, signJws, type Es256Key, generateEs256Key } from './jws';
-import { decodeDisclosure, parseSdJwt } from './sdjwt';
+import { base64UrlDecodeJson, base64UrlEncodeJson, randomBase64Url } from '@/lib/playground/bytes';
+import { decodeJws, signJws, type Es256Key, generateEs256Key } from '@/lib/playground/es256';
+import { decodeDisclosure, parseSdJwt } from '@/lib/playground/sd-jwt';
 import {
   checkoutHashOf,
   closedCheckoutContent,
@@ -246,7 +246,7 @@ function editDisclosure(serialized: string, pick: (value: unknown) => boolean, e
     const d = decodeDisclosure(enc);
     if (!pick(d.value)) return enc;
     const arr = d.name === undefined ? [d.salt, edit(d.value)] : [d.salt, d.name, edit(d.value)];
-    return b64urlEncodeJson(arr);
+    return base64UrlEncodeJson(arr);
   });
   return [jwt, ...out].join('~') + '~';
 }
@@ -312,7 +312,7 @@ export async function runV02(cfg: V02Config, keys: Keys): Promise<V02Run> {
   }
 
   // ---- Shopping: merchant signs the checkout
-  const checkout = buildCheckout(merchant, cfg.lines, `chk_${randomB64url(6)}`);
+  const checkout = buildCheckout(merchant, cfg.lines, `chk_${randomBase64Url(6)}`);
   const checkoutJwt = await signCheckout(checkout, keys.merchant);
   const checkoutHash = await checkoutHashOf(checkoutJwt);
   step(hnp ? '1b.1' : '1.2', 'Shopping Agent and Merchant', `Assembles a cart at ${merchant.name}.`, hnp ? 'flows.md Phase 1b step 1' : 'flows.md Phase 1 step 2');
@@ -322,7 +322,7 @@ export async function runV02(cfg: V02Config, keys: Keys): Promise<V02Run> {
   // Alternative checkout for tampering
   let pricier: { jwt: string; hash: string } | undefined;
   if (tamper === 'agent_swaps_checkout_jwt' || tamper === 'agent_points_payment_elsewhere' || tamper === 'merchant_cart_changed') {
-    const alt = buildCheckout(merchant, cfg.lines.map((l) => ({ ...l, quantity: l.quantity + 1 })), `chk_${randomB64url(6)}`);
+    const alt = buildCheckout(merchant, cfg.lines.map((l) => ({ ...l, quantity: l.quantity + 1 })), `chk_${randomBase64Url(6)}`);
     const jwt = await signCheckout(alt, keys.merchant);
     pricier = { jwt, hash: await checkoutHashOf(jwt) };
   }
@@ -400,7 +400,7 @@ export async function runV02(cfg: V02Config, keys: Keys): Promise<V02Run> {
 
   if (cp.error) {
     paymentReceipt = await signReceipt<PaymentReceipt>(
-      { status: 'Error', iss: ISSUERS.credentialProvider, iat: now, reference: paymentReference, payment_id: `pay_${randomB64url(6)}`, error: cp.error, error_description: cp.errorDescription ?? 'Verification failed' },
+      { status: 'Error', iss: ISSUERS.credentialProvider, iat: now, reference: paymentReference, payment_id: `pay_${randomBase64Url(6)}`, error: cp.error, error_description: cp.errorDescription ?? 'Verification failed' },
       keys.processor,
     );
     outcome = { ok: false, code: cp.error, stoppedAt: 'Credential Provider' };
@@ -417,7 +417,7 @@ export async function runV02(cfg: V02Config, keys: Keys): Promise<V02Run> {
         keys.merchant,
       );
       paymentReceipt = await signReceipt<PaymentReceipt>(
-        { status: 'Error', iss: ISSUERS.merchantPaymentProcessor, iat: now, reference: paymentReference, payment_id: `pay_${randomB64url(6)}`, error: merchantResult.error, error_description: 'Checkout was not completed' },
+        { status: 'Error', iss: ISSUERS.merchantPaymentProcessor, iat: now, reference: paymentReference, payment_id: `pay_${randomBase64Url(6)}`, error: merchantResult.error, error_description: 'Checkout was not completed' },
         keys.processor,
       );
       outcome = { ok: false, code: merchantResult.error, stoppedAt: 'Merchant' };
@@ -439,13 +439,13 @@ export async function runV02(cfg: V02Config, keys: Keys): Promise<V02Run> {
       const ok = !processor.error;
       paymentReceipt = await signReceipt<PaymentReceipt>(
         ok
-          ? { status: 'Success', iss: ISSUERS.merchantPaymentProcessor, iat: now, reference: paymentReference, payment_id: `pay_${randomB64url(6)}`, psp_confirmation_id: `psp_${randomB64url(6)}`, network_confirmation_id: `net_${randomB64url(6)}` }
-          : { status: 'Error', iss: ISSUERS.merchantPaymentProcessor, iat: now, reference: paymentReference, payment_id: `pay_${randomB64url(6)}`, error: processor.error ?? 'invalid_mandate', error_description: processor.errorDescription ?? 'Verification failed' },
+          ? { status: 'Success', iss: ISSUERS.merchantPaymentProcessor, iat: now, reference: paymentReference, payment_id: `pay_${randomBase64Url(6)}`, psp_confirmation_id: `psp_${randomBase64Url(6)}`, network_confirmation_id: `net_${randomBase64Url(6)}` }
+          : { status: 'Error', iss: ISSUERS.merchantPaymentProcessor, iat: now, reference: paymentReference, payment_id: `pay_${randomBase64Url(6)}`, error: processor.error ?? 'invalid_mandate', error_description: processor.errorDescription ?? 'Verification failed' },
         keys.processor,
       );
       checkoutReceipt = await signReceipt<CheckoutReceipt>(
         ok
-          ? { status: 'Success', iss: merchant.website ?? merchant.id, iat: now, reference: checkoutReference, order_id: `order_${randomB64url(6)}` }
+          ? { status: 'Success', iss: merchant.website ?? merchant.id, iat: now, reference: checkoutReference, order_id: `order_${randomBase64Url(6)}` }
           : { status: 'Error', iss: merchant.website ?? merchant.id, iat: now, reference: checkoutReference, error: processor.error ?? 'invalid_mandate', error_description: 'Payment was not completed' },
         keys.merchant,
       );
@@ -517,7 +517,7 @@ export function explainSdJwt(serialized: string): { jwt: { header: unknown; payl
     jwt: peekJwt(jwt),
     disclosures: disclosures.map((encoded) => {
       try {
-        return { encoded, decoded: b64urlDecodeJson(encoded) };
+        return { encoded, decoded: base64UrlDecodeJson(encoded) };
       } catch {
         return { encoded, decoded: '(not decodable)' };
       }

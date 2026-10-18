@@ -8,10 +8,10 @@
  * L3b `sd_hash` covers the L2 base JWT plus the checkout disclosure only; `checkout_jwt` is an ES256 JWS
  * from a fixture merchant key (v0.1 leaves its format implementation-defined); `risk_data` is omitted.
  */
-import { b64urlDecodeJson, b64urlEncodeJson, randomB64url, sha256B64url } from './encoding';
+import { base64UrlDecodeJson, base64UrlEncodeJson, randomBase64Url, sha256Base64Url } from '@/lib/playground/bytes';
+import { decodeJws, generateEs256Key, signJws, type EcJwk as Jwk, type Es256Key } from '@/lib/playground/es256';
+import { makeArrayDisclosure, makePropertyDisclosure, parseSdJwt, serializeSdJwt, type Disclosure } from '@/lib/playground/sd-jwt';
 import { CURRENCY, merchantById, MERCHANTS, type Merchant } from './fixtures';
-import { decodeJws, generateEs256Key, signJws, type Es256Key, type Jwk } from './jws';
-import { makeDisclosure, makePropertyDisclosure, parseSdJwt, serializeSdJwt, type Disclosure } from './sdjwt';
 
 export type Mode = 'immediate' | 'autonomous';
 
@@ -128,7 +128,7 @@ export interface ViTrust {
   spentSoFar: number;
 }
 
-const sha = sha256B64url;
+const sha = sha256Base64Url;
 const ref = (d: Disclosure) => ({ '...': d.digest });
 
 async function checkoutJwtFor(keys: VIKeys, merchant: Merchant, amountMinor: number, now: number, sku: string): Promise<string> {
@@ -142,9 +142,9 @@ async function checkoutJwtFor(keys: VIKeys, merchant: Merchant, amountMinor: num
 /** Re-encode a compact JWS payload without re-signing, so the signature no longer matches. */
 function editJwtPayload(jwt: string, edit: (p: Record<string, unknown>) => void): string {
   const [h, p, s] = jwt.split('.') as [string, string, string];
-  const payload = b64urlDecodeJson<Record<string, unknown>>(p);
+  const payload = base64UrlDecodeJson<Record<string, unknown>>(p);
   edit(payload);
-  return `${h}.${b64urlEncodeJson(payload)}.${s}`;
+  return `${h}.${base64UrlEncodeJson(payload)}.${s}`;
 }
 
 /** Edit one disclosure string (decoded, changed, re-encoded) in a serialized SD-JWT. The JWT is left alone. */
@@ -154,12 +154,12 @@ function editDisclosure(serialized: string, match: (value: Record<string, unknow
   const out = disclosures.map((enc) => {
     if (changed) return enc;
     try {
-      const arr = b64urlDecodeJson<unknown[]>(enc);
+      const arr = base64UrlDecodeJson<unknown[]>(enc);
       const v = arr[arr.length - 1];
       if (arr.length === 2 && v && typeof v === 'object' && match(v as Record<string, unknown>)) {
         edit(v as Record<string, unknown>);
         changed = true;
-        return b64urlEncodeJson(arr);
+        return base64UrlEncodeJson(arr);
       }
     } catch {
       /* not a mapping disclosure */
@@ -200,11 +200,11 @@ export async function buildChain(keys: VIKeys, cfg: VIConfig, now: number): Prom
   if (cfg.mode === 'immediate') {
     const checkoutMandate = { vct: VCT.checkoutFinal, checkout_jwt: swap ? otherCheckoutJwt : checkoutJwt, checkout_hash: swap ? otherHash : checkoutHash };
     const paymentMandate = { vct: VCT.paymentFinal, payment_instrument: instrument, payment_amount: { currency: CURRENCY, amount }, payee, transaction_id: checkoutHash };
-    const [cd, pd] = [await makeDisclosure(checkoutMandate), await makeDisclosure(paymentMandate)];
+    const [cd, pd] = [await makeArrayDisclosure(checkoutMandate), await makeArrayDisclosure(paymentMandate)];
     const exp = now + (cfg.fault === 'l2-too-long' ? 3600 : LIFETIMES.l2Immediate);
     const l2Jwt = await signJws(
       kbHeader(TYP.l2Immediate, 'user-key-1'),
-      { nonce: randomB64url(8), aud: NETWORK_AUD, iat: now, exp, sd_hash: await sha(l1Signed), _sd_alg: 'sha-256', _sd: [cd.digest, pd.digest], delegate_payload: [ref(cd), ref(pd)] },
+      { nonce: randomBase64Url(8), aud: NETWORK_AUD, iat: now, exp, sd_hash: await sha(l1Signed), _sd_alg: 'sha-256', _sd: [cd.digest, pd.digest], delegate_payload: [ref(cd), ref(pd)] },
       keys.user.privateKey,
     );
     l2 = serializeSdJwt(l2Jwt, [cd.encoded, pd.encoded]);
@@ -212,24 +212,24 @@ export async function buildChain(keys: VIKeys, cfg: VIConfig, now: number): Prom
     const agentJwk = { ...keys.agent.publicJwk, kid: 'agent-key-1' };
     const otherJwk = { ...keys.otherAgent.publicJwk, kid: 'agent-key-1' };
     const allowed = cfg.allowedMerchantIds.map(merchantById);
-    const merchantDiscs = await Promise.all(allowed.map((m) => makeDisclosure({ id: m.id, name: m.name, website: m.website })));
+    const merchantDiscs = await Promise.all(allowed.map((m) => makeArrayDisclosure({ id: m.id, name: m.name, website: m.website })));
     const checkoutOpen = {
       vct: VCT.checkoutOpen,
       cnf: { jwk: agentJwk },
       constraints: [{ type: 'mandate.checkout.allowed_merchants', allowed: merchantDiscs.map(ref) }],
       prompt_summary: 'Illustrative: buy one item within the limits',
     };
-    const cd = await makeDisclosure(checkoutOpen);
+    const cd = await makeArrayDisclosure(checkoutOpen);
     const constraints: unknown[] = [{ type: 'mandate.payment.amount_range', currency: CURRENCY, min: cfg.amountMin, max: cfg.amountMax }];
     if (cfg.budgetMax !== undefined) constraints.push({ type: 'mandate.payment.budget', currency: CURRENCY, max: cfg.budgetMax });
     // conditional_transaction_id = B64U(SHA-256(ASCII(checkout disclosure))), the digest of cd.
     constraints.push({ type: 'mandate.payment.reference', conditional_transaction_id: cd.digest });
     const paymentOpen = { vct: VCT.paymentOpen, cnf: { jwk: cfg.fault === 'cnf-split' ? otherJwk : agentJwk }, payment_instrument: instrument, constraints };
-    const pd = await makeDisclosure(paymentOpen);
+    const pd = await makeArrayDisclosure(paymentOpen);
     const l2Exp = cfg.fault === 'l2-too-long' ? now + LIFETIMES.l1 + 86400 : now + LIFETIMES.l2AutonomousMax;
     const l2Jwt = await signJws(
       kbHeader(TYP.l2Autonomous, 'user-key-1'),
-      { nonce: randomB64url(8), aud: AGENT_AUD, iat: now, exp: l2Exp, sd_hash: await sha(l1Signed), _sd_alg: 'sha-256', _sd: [cd.digest, pd.digest], delegate_payload: [ref(cd), ref(pd)] },
+      { nonce: randomBase64Url(8), aud: AGENT_AUD, iat: now, exp: l2Exp, sd_hash: await sha(l1Signed), _sd_alg: 'sha-256', _sd: [cd.digest, pd.digest], delegate_payload: [ref(cd), ref(pd)] },
       keys.user.privateKey,
     );
     l2 = serializeSdJwt(l2Jwt, [cd.encoded, pd.encoded, ...merchantDiscs.map((d) => d.encoded)]);
@@ -238,8 +238,8 @@ export async function buildChain(keys: VIKeys, cfg: VIConfig, now: number): Prom
     const signer = cfg.fault === 'wrong-agent-key' ? keys.otherAgent : keys.agent;
     const l3Exp = now + (cfg.fault === 'l3-lifetime-long' ? 7200 : LIFETIMES.l3Recommended);
     const selected = merchantDiscs.find((d) => (d.value as { id: string }).id === merchantPick.id);
-    const finalPayment = await makeDisclosure({ vct: VCT.paymentFinal, payment_instrument: instrument, payment_amount: { currency: CURRENCY, amount }, payee, transaction_id: checkoutHash });
-    const finalCheckout = await makeDisclosure({
+    const finalPayment = await makeArrayDisclosure({ vct: VCT.paymentFinal, payment_instrument: instrument, payment_amount: { currency: CURRENCY, amount }, payee, transaction_id: checkoutHash });
+    const finalCheckout = await makeArrayDisclosure({
       vct: VCT.checkoutFinal,
       checkout_jwt: swap ? otherCheckoutJwt : checkoutJwt,
       checkout_hash: swap ? otherHash : checkoutHash,
@@ -250,13 +250,13 @@ export async function buildChain(keys: VIKeys, cfg: VIConfig, now: number): Prom
     const viewB = `${l2Base}~${cd.encoded}~`;
     const l3aJwt = await signJws(
       kbHeader(TYP.l3, 'agent-key-1'),
-      { nonce: randomB64url(8), aud: NETWORK_AUD, iat: now, exp: l3Exp, sd_hash: await sha(viewA), _sd_alg: 'sha-256', _sd: [finalPayment.digest], delegate_payload: [ref(finalPayment)] },
+      { nonce: randomBase64Url(8), aud: NETWORK_AUD, iat: now, exp: l3Exp, sd_hash: await sha(viewA), _sd_alg: 'sha-256', _sd: [finalPayment.digest], delegate_payload: [ref(finalPayment)] },
       signer.privateKey,
     );
     l3a = serializeSdJwt(l3aJwt, [finalPayment.encoded]);
     const l3bJwt = await signJws(
       kbHeader(TYP.l3, 'agent-key-1'),
-      { nonce: randomB64url(8), aud: `${merchantPick.website}/checkout`, iat: now, exp: l3Exp, sd_hash: await sha(viewB), _sd_alg: 'sha-256', _sd: [finalCheckout.digest], delegate_payload: [ref(finalCheckout)] },
+      { nonce: randomBase64Url(8), aud: `${merchantPick.website}/checkout`, iat: now, exp: l3Exp, sd_hash: await sha(viewB), _sd_alg: 'sha-256', _sd: [finalCheckout.digest], delegate_payload: [ref(finalCheckout)] },
       signer.privateKey,
     );
     l3b = serializeSdJwt(l3bJwt, [finalCheckout.encoded]);
@@ -306,7 +306,7 @@ export async function inspectLayer(serialized: string): Promise<Inspected> {
   for (const encoded of disclosures) {
     let decoded: unknown;
     try {
-      decoded = b64urlDecodeJson(encoded);
+      decoded = base64UrlDecodeJson(encoded);
     } catch {
       decoded = 'Malformed disclosure';
     }

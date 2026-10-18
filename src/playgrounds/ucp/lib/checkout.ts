@@ -1,6 +1,7 @@
 // Checkout session state machine, following shopping/checkout/index.md at v2026-08-25: "Checkout Status
 // Lifecycle", "Status Values", "Error Handling", "Continue URL", "Accepted completion" and "Operations".
 // The business decides the status; the simulator plays the business.
+import { formatMinor } from '@/lib/playground/money';
 import { CATALOG, DEFAULT_TTL_MS, TAX_BPS, type InstrumentOption } from './fixtures';
 import { validateSubmission, type ResolvedHandler } from './payment';
 import { type CheckoutStatus, type UcpMessage } from './types';
@@ -101,8 +102,15 @@ export function computeTotals(lineItems: LineItemInput[]): Totals {
   return { subtotal, tax, total: subtotal + tax };
 }
 
+/**
+ * Minor units as dollars, for example 3888 as "$38.88". The sign stays after the symbol, as before.
+ * Rounds to whole cents and keeps a fixed-point fallback for values outside the safe-integer range,
+ * so a line total computed from the form can never throw while rendering.
+ */
 export function formatMoney(minor: number): string {
-  return `$${(minor / 100).toFixed(2)}`;
+  const cents = Number.isFinite(minor) ? Math.round(minor) : 0;
+  if (!Number.isSafeInteger(cents)) return `$${(minor / 100).toFixed(2)}`;
+  return `$${formatMinor(cents, 2)}`;
 }
 
 /** Messages and status the business derives from the current data. */

@@ -12,8 +12,9 @@
  * - v0.1 defines no machine-checkable constraint language and no error codes; the intent checks
  *   below are this simulation's reading of the IntentMandate field descriptions.
  */
-import { canonicalJson, randomB64url, sha256B64url } from './encoding';
-import { decodeJws, importEs256PublicJwk, signJws, verifyJws, type Ap2Jwk, type Es256Key } from './jws';
+import { randomBase64Url, sha256Base64Url } from '@/lib/playground/bytes';
+import { canonicalize } from '@/lib/playground/canonical-json';
+import { decodeJws, importEs256PublicJwk, signJws, verifyJws, type EcJwk as Ap2Jwk, type Es256Key } from '@/lib/playground/es256';
 import { CURRENCY_EXPONENT, itemFor, type CartLine } from './fixtures';
 import type {
   CartContentsV01,
@@ -71,18 +72,18 @@ export function buildCartContents(merchant: Merchant, lines: CartLine[], opts: {
 }
 
 export async function cartHashOf(contents: CartContentsV01): Promise<string> {
-  return sha256B64url(canonicalJson(contents));
+  return sha256Base64Url(canonicalize(contents));
 }
 
 /** Merchant signs the cart: a JWT with iss, sub, aud, iat, exp, jti and cart_hash. */
 export async function signCartMandate(contents: CartContentsV01, merchantKey: Es256Key, merchant: Merchant, now: number): Promise<CartMandateV01> {
-  const payload = { iss: merchant.website ?? merchant.id, sub: merchant.id, aud: 'payment-processor', iat: now, exp: now + 600, jti: randomB64url(8), cart_hash: await cartHashOf(contents) };
+  const payload = { iss: merchant.website ?? merchant.id, sub: merchant.id, aud: 'payment-processor', iat: now, exp: now + 600, jti: randomBase64Url(8), cart_hash: await cartHashOf(contents) };
   return { contents, merchant_authorization: await signJws({ alg: 'ES256', typ: 'JWT', kid: 'merchant-key-1' }, payload, merchantKey.privateKey) };
 }
 
 export function buildPaymentMandateContents(cart: CartMandateV01, instrument: PaymentInstrument, merchantAgent: string, timestamp: string): PaymentMandateContentsV01 {
   return {
-    payment_mandate_id: `pm_${randomB64url(6)}`,
+    payment_mandate_id: `pm_${randomBase64Url(6)}`,
     payment_details_id: cart.contents.payment_request.details.id,
     payment_details_total: cart.contents.payment_request.details.total,
     payment_response: { request_id: cart.contents.payment_request.details.id, method_name: 'CARD', details: { token: `tok_fixture_${instrument.id}` } },
@@ -92,12 +93,12 @@ export function buildPaymentMandateContents(cart: CartMandateV01, instrument: Pa
 }
 
 export async function transactionDataOf(cart: CartMandateV01, contents: PaymentMandateContentsV01): Promise<[string, string]> {
-  return [await sha256B64url(canonicalJson(cart)), await sha256B64url(canonicalJson(contents))];
+  return [await sha256Base64Url(canonicalize(cart)), await sha256Base64Url(canonicalize(contents))];
 }
 
 /** User signs hashes of the CartMandate and PaymentMandateContents (teaching simplification, see file header). */
 export async function signPaymentMandate(cart: CartMandateV01, contents: PaymentMandateContentsV01, userKey: Es256Key, now: number): Promise<PaymentMandateV01> {
-  const payload = { aud: 'credentials-provider', nonce: randomB64url(12), iat: now, transaction_data: await transactionDataOf(cart, contents) };
+  const payload = { aud: 'credentials-provider', nonce: randomBase64Url(12), iat: now, transaction_data: await transactionDataOf(cart, contents) };
   return { payment_mandate_contents: contents, user_authorization: await signJws({ alg: 'ES256', typ: 'JWT' }, payload, userKey.privateKey) };
 }
 
@@ -221,7 +222,7 @@ export async function runV01(cfg: V01Config, keys: { user: Es256Key; merchant: E
   };
   const intent = buildIntentMandate(intentInput);
   const contents = buildCartContents(cfg.merchant, cfg.lines, {
-    id: `cart_${randomB64url(6)}`,
+    id: `cart_${randomBase64Url(6)}`,
     expiry: iso(cfg.now + 900),
     refundPeriodDays: 30,
     confirmationRequired: cfg.humanPresent,

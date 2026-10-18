@@ -1,8 +1,10 @@
 /**
- * Ephemeral signing keys through WebCrypto. Ed25519 when the runtime supports it, ECDSA P-256 otherwise.
- * Keys are generated in memory, never exported in private form and never sent anywhere.
+ * Ephemeral signing keys through WebCrypto. Ed25519 when the runtime supports it, ECDSA P-256 otherwise
+ * (the P-256 branch is the shared ES256 module). Keys are generated in memory, never exported in private
+ * form and never sent anywhere.
  */
-import { bytesToBase64Url } from './sf';
+import { utf8 } from '@/lib/playground/bytes';
+import { signBytes, verifyBytes } from '@/lib/playground/es256';
 
 /** Algorithm ids from the IANA HTTP Signature Algorithms registry (RFC 9421 Section 6.2.2). */
 export type SigAlg = 'ed25519' | 'ecdsa-p256-sha256';
@@ -27,21 +29,17 @@ export function algFromLabel(label: string): SigAlg | null {
   return null;
 }
 
-function webCryptoParams(alg: SigAlg): { gen: AlgorithmIdentifier | EcKeyGenParams; sign: AlgorithmIdentifier | EcdsaParams; imp: AlgorithmIdentifier | EcKeyImportParams } {
-  return alg === 'ed25519'
-    ? { gen: { name: 'Ed25519' }, sign: { name: 'Ed25519' }, imp: { name: 'Ed25519' } }
-    : {
-        gen: { name: 'ECDSA', namedCurve: 'P-256' } as EcKeyGenParams,
-        sign: { name: 'ECDSA', hash: 'SHA-256' } as EcdsaParams,
-        imp: { name: 'ECDSA', namedCurve: 'P-256' } as EcKeyImportParams,
-      };
+const ED25519: AlgorithmIdentifier = { name: 'Ed25519' };
+
+function keyParams(alg: SigAlg): AlgorithmIdentifier | EcKeyGenParams {
+  return alg === 'ed25519' ? ED25519 : ({ name: 'ECDSA', namedCurve: 'P-256' } as EcKeyGenParams);
 }
 
 /** True when this runtime can generate and use Ed25519 keys through WebCrypto. */
 export async function supportsEd25519(subtle: SubtleCrypto = globalThis.crypto.subtle): Promise<boolean> {
   try {
-    const kp = (await subtle.generateKey({ name: 'Ed25519' }, false, ['sign', 'verify'])) as CryptoKeyPair;
-    const sig = await subtle.sign({ name: 'Ed25519' }, kp.privateKey, new Uint8Array([1]));
+    const kp = (await subtle.generateKey(ED25519, false, ['sign', 'verify'])) as CryptoKeyPair;
+    const sig = await subtle.sign(ED25519, kp.privateKey, new Uint8Array([1]));
     return sig.byteLength === 64;
   } catch {
     return false;
@@ -49,50 +47,31 @@ export async function supportsEd25519(subtle: SubtleCrypto = globalThis.crypto.s
 }
 
 export async function generateAgentKey(alg: SigAlg): Promise<AgentKey> {
-  const p = webCryptoParams(alg);
-  const kp = (await crypto.subtle.generateKey(p.gen, false, ['sign', 'verify'])) as CryptoKeyPair;
+  const kp = (await crypto.subtle.generateKey(keyParams(alg), false, ['sign', 'verify'])) as CryptoKeyPair;
   // Public keys are always extractable in WebCrypto, so the JWK can be shown in the fixture directory.
   const publicJwk = await crypto.subtle.exportKey('jwk', kp.publicKey);
   return { alg, privateKey: kp.privateKey, publicKey: kp.publicKey, publicJwk };
 }
 
 export async function importPublicJwk(jwk: JsonWebKey, alg: SigAlg): Promise<CryptoKey> {
-  return crypto.subtle.importKey('jwk', jwk, webCryptoParams(alg).imp, true, ['verify']);
+  return crypto.subtle.importKey('jwk', jwk, keyParams(alg), true, ['verify']);
 }
 
 export async function importPrivateJwk(jwk: JsonWebKey, alg: SigAlg): Promise<CryptoKey> {
-  return crypto.subtle.importKey('jwk', jwk, webCryptoParams(alg).imp, false, ['sign']);
+  return crypto.subtle.importKey('jwk', jwk, keyParams(alg), false, ['sign']);
 }
-
-const enc = new TextEncoder();
 
 /** Sign UTF-8 text. ECDSA output is the raw r||s form that RFC 9421 Section 3.3.4 requires. */
 export async function signText(alg: SigAlg, key: CryptoKey, text: string): Promise<Uint8Array> {
-  return new Uint8Array(await crypto.subtle.sign(webCryptoParams(alg).sign, key, enc.encode(text)));
+  if (alg === 'ecdsa-p256-sha256') return signBytes(text, key);
+  return new Uint8Array(await crypto.subtle.sign(ED25519, key, utf8(text) as BufferSource));
 }
 
 export async function verifyText(alg: SigAlg, key: CryptoKey, text: string, sig: Uint8Array): Promise<boolean> {
+  if (alg === 'ecdsa-p256-sha256') return verifyBytes(text, sig, key);
   try {
-    return await crypto.subtle.verify(webCryptoParams(alg).sign, key, sig as BufferSource, enc.encode(text));
+    return await crypto.subtle.verify(ED25519, key, sig as BufferSource, utf8(text) as BufferSource);
   } catch {
     return false;
   }
-}
-
-/** RFC 7638 JWK thumbprint (SHA-256, base64url), the keyid form the Web Bot Auth draft requires. */
-export async function jwkThumbprint(jwk: JsonWebKey): Promise<string> {
-  let members: Record<string, string | undefined>;
-  if (jwk.kty === 'OKP') members = { crv: jwk.crv, kty: jwk.kty, x: jwk.x };
-  else if (jwk.kty === 'EC') members = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y };
-  else if (jwk.kty === 'RSA') members = { e: jwk.e, kty: jwk.kty, n: jwk.n };
-  else throw new Error(`Unsupported key type ${String(jwk.kty)}`);
-  for (const [k, v] of Object.entries(members)) if (!v) throw new Error(`JWK is missing ${k}`);
-  // Required members in lexicographic order, no whitespace (RFC 7638 Section 3).
-  const json = JSON.stringify(members);
-  return bytesToBase64Url(new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(json))));
-}
-
-/** Random base64url nonce from the browser's CSPRNG. */
-export function randomNonce(bytes = 32): string {
-  return bytesToBase64Url(crypto.getRandomValues(new Uint8Array(bytes)));
 }

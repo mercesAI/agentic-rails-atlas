@@ -1,7 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { b64Decode, b64Encode, b64urlDecode, b64urlDecodeJson, b64urlEncode, b64urlEncodeJson, ellipsize, fromUtf8, pretty, randomB64url, sha256B64url, utf8 } from '@/playgrounds/mastercard-agent-pay/lib/encoding';
-import { decodeJws, generateEs256Key, importEs256PublicJwk, jwkThumbprint, sameJwk, signBytes, signJws, verifyBytes, verifyJws } from '@/playgrounds/mastercard-agent-pay/lib/jws';
-import { decodeDisclosure, makeDisclosure, makePropertyDisclosure, parseSdJwt, resolveRefs, serializeSdJwt } from '@/playgrounds/mastercard-agent-pay/lib/sdjwt';
+import { base64ToBytes, base64UrlDecodeJson, base64UrlEncodeJson, base64UrlToBytes, bytesToBase64, bytesToBase64Url, fromUtf8, randomBase64Url, sha256Base64Url, utf8 } from '@/lib/playground/bytes';
+import { decodeJws, generateEs256Key, importEs256PublicJwk, jwkThumbprint, sameJwk, signBytes, signJws, verifyBytes, verifyJws } from '@/lib/playground/es256';
+import { decodeDisclosure, makeArrayDisclosure, makePropertyDisclosure, parseSdJwt, resolveDisclosures, serializeSdJwt } from '@/lib/playground/sd-jwt';
+import { ellipsize, pretty } from '@/lib/playground/util';
 import { fixtureToken, formatMinor, merchantById, MERCHANTS } from '@/playgrounds/mastercard-agent-pay/lib/fixtures';
 import { MASTERCARD_TAG, addToDirectory, paramsLine, parseSignatureInput, signRequest, signatureBase, verifyAtEdge, type FixtureDirectory } from '@/playgrounds/mastercard-agent-pay/lib/httpsig';
 import {
@@ -29,16 +30,16 @@ const NOW = 1_791_720_000;
 describe('encoding', () => {
   it('round-trips base64url, JSON and standard base64', () => {
     const bytes = new Uint8Array([251, 255, 0, 1, 2]);
-    expect(b64urlDecode(b64urlEncode(bytes))).toEqual(bytes);
-    expect(b64urlEncode(bytes)).not.toMatch(/[+/=]/);
-    expect(b64Decode(b64Encode(bytes))).toEqual(bytes);
-    expect(b64urlDecodeJson(b64urlEncodeJson({ a: 1 }))).toEqual({ a: 1 });
+    expect(base64UrlToBytes(bytesToBase64Url(bytes))).toEqual(bytes);
+    expect(bytesToBase64Url(bytes)).not.toMatch(/[+/=]/);
+    expect(base64ToBytes(bytesToBase64(bytes))).toEqual(bytes);
+    expect(base64UrlDecodeJson(base64UrlEncodeJson({ a: 1 }))).toEqual({ a: 1 });
     expect(fromUtf8(utf8('x'))).toBe('x');
-    expect(() => b64urlDecode('a+b')).toThrow();
+    expect(() => base64UrlToBytes('a+b')).toThrow();
   });
   it('hashes, randomizes and formats', async () => {
-    expect(await sha256B64url('abc')).toBe('ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0');
-    expect(randomB64url()).not.toBe(randomB64url());
+    expect(await sha256Base64Url('abc')).toBe('ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0');
+    expect(randomBase64Url()).not.toBe(randomBase64Url());
     expect(pretty({ a: 1 })).toContain('\n');
     expect(ellipsize('x'.repeat(100), 4)).toBe('xxxx...xxxx');
     expect(ellipsize('short')).toBe('short');
@@ -54,7 +55,7 @@ describe('jws', () => {
     expect(await verifyJws(jws, k.publicJwk)).toBe(true);
     expect(await verifyJws(jws, other.publicJwk)).toBe(false);
     const [h, , s] = jws.split('.');
-    expect(await verifyJws(`${h}.${b64urlEncodeJson({ n: 2 })}.${s}`, k.publicJwk)).toBe(false);
+    expect(await verifyJws(`${h}.${base64UrlEncodeJson({ n: 2 })}.${s}`, k.publicJwk)).toBe(false);
     expect(await verifyJws('nonsense', k.publicJwk)).toBe(false);
     expect(() => decodeJws('a.b')).toThrow();
   });
@@ -72,20 +73,20 @@ describe('jws', () => {
 
 describe('sdjwt', () => {
   it('makes, decodes and serializes disclosures', async () => {
-    const d = await makeDisclosure({ a: 1 }, 'salt');
+    const d = await makeArrayDisclosure({ a: 1 }, 'salt');
     expect(decodeDisclosure(d.encoded)).toEqual({ salt: 'salt', value: { a: 1 } });
-    expect(d.digest).toBe(await sha256B64url(d.encoded));
+    expect(d.digest).toBe(await sha256Base64Url(d.encoded));
     const p = await makePropertyDisclosure('email', 'x@example.com', 's');
     expect(decodeDisclosure(p.encoded)).toEqual({ salt: 's', name: 'email', value: 'x@example.com' });
-    expect(() => decodeDisclosure(b64urlEncodeJson([1]))).toThrow();
+    expect(() => decodeDisclosure(base64UrlEncodeJson([1]))).toThrow();
     const s = serializeSdJwt('a.b.c', [d.encoded, p.encoded]);
     expect(s.endsWith('~')).toBe(true);
     expect(parseSdJwt(s)).toEqual({ jwt: 'a.b.c', disclosures: [d.encoded, p.encoded] });
     expect(parseSdJwt('a.b.c~')).toEqual({ jwt: 'a.b.c', disclosures: [] });
   });
   it('resolves references and leaves missing ones undisclosed', async () => {
-    const m = await makeDisclosure({ name: 'M' });
-    const res = await resolveRefs([{ '...': m.digest }, { '...': 'nope' }, 'plain'], [m.encoded, 'garbage']);
+    const m = await makeArrayDisclosure({ name: 'M' });
+    const res = await resolveDisclosures([{ '...': m.digest }, { '...': 'nope' }, 'plain'], [m.encoded, 'garbage']);
     expect(res.value).toEqual([{ name: 'M' }, 'plain']);
     expect(res.undisclosed).toEqual(['nope']);
   });
@@ -116,10 +117,14 @@ describe('httpsig edge verification', () => {
   it('builds the parameter line and signature base', () => {
     const line = paramsLine({ created: 1, expires: 2, keyid: 'k', alg: 'ecdsa-p256-sha256', nonce: 'n', tag: MASTERCARD_TAG });
     expect(line).toBe('("@authority" "@path");created=1;expires=2;keyid="k";alg="ecdsa-p256-sha256";nonce="n";tag="Agent-pay-auth"');
-    expect(signatureBase('a', '/p', line).split('\n')).toHaveLength(3);
     const parsed = parseSignatureInput(`sig1=${line}`);
     expect(parsed).toMatchObject({ components: ['@authority', '@path'], created: 1, expires: 2, keyid: 'k', tag: 'Agent-pay-auth' });
+    const base = signatureBase('a', '/p', parsed!.params);
+    expect(base.split('\n')).toHaveLength(3);
+    expect(base.endsWith(`"@signature-params": ${line}`)).toBe(true);
     expect(parseSignatureInput('nonsense')).toBeUndefined();
+    expect(parseSignatureInput('sig2=("@path")')).toBeUndefined();
+    expect(parseSignatureInput('sig1=("@path"')).toBeUndefined();
   });
 
   it('passes a good request as a trusted agent', async () => {
@@ -227,7 +232,7 @@ describe('lifecycle', () => {
     const pk = await generateEs256Key('passkey');
     const c = await signConsent(pk, 'keyid-1', controls);
     expect(c.selfCheck).toBe(true);
-    expect(b64urlDecodeJson<{ agent: string }>(c.challenge).agent).toBe('keyid-1');
+    expect(base64UrlDecodeJson<{ agent: string }>(c.challenge).agent).toBe('keyid-1');
     expect(await consentDigest(c)).toMatch(/^[A-Za-z0-9_-]{43}$/);
   });
 });
@@ -256,7 +261,7 @@ describe('Verifiable Intent builder and verifier', () => {
     expect(l1.payload).toMatchObject({ vct: VCT.l1, scheme: 'mastercard', _sd_alg: 'sha-256' });
     expect(l1.payload.sd_hash).toBeUndefined();
     expect(l2.header.typ).toBe('kb-sd-jwt+kb');
-    expect(l2.payload.sd_hash).toBe(await sha256B64url(art.l1));
+    expect(l2.payload.sd_hash).toBe(await sha256Base64Url(art.l1));
     const vcts = l2.disclosures.map((d) => (d.decoded as [string, { vct?: string }])[1]?.vct).filter(Boolean);
     expect(vcts).toEqual([VCT.checkoutOpen, VCT.paymentOpen]);
     expect(l3a.header).toMatchObject({ typ: 'kb-sd-jwt', kid: 'agent-key-1' });
@@ -266,7 +271,7 @@ describe('Verifiable Intent builder and verifier', () => {
     const pay = (l3a.disclosures[0]?.decoded as [string, Record<string, unknown>])[1];
     const chk = (l3b.disclosures[0]?.decoded as [string, Record<string, unknown>])[1];
     expect(pay.transaction_id).toBe(chk.checkout_hash);
-    expect(chk.checkout_hash).toBe(await sha256B64url(String(chk.checkout_jwt)));
+    expect(chk.checkout_hash).toBe(await sha256Base64Url(String(chk.checkout_jwt)));
   });
 
   it('builds and verifies Immediate mode with no cnf and no L3', async () => {

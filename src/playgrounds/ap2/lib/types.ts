@@ -2,7 +2,7 @@
  * AP2 types. v0.2 names come from the JSON Schemas in `code/sdk/schemas/ap2/` at tag v0.2.0;
  * v0.1 names come from `src/ap2/types/mandate.py` and `payment_request.py` at tag v0.1.0.
  */
-import type { Ap2Jwk } from './jws';
+import type { EcJwk as Ap2Jwk } from '@/lib/playground/es256';
 
 // ------------------------------------------------------------------ v0.2 identifiers
 
@@ -296,9 +296,3 @@ export interface PaymentMandateV01 {
   user_authorization?: string | null;
 }
 
-/** Data keys used to carry v0.1 mandates in A2A messages. */
-export const V01_DATA_KEYS = {
-  intent: 'ap2.mandates.IntentMandate',
-  cart: 'ap2.mandates.CartMandate',
-  payment: 'ap2.mandates.PaymentMandate',
-} as const;

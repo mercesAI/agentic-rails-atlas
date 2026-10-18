@@ -28,9 +28,9 @@ import {
   LEAF_PROFILE_URL,
   PLATFORM_PROFILE,
   PLATFORM_PROFILE_URL,
-  clone,
   type InstrumentOption,
 } from '@/playgrounds/ucp/lib/fixtures';
+import { clone } from '@/lib/playground/util';
 import {
   checkAuthorityBinding,
   filterEntries,

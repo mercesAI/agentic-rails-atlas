@@ -4,25 +4,17 @@
 // idempotency_conflict; an in-flight duplicate is 409 idempotency_in_flight with Retry-After; 5xx is never
 // cached; keys are kept at least 24 hours.
 
+import { canonicalize, jsonEqual } from '@/lib/playground/canonical-json';
 import type { ApiError, SpecVersion } from './types';
 
 export const RETENTION_MS = 24 * 60 * 60 * 1000;
 export const RETRY_AFTER_SECONDS = 2;
 
-/** Canonical JSON: object keys sorted, arrays keep order, null stays distinct from absent (undefined is dropped). */
-export function canonicalJson(v: unknown): string {
-  if (v === null || typeof v !== 'object') return JSON.stringify(v) ?? 'null';
-  if (Array.isArray(v)) return `[${v.map((x) => canonicalJson(x === undefined ? null : x)).join(',')}]`;
-  const o = v as Record<string, unknown>;
-  const keys = Object.keys(o)
-    .filter((k) => o[k] !== undefined)
-    .sort();
-  return `{${keys.map((k) => `${JSON.stringify(k)}:${canonicalJson(o[k])}`).join(',')}}`;
-}
+/** Canonical JSON (RFC 8785 through the shared module): keys sorted, arrays keep order, null stays distinct from absent. */
+export const canonicalJson = canonicalize;
 
-export function sameBody(a: unknown, b: unknown): boolean {
-  return canonicalJson(a) === canonicalJson(b);
-}
+/** Semantic JSON equality of two bodies. */
+export const sameBody = jsonEqual;
 
 export interface StoredResponse {
   status: number | '4XX';

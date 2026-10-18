@@ -11,9 +11,9 @@
  * Teaching simplification: the Delegate SD-JWT draft defines how the open and closed parts form one
  * chain; this module keeps them as two serialized strings.
  */
-import { randomB64url, sha256B64url } from './encoding';
-import { signJws, type Es256Key } from './jws';
-import { concealArray, concealProperty, makeArrayDisclosure, SD_ALG, serializeSdJwt, type Disclosure } from './sdjwt';
+import { randomBase64Url, sha256Base64Url } from '@/lib/playground/bytes';
+import { signJws, type Es256Key } from '@/lib/playground/es256';
+import { concealArray, concealProperty, makeArrayDisclosure, SD_ALG, serializeSdJwt, type Disclosure } from '@/lib/playground/sd-jwt';
 import { ISSUERS } from './fixtures';
 import {
   VCT,
@@ -92,7 +92,7 @@ export interface KeyBindingOptions {
 /** Agent closes an open mandate: a KB-JWT signed with the key in the parent's `cnf`. */
 export async function closeWithKeyBinding(content: Record<string, unknown>, extra: TaggedDisclosure[], agentKey: Es256Key, opts: KeyBindingOptions): Promise<IssuedMandate & { sdHash: string }> {
   const contentDisclosure = await makeArrayDisclosure(content);
-  const sdHash = await sha256B64url(opts.parentPresentation);
+  const sdHash = await sha256Base64Url(opts.parentPresentation);
   const payload = { delegate_payload: [{ '...': contentDisclosure.digest }], iat: opts.iat, aud: opts.aud, nonce: opts.nonce, sd_hash: sdHash, _sd_alg: SD_ALG };
   const jwt = await signJws({ alg: 'ES256', typ: 'kb+sd-jwt' }, payload, agentKey.privateKey);
   return { jwt, disclosures: [...extra, { ...contentDisclosure, tag: 'content' }], content, sdHash };
@@ -145,7 +145,7 @@ export async function signCheckout(checkout: unknown, merchantKey: Es256Key): Pr
 
 /** `checkout_hash` and `transaction_id`: base64url SHA-256 of the `checkout_jwt` string. */
 export async function checkoutHashOf(checkoutJwt: string): Promise<string> {
-  return sha256B64url(checkoutJwt);
+  return sha256Base64Url(checkoutJwt);
 }
 
 /**
@@ -154,12 +154,12 @@ export async function checkoutHashOf(checkoutJwt: string): Promise<string> {
  * hashes the issuer-signed JWT of the open Checkout Mandate, which does not change with the disclosures chosen.
  */
 export async function openCheckoutDigestOf(openCheckoutJwt: string): Promise<string> {
-  return sha256B64url(openCheckoutJwt);
+  return sha256Base64Url(openCheckoutJwt);
 }
 
 /** Receipt `reference`: hash of the final SD-JWT in the chain, computed like `sd_hash`. */
 export async function receiptReferenceOf(closedPresentation: string): Promise<string> {
-  return sha256B64url(closedPresentation);
+  return sha256Base64Url(closedPresentation);
 }
 
-export const newNonce = (): string => randomB64url(16);
+export const newNonce = (): string => randomBase64Url(16);

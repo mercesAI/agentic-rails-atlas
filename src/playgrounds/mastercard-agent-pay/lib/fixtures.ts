@@ -1,4 +1,5 @@
 /** Fixture data only. No real merchants, cards, tokens or key directories. */
+import { formatMinor as formatSharedMinor } from '@/lib/playground/money';
 
 export const CURRENCY = 'USD';
 export const SPEC_LABEL = 'Illustrative example, Verifiable Intent main (2026-04-20)';
@@ -19,8 +20,14 @@ export const MERCHANTS: Merchant[] = [
 
 export const merchantById = (id: string): Merchant => MERCHANTS.find((m) => m.id === id) ?? (MERCHANTS[0] as Merchant);
 
+/**
+ * Minor units with the currency code after the amount, for example 27999 as "279.99 USD".
+ * A typed amount can leave the safe-integer range (1e20 dollars); those keep the plain
+ * fixed-point rendering instead of throwing inside a click handler.
+ */
 export function formatMinor(minor: number, currency = CURRENCY): string {
-  return `${(minor / 100).toFixed(2)} ${currency}`;
+  if (!Number.isSafeInteger(minor)) return `${(minor / 100).toFixed(2)} ${currency}`;
+  return `${formatSharedMinor(minor, 2)} ${currency}`;
 }
 
 /** A fixture agent token string. It is deliberately not card-number shaped. */

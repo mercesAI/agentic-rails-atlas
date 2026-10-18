@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import {
-  decodeBase64Utf8,
-  decodeHeader,
-  encodeBase64Utf8,
-  encodeHeader,
-  encodeJsonText,
-  toJson,
-} from '@/playgrounds/x402/lib/base64';
+import { base64ToUtf8, utf8ToBase64 } from '@/lib/playground/bytes';
+import { decodeHeader, encodeHeader, encodeJsonText, toJson } from '@/playgrounds/x402/lib/base64';
 import {
   FIXTURE_FACILITATOR,
   FIXTURE_PAY_TO,
@@ -59,7 +53,6 @@ import {
   randomUint256,
   recoverSigner,
   sameAddress,
-  signTypedData,
   tamperAmount,
   transferWithAuthorizationTypedData,
   typedDataForDisplay,
@@ -114,7 +107,7 @@ describe('fixtures', () => {
 describe('base64 header codec', () => {
   it('round-trips UTF-8 text', () => {
     const s = 'café ✓';
-    expect(decodeBase64Utf8(encodeBase64Utf8(s))).toBe(s);
+    expect(base64ToUtf8(utf8ToBase64(s))).toBe(s);
   });
   it('encodes the spec PAYMENT-RESPONSE example byte for byte', () => {
     expect(encodeHeader(SPEC_PAYMENT_RESPONSE)).toBe(SPEC_PAYMENT_RESPONSE_B64);
@@ -130,7 +123,7 @@ describe('base64 header codec', () => {
   it('explains bad input', () => {
     expect(decodeHeader('')).toEqual({ ok: false, error: 'The header value is empty.' });
     expect(decodeHeader('not base64!').ok).toBe(false);
-    const notJson = decodeHeader(encodeBase64Utf8('hello'));
+    const notJson = decodeHeader(utf8ToBase64('hello'));
     expect(notJson.ok).toBe(false);
     if (!notJson.ok) expect(notJson.error).toMatch(/not JSON/);
   });
@@ -144,7 +137,7 @@ describe('base64 header codec', () => {
   });
   it('encodes JSON text or reports a parse error', () => {
     const ok = encodeJsonText('{"x402Version":2}');
-    expect(ok).toEqual({ ok: true, value: encodeBase64Utf8('{"x402Version":2}') });
+    expect(ok).toEqual({ ok: true, value: utf8ToBase64('{"x402Version":2}') });
     expect(encodeJsonText('{oops').ok).toBe(false);
   });
 });
@@ -256,7 +249,7 @@ describe('typed data and signatures', () => {
     const signer = newSigner();
     const a = buildEip3009Authorization({ from: signer.address, to: FIXTURE_PAY_TO, value: '10000', now: NOW, maxTimeoutSeconds: 60 });
     const td = transferWithAuthorizationTypedData(a);
-    const sig = await signTypedData(signer, td);
+    const sig = await signer.signTypedData(td);
     expect(sig).toMatch(/^0x[0-9a-f]{130}$/);
     expect(sameAddress(await recoverSigner(td, sig), signer.address)).toBe(true);
     const tampered = transferWithAuthorizationTypedData({ ...a, value: '10001' });

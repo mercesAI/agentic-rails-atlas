@@ -1,18 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import type { Hex } from 'viem';
-import {
-  base64Decode,
-  base64Encode,
-  base64urlDecode,
-  base64urlEncode,
-  bytesToBase64url,
-  canonicalize,
-  decodeJson,
-  encodeCanonical,
-  encodeJson,
-  isCanonical,
-} from '@/playgrounds/stripe-mpp/lib/codec';
+import { base64ToUtf8, base64UrlToUtf8, bytesToBase64Url, utf8ToBase64, utf8ToBase64Url } from '@/lib/playground/bytes';
+import { canonicalize } from '@/lib/playground/canonical-json';
+import { decodeJson, encodeCanonical, encodeJson, isCanonical } from '@/playgrounds/stripe-mpp/lib/codec';
 import {
   PAYMENT_AUTHORIZATION,
   bindingInput,
@@ -71,14 +62,14 @@ const NOW = new Date('2026-10-11T12:00:00Z');
 
 describe('codec', () => {
   it('base64url round-trips without padding', () => {
-    const enc = base64urlEncode('{"a":"é?>"}');
+    const enc = utf8ToBase64Url('{"a":"é?>"}');
     expect(enc).not.toMatch(/[=+/]/);
-    expect(base64urlDecode(enc)).toBe('{"a":"é?>"}');
-    expect(bytesToBase64url(new Uint8Array([251, 255]))).toBe('-_8');
+    expect(base64UrlToUtf8(enc)).toBe('{"a":"é?>"}');
+    expect(bytesToBase64Url(new Uint8Array([251, 255]))).toBe('-_8');
   });
   it('rejects non-base64url input', () => {
-    expect(() => base64urlDecode('ab+c')).toThrow();
-    expect(() => base64urlDecode('abcde')).toThrow();
+    expect(() => base64UrlToUtf8('ab+c')).toThrow();
+    expect(() => base64UrlToUtf8('abcde')).toThrow();
   });
   it('canonicalizes with sorted keys and no whitespace', () => {
     expect(canonicalize({ b: 1, a: [true, null, 'x'], c: { z: 1, y: undefined } })).toBe('{"a":[true,null,"x"],"b":1,"c":{"z":1}}');
@@ -92,14 +83,14 @@ describe('codec', () => {
     const d = decodeJson(encodeJson({ x: 1 }));
     expect(d.ok && d.value).toEqual({ x: 1 });
     expect(decodeJson('').ok).toBe(false);
-    expect(decodeJson(base64urlEncode('not json')).ok).toBe(false);
+    expect(decodeJson(utf8ToBase64Url('not json')).ok).toBe(false);
   });
   it('detects non-canonical request encodings', () => {
     expect(isCanonical(encodeCanonical({ b: 1, a: 2 }))).toBe(true);
-    expect(isCanonical(base64urlEncode('{"b":1,"a":2}'))).toBe(false);
+    expect(isCanonical(utf8ToBase64Url('{"b":1,"a":2}'))).toBe(false);
   });
   it('standard base64 round-trips', () => {
-    expect(base64Decode(base64Encode('x402 ✓'))).toBe('x402 ✓');
+    expect(base64ToUtf8(utf8ToBase64('x402 ✓'))).toBe('x402 ✓');
   });
 });
 

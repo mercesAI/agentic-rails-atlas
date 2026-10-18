@@ -4,6 +4,7 @@
  * required structure shown in research/vendor/ERCs/ERCS/erc-8004.md ("Agent URI and Agent Registration File")
  * and the field tables on the protocol page, which mark x402Support and active as required with a caveat.
  */
+import { base64ToUtf8, utf8ToBase64 } from '@/lib/playground/bytes';
 import { REGISTRATION_TYPE } from './fixtures';
 
 export type JsonSchema = {
@@ -163,20 +164,6 @@ export function classifyAgentUri(uri: string): { scheme: UriScheme; issue?: Issu
     return { scheme: 'data' };
   }
   return { scheme: 'other', issue: { level: 'warning', path: 'agentURI', message: 'the text gives ipfs://, https:// and base64 data: URIs as examples; resolvers may not support other schemes' } };
-}
-
-function utf8ToBase64(s: string): string {
-  const bytes = new TextEncoder().encode(s);
-  let bin = '';
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin);
-}
-
-function base64ToUtf8(b64: string): string {
-  const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
 }
 
 /** Encodes a registration file as the fully on-chain form `data:application/json;base64,...`. */

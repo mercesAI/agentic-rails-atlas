@@ -3,6 +3,7 @@
 // reject with 401 if missing, malformed, outside the window (recommended 300 seconds) or not verified.
 // The 2025-09-29 file only says "HMAC signature over the raw request body" with no header format or window.
 
+import { bytesToHex, hexToBytes } from '@/lib/playground/bytes';
 import type { ApiError } from './types';
 
 export const WEBHOOK_PATH = '/agentic_checkout/webhooks/order_events';
@@ -10,17 +11,6 @@ export const TOLERANCE_SECONDS = 300;
 export const SIGNATURE_PATTERN = /^t=\d+,v1=[a-fA-F0-9]{64}$/;
 
 const enc = new TextEncoder();
-
-export function toHex(bytes: ArrayBuffer | Uint8Array): string {
-  const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
-  return Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
-}
-
-export function fromHex(hex: string): Uint8Array {
-  const out = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-  return out;
-}
 
 /** A fresh 32-byte shared secret, kept in memory only. */
 export function generateSecret(): Uint8Array {
@@ -39,7 +29,7 @@ export function signedPayload(t: number, rawBody: string): string {
 export async function signWebhook(secret: Uint8Array, rawBody: string, t: number): Promise<string> {
   const key = await hmacKey(secret);
   const mac = await crypto.subtle.sign('HMAC', key, enc.encode(signedPayload(t, rawBody)));
-  return `t=${t},v1=${toHex(mac)}`;
+  return `t=${t},v1=${bytesToHex(mac)}`;
 }
 
 export function parseSignatureHeader(header: string | undefined): { t: number; v1: string } | null {
@@ -88,7 +78,7 @@ export async function verifyWebhook(opts: {
   if (!parsed) return fail('malformed');
   if (Math.abs(nowSeconds - parsed.t) > tolerance) return fail('timestamp');
   const key = await hmacKey(secret);
-  const good = await crypto.subtle.verify('HMAC', key, fromHex(parsed.v1) as BufferSource, enc.encode(signedPayload(parsed.t, rawBody)));
+  const good = await crypto.subtle.verify('HMAC', key, hexToBytes(parsed.v1) as BufferSource, enc.encode(signedPayload(parsed.t, rawBody)));
   if (!good) return fail('mismatch');
   return { ok: true, reason: 'ok', status: 200, body: requestId ? { received: true, request_id: requestId } : { received: true } };
 }

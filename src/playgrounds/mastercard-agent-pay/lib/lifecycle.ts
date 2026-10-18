@@ -5,8 +5,8 @@
  * (revocation, response codes, the provisioning call) is labeled "not published".
  */
 import { fixtureToken } from './fixtures';
-import { b64urlEncodeJson, sha256B64url, randomB64url, b64urlEncode } from './encoding';
-import { signBytes, verifyBytes, type Es256Key } from './jws';
+import { base64UrlEncodeJson, bytesToBase64Url, randomBase64Url, sha256Base64Url } from '@/lib/playground/bytes';
+import { signBytes, verifyBytes, type Es256Key } from '@/lib/playground/es256';
 
 export const NOT_PUBLISHED = 'not published';
 
@@ -86,7 +86,7 @@ export interface AgenticToken {
 }
 
 export function provisionToken(controls: Controls, now: number): AgenticToken {
-  return { value: fixtureToken(randomB64url(6).replace(/[-_]/g, 'x')), controls, issuedAt: now, uses: 0, revoked: false };
+  return { value: fixtureToken(randomBase64Url(6).replace(/[-_]/g, 'x')), controls, issuedAt: now, uses: 0, revoked: false };
 }
 
 export type DeclineReason = 'amount-over-limit' | 'merchant-out-of-scope' | 'token-expired' | 'token-revoked' | 'single-use-consumed';
@@ -160,14 +160,14 @@ export interface Consent {
  * relying party. Here a fresh P-256 key signs a challenge that names the agent and the controls.
  */
 export async function signConsent(passkey: Es256Key, agentKeyid: string, controls: Controls): Promise<Consent> {
-  const challenge = b64urlEncodeJson({ agent: agentKeyid, controls, nonce: randomB64url(12) });
+  const challenge = base64UrlEncodeJson({ agent: agentKeyid, controls, nonce: randomBase64Url(12) });
   const sig = await signBytes(challenge, passkey.privateKey);
   const selfCheck = await verifyBytes(challenge, sig, passkey.publicKey);
-  return { challenge, signature: b64urlEncode(sig), selfCheck };
+  return { challenge, signature: bytesToBase64Url(sig), selfCheck };
 }
 
 export async function consentDigest(c: Consent): Promise<string> {
-  return sha256B64url(c.challenge);
+  return sha256Base64Url(c.challenge);
 }
 
 /** Revoke is a simulator action: the program publishes no revocation API or state. */

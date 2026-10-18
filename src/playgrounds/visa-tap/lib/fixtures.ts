@@ -2,7 +2,7 @@
  * Fixture data and labels for the Visa TAP playground. Hosts use reserved example domains; key ids are
  * fixtures; no Visa key, JWKS or endpoint is fetched or embedded.
  */
-import type { ComponentId, HttpRequest } from './signature';
+import type { ComponentId, HttpRequest } from '@/lib/playground/http-sig';
 
 export const SPEC_READ_DATE = '2026-10-11';
 export const ILLUSTRATIVE_LABEL = `Illustrative example, Visa TAP specification (undated, read ${SPEC_READ_DATE})`;

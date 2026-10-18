@@ -386,7 +386,3 @@ export const INSTRUMENT_OPTIONS: readonly InstrumentOption[] = [
     credentialType: 'gift_card_token',
   },
 ];
-
-export function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
-}

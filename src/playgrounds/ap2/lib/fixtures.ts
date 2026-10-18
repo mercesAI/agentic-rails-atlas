@@ -2,7 +2,7 @@
  * Fixture merchants, catalog, instruments and PISP. All names are invented, all domains use the
  * reserved `.example` TLD, and no instrument refers to a real account.
  */
-import type { Checkout, CheckoutLine, Item, Merchant, PaymentInstrument, Pisp } from './types';
+import type { Checkout, CheckoutLine, Item, Merchant, PaymentInstrument } from './types';
 
 export const CURRENCY = 'USD';
 /** ISO 4217 minor-unit exponent for the fixture currency. */
@@ -36,8 +36,6 @@ export const INSTRUMENTS: PaymentInstrument[] = [
   { id: 'pi_fixture_card_0000', type: 'card', description: 'Test card ending 0000' },
   { id: 'pi_fixture_upi_demo', type: 'UPI', description: 'Test UPI handle' },
 ];
-
-export const PISPS: Pisp[] = [{ legal_name: 'Example Initiation Ltd', brand_name: 'ExampleInit', domain_name: 'pisp.example' }];
 
 export const ISSUERS = {
   trustedSurface: 'https://agent-provider.example',
@@ -93,7 +91,11 @@ export function checkoutTotal(checkout: Checkout): number {
   return checkout.totals.find((t) => t.type === 'total')?.amount ?? 0;
 }
 
-/** Format integer minor units for display, for example 12900 as "USD 129.00". */
+/**
+ * Format minor units for display, for example 12900 as "USD 129.00". Kept local on purpose: constraint values typed by
+ * the user can be non-integer or NaN, which this renders as rounded cents or "USD ?", while the shared bigint
+ * formatter in @/lib/playground/money accepts integers only.
+ */
 export function formatMinor(amount: number, currency = CURRENCY, exponent = CURRENCY_EXPONENT): string {
   if (!Number.isFinite(amount)) return `${currency} ?`;
   const sign = amount < 0 ? '-' : '';

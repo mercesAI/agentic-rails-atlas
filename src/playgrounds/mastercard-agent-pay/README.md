@@ -27,4 +27,4 @@ No live Verifiable Intent check by Mastercard is publicly shown, so none is simu
 
 ## Files
 
-`lib/encoding.ts`, `lib/jws.ts`, `lib/sdjwt.ts` (crypto and SD-JWT helpers), `lib/httpsig.ts` (signature and edge check), `lib/lifecycle.ts` (states, controls, authorization, consent), `lib/vi.ts` (builder), `lib/vi-verify.ts` (verifier), `lib/fixtures.ts`. Tests: `tests/unit/playgrounds/mastercard-agent-pay.test.ts`.
+`lib/httpsig.ts` (signature and edge check on the shared `src/lib/playground/http-sig.ts`; the byte, ES256 JWS and SD-JWT helpers are the shared `bytes.ts`, `es256.ts` and `sd-jwt.ts`), `lib/lifecycle.ts` (states, controls, authorization, consent), `lib/vi.ts` (builder), `lib/vi-verify.ts` (verifier), `lib/fixtures.ts`. Tests: `tests/unit/playgrounds/mastercard-agent-pay.test.ts`.

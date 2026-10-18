@@ -20,7 +20,9 @@ import {
   toIso,
   validateDelegateRequest,
 } from '@/playgrounds/openai-acp/lib/delegate';
-import { CATALOG, DISCOVERY, HANDLERS, MERCHANT_ID, OTHER_MERCHANT_ID, SOLD_OUT_ITEM_ID, T0, clone } from '@/playgrounds/openai-acp/lib/fixtures';
+import { bytesToHex, hexToBytes } from '@/lib/playground/bytes';
+import { clone, pretty } from '@/lib/playground/util';
+import { CATALOG, DISCOVERY, HANDLERS, MERCHANT_ID, OTHER_MERCHANT_ID, SOLD_OUT_ITEM_ID, T0 } from '@/playgrounds/openai-acp/lib/fixtures';
 import { checkHandlerChoice, discoveryFor, selectHandlers, validateDiscovery } from '@/playgrounds/openai-acp/lib/handlers';
 import {
   RETENTION_MS,
@@ -42,17 +44,15 @@ import {
   updateBody,
 } from '@/playgrounds/openai-acp/lib/requests';
 import { applyEvent, handle, holdInFlight, newServer, tick, type ServerState } from '@/playgrounds/openai-acp/lib/server';
-import { STATUSES, exampleLabel, pretty } from '@/playgrounds/openai-acp/lib/types';
+import { STATUSES, exampleLabel } from '@/playgrounds/openai-acp/lib/types';
 import {
   SIGNATURE_PATTERN,
   TOLERANCE_SECONDS,
-  fromHex,
   generateSecret,
   orderEvent,
   parseSignatureHeader,
   signWebhook,
   signedPayload,
-  toHex,
   verifyWebhook,
 } from '@/playgrounds/openai-acp/lib/webhook';
 import type { SpecVersion } from '@/playgrounds/openai-acp/lib/types';
@@ -123,8 +123,8 @@ describe('webhook', () => {
   const t = Math.floor(T0 / 1000);
   it('round trips hex and builds the signed payload', () => {
     const b = new Uint8Array([0, 15, 255]);
-    expect(toHex(b)).toBe('000fff');
-    expect(Array.from(fromHex('000fff'))).toEqual([0, 15, 255]);
+    expect(bytesToHex(b)).toBe('000fff');
+    expect(Array.from(hexToBytes('000fff'))).toEqual([0, 15, 255]);
     expect(signedPayload(5, 'x')).toBe('5.x');
     expect(generateSecret()).toHaveLength(32);
     expect(generateSecret()).not.toEqual(generateSecret());

@@ -6,7 +6,7 @@
  * and `acceptable_items` hold only the revealed elements.
  */
 import { CURRENCY_EXPONENT, formatMinor } from './fixtures';
-import { jsonEqual } from './encoding';
+import { jsonEqual } from '@/lib/playground/canonical-json';
 import {
   CHECKOUT_CONSTRAINT_TYPES,
   PAYMENT_CONSTRAINT_TYPES,

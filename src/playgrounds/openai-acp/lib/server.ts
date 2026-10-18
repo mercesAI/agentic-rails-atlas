@@ -2,13 +2,13 @@
 // Spec-defined outcomes use the spec's status codes and error codes. Where the spec names none, the response says
 // so in `note` and uses a fixture code.
 
+import { clone } from '@/lib/playground/util';
 import {
   CATALOG,
   MERCHANT_ID,
   MERCHANT_ORIGIN,
   SESSION_TTL_MS,
   SHIPPING,
-  clone,
 } from './fixtures';
 import {
   ADDRESS,

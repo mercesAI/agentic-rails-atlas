@@ -7,7 +7,11 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { keccak256, toHex, type Hex } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { bytesToBase64url, decodeJson, encodeCanonical } from './lib/codec';
+import { Note } from '@/components/playground/Note';
+import { Tabs } from '@/components/playground/Tabs';
+import { Wire as KitWire } from '@/components/playground/Wire';
+import { bytesToBase64Url } from '@/lib/playground/bytes';
+import { decodeJson, encodeCanonical } from './lib/codec';
 import {
   PAYMENT_AUTHORIZATION,
   bindingInput,
@@ -24,7 +28,7 @@ import {
   type Challenge,
   type Verdict,
 } from './lib/challenge';
-import { CORE_SPEC, FIXTURE_HOST, FIXTURE_PATH, FIXTURE_REALM, FIXTURE_RECIPIENT, FIXTURE_TOKEN, GRACE_PERIOD_SECONDS, ILLUSTRATIVE, RECOMMENDED_WAIT_SECONDS, SESSION_SPEC, SIMPLIFICATION, formatUnits, parseUnits, type Intent } from './lib/fixtures';
+import { CORE_SPEC, FIXTURE_HOST, FIXTURE_PATH, FIXTURE_REALM, FIXTURE_RECIPIENT, FIXTURE_TOKEN, GRACE_PERIOD_SECONDS, ILLUSTRATIVE, RECOMMENDED_WAIT_SECONDS, SESSION_SPEC, formatUnits, parseUnits, type Intent } from './lib/fixtures';
 import { buildRequest, buildSimplePayload, didPkh, PAYLOAD_NOTE } from './lib/intents';
 import { INTENTS, INTENT_SPEC, METHODS, methodsFor } from './lib/methods';
 import {
@@ -86,37 +90,22 @@ function randomHex(bytes: number): Hex {
   return toHex(crypto.getRandomValues(new Uint8Array(bytes)));
 }
 
+/** A wire-format block labeled as illustrative; the decoded JSON, when given, opens under it. */
 function Wire({ label, value, decoded }: { label: string; value: string; decoded?: string }) {
-  const [show, setShow] = useState(false);
   return (
-    <div>
-      <p>
-        <strong>{label}</strong> <span className="mp-tag">{ILLUSTRATIVE}</span>
-      </p>
-      <pre tabIndex={SCROLL_TAB} aria-label={label}>
-        {value}
-      </pre>
-      {decoded !== undefined && (
+    <KitWire
+      titleAs="p"
+      title={
         <>
-          <button type="button" className="btn" aria-expanded={show} onClick={() => setShow((s) => !s)}>
-            {show ? 'Hide decoded JSON' : 'Decode'}
-          </button>
-          {show && (
-            <pre tabIndex={SCROLL_TAB} aria-label={`${label}, decoded`}>
-              {decoded}
-            </pre>
-          )}
+          <strong>{label}</strong> <span className="mp-tag">{ILLUSTRATIVE}</span>
         </>
-      )}
-    </div>
-  );
-}
-
-function Simplification({ children }: { children: ReactNode }) {
-  return (
-    <p className="mp-tag">
-      {SIMPLIFICATION}: {children}
-    </p>
+      }
+      label={label}
+      text={value}
+      decoded={decoded}
+      stacked
+      encodedLabel="Hide decoded JSON"
+    />
   );
 }
 
@@ -150,38 +139,28 @@ export default function Playground() {
     };
   }, []);
 
+  const panel = (id: Tab): ReactNode => {
+    if (!serverKey) return <p>Generating the server key.</p>;
+    switch (id) {
+      case 'builder':
+        return <Builder uid={uid} serverKey={serverKey} used={used.current} payer={account.address} signer={signer} onAnnounce={setAnnounce} />;
+      case 'session':
+        return <SessionMeter uid={uid} signer={signer} onAnnounce={setAnnounce} />;
+      case 'methods':
+        return <Methods uid={uid} />;
+      case 'translator':
+        return <Translator uid={uid} serverKey={serverKey} payer={account.address} onAnnounce={setAnnounce} />;
+    }
+  };
+
   return (
     <div className="mp">
       <p className="mp-tag">
         Follows {CORE_SPEC} (core), the charge and subscription intent drafts, and {SESSION_SPEC}. Chain id 424242 is a fake; the token
         and addresses are fixtures. Payer key {account.address.slice(0, 10)}... exists in this tab only.
       </p>
-      <div className="mp-tabs" role="group" aria-label="Playground sections">
-        {TABS.map(([id, label]) => (
-          <button key={id} type="button" className="btn" aria-pressed={tab === id} onClick={() => setTab(id)}>
-            {label}
-          </button>
-        ))}
-      </div>
-      {!serverKey ? (
-        <p>Generating the server key.</p>
-      ) : (
-        <>
-          {/* Every panel stays mounted; a hidden panel keeps its channel, challenge and translator state. */}
-          <div hidden={tab !== 'builder'}>
-            <Builder uid={uid} serverKey={serverKey} used={used.current} payer={account.address} signer={signer} onAnnounce={setAnnounce} />
-          </div>
-          <div hidden={tab !== 'session'}>
-            <SessionMeter uid={uid} signer={signer} onAnnounce={setAnnounce} />
-          </div>
-          <div hidden={tab !== 'methods'}>
-            <Methods uid={uid} />
-          </div>
-          <div hidden={tab !== 'translator'}>
-            <Translator uid={uid} serverKey={serverKey} payer={account.address} onAnnounce={setAnnounce} />
-          </div>
-        </>
-      )}
+      {/* Every panel stays mounted; a hidden panel keeps its channel, challenge and translator state. */}
+      <Tabs<Tab> label="Playground sections" idPrefix="mp" value={tab} onChange={setTab} tabs={TABS.map(([id, label]) => ({ id, label, content: panel(id) }))} />
       <p className="mp-sr" aria-live="polite">
         {announce}
       </p>
@@ -324,7 +303,7 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
       proofValid: failure !== 'proof',
       policyDenies: failure === 'policy',
       reference: typeof payload.hash === 'string' ? payload.hash : typeof payload.channelId === 'string' ? payload.channelId : keccak256(randomHex(32)),
-      ...(intent === 'subscription' ? { receiptExtra: { subscriptionId: bytesToBase64url(crypto.getRandomValues(new Uint8Array(16))) } } : {}),
+      ...(intent === 'subscription' ? { receiptExtra: { subscriptionId: bytesToBase64Url(crypto.getRandomValues(new Uint8Array(16))) } } : {}),
     };
     const runs = failure === 'replay' ? 2 : 1;
     const out: { text: string; tone: 'ok' | 'fail' | 'warn'; summary: string }[] = [];
@@ -462,7 +441,7 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
           </button>
         </div>
       )}
-      <Simplification>the payment proof is not checked on a chain; the failure menu decides it. Each sent credential consumes its id, so press Send again to see a replay rejected.</Simplification>
+      <Note kind="simplification">the payment proof is not checked on a chain; the failure menu decides it. Each sent credential consumes its id, so press Send again to see a replay rejected.</Note>
       <label className="mp-field" htmlFor={`${uid}-paste`}>
         Decode any base64url value (request, opaque, credential or receipt)
         <textarea id={`${uid}-paste`} rows={3} value={paste} onChange={(e) => setPaste(e.target.value)} />
@@ -679,7 +658,7 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
               )}
             </pre>
           )}
-          {last.simplification && <Simplification>{last.simplification}</Simplification>}
+          {last.simplification && <Note kind="simplification">{last.simplification}</Note>}
         </div>
       )}
       {lastVoucher && (
@@ -692,10 +671,10 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
         </>
       )}
       {receipt && <Wire label="Payment-Receipt for the current state" value={`Payment-Receipt: ${serializeReceipt(receipt)}`} decoded={JSON.stringify(receipt, null, 2)} />}
-      <Simplification>
+      <Note kind="simplification">
         the open and top-up transactions, settlement and the channel id derivation are in-memory stand-ins; the clock is simulated; cooperative close captures
         max(spent, settledOnChain) as in v2 accounting.
-      </Simplification>
+      </Note>
     </section>
   );
 }
@@ -837,7 +816,7 @@ function Translator({ uid, serverKey, payer, onAnnounce }: { uid: string; server
           {block('PAYMENT-RESPONSE to Payment-Receipt', out.c)}
         </>
       )}
-      <Simplification>the sample x402 signature is a placeholder, and one accepts[] entry is translated. A real dual-protocol server, such as one built with mppx, issues both challenges itself.</Simplification>
+      <Note kind="simplification">the sample x402 signature is a placeholder, and one accepts[] entry is translated. A real dual-protocol server, such as one built with mppx, issues both challenges itself.</Note>
     </section>
   );
 }

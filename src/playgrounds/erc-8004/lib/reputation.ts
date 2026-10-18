@@ -5,6 +5,7 @@
  * The off-chain feedback file (with proofOfPayment) sits next to each entry; the registry never reads it.
  */
 import { getAddress, type Address } from 'viem';
+import { formatMinor } from '@/lib/playground/money';
 import { FIXTURE_IDENTITY_REGISTRY, SIM_CHAIN_ID, SIM_NAMESPACE } from './fixtures';
 
 /** `MAX_ABS_VALUE = 1e38` in the contract. */
@@ -160,11 +161,7 @@ export function getSummary(state: RegistryState, clientAddresses: readonly Addre
 
 /** Formats a fixed-point value for display, for example (9977n, 2) to "99.77". */
 export function formatFixed(value: bigint, decimals: number): string {
-  if (decimals === 0) return value.toString();
-  const neg = value < 0n;
-  const abs = neg ? -value : value;
-  const s = abs.toString().padStart(decimals + 1, '0');
-  return `${neg ? '-' : ''}${s.slice(0, -decimals)}.${s.slice(-decimals)}`;
+  return formatMinor(value, decimals);
 }
 
 /** True when the off-chain file carries a proofOfPayment from the client to the agent wallet. */

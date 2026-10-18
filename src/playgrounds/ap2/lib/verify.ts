@@ -7,9 +7,10 @@
  * The mapping from a failed check to an error code is this simulation's reading of the "Errors" list.
  */
 import { evaluateCheckoutConstraints, evaluatePaymentConstraints, type BudgetUnit, type ConstraintResult, type PaymentHistory } from './constraints';
-import { jsonEqual, sha256B64url } from './encoding';
-import { decodeJws, importEs256PublicJwk, verifyJws, type Ap2Jwk } from './jws';
-import { parseSdJwt, resolveDisclosures } from './sdjwt';
+import { sha256Base64Url } from '@/lib/playground/bytes';
+import { jsonEqual } from '@/lib/playground/canonical-json';
+import { decodeJws, importEs256PublicJwk, verifyJws, type EcJwk as Ap2Jwk } from '@/lib/playground/es256';
+import { parseSdJwt, resolveDisclosures } from '@/lib/playground/sd-jwt';
 import { VCT, type Ap2ErrorCode, type Checkout, type PaymentMandate } from './types';
 
 export type Binding = 'signature' | 'disclosures' | 'cnf' | 'sd_hash' | 'checkout_hash' | 'transaction_id' | 'payment.reference' | 'vct' | 'schema' | 'exp' | 'claims' | 'current_checkout' | 'charge';
@@ -196,7 +197,7 @@ async function openChainChecks(chain: Chain, ctx: VerifierContext, openVct: stri
   checks.push(kb);
   const typ = closed.header?.typ;
   checks.push({ id: 'kb-typ', binding: 'cnf', label: 'Closed mandate is a key-binding JWT', ok: typ === 'kb+sd-jwt', code: 'invalid_credential', detail: `typ ${JSON.stringify(typ)}.` });
-  const expectedSdHash = await sha256B64url(chain.open);
+  const expectedSdHash = await sha256Base64Url(chain.open);
   const gotSdHash = closed.payload?.sd_hash;
   checks.push({
     id: 'sd_hash',
@@ -236,7 +237,7 @@ export async function verifyCheckoutChain(chain: Chain, ctx: MerchantContext): P
   checks.push(expCheck('closed-exp', 'Closed mandate not expired', c, ctx.now));
   const checkoutJwt = typeof c?.checkout_jwt === 'string' ? c.checkout_jwt : '';
   checks.push(await sigCheck('checkout-jwt-signature', 'Merchant signature on checkout_jwt', checkoutJwt, ctx.merchantJwk, 'signature', 'invalid_mandate'));
-  const recomputed = checkoutJwt ? await sha256B64url(checkoutJwt) : '';
+  const recomputed = checkoutJwt ? await sha256Base64Url(checkoutJwt) : '';
   checks.push({
     id: 'checkout_hash',
     binding: 'checkout_hash',

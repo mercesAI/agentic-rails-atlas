@@ -1,7 +1,13 @@
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import './playground.css';
+import { Check } from '@/components/playground/Check';
+import { Note } from '@/components/playground/Note';
+import { NumberField } from '@/components/playground/NumberField';
+import { Segmented } from '@/components/playground/Segmented';
+import { Select } from '@/components/playground/Select';
+import { Wire as KitWire } from '@/components/playground/Wire';
+import { nowSec, pretty } from '@/lib/playground/util';
 import { CATALOG, CURRENCY, INSTRUMENTS, MERCHANTS, formatMinor, merchantById, type CartLine } from './lib/fixtures';
-import { pretty } from './lib/encoding';
 import {
   TAMPERS,
   defaultConfig,
@@ -28,7 +34,6 @@ const SCROLL_TAB = 0;
 
 type Version = 'v0.2' | 'v0.1';
 
-const nowSec = () => Math.floor(Date.now() / 1000);
 const isoDay = (s: number) => new Date(s * 1000).toISOString().slice(0, 10);
 const ALL_SKUS = (() => {
   const m = new Map<string, string>();
@@ -38,91 +43,14 @@ const ALL_SKUS = (() => {
 
 // ------------------------------------------------------------------ small UI pieces
 
-function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
-  const refs = useRef<(HTMLButtonElement | null)[]>([]);
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
-    const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
-    if (!d) return;
-    e.preventDefault();
-    const next = (i + d + options.length) % options.length;
-    onChange(options[next]!.value);
-    refs.current[next]?.focus();
-  };
-  return (
-    <div className="ap2pg__group">
-      <span className="ap2pg__grouplabel" id={`${label}-lbl`.replace(/\W/g, '')}>
-        {label}
-      </span>
-      <div className="segmented" role="radiogroup" aria-labelledby={`${label}-lbl`.replace(/\W/g, '')}>
-        {options.map((o, i) => (
-          <button
-            key={o.value}
-            ref={(el) => {
-              refs.current[i] = el;
-            }}
-            type="button"
-            role="radio"
-            aria-checked={value === o.value}
-            tabIndex={value === o.value ? 0 : -1}
-            className="segmented__btn"
-            onClick={() => onChange(o.value)}
-            onKeyDown={(e) => onKey(e, i)}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Simplification({ children }: { children: ReactNode }) {
-  return (
-    <p className="ap2pg__simpl">
-      <span className="ap2pg__tag">Teaching simplification</span>
-      {children}
-    </p>
-  );
-}
-
-function Quirk({ children }: { children: ReactNode }) {
-  return (
-    <p className="ap2pg__quirk">
-      <span className="ap2pg__tag ap2pg__tag--quirk">Spec quirk</span>
-      {children}
-    </p>
-  );
-}
-
 function ExampleLabel({ version }: { version: Version }) {
-  return (
-    <p className="ap2pg__note">
-      <span className="ap2pg__tag ap2pg__tag--example">Example</span>Illustrative example, spec version {version}
-    </p>
-  );
+  return <Note kind="example">Illustrative example, spec version {version}</Note>;
 }
 
 function Res({ ok, okText = 'Pass', failText = 'Fail' }: { ok: boolean; okText?: string; failText?: string }) {
   return (
     <span className="ap2pg__res" data-ok={String(ok)}>
       {ok ? okText : failText}
-    </span>
-  );
-}
-
-function NumberField({ label, value, onChange, step = 1, min }: { label: string; value: number | undefined; onChange: (v: number | undefined) => void; step?: number | 'any'; min?: number }) {
-  const id = useId();
-  return (
-    <span>
-      <label htmlFor={id}>{label}</label>{' '}
-      <input
-        id={id}
-        type="number"
-        step={step}
-        min={min}
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-      />
     </span>
   );
 }
@@ -136,48 +64,9 @@ function TextField({ label, value, onChange }: { label: string; value: string; o
   );
 }
 
-function Check({ label, checked, onChange }: { label: ReactNode; checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <label>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      {label}
-    </label>
-  );
-}
-
-function Select<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
-  const id = useId();
-  return (
-    <span>
-      <label htmlFor={id}>{label}</label>{' '}
-      <select id={id} value={value} onChange={(e) => onChange(e.target.value as T)}>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </span>
-  );
-}
-
-/** A wire-format artifact with a decode toggle. */
+/** A wire-format artifact with a decode toggle and the spec version it illustrates. */
 function Wire({ title, raw, decoded, version }: { title: string; raw: string; decoded: unknown; version: Version }) {
-  const [showDecoded, setShowDecoded] = useState(false);
-  return (
-    <div className="ap2pg__wire">
-      <div className="ap2pg__row">
-        <h4>{title}</h4>
-        <button type="button" className="btn btn--ghost" aria-pressed={showDecoded} onClick={() => setShowDecoded((v) => !v)}>
-          {showDecoded ? 'Show encoded' : 'Decode'}
-        </button>
-      </div>
-      <ExampleLabel version={version} />
-      <pre tabIndex={SCROLL_TAB} aria-label={`${title}, ${showDecoded ? 'decoded' : 'encoded'}`}>
-        {showDecoded ? pretty(decoded) : raw}
-      </pre>
-    </div>
-  );
+  return <KitWire title={title} text={raw} decoded={decoded} note={<ExampleLabel version={version} />} />;
 }
 
 function ConstraintTable({ results, caption }: { results: ConstraintResult[]; caption: string }) {
@@ -207,7 +96,7 @@ function ConstraintTable({ results, caption }: { results: ConstraintResult[]; ca
               </td>
               <td>
                 {r.detail}
-                {r.quirk && <Quirk>{r.quirk}</Quirk>}
+                {r.quirk && <Note kind="quirk">{r.quirk}</Note>}
               </td>
             </tr>
           ))}
@@ -261,9 +150,9 @@ function VerifierCard({ result }: { result: VerifyResult }) {
       </div>
       <ConstraintTable results={result.constraints} caption={`Constraints evaluated by the ${ROLE_NAME[result.role]}`} />
       {result.deferred.map((d) => (
-        <Quirk key={d.type}>
+        <Note kind="quirk" key={d.type}>
           <code>{d.type}</code> deferred: {d.reason}
-        </Quirk>
+        </Note>
       ))}
     </div>
   );
@@ -272,7 +161,7 @@ function VerifierCard({ result }: { result: VerifyResult }) {
 function CartEditor({ merchantId, lines, onMerchant, onLines }: { merchantId: string; lines: CartLine[]; onMerchant: (id: string) => void; onLines: (l: CartLine[]) => void }) {
   const items = CATALOG[merchantId] ?? [];
   const qty = (sku: string) => lines.find((l) => l.sku === sku)?.quantity ?? 0;
-  const setQty = (sku: string, q: number | undefined) => {
+  const setQty = (sku: string, q: number | null) => {
     const rest = lines.filter((l) => l.sku !== sku);
     onLines(q && q > 0 ? [...rest, { sku, quantity: Math.floor(q) }] : rest);
   };
@@ -342,6 +231,7 @@ function V02Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
   return (
     <div className="ap2pg">
       <Segmented<Mode>
+        showLabel
         label="Path"
         value={cfg.mode}
         options={[
@@ -381,7 +271,7 @@ function V02Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
             <div className="ap2pg__group">
               <Check label={<code>payment.amount_range</code>} checked={cfg.amountRange.enabled} onChange={(enabled) => set({ amountRange: { ...cfg.amountRange, enabled } })} />
               <div className="ap2pg__row">
-                <NumberField label="min (minor units)" step="any" value={cfg.amountRange.min} onChange={(min) => set({ amountRange: { ...cfg.amountRange, min } })} />
+                <NumberField label="min (minor units)" step="any" value={cfg.amountRange.min} onChange={(min) => set({ amountRange: { ...cfg.amountRange, min: min ?? undefined } })} />
                 <NumberField label="max (minor units)" step="any" value={cfg.amountRange.max} onChange={(max) => set({ amountRange: { ...cfg.amountRange, max: max ?? 0 } })} />
               </div>
               <button type="button" className="btn btn--ghost" onClick={() => set({ amountRange: { enabled: true, min: 10.0, max: 100.5 } })}>
@@ -408,7 +298,7 @@ function V02Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
               <Check label={<code>payment.agent_recurrence</code>} checked={cfg.recurrence.enabled} onChange={(enabled) => set({ recurrence: { ...cfg.recurrence, enabled } })} />
               <div className="ap2pg__row">
                 <Select<Frequency> label="frequency" value={cfg.recurrence.frequency} options={FREQUENCIES.map((f) => ({ value: f, label: f }))} onChange={(frequency) => set({ recurrence: { ...cfg.recurrence, frequency } })} />
-                <NumberField label="max_occurrences" value={cfg.recurrence.max_occurrences} min={1} onChange={(v) => set({ recurrence: { ...cfg.recurrence, max_occurrences: v } })} />
+                <NumberField label="max_occurrences" value={cfg.recurrence.max_occurrences} min={1} onChange={(v) => set({ recurrence: { ...cfg.recurrence, max_occurrences: v ?? undefined } })} />
                 <NumberField label="earlier occurrences" value={cfg.recurrence.occurrences} min={0} onChange={(v) => set({ recurrence: { ...cfg.recurrence, occurrences: v ?? 0 } })} />
                 <NumberField
                   label="days since the last one (blank for none)"
@@ -416,7 +306,7 @@ function V02Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
                   min={0}
                   step="any"
                   onChange={(v) => {
-                    setDaysSinceLast(v);
+                    setDaysSinceLast(v ?? undefined);
                     setStale(true);
                   }}
                 />
@@ -504,14 +394,14 @@ function V02Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
         {stale && run && <span className="ap2pg__note">Settings changed since the last run.</span>}
       </div>
 
-      <Simplification>
+      <Note kind="simplification">
         One ephemeral key stands for the user or agent provider (the Trusted Agent Provider model). No user credential, OpenID4VP request or Digital Credentials API call is made.
-      </Simplification>
+      </Note>
       {hnp && (
-        <Simplification>
+        <Note kind="simplification">
           The Delegate SD-JWT draft defines how the open and closed mandates form one chain. Here they travel as two serialized SD-JWT strings, and <code>conditional_transaction_id</code> hashes the
           issuer-signed JWT of the open Checkout Mandate, because the spec does not fix which bytes are hashed.
-        </Simplification>
+        </Note>
       )}
 
       {run && <V02Results run={run} dispute={dispute} />}
@@ -577,10 +467,10 @@ function V02Results({ run, dispute }: { run: V02Run; dispute: DisputeCheck[] }) 
           {pretty(run.receipts.payment.prose)}
         </pre>
       </details>
-      <Quirk>
+      <Note kind="quirk">
         The JSON Schemas name the field <code>status</code> with values <code>Success</code> and <code>Error</code>; the Mandate Receipt prose in agent_authorization.md names it <code>result</code> with{' '}
         <code>success</code> and <code>error</code> (issue #374). Both forms are shown; neither is chosen as correct.
-      </Quirk>
+      </Note>
     </div>
   );
 }
@@ -647,6 +537,7 @@ function V01Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
         through <code>user_authorization</code>). v0.2 replaced them with Checkout and Payment Mandates, each open or closed.
       </p>
       <Segmented
+        showLabel
         label="Path"
         value={humanPresent ? 'hp' : 'hnp'}
         options={[
@@ -673,7 +564,7 @@ function V01Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
           </div>
           <Check label="requires_refundability" checked={refundable} onChange={setRefundable} />
           <Check label="user_cart_confirmation_required" checked={confirm} onChange={setConfirm} />
-          <NumberField label="intent_expiry, hours from now" value={expiryHours} min={1} onChange={setExpiryHours} />
+          <NumberField label="intent_expiry, hours from now" value={expiryHours} min={1} onChange={(v) => setExpiryHours(v ?? undefined)} />
         </fieldset>
         <fieldset>
           <legend>Cart</legend>
@@ -695,14 +586,14 @@ function V01Panel({ keys, announce }: { keys: Keys; announce: (s: string) => voi
           {busy ? 'Signing and verifying' : 'Sign and verify (v0.1)'}
         </button>
       </div>
-      <Simplification>
+      <Note kind="simplification">
         v0.1 describes <code>user_authorization</code> as a verifiable presentation, for example an SD-JWT VC with a key-binding JWT whose <code>transaction_data</code> holds the two hashes. Here it is
         one ES256 JWT with <code>aud</code>, <code>nonce</code>, <code>iat</code> and <code>transaction_data</code>. &quot;Canonical JSON&quot; for <code>cart_hash</code> is read as JSON with sorted keys.
-      </Simplification>
-      <Quirk>
+      </Note>
+      <Note kind="quirk">
         v0.1 amounts are W3C Payment Request floats in major units (<code>value</code>), while v0.2 uses integer minor units. v0.1 defines no machine-checkable constraints and no error codes, so the intent
         checks below are this simulation&apos;s reading of the field descriptions.
-      </Quirk>
+      </Note>
       {run && (
         <div className="ap2pg__section">
           <p className="ap2pg__outcome" data-ok={String(run.verify.ok)}>
@@ -767,6 +658,7 @@ export default function Playground() {
     <div className="ap2pg">
       <div className="ap2pg__row">
         <Segmented<Version>
+          showLabel
           label="Spec version"
           value={version}
           options={[

@@ -1,14 +1,13 @@
 /**
- * A small SD-JWT core (RFC 9901 shapes) for the AP2 playground.
+ * A small SD-JWT core (RFC 9901 shapes) shared by the AP2 and Mastercard Agent Pay playgrounds.
  * - Array element disclosure: base64url(JSON [salt, value]), placeholder `{"...": digest}`.
  * - Object property disclosure: base64url(JSON [salt, name, value]), digest listed in `_sd`.
  * - digest = base64url(SHA-256(ASCII of the encoded disclosure)); `_sd_alg` is "sha-256".
- * - Serialization: `<jwt>~<disclosure>~...~` and, for a key-binding presentation, the KB-JWT is
- *   itself the leading JWT of the next element in the AP2 chain (see mandates.ts).
- * Teaching simplification: decoy digests, other hash algorithms and the full Delegate SD-JWT
- * chain processing rules are not modeled.
+ * - Serialization: `<jwt>~<disclosure>~...~`.
+ * Teaching simplification: decoy digests, other hash algorithms and the full Delegate SD-JWT chain
+ * processing rules are not modeled.
  */
-import { b64urlDecodeJson, b64urlEncodeJson, randomB64url, sha256B64url } from './encoding';
+import { base64UrlDecodeJson, base64UrlEncodeJson, randomBase64Url, sha256Base64Url } from './bytes';
 
 export const SD_ALG = 'sha-256';
 
@@ -21,18 +20,18 @@ export interface Disclosure {
   value: unknown;
 }
 
-export async function makeArrayDisclosure(value: unknown, salt = randomB64url()): Promise<Disclosure> {
-  const encoded = b64urlEncodeJson([salt, value]);
-  return { encoded, digest: await sha256B64url(encoded), salt, value };
+export async function makeArrayDisclosure(value: unknown, salt = randomBase64Url()): Promise<Disclosure> {
+  const encoded = base64UrlEncodeJson([salt, value]);
+  return { encoded, digest: await sha256Base64Url(encoded), salt, value };
 }
 
-export async function makePropertyDisclosure(name: string, value: unknown, salt = randomB64url()): Promise<Disclosure> {
-  const encoded = b64urlEncodeJson([salt, name, value]);
-  return { encoded, digest: await sha256B64url(encoded), salt, name, value };
+export async function makePropertyDisclosure(name: string, value: unknown, salt = randomBase64Url()): Promise<Disclosure> {
+  const encoded = base64UrlEncodeJson([salt, name, value]);
+  return { encoded, digest: await sha256Base64Url(encoded), salt, name, value };
 }
 
 export function decodeDisclosure(encoded: string): { salt: string; name?: string; value: unknown } {
-  const arr = b64urlDecodeJson<unknown[]>(encoded);
+  const arr = base64UrlDecodeJson<unknown[]>(encoded);
   if (!Array.isArray(arr) || (arr.length !== 2 && arr.length !== 3) || typeof arr[0] !== 'string') {
     throw new Error('A disclosure is a JSON array of two or three elements');
   }
@@ -55,10 +54,11 @@ export async function concealProperty<T extends Record<string, unknown>>(
   name: keyof T & string,
 ): Promise<{ object: Record<string, unknown>; disclosure: Disclosure }> {
   const disclosure = await makePropertyDisclosure(name, obj[name]);
-  const rest: Record<string, unknown> = { ...obj };
+  const { _sd: existing, ...rest } = obj as Record<string, unknown>;
   delete rest[name];
-  const sd = Array.isArray(rest._sd) ? [...(rest._sd as string[])] : [];
+  const sd = Array.isArray(existing) ? [...(existing as string[])] : [];
   sd.push(disclosure.digest);
+  // `_sd` stays the first member, and an earlier `_sd` list is extended rather than replaced.
   return { object: { _sd: sd, ...rest }, disclosure };
 }
 
@@ -92,7 +92,7 @@ export async function resolveDisclosures(payload: unknown, disclosures: string[]
   for (const encoded of disclosures) {
     try {
       const d = decodeDisclosure(encoded);
-      byDigest.set(await sha256B64url(encoded), { encoded, ...d });
+      byDigest.set(await sha256Base64Url(encoded), { encoded, ...d });
     } catch {
       malformed.push(encoded);
     }

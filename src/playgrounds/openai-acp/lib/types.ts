@@ -63,5 +63,3 @@ export interface Exchange {
   responseBody?: unknown;
   note?: string;
 }
-
-export const pretty = (v: unknown): string => JSON.stringify(v, null, 2);

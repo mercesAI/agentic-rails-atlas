@@ -1,5 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import './ucp.css';
+import { Note } from '@/components/playground/Note';
+import { NumberField } from '@/components/playground/NumberField';
+import { Segmented } from '@/components/playground/Segmented';
+import { TabList } from '@/components/playground/Tabs';
+import { Wire as KitWire } from '@/components/playground/Wire';
+import { clone, pretty } from '@/lib/playground/util';
 import {
   DEFAULT_POLICY,
   FIXTURE_CODES,
@@ -27,7 +33,6 @@ import {
   LEAF_PROFILES,
   PLATFORM_PROFILE,
   PLATFORM_PROFILE_URL,
-  clone,
   type InstrumentOption,
 } from './lib/fixtures';
 import {
@@ -160,8 +165,6 @@ const PRESETS: Preset[] = [
   },
 ];
 
-const pretty = (v: unknown) => JSON.stringify(v, null, 2);
-
 function uuid(): string {
   try {
     return crypto.randomUUID();
@@ -170,66 +173,10 @@ function uuid(): string {
   }
 }
 
-function Simpl({ children }: { children: ReactNode }) {
-  return (
-    <p className="ucp-simpl">
-      <strong>Teaching simplification:</strong> {children}
-    </p>
-  );
-}
-
+/** A wire-format block with the example label, as every UCP message is a fixture. */
 function Wire({ title, text }: { title: string; text: string }) {
-  return (
-    <div>
-      <h4>{title}</h4>
-      <p className="ucp-label">{EXAMPLE_LABEL}</p>
-      {/* Scrollable code must be keyboard focusable (axe scrollable-region-focusable). */}
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-      <pre className="ucp-pre" tabIndex={0} aria-label={title}>
-        {text}
-      </pre>
-    </div>
-  );
-}
-
-function Segmented<T extends string>(props: {
-  label: string;
-  value: T;
-  options: { id: T; label: string }[];
-  onChange: (v: T) => void;
-}) {
-  const { label, value, options, onChange } = props;
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const i = options.findIndex((o) => o.id === value);
-    const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
-    if (!d) return;
-    e.preventDefault();
-    const next = options[(i + d + options.length) % options.length];
-    if (next) {
-      onChange(next.id);
-      const btn = e.currentTarget.parentElement?.querySelector<HTMLButtonElement>(`[data-id="${next.id}"]`);
-      btn?.focus();
-    }
-  };
-  return (
-    <div className="segmented" role="radiogroup" aria-label={label}>
-      {options.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          role="radio"
-          data-id={o.id}
-          aria-checked={o.id === value}
-          tabIndex={o.id === value ? 0 : -1}
-          className="segmented__btn"
-          onKeyDown={onKey}
-          onClick={() => onChange(o.id)}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
+  // JSON and HTTP text keep their line structure and scroll sideways, as the old .ucp-pre did.
+  return <KitWire wrap="none" title={title} text={text} note={<p className="ucp-label">{EXAMPLE_LABEL}</p>} />;
 }
 
 export default function UcpPlayground() {
@@ -378,20 +325,6 @@ export default function UcpPlayground() {
     } else setAnnounce(`Clock moved ${hours} hours.`);
   }
 
-  const onTabKey = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const i = TABS.findIndex((t) => t.id === tab);
-    let j = -1;
-    if (e.key === 'ArrowRight') j = (i + 1) % TABS.length;
-    if (e.key === 'ArrowLeft') j = (i - 1 + TABS.length) % TABS.length;
-    if (e.key === 'Home') j = 0;
-    if (e.key === 'End') j = TABS.length - 1;
-    const next = TABS[j];
-    if (!next) return;
-    e.preventDefault();
-    setTab(next.id);
-    document.getElementById(`ucp-tab-${next.id}`)?.focus();
-  };
-
   // Wire rendering for the transport switcher.
   const previewSession = session ?? createCheckout('chk_preview', data, policy, ctx, now).session;
   const wctx: WireContext = {
@@ -422,24 +355,7 @@ export default function UcpPlayground() {
         {announce}
       </p>
 
-      <div role="tablist" aria-label="UCP playground parts" className="ucp-tabs">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            id={`ucp-tab-${t.id}`}
-            type="button"
-            role="tab"
-            className="ucp-tab"
-            aria-selected={tab === t.id}
-            aria-controls={`ucp-panel-${t.id}`}
-            tabIndex={tab === t.id ? 0 : -1}
-            onKeyDown={onTabKey}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <TabList label="UCP playground parts" idPrefix="ucp" tabs={TABS} value={tab} onChange={setTab} />
 
       {tab === 'negotiate' && (
         <section id="ucp-panel-negotiate" role="tabpanel" aria-labelledby="ucp-tab-negotiate" className="ucp">
@@ -609,10 +525,10 @@ export default function UcpPlayground() {
                     </li>
                   ))}
                 </ul>
-                <Simpl>
+                <Note kind="simplification">
                   a handler counts as usable only when the agent profile declares it too, and constraints are merged
                   only for <code>properties.&lt;name&gt;.enum</code>.
-                </Simpl>
+                </Note>
               </div>
               <div className="ucp-card">
                 <fieldset>
@@ -647,7 +563,7 @@ export default function UcpPlayground() {
               </div>
               <div className="ucp-card">
                 <Wire title="ucp.payment_handlers in the checkout response" text={pretty(envelope.payment_handlers)} />
-                <Simpl>handler names, ids, versions, configs and credential types are fixtures, not real providers.</Simpl>
+                <Note kind="simplification">handler names, ids, versions, configs and credential types are fixtures, not real providers.</Note>
               </div>
             </div>
           )}
@@ -668,16 +584,15 @@ export default function UcpPlayground() {
               <fieldset>
                 <legend>Line items</legend>
                 {CATALOG.map((c) => (
-                  <label key={c.id}>
-                    <input
-                      type="number"
-                      min={0}
-                      max={9}
-                      value={quantities[c.id] ?? 0}
-                      onChange={(e) => setQuantities((q) => ({ ...q, [c.id]: Math.max(0, Math.min(9, Number(e.target.value) || 0)) }))}
-                    />
-                    {c.title}, {formatMoney(c.price)}
-                  </label>
+                  <NumberField
+                    key={c.id}
+                    labelAfter
+                    label={`${c.title}, ${formatMoney(c.price)}`}
+                    min={0}
+                    max={9}
+                    value={quantities[c.id] ?? 0}
+                    onChange={(v) => setQuantities((q) => ({ ...q, [c.id]: Math.max(0, Math.min(9, Math.floor(v ?? 0))) }))}
+                  />
                 ))}
               </fieldset>
               <label className="ucp-field">
@@ -882,10 +797,10 @@ export default function UcpPlayground() {
                 </ol>
               </>
             )}
-            <Simpl>
+            <Note kind="simplification">
               the business is played by the simulator with fixture rules, a fixture 8 percent tax and no fulfillment
               options. Rejected calls that the spec answers with an unnamed error are shown as notes, not wire codes.
-            </Simpl>
+            </Note>
           </div>
         </section>
       )}
@@ -902,16 +817,16 @@ export default function UcpPlayground() {
               label="Operation"
               value={wireOp}
               onChange={setWireOp}
-              options={OPERATION_ORDER.map((o) => ({ id: o, label: OPERATIONS[o].label }))}
+              options={OPERATION_ORDER.map((o) => ({ value: o, label: OPERATIONS[o].label }))}
             />
             <Segmented
               label="Transport"
               value={transport}
               onChange={setTransport}
               options={[
-                { id: 'rest', label: 'REST' },
-                { id: 'mcp', label: 'MCP' },
-                { id: 'a2a', label: 'A2A' },
+                { value: 'rest', label: 'REST' },
+                { value: 'mcp', label: 'MCP' },
+                { value: 'a2a', label: 'A2A' },
               ]}
             />
           </div>
@@ -932,13 +847,13 @@ export default function UcpPlayground() {
             <Wire title="Response" text={wireRes.text} />
           </div>
           {[...wireReq.simplifications, ...wireRes.simplifications].map((s) => (
-            <Simpl key={s}>{s}.</Simpl>
+            <Note kind="simplification" key={s}>{s}.</Note>
           ))}
           {ap2Locked && (
-            <Simpl>
+            <Note kind="simplification">
               <code>ap2.merchant_authorization</code> and <code>ap2.checkout_mandate</code> are shaped fixtures; nothing is
               signed here. The AP2 playground shows real signing.
-            </Simpl>
+            </Note>
           )}
         </section>
       )}

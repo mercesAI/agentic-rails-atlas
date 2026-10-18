@@ -12,8 +12,6 @@ export const USER_AGENT_FIXTURE = 'AgentFixture/1.0';
 export const T0 = Date.UTC(2026, 9, 11, 12, 0, 0);
 /** Fixture session lifetime used to fill `expires_at` (2026-04-17 only). */
 export const SESSION_TTL_MS = 30 * 60 * 1000;
-/** Fixture allowance lifetime used to fill `allowance.expires_at`. */
-export const ALLOWANCE_TTL_MS = 15 * 60 * 1000;
 
 export interface CatalogItem {
   id: string;
@@ -49,9 +47,6 @@ export const ADDRESS = {
 
 export type Address = typeof ADDRESS;
 
-/** Fixture credential tokens. Never a card number. */
-export const SPT_FIXTURE = 'spt_fixture_0001';
-export const VAULT_TOKEN_FIXTURE = 'vt_fixture_0001';
 export const NETWORK_TOKEN_FIXTURE = 'fixture_network_token_not_a_card';
 
 /** PaymentHandler objects (2026-04-17). Names use the reverse-DNS names seen in the ACP repository, plus one vendor fixture. */
@@ -139,7 +134,3 @@ export const DISCOVERY: DiscoveryDoc = {
     supported_locales: ['en-US'],
   },
 };
-
-export function clone<T>(v: T): T {
-  return JSON.parse(JSON.stringify(v)) as T;
-}

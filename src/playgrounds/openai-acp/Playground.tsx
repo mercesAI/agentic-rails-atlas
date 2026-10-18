@@ -1,5 +1,12 @@
-import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import './acp.css';
+import { Note } from '@/components/playground/Note';
+import { NumberField } from '@/components/playground/NumberField';
+import { Segmented } from '@/components/playground/Segmented';
+import { TabList } from '@/components/playground/Tabs';
+import { Wire } from '@/components/playground/Wire';
+import { bytesToHex } from '@/lib/playground/bytes';
+import { pretty } from '@/lib/playground/util';
 import { TRANSITIONS, computeTotals, transitionsFor, type Basis, type Session } from './lib/checkout';
 import { NO_CODE_NOTE, buildDelegateRequest, type TokenRecord } from './lib/delegate';
 import { ADDRESS, CATALOG, DISCOVERY, HANDLERS, MERCHANT_ID, OTHER_MERCHANT_ID, SESSION_TTL_MS, SHIPPING, T0, BUYER } from './lib/fixtures';
@@ -25,7 +32,7 @@ import {
   type CompleteMode,
   type ServerState,
 } from './lib/server';
-import { LATEST, SPEC_VERSIONS, STATUSES, exampleLabel, pretty, type Exchange, type SpecVersion } from './lib/types';
+import { LATEST, SPEC_VERSIONS, STATUSES, exampleLabel, type Exchange, type SpecVersion } from './lib/types';
 import {
   WEBHOOK_PATH,
   TOLERANCE_SECONDS,
@@ -33,7 +40,6 @@ import {
   orderEvent,
   signWebhook,
   signedPayload,
-  toHex,
   verifyWebhook,
   type VerifyResult,
 } from './lib/webhook';
@@ -58,61 +64,6 @@ interface LogEntry {
   version: SpecVersion;
   exchange?: Exchange;
   event?: string;
-}
-
-function Simpl({ children }: { children: ReactNode }) {
-  return (
-    <p className="acp-simpl">
-      <strong>Teaching simplification:</strong> {children}
-    </p>
-  );
-}
-
-function Pre({ title, text }: { title: string; text: string }) {
-  return (
-    <div>
-      <h4>{title}</h4>
-      {/* Scrollable code must be keyboard focusable (axe scrollable-region-focusable). */}
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-      <pre className="acp-pre" tabIndex={0} aria-label={title}>
-        {text}
-      </pre>
-    </div>
-  );
-}
-
-function Segmented<T extends string>(props: { label: string; value: T; options: { id: T; label: string }[]; onChange: (v: T) => void }) {
-  const { label, value, options, onChange } = props;
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const i = options.findIndex((o) => o.id === value);
-    const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
-    if (!d) return;
-    e.preventDefault();
-    const next = options[(i + d + options.length) % options.length];
-    if (next) {
-      onChange(next.id);
-      e.currentTarget.parentElement?.querySelector<HTMLButtonElement>(`[data-id="${next.id}"]`)?.focus();
-    }
-  };
-  return (
-    <div className="segmented" role="radiogroup" aria-label={label}>
-      {options.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          role="radio"
-          data-id={o.id}
-          aria-checked={o.id === value}
-          tabIndex={o.id === value ? 0 : -1}
-          className="segmented__btn"
-          onKeyDown={onKey}
-          onClick={() => onChange(o.id)}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 function renderHeaders(h: Record<string, string>): string {
@@ -323,20 +274,6 @@ export default function OpenAiAcpPlayground() {
     setIRuns((x) => [...x, { label, status: String(r.exchange.status), code: body?.code ?? (r.exchange.responseHeaders['Idempotent-Replayed'] ? 'replayed response' : 'new request'), replayed: r.exchange.responseHeaders['Idempotent-Replayed'] === 'true' }]);
   }
 
-  const onTabKey = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const i = TABS.findIndex((t) => t.id === tab);
-    let j = -1;
-    if (e.key === 'ArrowRight') j = (i + 1) % TABS.length;
-    if (e.key === 'ArrowLeft') j = (i - 1 + TABS.length) % TABS.length;
-    if (e.key === 'Home') j = 0;
-    if (e.key === 'End') j = TABS.length - 1;
-    const next = TABS[j];
-    if (!next) return;
-    e.preventDefault();
-    setTab(next.id);
-    document.getElementById(`acp-tab-${next.id}`)?.focus();
-  };
-
   const status = session?.status;
   const outgoing = status ? transitionsFor(version, status) : [];
   const usableHandlers = selection.usable;
@@ -352,7 +289,7 @@ export default function OpenAiAcpPlayground() {
           label="Spec version"
           value={version}
           onChange={switchVersion}
-          options={SPEC_VERSIONS.map((v) => ({ id: v, label: `${v} (${STATUSES[v].length} statuses)` }))}
+          options={SPEC_VERSIONS.map((v) => ({ value: v, label: `${v} (${STATUSES[v].length} statuses)` }))}
         />
         <span>
           Simulated clock: <code>{fmtTime(now)}</code>
@@ -369,24 +306,7 @@ export default function OpenAiAcpPlayground() {
       </div>
       <p className="acp-label">{exampleLabel(version)}. Merchant fixture: Juniper Goods at <code>juniper-goods.example</code>. No network calls.</p>
 
-      <div role="tablist" aria-label="OpenAI ACP playground parts" className="acp-tabs">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            id={`acp-tab-${t.id}`}
-            type="button"
-            role="tab"
-            className="acp-tab"
-            aria-selected={tab === t.id}
-            aria-controls={`acp-panel-${t.id}`}
-            tabIndex={tab === t.id ? 0 : -1}
-            onKeyDown={onTabKey}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <TabList label="OpenAI ACP playground parts" idPrefix="acp" tabs={TABS} value={tab} onChange={setTab} />
 
       {tab === 'checkout' && (
         <section id="acp-panel-checkout" role="tabpanel" aria-labelledby="acp-tab-checkout" className="acp">
@@ -415,14 +335,11 @@ export default function OpenAiAcpPlayground() {
                     {c.name} ({(c.unit_amount / 100).toFixed(2)} usd)
                   </label>
                   {!newer && (cart[c.id] ?? 0) > 0 && (
-                    <label>
-                      Quantity
-                      <input type="number" min={1} max={5} value={cart[c.id]} onChange={(e) => setCart({ ...cart, [c.id]: Math.max(1, Number(e.target.value) || 1) })} />
-                    </label>
+                    <NumberField label="Quantity" min={1} max={5} value={cart[c.id]} onChange={(v) => setCart({ ...cart, [c.id]: Math.max(1, v ?? 1) })} />
                   )}
                 </div>
               ))}
-              {newer && <Simpl>In 2026-04-17 the create request holds Item objects, and the schema Item has no quantity property. The fixture merchant uses quantity 1.</Simpl>}
+              {newer && <Note kind="simplification">In 2026-04-17 the create request holds Item objects, and the schema Item has no quantity property. The fixture merchant uses quantity 1.</Note>}
             </fieldset>
             <fieldset>
               <legend>Merchant behavior</legend>
@@ -551,13 +468,13 @@ export default function OpenAiAcpPlayground() {
               </tbody>
             </table>
           )}
-          <Simpl>
+          <Note kind="simplification">
             The state file marks {TRANSITIONS.filter((t) => t.basis === 'inferred').length} of {TRANSITIONS.length} edges as inferred. The spec lists the status values but gives no transition rules for them, so
             the table above is the Atlas reading, not the spec.
-          </Simpl>
-          <Simpl>
+          </Note>
+          <Note kind="simplification">
             The spec names no error code for a call that does not fit the current status (for example update after cancel), so the fixture uses <code>invalid_state</code> and the log says so. Spec-defined outcomes keep their codes: 405 on cancel of a finished session, <code>requires_3ds</code> without <code>authentication_result</code>, and the idempotency codes.
-          </Simpl>
+          </Note>
         </section>
       )}
 
@@ -572,10 +489,7 @@ export default function OpenAiAcpPlayground() {
               <p className="acp-label">
                 <code>reason</code> is always <code>one_time</code>, the only value the schema allows. <code>currency</code> is <code>usd</code>.
               </p>
-              <label className="acp-field">
-                max_amount (minor units{session ? `; session total is ${total}` : ''})
-                <input type="number" min={0} value={dMax ?? total} onChange={(e) => setDMax(Number(e.target.value))} />
-              </label>
+              <NumberField className="acp-field" label={`max_amount (minor units${session ? `; session total is ${total}` : ''})`} min={0} value={dMax ?? total} onChange={setDMax} />
               <label className="acp-field">
                 merchant_id
                 <select value={dMerchant} onChange={(e) => setDMerchant(e.target.value as 'self' | 'other')}>
@@ -590,10 +504,7 @@ export default function OpenAiAcpPlayground() {
                   <option value="other">cs_fixture_other (a different session)</option>
                 </select>
               </label>
-              <label className="acp-field">
-                Lifetime in minutes (sets expires_at)
-                <input type="number" min={1} value={dLife} onChange={(e) => setDLife(Math.max(1, Number(e.target.value) || 1))} />
-              </label>
+              <NumberField className="acp-field" label="Lifetime in minutes (sets expires_at)" min={1} value={dLife} onChange={(v) => setDLife(Math.max(1, v ?? 1))} />
               <div className="acp-row">
                 <button type="button" className="btn" onClick={() => { setDMax(Math.max(0, total - 1)); setDMerchant('self'); setDSession('current'); setDLife(15); }}>
                   Preset: exceed max_amount
@@ -650,7 +561,7 @@ export default function OpenAiAcpPlayground() {
                   <p>
                     Token <code>{token.id}</code> {token.used ? 'was used' : 'is unused'}; allowance {Date.parse(token.allowance.expires_at) <= now ? 'has expired' : 'is still open'} at the simulated clock.
                   </p>
-                  <Pre title="Allowance on the token" text={pretty(token.allowance)} />
+                  <Wire wrap="none" title="Allowance on the token" text={pretty(token.allowance)} />
                 </>
               ) : (
                 <p>No token yet.</p>
@@ -674,7 +585,7 @@ export default function OpenAiAcpPlayground() {
                       </li>
                     ))}
                   </ul>
-                  <Simpl>{NO_CODE_NOTE}</Simpl>
+                  <Note kind="simplification">{NO_CODE_NOTE}</Note>
                 </>
               )}
             </div>
@@ -688,11 +599,11 @@ export default function OpenAiAcpPlayground() {
             The merchant signs each order event with HMAC-SHA256 and sends it to <code>{WEBHOOK_PATH}</code> in the <code>Merchant-Signature</code> header, as <code>t=&lt;unix_seconds&gt;,v1=&lt;64_hex&gt;</code>. The signed string is the timestamp, a dot and the raw body. The receiver answers 401 if the header is missing, malformed, outside the window (300 seconds recommended) or does not verify.
           </p>
           {!newer && (
-            <Simpl>
+            <Note kind="simplification">
               The 2025-09-29 webhook file says only that requests carry an HMAC signature over the raw body in <code>Merchant-Signature</code>. It defines no header format and no time window. This tab shows the 2026-04-17 scheme in both versions.
-            </Simpl>
+            </Note>
           )}
-          <p className="acp-label">Ephemeral shared secret, kept in memory only: <code>{toHex(secret)}</code></p>
+          <p className="acp-label">Ephemeral shared secret, kept in memory only: <code>{bytesToHex(secret)}</code></p>
           <div className="acp-grid">
             <fieldset>
               <legend>Event to sign</legend>
@@ -724,10 +635,7 @@ export default function OpenAiAcpPlayground() {
                   <option value="malformed">Send a malformed header</option>
                 </select>
               </label>
-              <label className="acp-field">
-                Receiver clock is this many seconds after t (window is {TOLERANCE_SECONDS})
-                <input type="number" value={wDelay} onChange={(e) => setWDelay(Number(e.target.value) || 0)} />
-              </label>
+              <NumberField className="acp-field" label={`Receiver clock is this many seconds after t (window is ${TOLERANCE_SECONDS})`} value={wDelay} onChange={(v) => setWDelay(v ?? 0)} />
               <div className="acp-row">
                 <button type="button" className="btn" onClick={() => setWDelay(5)}>Fresh, 5 s</button>
                 <button type="button" className="btn" onClick={() => setWDelay(TOLERANCE_SECONDS + 1)}>Replay, 301 s</button>
@@ -742,20 +650,20 @@ export default function OpenAiAcpPlayground() {
               <div>
                 <h4>Sender</h4>
                 <p className="acp-label">{exampleLabel(version)}</p>
-                <Pre title="Merchant request" text={`POST ${WEBHOOK_PATH}\nMerchant-Signature: ${wResult.header ?? '(header left out)'}\nRequest-Id: req_wh_001\n\n${wResult.received}`} />
-                <Pre title="String that was signed" text={signedPayload(wResult.t, wResult.sent)} />
+                <Wire wrap="none" title="Merchant request" text={`POST ${WEBHOOK_PATH}\nMerchant-Signature: ${wResult.header ?? '(header left out)'}\nRequest-Id: req_wh_001\n\n${wResult.received}`} />
+                <Wire wrap="none" title="String that was signed" text={signedPayload(wResult.t, wResult.sent)} />
               </div>
               <div>
                 <h4>Receiver</h4>
                 <p className={wResult.result.ok ? 'acp-ok' : 'acp-bad'}>
                   {wResult.result.ok ? 'Verified, 200' : `Rejected, 401, reason: ${wResult.result.reason}`}. Receiver clock t+{wResult.receiverNow - wResult.t} s.
                 </p>
-                <Pre title="Receiver response" text={`HTTP/1.1 ${wResult.result.status}\n\n${pretty(wResult.result.body)}`} />
+                <Wire wrap="none" title="Receiver response" text={`HTTP/1.1 ${wResult.result.status}\n\n${pretty(wResult.result.body)}`} />
                 {wResult.sent !== wResult.received && <p className="acp-warn">The body changed after signing, so the HMAC no longer matches.</p>}
               </div>
             </div>
           )}
-          <Simpl>HMAC runs with WebCrypto in your browser and the comparison uses <code>crypto.subtle.verify</code>. The spec&apos;s window check is a timestamp test only; it describes no store of seen events, so the same signed request inside the window also verifies.</Simpl>
+          <Note kind="simplification">HMAC runs with WebCrypto in your browser and the comparison uses <code>crypto.subtle.verify</code>. The spec&apos;s window check is a timestamp test only; it describes no store of seen events, so the same signed request inside the window also verifies.</Note>
         </section>
       )}
 
@@ -766,7 +674,7 @@ export default function OpenAiAcpPlayground() {
               ? 'In 2026-04-17 every POST needs an Idempotency-Key. The same key with the same body replays the first response; the same key with a different body is 422 idempotency_conflict; a duplicate while the first request runs is 409 idempotency_in_flight with Retry-After.'
               : 'In 2025-09-29 the Idempotency-Key header is optional and the OpenAPI file defines no idempotency errors.'}
           </p>
-          {!newer && <Simpl>The replay and conflict behavior below follows the RFC section 6 text for 2026-04-17. The 2025-09-29 files define neither.</Simpl>}
+          {!newer && <Note kind="simplification">The replay and conflict behavior below follows the RFC section 6 text for 2026-04-17. The 2025-09-29 files define neither.</Note>}
           <label className="acp-field">
             Idempotency-Key
             <input type="text" value={iKey} onChange={(e) => setIKey(e.target.value)} />
@@ -791,7 +699,7 @@ export default function OpenAiAcpPlayground() {
               </tbody>
             </table>
           )}
-          <Simpl>Body equality is semantic JSON equality of the body only: key order does not matter, array order does, and null differs from absent. Keys are scoped to the fixture identity plus the endpoint path.</Simpl>
+          <Note kind="simplification">Body equality is semantic JSON equality of the body only: key order does not matter, array order does, and null differs from absent. Keys are scoped to the fixture identity plus the endpoint path.</Note>
         </section>
       )}
 
@@ -802,7 +710,7 @@ export default function OpenAiAcpPlayground() {
               <p>
                 2025-09-29 has no discovery document and no payment handlers. A session carries <code>payment_provider</code> and the complete request carries <code>payment_data.token</code> and <code>payment_data.provider</code>, where the only provider value is <code>stripe</code>.
               </p>
-              <Pre title="payment_provider in a 2025-09-29 session" text={pretty({ provider: 'stripe', supported_payment_methods: ['card'] })} />
+              <Wire wrap="none" title="payment_provider in a 2025-09-29 session" text={pretty({ provider: 'stripe', supported_payment_methods: ['card'] })} />
               <p>Switch to 2026-04-17 to explore discovery and handler selection.</p>
             </>
           ) : (
@@ -854,7 +762,7 @@ export default function OpenAiAcpPlayground() {
               <p>
                 In the checkout tab, pick a <code>handler_id</code> and complete. A handler with <code>requires_delegate_payment: true</code> needs a token from step 2; the bank transfer fixture does not, so no allowance applies to it.
               </p>
-              <Simpl>The spec states no algorithm for matching agent and seller handlers. This match compares the reverse-DNS <code>name</code> only. Handler names other than <code>dev.acp.*</code> and all <code>psp</code> values are fixtures.</Simpl>
+              <Note kind="simplification">The spec states no algorithm for matching agent and seller handlers. This match compares the reverse-DNS <code>name</code> only. Handler names other than <code>dev.acp.*</code> and all <code>psp</code> values are fixtures.</Note>
             </>
           )}
         </section>
@@ -873,8 +781,8 @@ export default function OpenAiAcpPlayground() {
                     {e.n}. {e.exchange.method} {e.exchange.path} returned {String(e.exchange.status)}
                   </summary>
                   <div className="acp-grid">
-                    <Pre title={`Request ${e.n}`} text={renderRequest(e.exchange)} />
-                    <Pre title={`Response ${e.n}`} text={renderResponse(e.exchange)} />
+                    <Wire wrap="none" title={`Request ${e.n}`} text={renderRequest(e.exchange)} />
+                    <Wire wrap="none" title={`Response ${e.n}`} text={renderResponse(e.exchange)} />
                   </div>
                   {e.exchange.note && <p className="acp-simpl">{e.exchange.note}</p>}
                 </details>

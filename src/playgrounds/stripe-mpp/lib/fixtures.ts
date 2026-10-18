@@ -4,6 +4,7 @@
  * specs/intents/draft-payment-intent-charge-00.md, specs/intents/draft-payment-intent-subscription-00.md,
  * specs/methods/tempo/draft-tempo-charge-00.md, draft-tempo-session-00.md, draft-tempo-subscription-00.md.
  */
+import { MoneyParseError, formatMinor, parseDecimalToMinor } from '@/lib/playground/money';
 import { getAddress } from 'viem';
 
 export const CORE_SPEC = 'draft-httpauth-payment-01';
@@ -11,7 +12,6 @@ export const SESSION_SPEC = 'draft-tempo-session-00';
 
 /** Label shown on every wire example. */
 export const ILLUSTRATIVE = `Illustrative example, ${CORE_SPEC}`;
-export const SIMPLIFICATION = 'Teaching simplification';
 
 /** Fake chain id. Tempo's real chain ids (4217, 42431) are never used here. */
 export const SIM_CHAIN_ID = 424242;
@@ -51,19 +51,18 @@ export type Intent = 'charge' | 'subscription' | 'session';
 
 /** Format base units as a decimal token amount. */
 export function formatUnits(value: bigint, decimals: number = FIXTURE_TOKEN.decimals): string {
-  const neg = value < 0n;
-  const abs = neg ? -value : value;
-  const base = 10n ** BigInt(decimals);
-  const whole = abs / base;
-  const frac = (abs % base).toString().padStart(decimals, '0').replace(/0+$/, '');
-  return `${neg ? '-' : ''}${whole}${frac ? `.${frac}` : ''}`;
+  return formatMinor(value, decimals, '', { trimZeros: true });
 }
 
-/** Parse a decimal token amount to base units. Throws on bad input. */
+/** Parse a decimal token amount to base units. Throws on bad input, with the messages the UI shows. */
 export function parseUnits(text: string, decimals: number = FIXTURE_TOKEN.decimals): bigint {
   const t = text.trim();
+  // The accepted shape is checked here so the message stays the same (a trailing point is not accepted).
   if (!/^\d+(\.\d+)?$/.test(t)) throw new Error('Enter a positive decimal number, for example 0.01.');
-  const [whole = '0', frac = ''] = t.split('.');
-  if (frac.length > decimals) throw new Error(`Use at most ${decimals} decimal places.`);
-  return BigInt(whole) * 10n ** BigInt(decimals) + BigInt(frac.padEnd(decimals, '0') || '0');
+  try {
+    return parseDecimalToMinor(t, decimals);
+  } catch (e) {
+    if (e instanceof MoneyParseError && e.reason === 'decimals') throw new Error(`Use at most ${decimals} decimal places.`, { cause: e });
+    throw e;
+  }
 }

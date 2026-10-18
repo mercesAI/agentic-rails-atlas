@@ -1,6 +1,8 @@
 // One checkout operation rendered three ways, following the v2026-08-25 bindings:
 // REST (services/shopping/rest.openapi.json, shopping/checkout/rest.md), MCP (services/shopping/mcp.openrpc.json,
 // shopping/checkout/mcp.md) and A2A (shopping/checkout/a2a.md).
+import { utf8ToBase64Url } from '@/lib/playground/bytes';
+import { pretty } from '@/lib/playground/util';
 import {
   A2A_ENDPOINT,
   A2A_EXTENSION_URI,
@@ -90,22 +92,15 @@ export interface WireContext {
   messageId: string;
 }
 
-function b64url(text: string): string {
-  const bytes = new TextEncoder().encode(text);
-  let bin = '';
-  bytes.forEach((b) => (bin += String.fromCharCode(b)));
-  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
 /** Fixture detached JWS (`<header>..<signature>`); the header is real base64url, the signature is a placeholder. */
 export function fixtureMerchantAuthorization(kid: string): string {
-  return `${b64url(JSON.stringify({ alg: 'ES256', kid }))}..${b64url('fixture-signature-not-computed')}`;
+  return `${utf8ToBase64Url(JSON.stringify({ alg: 'ES256', kid }))}..${utf8ToBase64Url('fixture-signature-not-computed')}`;
 }
 
 /** Fixture SD-JWT with key binding shape (`<jwt>~<disclosures>~<kb-jwt>`); not a real credential. */
 export function fixtureCheckoutMandate(): string {
-  const header = b64url(JSON.stringify({ alg: 'ES256', typ: 'dc+sd-jwt' }));
-  return `${header}.${b64url('{"fixture":true}')}.${b64url('sig')}~${b64url('["salt","disclosure"]')}~${b64url('kb')}`;
+  const header = utf8ToBase64Url(JSON.stringify({ alg: 'ES256', typ: 'dc+sd-jwt' }));
+  return `${header}.${utf8ToBase64Url('{"fixture":true}')}.${utf8ToBase64Url('sig')}~${utf8ToBase64Url('["salt","disclosure"]')}~${utf8ToBase64Url('kb')}`;
 }
 
 function lineItemsRequest(data: CheckoutData, withIds: boolean): JsonValue[] {
@@ -178,10 +173,6 @@ export function checkoutResource(session: CheckoutSession, envelope: Envelope, a
   if (session.order) out.order = session.order;
   if (ap2Locked) out.ap2 = { merchant_authorization: fixtureMerchantAuthorization('juniper_2026') };
   return out;
-}
-
-function pretty(value: unknown): string {
-  return JSON.stringify(value, null, 2);
 }
 
 function restPath(op: Operation, id: string): string {

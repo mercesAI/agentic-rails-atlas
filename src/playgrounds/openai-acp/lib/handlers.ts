@@ -1,7 +1,8 @@
 // Discovery (/.well-known/acp.json) and payment handler selection. Both exist only in 2026-04-17:
 // the 2025-09-29 schema has no DiscoveryResponse and no capabilities.payment.handlers.
 
-import { DISCOVERY, HANDLERS, clone, type DiscoveryDoc, type PaymentHandler } from './fixtures';
+import { clone } from '@/lib/playground/util';
+import { DISCOVERY, HANDLERS, type DiscoveryDoc, type PaymentHandler } from './fixtures';
 import type { SpecVersion } from './types';
 
 export const DISCOVERY_PATH = '/.well-known/acp.json';

@@ -7,7 +7,6 @@ import { getAddress, type Address } from 'viem';
 
 export const SPEC_LABEL = 'ERC-8004 (Draft)';
 export const ILLUSTRATIVE = `Illustrative example, ${SPEC_LABEL}`;
-export const SIMPLIFICATION = 'Teaching simplification';
 
 /** Fake chain. 424242 is not a chain id where the registries are listed. */
 export const SIM_CHAIN_ID = 424242;

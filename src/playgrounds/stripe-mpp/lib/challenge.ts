@@ -4,7 +4,8 @@
  * realm|method|intent|request|expires|digest[|header]|opaque, base64url without padding. The HMAC runs in
  * WebCrypto on a key generated in this browser. Auth-param order follows mppx Challenge.serialize.
  */
-import { base64urlDecode, bytesToBase64url, decodeJson, encodeJson } from './codec';
+import { base64UrlToUtf8, bytesToBase64Url } from '@/lib/playground/bytes';
+import { decodeJson, encodeJson } from './codec';
 import { PROBLEM_BASE } from './fixtures';
 
 export const PAYMENT_AUTHORIZATION = 'Payment-Authorization';
@@ -61,7 +62,7 @@ export async function generateServerKey(): Promise<CryptoKey> {
 
 export async function computeChallengeId(key: CryptoKey, c: UnsignedChallenge): Promise<string> {
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(bindingInput(c)));
-  return bytesToBase64url(new Uint8Array(sig));
+  return bytesToBase64Url(new Uint8Array(sig));
 }
 
 export async function issueChallenge(key: CryptoKey, c: UnsignedChallenge): Promise<Challenge> {
@@ -267,7 +268,7 @@ export async function verifyCredential(state: ServerState, raw: string, o: Verif
     return { status: 402, problem: problem('payment-expired', `The challenge expired at ${c.expires}.`), freshChallenge: true };
   }
   try {
-    base64urlDecode(c.request);
+    base64UrlToUtf8(c.request);
   } catch {
     return { status: 402, problem: problem('malformed-credential', 'The echoed request is not base64url.'), freshChallenge: true };
   }

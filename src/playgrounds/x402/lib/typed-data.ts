@@ -160,10 +160,6 @@ export function digestOf(td: TypedData): Hex {
   return hashTypedData(td as Parameters<typeof hashTypedData>[0]);
 }
 
-export function signTypedData(signer: TypedDataSigner, td: TypedData): Promise<Hex> {
-  return signer.signTypedData(td);
-}
-
 /** Recover the signer address from typed data and a signature (what the facilitator does first). */
 export async function recoverSigner(td: TypedData, signature: Hex): Promise<Address> {
   return recoverTypedDataAddress({ ...(td as Parameters<typeof hashTypedData>[0]), signature });

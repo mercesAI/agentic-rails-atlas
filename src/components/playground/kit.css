@@ -1,0 +1,40 @@
+/* Shared playground kit. Colors come from src/styles/tokens.css only; status never relies on color alone. */
+
+/* Segmented with a visible label */
+.pg-group { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.3rem; }
+.pg-group__label { font-size: 0.875rem; font-weight: 600; color: var(--fg-muted); }
+
+/* Tabs */
+.pg-tabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 2px; background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.pg-tab { font: inherit; font-size: 0.875rem; font-weight: 500; padding: 0.35rem 0.7rem; border: 0; border-radius: calc(var(--radius-md) - 2px); background: transparent; color: var(--fg-muted); cursor: pointer; }
+.pg-tab:hover { color: var(--fg); }
+.pg-tab[aria-selected='true'] { background: var(--surface-hover); color: var(--fg); box-shadow: var(--shadow-1); text-decoration: underline; text-underline-offset: 0.25em; }
+.pg-tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.pg-panel { min-width: 0; }
+.pg-panel[hidden] { display: none; }
+
+/* Wire format views */
+.pg-wire { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.4rem; min-width: 0; }
+.pg-wire__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem 0.75rem; }
+.pg-wire .pg-wire__title { margin: 0; font-family: var(--font-heading); font-size: 0.95rem; }
+.pg-wire .pg-wire__text { margin: 0; }
+.pg-wire .pg-wire__caption { margin: 0; font-size: 0.875rem; color: var(--fg-muted); }
+.pg-wire .pg-wire__toggle { font-size: 0.8125rem; padding: 0.1rem 0.5rem; }
+.pg-wire .pg-pre {
+  margin: 0; max-height: 22rem; overflow: auto; padding: 0.6rem; background: var(--bg-sunken); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.8125rem; line-height: 1.45;
+  white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-all; color: var(--fg);
+}
+.pg-wire .pg-pre--nowrap { white-space: pre; overflow-wrap: normal; word-break: normal; }
+.pg-wire--tall .pg-pre { max-height: none; }
+.pg-pre:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Notes: teaching simplification, spec quirk, example label */
+.pg-note { font-size: 0.875rem; color: var(--fg-muted); border-left: 3px solid var(--border-strong); padding-left: 0.5rem; margin: 0.3rem 0; }
+.pg-note--simplification { border-left-color: var(--fresh-amber); }
+.pg-note--quirk { border-left-color: var(--confidence-unverified); border-left-style: dashed; }
+.pg-note__tag { font-weight: 700; color: var(--fg); }
+
+/* Fields: the surrounding playground styles the input and select elements */
+.pg-field { display: inline-flex; gap: 0.35rem; align-items: center; min-width: 0; }
+.pg-check { display: inline-flex; gap: 0.35rem; align-items: center; }

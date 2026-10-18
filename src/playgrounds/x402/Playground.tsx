@@ -6,11 +6,13 @@
  */
 import { useEffect, useId, useMemo, useState } from 'react';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+import { Note } from '@/components/playground/Note';
+import { Wire } from '@/components/playground/Wire';
 import { decodeHeader, encodeJsonText, toJson } from './lib/base64';
 import { FIXTURE_PAY_TO, FIXTURE_TOKEN, SIM_NETWORK_V2, illustrativeLabel, networkFor, type PaymentFlow, type Scheme, type Version } from './lib/fixtures';
 import { reasonOf, type Check, type ErrorCode } from './lib/facilitator';
 import { FLOW_ORDER_TEXT, resolveFlow } from './lib/flows';
-import { ACTOR_LABEL, FAILURES, runSimulation, type Actor, type FailureId, type SimResult, type Signing, type Step, type Wire } from './lib/simulate';
+import { ACTOR_LABEL, FAILURES, runSimulation, type Actor, type FailureId, type SimResult, type Signing, type Step, type Wire as WireRecord } from './lib/simulate';
 import { DEFAULT_MAX_AMOUNT_PER_PAYMENT, MAX_WHOLE_UNITS, checkSpendControls, formatAtomic, parseUsdAmount, type AmountParse, type SpendCap } from './lib/spend';
 import { recoverSigner, sameAddress, tamperAmount, type TypedDataSigner } from './lib/typed-data';
 import './x402.css';
@@ -369,7 +371,11 @@ function StepItem({ step }: { step: Step }) {
           {step.from === step.to ? ' (local step)' : ` to ${ACTOR_LABEL[step.to]}`}
         </p>
         <p className="x4-step__detail">{step.detail}</p>
-        {step.simplification && <p className="x4-simpl">{step.simplification}</p>}
+        {step.simplification && (
+          <Note kind="simplification" tag={false}>
+            {step.simplification}
+          </Note>
+        )}
         {step.code && <CodeNote code={step.code} />}
         {hasMore && (
           <details className="x4-more" open={step.status === 'fail'}>
@@ -418,21 +424,17 @@ function CheckList({ checks }: { checks: Check[] }) {
   );
 }
 
-function WireView({ wire }: { wire: Wire }) {
-  const [decoded, setDecoded] = useState(false);
+function WireView({ wire }: { wire: WireRecord }) {
   const h = wire.header;
   return (
-    <figure className="x4-wire">
-      <figcaption>
-        {wire.caption}
-        {h && (
-          <button type="button" className="btn btn--ghost x4-wire__toggle" aria-pressed={decoded} onClick={() => setDecoded((d) => !d)}>
-            {decoded ? 'Show the raw message' : `Decode ${h.name}`}
-          </button>
-        )}
-      </figcaption>
-      <pre className="x4-pre">{decoded && h ? `${h.name} decoded from base64:\n${toJson(h.decoded, 2)}` : wire.text}</pre>
-    </figure>
+    <Wire
+      titleAs="caption"
+      title={wire.caption}
+      text={wire.text}
+      decoded={h ? `${h.name} decoded from base64:\n${toJson(h.decoded, 2)}` : undefined}
+      decodeLabel={h ? `Decode ${h.name}` : undefined}
+      encodedLabel="Show the raw message"
+    />
   );
 }
 
@@ -446,7 +448,7 @@ function SpendPanel({ price, amount, cap, onPrice }: { price: string; amount: st
         payment at <code>{DEFAULT_MAX_AMOUNT_PER_PAYMENT}</code> (<code>DEFAULT_MAX_AMOUNT_PER_PAYMENT</code> in <code>x402Client.ts</code>). Setting
         the cap to <code>false</code> removes it.
       </p>
-      <p className="x4-simpl">Teaching simplification: the fixture token counts as a recognized default asset, so the USD cap applies to it.</p>
+      <Note kind="simplification">the fixture token counts as a recognized default asset, so the USD cap applies to it.</Note>
       <p>
         Price {price} USD is {amount ?? 'not a valid amount'}
         {amount !== null && ' atomic units'}.{' '}
@@ -499,10 +501,7 @@ function Eip712Panel({ signing, label }: { signing?: Signing; label: string }) {
             <code>{signing.typedData.domain.chainId}</code> ({SIM_NETWORK_V2}). The facilitator runs ecrecover over the same digest and compares the
             result with the payer address.
           </p>
-          <figure className="x4-wire">
-            <figcaption>{label}. Key and signature are ephemeral.</figcaption>
-            <pre className="x4-pre">{toJson(signing.display, 2)}</pre>
-          </figure>
+          <Wire className="pg-wire--tall" titleAs="caption" title={`${label}. Key and signature are ephemeral.`} label="EIP-712 typed data" text={toJson(signing.display, 2)} />
           <dl className="x4-dl">
             <dt>EIP-712 digest</dt>
             <dd>

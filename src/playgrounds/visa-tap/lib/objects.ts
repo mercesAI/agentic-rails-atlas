@@ -5,16 +5,13 @@
  * those fields in insertion order with the same ephemeral key as the message signature.
  */
 import { signText, verifyText, type SigAlg } from './keys';
-import { base64UrlToBytes, bytesToBase64Url } from './sf';
+import { base64UrlDecodeJson, base64UrlEncodeJson, base64UrlToBytes, bytesToBase64Url } from '@/lib/playground/bytes';
 
 export type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue };
 export type JsonObject = { [k: string]: JsonValue };
 
 export const CONSUMER_MIN_FIELDS = ['nonce', 'idToken', 'contextualData', 'kid', 'alg', 'signature'] as const;
 export const PAYMENT_MIN_FIELDS = ['nonce', 'kid', 'alg', 'signature'] as const;
-
-const enc = new TextEncoder();
-const b64urlJson = (o: JsonObject) => bytesToBase64Url(enc.encode(JSON.stringify(o)));
 
 export function idTokenHeader(): JsonObject {
   return { alg: 'PS256', kid: 'issuer-key-fixture', typ: 'JWT+ext.id_token' };
@@ -38,11 +35,11 @@ export function idTokenClaims(now: number): JsonObject {
 
 /** Fixture ID Token: real header and claims encoding, placeholder signature (Visa signs the real one). */
 export function fixtureIdToken(now: number): string {
-  return `${b64urlJson(idTokenHeader())}.${b64urlJson(idTokenClaims(now))}.fixture-not-signed`;
+  return `${base64UrlEncodeJson(idTokenHeader())}.${base64UrlEncodeJson(idTokenClaims(now))}.fixture-not-signed`;
 }
 
 export function decodeJwtPart(part: string): JsonObject {
-  return JSON.parse(new TextDecoder().decode(base64UrlToBytes(part))) as JsonObject;
+  return base64UrlDecodeJson<JsonObject>(part);
 }
 
 /** The base for a body object signature: every field except `signature`, in insertion order. */

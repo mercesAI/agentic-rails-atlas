@@ -11,7 +11,7 @@ import {
   parseSignatureInput,
   type HttpRequest,
   type ParsedSignature,
-} from './signature';
+} from '@/lib/playground/http-sig';
 
 export const TAP_MAX_WINDOW_SECONDS = 8 * 60;
 /** The Web Bot Auth draft RECOMMENDS an expiry no more than 24 hours out. */

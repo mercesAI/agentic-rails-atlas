@@ -5,7 +5,8 @@
  * specs/methods/evm/draft-evm-charge-00.md (method "evm", credential type "authorization" for EIP-3009).
  * x402 headers are standard base64 JSON (x402 transports-v2/http.md); MPP uses base64url without padding.
  */
-import { base64Decode, encodeCanonical, encodeJson } from './codec';
+import { base64ToUtf8 } from '@/lib/playground/bytes';
+import { encodeCanonical, encodeJson } from './codec';
 import { computeChallengeId, serializeChallenge, serializeReceipt, type Challenge, type Credential, type Receipt } from './challenge';
 import { FIXTURE_REALM, FIXTURE_RECIPIENT, FIXTURE_TOKEN, PERMIT2_ADDRESS, SIM_CHAIN_ID } from './fixtures';
 
@@ -48,7 +49,7 @@ export interface Translation<T> {
 }
 
 function decodeX402<T>(value: string): T {
-  return JSON.parse(base64Decode(value)) as T;
+  return JSON.parse(base64ToUtf8(value)) as T;
 }
 
 /** "eip155:424242" to 424242; anything else is rejected because draft-evm-charge-00 needs an EIP-155 chain id. */
