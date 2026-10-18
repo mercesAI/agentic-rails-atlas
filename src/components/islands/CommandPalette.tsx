@@ -96,9 +96,14 @@ export default function CommandPalette() {
     const onOpen = (e: Event) => open((e as CustomEvent<Mode | undefined>).detail ?? 'search');
     document.addEventListener('keydown', onKey);
     document.addEventListener('atlas:open-palette', onOpen);
+    // Marks the dialog once the shortcuts listen. Astro drops the island's ssr attribute before
+    // React runs this effect, so the end-to-end tests wait for this marker before pressing j or k.
+    const dialog = dialogRef.current;
+    dialog?.setAttribute('data-shortcuts', 'ready');
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('atlas:open-palette', onOpen);
+      dialog?.removeAttribute('data-shortcuts');
     };
   }, [open]);
 

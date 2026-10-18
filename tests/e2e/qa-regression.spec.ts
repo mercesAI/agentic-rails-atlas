@@ -11,9 +11,12 @@ async function hydrated(page: Page) {
   });
 }
 
-/** The j, k and g shortcuts are installed by the command palette island (client:idle); a key pressed before it hydrates is lost. */
+/**
+ * The j, k and g shortcuts are installed in an effect of the command palette island (client:idle);
+ * a key pressed before it runs is lost. The palette marks its dialog once the listener is attached.
+ */
 async function shortcutsReady(page: Page) {
-  await page.locator('astro-island[component-url*="CommandPalette"]:not([ssr])').waitFor({ state: 'attached' });
+  await page.locator('dialog.command-palette[data-shortcuts="ready"]').waitFor({ state: 'attached' });
 }
 
 test.describe('QA-001 orbit satellites', () => {
