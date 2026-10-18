@@ -15,10 +15,11 @@ async function scrollThrough(page: Page) {
   await page.evaluate(async () => {
     const step = Math.max(window.innerHeight * 0.8, 400);
     for (let y = 0; y < document.body.scrollHeight; y += step) {
-      window.scrollTo(0, y);
+      window.scrollTo({ top: y, behavior: 'instant' });
       await new Promise((r) => setTimeout(r, 40));
     }
-    window.scrollTo(0, 0);
+    // Instant, not the site's smooth scrolling: axe must not run while the sticky header still covers a link mid-scroll.
+    window.scrollTo({ top: 0, behavior: 'instant' });
   });
 }
 

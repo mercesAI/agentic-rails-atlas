@@ -32,10 +32,11 @@ async function settle(page: Page) {
   // Scroll through so client:visible islands hydrate.
   await page.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 800) {
-      window.scrollTo(0, y);
+      window.scrollTo({ top: y, behavior: 'instant' });
       await new Promise((r) => setTimeout(r, 30));
     }
-    window.scrollTo(0, 0);
+    // Instant, not the site's smooth scrolling: axe must not run while the sticky header still covers a link mid-scroll.
+    window.scrollTo({ top: 0, behavior: 'instant' });
   });
   await page.waitForLoadState('networkidle');
   // Web fonts swap in after load; axe must measure the settled layout.
