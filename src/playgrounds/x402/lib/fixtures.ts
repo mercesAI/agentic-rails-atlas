@@ -18,15 +18,15 @@ export function illustrativeLabel(version: Version): string {
   return `Illustrative example, spec version ${specVersionLabel(version)}`;
 }
 
-/** Fake chain. 424242 is not a public chain id used by x402. */
-export const SIM_CHAIN_ID = 424242;
+/** Simulated chain id. 402402 is not assigned in the public chain registry (chainid.network, checked 2026-10-18). */
+export const SIM_CHAIN_ID = 402402;
 /** V2 networks are CAIP-2 strings (spec v2 section 11.1). */
 export const SIM_NETWORK_V2 = `eip155:${SIM_CHAIN_ID}`;
 /**
  * V1 networks are plain names from a fixed list (spec v1 section 11.1, for example `base-sepolia`).
  * Teaching simplification: the simulation uses a made-up name so that no real network is named.
  */
-export const SIM_NETWORK_V1 = 'sim-424242';
+export const SIM_NETWORK_V1 = 'sim-402402';
 
 export function networkFor(version: Version): string {
   return version === 2 ? SIM_NETWORK_V2 : SIM_NETWORK_V1;

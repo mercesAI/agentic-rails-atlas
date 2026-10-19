@@ -31,7 +31,7 @@ classDiagram
     uint256 agentId
     string agentRegistry
   }
-  class FeedbackRecord {
+  class Feedback {
     int128 value
     uint8 valueDecimals
     string tag1
@@ -55,7 +55,7 @@ classDiagram
     string chainId
     string txHash
   }
-  class ValidationRecord {
+  class ValidationStatus {
     bytes32 requestHash
     address validatorAddress
     uint256 agentId
@@ -69,7 +69,7 @@ classDiagram
   RegistrationFile --> "0..*" Service : services
   RegistrationFile --> "0..*" Registration : registrations
   Registration ..> AgentIdentity : names
-  AgentIdentity --> "0..*" FeedbackRecord : per client and index
-  FeedbackRecord ..> FeedbackFile : feedbackURI in event
+  AgentIdentity --> "0..*" Feedback : per client and index
+  Feedback ..> FeedbackFile : feedbackURI in event
   FeedbackFile --> "0..1" ProofOfPayment : proofOfPayment
-  AgentIdentity --> "0..*" ValidationRecord : specified only
+  AgentIdentity --> "0..*" ValidationStatus : not officially deployed

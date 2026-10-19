@@ -1,14 +1,14 @@
 ---
 protocol: erc-8004
 title: ERC-8004 in Simplified Technical English
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-18"
 ---
 
 <SteDescription>
 
 ERC-8004 is a draft standard for Ethereum and other EVM chains. It gives an AI agent an identity on a public chain. It also keeps a public record of feedback about the agent. It is not a final standard. It does not move money.
 
-ERC-8004 has three registries. The Identity Registry gives each agent a token with an agentId. The token points to a registration file. This file lists the name of the agent, its services and its trust models. The Reputation Registry keeps a score and two tags for each item of feedback.
+ERC-8004 has three registries. The Identity Registry gives each agent a token with an agentId. The token points to a registration file. This file lists the name of the agent, its services and its trust models. The Reputation Registry keeps a value and two tags for each item of feedback.
 
 The Validation Registry is in the specification. It is not officially deployed on a chain.
 
@@ -16,7 +16,7 @@ The owner of the token controls the agent. The owner can change the address of t
 
 Any address can give feedback, but the owner and the operators cannot. The registry does not prevent fake reviewers. Thus, a reader must select the reviewers that it trusts.
 
-The registry keeps only the value, the decimals, the tags and the revoked flag on the chain. The details and the proofOfPayment object stay in an off-chain file.
+The registry keeps only the value, the decimals, the tags and the revoked flag in its storage. The NewFeedback event also contains the endpoint, the file address and the file hash. The details and the proofOfPayment object stay in an off-chain file.
 
 </SteDescription>
 
@@ -65,7 +65,7 @@ DO NOT SEND A PAYMENT TO AN agentWallet ADDRESS THAT YOU READ BEFORE A TRANSFER 
 
 1. Get the list of reviewers with `getClients`.
 2. Select only the reviewers that you trust.
-3. Call `getSummary` with the agentId and this list.
+3. Call `getSummary` with the agentId, this list and the `tag1` value that you need, for example `starred`.
 4. If you need a better score, read all feedback and the off-chain files.
 5. Make sure that each proofOfPayment agrees with a real transaction on the chain.
 
@@ -76,11 +76,11 @@ DO NOT USE THE NUMBER OF REGISTERED AGENTS AS A MEASURE OF QUALITY. MOST REGISTE
 </SteCaution>
 
 <SteNote>
-The Validation Registry is in the specification only. The contracts README does not list an address for it on a chain.
+The Validation Registry is in the specification and in the reference contracts. The contracts README does not list an address for it on a chain.
 </SteNote>
 
 <SteNote>
-One externally owned account can upgrade the registry contracts on Ethereum and on Base. This was true on 2026-10-11.
+One externally owned account can upgrade the registry contracts on Ethereum and on Base. This was true on 2026-10-18.
 </SteNote>
 
 <SteTerms>

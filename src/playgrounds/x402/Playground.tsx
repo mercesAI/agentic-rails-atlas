@@ -124,7 +124,7 @@ export default function Playground() {
           Ephemeral payer <code>{account.address}</code>
         </span>
         <span>
-          Network <code>{networkFor(opt.version)}</code> (fake chain)
+          Network <code>{networkFor(opt.version)}</code> (simulated chain)
         </span>
         <span>
           Token <code>{FIXTURE_TOKEN.symbol}</code> fixture, {FIXTURE_TOKEN.decimals} decimals

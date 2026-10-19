@@ -142,7 +142,7 @@
       "protocol": "erc-8004",
       "dimension": "primary-job",
       "value": "On-chain agent identity, discovery and public feedback",
-      "detail": "Three registries: identity (ERC-721 plus a registration file), reputation, and validation (specified only).",
+      "detail": "Three registries: identity (ERC-721 plus a registration file), reputation, and validation (specified, not officially deployed).",
       "sources": [
         "src-erc-8004-spec"
       ],
@@ -162,17 +162,18 @@
       "protocol": "erc-8004",
       "dimension": "stewards",
       "value": "ERC-8004 team (community), coordinated by De Rossi (MetaMask) and Crapis (Ethereum Foundation)",
-      "detail": "Co-authors Jordan Ellis (Google) and Erik Reppel (Coinbase); no foundation found.",
+      "detail": "Co-authors Jordan Ellis (Google) and Erik Reppel (Coinbase); neither the contracts README nor 8004.org names a foundation or association that governs ERC-8004 (checked 2026-10-18).",
       "sources": [
         "src-erc-8004-contracts-readme",
-        "src-erc-8004-spec"
+        "src-erc-8004-spec",
+        "src-erc-8004-org"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "erc-8004",
       "dimension": "governance-model",
-      "value": "ethereum/ERCs editorial process; contracts controlled by one proxy owner",
+      "value": "ethereum/ERCs editorial process; contracts controlled by the proxy owner (one externally owned account on Ethereum and Base)",
       "detail": "An EIP editor returned the text to Draft on 2026-01-13; one externally owned account owns the proxies on Ethereum and Base (2026-10-11).",
       "sources": [
         "src-erc-8004-commit-draft",
@@ -215,18 +216,19 @@
     {
       "protocol": "erc-8004",
       "dimension": "maturity",
-      "value": "Draft ERC; Identity and Reputation live on 25 mainnets; Validation not officially deployed",
-      "detail": "README list as of 2026-08-15, unchanged on 2026-10-11.",
+      "value": "Draft ERC; Identity and Reputation listed on 25 mainnets (24 run version 2.0.0, Soneium still a placeholder); Validation not officially deployed",
+      "detail": "README list as of 2026-08-15, unchanged on 2026-10-18; versions from a read-only probe on 2026-10-18.",
       "sources": [
         "src-erc-8004-eip-page",
-        "src-erc-8004-contracts-readme"
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-chain-probe-2026-10-18"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "erc-8004",
       "dimension": "transports",
-      "value": "EVM transactions and reads; files over IPFS, HTTPS or data URI; /.well-known domain proof",
+      "value": "EVM transactions and reads; files at any URI scheme, for example IPFS, HTTPS or a data URI; /.well-known domain proof",
       "sources": [
         "src-erc-8004-spec"
       ],
@@ -256,7 +258,7 @@
       "protocol": "erc-8004",
       "dimension": "user-authorization-model",
       "value": "None",
-      "detail": "No consent or mandate object; ERC-8226 (Draft) proposes one on top.",
+      "detail": "No consent or mandate object; ERC-8226 (Draft) proposes a mandate layer that can work with ERC-8004 or any other agent registry.",
       "sources": [
         "src-erc-8004-spec",
         "src-erc-8226"
@@ -374,9 +376,11 @@
       "protocol": "erc-8004",
       "dimension": "decentralization",
       "value": "Open registries on public chains, with one upgrade key on Ethereum and Base",
+      "detail": "Owner read on 2026-10-11 and again on 2026-10-18; on BSC a Safe multisig owns the Identity and Reputation proxies.",
       "sources": [
         "src-erc-8004-spec",
-        "src-erc-8004-onchain-probe"
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-chain-probe-2026-10-18"
       ],
       "confidence": "verified"
     },
@@ -395,10 +399,12 @@
       "protocol": "erc-8004",
       "dimension": "fees-and-who-pays-them",
       "value": "No protocol fee; gas only",
-      "detail": "Measured 2026-10-11 with eth_estimateGas: register about 203,412 gas, first giveFeedback about 155,185 to 178,504 gas; cents on mainnet that day, dollars at early-2026 gas prices.",
+      "detail": "Measured 2026-10-11 with eth_estimateGas: register about 203,412 gas, first giveFeedback about 155,000 to 193,000 gas depending on whether the agent already has clients; cents on mainnet that day. Vendor guides (QuickNode 2026-05-05, Cobo 2026-04-28) said registration cost dollars on mainnet; they give no measurement.",
       "sources": [
         "src-quicknode-8004-faq",
+        "src-quicknode-register",
         "src-erc-8004-gas-probe",
+        "src-erc-8004-chain-probe-verifier",
         "src-cobo-8004"
       ],
       "confidence": "verified"
@@ -439,11 +445,15 @@
       "protocol": "erc-8004",
       "dimension": "reference-implementations-and-sdks",
       "value": "erc-8004-contracts 2.0.0; agent0-sdk 1.7.1 (npm, PyPI); create-8004-agent; ChaosChain; Lucid Agents",
+      "detail": "Versions as of 2026-10-18.",
       "sources": [
         "src-erc-8004-contracts-readme",
         "src-npm-agent0-sdk",
         "src-pypi-agent0-sdk",
-        "src-npm-create-8004-agent"
+        "src-npm-create-8004-agent",
+        "src-npm-chaoschain",
+        "src-pypi-chaoschain",
+        "src-npm-lucid-agents"
       ],
       "confidence": "verified"
     },
@@ -451,9 +461,10 @@
       "protocol": "erc-8004",
       "dimension": "adoption-evidence",
       "value": "Many registrations, few live agents",
-      "detail": "561,576+ agents on 8004scan (2026-10-11) against 3% to 15% live in arXiv:2606.26028 (data to 2026-05-13). Count is not quality.",
+      "detail": "699,098 agent ids on 8004scan on 2026-10-18 (561,576 on 2026-10-11) against 3% to 15% live in arXiv:2606.26028 (data to 2026-05-13). Count is not quality.",
       "sources": [
         "src-8004scan",
+        "src-8004scan-stats-api",
         "src-pub-2606-26028",
         "src-csoai-census"
       ],
@@ -463,10 +474,13 @@
       "protocol": "erc-8004",
       "dimension": "published-security-research",
       "value": "Yes: an empirical study of Sybil reviewers and liveness; an unmerged community audit; no CVE",
+      "detail": "No CVE in the NVD and no GitHub security advisory for the contracts repository on 2026-10-18.",
       "sources": [
         "src-pub-2606-26028",
         "src-erc-8004-pr-51",
-        "src-erc-8004-contracts-history"
+        "src-erc-8004-contracts-history",
+        "src-nvd-erc-8004-search",
+        "src-erc-8004-gh-advisories"
       ],
       "confidence": "verified"
     },
@@ -3141,10 +3155,11 @@
       "protocol": "erc-8004",
       "axis": "decentralization",
       "value": 3,
-      "justification": "Public chains and anyone can read or write, but one externally owned account can upgrade the registries on Ethereum and Base.",
+      "justification": "Public chains and anyone can read or write, but one externally owned account can upgrade the registries on Ethereum and Base (2026-10-11, unchanged on 2026-10-18).",
       "sources": [
         "src-erc-8004-spec",
-        "src-erc-8004-onchain-probe"
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-chain-probe-2026-10-18"
       ]
     },
     {

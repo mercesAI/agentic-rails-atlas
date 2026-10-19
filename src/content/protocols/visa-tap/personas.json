@@ -85,12 +85,13 @@
         "Fraud and chargeback rate on agent orders",
         "Share of agent orders matched to existing accounts"
       ],
-      "story": "Malik leads payments at a fashion retailer. Agents were tripping the bot wall at checkout, so he asks the CDN to let TAP-signed requests through. His team then builds the merchant side: compare each body object's nonce with the header nonce, verify the signatures, and decrypt the payload. The ID Token does not give emails in the clear, so they build a table that maps obfuscated values to existing accounts. Legal asks who carries a dispute on an agent order. He finds no agent-specific rule from Visa and books the orders as ordinary tokenized card-not-present sales for now.",
+      "story": "Malik leads payments at a fashion retailer. Agents were tripping the bot wall at checkout, so he asks the CDN to let TAP-signed requests through. His team then builds the merchant side: compare each body object's nonce with the header nonce, verify the signatures, and decrypt the payload. The ID Token does not give emails in the clear, so they build a table that maps obfuscated values to existing accounts. Legal asks who carries a dispute on an agent order. He finds that Visa's rules make the cardholder answer, within Visa's system, for an Agentic Payment Provider's actions but call nothing a liability shift. He books the orders as ordinary tokenized card-not-present sales for now.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-tap-terms",
         "src-worldpay-liability",
-        "src-visa-tap-cf-blog"
+        "src-visa-tap-cf-blog",
+        "src-visa-rules-public"
       ]
     },
     {
@@ -149,7 +150,7 @@
       ],
       "pains": [
         "No public agent transaction indicator from Visa",
-        "No agent-specific liability rule",
+        "No liability shift for agent transactions yet (Worldpay, 2026-07-30)",
         "Customers who dispute what their agent bought"
       ],
       "implements": [
@@ -177,12 +178,13 @@
         "Fraud and dispute rate on agent purchases",
         "Passkey enrollment rate"
       ],
-      "story": "Lena runs digital fraud at a European bank in the Agentic Ready program. Her cardholders now link cards to shopping agents: VIC runs step-up verification, the user sets up a passkey, and the agent gets its own token. When a purchase arrives she sees a token transaction, not the merchant's TAP check, so she relies on Visa's signals. A customer disputes a hotel booking made by an agent. The passkey approval of the Payment Instruction helps, but no agent-specific liability rule exists yet, so the case runs under the usual card rules.",
+      "story": "Lena runs digital fraud at a European bank in the Agentic Ready program. Her cardholders now link cards to shopping agents: VIC runs step-up verification, the user sets up a passkey, and the agent gets its own token. When a purchase arrives she sees a token transaction, not the merchant's TAP check, so she relies on Visa's signals. A customer disputes a hotel booking made by an agent. The passkey approval of the Payment Instruction helps. Within Visa's system the cardholder answers for what an Agentic Payment Provider does, but Visa's rules yield to applicable law such as PSD2. The case runs under the usual dispute rules.",
       "sources": [
         "src-visa-vic-dev",
         "src-visa-ar-eu",
         "src-visa-eu-live",
-        "src-worldpay-liability"
+        "src-worldpay-liability",
+        "src-visa-rules-public"
       ]
     },
     {

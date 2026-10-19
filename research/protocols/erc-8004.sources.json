@@ -95,13 +95,13 @@
   },
   {
     "id": "src-erc-8004-readme-history",
-    "url": "https://github.com/erc-8004/erc-8004-contracts/commits/main/README.md",
-    "title": "Commit history of erc-8004-contracts README.md",
+    "url": "https://github.com/erc-8004/erc-8004-contracts/commits/master/README.md",
+    "title": "Commit history of erc-8004-contracts README.md (master branch)",
     "publisher": "erc-8004 (GitHub organization)",
     "type": "repo",
     "primary": true,
-    "notes": "22 commits from 2025-10-08 to 2026-08-15; per-commit README versions compared on 2026-10-11 to date each chain entry.",
-    "accessed": "2026-10-11"
+    "notes": "First-parent history of README.md on master, the default branch, read 2026-10-18 with git log --first-parent in a full clone and with gh api (PRs 33, 37, 39 and 40 merged into master). Mainnet headings by date (UTC): Ethereum 2026-01-29 (1); Polygon 2026-02-02 (2); Base, Monad and BSC 2026-02-03 (5); Scroll and Gnosis 2026-02-04 (7); Arbitrum, Celo and Taiko 2026-02-05 (10); Linea, MegaETH, Optimism and Avalanche 2026-02-10 (14); Abstract and Mantle, marked WIP, 2026-02-12 (16); GOAT Network, Metis, SKALE Base, Soneium and XLayer 2026-03-06, merge c7ce292, when Mantle lost its WIP label (21); Billions 2026-04-08 (22); Injective 2026-04-09 (23); 0G 2026-06-11 (24); Robinhood Chain 2026-08-15 (25). Testnets were listed from 2025-10-22. GitHub's path-filtered commit list follows the mainnet branch through the 2026-03-06 merge and hides the February commits, which the 2026-10-11 reading missed.",
+    "accessed": "2026-10-18"
   },
   {
     "id": "src-erc-8004-identity-sol",
@@ -907,5 +907,77 @@
     "type": "paper",
     "primary": true,
     "accessed": "2026-10-11"
+  },
+  {
+    "id": "src-8004scan-stats-api",
+    "url": "https://8004scan.io/api/v1/stats/global?is_testnet=false",
+    "title": "8004scan global statistics API (mainnet view)",
+    "publisher": "8004scan (powered by AltLayer)",
+    "type": "dataset",
+    "primary": false,
+    "accessed": "2026-10-18",
+    "notes": "Read 2026-10-18 at 23:41 MDT (2026-10-19 05:41 UTC): total_agents 699,098; total_feedbacks 720,771; total_users 755,027 (shown as Unique Wallets on the home page); daily_new_agents 21,477. supported_chains lists 31 mainnet chains, 30 with a registry (Plasma has none), including Solana, LUKSO, Shape, Gate Layer, Tempo and Arc, which the contracts README does not list; 0G, a README mainnet, is absent. The home page showed Networks 29 at the same time. Method not published."
+  },
+  {
+    "id": "src-erc-8004-chain-probe-2026-10-18",
+    "url": "https://soneium.blockscout.com/address/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+    "title": "Read-only RPC checks of the ERC-8004 proxies on the 25 listed mainnets and five unlisted EVM chains (fact check)",
+    "publisher": "Agentic Rails Atlas (measurement)",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-10-18",
+    "notes": "2026-10-18: cast call of getVersion() and owner() and cast storage of the ERC-1967 implementation slot against public RPCs, no transactions. The Identity (0x8004A169...), Reputation (0x8004BAa1...) and unannounced Validation (0x8004Cc84...) proxies return 2.0.0 on 24 of the 25 mainnets in the contracts README (Billions read through explorer.billions.network/api/eth-rpc, Robinhood Chain through rpc.mainnet.chain.robinhood.com). On Soneium (chain 1868) all three still return 1.0.0 from the MinimalUUPSMainnet placeholder 0xcb7af40c0be4fb92e183942b6dbb6b14a888f067, and register(string) reverts. owner() is 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, an account with no code, on every listed mainnet except BSC, where a Safe (0xF223968Dd0c66472E31043acAcCcF5D1464D644b, threshold 3 of 5 owners) owns the Identity and Reputation proxies and an EIP-7702 account (0x8888d0A88ef8302dfa4BA53c41c2fE3c4E486f42) owns the Validation proxy. On Arc (5042), Shape (360), Tempo (4217), LUKSO (42) and Gate Layer (10088), which the README does not list, the Identity and Reputation proxies return 2.0.0 under the same owner account; Plasma (9745) and Hedera (295) have no code at the addresses. Spot checks of Soneium, Billions and the BSC Safe repeated on 2026-10-19 gave the same results."
+  },
+  {
+    "id": "src-erc-8004-base-registrations-sample",
+    "url": "https://basescan.org/address/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432#events",
+    "title": "Block samples of Registered events of the ERC-8004 Identity Registry on Base (fact check)",
+    "publisher": "Agentic Rails Atlas (measurement)",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-10-18",
+    "notes": "Read-only eth_getLogs for Registered(uint256,string,address) on the Base Identity Registry through public RPCs (base-rpc.publicnode.com, base-mainnet.public.blastapi.io). The highest agentId was about 99,891 at block 52,480,000 (2026-10-11 20:09 UTC) and 255,750 at block 52,798,581 (2026-10-19 05:08 UTC). In blocks 52,796,781 to 52,798,581 (one hour, 04:08 to 05:08 UTC on 2026-10-19) 2,117 of 2,123 registrations had an agentURI on the domain centralcity.ai, from 2,119 distinct owner addresses. A repeat over blocks 52,800,015 to 52,800,315 (05:56 to 06:06 UTC) found 325 registrations (agentIds 257,409 to 257,733), all with centralcity.ai URIs, from 325 owners. Dated from block samples only; the first block of the series was not found."
+  },
+  {
+    "id": "src-erc-8004-abis",
+    "url": "https://github.com/erc-8004/erc-8004-contracts/tree/b9e466c250744a7e06b13dff9d3c2844ed64f825/abis",
+    "title": "ABIs of the ERC-8004 registry contracts (IdentityRegistry, ReputationRegistry, ValidationRegistry)",
+    "publisher": "erc-8004 (GitHub organization)",
+    "type": "repo",
+    "primary": true,
+    "accessed": "2026-10-18",
+    "notes": "At b9e466c the only function with stateMutability payable in all three ABIs is upgradeToAndCall, inherited from OpenZeppelin UUPSUpgradeable and restricted to the owner through _authorizeUpgrade; none of the ABIs has a receive or fallback function."
+  },
+  {
+    "id": "src-erc-8004-gh-advisories",
+    "url": "https://github.com/erc-8004/erc-8004-contracts/security/advisories",
+    "title": "GitHub security advisories of erc-8004/erc-8004-contracts",
+    "publisher": "GitHub",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-10-18",
+    "notes": "gh api repos/erc-8004/erc-8004-contracts/security-advisories returned an empty list on 2026-10-18 and again on 2026-10-19."
+  },
+  {
+    "id": "src-nvd-erc-8004-search",
+    "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=ERC-8004",
+    "title": "NVD CVE API keyword search for ERC-8004",
+    "publisher": "NIST NVD",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-10-18",
+    "notes": "Keyword searches for ERC-8004 and erc-8004-contracts returned 0 results on 2026-10-18; repeated on 2026-10-19 with the same result."
+  },
+  {
+    "id": "src-mastercard-rules-2026-06",
+    "url": "https://www.mastercard.com/content/dam/mccom/shared/business/support/rules-pdfs/mastercard-rules.pdf",
+    "title": "Mastercard Rules (2026-06-02 edition)",
+    "publisher": "Mastercard",
+    "type": "standard",
+    "primary": true,
+    "published": "2026-06-02",
+    "accessed": "2026-10-19",
+    "archiveUrl": "https://web.archive.org/web/20260928113643/https://www.mastercard.com/content/dam/mccom/shared/business/support/rules-pdfs/mastercard-rules.pdf",
+    "notes": "mastercard.com refuses automated downloads (HTTP 403 on 2026-10-19), and the older mastercard.us URL, which held the 2025-06-03 edition, returned 404 or 403 in Wayback captures from 2026-05-13 on. Read on 2026-10-19 from the Wayback Machine capture of 2026-09-28; the capture of 2026-07-10 is the same file (same digest), so this edition has been at the URL since at least then. The text never uses the word agentic and mentions 8004 only inside ISO 18004 (QR codes). Rules 9.2.4 (pass-through digital wallet operators) and 9.5.1 (checkout facilitators) require compliance with the standards of each program the entity joins, naming the Mastercard Agent Pay Program Standards as the example; a web search on 2026-10-19 found no public copy of them. The edition's summary of changes lists 9.2.4 and 9.5 under bulletin GLB 12892 on new Digital Activity customer types. No agent-specific liability rule appears. Chargeback rules sit in Mastercard's separate Chargeback Guide, which was not read."
   }
 ]

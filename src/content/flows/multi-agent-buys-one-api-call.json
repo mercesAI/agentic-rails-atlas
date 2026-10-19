@@ -46,7 +46,7 @@
       "detail": "Path B. The client knows the seller's agentId and reads the agentURI and the verified payment address agentWallet from the Identity Registry. A careful client also reads getSummary from the Reputation Registry, filtered to reviewers it trusts.",
       "payload": {
         "format": "solidity",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).tokenURI(4242)      // agentURI\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).getAgentWallet(4242) // 0xB0B0...0B0B",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).tokenURI(123456789)      // agentURI\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).getAgentWallet(123456789) // 0xB0B0...0B0B",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -63,10 +63,10 @@
       "to": "files",
       "label": "Fetch the registration file",
       "protocol": "erc-8004",
-      "detail": "The agentURI resolves to the registration file. The client reads the services list and x402Support. An HTTPS file can change without any on-chain event, so a client that relies on it should prefer content-addressed URIs or the /.well-known domain proof.",
+      "detail": "The agentURI resolves to the registration file. The client reads the services list and x402Support. An HTTPS file can change without any on-chain event, so a client that relies on it should prefer content-addressed or data: URIs, and can check the /.well-known domain proof.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"type\": \"https://eips.ethereum.org/EIPS/eip-8004#registration-v1\",\n  \"name\": \"weather-agent\",\n  \"description\": \"Current weather per city, paid per call\",\n  \"services\": [ { \"name\": \"web\", \"endpoint\": \"https://api.weather.example/\" } ],\n  \"x402Support\": true,\n  \"active\": true,\n  \"registrations\": [ { \"agentId\": 4242, \"agentRegistry\": \"eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" } ],\n  \"supportedTrust\": [ \"reputation\" ]\n}",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"type\": \"https://eips.ethereum.org/EIPS/eip-8004#registration-v1\",\n  \"name\": \"weather-agent\",\n  \"description\": \"Current weather per city, paid per call\",\n  \"image\": \"https://api.weather.example/logo.png\",\n  \"services\": [ { \"name\": \"web\", \"endpoint\": \"https://api.weather.example/\" } ],\n  \"x402Support\": true,\n  \"active\": true,\n  \"registrations\": [ { \"agentId\": 123456789, \"agentRegistry\": \"eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" } ],\n  \"supportedTrust\": [ \"reputation\" ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -202,7 +202,7 @@
       "detail": "The client writes the off-chain feedback file first: the required agentRegistry, agentId, clientAddress, createdAt, value and valueDecimals, plus optional tag1 and proofOfPayment {fromAddress, toAddress, chainId, txHash}. The proof lives only here, never on chain.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 4242,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 90,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"endpoint\": \"https://api.weather.example/weather\",\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x5e5e...7a1c\"\n  }\n}",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 123456789,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 90,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"endpoint\": \"https://api.weather.example/weather\",\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x5e5e...7a1c\"\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -219,7 +219,7 @@
       "detail": "The client computes feedbackHash (keccak256 of the file, optional for IPFS) and sends giveFeedback from its agentWallet if it is itself an agent. The client pays this gas unless an application sponsors it. The registry stores value, valueDecimals, tag1, tag2 and isRevoked only.",
       "payload": {
         "format": "solidity",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(\n  4242, 90, 0, \"starred\", \"\", \"https://api.weather.example/weather\",\n  \"ipfs://bafy...feedback\", 0x0000000000000000000000000000000000000000000000000000000000000000\n)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(\n  123456789, 90, 0, \"starred\", \"\", \"https://api.weather.example/weather\",\n  \"ipfs://bafy...feedback\", 0x0000000000000000000000000000000000000000000000000000000000000000\n)",
         "illustrative": true
       },
       "crossesTrustBoundary": true,

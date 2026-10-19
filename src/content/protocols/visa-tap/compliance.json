@@ -1,7 +1,7 @@
 {
   "protocol": "visa-tap",
   "notLegalAdvice": true,
-  "summary": "TAP identifies agents on card-not-present purchases and moves no money, so the rules that bite are card-payment rules: who authorized the transaction (Regulation E and Z, PSD2, UK PSRs), strong customer authentication when the user is absent, and data protection for the IP address, device data and contact values that the consumer object sends to merchants. Visa has published no agent-specific liability rule. The Product Terms put consumer disclosures and consents on the implementer. Rows are dated; check each source before relying on it.",
+  "summary": "TAP identifies agents on card-not-present purchases and moves no money, so the rules that bite are card-payment rules: who authorized the transaction (Regulation E and Z, PSD2, UK PSRs), strong customer authentication when the user is absent, and data protection for the IP address, device data and contact values that the consumer object sends to merchants. Visa's rules, which govern Visa and its member institutions and yield to applicable law, have since 2025-10-18 made the cardholder responsible, within Visa's system, for an Agentic Payment Provider's actions. Visa calls none of its rules a liability shift, though issuers must pay for Agentic Transactions made under the cardholder's instructions; Worldpay (2026-07-30) says no liability shift exists yet. The Product Terms put consumer disclosures and consents on the implementer. Rows are dated; check each source before relying on it.",
   "rows": [
     {
       "jurisdiction": "US",
@@ -151,10 +151,19 @@
     {
       "jurisdiction": "card-networks",
       "topic": "liability",
-      "text": "No public agent-specific dispute, chargeback or liability rule from Visa was found as of 2026-10-11; Worldpay wrote on 2026-07-30 that no liability shift exists and that properly tokenized agent transactions follow existing rules.",
+      "text": "Visa's rules govern Visa and its member institutions and yield to applicable law. Since 2025-10-18 they have required an Agentic Payment Provider to enroll in Visa Intelligent Commerce and register with Visa, directly or via an Agentic Payment Enabler. Within Visa's system, the cardholder is responsible for the provider's actions in an Agentic Transaction as if the cardholder had initiated it, and the provider counts as the Cardholder for that transaction. A merchant must not require a cardholder to waive the right to dispute an Agentic Transaction. The rules do not mention TAP.",
       "sources": [
-        "src-worldpay-liability",
-        "src-nevermined-vic"
+        "src-visa-rules-public"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "liability",
+      "text": "Visa calls no rule a liability shift and adds no agent-specific dispute condition, fee or interchange rate. It does require issuers to pay for Agentic Transactions made under a cardholder's payment instructions and not to block them wholesale. From 2026-10-24 it also accepts an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Worldpay wrote on 2026-07-30 that no liability shift exists yet and that properly tokenized agent transactions follow existing rules.",
+      "sources": [
+        "src-visa-rules-public",
+        "src-worldpay-liability"
       ],
       "confidence": "reported"
     },

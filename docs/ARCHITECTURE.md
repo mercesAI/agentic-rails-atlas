@@ -177,7 +177,7 @@ All components take typed props from `src/lib/schemas.ts`. Astro components for 
 
 ## 8. Playgrounds
 
-`src/playgrounds/<slug>/Playground.tsx` default-exports a React component with no required props. Everything runs client-side. Signing uses WebCrypto (Ed25519, ECDSA P-256) or `viem` local accounts with keys generated at mount, on fake chain ids (for example `eip155:31337` or `eip155:424242`) or fixture data. Every playground renders inside `PlaygroundFrame` which shows "Simulation, no real funds", the spec version the simulation follows, and a reset button. Pure logic (encoders, constraint evaluators, signature helpers) lives in `src/playgrounds/<slug>/lib/*.ts` with Vitest tests in `tests/unit/playgrounds/<slug>.test.ts`.
+`src/playgrounds/<slug>/Playground.tsx` default-exports a React component with no required props. Everything runs client-side. Signing uses WebCrypto (Ed25519, ECDSA P-256) or `viem` local accounts with keys generated at mount, on simulated chain ids that the public chain registry does not assign (the playgrounds use `eip155:402402`) or fixture data. Every playground renders inside `PlaygroundFrame` which shows "Simulation, no real funds", the spec version the simulation follows, and a reset button. Pure logic (encoders, constraint evaluators, signature helpers) lives in `src/playgrounds/<slug>/lib/*.ts` with Vitest tests in `tests/unit/playgrounds/<slug>.test.ts`.
 
 ## 9. Scripts
 

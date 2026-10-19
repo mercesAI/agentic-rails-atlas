@@ -13,8 +13,11 @@ export const SESSION_SPEC = 'draft-tempo-session-00';
 /** Label shown on every wire example. */
 export const ILLUSTRATIVE = `Illustrative example, ${CORE_SPEC}`;
 
-/** Fake chain id. Tempo's real chain ids (4217, 42431) are never used here. */
-export const SIM_CHAIN_ID = 424242;
+/**
+ * Simulated chain id. 402402 is not assigned in the public chain registry (chainid.network, checked 2026-10-18).
+ * Tempo's real chain ids (4217, 42431) are never used here.
+ */
+export const SIM_CHAIN_ID = 402402;
 
 /** Same host and resource as the x402 playground, so the translator lines up with it. */
 export const FIXTURE_HOST = 'api.example.com';

@@ -22,7 +22,7 @@
     {
       "id": "erc-8004-f3",
       "front": "agentURI",
-      "back": "The token URI; resolves to the registration file over ipfs, https or a data URI.",
+      "back": "The token URI; resolves to the registration file at any URI, for example ipfs://, https:// or a base64 data: URI.",
       "claimIds": [
         "clm-erc-8004-021",
         "clm-erc-8004-043"
@@ -39,11 +39,13 @@
     {
       "id": "erc-8004-f5",
       "front": "agentWallet",
-      "back": "Reserved metadata key for the payee address; defaults to the owner; changed only by setAgentWallet with a signature.",
+      "back": "Reserved metadata key for the payee address; defaults to the owner; set to a new address only by setAgentWallet with that wallet's signature; cleared by unsetAgentWallet or on transfer.",
       "claimIds": [
         "clm-erc-8004-034",
         "clm-erc-8004-035",
-        "clm-erc-8004-036"
+        "clm-erc-8004-036",
+        "clm-erc-8004-040",
+        "clm-erc-8004-041"
       ]
     },
     {
@@ -57,7 +59,7 @@
     {
       "id": "erc-8004-f7",
       "front": "giveFeedback",
-      "back": "(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash); only value and decimals required.",
+      "back": "(agentId, value, valueDecimals, tag1, tag2, endpoint, feedbackURI, feedbackHash); agentId, value and valueDecimals required.",
       "claimIds": [
         "clm-erc-8004-053",
         "clm-erc-8004-054"

@@ -33,6 +33,10 @@ This file is research for writers. It is not legal advice, and the site must say
 | EMVCo lists agentic transaction indicators as future work | confirmed | EMVCo draft framework 2026-09-01 [src-mcap-emvco-news] [src-mcap-emvco-hub] |
 | No public agent-specific dispute or liability rules from Visa or Mastercard | confirmed (evidence of absence) | Worldpay, Nevermined reviews; the 2026-09-11 KYA collaboration announced no rule change [src-worldpay-liability] [src-nevermined-vic] [src-mcap-nevermined-review] [src-policy-ant-kya] |
 
+Correction 2026-10-18, revised 2026-10-19 after a legal check (last row of the table above, "No public agent-specific dispute or liability rules from Visa or Mastercard"): wrong for Visa. The one public document "Visa Core Rules and Visa Product and Service Rules" carries agent rules in the editions of 2025-10-18 (effective that day; 2025-11-04 in Chile) and 2026-04-18, mainly in the Product and Service Rules (section 4.1.24). The rules govern the relationship between Visa and its Members and their agents and confer no rights on third parties (1.1.1.5, ID# 0007428); where they conflict with applicable law, such as Regulation E or Z, PSD2 or the UK PSRs, the law governs (1.1.1.3, ID# 0000385). Section 4.1.24.2 (ID# 0031168) requires an Agentic Payment Provider to enroll in Visa Intelligent Commerce and register with Visa, directly or through an Agentic Payment Enabler. Section 4.1.24.10 (ID# 0031176) makes the cardholder responsible, within Visa's system, for the provider's actions in an Agentic Transaction as if the cardholder initiated it, and the glossary entry Cardholder (ID# 0024372) treats the provider as the Cardholder for such a transaction. The glossary entry Agentic Payment Provider (ID# 0031164) lists conditions an agent app must meet (payment instruction and cardholder verification, use at more than one merchant, an EMV payment token passed to the merchant, no part in authorization, clearing or settlement), so not every agent qualifies. Section 5.4.2.5 (ID# 0008771) bars a merchant from requiring a cardholder to waive the right to dispute an Agentic Transaction. Visa calls none of these rules a liability shift, and they add no agent-specific dispute condition, fee or interchange rate (rule 1.5.5.2 bars an Agentic Payment Provider from surcharging, with regional exceptions). They do allocate some risk: an issuer must pay the acquirer for an Agentic Transaction processed under the cardholder's payment instructions (1.7.6.1, ID# 0006558) and must not block Agentic Payment Provider transactions in a systematic or wholesale manner (1.7.4.1, ID# 0029326). For disputes processed from 2026-10-24, an Agentic Payment Provider's login ID counts among the matching data that can make a Dispute Condition 10.4 (card-absent fraud) dispute invalid (ID# 0030254). Worldpay (2026-07-30) says no liability shift exists yet. The Mastercard half of the row now rests on the 2026-06-02 Mastercard Rules, the edition at mastercard.com since at least 2026-07-10 (read from the Wayback Machine; the 2025-06-03 edition cited on 2026-10-18 was out of date). They never use the word agentic and do not mention ERC-8004, but rules 9.2.4 and 9.5.1 require pass-through wallet operators and checkout facilitators to follow the standards of programs they join, naming the Mastercard Agent Pay Program Standards; a web search on 2026-10-19 found no public copy of them. [verified; the Worldpay statement and the standards search reported] [src-visa-rules-public] [src-worldpay-liability] [src-mastercard-rules-2026-06]
+
+Correction 2026-10-18 (row "Final rules pending; OCC to finalize by November 2026"): Treasury issued a procedural GENIUS Act interim final rule for state certifications, published and effective 2026-09-30 (FR Doc. 2026-19966). It is not a final rule of a primary federal payment stablecoin regulator, so the Section 20 trigger had still not occurred on 2026-10-18 (Federal Register search). [verified] [src-policy-fr-genius-ifr]
+
 ## 2. United States
 
 ### Consumer protection and liability
@@ -48,7 +52,7 @@ This file is research for writers. It is not legal advice, and the site must say
 - The GENIUS Act treats a permitted payment stablecoin issuer as a financial institution for Bank Secrecy Act purposes, subject to sanctions and AML law, and defines lawful orders that require an issuer to seize, freeze, burn or prevent transfers of its stablecoins. [verified] [src-policy-genius-act]
 
 ### Stablecoin rules
-- GENIUS Act: signed 2025-07-18; effective on the earlier of 2027-01-18 or 120 days after final rules. The OCC proposed its rule on 2026-02-25 and aims to finalize by November 2026. [verified, OCC timing reported] [src-policy-genius-act] [src-policy-occ-genius-proposal] [src-policy-pymnts-occ-november]
+- GENIUS Act: signed 2025-07-18; effective on the earlier of 2027-01-18 or 120 days after the primary federal payment stablecoin regulators issue final regulations. The OCC proposed its rule on 2026-02-25 and aims to finalize by November 2026. [verified, OCC timing reported] [src-policy-genius-act] [src-policy-occ-genius-proposal] [src-policy-pymnts-occ-november]
 - The Act does not deal with agents as payers. It mentions artificial intelligence once, as an AML detection method for Treasury to study. [verified] [src-policy-genius-act]
 
 ### Strong customer authentication
@@ -116,7 +120,7 @@ This file is research for writers. It is not legal advice, and the site must say
 - The Proceeds of Crime (Money Laundering) and Terrorist Financing Act covers money services businesses, including virtual currency dealers. [verified for the instrument] [src-policy-ca-pcmltfa]
 
 ### Stablecoin rules
-- The Stablecoin Act (in Bill C-15, Royal Assent 2026-03-26, S.C. 2026, c. 3) makes the Bank of Canada supervisor of non-prudentially regulated issuers, with a public registry. It is expected in force in 2027 once regulations are made. [verified for assent; in-force timing reported] [src-policy-ca-c15] [src-policy-dlapiper-c15]
+- The Stablecoin Act (in Bill C-15, Royal Assent 2026-03-26, S.C. 2026, c. 3) makes the Bank of Canada supervisor of non-prudentially regulated issuers, with a public registry. It is expected in force in 2027 once regulations are made. [verified for assent; in-force timing reported] [src-policy-ca-c15] [src-policy-dlapiper-c15] Justice Laws (consolidation current to 2026-09-30, read 2026-10-19) marks the whole Act not in force; section 97 leaves commencement to orders of the Governor in Council. [verified] [src-policy-ca-stablecoin-act]
 
 ### Payments supervision
 - The Retail Payment Activities Act is fully in force: since 2025-09-08 payment service providers must have risk management and funds safeguarding frameworks. [verified] [src-policy-boc-rpaa] [src-policy-ca-rpaa]
@@ -125,7 +129,7 @@ This file is research for writers. It is not legal advice, and the site must say
 - No federal AI statute in force. [unverified; evidence of absence only]
 
 ### Data protection
-- PIPEDA governs private-sector personal information. [verified for the instrument] [src-policy-ca-pipeda]
+- PIPEDA governs private-sector personal information. [verified for the instrument] [src-policy-ca-pipeda] Exemption orders under paragraph 26(2)(b) leave collection, use and disclosure within Quebec, Alberta and British Columbia to provincial law, except for federal works, undertakings or businesses. [verified] [src-policy-ca-pipeda-qc-order] [src-policy-ca-pipeda-ab-order] [src-policy-ca-pipeda-bc-order]
 
 ## 6. Singapore
 
@@ -146,6 +150,7 @@ This file is research for writers. It is not legal advice, and the site must say
 ## 7. Card networks and EMVCo
 
 - No public dispute, chargeback or liability rule specific to agent-initiated transactions from Visa or Mastercard as of 2026-10-11. Properly tokenized agent transactions follow existing rules. Liability for disputes short of fraud ("my agent misread me") is unresolved, and Worldpay says no liability shift exists yet. [reported] [src-worldpay-liability] [src-nevermined-vic] [src-mcap-nevermined-review]
+- Correction 2026-10-18, revised 2026-10-19, to the bullet above: wrong for Visa, whose rules have carried agent-specific requirements since 2025-10-18. Those rules govern Visa and its member institutions and yield to applicable law, and Visa calls none of them a liability shift; Mastercard's 2026-06-02 rules refer to Agent Pay Program Standards that were not found in public (see the correction under the seed audit). [verified] [src-visa-rules-public] [src-mastercard-rules-2026-06]
 - EMVCo published a draft "EMV Agentic Payments" framework on 2026-09-01 (comments to 2026-09-30), proposing Intent Services; Know Your Agent and Agentic Transaction Indicators are listed as possible future work. [verified] [src-mcap-emvco-news] [src-mcap-emvco-hub]
 - Ant International, Mastercard and Visa announced Know Your Agent interoperability work on 2026-09-11, building on Visa TAP and Mastercard Verifiable Intent. It is a collaboration, not a rule. [reported] [src-policy-ant-kya] [src-policy-pymnts-kya]
 
@@ -165,7 +170,7 @@ This file is research for writers. It is not legal advice, and the site must say
 ## 9. Open items
 
 - PSD3 and PSR: confirm plenary vote, Council adoption and OJ publication on EUR-Lex.
-- GENIUS Act: watch the Federal Register for final OCC, FDIC, NCUA and Treasury rules.
+- GENIUS Act: watch the Federal Register for final OCC, FDIC, Federal Reserve, NCUA and Treasury rules.
 - HM Treasury: watch for the consultation response.
 - Warner letter: read the PDF text once a text layer can be extracted, then upgrade to verified.
 - Amazon v. Perplexity: watch the district court docket on remand and any rehearing petition.

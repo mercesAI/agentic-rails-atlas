@@ -86,7 +86,7 @@
       "detail": "A deployed registration with a URI logs Transfer, MetadataUpdate (ERC-4906, only when a URI is set), Registered(agentId, agentURI, owner), then MetadataSet for agentWallet (the owner address) and one MetadataSet per extra entry. The specification lists these events but does not fix their order. The owner reads the new agentId from the Registered log.",
       "payload": {
         "format": "text",
-        "content": "// Illustrative example, spec version Draft 2026-01-25 (log order of the deployed contracts 2.0.0).\nTransfer(from=0x0, to=0x0E0E...0E0E, tokenId=4242)\nMetadataUpdate(tokenId=4242)\nRegistered(agentId=4242, agentURI=\"ipfs://bafy...agent\", owner=0x0E0E...0E0E)\nMetadataSet(agentId=4242, metadataKey=\"agentWallet\", metadataValue=0x0E0E...0E0E)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25 (log order of the deployed contracts 2.0.0).\nTransfer(from=0x0, to=0x0E0E...0E0E, tokenId=123456789)\nMetadataUpdate(tokenId=123456789)\nRegistered(agentId=123456789, agentURI=\"ipfs://bafy...agent\", owner=0x0E0E...0E0E)\nMetadataSet(agentId=123456789, metadataKey=\"agentWallet\", metadataValue=0x0E0E...0E0E)",
         "illustrative": true
       },
       "specRef": {
@@ -102,7 +102,7 @@
       "detail": "Because the id is known only after minting, the owner adds a registrations entry that names the agentId and the agentRegistry string, and publishes the new file.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\n\"registrations\": [\n  { \"agentId\": 4242, \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" }\n]",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n\"registrations\": [\n  { \"agentId\": 123456789, \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" }\n]",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -119,7 +119,7 @@
       "detail": "With a content-addressed file the URI changes, so the owner points the token at the new file. The deployed registry emits MetadataUpdate (ERC-4906) and then URIUpdated(agentId, newURI, updatedBy).",
       "payload": {
         "format": "solidity",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).setAgentURI(4242, \"ipfs://bafy...agent-v2\")\n// emits URIUpdated(4242, \"ipfs://bafy...agent-v2\", msg.sender)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).setAgentURI(123456789, \"ipfs://bafy...agent-v2\")\n// emits URIUpdated(123456789, \"ipfs://bafy...agent-v2\", msg.sender)",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -142,7 +142,7 @@
       "detail": "Optional. For each HTTPS service domain that differs from the domain serving the file, the owner publishes a registrations list there. A reader may treat the domain as verified when an entry matches agentRegistry and agentId.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, spec version Draft 2026-01-25.\nGET /.well-known/agent-registration.json HTTP/1.1\nHost: mcp.agent.example\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{ \"registrations\": [ { \"agentId\": 4242, \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" } ] }",
+        "content": "# Illustrative example, spec version Draft 2026-01-25.\nGET /.well-known/agent-registration.json HTTP/1.1\nHost: mcp.agent.example\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{ \"registrations\": [ { \"agentId\": 123456789, \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" } ] }",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -156,10 +156,10 @@
       "from": "owner",
       "to": "wallet",
       "label": "Ask the new wallet to sign AgentWalletSet",
-      "detail": "To receive payments at another address, the owner asks that wallet to sign EIP-712 typed data AgentWalletSet(agentId, newWallet, owner, deadline) under the domain ERC8004IdentityRegistry, version 1. The reference code accepts a deadline at most 5 minutes ahead.",
+      "detail": "To receive payments at another address, the owner asks that wallet to sign EIP-712 typed data AgentWalletSet(agentId, newWallet, owner, deadline) under the domain ERC8004IdentityRegistry, version 1. The reference code accepts a deadline at most 5 minutes ahead. For a smart contract wallet, the registry later checks the signature through the wallet's ERC-1271 isValidSignature.",
       "payload": {
         "format": "eip712",
-        "content": "// Illustrative example, spec version Draft 2026-01-25, contracts 2.0.0.\n{\n  \"domain\": { \"name\": \"ERC8004IdentityRegistry\", \"version\": \"1\", \"chainId\": 1, \"verifyingContract\": \"0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" },\n  \"primaryType\": \"AgentWalletSet\",\n  \"message\": { \"agentId\": \"4242\", \"newWallet\": \"0xB0B0...0B0B\", \"owner\": \"0x0E0E...0E0E\", \"deadline\": \"1791720240\" }\n}",
+        "content": "// Illustrative example, spec version Draft 2026-01-25, contracts 2.0.0.\n{\n  \"domain\": { \"name\": \"ERC8004IdentityRegistry\", \"version\": \"1\", \"chainId\": 1, \"verifyingContract\": \"0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\" },\n  \"primaryType\": \"AgentWalletSet\",\n  \"message\": { \"agentId\": \"123456789\", \"newWallet\": \"0xB0B0...0B0B\", \"owner\": \"0x0E0E...0E0E\", \"deadline\": \"1791720240\" }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -167,12 +167,6 @@
         "url": "https://github.com/erc-8004/erc-8004-contracts/blob/b9e466c250744a7e06b13dff9d3c2844ed64f825/contracts/IdentityRegistryUpgradeable.sol",
         "section": "setAgentWallet"
       },
-      "failures": [
-        {
-          "condition": "The wallet is a smart contract wallet",
-          "outcome": "It does not sign with ECDSA; the registry calls its ERC-1271 isValidSignature instead."
-        }
-      ],
       "n": 7
     },
     {
@@ -194,7 +188,7 @@
       "detail": "The registry checks the deadline window, recovers the signer with ECDSA (covering EIP-7702 delegated accounts) or falls back to ERC-1271, and stores the wallet.",
       "payload": {
         "format": "solidity",
-        "content": "// Illustrative example, spec version Draft 2026-01-25, contracts 2.0.0.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).setAgentWallet(4242, 0xB0B0...0B0B, 1791720240, signature)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25, contracts 2.0.0.\nIdentityRegistry(0x8004A169FB4a3325136EB29fA0ceB6D2e539a432).setAgentWallet(123456789, 0xB0B0...0B0B, 1791720240, signature)",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -229,7 +223,7 @@
       "detail": "The registry emits MetadataSet for agentWallet with the new address. Payers read it with getAgentWallet(agentId). A later token transfer clears it.",
       "payload": {
         "format": "text",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nMetadataSet(agentId=4242, metadataKey=\"agentWallet\", metadataValue=0xB0B0...0B0B)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nMetadataSet(agentId=123456789, metadataKey=\"agentWallet\", metadataValue=0xB0B0...0B0B)",
         "illustrative": true
       },
       "specRef": {

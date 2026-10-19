@@ -194,7 +194,7 @@ function RegistrationPanel({ say }: { say: (s: string) => void }) {
       </p>
       <div className="e8-row">
         <Field label="Namespace">{(id) => <input id={id} type="text" value={gid.namespace} onChange={(e) => setGid({ ...gid, namespace: e.target.value })} size={8} />}</Field>
-        <Field label="Chain id" note="Fake chain">{(id) => <input id={id} type="text" value={gid.chainId} onChange={(e) => setGid({ ...gid, chainId: e.target.value })} size={8} />}</Field>
+        <Field label="Chain id" note="Simulated chain id">{(id) => <input id={id} type="text" value={gid.chainId} onChange={(e) => setGid({ ...gid, chainId: e.target.value })} size={8} />}</Field>
         <Field label="Identity Registry address" note="Fixture address">
           {(id) => <input id={id} type="text" value={gid.identityRegistry} onChange={(e) => setGid({ ...gid, identityRegistry: e.target.value })} size={44} />}
         </Field>
@@ -420,7 +420,7 @@ function ReputationPanel({ say }: { say: (s: string) => void }) {
   return (
     <div className="e8-panel">
       <p>
-        Agent {current.agentId} on the fake chain collects feedback. Honest clients paid the agent wallet and attach a proofOfPayment to their
+        Agent {current.agentId} on the simulated chain collects feedback. Honest clients paid the agent wallet and attach a proofOfPayment to their
         feedback file. Sybil reviewers are free addresses run by one person. Pick whose feedback <code>getSummary</code> may count.
       </p>
       <div className="e8-row">
@@ -618,7 +618,9 @@ function WalletPanel({ say }: { say: (s: string) => void }) {
     const r = await checkSetAgentWallet({
       sender,
       owner: currentOwner,
-      operators: [fixtureAddress('operator')],
+      // A transfer clears the token approval, and setApprovalForAll is keyed by the old owner,
+      // so the old owner's operator is not authorized for the new owner.
+      operators: transferred ? [] : [fixtureAddress('operator')],
       agentId: 7n,
       newWallet: wallet.address,
       deadline: signed.deadline,

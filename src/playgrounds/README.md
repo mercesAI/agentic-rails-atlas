@@ -22,7 +22,7 @@ The frame already provides, so the playground must not repeat them:
 ## Rules
 
 - No real funds, keys, wallet connections, sign-ups or network calls. CSP allows `connect-src 'self'` only.
-- Keys are generated at mount with WebCrypto (Ed25519, ECDSA P-256) or `viem` local accounts, on fake chain identifiers such as `eip155:31337` or `eip155:424242`, or use fixture data.
+- Keys are generated at mount with WebCrypto (Ed25519, ECDSA P-256) or `viem` local accounts, on a simulated chain id (`eip155:402402`, not assigned in the public chain registry on 2026-10-18), or use fixture data.
 - Field names, headers and enum values come from the cloned specs in `research/vendor/`; label payloads "Illustrative example, spec version X".
 - Use the kit components below, the shared classes from `src/styles/global.css` (`.btn`, `.segmented`) and tokens from `src/styles/tokens.css` for color. No hard-coded colors, no em dashes in UI strings.
 - Keyboard operable, visible focus, labels on every input, `aria-live="polite"` for results, respect `prefers-reduced-motion`.

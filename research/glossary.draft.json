@@ -1852,7 +1852,7 @@
         "tokenURI",
         "setAgentURI"
       ],
-      "plain": "The URI stored on-chain for an ERC-8004 agent that points to its registration file. The spec names `ipfs://`, `https://` and base64 `data:` URIs, and the owner or an approved operator can change it with `setAgentURI`. An `https://` file can change without any on-chain event, so only content-addressed URIs pin the content.",
+      "plain": "The URI stored on-chain for an ERC-8004 agent that points to its registration file. The spec allows any URI scheme and names `ipfs://`, `https://` and base64 `data:` URIs as examples, and the owner or an approved operator can change it with `setAgentURI`, which emits `URIUpdated`. An `https://` file can change without any on-chain event; content-addressed URIs and on-chain `data:` URIs pin the content.",
       "ste": "The agentURI is the address of the registration file of an agent. The owner of the agent can change the agentURI at any time.",
       "protocols": [
         "erc-8004"
@@ -3522,7 +3522,7 @@
       "aliases": [
         "card dispute"
       ],
-      "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes, but no network has published agent-specific chargeback rules.",
+      "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes. Visa's rules bar a merchant from making a cardholder waive the right to dispute an agent transaction. From 2026-10-24 they accept an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Neither Visa nor Mastercard has published agent-specific chargeback reason codes.",
       "ste": "A chargeback is the reversal of a card payment after the cardholder disputes it. The merchant of record handles chargebacks.",
       "protocols": [
         "openai-acp",
@@ -3531,7 +3531,9 @@
       "sources": [
         "src-openai-commerce-docs",
         "src-ap2-faq",
-        "src-worldpay-liability"
+        "src-worldpay-liability",
+        "src-visa-rules-public",
+        "src-mcap-dev-level1"
       ]
     },
     {
@@ -3963,12 +3965,13 @@
         "Public Law 119-27",
         "S. 1582"
       ],
-      "plain": "The first US federal law for payment stablecoins, signed on 2025-07-18 as Public Law 119-27. It takes effect on the earlier of 2027-01-18 or 120 days after final implementing rules, and on 2026-10-11 the final rules were still pending. The Act does not address AI agents as payers.",
+      "plain": "The first US federal law for payment stablecoins, signed on 2025-07-18 as Public Law 119-27. It takes effect on the earlier of 2027-01-18 or 120 days after the primary federal payment stablecoin regulators issue final implementing regulations; a Federal Register search on 2026-10-18 found none, though Treasury's procedural interim final rule on state certifications took effect on 2026-09-30. The Act does not address AI agents as payers.",
       "ste": "The GENIUS Act is the US law for payment stablecoins. The law does not refer to AI agents.",
       "protocols": [],
       "sources": [
         "src-policy-genius-act",
-        "src-policy-occ-genius-proposal"
+        "src-policy-occ-genius-proposal",
+        "src-policy-fr-genius-ifr"
       ]
     },
     {

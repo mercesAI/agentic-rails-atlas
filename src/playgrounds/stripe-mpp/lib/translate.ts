@@ -52,7 +52,7 @@ function decodeX402<T>(value: string): T {
   return JSON.parse(base64ToUtf8(value)) as T;
 }
 
-/** "eip155:424242" to 424242; anything else is rejected because draft-evm-charge-00 needs an EIP-155 chain id. */
+/** "eip155:402402" to 402402; anything else is rejected because draft-evm-charge-00 needs an EIP-155 chain id. */
 export function chainIdFromCaip2(network: string): number | null {
   const m = /^eip155:(\d+)$/.exec(network);
   return m ? Number(m[1]) : null;

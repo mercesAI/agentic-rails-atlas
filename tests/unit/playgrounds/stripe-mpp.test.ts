@@ -212,7 +212,7 @@ describe('challenge serialization and verification', () => {
 });
 
 describe('intents and methods', () => {
-  it('builds tempo requests per intent on the fake chain', () => {
+  it('builds tempo requests per intent on the simulated chain', () => {
     const charge = buildRequest('charge', { amount: 5n, description: 'd', externalId: 'e' });
     expect(charge).toMatchObject({ amount: '5', currency: FIXTURE_TOKEN.address, recipient: FIXTURE_RECIPIENT, methodDetails: { chainId: SIM_CHAIN_ID } });
     const sub = buildRequest('subscription', { amount: 5n, periodUnit: 'week', periodCount: 1 });
@@ -220,7 +220,7 @@ describe('intents and methods', () => {
     const sess = buildRequest('session', { amount: 25n, suggestedDeposit: 1000n });
     expect(sess).toMatchObject({ unitType: 'llm_token', suggestedDeposit: '1000', methodDetails: { escrowContract: FIXTURE_ESCROW, sessionProtocol: 'v1' } });
     expect(sess).not.toHaveProperty('expires');
-    expect(didPkh('0xA')).toBe('did:pkh:eip155:424242:0xA');
+    expect(didPkh('0xA')).toBe('did:pkh:eip155:402402:0xA');
   });
   it('lists the 11 method ids and their intents', () => {
     expect(METHODS).toHaveLength(11);
@@ -241,7 +241,7 @@ function makeSigner(): VoucherSigner {
 describe('Tempo session', () => {
   const salt = `0x${'aa'.repeat(32)}` as Hex;
   it('builds v1 voucher typed data', () => {
-    expect(voucherDomain()).toEqual({ name: 'Tempo Stream Channel', version: '1', chainId: 424242, verifyingContract: FIXTURE_ESCROW });
+    expect(voucherDomain()).toEqual({ name: 'Tempo Stream Channel', version: '1', chainId: 402402, verifyingContract: FIXTURE_ESCROW });
     const td = voucherTypedData(salt, 5n);
     expect(td.types.Voucher[1]).toEqual({ name: 'cumulativeAmount', type: 'uint128' });
   });
@@ -317,7 +317,7 @@ describe('Tempo session', () => {
 
 describe('x402 translator', () => {
   it('maps CAIP-2 networks and requirements', () => {
-    expect(chainIdFromCaip2('eip155:424242')).toBe(424242);
+    expect(chainIdFromCaip2('eip155:402402')).toBe(402402);
     expect(chainIdFromCaip2('solana:abc')).toBeNull();
     expect(requestFromRequirement({ scheme: 'exact', network: 'x', amount: '1', asset: 'a', payTo: 'b', maxTimeoutSeconds: 1 })).toBeNull();
   });
@@ -330,7 +330,7 @@ describe('x402 translator', () => {
     const ch = parseChallenge(req.header![1]);
     expect(ch).toMatchObject({ method: 'evm', intent: 'charge', expires: '2026-10-11T12:01:00Z' });
     const reqJson = decodeJson(ch.request);
-    expect(reqJson.ok && reqJson.value).toMatchObject({ amount: '10000', methodDetails: { chainId: 424242, credentialTypes: ['authorization'] } });
+    expect(reqJson.ok && reqJson.value).toMatchObject({ amount: '10000', methodDetails: { chainId: 402402, credentialTypes: ['authorization'] } });
     const sig = translatePaymentSignature(sample.signature, ch);
     expect(sig.header?.[0]).toBe('Authorization');
     expect(parseCredential(sig.header![1]).payload).toMatchObject({ type: 'authorization', value: '10000' });

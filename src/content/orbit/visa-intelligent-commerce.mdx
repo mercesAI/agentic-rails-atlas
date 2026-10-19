@@ -45,6 +45,8 @@ sources:
   - src-ucp-site
   - src-orbit-circle-arc-mainnet
   - src-orbit-crossmint-launch
+  - src-visa-rules-public
+  - src-worldpay-liability
 lastVerified: "2026-10-11"
 ---
 
@@ -68,7 +70,7 @@ A user enrolls a card, an agent creates a purchase instruction that the user con
 
 Separate what is live from what is announced. Live: the sandbox API (free in sandbox, production fees by contact), the `visa/ai` toolkit (MIT, last commit 2026-09-30), Agentic Ready transactions in Europe, and partner products such as Crossmint's Agentic Cards API (2026-06-02). <Cite ids="src-visa-vic-dev src-visa-ai-repo src-visa-eu-live src-orbit-crossmint-launch" /> Visa reported "hundreds" of agent-initiated transactions with partners by 2025-12-18. <Cite ids="src-visa-dec18" /> Pilot or announced: Intelligent Commerce Connect, the Agentic Directory and Agent Score. <Cite ids="src-visa-icc src-visa-jun10" />
 
-No agent-specific liability shift, interchange rate or 3-D Secure rule had been published as of 2026-10-11. Visa's reference agent (`visa/vic-reference-agent`) carries an evaluation-only license despite being described as open source. <Cite ids="src-visa-vic-ref-agent" />
+Since 2025-10-18 Visa's public rulebook, the Visa Core Rules and Visa Product and Service Rules, has carried the program's requirements, most of them in the Product and Service Rules (section 4.1.24). The rules govern Visa and its member institutions and yield to applicable law. In the current edition (2026-04-18), an Agentic Payment Provider must enroll in Visa Intelligent Commerce and register with Visa, directly or via an Agentic Payment Enabler. It must not combine several agent purchases into one transaction, and must get its tokens from Visa or an Agentic Payment Enabler when it uses stored credentials. Within Visa's system, the cardholder is responsible for its actions in an Agentic Transaction as if the cardholder had initiated it. <Cite ids="src-visa-rules-public" /> Visa calls no rule a liability shift and adds no agent-specific dispute condition, fee, interchange rate or 3-D Secure rule. It does require issuers to pay for Agentic Transactions made under a cardholder's payment instructions and not to block them wholesale. From 2026-10-24 it also accepts an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. <Cite ids="src-visa-rules-public" /> Worldpay (2026-07-30) says no liability shift exists yet. <Cite ids="src-worldpay-liability" /> Visa's reference agent (`visa/vic-reference-agent`) carries an evaluation-only license despite being described as open source. <Cite ids="src-visa-vic-ref-agent" />
 
 ## How it relates to the eight
 
@@ -78,6 +80,7 @@ Visa extends VIC beyond its own protocol. It authored the card payment method fo
 
 - 2025-04-30: VIC unveiled ("Find and Buy with AI"). <Cite ids="src-visa-vic-pr" />
 - 2025-10-14: Trusted Agent Protocol launched as part of VIC, developed with Cloudflare. <Cite ids="src-visa-tap-pr" />
+- 2025-10-18: Visa's rules add requirements for Agentic Payment Providers in the program. <Cite ids="src-visa-rules-public" />
 - 2025-12-18: Visa reports hundreds of agent-initiated transactions with partners. <Cite ids="src-visa-dec18" />
 - 2026-03-17: Agentic Ready launched in Europe (21 early issuers). <Cite ids="src-visa-ar-eu" />
 - 2026-03-18: Visa card spec and SDK for MPP. <Cite ids="src-visa-mpp-card" />

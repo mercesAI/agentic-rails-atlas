@@ -39,7 +39,7 @@
     {
       "id": "declared-inactive",
       "label": "Declared inactive (off-chain only)",
-      "note": "active is false in the registration file. The registry has no such state and no burn function, so the token persists. The wallet keeps whatever value it had."
+      "note": "active is false in the registration file. The registry has no such state and no burn function, so the token persists. Wallet calls and transfers still work and leave the file as it is, and the wallet keeps whatever value it has."
     }
   ],
   "transitions": [
@@ -123,9 +123,30 @@
     {
       "from": "declared-inactive",
       "to": "registered",
-      "trigger": "Owner publishes a file with active true (wallet state unchanged)",
+      "trigger": "File says active true again; wallet still the owner",
       "apiCall": "setAgentURI(agentId, newURI)",
       "specRef": "ERCS/erc-8004.md Agent URI and Agent Registration File"
+    },
+    {
+      "from": "declared-inactive",
+      "to": "wallet-verified",
+      "trigger": "File says active true again; a verified wallet is bound",
+      "apiCall": "setAgentURI(agentId, newURI)",
+      "specRef": "ERCS/erc-8004.md Agent URI and Agent Registration File"
+    },
+    {
+      "from": "declared-inactive",
+      "to": "wallet-cleared",
+      "trigger": "File says active true again; wallet cleared",
+      "apiCall": "setAgentURI(agentId, newURI)",
+      "specRef": "ERCS/erc-8004.md Agent URI and Agent Registration File"
+    },
+    {
+      "from": "declared-inactive",
+      "to": "declared-inactive",
+      "trigger": "Wallet call or transfer; the file is unchanged",
+      "apiCall": "setAgentWallet, unsetAgentWallet or an ERC-721 transfer",
+      "specRef": "ERCS/erc-8004.md On-chain metadata"
     },
     {
       "from": "registered",

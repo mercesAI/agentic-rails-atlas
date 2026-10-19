@@ -8,11 +8,14 @@ import { getAddress, type Address } from 'viem';
 export const SPEC_LABEL = 'ERC-8004 (Draft)';
 export const ILLUSTRATIVE = `Illustrative example, ${SPEC_LABEL}`;
 
-/** Fake chain. 424242 is not a chain id where the registries are listed. */
-export const SIM_CHAIN_ID = 424242;
+/**
+ * Simulated chain id. 402402 is not assigned in the public chain registry (chainid.network, checked 2026-10-18),
+ * and no ERC-8004 registry is listed there.
+ */
+export const SIM_CHAIN_ID = 402402;
 export const SIM_NAMESPACE = 'eip155';
 
-/** Fixture Identity Registry address on the fake chain. */
+/** Fixture Identity Registry address on the simulated chain. */
 export const FIXTURE_IDENTITY_REGISTRY: Address = getAddress('0x1d00000000000000000000000000000000008004');
 
 /** The registration file `type` value fixed by the Draft text. */

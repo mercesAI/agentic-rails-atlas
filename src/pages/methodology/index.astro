@@ -105,6 +105,7 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
     <li><strong>Verified</strong>: a primary source was read during the build (spec text, schemas, the repository, official documentation or announcement, a standards-body record).</li>
     <li><strong>Reported</strong>: only reputable secondary sources support it. The claim is shown with a “reported” badge.</li>
     <li><strong>Unverified</strong>: shown only with a visible badge, or left out.</li>
+    <li><strong>Absence claims</strong> (“no X was found”) name what was searched and carry an “as of” date; they are verified when the search covered named primary sources completely and can be repeated (a repository's files, GitHub security advisories, NVD, a registry), and reported when it rests on open web search or on sources that may be incomplete.</li>
   </ul>
   <p>
     The order of preference is spec repositories, official documentation, official announcements, standards-body records, then reputable secondary sources. Field names, endpoints, headers and enums come from the cloned specification repositories, never from memory or blog posts. What a spec says is kept apart from what is deployed, and announced, pilot, beta and generally available are kept apart too. When sources disagree, both are kept, the primary one is named and the conflict is logged (see <a href="#conflicts">source conflicts</a>). Spec text is linked, not copied; at most one short quotation per source appears across the site.
@@ -114,7 +115,7 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
   <ul>
     <li>A research pass per protocol builds the source registry and the claim pool from primary sources, then a writer drafts the page from those claims only.</li>
     <li>An independent reviewer that did not write the page checks claims against sources, field names against the cloned schemas, dates, numbers and diagrams.</li>
-    <li>Scripts check the rest on every build: every claim points to existing sources, every source has an accessed date, the coverage thresholds per protocol, the style rules, the ASD-STE100 limits for the STE sections, every external link, and every publication against DataCite, Crossref, DOI resolution, arXiv or the publisher page.</li>
+    <li>Scripts check the rest. The quality gates run on every push to the repository and check that every claim points to existing sources, that every source has an accessed date, the coverage thresholds per protocol, the style rules and the ASD-STE100 limits for the STE sections. Two further scripts, run by hand (<code>pnpm verify:links</code> and <code>pnpm verify:citations</code>), check every external link and every publication against DataCite, Crossref, DOI resolution, arXiv or the publisher page; the build runs neither.</li>
   </ul>
 
   <h2 id="claims">Claims by confidence</h2>

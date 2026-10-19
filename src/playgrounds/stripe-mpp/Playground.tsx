@@ -157,7 +157,7 @@ export default function Playground() {
   return (
     <div className="mp">
       <p className="mp-tag">
-        Follows {CORE_SPEC} (core), the charge and subscription intent drafts, and {SESSION_SPEC}. Chain id 424242 is a fake; the token
+        Follows {CORE_SPEC} (core), the charge and subscription intent drafts, and {SESSION_SPEC}. Chain id 402402 is simulated (not assigned in the public chain registry on 2026-10-18); the token
         and addresses are fixtures. Payer key {account.address.slice(0, 10)}... exists in this tab only.
       </p>
       {/* Every panel stays mounted; a hidden panel keeps its channel, challenge and translator state. */}
@@ -544,7 +544,7 @@ function SessionMeter({ uid, signer, onAnnounce }: { uid: string; signer: Vouche
       <h3 id={`${uid}-s`}>Session meter (Tempo method, {SESSION_SPEC})</h3>
       <p className="mp-tag">
         Session is defined by each payment method, not by a standardized intent. This follows Tempo session protocol v1: EIP-712 domain
-        &quot;Tempo Stream Channel&quot;, type Voucher(bytes32 channelId, uint128 cumulativeAmount), chain id 424242.
+        &quot;Tempo Stream Channel&quot;, type Voucher(bytes32 channelId, uint128 cumulativeAmount), chain id 402402.
       </p>
       <div className="mp-row">
         <label className="mp-field" htmlFor={`${uid}-price`}>

@@ -97,10 +97,10 @@ describe('fixtures', () => {
     expect(illustrativeLabel(2)).toBe('Illustrative example, spec version v2.0');
     expect(illustrativeLabel(1)).toBe('Illustrative example, spec version v1');
   });
-  it('uses a fake chain: CAIP-2 for V2, a plain name for V1', () => {
-    expect(networkFor(2)).toBe('eip155:424242');
-    expect(networkFor(1)).toBe('sim-424242');
-    expect(SIM_CHAIN_ID).toBe(424242);
+  it('uses a simulated chain: CAIP-2 for V2, a plain name for V1', () => {
+    expect(networkFor(2)).toBe('eip155:402402');
+    expect(networkFor(1)).toBe('sim-402402');
+    expect(SIM_CHAIN_ID).toBe(402402);
   });
 });
 
@@ -151,7 +151,7 @@ describe('messages', () => {
   });
   it('builds a V2 requirement with amount and a CAIP-2 network', () => {
     const r = buildRequirements({ version: 2, scheme: 'exact', flow: 'authorization', amount: '10000', payTo: FIXTURE_PAY_TO });
-    expect(r).toMatchObject({ scheme: 'exact', network: 'eip155:424242', amount: '10000', maxTimeoutSeconds: 60 });
+    expect(r).toMatchObject({ scheme: 'exact', network: 'eip155:402402', amount: '10000', maxTimeoutSeconds: 60 });
     expect(r.extra).toEqual({ name: FIXTURE_TOKEN.name, version: FIXTURE_TOKEN.version });
     expect(amountOf(r)).toBe('10000');
   });
@@ -164,7 +164,7 @@ describe('messages', () => {
   });
   it('builds a V1 requirement with maxAmountRequired and resource fields', () => {
     const r = buildRequirements({ version: 1, scheme: 'exact', flow: 'authorization', amount: '10000', payTo: FIXTURE_PAY_TO });
-    expect(r).toMatchObject({ network: 'sim-424242', maxAmountRequired: '10000', outputSchema: null });
+    expect(r).toMatchObject({ network: 'sim-402402', maxAmountRequired: '10000', outputSchema: null });
     expect('amount' in r).toBe(false);
     expect(amountOf(r)).toBe('10000');
   });
@@ -177,7 +177,7 @@ describe('messages', () => {
     expect(p2).toMatchObject({ x402Version: 2, accepted: r2, payload: { signature: '0x' } });
     const r1 = buildRequirements({ version: 1, scheme: 'exact', flow: 'authorization', amount: '1', payTo: FIXTURE_PAY_TO });
     expect(buildPaymentRequired(r1)).toEqual({ x402Version: 1, error: 'X-PAYMENT header is required', accepts: [r1] });
-    expect(buildPaymentPayload(r1, {})).toEqual({ x402Version: 1, scheme: 'exact', network: 'sim-424242', payload: {} });
+    expect(buildPaymentPayload(r1, {})).toEqual({ x402Version: 1, scheme: 'exact', network: 'sim-402402', payload: {} });
     expect(buildFacilitatorRequest(p2, r2)).toEqual({ x402Version: 2, paymentPayload: p2, paymentRequirements: r2 });
   });
   it('renders HTTP messages', () => {
@@ -200,10 +200,10 @@ describe('messages', () => {
   it('uses the version header names for the paid request and the settlement response', () => {
     const r1 = buildRequirements({ version: 1, scheme: 'exact', flow: 'authorization', amount: '1', payTo: FIXTURE_PAY_TO });
     expect(renderPaidRequest(buildPaymentPayload(r1, {})).header.name).toBe('X-PAYMENT');
-    const s = renderSettledResponse(1, 200, { success: true, transaction: '0x1', network: 'sim-424242' }, {});
+    const s = renderSettledResponse(1, 200, { success: true, transaction: '0x1', network: 'sim-402402' }, {});
     expect(s.header.name).toBe('X-PAYMENT-RESPONSE');
     expect(s.text.startsWith('HTTP/1.1 200 OK')).toBe(true);
-    const s2 = renderSettledResponse(2, 402, { success: false, errorReason: 'insufficient_funds', transaction: '', network: 'eip155:424242' }, '{}');
+    const s2 = renderSettledResponse(2, 402, { success: false, errorReason: 'insufficient_funds', transaction: '', network: 'eip155:402402' }, '{}');
     expect(s2.header.name).toBe('PAYMENT-RESPONSE');
   });
 });
@@ -220,11 +220,11 @@ describe('typed data and signatures', () => {
     expect(a.validBefore).toBe('160');
     expect(a.nonce).toMatch(/^0x[0-9a-f]{64}$/);
   });
-  it('builds TransferWithAuthorization typed data on the fake chain with the fixture token', () => {
+  it('builds TransferWithAuthorization typed data on the simulated chain with the fixture token', () => {
     const a = buildEip3009Authorization({ from: FIXTURE_PAY_TO, to: FIXTURE_PAY_TO, value: '5', now: 100, maxTimeoutSeconds: 60 });
     const td = transferWithAuthorizationTypedData(a);
     expect(td.primaryType).toBe('TransferWithAuthorization');
-    expect(td.domain).toEqual({ name: 'Sim USD', version: '2', chainId: 424242, verifyingContract: FIXTURE_TOKEN.address });
+    expect(td.domain).toEqual({ name: 'Sim USD', version: '2', chainId: 402402, verifyingContract: FIXTURE_TOKEN.address });
     expect(td.types.TransferWithAuthorization.map((f) => f.name)).toEqual(['from', 'to', 'value', 'validAfter', 'validBefore', 'nonce']);
     expect(td.message.value).toBe(5n);
   });
@@ -356,12 +356,12 @@ describe('facilitator', () => {
     const signature = await signer.signTypedData(transferWithAuthorizationTypedData(auth));
     const payload = buildPaymentPayload(req, { signature, authorization: auth });
     const ledger = createLedger([[signer.address, 50_000n]]);
-    const ctx = { version: 2 as const, now: NOW, ledger, network: 'eip155:424242' };
+    const ctx = { version: 2 as const, now: NOW, ledger, network: 'eip155:402402' };
     const v = await verifyExact(payload, req, ctx);
     expect(v.response).toEqual({ isValid: true, payer: signer.address });
     expect(balanceOf(ledger, signer.address)).toBe(50_000n);
     const s = await settlePayment(payload, req, ctx);
-    expect(s.response).toMatchObject({ success: true, network: 'eip155:424242', payer: signer.address });
+    expect(s.response).toMatchObject({ success: true, network: 'eip155:402402', payer: signer.address });
     expect(s.response.transaction).toMatch(/^0x[0-9a-f]{64}$/);
     expect(balanceOf(ledger, signer.address)).toBe(40_000n);
     expect(balanceOf(ledger, FIXTURE_PAY_TO)).toBe(10_000n);
@@ -378,7 +378,7 @@ describe('facilitator', () => {
       version: 2,
       now: NOW,
       ledger: createLedger([[signer.address, 50_000n]]),
-      network: 'eip155:424242',
+      network: 'eip155:402402',
     });
     expect(v.response.invalidReason).toBe('invalid_exact_evm_payload_signature');
     expect(v.code?.sdk).toBe('invalid_exact_evm_signature');
@@ -398,7 +398,7 @@ describe('facilitator', () => {
     const signature = await signer.signTypedData(permitWitnessTypedData(auth));
     const payload = buildPaymentPayload(req, { signature, permit2Authorization: auth });
     const ledger = createLedger([[signer.address, 50_000n]]);
-    const ctx = { version: 2 as const, now: NOW, ledger, network: 'eip155:424242' };
+    const ctx = { version: 2 as const, now: NOW, ledger, network: 'eip155:402402' };
     expect((await verifyUpto(payload, req, ctx)).response.isValid).toBe(true);
     const over = await settlePayment(payload, { ...req, amount: '20001' }, ctx);
     expect(over.response.errorReason).toBe('invalid_upto_evm_payload_settlement_exceeds_amount');
@@ -527,9 +527,9 @@ describe('runSimulation', () => {
     expect(r.steps).toHaveLength(0);
   });
 
-  it('signs only on the fake chain', async () => {
+  it('signs only on the simulated chain', async () => {
     const r = await runSimulation(opts({ failure: 'wrong-payto' }), newSigner());
-    expect(r.signing?.typedData.domain.chainId).toBe(424242);
+    expect(r.signing?.typedData.domain.chainId).toBe(402402);
     const msg = r.signing?.typedData.message as { to: string };
     expect(sameAddress(msg.to, FIXTURE_WRONG_PAY_TO)).toBe(true);
   });

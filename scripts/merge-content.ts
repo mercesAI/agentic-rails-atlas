@@ -86,6 +86,8 @@ export interface MergeSummary {
   radar: number;
   controlCells: number;
   manualMetrics: number;
+  /** Research source records replaced by a scenario or protocol sidecar (the designed precedence, so not a warning). */
+  sidecarOverrides: number;
   protocolFolders: string[];
   changed: string[];
   warnings: string[];
@@ -170,13 +172,15 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
   // which win on id conflicts.
   // -------------------------------------------------------------------------
   const sources = new Map<string, { source: SourceT; origin: string }>();
+  let sidecarOverrides = 0;
   const addSources = (items: unknown[], origin: string, wins: boolean): void => {
     for (const s of parseEach(Source, items, origin, 'sources')) {
       const prev = sources.get(s.id);
       if (prev) {
         if (canonicalJson(prev.source) !== canonicalJson(s)) {
           if (wins) {
-            warn(`source ${s.id}: ${origin} overrides the record from ${prev.origin}`);
+            if (prev.origin.startsWith('research/')) sidecarOverrides++;
+            else warn(`source ${s.id}: ${origin} overrides the record from ${prev.origin}`);
             sources.set(s.id, { source: s, origin });
           } else {
             warn(`source ${s.id}: conflicting record in ${origin}; kept the one from ${prev.origin}`);
@@ -565,6 +569,7 @@ export function mergeContent(options: MergeOptions = {}): MergeSummary {
     radar: compare?.radar.length ?? 0,
     controlCells: controlsMap?.cells.length ?? 0,
     manualMetrics: manual.metrics.length,
+    sidecarOverrides,
     protocolFolders: protocolDirs,
     changed,
     warnings,
@@ -585,7 +590,7 @@ function printSummary(s: MergeSummary): void {
   for (const e of s.errors) console.error(`error: ${e}`);
   console.log('merge-content summary');
   console.log(`  protocol folders: ${s.protocolFolders.length ? s.protocolFolders.join(', ') : 'none'}`);
-  console.log(`  sources: ${s.sources} (${s.sourceAliases} URL aliases)`);
+  console.log(`  sources: ${s.sources} (${s.sourceAliases} URL aliases; ${s.sidecarOverrides} research records updated by sidecars)`);
   console.log(`  publications: ${s.publications} merged, ${s.publicationsSkipped} skipped`);
   console.log(`  glossary terms: ${s.glossaryTerms} full, ${s.glossaryStubs} stubs`);
   console.log(`  relations: ${s.relations}`);

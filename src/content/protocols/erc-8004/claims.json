@@ -21,7 +21,7 @@
       ],
       "confidence": "verified",
       "topic": "governance",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-003",
@@ -75,14 +75,14 @@
     },
     {
       "id": "clm-erc-8004-008",
-      "text": "The last change to the ERC-8004 specification file before 2026-10-11 was a commit on 2026-01-25 titled \"Updates from community feedback\".",
+      "text": "The last change to the ERC-8004 specification file before 2026-10-18 was a commit on 2026-01-25 titled \"Updates from community feedback\".",
       "sources": [
         "src-erc-8004-commit-jan25",
         "src-erc-8004-gitlog"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-009",
@@ -125,14 +125,15 @@
     },
     {
       "id": "clm-erc-8004-013",
-      "text": "No foundation or association governing ERC-8004 was found; changes go through the ethereum/ERCs editorial process.",
+      "text": "No foundation or association governing ERC-8004 was found in the contracts README, on 8004.org or in a web search on 2026-10-18; the text changes through pull requests in the ethereum/ERCs repository.",
       "sources": [
         "src-erc-8004-contracts-readme",
+        "src-erc-8004-org",
         "src-erc-8004-gitlog"
       ],
       "confidence": "reported",
       "topic": "governance",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-014",
@@ -166,11 +167,12 @@
     },
     {
       "id": "clm-erc-8004-017",
-      "text": "ERC-8004 does not move money: the specification says payments are orthogonal to the protocol and the registries have no payable function.",
+      "text": "ERC-8004 does not move money: the specification says payments are orthogonal to the protocol, and the registries have no function that takes or forwards payments; the only payable entry point is the owner-only upgradeToAndCall inherited from OpenZeppelin UUPS.",
       "sources": [
         "src-erc-8004-spec",
         "src-erc-8004-reputation-sol",
-        "src-erc-8004-identity-sol"
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-abis"
       ],
       "confidence": "verified",
       "topic": "identity"
@@ -207,7 +209,7 @@
     },
     {
       "id": "clm-erc-8004-021",
-      "text": "In ERC-8004 the ERC-721 tokenId is called agentId and the tokenURI is called agentURI.",
+      "text": "In ERC-8004 the ERC-721 tokenId is called agentId, which the registry assigns incrementally, and the tokenURI is called agentURI.",
       "sources": [
         "src-erc-8004-spec"
       ],
@@ -369,7 +371,7 @@
     },
     {
       "id": "clm-erc-8004-037",
-      "text": "The reference implementation signs the typed struct AgentWalletSet(uint256 agentId,address newWallet,address owner,uint256 deadline) under the EIP-712 domain ERC8004IdentityRegistry, version 1.",
+      "text": "The reference implementation verifies an EIP-712 signature by the new wallet over AgentWalletSet(uint256 agentId,address newWallet,address owner,uint256 deadline) under the domain ERC8004IdentityRegistry, version 1.",
       "sources": [
         "src-erc-8004-identity-sol"
       ],
@@ -426,7 +428,7 @@
     },
     {
       "id": "clm-erc-8004-043",
-      "text": "The agentURI must resolve to the agent registration file and may use ipfs://, https:// or a base64 data: URI.",
+      "text": "The agentURI must resolve to the agent registration file and may use any URI scheme, for example ipfs://, https:// or a base64 data: URI.",
       "sources": [
         "src-erc-8004-spec"
       ],
@@ -506,13 +508,15 @@
     },
     {
       "id": "clm-erc-8004-051",
-      "text": "The specification does not publish a JSON Schema for the registration file.",
+      "text": "Neither the ERC-8004 text nor the ethereum/ERCs assets folder publishes a JSON Schema for the registration file, and the erc-8004 contracts and best-practices repositories hold none; the text gives the structure only as an example (checked 2026-10-18).",
       "sources": [
-        "src-erc-8004-spec"
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-history",
+        "src-erc-8004-bp-registration"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "objects",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-052",
@@ -536,9 +540,10 @@
     },
     {
       "id": "clm-erc-8004-054",
-      "text": "All giveFeedback fields except value and valueDecimals are optional.",
+      "text": "giveFeedback requires agentId (a registered agent), value and valueDecimals; tag1, tag2, endpoint, feedbackURI and feedbackHash are optional.",
       "sources": [
-        "src-erc-8004-spec"
+        "src-erc-8004-spec",
+        "src-erc-8004-reputation-sol"
       ],
       "confidence": "verified",
       "topic": "objects",
@@ -832,7 +837,7 @@
       ],
       "confidence": "verified",
       "topic": "identity",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-084",
@@ -977,17 +982,17 @@
       ],
       "confidence": "verified",
       "topic": "dates",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-098",
-      "text": "Testnet deployments were first listed between 2025-10-22 and 2025-11-03, so testnets date from October to November 2025.",
+      "text": "Testnet deployments were first listed in the README on the default branch between 2025-10-22 and 2025-11-05, so testnets date from October to November 2025.",
       "sources": [
         "src-erc-8004-readme-history"
       ],
       "confidence": "verified",
       "topic": "dates",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-099",
@@ -998,17 +1003,17 @@
       ],
       "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-100",
-      "text": "Twenty mainnets, including Base, BSC, Polygon, Arbitrum and Optimism, were added to the README on 2026-03-06.",
+      "text": "On the default branch, fifteen mainnets were added to the contracts README in eight commits between 2026-02-02 and 2026-02-12, starting with Polygon, and five more (GOAT Network, Metis, SKALE Base, Soneium and XLayer) followed on 2026-03-06, for 21 in all.",
       "sources": [
         "src-erc-8004-readme-history"
       ],
       "confidence": "verified",
       "topic": "dates",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-101",
@@ -1018,7 +1023,7 @@
       ],
       "confidence": "verified",
       "topic": "dates",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-102",
@@ -1028,16 +1033,18 @@
       ],
       "confidence": "verified",
       "topic": "dates",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-103",
-      "text": "README dates mark when a chain was listed, which can lag the on-chain deployment.",
+      "text": "README dates mark when a chain was listed, which can lag the on-chain deployment: the Soneium Identity proxy was created on 2026-02-12, 22 days before the README listed Soneium on 2026-03-06.",
       "sources": [
-        "src-erc-8004-readme-history"
+        "src-erc-8004-readme-history",
+        "src-erc-8004-soneium-creation"
       ],
-      "confidence": "reported",
-      "topic": "dates"
+      "confidence": "verified",
+      "topic": "dates",
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-104",
@@ -1071,14 +1078,15 @@
     },
     {
       "id": "clm-erc-8004-107",
-      "text": "Who controls the registry upgrade key is not publicly documented.",
+      "text": "Who holds the registry owner key, the externally owned account 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, is not stated in the contracts repository or on 8004.org, and no announcement naming the holder was found (searched 2026-10-18).",
       "sources": [
         "src-erc-8004-onchain-probe",
-        "src-erc-8004-upgradeable-doc"
+        "src-erc-8004-upgradeable-doc",
+        "src-erc-8004-org"
       ],
       "confidence": "reported",
       "topic": "criticism",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-108",
@@ -1103,7 +1111,7 @@
     },
     {
       "id": "clm-erc-8004-110",
-      "text": "The specification says ERC-8004 cannot guarantee that advertised capabilities are functional and non-malicious.",
+      "text": "The specification says ERC-8004 cryptographically ties the registration file to the on-chain agent but cannot cryptographically guarantee that advertised capabilities are functional and non-malicious; it leaves that check to its trust models (reputation, validation and TEE attestation).",
       "sources": [
         "src-erc-8004-spec"
       ],
@@ -1113,7 +1121,7 @@
     },
     {
       "id": "clm-erc-8004-111",
-      "text": "Registration files served over HTTPS can change without any on-chain event; only content-addressed URIs pin the content.",
+      "text": "Registration files served over HTTPS can change without any on-chain event; content-addressed URIs such as ipfs:// and on-chain data: URIs fix the content, so a change needs setAgentURI, which emits URIUpdated.",
       "sources": [
         "src-erc-8004-spec",
         "src-erc-8004-identity-sol"
@@ -1123,24 +1131,26 @@
     },
     {
       "id": "clm-erc-8004-112",
-      "text": "No CVE or GitHub security advisory was found for the ERC-8004 reference contracts.",
+      "text": "On 2026-10-18 the GitHub security advisory list of erc-8004/erc-8004-contracts was empty, and NVD keyword searches for ERC-8004 and erc-8004-contracts returned no CVE.",
       "sources": [
-        "src-erc-8004-contracts-history"
+        "src-erc-8004-gh-advisories",
+        "src-nvd-erc-8004-search"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "security",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-113",
-      "text": "No audit report by a named audit firm is published in the ERC-8004 contracts repository.",
+      "text": "No audit report by a named audit firm is published in the erc-8004-contracts repository: none is on the default branch, and the community audit in PR 51 was still open and unmerged on 2026-10-18.",
       "sources": [
         "src-erc-8004-contracts-history",
+        "src-erc-8004-pr-51",
         "src-erc-8004-commit-audit-fix"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "security",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-114",
@@ -1163,13 +1173,15 @@
     },
     {
       "id": "clm-erc-8004-116",
-      "text": "ERC-8004 offers no spending caps, consent capture, step-up authentication or kill switch.",
+      "text": "The ERC-8004 text and its reference contracts define no spending caps, consent capture, step-up authentication or kill switch.",
       "sources": [
         "src-erc-8004-spec",
-        "src-erc-8004-identity-sol"
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-reputation-sol"
       ],
       "confidence": "verified",
-      "topic": "controls"
+      "topic": "controls",
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-117",
@@ -1183,12 +1195,14 @@
     },
     {
       "id": "clm-erc-8004-118",
-      "text": "ERC-8004 performs no KYC or know-your-agent check; anyone can register an agent.",
+      "text": "The ERC-8004 text and the reference Identity Registry define no KYC or know-your-agent check; register is open to any address.",
       "sources": [
-        "src-erc-8004-spec"
+        "src-erc-8004-spec",
+        "src-erc-8004-identity-sol"
       ],
       "confidence": "verified",
-      "topic": "compliance"
+      "topic": "compliance",
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-119",
@@ -1212,13 +1226,13 @@
     },
     {
       "id": "clm-erc-8004-121",
-      "text": "The Graph launched Agent0 subgraphs on 2026-04-14 on Base, BNB Chain, Ethereum, Monad and Polygon.",
+      "text": "On 2026-04-14 The Graph announced that its Agent0 subgraphs were live on Base, BNB Chain, Ethereum, Monad and Polygon; the post says they had already served millions of queries and gives no launch date.",
       "sources": [
         "src-thegraph-agent0"
       ],
       "confidence": "verified",
       "topic": "ecosystem",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-122",
@@ -1351,23 +1365,23 @@
     },
     {
       "id": "clm-erc-8004-135",
-      "text": "ERC-8122 \"Minimal Agent Registry\" is Draft, created 2025-12-17, and targets custom deployments rather than one singleton per chain.",
+      "text": "ERC-8122 \"Minimal Agent Registry\" is Draft, created 2025-12-17, and is a separate ERC-6909 registry for custom deployments, written as an alternative to ERC-8004's one singleton per chain.",
       "sources": [
         "src-erc-8122"
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-136",
-      "text": "ERC-8217 \"Agent NFT Identity Bindings\" is Draft, created 2026-04-05, and binds an ERC-8004 agent to an external NFT through a metadata key.",
+      "text": "ERC-8217 \"Agent NFT Identity Bindings\" is Draft, created 2026-04-05, lists ERC-8004 in its requires line and binds an ERC-8004 agent to an external NFT through a metadata key.",
       "sources": [
         "src-erc-8217"
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-137",
@@ -1381,7 +1395,7 @@
     },
     {
       "id": "clm-erc-8004-138",
-      "text": "ERC-8226 lets a verified principal delegate scoped, time-bounded and capped authority to an agent and names ERC-8004 as an agent identity layer without a mandate framework.",
+      "text": "ERC-8226 lets a verified principal delegate scoped, time-bounded and capped authority to an agent; it works with any agent identity system, gives ERC-8004 as an example, and says identity standards such as ERC-8004 offer discovery and trust signals but no mandate framework.",
       "sources": [
         "src-erc-8226"
       ],
@@ -1392,9 +1406,10 @@
       "id": "clm-erc-8004-139",
       "text": "ERC-8004 has no protocol fee; users pay only gas.",
       "sources": [
+        "src-erc-8004-abis",
         "src-quicknode-8004-faq"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "other",
       "asOf": "2026-10-11"
     },
@@ -1420,20 +1435,23 @@
     },
     {
       "id": "clm-erc-8004-142",
-      "text": "No published gas figure for giveFeedback was found from the authors or any vendor.",
+      "text": "No published gas figure for giveFeedback was found in the ERC-8004 text, the contracts repository docs, the QuickNode and Cobo guides or a web search on 2026-10-18.",
       "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-readme",
         "src-quicknode-register",
         "src-cobo-8004"
       ],
       "confidence": "reported",
       "topic": "other",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-143",
-      "text": "An eth_estimateGas measurement on 2026-10-11 gave about 155,185 to 178,504 gas for a first giveFeedback from a new client.",
+      "text": "An eth_estimateGas measurement on 2026-10-11 gave about 155,185 to 178,504 gas for a first giveFeedback from a new client to an agent that already had clients (agentId 1); for an agent with no clients yet (agentId 0) it gave about 172,409 to 193,006.",
       "sources": [
-        "src-erc-8004-gas-probe"
+        "src-erc-8004-gas-probe",
+        "src-erc-8004-chain-probe-verifier"
       ],
       "confidence": "verified",
       "topic": "other",
@@ -1451,34 +1469,37 @@
     },
     {
       "id": "clm-erc-8004-145",
-      "text": "8004scan reported 561,576 or more registered agents on 2026-10-11.",
+      "text": "8004scan's statistics API (mainnet view) reported 699,098 registered agents and a daily new-agent figure of 21,477 on 2026-10-18; its home page had shown 561,576 or more on 2026-10-11.",
       "sources": [
+        "src-8004scan-stats-api",
         "src-8004scan"
       ],
       "confidence": "reported",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-146",
-      "text": "8004scan reported 682,170 or more feedback entries and 496,805 or more unique wallets on 2026-10-11.",
+      "text": "8004scan's statistics API (mainnet view) reported 720,771 feedback entries and 755,027 users, which its home page labels unique wallets, on 2026-10-18; its home page had shown 682,170 or more and 496,805 or more on 2026-10-11.",
       "sources": [
+        "src-8004scan-stats-api",
         "src-8004scan"
       ],
       "confidence": "reported",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-147",
-      "text": "8004scan reported 30 networks on 2026-10-11, more than the 25 mainnets in the official README.",
+      "text": "On 2026-10-18 the 8004scan home page showed 29 networks, while its statistics API listed 31 mainnet chains (30 with a registry address; Plasma had none), including Solana, LUKSO, Shape, Gate Layer, Tempo and Arc, which the contracts README does not list, and not 0G, which it does.",
       "sources": [
         "src-8004scan",
+        "src-8004scan-stats-api",
         "src-erc-8004-contracts-readme"
       ],
       "confidence": "reported",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-148",
@@ -1593,7 +1614,9 @@
       "id": "clm-erc-8004-159",
       "text": "ERC-8004 links to x402 through the x402Support flag, agentWallet as payee address and proofOfPayment in feedback files, but neither protocol depends on the other.",
       "sources": [
-        "src-erc-8004-spec"
+        "src-erc-8004-spec",
+        "src-erc-8004-bp-registration",
+        "src-x402-spec-v2"
       ],
       "confidence": "verified",
       "topic": "relations",
@@ -1621,64 +1644,74 @@
     },
     {
       "id": "clm-erc-8004-162",
-      "text": "The MPP payment discovery draft cites ERC-8004 and says the discovery spec is off-chain but compatible with future on-chain anchoring.",
+      "text": "The MPP payment discovery draft (draft-payment-discovery-01), whose four authors are from Tempo Labs and Merit Systems, cites ERC-8004 and says the discovery spec is off-chain but compatible with future on-chain anchoring.",
       "sources": [
         "src-mpp-discovery-draft"
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-05"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-163",
-      "text": "No documented relation between ERC-8004 and Visa Trusted Agent Protocol was found.",
+      "text": "Neither the Visa Trusted Agent Protocol repository (commit 16d59bd) nor the ERC-8004 text and contracts repository mentions the other (searched 2026-10-18).",
       "sources": [
-        "src-visa-tap-repo"
+        "src-visa-tap-repo",
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-history"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-164",
-      "text": "No documented relation between ERC-8004 and OpenAI and Stripe Agentic Commerce Protocol was found.",
+      "text": "Neither the Agentic Commerce Protocol repository (commit 7fdd78d) nor the ERC-8004 text and contracts repository mentions the other (searched 2026-10-18).",
       "sources": [
-        "src-acp-repo"
+        "src-acp-repo",
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-history"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-165",
-      "text": "No documented relation between ERC-8004 and Google Universal Commerce Protocol was found.",
+      "text": "Neither the Universal Commerce Protocol repositories (ucp at commit ad9950b, with its samples, SDK, conformance and organization repositories) nor the ERC-8004 text and contracts repository mentions the other (searched 2026-10-18).",
       "sources": [
-        "src-ucp-repo"
+        "src-ucp-repo",
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-history"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-166",
-      "text": "No documented relation between ERC-8004 and Mastercard Agent Pay was found.",
+      "text": "Neither the Mastercard developers agent toolkit (commit 2c6781c) and Verifiable Intent (commit 356c296) repositories nor the ERC-8004 text and contracts repository mentions the other (searched 2026-10-18).",
       "sources": [
-        "src-mastercard-toolkit-repo"
+        "src-mastercard-toolkit-repo",
+        "src-mcap-vi-spec",
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-history"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-167",
-      "text": "AP2 does not reference ERC-8004; the link is indirect, because ERC-8004 lists A2A agent cards as services and AP2 can be implemented as an A2A extension.",
+      "text": "The AP2 repository (commit e1ea56d) does not mention ERC-8004 (searched 2026-10-18); the link is indirect, because ERC-8004 lists A2A agent cards as services and AP2 can be implemented as an A2A extension.",
       "sources": [
         "src-ap2-glossary",
+        "src-ap2-repo",
         "src-erc-8004-spec"
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-168",
@@ -1800,7 +1833,7 @@
     },
     {
       "id": "clm-erc-8004-180",
-      "text": "ERC-3643 has no agent, service endpoint or feedback concept, and ERC-8004 has no issuer-attested compliance claims or mandate model.",
+      "text": "ERC-3643 has no AI-agent identity, service endpoint or feedback concept (its Agent is an operator role), and ERC-8004 has no issuer-attested compliance claims or mandate model.",
       "sources": [
         "src-erc-3643-spec",
         "src-erc-8226"
@@ -1815,17 +1848,19 @@
         "src-erc3643-association"
       ],
       "confidence": "verified",
-      "topic": "governance"
+      "topic": "governance",
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-182",
-      "text": "No ERC3643 Association or Tokeny statement about AI agents or ERC-8004 was found in the pages searched.",
+      "text": "No ERC3643 Association or Tokeny statement about ERC-8004 or agent identity standards was found on erc3643.org, in a search of tokeny.com or in a web search on 2026-10-18; a Tokeny post of May 2023 discusses AI agents and tokenization in general.",
       "sources": [
-        "src-erc3643-association"
+        "src-erc3643-association",
+        "src-tokeny-ai-2023"
       ],
-      "confidence": "unverified",
+      "confidence": "reported",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-183",
@@ -1855,18 +1890,20 @@
       ],
       "confidence": "verified",
       "topic": "criticism",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-186",
-      "text": "No source was found for an October 2025 announcement that the spec was finalized; a community call agenda of 2025-10-22 speaks of a finalized spec while the ERC was in Review.",
+      "text": "A press release dated 2025-10-13 said the Ethereum Foundation dAI team and Consensys had launched a finalized version of ERC-8004, and the agenda for the 2025-10-22 community call speaks of a finalized spec, while the ERC was in Review; it has never been Final and returned to Draft on 2026-01-13.",
       "sources": [
+        "src-erc-8004-press-2025-10-13",
         "src-erc-8004-call-2",
-        "src-erc-8004-commit-review"
+        "src-erc-8004-commit-review",
+        "src-erc-8004-commit-draft"
       ],
-      "confidence": "unverified",
+      "confidence": "reported",
       "topic": "criticism",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-187",
@@ -1880,14 +1917,14 @@
     },
     {
       "id": "clm-erc-8004-188",
-      "text": "The 20 mainnets added to the contracts README on 2026-03-06 were Base, Abstract, Arbitrum, Avalanche, BSC, Celo, Gnosis, GOAT Network, Linea, Mantle, MegaETH, Metis, Monad, Optimism, Polygon, Scroll, SKALE Base, Soneium, Taiko and XLayer.",
+      "text": "On the default branch the README listed Polygon on 2026-02-02; Base, Monad and BSC on 2026-02-03; Scroll and Gnosis on 2026-02-04; Arbitrum, Celo and Taiko on 2026-02-05; Linea, MegaETH, Optimism and Avalanche on 2026-02-10; Abstract and Mantle (marked WIP) on 2026-02-12; and GOAT Network, Metis, SKALE Base, Soneium and XLayer on 2026-03-06, when the Mantle entry lost its WIP mark.",
       "sources": [
         "src-erc-8004-readme-history",
         "src-erc-8004-contracts-readme"
       ],
       "confidence": "verified",
       "topic": "dates",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-189",
@@ -1955,7 +1992,7 @@
     },
     {
       "id": "clm-erc-8004-196",
-      "text": "The specification describes pluggable trust models tiered by value at risk: reputation from client feedback, stake-secured re-execution, zkML proofs and TEE oracles.",
+      "text": "The specification describes pluggable trust models tiered by value at risk, from low-stake tasks such as ordering pizza to high-stake ones such as medical diagnosis: reputation from client feedback, stake-secured re-execution, zkML proofs and TEE oracles.",
       "sources": [
         "src-erc-8004-spec"
       ],
@@ -2053,7 +2090,7 @@
     },
     {
       "id": "clm-erc-8004-206",
-      "text": "ERC-8226 requires EIP-165, EIP-712 and EIP-1271, defines IComplianceProvider and IAgentMandate, and assigns token compliance to ERC-7943 or ERC-3643 and agent identity to a registry such as ERC-8004.",
+      "text": "ERC-8226 requires EIP-165, EIP-712 and EIP-1271, defines IComplianceProvider and IAgentMandate, and assigns token compliance to a framework such as ERC-7943 or ERC-3643 and agent identity to a registry such as ERC-8004.",
       "sources": [
         "src-erc-8226"
       ],
@@ -2143,7 +2180,7 @@
     },
     {
       "id": "clm-erc-8004-215",
-      "text": "The CSOAI census dataset is licensed CC BY 4.0 and was read with eth_call only.",
+      "text": "The CSOAI census dataset is licensed CC BY 4.0; it read the registry with eth_call only (no transaction or key), and fetched registration files and probed declared endpoints over HTTP.",
       "sources": [
         "src-csoai-census"
       ],
@@ -2203,14 +2240,14 @@
     },
     {
       "id": "clm-erc-8004-221",
-      "text": "On Soneium the Identity and Reputation proxies still returned getVersion 1.0.0 (the MinimalUUPSMainnet placeholder) and register reverted, and Billions could not be reached on public RPCs, so of the 25 mainnets in the README at least 23 ran the 2.0.0 registries.",
+      "text": "On 2026-10-18 the Soneium Identity and Reputation proxies still returned getVersion 1.0.0 (the MinimalUUPSMainnet placeholder) and register reverted, while the other 24 mainnets in the README, Billions included (read through its explorer's public JSON-RPC endpoint), returned 2.0.0.",
       "sources": [
-        "src-erc-8004-chain-probe-verifier",
+        "src-erc-8004-chain-probe-2026-10-18",
         "src-erc-8004-contracts-readme"
       ],
       "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-18"
     },
     {
       "id": "clm-erc-8004-222",
@@ -2255,6 +2292,95 @@
       "confidence": "verified",
       "topic": "versions",
       "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-226",
+      "text": "On 2026-10-18 read-only calls on Arc, Shape, Tempo, LUKSO and Gate Layer, chains the contracts README does not list, found the Identity and Reputation proxies at the README addresses, returning getVersion 2.0.0 and owned by 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, the owner on Ethereum and Base.",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-10-18",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified",
+      "topic": "observability",
+      "asOf": "2026-10-18"
+    },
+    {
+      "id": "clm-erc-8004-227",
+      "text": "Read with eth_getLogs of Registered events, the highest agentId on the Base Identity Registry was about 99,891 at block 52,480,000 (20:09 UTC on 2026-10-11) and 255,750 at block 52,798,581 (05:08 UTC on 2026-10-19).",
+      "sources": [
+        "src-erc-8004-base-registrations-sample"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-10-18"
+    },
+    {
+      "id": "clm-erc-8004-228",
+      "text": "In one hour of Base blocks (52,796,781 to 52,798,581, 04:08 to 05:08 UTC on 2026-10-19), 2,117 of 2,123 registrations in the Identity Registry had an agentURI on the domain centralcity.ai, from 2,119 distinct owner addresses; a ten-minute repeat from 05:56 UTC found 325 registrations, all with centralcity.ai URIs.",
+      "sources": [
+        "src-erc-8004-base-registrations-sample"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-10-18"
+    },
+    {
+      "id": "clm-erc-8004-229",
+      "text": "The optional x402 identity extensions (sign-in-with-x, auth-hints and HTTP message signatures) identify the paying client, and the offer-and-receipt extension lets a server sign its offers and receipts with a key bound to its service; the core x402 messages carry the payee address but no statement about who the payee agent is.",
+      "sources": [
+        "src-x402-ext-offer-receipt",
+        "src-x402-ext-siwx",
+        "src-x402-ext-auth-hints",
+        "src-x402-ext-http-sig",
+        "src-x402-spec-v2"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-230",
+      "text": "Agents reach the card programs by registration: TAP registration happens through onboarding to Visa Intelligent Commerce, and Mastercard's developer guide says only registered agents can transact through its network.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-vic-dev",
+        "src-mcap-dev-rails"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-11"
+    },
+    {
+      "id": "clm-erc-8004-231",
+      "text": "The ONCHAINID Identity contract implements the IERC734 KeyHolder and IERC735 ClaimHolder interfaces in one identity contract.",
+      "sources": [
+        "src-onchainid-identity"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-232",
+      "text": "ERC-8226 does not mention AP2, and the AP2 repository (commit e1ea56d) does not mention ERC-8226 (searched 2026-10-18).",
+      "sources": [
+        "src-erc-8226",
+        "src-ap2-repo"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-18"
+    },
+    {
+      "id": "clm-erc-8004-233",
+      "text": "The two 2026 rewrites of the text, pull request 1458 (merged 2026-01-07, while the ERC was in Review) and pull request 1488 (merged 2026-01-25, after its return to Draft), both opened by the author Marco De Rossi, were merged by the repository bot eip-review-bot, while EIP editors merged the move to Review (pull request 1244) and the return to Draft (pull request 1470).",
+      "sources": [
+        "src-erc-8004-pr-1458",
+        "src-erc-8004-pr-1488",
+        "src-erc-8004-pr-1244",
+        "src-erc-8004-pr-1470"
+      ],
+      "confidence": "verified",
+      "topic": "governance",
+      "asOf": "2026-10-18"
     }
   ]
 }

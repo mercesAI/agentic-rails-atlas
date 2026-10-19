@@ -3,7 +3,7 @@
  * charge: draft-payment-intent-charge-00 and draft-tempo-charge-00 (payload type "hash").
  * subscription: draft-payment-intent-subscription-00 and draft-tempo-subscription-00 (payload type "keyAuthorization").
  * session: draft-tempo-session-00 (amount is price per unit; methodDetails.escrowContract required; v1 protocol).
- * Chain id is the fake 424242; token, recipient, escrow and access key are fixtures.
+ * Chain id is the simulated 402402; token, recipient, escrow and access key are fixtures.
  */
 import { FIXTURE_ACCESS_KEY, FIXTURE_ESCROW, FIXTURE_RECIPIENT, FIXTURE_TOKEN, SIM_CHAIN_ID, type Intent } from './fixtures';
 

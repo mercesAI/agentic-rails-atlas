@@ -1,6 +1,6 @@
 {
   "protocol": "erc-8004",
-  "summary": "ERC-8004 makes agent data public and comparable; it does not make it true. The text admits Sybil feedback is possible and offers one defense, filtering by trusted reviewers. Since feedbackAuth was removed, anyone except the owner and operators can rate any agent, and proofOfPayment is never checked on-chain. Files over HTTPS can change silently. Wallet binding is signed but has no nonce. One externally owned account can upgrade all registries on Ethereum and Base (2026-10-11). The Validation Registry is specified, not officially deployed, and its reference code lets a validator lower a pass. No CVE, advisory or named audit report was found.",
+  "summary": "ERC-8004 makes agent data public and puts it in one schema; it does not make it true or comparable. The text admits Sybil feedback is possible and offers one defense, filtering by trusted reviewers. Since feedbackAuth was removed, anyone except the owner and operators can rate any agent, and proofOfPayment is never checked on-chain. Files over HTTPS can change silently. Wallet binding is signed but has no nonce. One externally owned account can upgrade all registries on Ethereum and Base (2026-10-11). The Validation Registry is specified, not officially deployed, and its reference code lets a validator lower a pass. No CVE in the NVD and no GitHub security advisory for the contracts were found on 2026-10-18, and no audit report from a named firm is published in the contracts repository (the community audit in PR 51 was still open).",
   "threats": [
     {
       "id": "erc-8004-t1",
@@ -56,7 +56,7 @@
     {
       "id": "erc-8004-t4",
       "stride": "E",
-      "title": "Single upgrade key for all registries",
+      "title": "Single upgrade key for all registries on Ethereum and Base",
       "description": "All three proxies are UUPS with _authorizeUpgrade restricted to the owner. On 2026-10-11 the owner on Ethereum and Base was one externally owned account whose holder is not published.",
       "preconditions": [
         "Compromise or misuse of that key"
@@ -155,7 +155,7 @@
       "id": "erc-8004-t10",
       "stride": "I",
       "title": "Personal data made permanent",
-      "description": "Feedback events, hashes and URIs cannot be deleted from the chain. Clients or owners who put personal data in files or tags make it public and permanent.",
+      "description": "Feedback events, hashes and URIs cannot be deleted from the chain. Personal data in tags is public and permanent; in a file it stays public while the file is served (copies may persist on IPFS), and the file's URI and hash stay on-chain.",
       "preconditions": [
         "Personal data in tags, endpoints or public files"
       ],
@@ -186,7 +186,7 @@
       "id": "erc-8004-t12",
       "stride": "S",
       "title": "Capability claims not guaranteed",
-      "description": "The text ties a file to an on-chain agent but says it cannot guarantee that advertised capabilities are functional and non-malicious.",
+      "description": "The text says ERC-8004 cryptographically ties the registration file to the on-chain agent but cannot cryptographically guarantee that advertised capabilities are functional and non-malicious; it leaves that check to its trust models (reputation, validation and TEE attestation).",
       "preconditions": [
         "A client trusts the services list"
       ],
@@ -321,10 +321,12 @@
   "cves": [
     {
       "id": "None found",
-      "date": "2026-10-11",
-      "summary": "No CVE and no GitHub security advisory was found for the ERC-8004 reference contracts; the repository advisory list was empty.",
-      "confidence": "reported",
+      "date": "2026-10-18",
+      "summary": "No CVE matched a keyword search of the NVD for ERC-8004, and the GitHub security advisory list of erc-8004/erc-8004-contracts was empty on 2026-10-18.",
+      "confidence": "verified",
       "sources": [
+        "src-nvd-erc-8004-search",
+        "src-erc-8004-gh-advisories",
         "src-erc-8004-contracts-history"
       ]
     }

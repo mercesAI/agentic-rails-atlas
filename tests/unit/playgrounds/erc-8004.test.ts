@@ -52,8 +52,8 @@ function must<T>(r: { ok: true; value: T } | { ok: false; revert: string }): T {
 }
 
 describe('erc-8004 fixtures', () => {
-  it('uses the fake chain and the Draft label', () => {
-    expect(SIM_CHAIN_ID).toBe(424242);
+  it('uses the simulated chain and the Draft label', () => {
+    expect(SIM_CHAIN_ID).toBe(402402);
     expect(ILLUSTRATIVE).toBe('Illustrative example, ERC-8004 (Draft)');
     expect(FIXTURE_IDENTITY_REGISTRY).not.toBe(LISTED_ADDRESSES.mainnetIdentity);
   });
@@ -109,9 +109,9 @@ describe('erc-8004 registration schema', () => {
 
 describe('erc-8004 global id', () => {
   it('composeGlobalId builds agentRegistry and the registrations entry', () => {
-    const g = composeGlobalId({ namespace: 'eip155', chainId: '424242', identityRegistry: FIXTURE_IDENTITY_REGISTRY, agentId: '12' });
+    const g = composeGlobalId({ namespace: 'eip155', chainId: '402402', identityRegistry: FIXTURE_IDENTITY_REGISTRY, agentId: '12' });
     expect(g.ok).toBe(true);
-    expect(g.agentRegistry).toBe(`eip155:424242:${FIXTURE_IDENTITY_REGISTRY}`);
+    expect(g.agentRegistry).toBe(`eip155:402402:${FIXTURE_IDENTITY_REGISTRY}`);
     expect(g.registrationEntry).toEqual({ agentId: 12, agentRegistry: g.agentRegistry });
   });
   it('composeGlobalId reports each bad part', () => {
@@ -120,7 +120,7 @@ describe('erc-8004 global id', () => {
     expect(g.errors).toHaveLength(4);
   });
   it('parseAgentRegistry splits the three parts', () => {
-    expect(parseAgentRegistry(`eip155:424242:${FIXTURE_IDENTITY_REGISTRY}`)).toEqual({ namespace: 'eip155', chainId: '424242', identityRegistry: FIXTURE_IDENTITY_REGISTRY });
+    expect(parseAgentRegistry(`eip155:402402:${FIXTURE_IDENTITY_REGISTRY}`)).toEqual({ namespace: 'eip155', chainId: '402402', identityRegistry: FIXTURE_IDENTITY_REGISTRY });
     expect(parseAgentRegistry('eip155:1')).toBeNull();
   });
 });
@@ -144,7 +144,7 @@ describe('erc-8004 reputation registry', () => {
     const s = must(giveFeedback(emptyState(), { sender: client, value: 5n, valueDecimals: 0, file: { createdAt: '2026-10-01T12:00:00Z' } }));
     const f = s.entries[0]!.file!;
     expect(Object.keys(f)).toEqual(expect.arrayContaining(['agentRegistry', 'agentId', 'clientAddress', 'createdAt', 'value', 'valueDecimals']));
-    expect(f.clientAddress).toBe(`eip155:424242:${client}`);
+    expect(f.clientAddress).toBe(`eip155:402402:${client}`);
   });
   it('revokeFeedback follows the contract checks', () => {
     let s = must(giveFeedback(emptyState(), { sender: client, value: 10n, valueDecimals: 0 }));
@@ -240,7 +240,7 @@ describe('erc-8004 setAgentWallet', () => {
   it('typed data matches the contract type string and domain', () => {
     const td = agentWalletTypedData({ agentId: 7n, newWallet: owner, owner, deadline: now });
     expect(AGENT_WALLET_TYPE_STRING).toBe(`AgentWalletSet(${td.types.AgentWalletSet.map((f) => `${f.type} ${f.name}`).join(',')})`);
-    expect(td.domain).toEqual({ name: 'ERC8004IdentityRegistry', version: '1', chainId: 424242, verifyingContract: FIXTURE_IDENTITY_REGISTRY });
+    expect(td.domain).toEqual({ name: 'ERC8004IdentityRegistry', version: '1', chainId: 402402, verifyingContract: FIXTURE_IDENTITY_REGISTRY });
     expect(agentWalletDigest({ agentId: 7n, newWallet: owner, owner, deadline: now })).toMatch(/^0x[0-9a-f]{64}$/);
   });
   it('accepts a signature from the new wallet and rejects the failure cases', async () => {

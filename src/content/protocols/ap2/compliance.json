@@ -1,7 +1,7 @@
 {
   "protocol": "ap2",
   "notLegalAdvice": true,
-  "summary": "AP2 moves no money, so payment law reaches it through the parties that use mandates: issuers, Credential Providers, processors and merchants. Its main legal value is evidence: a signed record of what the user authorized, which is the central fact in any unauthorized-transaction dispute under Regulation E, Regulation Z, PSD2 or the UK PSRs. Open questions are whether an open mandate counts as consent to each later transaction, how strong customer authentication works when the user is absent, and who carries the loss when an agent stays inside its limits but misreads the user. The specification claims no compliance with any of these rules.",
+  "summary": "AP2 moves no money, so payment law reaches it through the parties that use mandates: issuers, Credential Providers, processors and merchants. Its main legal value is evidence: a signed record of what the user authorized, which is the central fact in any unauthorized-transaction dispute under Regulation E, Regulation Z, PSD2 or the UK PSRs. Open questions are whether an open mandate counts as consent to each later transaction, how strong customer authentication works when the user is absent, and who carries the loss when an agent stays inside its limits but misreads the user. Within Visa's system, Visa's rules put an agent's errors on the cardholder, who is responsible for an Agentic Payment Provider's actions as if the cardholder had initiated them. Those rules yield to applicable law. The specification claims no compliance with any of these rules.",
   "rows": [
     {
       "jurisdiction": "US",
@@ -171,10 +171,30 @@
     {
       "jurisdiction": "card-networks",
       "topic": "liability",
-      "text": "No public Visa or Mastercard rule on agent-specific disputes or liability shifts was found as of 2026-10-11; AP2 itself leaves liability to the networks and offers mandates as evidence.",
+      "text": "Visa's rules govern Visa and its member institutions and yield to applicable law. Since 2025-10-18 they have required an Agentic Payment Provider to enroll in Visa Intelligent Commerce and register with Visa, directly or via an Agentic Payment Enabler. Within Visa's system, they make the cardholder responsible for the provider's actions in an Agentic Transaction as if the cardholder had initiated it. A merchant must not require a cardholder to waive the right to dispute such a transaction.",
       "sources": [
+        "src-visa-rules-public"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "liability",
+      "text": "Visa calls no rule a liability shift and adds no agent-specific dispute condition, fee or interchange rate. It does require issuers to pay for Agentic Transactions made under a cardholder's payment instructions and not to block them wholesale. From 2026-10-24 it also accepts an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Worldpay (2026-07-30) says no liability shift exists yet for agentic transactions. AP2 itself leaves liability to the networks and offers mandates as evidence.",
+      "sources": [
+        "src-visa-rules-public",
         "src-reg-worldpay-liability",
         "src-ap2-faq"
+      ],
+      "confidence": "reported"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "liability",
+      "text": "Mastercard says standard chargeback rights apply to agentic transactions. The 2026-06-02 Mastercard Rules add no agent-specific liability rule. They require pass-through wallet operators and checkout facilitators in Agent Pay to follow the Mastercard Agent Pay Program Standards. A web search on 2026-10-19 found no public copy of those standards.",
+      "sources": [
+        "src-mcap-dev-level1",
+        "src-mastercard-rules-2026-06"
       ],
       "confidence": "reported"
     },

@@ -34,9 +34,9 @@
       "version": "1.7.1",
       "language": "typescript",
       "side": "client",
-      "code": "import { SDK } from 'agent0-sdk';\n\nconst sdk = new SDK({\n  chainId: 11155111, // Ethereum Sepolia testnet\n  rpcUrl: process.env.RPC_URL,\n  privateKey: process.env.PRIVATE_KEY,\n  ipfs: 'pinata',\n  pinataJwt: process.env.PINATA_JWT,\n});\n\nconst agent = sdk.createAgent(\n  'My AI Agent',\n  'An intelligent assistant for various tasks.',\n  'https://example.com/agent-image.png'\n);\nawait agent.setMCP('https://mcp.example.com/');\nagent.setTrust(true, true, false); // reputation, cryptoEconomic, teeAttestation\nagent.setActive(true);\n\nconst registrationFile = await agent.registerIPFS();\n\nconst tx = await sdk.giveFeedback('11155111:123', 85, 'data_analyst', 'finance');\nconst { receipt } = await tx.waitConfirmed();",
+      "code": "import { SDK } from 'agent0-sdk';\n\nconst sdk = new SDK({\n  chainId: 11155111, // Ethereum Sepolia testnet\n  rpcUrl: process.env.RPC_URL,\n  privateKey: process.env.PRIVATE_KEY,\n  ipfs: 'pinata',\n  pinataJwt: process.env.PINATA_JWT,\n});\n\nconst agent = sdk.createAgent(\n  'My AI Agent',\n  'An intelligent assistant for various tasks.',\n  'https://example.com/agent-image.png'\n);\nawait agent.setMCP('https://mcp.example.com/');\nagent.setTrust(true, true, false); // reputation, cryptoEconomic, teeAttestation\nagent.setActive(true);\n\nconst regTx = await agent.registerIPFS();\nconst { result: registrationFile } = await regTx.waitConfirmed();\n\nconst tx = await sdk.giveFeedback('11155111:123', 85, 'data_analyst', 'finance');\nconst { receipt } = await tx.waitConfirmed();",
       "docsUrl": "https://www.npmjs.com/package/agent0-sdk",
-      "note": "Shortened from the package README quick start. The SDK writes agent ids as chainId:agentId, which is shorter than the global agentRegistry form in the Draft text. Never put a real key in code.",
+      "note": "Shortened from the package README quick start; registerIPFS returns a transaction handle, so the file comes from waitConfirmed, as the 1.7.1 type declarations show. The SDK writes agent ids as chainId:agentId, which is shorter than the global agentRegistry form in the Draft text. Never put a real key in code.",
       "sources": [
         "src-npm-agent0-sdk"
       ]
@@ -60,7 +60,7 @@
     {
       "title": "Registration file builder and reputation aggregator simulator",
       "path": "src/playgrounds/erc-8004/",
-      "status": "planned"
+      "status": "ready"
     }
   ]
 }

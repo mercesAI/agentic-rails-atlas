@@ -4,7 +4,7 @@ A client-side simulation of an x402 payment. It follows x402 spec v2.0 (2025-12-
 
 ## What it covers
 
-- 402 handshake with a V1/V2 switch. V2: `PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`, `PAYMENT-RESPONSE` as base64 JSON, CAIP-2 network `eip155:424242`, `amount`. V1: JSON 402 body, `X-PAYMENT`, `X-PAYMENT-RESPONSE`, a string network name, `maxAmountRequired`.
+- 402 handshake with a V1/V2 switch. V2: `PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`, `PAYMENT-RESPONSE` as base64 JSON, CAIP-2 network `eip155:402402` (a simulated chain id, not assigned in the public chain registry on 2026-10-18), `amount`. V1: JSON 402 body, `X-PAYMENT`, `X-PAYMENT-RESPONSE`, a string network name, `maxAmountRequired`.
 - Scheme switch (`exact` with EIP-3009, `upto` with Permit2) and payment-flow switch (`authorization`, `upfront`, `escrow`). Unsupported pairs show the reason and the SDK `resolvePaymentFlow` error text.
 - Facilitator `/verify` and `/settle` timeline with each check in SDK order and the request and response bodies.
 - Failure injection: expired `validBefore`, wrong `payTo`, replayed nonce, insufficient balance, facilitator down. The wire carries the spec error code where spec section 9 lists one; the SDK constant is shown next to it, or alone when the spec lists none (replayed nonce, all Permit2 codes). Facilitator down gives HTTP 502 with the `@x402/express` timeout body (90 s default).
@@ -18,7 +18,7 @@ No wallet connection, no RPC call, no real chain id. The key is generated at mou
 
 ## Teaching simplifications (labeled in the UI)
 
-- V1 uses the made-up network name `sim-424242`; real V1 names come from a fixed list such as `base-sepolia`.
+- V1 uses the made-up network name `sim-402402`; real V1 names come from a fixed list such as `base-sepolia`.
 - The fixture token counts as a recognized default asset, so the USD spend cap applies to it.
 - upto assumes the payer already approved Permit2.
 - `escrow` is shown as call order only (deposit settle, resource, claim settle). The spec defines it for upto on Solana; the EVM SDK rejects upto with escrow. Failure injection other than facilitator down is not modeled for escrow.

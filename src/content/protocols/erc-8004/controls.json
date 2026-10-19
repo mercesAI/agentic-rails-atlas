@@ -25,7 +25,7 @@
       "protocol": "erc-8004",
       "control": "user-consent-capture",
       "support": "none",
-      "note": "No consent or mandate object; ERC-8226 (Draft) proposes one on top.",
+      "note": "No consent or mandate object; ERC-8226 (Draft) proposes a mandate layer that can work with ERC-8004 or any other agent registry.",
       "sources": [
         "src-erc-8004-spec",
         "src-erc-8226"
@@ -93,7 +93,7 @@
       "protocol": "erc-8004",
       "control": "receipts-evidence",
       "support": "partial",
-      "note": "proofOfPayment and file hashes live in off-chain files and are never verified on-chain.",
+      "note": "proofOfPayment lives in the off-chain feedback file and the file hash is only logged in the NewFeedback event; the registry verifies neither.",
       "sources": [
         "src-erc-8004-spec"
       ]
@@ -157,10 +157,11 @@
     },
     {
       "title": "No emergency stop",
-      "description": "There is no pause or burn; the only lever is an upgrade by one owner key.",
+      "description": "There is no pause or burn; the only lever is an upgrade by the proxy owner: one externally owned account on Ethereum and Base, and on BSC a Safe multisig with a threshold of 3 for the Identity and Reputation proxies (read 2026-10-18).",
       "sources": [
         "src-erc-8004-identity-sol",
-        "src-erc-8004-onchain-probe"
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-chain-probe-2026-10-18"
       ]
     },
     {

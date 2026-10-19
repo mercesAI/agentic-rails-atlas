@@ -51,8 +51,8 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
-        "section": "HTTP transport"
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/http.md",
+        "section": "Payment Payload Transmission"
       },
       "n": 1
     },
@@ -65,7 +65,7 @@
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
-        "section": "Facilitator"
+        "section": "7. Facilitator Interface"
       },
       "n": 2
     },
@@ -81,8 +81,8 @@
         "illustrative": true
       },
       "specRef": {
-        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
-        "section": "HTTP transport"
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/http.md",
+        "section": "Settlement Response Delivery"
       },
       "n": 3
     },
@@ -93,7 +93,7 @@
       "detail": "The client writes the feedback file first: the MUST fields (agentRegistry, agentId, clientAddress, createdAt, value, valueDecimals) plus optional tags, endpoint, mcp context and proofOfPayment {fromAddress, toAddress, chainId, txHash}.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 4242,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 87,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"mcp\": { \"tool\": \"get_weather\" },\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x5e5e...7a1c\"\n  }\n}",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 123456789,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 87,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"mcp\": { \"tool\": \"get_weather\" },\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x5e5e...7a1c\"\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -121,7 +121,7 @@
       "detail": "Only value and valueDecimals are required. The registry stores value, valueDecimals, tag1, tag2 and isRevoked under the next feedbackIndex for this client. The proof of payment is not an argument and is never stored on-chain.",
       "payload": {
         "format": "solidity",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(\n  4242, 87, 0, \"starred\", \"\", \"https://mcp.agent.example/\",\n  \"ipfs://bafy...feedback\", 0x0000000000000000000000000000000000000000000000000000000000000000\n)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(\n  123456789, 87, 0, \"starred\", \"\", \"https://mcp.agent.example/\",\n  \"ipfs://bafy...feedback\", 0x0000000000000000000000000000000000000000000000000000000000000000\n)",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -149,10 +149,10 @@
       "from": "reputation",
       "to": "indexer",
       "label": "Return NewFeedback event",
-      "detail": "The event carries agentId, clientAddress, feedbackIndex, value, valueDecimals, tag1, tag2, endpoint, feedbackURI and feedbackHash. endpoint, feedbackURI and feedbackHash exist on-chain only in this event.",
+      "detail": "The event carries agentId, clientAddress, feedbackIndex, value, valueDecimals, tag1, tag2, endpoint, feedbackURI and feedbackHash. The contract does not store endpoint, feedbackURI and feedbackHash; on-chain they appear only in this event and in the transaction calldata.",
       "payload": {
         "format": "text",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nNewFeedback(agentId=4242, clientAddress=0xA11C...A11C, feedbackIndex=1, value=87, valueDecimals=0,\n  tag1=\"starred\", tag2=\"\", endpoint=\"https://mcp.agent.example/\",\n  feedbackURI=\"ipfs://bafy...feedback\", feedbackHash=0x00...00)",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nNewFeedback(agentId=123456789, clientAddress=0xA11C...A11C, feedbackIndex=1, value=87, valueDecimals=0,\n  tag1=\"starred\", tag2=\"\", endpoint=\"https://mcp.agent.example/\",\n  feedbackURI=\"ipfs://bafy...feedback\", feedbackHash=0x00...00)",
         "illustrative": true
       },
       "specRef": {

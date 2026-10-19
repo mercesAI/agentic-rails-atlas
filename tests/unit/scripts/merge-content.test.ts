@@ -168,7 +168,9 @@ describe('merge-content', () => {
       expect(sources.map((s) => s.id)).toEqual(['src-gl-one', 'src-policy-a', 'src-r-one', 'src-x402-dup', 'src-x402-spec']);
       expect(sources.find((s) => s.id === 'src-x402-spec')?.title).toBe('Sidecar title');
       expect(read('src/generated/source-aliases.json')).toEqual({ 'src-x402-dup': 'src-r-one' });
-      expect(r.warnings.some((w) => w.includes('src-x402-spec') && w.includes('overrides'))).toBe(true);
+      // A sidecar replacing a research record is the designed precedence: counted, not warned.
+      expect(r.sidecarOverrides).toBe(1);
+      expect(r.warnings.some((w) => w.includes('src-x402-spec'))).toBe(false);
       expect(r.warnings.some((w) => w.includes('not-a-protocol'))).toBe(true);
       expect(r.warnings.some((w) => w.includes('prehistory.json'))).toBe(true);
     });

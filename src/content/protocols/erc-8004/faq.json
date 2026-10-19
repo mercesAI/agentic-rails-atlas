@@ -3,7 +3,7 @@
   "items": [
     {
       "q": "Is ERC-8004 a Final standard?",
-      "a": "No. It is a Draft. It moved to Review on 2025-10-08, and an EIP editor returned it to Draft on 2026-01-13. It was still Draft on 2026-10-11, even though registries are listed on 25 mainnets in the contracts README (on Soneium the proxies still ran a placeholder that day).",
+      "a": "No. It is a Draft. It moved to Review on 2025-10-08, and an EIP editor returned it to Draft on 2026-01-13. It was still Draft on 2026-10-18, even though registries are listed on 25 mainnets in the contracts README (on Soneium the proxies still ran a placeholder that day).",
       "claimIds": [
         "clm-erc-8004-002",
         "clm-erc-8004-005",
@@ -15,7 +15,7 @@
     },
     {
       "q": "Does ERC-8004 move money or pay agents?",
-      "a": "No. The text calls payments orthogonal, and the registries have no payable function. x402 or another rail moves the money; ERC-8004 only publishes the payee address and lets feedback point to a payment.",
+      "a": "No. The text calls payments orthogonal, and the registries have no function that takes or forwards payments; the only payable entry point is the owner-only upgradeToAndCall. x402 or another rail moves the money; ERC-8004 only publishes the payee address and lets feedback point to a payment.",
       "claimIds": [
         "clm-erc-8004-017",
         "clm-erc-8004-159"
@@ -43,9 +43,10 @@
     },
     {
       "q": "Does a large number of registered agents mean the ecosystem is healthy?",
-      "a": "No. Agent count is not agent quality. Ids are free to mint and include placeholders; one study found only 3% to 15% of agents with a valid file and a live endpoint (data to 2026-05-13), and a census found at least 13,210 of 505,635 ids declaring an http(s) endpoint, with 231,014 files not fetched (2026-09-26).",
+      "a": "No. Agent count is not agent quality. Ids cost only gas to mint (no fee) and include placeholders; one study found only 3% to 15% of agents with a valid file and a live endpoint (data to 2026-05-13), and a census found at least 13,210 of 505,635 ids declaring an http(s) endpoint, with 231,014 files not fetched (2026-09-26).",
       "claimIds": [
         "clm-erc-8004-157",
+        "clm-erc-8004-139",
         "clm-erc-8004-153",
         "clm-erc-8004-150"
       ],
@@ -107,7 +108,7 @@
     },
     {
       "q": "Does ERC-8004 check who runs an agent?",
-      "a": "No. Registration is permissionless and has no KYC or know-your-agent step, and the text cannot guarantee that advertised capabilities work.",
+      "a": "No. Registration is permissionless and has no KYC or know-your-agent step, and the text cannot cryptographically guarantee that advertised capabilities work.",
       "claimIds": [
         "clm-erc-8004-118",
         "clm-erc-8004-110"

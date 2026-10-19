@@ -27,26 +27,28 @@
   ],
   "implementers": [
     {
-      "name": "Identity and Reputation registries on 25 mainnets",
-      "role": "Same proxy addresses on every chain listed in the contracts README (as of 2026-08-15).",
+      "name": "Identity and Reputation registries listed on 25 mainnets",
+      "role": "Same proxy addresses on every mainnet in the contracts README (25 since 2026-08-15). A read-only probe on 2026-10-18 found version 2.0.0 on 24 of them; on Soneium the proxies still run the 1.0.0 placeholder, where registration reverts.",
       "status": "live",
       "sources": [
         "src-erc-8004-contracts-readme",
-        "src-erc-8004-readme-history"
+        "src-erc-8004-readme-history",
+        "src-erc-8004-chain-probe-2026-10-18"
       ]
     },
     {
       "name": "Validation Registry",
-      "role": "Specified only; no listed address on any chain.",
+      "role": "Specified, not officially deployed: the contracts README lists no address, and an unannounced proxy at the scripted address 0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58 answers with version 2.0.0 on 24 of the 25 listed mainnets and with the 1.0.0 placeholder on Soneium (read-only probe, 2026-10-18).",
       "status": "unknown",
       "sources": [
         "src-erc-8004-contracts-readme",
-        "src-erc-8004-onchain-probe"
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-chain-probe-2026-10-18"
       ]
     },
     {
       "name": "8004scan (AltLayer)",
-      "role": "Multi-chain explorer.",
+      "role": "Multi-chain explorer (reachable on 2026-10-18).",
       "status": "live",
       "sources": [
         "src-8004scan"
@@ -54,7 +56,7 @@
     },
     {
       "name": "Agentscan (alias)",
-      "role": "Explorer.",
+      "role": "Explorer (reachable on 2026-10-18).",
       "status": "live",
       "sources": [
         "src-agentscan"
@@ -62,7 +64,7 @@
     },
     {
       "name": "QuickNode ERC-8004 Explorer",
-      "role": "Explorer and tutorials.",
+      "role": "Explorer and tutorials (reachable on 2026-10-18).",
       "status": "live",
       "sources": [
         "src-quicknode-8004-faq"
@@ -70,7 +72,7 @@
     },
     {
       "name": "Agent0 subgraphs (The Graph)",
-      "role": "Indexers on Base, BNB Chain, Ethereum, Monad and Polygon since 2026-04-14.",
+      "role": "Indexers on Base, BNB Chain, Ethereum, Monad and Polygon, announced as live on 2026-04-14, when the post said they had already served millions of queries; it gives no launch date.",
       "status": "live",
       "sources": [
         "src-thegraph-agent0"
@@ -78,7 +80,7 @@
     },
     {
       "name": "CSOAI agent census",
-      "role": "Measured dataset of agent states (2026-09-26).",
+      "role": "Measured dataset of agent states (2026-09-26 record, still the latest on 2026-10-18).",
       "status": "live",
       "sources": [
         "src-csoai-census"
@@ -91,58 +93,64 @@
       "name": "agent0-sdk",
       "version": "1.7.1",
       "url": "https://www.npmjs.com/package/agent0-sdk",
-      "note": "TypeScript, MIT, from agent0lab/agent0-ts."
+      "note": "TypeScript, MIT, from agent0lab/agent0-ts. Version as of 2026-10-18."
     },
     {
       "registry": "pypi",
       "name": "agent0-sdk",
       "version": "1.7.1",
-      "url": "https://pypi.org/project/agent0-sdk/"
+      "url": "https://pypi.org/project/agent0-sdk/",
+      "note": "Version as of 2026-10-18."
     },
     {
       "registry": "npm",
       "name": "create-8004-agent",
       "version": "1.4.2",
-      "url": "https://www.npmjs.com/package/create-8004-agent"
+      "url": "https://www.npmjs.com/package/create-8004-agent",
+      "note": "Version as of 2026-10-18."
     },
     {
       "registry": "npm",
       "name": "@chaoschain/sdk",
       "version": "0.3.3",
-      "url": "https://www.npmjs.com/package/@chaoschain/sdk"
+      "url": "https://www.npmjs.com/package/@chaoschain/sdk",
+      "note": "Version as of 2026-10-18."
     },
     {
       "registry": "pypi",
       "name": "chaoschain-sdk",
       "version": "0.4.1",
-      "url": "https://pypi.org/project/chaoschain-sdk/"
+      "url": "https://pypi.org/project/chaoschain-sdk/",
+      "note": "Version as of 2026-10-18."
     },
     {
       "registry": "npm",
       "name": "@lucid-agents/identity",
       "version": "5.0.0",
       "url": "https://www.npmjs.com/package/@lucid-agents/identity",
-      "note": "Daydreams."
+      "note": "Daydreams. Version as of 2026-10-18."
     },
     {
       "registry": "other",
       "name": "erc-8004-contracts (not published to npm)",
       "url": "https://github.com/erc-8004/erc-8004-contracts",
-      "note": "Reference Solidity contracts, version 2.0.0."
+      "note": "Reference Solidity contracts, version 2.0.0 (master b9e466c, unchanged on 2026-10-18)."
     }
   ],
   "metrics": [
     {
       "id": "erc-8004-8004scan-agents",
       "metric": "Registered agents (8004scan)",
-      "value": 561576,
+      "value": 699098,
       "unit": "agent ids",
-      "asOf": "2026-10-11",
-      "definition": "Agent token ids the explorer counts across its networks; method not published.",
+      "asOf": "2026-10-18",
+      "definition": "total_agents in 8004scan's statistics API (mainnet view): agent ids across the chains the explorer indexes, including a separate Solana registry; method not published.",
       "sources": [
-        "src-8004scan"
+        "src-8004scan-stats-api",
+        "src-8004scan",
+        "src-erc-8004-base-registrations-sample"
       ],
-      "caveat": "Count is not quality: ids are free to mint (gas only) and include placeholders. Compare with the census and arXiv:2606.26028 below.",
+      "caveat": "Count is not quality: ids cost only gas to mint and include placeholders. The count was 561,576 on 2026-10-11. On Base the highest agentId rose from about 99,891 on 2026-10-11 to 255,750 on 2026-10-19 (UTC); in a one-hour block sample that ended 2026-10-19 05:08 UTC, 2,117 of 2,123 new Base registrations pointed their agentURI to the domain centralcity.ai, from 2,119 different owner addresses. Compare with the census and arXiv:2606.26028 below.",
       "disputed": true,
       "disputeSources": [
         "src-csoai-census",
@@ -152,14 +160,15 @@
     {
       "id": "erc-8004-8004scan-feedback",
       "metric": "Feedback entries (8004scan)",
-      "value": 682170,
+      "value": 720771,
       "unit": "entries",
-      "asOf": "2026-10-11",
-      "definition": "Feedback submissions the explorer counts.",
+      "asOf": "2026-10-18",
+      "definition": "total_feedbacks in 8004scan's statistics API (mainnet view): feedback submissions the explorer counts.",
       "sources": [
+        "src-8004scan-stats-api",
         "src-8004scan"
       ],
-      "caveat": "Includes Sybil feedback; arXiv:2606.26028 found 59.2% to 90.6% of reviewers coordinated on three chains (data to 2026-05-13).",
+      "caveat": "Includes Sybil feedback; arXiv:2606.26028 found 59.2% to 90.6% of reviewers coordinated on three chains (data to 2026-05-13). The count was 682,170 on 2026-10-11.",
       "disputed": true,
       "disputeSources": [
         "src-pub-2606-26028"
@@ -168,27 +177,31 @@
     {
       "id": "erc-8004-8004scan-wallets",
       "metric": "Unique wallets (8004scan)",
-      "value": 496805,
+      "value": 755027,
       "unit": "wallets",
-      "asOf": "2026-10-11",
-      "definition": "Distinct addresses seen by the explorer.",
+      "asOf": "2026-10-18",
+      "definition": "total_users in 8004scan's statistics API, shown as Unique Wallets on its home page: distinct addresses the explorer counts; method not published.",
       "sources": [
-        "src-8004scan"
+        "src-8004scan-stats-api",
+        "src-8004scan",
+        "src-erc-8004-base-registrations-sample"
       ],
-      "caveat": "Wallets are not people or operators."
+      "caveat": "Wallets are not people or operators. The count rose from 496,805 on 2026-10-11, about 52% in a week, and now exceeds the agent count; in the Base sample above almost every new registration came from a different owner address."
     },
     {
       "id": "erc-8004-networks",
       "metric": "Networks (8004scan) versus listed mainnets (README)",
-      "value": "30 versus 25",
+      "value": "29 versus 25",
       "unit": "networks",
-      "asOf": "2026-10-11",
-      "definition": "8004scan network count against mainnets in the official contracts README.",
+      "asOf": "2026-10-18",
+      "definition": "Networks on the 8004scan home page against mainnets in the official contracts README.",
       "sources": [
         "src-8004scan",
-        "src-erc-8004-contracts-readme"
+        "src-8004scan-stats-api",
+        "src-erc-8004-contracts-readme",
+        "src-erc-8004-chain-probe-2026-10-18"
       ],
-      "caveat": "8004scan may include testnets or community deployments.",
+      "caveat": "8004scan's statistics API listed 31 mainnet chains (30 with a registry; Plasma has none), including six that the README does not list (Solana, LUKSO, Shape, Gate Layer, Tempo and Arc), and it left out 0G, which the README lists. On Arc, Shape, Tempo, LUKSO and Gate Layer the same 2.0.0 registries answer under the same owner account as on Ethereum (read-only probe, 2026-10-18). The home page showed 30 networks on 2026-10-11.",
       "disputed": true,
       "disputeSources": [
         "src-erc-8004-contracts-readme"
@@ -260,12 +273,14 @@
       "item": "Protocol fee",
       "value": "None; gas only",
       "whoPays": "The caller of each transaction",
-      "asOf": "2026-10-11",
-      "confidence": "reported",
-      "caveat": "From the QuickNode explorer FAQ; the contracts have no fee or payable function.",
+      "asOf": "2026-10-18",
+      "confidence": "verified",
+      "caveat": "The contract code has no fee logic: no registry function takes or forwards payments, and the only payable entry point is the owner-only upgradeToAndCall. The QuickNode explorer FAQ also says gas only.",
       "sources": [
-        "src-quicknode-8004-faq",
-        "src-erc-8004-identity-sol"
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-reputation-sol",
+        "src-erc-8004-abis",
+        "src-quicknode-8004-faq"
       ]
     },
     {
@@ -281,11 +296,11 @@
     },
     {
       "item": "giveFeedback gas (first feedback from a new client)",
-      "value": "about 155,185 gas with empty tags and URI; about 178,504 gas with tag1, an endpoint and an IPFS URI",
+      "value": "about 155,185 gas (empty tags and URI) to 178,504 gas (tag1, an endpoint and an IPFS URI) for an agent that already has clients; about 172,409 to 193,006 gas for an agent with none",
       "whoPays": "Client, or a sponsor through EIP-7702",
       "asOf": "2026-10-11",
       "confidence": "verified",
-      "caveat": "Method: eth_estimateGas on Ethereum and Base, 2026-10-11, agentId 1. No published figure exists from the authors or any vendor. Later feedback from the same client costs less. The figure depends on the agent: for agentId 0 on Ethereum a first feedback estimated 172,409 to 193,006 gas the same day.",
+      "caveat": "Method: eth_estimateGas on Ethereum and Base on 2026-10-11, agentId 1 for the first range and agentId 0 on Ethereum for the second; the first feedback to an agent costs more because the client list is still empty. The Atlas found no published figure from the authors or a vendor. Later feedback from the same client costs less.",
       "sources": [
         "src-erc-8004-gas-probe",
         "src-erc-8004-chain-probe-verifier"
@@ -293,7 +308,7 @@
     },
     {
       "item": "Illustrative giveFeedback cost on Ethereum",
-      "value": "about 0.000012 to 0.000017 ETH at 0.067 to 0.097 gwei",
+      "value": "about 0.000012 to 0.000017 ETH for a 178,504-gas feedback at 0.067 to 0.097 gwei",
       "whoPays": "Client",
       "asOf": "2026-10-11",
       "confidence": "verified",
@@ -308,7 +323,7 @@
       "whoPays": "Agent owner",
       "asOf": "2026-05-05",
       "confidence": "reported",
-      "caveat": "Qualitative, reflects gas prices in the first half of 2026.",
+      "caveat": "Qualitative vendor guidance, not a measurement; the Atlas measured cents on mainnet on 2026-10-11.",
       "sources": [
         "src-quicknode-register"
       ]
@@ -337,6 +352,30 @@
             "value": 1
           },
           {
+            "date": "2026-02-02",
+            "value": 2
+          },
+          {
+            "date": "2026-02-03",
+            "value": 5
+          },
+          {
+            "date": "2026-02-04",
+            "value": 7
+          },
+          {
+            "date": "2026-02-05",
+            "value": 10
+          },
+          {
+            "date": "2026-02-10",
+            "value": 14
+          },
+          {
+            "date": "2026-02-12",
+            "value": 16
+          },
+          {
             "date": "2026-03-06",
             "value": 21
           },
@@ -357,12 +396,12 @@
             "value": 25
           },
           {
-            "date": "2026-10-11",
+            "date": "2026-10-18",
             "value": 25
           }
         ]
       }
     ],
-    "sourceLine": "README listing dates from the erc-8004-contracts commit history, read 2026-10-11. Listing dates, not deployment dates."
+    "sourceLine": "README listing dates from the first-parent commit history of the master branch of erc-8004-contracts, read 2026-10-18; Mantle counts from 2026-02-12, when it was listed as work in progress. Listing dates, not deployment dates."
   }
 }

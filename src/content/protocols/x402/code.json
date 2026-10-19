@@ -9,7 +9,7 @@
       "side": "client",
       "code": "import { wrapFetchWithPaymentFromConfig } from \"@x402/fetch\";\nimport { ExactEvmScheme } from \"@x402/evm\";\nimport { privateKeyToAccount } from \"viem/accounts\";\n\nconst account = privateKeyToAccount(\"0xYourPrivateKey\");\n\nconst fetchWithPayment = wrapFetchWithPaymentFromConfig(fetch, {\n  schemes: [\n    {\n      network: \"eip155:8453\", // Base mainnet\n      client: new ExactEvmScheme(account),\n    },\n  ],\n});\n\nconst response = await fetchWithPayment(\"https://api.example.com/paid-endpoint\", {\n  method: \"GET\",\n});",
       "docsUrl": "https://github.com/x402-foundation/x402/tree/main/typescript/packages/http/fetch",
-      "note": "From the package README quick start. On a 402 the wrapper decodes PAYMENT-REQUIRED, signs with the registered scheme and retries with PAYMENT-SIGNATURE. Never put a real key in code; the atlas playground uses ephemeral keys on fake chains.",
+      "note": "From the package README quick start. On a 402 the wrapper decodes PAYMENT-REQUIRED, signs with the registered scheme and retries with PAYMENT-SIGNATURE. Never put a real key in code; the atlas playground uses ephemeral keys on a simulated chain id.",
       "sources": [
         "src-x402-readme-fetch"
       ]

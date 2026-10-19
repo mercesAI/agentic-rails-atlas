@@ -31,11 +31,11 @@
     {
       "from": "owner",
       "to": "reputation",
-      "label": "giveFeedback(4242, 100, 0, \"starred\", ...)",
+      "label": "giveFeedback(123456789, 100, 0, \"starred\", ...)",
       "detail": "The registry asks the Identity Registry whether the caller is the owner or an approved operator.",
       "payload": {
         "format": "solidity",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(4242, 100, 0, \"starred\", \"\", \"\", \"\", bytes32(0))",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\nReputationRegistry(0x8004BAa17C55a88189AE136b182e5fdA19dE9b63).giveFeedback(123456789, 100, 0, \"starred\", \"\", \"\", \"\", bytes32(0))",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -45,7 +45,7 @@
       },
       "failures": [
         {
-          "condition": "The caller owns or operates agent 4242",
+          "condition": "The caller owns or operates agent 123456789",
           "outcome": "Reverts with \"Self-feedback not allowed\"."
         }
       ],
@@ -77,7 +77,7 @@
     {
       "from": "reader",
       "to": "reputation",
-      "label": "getSummary(4242, trustedClients, \"starred\", \"\")",
+      "label": "getSummary(123456789, trustedClients, \"starred\", \"\")",
       "detail": "The reader passes only clients it trusts, so the fresh address does not count. This is the only defense the text provides.",
       "specRef": {
         "url": "https://github.com/ethereum/ERCs/blob/b1f2bd8b1d31ec3bb25077f1a15295ad29e8a8fd/ERCS/erc-8004.md",

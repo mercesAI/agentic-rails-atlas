@@ -12,7 +12,7 @@
       "pains": [
         "No JSON Schema for the registration file, so required fields are a reading of an example",
         "Tutorials written before 2026-01-25 still use endpoints and score",
-        "The agentId is known only after minting, so the file must be published twice"
+        "The agentId is known only after minting, so either mint without a URI and set it later, or publish the file twice"
       ],
       "implements": [
         "A registration file with type, services, x402Support, active, registrations and supportedTrust",
@@ -39,7 +39,7 @@
         "Feedback count from trusted clients",
         "Time to rebind the wallet after a change"
       ],
-      "story": "Ana ships a weather agent with an MCP server. She writes a registration file, pins it to IPFS and calls register on Base Sepolia. The Registered event gives her agent id 812, so she adds it to the registrations list, pins the new file and calls setAgentURI. Her MCP server lives on another domain, so she serves the well-known file there too. An old tutorial told her to add an agentWallet endpoint; she deletes it and asks her payment wallet to sign the AgentWalletSet message instead, within the five-minute window. Before mainnet she checks that explorers show her services and the x402Support flag.",
+      "story": "Ana ships a weather agent with an MCP server. She writes a registration file, pins it to IPFS and calls register on Base Sepolia. The Registered event gives her agent id 812, so she adds it to the registrations list, pins the new file and calls setAgentURI. Her MCP server lives on another domain, so she serves the well-known file there too. The best-practices guide also shows an agentWallet services entry; she keeps it only as a hint and asks her payment wallet to sign the AgentWalletSet message within the five-minute window, because the on-chain agentWallet is the address payers should trust. Before mainnet she checks that explorers show her services and the x402Support flag.",
       "sources": [
         "src-erc-8004-spec",
         "src-erc-8004-identity-sol",
@@ -247,7 +247,7 @@
       ],
       "implements": [
         "Event crawls and census-style probes",
-        "eth_call reads of owner and implementation slots",
+        "eth_call of owner() and eth_getStorageAt of the ERC-1967 implementation slot",
         "Graph analysis of reviewers"
       ],
       "mustTrust": [
@@ -270,7 +270,7 @@
         "Share of Sybil reviewers",
         "Open issues without a fix"
       ],
-      "story": "Priya reads the proxies on Ethereum and Base and finds one externally owned account owning all three, with no published holder. She checks the community audit in PR 51, still unmerged, and confirms from the code that a validator can lower a pass and that a requestHash can be claimed first by anyone. Then she samples feedback: most reviewers rate many agents with identical values within minutes, the same pattern arXiv:2606.26028 reported. She writes it up with dates and block numbers, because every one of these facts can change with an upgrade.",
+      "story": "Priya reads the proxies on Ethereum and Base and finds one externally owned account owning all three, with no published holder. She checks the community audit in PR 51, still unmerged, and confirms from the code that a validator can lower a pass and that a requestHash can be claimed first by anyone. Then she samples feedback: most reviewers she samples rate many agents with the same values, the pattern arXiv:2606.26028 reported. She writes it up with dates and block numbers, because every one of these facts can change with an upgrade.",
       "sources": [
         "src-erc-8004-onchain-probe",
         "src-erc-8004-pr-51",

@@ -10,11 +10,11 @@
     "Get paid for validation work through the same rails the agents use."
   ],
   "pains": [
-    "The ERC-8004 Validation Registry is specified but not officially deployed, so validation lives in community registries with no shared address.",
+    "The ERC-8004 Validation Registry is specified but not officially deployed: the contracts README lists no address, and only an unannounced proxy at the scripted address answers on chain.",
     "LLM outputs are not deterministic, so re-execution does not reproduce results and cannot prove misbehavior.",
     "zkML is slow and expensive for real models, and TEE attestation depends on hardware vendors and quote verification.",
-    "Most feedback on chain comes from coordinated Sybil reviewers, so aggregate scores are not usable without heavy filtering.",
-    "requestHash squatting and mutable registration files weaken the link between a validation and the agent it describes."
+    "In arXiv:2606.26028 (data to 2026-05-13), Sybil-flagged reviewers wrote 96.3% of scored ERC-8004 feedback on BSC and 92.6% on Base but 41.4% on Ethereum, so aggregate scores are not usable without heavy filtering.",
+    "In the ERC-8004 reference code the first caller fixes a requestHash, so requestHash squatting and mutable registration files weaken the link between a validation and the agent it describes."
   ],
   "decisions": [
     "Which validation method to offer: re-execution, zkML, TEE attestation, or statistical sampling.",
