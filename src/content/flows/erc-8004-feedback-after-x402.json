@@ -41,17 +41,17 @@
     {
       "from": "client",
       "to": "seller",
-      "label": "Pay for a call with x402",
+      "label": "Call the paid tool with an x402 payment (MCP)",
       "protocol": "x402",
-      "detail": "The client finds the seller through its registration file (x402Support true, MCP service) and pays with x402. ERC-8004 is not involved: the payment is orthogonal to the registries.",
+      "detail": "The client finds the seller through its registration file (x402Support true, MCP service) and pays over x402's MCP transport. An unpaid tools/call returned the PaymentRequired object, so the client calls again with a PaymentPayload under the x402/payment key of _meta; no HTTP payment header is used. ERC-8004 is not involved: the payment is orthogonal to the registries.",
       "payload": {
-        "format": "http",
-        "content": "# Illustrative example, spec version x402 v2.0.\nGET /weather?city=Lisbon HTTP/1.1\nHost: mcp.agent.example\nPAYMENT-SIGNATURE: eyJ4NDAyVmVyc2lvbiI6Mi...",
+        "format": "json",
+        "content": "// Illustrative example, spec version x402 v2.0, MCP transport. Sent after the unpaid call returned PaymentRequired.\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 2,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_weather\",\n    \"arguments\": { \"city\": \"Lisbon\" },\n    \"_meta\": {\n      \"x402/payment\": {\n        \"x402Version\": 2,\n        \"accepted\": { \"scheme\": \"exact\", \"network\": \"eip155:8453\", \"amount\": \"10000\",\n          \"asset\": \"0x8335...2913\", \"payTo\": \"0xB0B0...0B0B\", \"maxTimeoutSeconds\": 60,\n          \"extra\": { \"name\": \"USD Coin\", \"version\": \"2\" } },\n        \"payload\": {\n          \"signature\": \"0x...\",\n          \"authorization\": { \"from\": \"0xA11C...A11C\", \"to\": \"0xB0B0...0B0B\", \"value\": \"10000\",\n            \"validAfter\": \"1791719995\", \"validBefore\": \"1791720060\", \"nonce\": \"0x5e5e...7a1c\" }\n        }\n      }\n    }\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/http.md",
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/mcp.md",
         "section": "Payment Payload Transmission"
       },
       "n": 1
@@ -61,7 +61,7 @@
       "to": "facilitator",
       "label": "Verify and settle",
       "protocol": "x402",
-      "detail": "The seller asks its facilitator to verify and settle. The payee is the address the agent advertises as agentWallet; the facilitator broadcasts the transfer.",
+      "detail": "The seller asks its facilitator to verify, runs the tool, then asks it to settle. The payee is the address the agent advertises as agentWallet; the facilitator broadcasts the transfer.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md",
@@ -72,16 +72,16 @@
     {
       "from": "seller",
       "to": "client",
-      "label": "Return 200 with PAYMENT-RESPONSE",
+      "label": "Return the tool result with x402/payment-response",
       "protocol": "x402",
-      "detail": "The response carries the settlement result with the transaction hash, which becomes the txHash in proofOfPayment.",
+      "detail": "The tool result carries the settlement response under the x402/payment-response key of _meta, with the transaction hash and the network. The hash becomes the txHash in proofOfPayment.",
       "payload": {
-        "format": "http",
-        "content": "# Illustrative example, spec version x402 v2.0.\nHTTP/1.1 200 OK\nPAYMENT-RESPONSE: eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4NWU1ZS4uLiJ9",
+        "format": "json",
+        "content": "// Illustrative example, spec version x402 v2.0, MCP transport.\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 2,\n  \"result\": {\n    \"content\": [ { \"type\": \"text\", \"text\": \"Lisbon: clear, 21 degrees C\" } ],\n    \"_meta\": {\n      \"x402/payment-response\": {\n        \"success\": true,\n        \"transaction\": \"0x9f9f...beef\",\n        \"network\": \"eip155:8453\",\n        \"payer\": \"0xA11C...A11C\"\n      }\n    }\n  }\n}",
         "illustrative": true
       },
       "specRef": {
-        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/http.md",
+        "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/transports-v2/mcp.md",
         "section": "Settlement Response Delivery"
       },
       "n": 3
@@ -93,7 +93,7 @@
       "detail": "The client writes the feedback file first: the MUST fields (agentRegistry, agentId, clientAddress, createdAt, value, valueDecimals) plus optional tags, endpoint, mcp context and proofOfPayment {fromAddress, toAddress, chainId, txHash}.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 123456789,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 87,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"mcp\": { \"tool\": \"get_weather\" },\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x5e5e...7a1c\"\n  }\n}",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:1:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 123456789,\n  \"clientAddress\": \"eip155:1:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 87,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"mcp\": { \"tool\": \"get_weather\" },\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x9f9f...beef\"\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -188,6 +188,7 @@
     "src-erc-8004-spec",
     "src-erc-8004-reputation-sol",
     "src-erc-8004-bp-reputation",
-    "src-x402-spec-v2"
+    "src-x402-spec-v2",
+    "src-x402-transport-mcp-v2"
   ]
 }

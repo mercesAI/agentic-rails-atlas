@@ -2,13 +2,14 @@
   "protocol": "x402",
   "events": [
     {
-      "date": "2025-02-23",
+      "date": "2025-02-22",
       "lane": "x402",
       "title": "Exact EVM scheme specified",
-      "detail": "The first spec file merged in PR #1, before the public launch.",
+      "detail": "First committed to main as specs/scheme-exact-evm.md (commit 3e5c14a); PR #1 moved it to specs/schemes/exact/ on 2025-02-23, before the public launch.",
       "kind": "release",
       "sources": [
-        "src-x402-gh-commits"
+        "src-x402-gh-commit-3e5c14a",
+        "src-x402-gh-pr-1"
       ],
       "confidence": "verified"
     },
@@ -129,10 +130,11 @@
       "date": "2026-02-10",
       "lane": "x402",
       "title": "Stripe machine payments preview with x402",
-      "detail": "USDC on Base; reported as US businesses only.",
+      "detail": "USDC on Base. Stripe's docs (2026-10-19) offer stablecoin payments to businesses in all US states except New York, others on request, and record each settled payment as a PaymentIntent.",
       "kind": "pilot",
       "sources": [
-        "src-x402-stripe-coverage"
+        "src-x402-stripe-coverage",
+        "src-x402-stripe-docs"
       ],
       "confidence": "reported"
     },
@@ -147,10 +149,10 @@
       "confidence": "verified"
     },
     {
-      "date": "2026-03-07",
+      "date": "2026-03-06",
       "lane": "x402",
       "title": "Solana facilitator advisory",
-      "detail": "GHSA-qr2g-p6q7-w82m, high severity.",
+      "detail": "GHSA-qr2g-p6q7-w82m, high severity, published by the maintainers (GitHub Advisory Database entry 2026-03-07 UTC).",
       "kind": "security",
       "sources": [
         "src-x402-ghsa-2026"
@@ -251,18 +253,69 @@
       "title": "exact on Lightning (lnbtc)",
       "kind": "release",
       "sources": [
-        "src-x402-gh-pr-2861"
+        "src-x402-gh-pr-2861",
+        "src-x402-sdk-features"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "detail": "Specification only: no SDK implemented the binding by 2026-10-19."
     },
     {
       "date": "2026-09-30",
       "lane": "x402",
       "title": "Cloudflare Monetization Gateway closed beta",
-      "detail": "Settles USDC on Base through Coinbase's facilitator; US only.",
+      "detail": "Settles USDC on Base through Coinbase's facilitator; closed beta for eligible US-based sellers and buyers.",
       "kind": "pilot",
       "sources": [
         "src-x402-cf-mg-beta"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-01",
+      "lane": "x402",
+      "title": "Executive Director appointed",
+      "detail": "The Linux Foundation named Michael Hursta Executive Director of the x402 Foundation. A Governing Board handles budget and business oversight; the TSC makes technical decisions.",
+      "kind": "governance",
+      "sources": [
+        "src-x402-lf-hursta",
+        "src-x402-site-leadership"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-13",
+      "lane": "x402",
+      "title": "HEAD payment bypass fixed on main",
+      "detail": "PR #3796 makes HEAD requests to GET-only paid routes require payment in TypeScript, legacy x402, Go and Python. Not in a published release on 2026-10-19.",
+      "kind": "security",
+      "sources": [
+        "src-x402-gh-pr-3796",
+        "src-x402-gh-tags",
+        "src-x402-npm-core"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-13",
+      "lane": "x402",
+      "title": "Bazaar metadata content policy",
+      "detail": "The CDP Bazaar stops listing resources whose metadata poses a prompt-injection risk and removes listed ones that fail screening, curated endpoints included.",
+      "kind": "security",
+      "sources": [
+        "src-x402-cdp-changelog",
+        "src-x402-cdp-get-discovered"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-15",
+      "lane": "x402",
+      "title": "Security reporting moves to the foundation",
+      "detail": "SECURITY.md now sends sensitive reports privately to a TSC member or primary maintainer through the x402 Slack and non-sensitive bugs to GitHub Issues; a bug bounty is announced as coming soon.",
+      "kind": "governance",
+      "sources": [
+        "src-x402-gh-pr-3823",
+        "src-x402-security-md"
       ],
       "confidence": "verified"
     }

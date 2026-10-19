@@ -14,7 +14,8 @@ flowchart LR
     FSUP["GET /supported"]
   end
   subgraph NZ["Network"]
-    TK["Token contract or Lightning node"]
+    TK["Token contract (EVM, Solana and other chains)"]
+    LN["Lightning (lnbtc): the client pays the invoice"]
   end
   subgraph DZ["Discovery (public)"]
     BZ["Bazaar /discovery/resources"]
@@ -29,6 +30,8 @@ flowchart LR
   MW -- "7 settle" --> FS
   FV -. "read only" .-> TK
   FS -- "broadcast, pays gas" --> TK
+  AG -. "lnbtc: pay invoice" .-> LN
+  FS -. "lnbtc: check preimage, record hash" .-> LN
   MW -. "startup" .-> FSUP
   AG -. "find paid resources" .-> BZ
   AG -. "browse" .-> XS

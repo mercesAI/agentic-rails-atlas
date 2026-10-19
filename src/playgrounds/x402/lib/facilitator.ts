@@ -51,10 +51,14 @@ export const EXACT_CODES = {
   balance: { spec: 'insufficient_funds', sdk: 'invalid_exact_evm_insufficient_balance' },
 } as const satisfies Record<string, ErrorCode>;
 
-/** V1 names the amount error differently (spec v1 section 9). */
+/**
+ * V1 names the amount error differently (spec v1 section 9). The SDK's V1 exact facilitator
+ * returns ErrInvalidAuthorizationValue (mechanisms/evm/src/exact/v1/facilitator/scheme.ts);
+ * the _value_mismatch string belongs to the V2 path.
+ */
 export const EXACT_VALUE_CODE_V1: ErrorCode = {
   spec: 'invalid_exact_evm_payload_authorization_value',
-  sdk: 'invalid_exact_evm_payload_authorization_value_mismatch',
+  sdk: 'invalid_exact_evm_authorization_value',
 };
 
 export const PERMIT2_CODES = {

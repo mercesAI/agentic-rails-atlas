@@ -112,7 +112,7 @@
       "type": "dataset",
       "primary": true,
       "accessed": "2026-10-11",
-      "notes": "Fetched 2026-10-11: 75.41M transactions, $24.24M volume, 94.06K buyers, 22K sellers. Same values as 2026-10-10 (x402 dossier, page label 'Last updated: 2026-08-25') and as reported for mid August 2026. The server HTML fetched today carries no update label."
+      "notes": "Fetched 2026-10-11: 75.41M transactions, $24.24M volume, 94.06K buyers, 22K sellers under 'Last 30 Days', with no date on the page. Wayback Machine captures show the same four values from 2025-12-14 (src-x402-site-wb-20251214), and the live page still showed them on 2026-10-19. The 'Last updated: 2026-08-25' line seen on 2026-10-10 comes from the markdown rendition and is a page-edit date."
     },
     {
       "id": "src-market-8004scan-20261011",
@@ -146,13 +146,14 @@
     },
     {
       "id": "src-x402-visa-coverage",
-      "url": "https://thedefiant.io/news/infrastructure/visa-s-sheffield-pegs-adjusted-x402-volume-at-19m",
+      "url": "https://thedefiant.io/converge/infrastructure/visa-s-sheffield-pegs-adjusted-x402-volume-at-19m",
       "title": "Visa's Sheffield pegs adjusted x402 volume at $19M",
       "publisher": "The Defiant",
       "type": "news",
       "primary": false,
-      "accessed": "2026-10-11",
-      "notes": "Reconstructed URL found by search on 2026-10-11. HTTP 403 to curl on 2026-10-11 (bot protection); page exists per search results."
+      "published": "2026-07-16",
+      "accessed": "2026-10-19",
+      "notes": "Canonical URL (the earlier /news/infrastructure/ path redirects here in a browser). Page metadata read 2026-10-19: datePublished 2026-07-16; description: Visa's Cuy Sheffield says x402 has processed about $19M across about 134M adjusted transactions, per a Visa-Artemis report, with spending concentrated in about 4,000 wallets. The article body did not load in a scripted browser and curl gets HTTP 403, so only the headline, standfirst and metadata were read."
     },
     {
       "id": "src-x402-4pillars",
@@ -171,8 +172,8 @@
       "publisher": "x402 Foundation",
       "type": "docs",
       "primary": true,
-      "accessed": "2026-10-10",
-      "notes": "Counters displayed 2026-10-10 with 'Last updated: 2026-08-25'."
+      "accessed": "2026-10-19",
+      "notes": "Read 2026-10-19: the home page shows a Last 30 Days counter (75.41M transactions, $24.24M volume, 94.06K buyers, 22K sellers) with no date on the HTML page. A 'Last updated: 2026-08-25' line appears only in the markdown rendition served on request (Accept: text/markdown); it matches the home page lastmod in x402.org/wp-sitemap-posts-page-1.xml (2026-08-25T21:09:08Z), a page-edit date. Wayback Machine captures show the same four values from 2025-12-14 (src-x402-site-wb-20251214, src-x402-site-wb-20261012)."
     },
     {
       "id": "src-x402-cryptobriefing",
@@ -359,16 +360,12 @@
       "value": 15.0,
       "unit": "USD million",
       "asOf": "2026-04-21",
-      "definition": "Cumulative x402 payment value after Artemis removed transactions it classed as non-organic, data to 2026-04-21.",
+      "definition": "Cumulative x402 payment value excluding identified wash and test activity (Artemis's proprietary method), from the May 2025 launch to 2026-04-21.",
       "sources": [
-        "src-x402-forkast-visa"
+        "src-x402-visa-artemis-report",
+        "src-x402-visa-groundup"
       ],
-      "caveat": "Unadjusted total was $135.7 million across 178.3 million operations. Report published July 2026.",
-      "disputed": true,
-      "disputeSources": [
-        "src-x402-visa-coverage",
-        "src-x402-4pillars"
-      ]
+      "caveat": "Raw cumulative total was over $135.7 million across 178.3 million transactions. Report published 2026-07-14, commissioned by Visa."
     },
     {
       "id": "x402-visa-artemis-adjusted-tx",
@@ -379,13 +376,11 @@
       "asOf": "2026-04-21",
       "definition": "Cumulative x402 transactions after Artemis adjustment, data to 2026-04-21; average about $0.14.",
       "sources": [
-        "src-x402-forkast-visa"
-      ],
-      "caveat": "Visa's Cuy Sheffield separately cited about $19 million across about 134 million adjusted transactions; the gap is unexplained.",
-      "disputed": true,
-      "disputeSources": [
+        "src-x402-visa-artemis-report",
+        "src-x402-visa-groundup",
         "src-x402-visa-coverage"
-      ]
+      ],
+      "caveat": "On 2026-07-16 The Defiant reported Visa's Cuy Sheffield citing about $19 million across about 134 million adjusted transactions, with no data date."
     },
     {
       "id": "x402-artemis-gamed-share",
@@ -410,17 +405,17 @@
       "metric": "x402.org 'Last 30 Days' transactions counter",
       "value": 75.41,
       "unit": "million transactions",
-      "asOf": "2026-10-11",
-      "definition": "Value shown on the x402.org home page counter, observed 2026-10-11.",
+      "asOf": "2025-12-14",
+      "definition": "Value shown on the x402.org home page counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
       "sources": [
-        "src-market-x402-counter-20261011"
+        "src-market-x402-counter-20261011",
+        "src-x402-site-wb-20251214"
       ],
-      "caveat": "Displayed value, not a fresh 30-day measurement: the same figures appear since at least mid August 2026 and the page carried 'Last updated: 2026-08-25' on 2026-10-10. Do not present as current activity.",
+      "caveat": "Displayed value, not a live 30-day measurement: the page shows the same four values in every archived copy from 2025-12-14 and on 2026-10-19, with no date. Do not present as current activity.",
       "disputed": true,
       "disputeSources": [
-        "src-x402-site",
-        "src-x402-cryptobriefing",
-        "src-x402-forkast-visa"
+        "src-x402scan-stats-20261019",
+        "src-x402-arxiv-2607-12575"
       ]
     },
     {
@@ -429,16 +424,17 @@
       "metric": "x402.org 'Last 30 Days' volume counter",
       "value": 24.24,
       "unit": "USD million",
-      "asOf": "2026-10-11",
-      "definition": "Value shown on the x402.org home page counter, observed 2026-10-11.",
+      "asOf": "2025-12-14",
+      "definition": "Value shown on the x402.org home page counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
       "sources": [
-        "src-market-x402-counter-20261011"
+        "src-market-x402-counter-20261011",
+        "src-x402-site-wb-20251214"
       ],
       "caveat": "Same stale-counter caveat; raw volume includes activity that Artemis adjusts away.",
       "disputed": true,
       "disputeSources": [
-        "src-x402-forkast-visa",
-        "src-x402-arxiv-2607-12575"
+        "src-x402scan-stats-20261019",
+        "src-x402-a16z-honest-number"
       ]
     },
     {
@@ -447,10 +443,11 @@
       "metric": "x402.org 'Last 30 Days' buyers counter",
       "value": 94.06,
       "unit": "thousand buyers",
-      "asOf": "2026-10-11",
-      "definition": "Distinct buyers shown on the x402.org counter, observed 2026-10-11.",
+      "asOf": "2025-12-14",
+      "definition": "Distinct buyers shown on the x402.org counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
       "sources": [
-        "src-market-x402-counter-20261011"
+        "src-market-x402-counter-20261011",
+        "src-x402-site-wb-20251214"
       ],
       "caveat": "Addresses, not people; same stale-counter caveat.",
       "disputed": true,
@@ -464,10 +461,11 @@
       "metric": "x402.org 'Last 30 Days' sellers counter",
       "value": 22,
       "unit": "thousand sellers",
-      "asOf": "2026-10-11",
-      "definition": "Distinct sellers shown on the x402.org counter, observed 2026-10-11.",
+      "asOf": "2025-12-14",
+      "definition": "Distinct sellers shown on the x402.org counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
       "sources": [
-        "src-market-x402-counter-20261011"
+        "src-market-x402-counter-20261011",
+        "src-x402-site-wb-20251214"
       ],
       "caveat": "Same stale-counter caveat."
     },
@@ -677,24 +675,27 @@
       "confidence": "reported"
     },
     {
-      "date": "2026-07-20",
+      "date": "2026-07-14",
       "lane": "Market",
-      "title": "Visa and Artemis adjust x402 volume to $15.0 million",
-      "detail": "Adjusted from $135.7 million raw; data to 2026-04-21. MPP measured at about $25,000.",
+      "title": "Visa and Artemis report adjusts x402 volume to $15.0 million",
+      "detail": "Excluding identified wash and test activity, x402 carried $15.0 million across 109.6 million transactions from May 2025 to 2026-04-21; raw totals were over $135.7 million across 178.3 million. MPP settled about $25,000 adjusted. Visa's Cuy Sheffield later cited about $19 million across about 134 million adjusted transactions, with no data date (reported).",
       "kind": "market",
       "sources": [
-        "src-x402-forkast-visa"
+        "src-x402-visa-groundup",
+        "src-x402-visa-artemis-report",
+        "src-x402-visa-coverage"
       ],
-      "confidence": "reported"
+      "confidence": "verified"
     },
     {
       "date": "2026-10-11",
       "lane": "Market",
       "title": "Observed: x402.org counter unchanged, 8004scan passes 561,000 registrations",
-      "detail": "x402.org still shows 75.41M transactions and $24.24M for the last 30 days, values seen since mid August; 8004scan shows 561,614 agents across 30 networks (the ERC-8004 contracts README lists 25 mainnets); mppscan shows 127.4K transactions in what appears to be a 7-day window.",
+      "detail": "x402.org still shows 75.41M transactions and $24.24M for the last 30 days, values unchanged since at least 2025-12-14 (Wayback Machine). 8004scan shows 561,614 agents across 30 networks (the ERC-8004 contracts README lists 25 mainnets). mppscan shows 127.4K transactions in what appears to be a 7-day window.",
       "kind": "market",
       "sources": [
         "src-market-x402-counter-20261011",
+        "src-x402-site-wb-20251214",
         "src-market-8004scan-20261011",
         "src-market-mppscan-20261011",
         "src-erc-8004-contracts-readme"

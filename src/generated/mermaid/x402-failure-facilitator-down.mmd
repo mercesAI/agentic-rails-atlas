@@ -1,6 +1,6 @@
 sequenceDiagram
   accTitle: x402 failure: the facilitator is down or times out
-  accDescr: Sequence diagram: x402 failure: the facilitator is down or times out. 4 participants: Client (agent), Resource server, Facilitator, and Base Sepolia. 5 steps, 3 crossing a trust boundary, 1 failure branch. Based on x402 v2.0 (2025-12-09). Step 1: Client (agent) to Resource server: Retry with PAYMENT-SIGNATURE. Step 2: Resource server to Facilitator: POST /verify (no answer). This step crosses a trust boundary. Step 3: Resource server to Client (agent): 502 Bad Gateway. Step 4: Resource server to Facilitator: POST /settle (times out). This step crosses a trust boundary. If The facilitator answers settlement_pending: Non-terminal. The response carries the broadcast hash the server checks it on chain and retries at most once. Step 5: Resource server to Base Sepolia: Reconcile: look up the transaction. This step crosses a trust boundary.
+  accDescr: Sequence diagram: x402 failure: the facilitator is down or times out. 4 participants: Client (agent), Resource server, Facilitator, and Base Sepolia. 5 steps, 3 crossing a trust boundary, 1 failure branch. Based on x402 v2.0 (2025-12-09). Step 1: Client (agent) to Resource server: Retry with PAYMENT-SIGNATURE. Step 2: Resource server to Facilitator: POST /verify (no answer). This step crosses a trust boundary. Step 3: Resource server to Client (agent): 502 Bad Gateway. Step 4: Resource server to Facilitator: POST /settle (times out). This step crosses a trust boundary. If The facilitator answers settlement_pending: Non-terminal. The response carries the broadcast hash the SDK server retries settle once, and the facilitator reconciles against that hash. Step 5: Resource server to Base Sepolia: Reconcile: look up the transaction. This step crosses a trust boundary.
   autonumber
   participant p_client as Client (agent)
   participant p_server as Resource server
@@ -14,7 +14,7 @@ sequenceDiagram
     p_server->>p_facilitator: POST /settle (times out)
     Note over p_server,p_facilitator: Crosses a trust boundary
   else The facilitator answers settlement_pending
-    Note over p_server,p_facilitator: Non-terminal. The response carries the broadcast hash#59;<br/>the server checks it on chain and retries at most once.
+    Note over p_server,p_facilitator: Non-terminal. The response carries the broadcast<br/>hash#59; the SDK server retries settle once, and<br/>the facilitator reconciles against that hash.
   end
   p_server->>p_chain: Reconcile: look up the transaction
   Note over p_server,p_chain: Crosses a trust boundary

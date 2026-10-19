@@ -1,13 +1,13 @@
 {
   "protocol": "x402",
   "tldr": "x402 lets a server charge for one HTTP request. It answers 402 with a price, the client retries with a signed payment, and a facilitator verifies and settles it, usually in USDC.",
-  "whyItExists": "Paying for a single API call or web page has always needed an account, an API key, a card on file or a monthly invoice. Software agents cannot open accounts or type card numbers, and per-call prices of a fraction of a cent do not survive card fees. x402 puts the price and the payment inside the HTTP exchange itself, so any client with a wallet can pay any server on the first request, and the server never has to touch a blockchain because a facilitator does that part.",
+  "whyItExists": "Paying for a single API call or web page has usually meant an account, an API key, a card on file or a monthly invoice. Those flows are built for people, which makes them awkward for software agents, and fixed card fees (the x402 whitepaper cites $0.30 plus 2.9 percent) rule out prices of a fraction of a cent. x402 puts the price and the payment inside the HTTP exchange itself, so any client with a wallet can pay any server on the first request, and the server does not need to touch a blockchain because a facilitator can do that part.",
   "whatItIsNot": [
     { "text": "Not a Coinbase product any more. Coinbase originated x402, but the x402 Foundation, a Linux Foundation project, now governs it.", "claimIds": ["clm-x402-003", "clm-x402-226"] },
     { "text": "Not only USDC on Base. Networks are CAIP-2 ids across EVM chains, Solana, Lightning and others, and default assets include USDT0, MegaUSD, USDM and USDT.", "claimIds": ["clm-x402-178", "clm-x402-123", "clm-x402-055"] },
-    { "text": "Not L402, A402 or x402r. L402 is an earlier HTTP 402 design on Lightning, A402 is an academic proposal, and x402r is a third-party refund layer.", "claimIds": ["clm-x402-225", "clm-x402-222"] },
-    { "text": "Not a refund or dispute system. The exact scheme defines no refund; refunds exist only in auth-capture, batch-settlement channels or third parties.", "claimIds": ["clm-x402-129", "clm-x402-130", "clm-x402-150"] },
-    { "text": "Not an identity protocol. Identity is optional and lives in extensions such as sign-in-with-x and auth-hints, or in other protocols such as ERC-8004.", "claimIds": ["clm-x402-152", "clm-x402-219"] },
+    { "text": "Not L402, A402, x402r or x401. L402 is an earlier HTTP 402 design on Lightning, A402 is an academic proposal, x402r is a third-party refund layer, and x401 is Proof's separate identity challenge protocol.", "claimIds": ["clm-x402-225", "clm-x402-222", "clm-x402-257"] },
+    { "text": "Not a refund or dispute system. The exact scheme defines no refund; refunds exist in auth-capture, in batch-settlement channels, as escrow returns in upto on Solana, or through third parties.", "claimIds": ["clm-x402-129", "clm-x402-130", "clm-x402-150"] },
+    { "text": "Not an identity protocol. Identity is optional and lives in extensions such as sign-in-with-x and auth-hints, or in other protocols such as ERC-8004; only the credit-backed cloudflare:402 network requires a registered signing identity.", "claimIds": ["clm-x402-152", "clm-x402-219"] },
     { "text": "Not a custodian. The facilitator verifies and broadcasts but does not hold funds.", "claimIds": ["clm-x402-064", "clm-x402-126"] },
     { "text": "Not one wire format. V1 used a JSON body and X-PAYMENT headers; V2 uses PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE.", "claimIds": ["clm-x402-098"] }
   ],
@@ -18,7 +18,11 @@
     { "date": "2026-05-13", "text": "The auth-capture scheme merged, adding authorize, capture, void, refund and reclaim on an escrow contract.", "claimIds": ["clm-x402-054", "clm-x402-114"] },
     { "date": "2026-07-14", "text": "The Linux Foundation announced the operational launch of the x402 Foundation with 40 members.", "claimIds": ["clm-x402-022"] },
     { "date": "2026-08-18", "text": "@x402/core 2.23.0 added client spendControls with a default cap of $1 per payment.", "claimIds": ["clm-x402-059", "clm-x402-145"] },
-    { "date": "2026-09-23", "text": "The exact scheme gained a Lightning binding (lnbtc) that uses the upfront payment flow.", "claimIds": ["clm-x402-055", "clm-x402-102"] },
-    { "date": "2026-09-30", "text": "Cloudflare opened a Monetization Gateway closed beta that settles USDC on Base through Coinbase's facilitator, separate from the credit-backed cloudflare:402 variant.", "claimIds": ["clm-x402-183", "clm-x402-184"] }
+    { "date": "2026-09-23", "text": "The exact scheme gained a Lightning binding (lnbtc) that uses the upfront payment flow; it is a specification, and no SDK implements it yet.", "claimIds": ["clm-x402-055", "clm-x402-102", "clm-x402-261"] },
+    { "date": "2026-09-30", "text": "Cloudflare opened a Monetization Gateway closed beta that settles USDC on Base through Coinbase's facilitator, separate from the credit-backed cloudflare:402 variant.", "claimIds": ["clm-x402-183", "clm-x402-184"] },
+    { "date": "2026-10-01", "text": "The Linux Foundation appointed Michael Hursta executive director of the x402 Foundation.", "claimIds": ["clm-x402-251"] },
+    { "date": "2026-10-13", "text": "A fix for HEAD requests that reached paid GET handlers without payment merged in the TypeScript, Go and Python SDKs; it was not in a published release on 2026-10-19.", "claimIds": ["clm-x402-254"] },
+    { "date": "2026-10-13", "text": "The CDP Bazaar began delisting resources whose discovery metadata poses a prompt-injection risk.", "claimIds": ["clm-x402-255"] },
+    { "date": "2026-10-15", "text": "SECURITY.md moved vulnerability reports from Coinbase's HackerOne program to private contact with the x402 TSC or maintainers and announced a bug bounty program as coming soon.", "claimIds": ["clm-x402-136"] }
   ]
 }

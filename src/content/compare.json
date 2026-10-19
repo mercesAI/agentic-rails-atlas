@@ -518,12 +518,14 @@
     {
       "protocol": "x402",
       "dimension": "layers-covered",
-      "value": "Settlement rails and payment credential; discovery through Bazaar; refunds only in auth-capture",
-      "detail": "No identity, intent or checkout layer.",
+      "value": "Settlement rails and payment credential; discovery through Bazaar; refunds in auth-capture, batch-settlement channels and Solana upto",
+      "detail": "No identity, intent or checkout layer. Only auth-capture refunds captured funds; the channel schemes return unused escrow.",
       "sources": [
         "src-x402-spec-v2",
         "src-x402-ext-bazaar",
-        "src-x402-scheme-auth-capture"
+        "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm",
+        "src-x402-scheme-upto-svm"
       ],
       "confidence": "verified"
     },
@@ -552,10 +554,11 @@
     {
       "protocol": "x402",
       "dimension": "license-spec-and-code",
-      "value": "Apache-2.0",
-      "detail": "No separate docs license found; contributions need GPG-signed commits.",
+      "value": "Apache-2.0 for code; CC BY 4.0 for documentation under the technical charter",
+      "detail": "The repository has one Apache-2.0 LICENSE and no CC BY file, and the charter does not say whether specification files count as documentation. The charter (2026-03-31, section 9.b) also requires a Developer Certificate of Origin sign-off on inbound code; CONTRIBUTING.md requires signed commits (GPG, SSH or S/MIME).",
       "sources": [
         "src-x402-license",
+        "src-x402-charter",
         "src-x402-contributing"
       ],
       "confidence": "verified"
@@ -564,7 +567,7 @@
       "protocol": "x402",
       "dimension": "first-announced",
       "value": "2025-05-06",
-      "detail": "Whitepaper and npm launch.",
+      "detail": "Whitepaper and public launch; npm x402 0.3.0 was published the same day, after earlier releases from 2025-03-03.",
       "sources": [
         "src-x402-whitepaper",
         "src-x402-npm-legacy"
@@ -587,10 +590,11 @@
       "protocol": "x402",
       "dimension": "maturity",
       "value": "Live (V2 since 2025-12-11)",
-      "detail": "upto, batch-settlement, auth-capture and Lightning are 2026 additions with uneven SDK coverage.",
+      "detail": "upto, batch-settlement and auth-capture are 2026 additions with uneven SDK coverage; the Lightning binding (2026-09-23) had no SDK implementation on 2026-10-19.",
       "sources": [
         "src-x402-gh-pr-705",
-        "src-x402-sdk-features"
+        "src-x402-sdk-features",
+        "src-x402-gh-pr-2861"
       ],
       "confidence": "verified"
     },
@@ -598,11 +602,12 @@
       "protocol": "x402",
       "dimension": "transports",
       "value": "HTTP headers, MCP _meta, A2A task metadata",
-      "detail": "The facilitator API is HTTP in every case.",
+      "detail": "Facilitator APIs are currently standardized as HTTP endpoints, whatever the transport.",
       "sources": [
         "src-x402-transport-http-v2",
         "src-x402-transport-mcp-v2",
-        "src-x402-transport-a2a-v2"
+        "src-x402-transport-a2a-v2",
+        "src-x402-spec-v2"
       ],
       "confidence": "verified"
     },
@@ -614,7 +619,8 @@
       "sources": [
         "src-x402-spec-v2",
         "src-x402-docs-networks",
-        "src-x402-scheme-batch-cf"
+        "src-x402-scheme-batch-cf",
+        "src-x402-scheme-exact-lnbtc"
       ],
       "confidence": "verified"
     },
@@ -634,10 +640,11 @@
       "protocol": "x402",
       "dimension": "user-authorization-model",
       "value": "The client signature on each payment",
-      "detail": "No user mandate object; AP2 mandates can carry x402 through a2a-x402.",
+      "detail": "No user mandate object. The a2a-x402 embedded flow carries x402 inside AP2 v0.1 mandates (CartMandate), which AP2 v0.2 no longer has.",
       "sources": [
         "src-x402-scheme-exact-evm",
-        "src-x402-a2a-spec"
+        "src-x402-a2a-spec",
+        "src-ap2-spec-v02"
       ],
       "confidence": "verified"
     },
@@ -648,7 +655,8 @@
       "detail": "Built for unattended clients with SDK spend controls; @x402/paywall serves humans; AP2 ships human-present and human-not-present x402 samples.",
       "sources": [
         "src-x402-sdk-spendcontrols",
-        "src-x402-ap2-repo"
+        "src-x402-ap2-repo",
+        "src-x402-repo"
       ],
       "confidence": "verified"
     },
@@ -684,7 +692,8 @@
         "src-x402-scheme-exact-evm",
         "src-x402-scheme-batch-cf",
         "src-x402-scheme-exact-lnbtc",
-        "src-x402-core-changelog"
+        "src-x402-docs-wallet-compat",
+        "src-solana-docs-transactions"
       ],
       "confidence": "verified"
     },
@@ -714,11 +723,16 @@
     {
       "protocol": "x402",
       "dimension": "revocation",
-      "value": "None for a signed exact payment before it expires",
-      "detail": "auth-capture adds void and client reclaim; channels allow timed withdrawal.",
+      "value": "No revocation message in x402; the signer can cancel an unused EVM authorization on chain before settlement",
+      "detail": "EIP-3009 cancelAuthorization (Base USDC implements it), Permit2 nonce invalidation or revoking an ERC-7710 delegation, if it lands before the facilitator settles. auth-capture adds void and client reclaim; channels allow timed withdrawal.",
       "sources": [
         "src-x402-scheme-auth-capture",
-        "src-x402-scheme-batch-evm"
+        "src-x402-scheme-batch-evm",
+        "src-gloss-erc-3009",
+        "src-x402-base-usdc-cancel-auth",
+        "src-circle-usdc-fiattokenv2",
+        "src-permit2-signature-transfer",
+        "src-x402-scheme-exact-evm"
       ],
       "confidence": "verified"
     },
@@ -726,10 +740,12 @@
       "protocol": "x402",
       "dimension": "refunds-and-disputes",
       "value": "No refunds in exact; no dispute process",
-      "detail": "auth-capture refunds; third-party x402r for refunds and arbitration.",
+      "detail": "auth-capture refunds captured funds; batch-settlement channels and Solana upto return unused escrow; third-party x402r adds refunds and arbitration.",
       "sources": [
         "src-x402-scheme-exact",
         "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm",
+        "src-x402-scheme-upto-svm",
         "src-x402-docs-devtools"
       ],
       "confidence": "verified"
@@ -737,12 +753,14 @@
     {
       "protocol": "x402",
       "dimension": "privacy-exposure",
-      "value": "Settlements are public on chain; resource metadata reaches the facilitator",
-      "detail": "Header contents stay private between client, server and facilitator.",
+      "value": "On-chain settlements (EVM, Solana) are public; resource metadata reaches the facilitator",
+      "detail": "Payment payloads and settlement responses stay between client, server and facilitator. The 402 offer is visible to any requester and to discovery services; Lightning and cloudflare:402 payments do not appear on a public chain.",
       "sources": [
         "src-x402-scheme-exact-evm",
         "src-x402-arxiv-2604-11430",
-        "src-x402-spec-v2"
+        "src-x402-spec-v2",
+        "src-x402-cdp-bazaar",
+        "src-x402-scheme-batch-cf"
       ],
       "confidence": "verified"
     },
@@ -773,11 +791,12 @@
       "protocol": "x402",
       "dimension": "decentralization",
       "value": "Open and permissionless, concentrated in practice",
-      "detail": "Most payments go through one facilitator.",
+      "detail": "In x402scan figures reported on 2026-07-21, Coinbase's facilitator carried about half of transactions and two thirds of volume. From 2025-09-17 to 2026-06-23 one facilitator held 63.54 percent of Base settlements and another 67.72 percent of Solana's.",
       "sources": [
         "src-x402-docs-facilitator-concept",
         "src-x402-cdp-welcome",
-        "src-x402-arxiv-2607-19545"
+        "src-x402-arxiv-2607-19545",
+        "src-x402-arxiv-2607-12575"
       ],
       "confidence": "reported"
     },
@@ -785,7 +804,7 @@
       "protocol": "x402",
       "dimension": "observability-score",
       "value": "3 of 5",
-      "detail": "Public settlements and endpoints, but payments look like ordinary transfers and headers stay private.",
+      "detail": "Public settlements and endpoints, but payments look like ordinary transfers and payment payloads stay private.",
       "sources": [
         "src-x402-erc8004-bp",
         "src-x402-cdp-bazaar",
@@ -827,34 +846,38 @@
         "src-x402-scheme-exact-evm",
         "src-x402-ext-siwx",
         "src-x402-ext-http-sig",
-        "src-x402-scheme-exact-lnbtc"
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-ext-builder-code"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "x402",
       "dimension": "composes-with",
-      "value": "AP2 (a2a-x402), ERC-8004, Stripe MPP, Visa TAP",
-      "detail": "No link found with OpenAI ACP or UCP.",
+      "value": "AP2 (a2a-x402, AP2 v0.1 target), ERC-8004, Stripe MPP",
+      "detail": "Visa TAP is a looser fit: its browsingIOU answers an HTTP 402 with card-settlement fields, not the x402 format, and Visa's sample merchant names its flow x402. The ACP and UCP repositories do not mention x402 (searched 2026-10-19).",
       "sources": [
         "src-x402-a2a-spec",
         "src-x402-erc-8004",
         "src-x402-mpp-vs-x402",
-        "src-visa-tap-spec",
-        "src-x402-repo"
+        "src-x402-visa-tap-spec-docs",
+        "src-x402-visa-tap-repo",
+        "src-acp-repo",
+        "src-ucp-repo"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "x402",
       "dimension": "reference-implementations-and-sdks",
-      "value": "@x402 TypeScript 2.28.0, PyPI x402 2.25.0, Go module v2",
-      "detail": "Java in the repository but unpublished; legacy V1 npm packages still downloaded.",
+      "value": "@x402 TypeScript 2.28.0, PyPI x402 2.25.0, Go module v2 (versions on 2026-10-19)",
+      "detail": "Java is in the repository but unpublished. The legacy V1 npm package x402 still had 1.91M downloads in the 30 days to 2026-10-16.",
       "sources": [
         "src-x402-npm-core",
         "src-x402-pypi",
         "src-x402-go-changelog",
-        "src-x402-java"
+        "src-x402-java",
+        "src-x402-npm-downloads-legacy"
       ],
       "confidence": "verified"
     },
@@ -862,10 +885,12 @@
       "protocol": "x402",
       "dimension": "adoption-evidence",
       "value": "Real but contested",
-      "detail": "x402.org showed $24.24M over 30 days (last updated 2026-08-25); Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21).",
+      "detail": "x402.org has shown the same Last 30 days figures (75.41M transactions, $24.24M) since at least 2025-12-14, with no update date; x402scan counted $1.23M in the 30 days to 2026-10-19. Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21).",
       "sources": [
         "src-x402-site",
-        "src-x402-forkast-visa",
+        "src-x402-site-wb-20251214",
+        "src-x402scan-stats-20261019",
+        "src-x402-visa-artemis-report",
         "src-x402-arxiv-2607-12575"
       ],
       "confidence": "reported"
@@ -873,12 +898,15 @@
     {
       "protocol": "x402",
       "dimension": "published-security-research",
-      "value": "Yes: several 2026 papers and two high-severity advisories",
+      "value": "Yes: six 2026 papers and two high-severity advisories (no CVE ids on 2026-10-19)",
       "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis; GHSA-3j63-5h8p-gf7c and GHSA-qr2g-p6q7-w82m.",
       "sources": [
         "src-x402-arxiv-2605-11781",
         "src-x402-arxiv-2605-30998",
         "src-x402-arxiv-2607-19545",
+        "src-x402-arxiv-2603-01179",
+        "src-x402-arxiv-2604-11430",
+        "src-x402-arxiv-2609-00060",
         "src-x402-ghsa-2025",
         "src-x402-ghsa-2026"
       ],
@@ -887,11 +915,13 @@
     {
       "protocol": "x402",
       "dimension": "regulatory-touchpoints",
-      "value": "Stablecoin, money transmission and sanctions rules fall on facilitators and sellers",
+      "value": "Stablecoin rules fall mainly on issuers; whether a non-custodial facilitator is a money transmitter is unsettled; sanctions duties apply to every US person",
       "detail": "No KYC or sanctions layer in the protocol; the CDP facilitator runs OFAC and KYT checks.",
       "sources": [
+        "src-reg-genius-act",
+        "src-reg-fincen-2019-cvc",
+        "src-reg-ofac-vc-guidance",
         "src-x402-cdp-facilitator",
-        "src-x402-fee-cdp",
         "src-x402-spec-v2"
       ],
       "confidence": "verified"
@@ -1204,7 +1234,7 @@
     {
       "protocol": "visa-tap",
       "dimension": "composes-with",
-      "value": "Stripe MPP, x402 (browsingIOU), OpenAI ACP and UCP via Intelligent Commerce Connect",
+      "value": "Stripe MPP, x402 by name only (browsingIOU answers an HTTP 402 with card fields, not the x402 format), OpenAI ACP and UCP via Intelligent Commerce Connect",
       "detail": "No documented link to AP2 or ERC-8004.",
       "sources": [
         "src-mpp-card-draft",
@@ -3204,7 +3234,7 @@
       "protocol": "x402",
       "axis": "openness",
       "value": 5,
-      "justification": "Apache-2.0 code and specs in a public repository, governed by a Linux Foundation project; anyone can implement or run a facilitator.",
+      "justification": "Apache-2.0 code and CC BY 4.0 documentation (technical charter) in a public repository, governed by a Linux Foundation project; anyone can implement or run a facilitator.",
       "sources": [
         "src-x402-license",
         "src-x402-charter",
@@ -3239,7 +3269,7 @@
       "value": 3,
       "justification": "Measurable on-chain activity and live products, but volume figures are contested and partly manufactured.",
       "sources": [
-        "src-x402-forkast-visa",
+        "src-x402-visa-artemis-report",
         "src-x402-arxiv-2607-12575",
         "src-x402-cf-mg-beta"
       ]
@@ -3258,10 +3288,11 @@
       "protocol": "x402",
       "axis": "dispute-support",
       "value": 1,
-      "justification": "No dispute process and no refund in exact; auth-capture adds refunds and reclaim.",
+      "justification": "No dispute process and no refund in exact; auth-capture adds refunds and reclaim, and the channel schemes return unused escrow.",
       "sources": [
         "src-x402-scheme-exact",
-        "src-x402-scheme-auth-capture"
+        "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm"
       ]
     },
     {

@@ -60,7 +60,7 @@
       "detail": "The server returns status 402. The PAYMENT-REQUIRED header holds a base64-encoded PaymentRequired object: the protocol version, a ResourceInfo, and an accepts list. Each accepts entry names a scheme, a CAIP-2 network, an amount in atomic units, an asset, a payTo address and maxTimeoutSeconds. Here 10000 atomic units of a 6-decimal token is 0.01 USDC. The response body is a server concern.",
       "payload": {
         "format": "http",
-        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nPAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQQVlNRU5ULVNJR05BVFVSRSBoZWFkZXIgaXMgcmVxdWlyZWQiLCJyZXNvdXJjZSI6eyJ1cmwiOiJodHRwczovL2FwaS5leGFtcGxlLmNvbS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJDdXJyZW50IHdlYXRoZXIgZm9yIG9uZSBjaXR5IiwibWltZVR5cGUiOiJhcHBsaWNhdGlvbi9qc29uIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4QjBCMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMEIwQiIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImV4dGVuc2lvbnMiOnt9fQ==\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"x402Version\": 2,\n  \"error\": \"PAYMENT-SIGNATURE header is required\",\n  \"resource\": {\n    \"url\": \"https://api.example.com/weather\",\n    \"description\": \"Current weather for one city\",\n    \"mimeType\": \"application/json\"\n  },\n  \"accepts\": [\n    {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    }\n  ],\n  \"extensions\": {}\n}",
+        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nPAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQQVlNRU5ULVNJR05BVFVSRSBoZWFkZXIgaXMgcmVxdWlyZWQiLCJyZXNvdXJjZSI6eyJ1cmwiOiJodHRwczovL2FwaS5leGFtcGxlLmNvbS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJDdXJyZW50IHdlYXRoZXIgZm9yIG9uZSBjaXR5IiwibWltZVR5cGUiOiJhcHBsaWNhdGlvbi9qc29uIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4YjBCMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMEIwQiIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImV4dGVuc2lvbnMiOnt9fQ==\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"x402Version\": 2,\n  \"error\": \"PAYMENT-SIGNATURE header is required\",\n  \"resource\": {\n    \"url\": \"https://api.example.com/weather\",\n    \"description\": \"Current weather for one city\",\n    \"mimeType\": \"application/json\"\n  },\n  \"accepts\": [\n    {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xb0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    }\n  ],\n  \"extensions\": {}\n}",
         "illustrative": true
       },
       "specRef": {
@@ -82,7 +82,7 @@
       "detail": "The client picks an entry its wallet supports. In the TypeScript SDK, spendControls run first: only default assets are allowed and the cap is $1 per payment unless configured. The client then signs EIP-712 typed data for EIP-3009 TransferWithAuthorization. The signature covers from, to (the payTo), value, validAfter, validBefore and a random 32-byte nonce.",
       "payload": {
         "format": "eip712",
-        "content": "// Illustrative example, spec version v2.0. Key and signature are not real.\n{\n  \"types\": {\n    \"TransferWithAuthorization\": [\n      {\n        \"name\": \"from\",\n        \"type\": \"address\"\n      },\n      {\n        \"name\": \"to\",\n        \"type\": \"address\"\n      },\n      {\n        \"name\": \"value\",\n        \"type\": \"uint256\"\n      },\n      {\n        \"name\": \"validAfter\",\n        \"type\": \"uint256\"\n      },\n      {\n        \"name\": \"validBefore\",\n        \"type\": \"uint256\"\n      },\n      {\n        \"name\": \"nonce\",\n        \"type\": \"bytes32\"\n      }\n    ]\n  },\n  \"primaryType\": \"TransferWithAuthorization\",\n  \"domain\": {\n    \"name\": \"USDC\",\n    \"version\": \"2\",\n    \"chainId\": 84532,\n    \"verifyingContract\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\"\n  },\n  \"message\": {\n    \"from\": \"0xA11CE0000000000000000000000000000000A11C\",\n    \"to\": \"0xB0B0000000000000000000000000000000000B0B\",\n    \"value\": \"10000\",\n    \"validAfter\": \"1791719995\",\n    \"validBefore\": \"1791720060\",\n    \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n  }\n}",
+        "content": "// Illustrative example, spec version v2.0. Key and signature are not real.\n{\n  \"types\": {\n    \"TransferWithAuthorization\": [\n      {\n        \"name\": \"from\",\n        \"type\": \"address\"\n      },\n      {\n        \"name\": \"to\",\n        \"type\": \"address\"\n      },\n      {\n        \"name\": \"value\",\n        \"type\": \"uint256\"\n      },\n      {\n        \"name\": \"validAfter\",\n        \"type\": \"uint256\"\n      },\n      {\n        \"name\": \"validBefore\",\n        \"type\": \"uint256\"\n      },\n      {\n        \"name\": \"nonce\",\n        \"type\": \"bytes32\"\n      }\n    ]\n  },\n  \"primaryType\": \"TransferWithAuthorization\",\n  \"domain\": {\n    \"name\": \"USDC\",\n    \"version\": \"2\",\n    \"chainId\": 84532,\n    \"verifyingContract\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\"\n  },\n  \"message\": {\n    \"from\": \"0xA11ce0000000000000000000000000000000a11c\",\n    \"to\": \"0xb0B0000000000000000000000000000000000B0B\",\n    \"value\": \"10000\",\n    \"validAfter\": \"1791719995\",\n    \"validBefore\": \"1791720060\",\n    \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n  }\n}",
         "illustrative": true
       },
       "specRef": {
@@ -108,7 +108,7 @@
       "detail": "The client sends the same request again. The PAYMENT-SIGNATURE header holds a base64-encoded PaymentPayload: x402Version, the echoed resource, the accepted requirements, the scheme payload (signature and authorization) and echoed extensions.",
       "payload": {
         "format": "http",
-        "content": "GET /weather HTTP/1.1\nHost: api.example.com\nPAYMENT-SIGNATURE: eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20vd2VhdGhlciIsImRlc2NyaXB0aW9uIjoiQ3VycmVudCB3ZWF0aGVyIGZvciBvbmUgY2l0eSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRlZCI6eyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweEIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJtYXhUaW1lb3V0U2Vjb25kcyI6NjAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0sInBheWxvYWQiOnsic2lnbmF0dXJlIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZDFiIiwiYXV0aG9yaXphdGlvbiI6eyJmcm9tIjoiMHhBMTFDRTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBBMTFDIiwidG8iOiIweEIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJ2YWx1ZSI6IjEwMDAwIiwidmFsaWRBZnRlciI6IjE3OTE3MTk5OTUiLCJ2YWxpZEJlZm9yZSI6IjE3OTE3MjAwNjAiLCJub25jZSI6IjB4NWU1ZTVlNWU3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYyJ9fSwiZXh0ZW5zaW9ucyI6e319\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"x402Version\": 2,\n  \"resource\": {\n    \"url\": \"https://api.example.com/weather\",\n    \"description\": \"Current weather for one city\",\n    \"mimeType\": \"application/json\"\n  },\n  \"accepted\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  },\n  \"payload\": {\n    \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n    \"authorization\": {\n      \"from\": \"0xA11CE0000000000000000000000000000000A11C\",\n      \"to\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"value\": \"10000\",\n      \"validAfter\": \"1791719995\",\n      \"validBefore\": \"1791720060\",\n      \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n    }\n  },\n  \"extensions\": {}\n}",
+        "content": "GET /weather HTTP/1.1\nHost: api.example.com\nPAYMENT-SIGNATURE: eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20vd2VhdGhlciIsImRlc2NyaXB0aW9uIjoiQ3VycmVudCB3ZWF0aGVyIGZvciBvbmUgY2l0eSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRlZCI6eyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweGIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJtYXhUaW1lb3V0U2Vjb25kcyI6NjAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0sInBheWxvYWQiOnsic2lnbmF0dXJlIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZGNkY2RjZDFiIiwiYXV0aG9yaXphdGlvbiI6eyJmcm9tIjoiMHhBMTFjZTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBhMTFjIiwidG8iOiIweGIwQjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBCMEIiLCJ2YWx1ZSI6IjEwMDAwIiwidmFsaWRBZnRlciI6IjE3OTE3MTk5OTUiLCJ2YWxpZEJlZm9yZSI6IjE3OTE3MjAwNjAiLCJub25jZSI6IjB4NWU1ZTVlNWU3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYzdhMWM3YTFjN2ExYyJ9fSwiZXh0ZW5zaW9ucyI6e319\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"x402Version\": 2,\n  \"resource\": {\n    \"url\": \"https://api.example.com/weather\",\n    \"description\": \"Current weather for one city\",\n    \"mimeType\": \"application/json\"\n  },\n  \"accepted\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xb0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  },\n  \"payload\": {\n    \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n    \"authorization\": {\n      \"from\": \"0xA11ce0000000000000000000000000000000a11c\",\n      \"to\": \"0xb0B0000000000000000000000000000000000B0B\",\n      \"value\": \"10000\",\n      \"validAfter\": \"1791719995\",\n      \"validBefore\": \"1791720060\",\n      \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n    }\n  },\n  \"extensions\": {}\n}",
         "illustrative": true
       },
       "specRef": {
@@ -118,7 +118,7 @@
       "failures": [
         {
           "condition": "The header is malformed",
-          "outcome": "The server answers 400 (invalid payment)."
+          "outcome": "The spec maps a malformed payload to 400; the TypeScript server treats an undecodable header as missing and answers 402 with a fresh PAYMENT-REQUIRED."
         }
       ]
     },
@@ -130,7 +130,7 @@
       "detail": "The server sends the payload and its own requirements to the facilitator. Verify is read-only: it must not write state. The server uses its own copy of the requirements, not the one the client echoed.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"paymentPayload\": {\n    \"x402Version\": 2,\n    \"resource\": {\n      \"url\": \"https://api.example.com/weather\",\n      \"description\": \"Current weather for one city\",\n      \"mimeType\": \"application/json\"\n    },\n    \"accepted\": {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    },\n    \"payload\": {\n      \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n      \"authorization\": {\n        \"from\": \"0xA11CE0000000000000000000000000000000A11C\",\n        \"to\": \"0xB0B0000000000000000000000000000000000B0B\",\n        \"value\": \"10000\",\n        \"validAfter\": \"1791719995\",\n        \"validBefore\": \"1791720060\",\n        \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n      }\n    },\n    \"extensions\": {}\n  },\n  \"paymentRequirements\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  }\n}",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"paymentPayload\": {\n    \"x402Version\": 2,\n    \"resource\": {\n      \"url\": \"https://api.example.com/weather\",\n      \"description\": \"Current weather for one city\",\n      \"mimeType\": \"application/json\"\n    },\n    \"accepted\": {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xb0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    },\n    \"payload\": {\n      \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n      \"authorization\": {\n        \"from\": \"0xA11ce0000000000000000000000000000000a11c\",\n        \"to\": \"0xb0B0000000000000000000000000000000000B0B\",\n        \"value\": \"10000\",\n        \"validAfter\": \"1791719995\",\n        \"validBefore\": \"1791720060\",\n        \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n      }\n    },\n    \"extensions\": {}\n  },\n  \"paymentRequirements\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xb0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -140,8 +140,8 @@
       },
       "failures": [
         {
-          "condition": "The facilitator is unreachable or times out",
-          "outcome": "See the facilitator-down flow: the Express middleware answers 502 and the handler does not run."
+          "condition": "The facilitator times out or returns malformed data",
+          "outcome": "See the facilitator-down flow: the Express middleware answers 502 and the handler does not run. A refused connection produces a 402 instead."
         }
       ]
     },
@@ -165,7 +165,7 @@
       "detail": "The facilitator answers with isValid and the payer address. When isValid is false, invalidReason carries an error code and the server answers 402 with a fresh PAYMENT-REQUIRED header.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version v2.0.\n{\n  \"isValid\": true,\n  \"payer\": \"0xA11CE0000000000000000000000000000000A11C\"\n}",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"isValid\": true,\n  \"payer\": \"0xA11ce0000000000000000000000000000000a11c\"\n}",
         "illustrative": true
       },
       "specRef": {
@@ -192,7 +192,7 @@
       "failures": [
         {
           "condition": "The handler fails",
-          "outcome": "The server does not settle, so the client is not charged (an SDK hook, settleOnCancel, can change this)."
+          "outcome": "The server does not settle, so the client is not charged."
         }
       ]
     },
@@ -204,7 +204,7 @@
       "detail": "The server sends the same body to /settle. Settle commits payment state, here by broadcasting a transaction.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"paymentPayload\": {\n    \"x402Version\": 2,\n    \"resource\": {\n      \"url\": \"https://api.example.com/weather\",\n      \"description\": \"Current weather for one city\",\n      \"mimeType\": \"application/json\"\n    },\n    \"accepted\": {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    },\n    \"payload\": {\n      \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n      \"authorization\": {\n        \"from\": \"0xA11CE0000000000000000000000000000000A11C\",\n        \"to\": \"0xB0B0000000000000000000000000000000000B0B\",\n        \"value\": \"10000\",\n        \"validAfter\": \"1791719995\",\n        \"validBefore\": \"1791720060\",\n        \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n      }\n    },\n    \"extensions\": {}\n  },\n  \"paymentRequirements\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xB0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  }\n}",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"x402Version\": 2,\n  \"paymentPayload\": {\n    \"x402Version\": 2,\n    \"resource\": {\n      \"url\": \"https://api.example.com/weather\",\n      \"description\": \"Current weather for one city\",\n      \"mimeType\": \"application/json\"\n    },\n    \"accepted\": {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:84532\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n      \"payTo\": \"0xb0B0000000000000000000000000000000000B0B\",\n      \"maxTimeoutSeconds\": 60,\n      \"extra\": {\n        \"name\": \"USDC\",\n        \"version\": \"2\"\n      }\n    },\n    \"payload\": {\n      \"signature\": \"0xababababababababababababababababababababababababababababababababcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd1b\",\n      \"authorization\": {\n        \"from\": \"0xA11ce0000000000000000000000000000000a11c\",\n        \"to\": \"0xb0B0000000000000000000000000000000000B0B\",\n        \"value\": \"10000\",\n        \"validAfter\": \"1791719995\",\n        \"validBefore\": \"1791720060\",\n        \"nonce\": \"0x5e5e5e5e7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c7a1c\"\n      }\n    },\n    \"extensions\": {}\n  },\n  \"paymentRequirements\": {\n    \"scheme\": \"exact\",\n    \"network\": \"eip155:84532\",\n    \"amount\": \"10000\",\n    \"asset\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n    \"payTo\": \"0xb0B0000000000000000000000000000000000B0B\",\n    \"maxTimeoutSeconds\": 60,\n    \"extra\": {\n      \"name\": \"USDC\",\n      \"version\": \"2\"\n    }\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -215,7 +215,7 @@
       "failures": [
         {
           "condition": "The settle call times out",
-          "outcome": "The outcome is indeterminate: the transfer may still confirm, so the server must reconcile before it retries."
+          "outcome": "The outcome is indeterminate: the transfer may still confirm, so the server should check the chain before it retries."
         }
       ]
     },
@@ -242,7 +242,7 @@
       "from": "chain",
       "to": "facilitator",
       "label": "Return transaction receipt",
-      "detail": "The facilitator waits for the receipt. On chain the payment looks like an ordinary token Transfer plus an AuthorizationUsed event."
+      "detail": "The facilitator waits for the receipt. On chain the payment shows up as an ordinary token Transfer plus an AuthorizationUsed event; neither event marks it as x402."
     },
     {
       "n": 12,
@@ -252,7 +252,7 @@
       "detail": "The facilitator returns success, the transaction hash, the CAIP-2 network and the payer.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version v2.0.\n{\n  \"success\": true,\n  \"transaction\": \"0x9f9f9f9f0123456789abcdef0123456789abcdef0123456789abcdefdeadbeefaaaaaaaa\",\n  \"network\": \"eip155:84532\",\n  \"payer\": \"0xA11CE0000000000000000000000000000000A11C\"\n}",
+        "content": "// Illustrative example, spec version v2.0.\n{\n  \"success\": true,\n  \"transaction\": \"0x9f9f9f9f0123456789abcdef0123456789abcdef0123456789abcdefdeadbeef\",\n  \"network\": \"eip155:84532\",\n  \"payer\": \"0xA11ce0000000000000000000000000000000a11c\"\n}",
         "illustrative": true
       },
       "specRef": {
@@ -262,7 +262,7 @@
       "failures": [
         {
           "condition": "errorReason is settlement_pending",
-          "outcome": "Non-terminal: the transaction was broadcast but not confirmed. The response carries the hash, and the server reconciles before it decides."
+          "outcome": "Non-terminal: the transaction was broadcast but not confirmed. The response carries the hash; the SDK server retries settle once, and the facilitator reconciles against that hash."
         }
       ]
     },
@@ -274,7 +274,7 @@
       "detail": "The server returns the resource. The PAYMENT-RESPONSE header holds the base64-encoded SettleResponse, so the client can keep the transaction hash as its receipt.",
       "payload": {
         "format": "http",
-        "content": "HTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: private\nPAYMENT-RESPONSE: eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4OWY5ZjlmOWYwMTIzNDU2Nzg5YWJjZGVmMDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWZkZWFkYmVlZmFhYWFhYWFhIiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsInBheWVyIjoiMHhBMTFDRTAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBBMTFDIn0=\n\n{\"city\":\"Lisbon\",\"tempC\":21}\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"success\": true,\n  \"transaction\": \"0x9f9f9f9f0123456789abcdef0123456789abcdef0123456789abcdefdeadbeefaaaaaaaa\",\n  \"network\": \"eip155:84532\",\n  \"payer\": \"0xA11CE0000000000000000000000000000000A11C\"\n}",
+        "content": "HTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: private\nPAYMENT-RESPONSE: eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4OWY5ZjlmOWYwMTIzNDU2Nzg5YWJjZGVmMDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWZkZWFkYmVlZiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4QTExY2UwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwYTExYyJ9\n\n{\"city\":\"Lisbon\",\"tempC\":21}\n\n# decoded header (Illustrative example, spec version v2.0.)\n{\n  \"success\": true,\n  \"transaction\": \"0x9f9f9f9f0123456789abcdef0123456789abcdef0123456789abcdefdeadbeef\",\n  \"network\": \"eip155:84532\",\n  \"payer\": \"0xA11ce0000000000000000000000000000000a11c\"\n}",
         "illustrative": true
       },
       "specRef": {

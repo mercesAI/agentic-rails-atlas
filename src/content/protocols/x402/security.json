@@ -1,6 +1,6 @@
 {
   "protocol": "x402",
-  "summary": "x402 makes two strong promises and leaves the rest to the parties. The client's signature binds the amount and the recipient, so a facilitator can only broadcast what the client signed, and a single-use nonce with a validity window stops replay. Everything around that is out of scope: whether the payTo in a 402 response is the seller the client meant, how much an agent may spend, whether the service is delivered after payment, what the facilitator learns, and whether the facilitator serves everyone. Most real incidents so far were SDK bugs (route matching, Solana duplicate settlement), not protocol breaks, and the academic literature focuses on binding, atomicity and facilitator behavior.",
+  "summary": "x402 makes two strong promises and leaves the rest to the parties. The client's signature binds the amount and the recipient (for ERC-7710 accounts, the delegation's caveats do), so a facilitator can only broadcast what the client authorized. A single-use nonce with a validity window stops replay. Everything around that is out of scope: whether the payTo in a 402 response is the seller the client meant, how much an agent may spend, and whether the service is delivered after payment. So are what the facilitator learns and whether it serves everyone. Most published vulnerabilities so far were SDK bugs (route matching, Solana duplicate settlement), and research also reports design-level gaps in binding, atomicity and facilitator behavior.",
   "threats": [
     {
       "id": "x402-t1",
@@ -19,7 +19,7 @@
       "title": "Facilitator changes the amount or recipient",
       "description": "A malicious or buggy facilitator tries to settle a different amount or send funds elsewhere.",
       "preconditions": ["The facilitator controls the broadcast"],
-      "impact": "None for exact on EVM: amount and recipient are inside the signed EIP-712 struct, and the Permit2 proxy enforces the witness recipient.",
+      "impact": "None for exact on EVM with EIP-3009 or Permit2: amount and recipient are inside the signed EIP-712 struct, and the Permit2 proxy enforces the witness recipient. With ERC-7710 the delegation's caveats must limit recipient and amount, as the spec requires.",
       "mitigatedBySpec": "yes",
       "implementerNotes": "Keep this property when adding schemes: the trust-minimizing principle forbids schemes that let the facilitator move funds against client intent. Under upto, the witness also names the only facilitator allowed to settle.",
       "sources": ["src-x402-scheme-exact-evm", "src-x402-repo", "src-x402-scheme-upto-evm"]
@@ -39,12 +39,12 @@
       "id": "x402-t4",
       "stride": "E",
       "title": "Payment bypass through route matching",
-      "description": "Encoded path tricks (percent-encoded line terminators, backslashes, escaped slashes) make a paid route look unpaid to the middleware while the framework still serves it.",
-      "preconditions": ["The server runs an affected SDK version", "Routes are matched with wildcards or path parameters"],
-      "impact": "Free access to paid resources.",
+      "description": "Encoded path tricks (percent-encoded line terminators, backslashes, escaped slashes) make a paid route look unpaid to the middleware while the framework still serves it. A HEAD request to a route configured only for GET could also reach the paid handler without payment.",
+      "preconditions": ["The server runs an affected SDK version", "Paths can be encoded (any route type; literal routes were affected until 2.27.0), or the server answers HEAD on GET-only paid routes"],
+      "impact": "Free access to paid resources, or paid handlers that run without payment (a HEAD response carries no body).",
       "mitigatedBySpec": "no",
-      "implementerNotes": "Upgrade @x402/core (fixes in 2.21.0, 2.22.0 and 2.27.0) and test protected routes with encoded variants. An older high-severity advisory (GHSA-3j63-5h8p-gf7c) hit legacy resource-server packages below 0.5.2.",
-      "sources": ["src-x402-core-changelog", "src-x402-ghsa-2025"]
+      "implementerNotes": "Upgrade @x402/core (fixes in 2.13.0, 2.21.0, 2.22.0 and 2.27.0) and test protected routes with encoded variants. The HEAD fix merged on 2026-10-13 (PR #3796: TypeScript core, legacy x402, Go and Python) and was not in a published release on 2026-10-19 (@x402/core 2.28.0). Until you upgrade, declare HEAD routes explicitly or reject HEAD on paid paths. An older high-severity advisory (GHSA-3j63-5h8p-gf7c) hit legacy resource-server packages below 0.5.2.",
+      "sources": ["src-x402-core-changelog", "src-x402-ghsa-2025", "src-x402-gh-pr-3796", "src-x402-npm-core", "src-x402-gh-tags"]
     },
     {
       "id": "x402-t5",
@@ -72,12 +72,12 @@
       "id": "x402-t7",
       "stride": "T",
       "title": "Duplicate settlement race",
-      "description": "Concurrent or retried settles for the same payment produce more than one transfer or more than one access grant.",
-      "preconditions": ["Several settle workers, or networks where duplicates are not rejected on chain"],
-      "impact": "Double charging or double service; a 2026 advisory covered facilitators that process Solana payments.",
+      "description": "Concurrent or retried settles for the same payment each report success, so one payment unlocks more than one resource.",
+      "preconditions": ["Several settle workers, or networks where a resubmitted payment looks the same as the original"],
+      "impact": "Double service at the seller's expense; a 2026 advisory covered facilitators that process Solana payments.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Patch to @x402/svm 2.6.0, PyPI x402 2.3.0 or Go 2.5.0 or later. Deduplicate atomically across every settle process; the Solana SDK keeps a 120 second settlement cache.",
-      "sources": ["src-x402-ghsa-2026", "src-x402-docs-facilitator-concept", "src-x402-arxiv-2605-30998", "src-x402-scheme-exact"]
+      "implementerNotes": "Patch to @x402/svm 2.6.0, PyPI x402 2.3.0 or Go 2.5.0 or later. Deduplicate atomically across every settle process; the Solana SDK keeps a 120 second settlement cache. A related fail-open in TypeScript SVM batch-settlement servers, where a store failure during verify let an unpaid request run, was fixed on 2026-10-13 (PR #3697) and was unreleased on 2026-10-19.",
+      "sources": ["src-x402-ghsa-2026", "src-x402-docs-facilitator-concept", "src-x402-arxiv-2605-30998", "src-x402-scheme-exact", "src-x402-gh-pr-3697"]
     },
     {
       "id": "x402-t8",
@@ -127,12 +127,23 @@
       "id": "x402-t12",
       "stride": "D",
       "title": "Oversized headers dropped in transit",
-      "description": "Base64 JSON headers can exceed 2 KB, and some intermediaries drop or truncate large headers.",
+      "description": "Base64 JSON headers can exceed 2 KB, and some HTTP intermediaries reject headers that large.",
       "preconditions": ["Many accepts entries or large extensions"],
       "impact": "Clients never see the requirements, or servers never see the payment.",
       "mitigatedBySpec": "partial",
       "implementerNotes": "Keep accepts lists short and omit optional fields; the cloudflare:402 binding strips schema objects for this reason.",
       "sources": ["src-x402-scheme-batch-cf"]
+    },
+    {
+      "id": "x402-t13",
+      "stride": "T",
+      "title": "Prompt injection through discovery metadata",
+      "description": "Agents read a listing's description, tags and schemas to decide whether and how to call an endpoint. A seller can write text there that instructs the agent instead of describing the service.",
+      "preconditions": ["An agent picks services from a discovery catalog such as the Bazaar", "The agent treats listing metadata as instructions"],
+      "impact": "The agent may call or pay for services it would not otherwise choose, or follow injected instructions.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Treat listing metadata as untrusted data and keep payTo pinning and spend caps in force. Since 2026-10-13 the CDP Bazaar screens metadata for prompt-injection risk before listing and removes resources that fail.",
+      "sources": ["src-x402-cdp-get-discovered", "src-x402-cdp-changelog", "src-x402-ext-bazaar"]
     }
   ],
   "scenarios": [
@@ -164,7 +175,7 @@
   "research": [
     { "title": "Five Attacks on x402 Agentic Payment Protocol", "date": "2026-05-12", "finding": "Five practical attacks on authorization, binding, replay protection and web-layer handling, tested on local chains, Base Sepolia and live endpoints, with audits of three SDKs.", "publicationId": "pub-li-2026-fiveattacks", "sources": ["src-x402-arxiv-2605-11781"] },
     { "title": "Free-Riding the Agentic Web: A Systematic Security Analysis of x402 Payments", "date": "2026-05-29", "finding": "Four flaw classes, including cross-resource substitution and a duplicate settlement race, organized around five invariants.", "publicationId": "pub-ling-2026-freeriding", "sources": ["src-x402-arxiv-2605-30998"] },
-    { "title": "When HTTP 402 Meets the Blockchain: Risks on Emerging x402 Payments", "date": "2026-07-21", "finding": "First systematic study of facilitator-mediated deployments; proposes eight security rules for facilitators and reports four new attack vectors. A widely repeated claim that all 15 tested facilitators broke at least one rule is not in the abstract.", "publicationId": "pub-wang-2026-http402", "sources": ["src-x402-arxiv-2607-19545"] },
+    { "title": "When HTTP 402 Meets the Blockchain: Risks on Emerging x402 Payments", "date": "2026-07-21", "finding": "First systematic study of facilitator-mediated deployments: eight security rules for facilitators and four new attack vectors. It finds at least one rule violation in each of the 15 facilitators tested, used by over 60,000 sellers and 360,000 buyers.", "publicationId": "pub-wang-2026-http402", "sources": ["src-x402-arxiv-2607-19545"] },
     { "title": "A402: Binding Cryptocurrency Payments to Service Execution for Agentic Commerce", "date": "2026-03-01", "finding": "x402 does not make execution, payment and delivery atomic; proposes Atomic Service Channels.", "publicationId": "pub-li-2026-a402", "sources": ["src-x402-arxiv-2603-01179"] },
     { "title": "Hardening x402: PII-Safe Agentic Payments via Pre-Execution Metadata Filtering", "date": "2026-04-13", "finding": "Resource metadata sent to servers and facilitators is a PII leakage channel; proposes redacting middleware with spending policies.", "publicationId": "pub-stantchev-2026-hardening", "sources": ["src-x402-arxiv-2604-11430"] },
     { "title": "How Agentic Is Agentic Commerce? A Population-Scale Measurement of x402 Adoption and Authenticity", "date": "2026-07-14", "finding": "Counts 136,708,672 settlements on Base over 280 days and argues the count is not adoption because it can be manufactured almost for free.", "publicationId": "pub-ling-2026-howagentic", "sources": ["src-x402-arxiv-2607-12575"] },
@@ -172,7 +183,7 @@
   ],
   "cves": [
     { "id": "GHSA-3j63-5h8p-gf7c", "date": "2025-08-20", "summary": "High-severity GitHub advisory for the legacy npm packages x402, x402-next, x402-express and x402-hono below 0.5.2, mainly affecting resource server builders. No CVE identifier assigned.", "severity": "high", "confidence": "verified", "sources": ["src-x402-ghsa-2025"] },
-    { "id": "GHSA-qr2g-p6q7-w82m", "date": "2026-03-07", "summary": "High-severity GitHub advisory for facilitators that process Solana payments; patched in @x402/svm 2.6.0, PyPI x402 2.3.0 and Go 2.5.0. No CVE identifier assigned.", "severity": "high", "confidence": "verified", "sources": ["src-x402-ghsa-2026"] }
+    { "id": "GHSA-qr2g-p6q7-w82m", "date": "2026-03-06", "summary": "High-severity advisory for facilitators that process Solana payments, published by the x402 maintainers on 2026-03-06 (GitHub Advisory Database entry 2026-03-07 UTC); patched in @x402/svm 2.6.0, PyPI x402 2.3.0 and Go 2.5.0. No CVE identifier assigned.", "severity": "high", "confidence": "verified", "sources": ["src-x402-ghsa-2026"] }
   ],
   "trustBoundaryDiagram": "x402-context"
 }

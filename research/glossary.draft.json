@@ -1732,14 +1732,15 @@
       "aliases": [
         "exact"
       ],
-      "plain": "The default x402 scheme: the client pays one fixed amount that the server names in advance. On EVM networks the client usually signs an EIP-3009 `TransferWithAuthorization` message, and Permit2 and ERC-7710 delegations are alternative methods. The facilitator submits the transfer, so the client does not need gas.",
+      "plain": "The first x402 scheme: the client pays one fixed amount that the server names in advance. On EVM networks the client usually signs an EIP-3009 `TransferWithAuthorization` message; Permit2 and ERC-7710 delegations are alternative methods. The facilitator submits the transfer. With EIP-3009 the client needs no gas; Permit2 needs a one-time token approval, which the gas-sponsoring extensions can cover.",
       "ste": "The exact scheme transfers one fixed amount for one request. The server sets the amount before the client signs the payment.",
       "protocols": [
         "x402"
       ],
       "sources": [
         "src-x402-scheme-exact",
-        "src-x402-scheme-exact-evm"
+        "src-x402-scheme-exact-evm",
+        "src-x402-gh-commit-3e5c14a"
       ]
     },
     {
@@ -1748,13 +1749,14 @@
       "aliases": [
         "upto"
       ],
-      "plain": "An x402 scheme for metered work where the final price is not known in advance. The client signs a Permit2 authorization for a ceiling amount, and at settlement the server charges the actual amount, which must not exceed that ceiling. A zero charge needs no on-chain transaction.",
+      "plain": "An x402 scheme for metered work where the final price is not known in advance. The client authorizes a ceiling and the server charges the actual amount, which must not exceed it. On EVM the client signs a Permit2 authorization for the ceiling, and a zero charge needs no on-chain transaction. On Solana the client escrows the ceiling in a payment channel and gets the unused part back.",
       "ste": "The upto scheme lets the server charge an amount up to a maximum. The client signs the maximum, and the server charges the actual cost after the work.",
       "protocols": [
         "x402"
       ],
       "sources": [
-        "src-x402-scheme-upto-evm"
+        "src-x402-scheme-upto-evm",
+        "src-x402-scheme-upto-svm"
       ]
     },
     {

@@ -37,8 +37,8 @@
       "publisher": "thirdweb",
       "type": "docs",
       "primary": true,
-      "accessed": "2026-10-11",
-      "notes": "Read 2026-10-11: x402 transaction fees, 0.3 percent on each transaction executed through the facilitator, on all paid plans shown."
+      "accessed": "2026-10-19",
+      "notes": "Read 2026-10-11 and again 2026-10-19 (rendered page): x402 transaction fees, 0.3 percent on each transaction executed through the facilitator, on the Growth, Scale and Pro plans shown."
     },
     {
       "id": "src-fee-shopify-agentic-ecp",
@@ -94,13 +94,13 @@
     },
     {
       "id": "src-x402-fee-circle",
-      "url": "https://developers.circle.com/gateway/nanopayments",
+      "url": "https://developers.circle.com/gateway-nanopayments",
       "title": "Circle Gateway Nanopayments docs",
       "publisher": "Circle",
       "type": "docs",
       "primary": true,
-      "accessed": "2026-10-11",
-      "notes": "Read 2026-10-11: payments from $0.000001 USDC; off-chain authorizations at zero gas; bulk settlement; no fee schedule listed."
+      "accessed": "2026-10-19",
+      "notes": "The earlier URL https://developers.circle.com/gateway/nanopayments now redirects here. Read 2026-10-19: payments from $0.000001 USDC; buyers sign EIP-3009 authorizations off chain at zero gas; 'Gateway settles in bulk, so neither party pays per-transaction fees.' Fees for moving balances are on the Gateway fees page (src-x402-fee-circle-gateway)."
     },
     {
       "id": "src-x402-circle-nanopayments",
@@ -298,7 +298,7 @@
     {
       "protocol": "x402",
       "fact": "thirdweb facilitator: 0.3 percent fee on each x402 transaction executed through its facilitator.",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "confidence": "verified",
       "caveat": "Percentage fee, unlike the per-settlement fees of CDP and PayAI; plan fees and RPC charges are separate.",
       "sources": [
@@ -317,22 +317,24 @@
     },
     {
       "protocol": "x402",
-      "fact": "USDC transfer gas, approximate: about $0.005 to $0.01 on Base, $0.001 to $0.005 on Solana, $1 to $5 on Ethereum L1, under normal congestion.",
-      "asOf": "2026-07-01",
+      "fact": "USDC transfer gas, approximate: about $0.005 to $0.01 on Base, $0.001 to $0.005 on Solana, $1 to $5 on Ethereum L1, under normal congestion. At the low gas prices of October 2026 an EIP-3009 USDC transfer on Ethereum cost about $0.01 (81,053 gas at 0.045 gwei on 2026-10-19).",
+      "asOf": "2026-10-19",
       "confidence": "reported",
-      "caveat": "Secondary tool with mid-2026 conditions (month precision); gas prices vary by orders of magnitude.",
+      "caveat": "The Base, Solana and normal-congestion Ethereum ranges come from a secondary tool with mid-2026 conditions; the Ethereum measurement is one transaction. Gas prices vary by orders of magnitude.",
       "sources": [
-        "src-x402-fee-spark-gas"
+        "src-x402-fee-spark-gas",
+        "src-x402-fee-eth-eip3009-20261019"
       ]
     },
     {
       "protocol": "x402",
-      "fact": "Circle Gateway Nanopayments: payments from $0.000001 USDC, off-chain authorizations at zero gas, bulk settlement; no per-transaction fee or fee schedule published.",
-      "asOf": "2026-10-11",
+      "fact": "Circle Gateway Nanopayments: payments from $0.000001 USDC, off-chain authorizations at zero gas and bulk settlement; Circle says neither party pays per-transaction fees. Gateway charges a gas fee per withdrawal burn (for example $0.01 from Base) and 0.005 percent on crosschain transfers.",
+      "asOf": "2026-10-19",
       "confidence": "verified",
-      "caveat": "Absence of a published fee is not a statement that use is free.",
+      "caveat": "Who pays the gas for batch settlement is not stated; the buyer makes a one-time on-chain deposit.",
       "sources": [
         "src-x402-fee-circle",
+        "src-x402-fee-circle-gateway",
         "src-x402-circle-nanopayments"
       ]
     },

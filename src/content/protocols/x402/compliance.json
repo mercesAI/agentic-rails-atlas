@@ -1,42 +1,44 @@
 {
   "protocol": "x402",
   "notLegalAdvice": true,
-  "summary": "x402 moves signed stablecoin payments and has no identity, KYC or sanctions layer of its own, so regulation lands on the parties: stablecoin issuers, facilitators that broadcast payments, and sellers that receive them. The open questions are whether a non-custodial facilitator counts as a money transmitter or payment service provider (existing guidance does not address it directly), who screens for sanctions and carries travel-rule data, and how consumer-protection rules written for bank accounts apply to wallet transfers. Rows are dated; check each source before you rely on it.",
+  "summary": "x402 moves signed payments, mostly in stablecoins, and has no KYC, know-your-agent or sanctions layer of its own. Its optional identity extensions, such as sign-in-with-x, prove control of a wallet or key rather than a verified legal identity. Which rules apply depends on each party's role: stablecoin issuer, custodial wallet provider, facilitator that broadcasts payments, payer or seller. Open questions: whether a non-custodial facilitator counts as a money transmitter or payment service provider, which existing guidance does not address directly, and who screens for sanctions and carries travel-rule data. Another is how consumer-protection rules written for accounts at financial institutions apply to wallet transfers. Rows are dated; check each source before you rely on it.",
   "rows": [
     {
       "jurisdiction": "US",
       "topic": "aml",
-      "text": "The protocol has no KYC, know-your-agent or sanctions layer. The CDP facilitator runs OFAC and Know Your Transaction checks on payments; other facilitators vary.",
+      "text": "The protocol has no KYC, know-your-agent or sanctions layer. As of 2026-10-19 the CDP facilitator's docs describe OFAC and Know Your Transaction checks that decline payments involving sanctioned or high-risk addresses; other facilitators vary.",
       "sources": [
         "src-x402-spec-v2",
         "src-x402-cdp-facilitator",
-        "src-x402-fee-cdp"
+        "src-x402-fee-cdp",
+        "src-x402-docs-facilitators"
       ],
       "confidence": "verified"
     },
     {
       "jurisdiction": "US",
       "topic": "aml",
-      "text": "OFAC guidance for the virtual currency industry (2021-10-15) says sanctions duties apply to virtual currency businesses, penalties are generally strict liability, and screening should be risk-based. Facilitators and sellers each need their own view of this.",
+      "text": "OFAC's sanctions compliance guidance for the virtual currency industry (2021-10-15) says sanctions obligations apply to virtual currency transactions as they do to fiat ones. They bind all US persons and, under some programs, others; civil penalties generally rest on strict liability. OFAC encourages every company in the industry, including technology companies and wallet providers, to run a risk-based program that generally includes sanctions list and geographic screening. The guidance names no x402 role.",
       "sources": [
-        "src-reg-ofac-vc-guidance"
+        "src-reg-ofac-vc-guidance",
+        "src-policy-ofac-vc-guidance-pdf"
       ],
       "confidence": "verified"
     },
     {
       "jurisdiction": "US",
       "topic": "aml",
-      "text": "FinCEN guidance FIN-2019-G001 (2019-05-09) treats intermediaries by their control over value, and calls hosted wallet providers money transmitters. It does not address a non-custodial relayer that only broadcasts a payer-signed transfer, so how it applies to x402 facilitators is an open inference.",
+      "text": "FinCEN guidance FIN-2019-G001 (2019-05-09) judges intermediaries by four criteria, including whether they have total independent control over the value, and treats hosted wallet providers as money transmitters. A multiple-signature provider that only adds a validation key does not accept and transmit value. The guidance names no relayer that only broadcasts a payer-signed transfer, so how it applies to x402 facilitators is an inference.",
       "sources": [
         "src-reg-fincen-2019-cvc",
         "src-x402-docs-facilitator-concept"
       ],
-      "confidence": "reported"
+      "confidence": "verified"
     },
     {
       "jurisdiction": "US",
       "topic": "stablecoin",
-      "text": "The GENIUS Act (Public Law 119-27, 2025-07-18) regulates payment stablecoins such as USDC and takes effect on the earlier of 2027-01-18 or 120 days after final regulations.",
+      "text": "The GENIUS Act (Public Law 119-27, 2025-07-18) regulates payment stablecoin issuers. From 2028-07-18 it bars a digital asset service provider from offering or selling a payment stablecoin to a person in the United States unless a permitted issuer issued it, with limited exceptions. It takes effect on the earlier of 2027-01-18 or 120 days after the primary federal regulators issue final regulations (section 20).",
       "sources": [
         "src-reg-genius-act"
       ],
@@ -45,11 +47,14 @@
     {
       "jurisdiction": "US",
       "topic": "stablecoin",
-      "text": "As of 2026-10-11 only proposed GENIUS Act rules were found (the OCC proposal of 2026-03-02); press reports say the 2026-07-18 rulemaking deadline passed without final rules.",
+      "text": "A Federal Register search on 2026-10-19 found no final rule implementing the GENIUS Act from a primary federal payment stablecoin regulator (OCC, FDIC, Federal Reserve, NCUA); their proposals include the OCC's, published 2026-03-02. Treasury's procedural interim final rule on state certifications took effect on 2026-09-30. Because no such final rule was issued by 2026-09-20, 120 days before 2027-01-18, the Act takes effect on 2027-01-18.",
       "sources": [
-        "src-reg-occ-genius-nprm"
+        "src-policy-fr-occ-genius-nprm",
+        "src-reg-occ-genius-nprm",
+        "src-policy-fr-genius-ifr",
+        "src-reg-genius-act"
       ],
-      "confidence": "reported"
+      "confidence": "verified"
     },
     {
       "jurisdiction": "US",
@@ -65,17 +70,17 @@
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "Products built on x402 add their own gates: the Cloudflare Monetization Gateway closed beta is limited to eligible US sellers and buyers, and Stripe's preview was reported as US only.",
+      "text": "Products built on x402 add their own gates. The Cloudflare Monetization Gateway closed beta announced on 2026-09-30 is limited to eligible US-based sellers and buyers. Stripe's x402 docs (2026-10-19) offer stablecoin payments to businesses in all US states except New York, and in more than 30 countries on request.",
       "sources": [
         "src-x402-cf-mg-beta",
-        "src-x402-stripe-coverage"
+        "src-x402-stripe-docs"
       ],
-      "confidence": "reported"
+      "confidence": "verified"
     },
     {
       "jurisdiction": "EU",
       "topic": "stablecoin",
-      "text": "MiCA (Regulation (EU) 2023/1114) has applied to e-money tokens since 2024-06-30 and in full since 2024-12-30; the transitional period for crypto-asset service providers ended on 2026-07-01.",
+      "text": "MiCA (Regulation (EU) 2023/1114) has applied to e-money tokens since 2024-06-30 and in full since 2024-12-30; the transitional period for crypto-asset service providers ended on 2026-07-01 at the latest.",
       "sources": [
         "src-reg-mica",
         "src-reg-esma-mica-transition"
@@ -85,7 +90,7 @@
     {
       "jurisdiction": "EU",
       "topic": "aml",
-      "text": "The Transfer of Funds Regulation (EU) 2023/1113 has applied the travel rule to crypto-asset transfers since 2024-12-30. x402 headers carry no originator or beneficiary data, so any travel-rule data must come from the service providers involved.",
+      "text": "The Transfer of Funds Regulation (EU) 2023/1113 has applied the travel rule since 2024-12-30 to crypto-asset transfers where the crypto-asset service provider, or an intermediary one, of the originator or the beneficiary has its registered office in the Union. x402 payloads carry the payer's and payee's ledger addresses but no names or other identifying data, so the rest must come from the service providers involved.",
       "sources": [
         "src-reg-eu-tfr",
         "src-x402-spec-v2"
@@ -95,7 +100,7 @@
     {
       "jurisdiction": "EU",
       "topic": "ai-rules",
-      "text": "AI Act transparency duties under Article 50 apply from 2026-08-02; the Digital Omnibus (Regulation (EU) 2026/1744) moved Annex III high-risk obligations to 2027-12-02. Nothing in the AI Act is specific to agent payments.",
+      "text": "AI Act transparency duties under Article 50 apply from 2026-08-02; generative systems placed on the market before that date have until 2026-12-02 for the Article 50(2) marking duty. The Digital Omnibus (Regulation (EU) 2026/1744) moved Annex III high-risk obligations to 2027-12-02. Nothing in the AI Act is specific to agent payments.",
       "sources": [
         "src-reg-eu-ai-act",
         "src-reg-eu-ai-omnibus"
@@ -115,10 +120,12 @@
     {
       "jurisdiction": "EU",
       "topic": "sca",
-      "text": "PSD3 and the Payment Services Regulation reached provisional agreement on 2025-11-27 and were listed as close to adoption on 2026-09-20, not yet in the Official Journal. They target payment service providers; x402 stablecoin payments sit mainly under MiCA instead.",
+      "text": "PSD3 and the Payment Services Regulation reached provisional agreement on 2025-11-27; on 2026-10-19 both still awaited the Council's first-reading position and were not in the Official Journal. They govern payment and e-money services. MiCA deems e-money tokens electronic money, and the EBA has advised supervisors to treat transfers and custody of e-money tokens by crypto-asset service providers for clients as PSD2 payment services. x402 stablecoin payments made through such providers can therefore fall under both MiCA and payment services law.",
       "sources": [
         "src-reg-ep-psr-train",
-        "src-reg-mica"
+        "src-policy-oeil-psr",
+        "src-reg-mica",
+        "src-policy-eba-psd2-mica-nal"
       ],
       "confidence": "verified"
     },
@@ -153,9 +160,10 @@
     {
       "jurisdiction": "CA",
       "topic": "stablecoin",
-      "text": "The Stablecoin Act in Bill C-15 received Royal Assent on 2026-03-26; the Bank of Canada will register and supervise non-bank fiat-backed stablecoin issuers, with the framework expected to take effect in 2027.",
+      "text": "The Stablecoin Act in Bill C-15 received Royal Assent on 2026-03-26 but is not yet in force (Justice Laws, current to 2026-09-30); orders of the Governor in Council will set its commencement. Once in force, the Bank of Canada will register and supervise fiat-backed stablecoin issuers; the Act does not apply to issuers that are financial institutions, such as banks and credit unions. Finance Canada expects the framework to take effect in 2027.",
       "sources": [
         "src-reg-ca-c15",
+        "src-policy-ca-stablecoin-act",
         "src-reg-ca-stablecoin-framework"
       ],
       "confidence": "verified"
@@ -163,7 +171,7 @@
     {
       "jurisdiction": "CA",
       "topic": "aml",
-      "text": "FINTRAC treats transferring virtual currency for clients as a money services business activity that needs registration, including for foreign businesses serving people in Canada.",
+      "text": "FINTRAC treats transferring virtual currency at a client's request as a money services business activity that needs registration. That includes a foreign business that directs the service at persons or entities in Canada and provides it to clients there.",
       "sources": [
         "src-reg-fintrac-msb"
       ],
@@ -181,9 +189,10 @@
     {
       "jurisdiction": "SG",
       "topic": "stablecoin",
-      "text": "Digital payment token services need a MAS license under the Payment Services Act 2019, and MAS finalized a framework for single-currency stablecoins issued in Singapore on 2023-08-15.",
+      "text": "A business providing digital payment token services in Singapore needs a MAS license under the Payment Services Act 2019 unless exempt. On 2023-08-15 MAS finalized a framework for single-currency stablecoins pegged to the Singapore dollar or a G10 currency and issued in Singapore.",
       "sources": [
         "src-reg-mas-ps-licensing",
+        "src-policy-sg-psa-s5",
         "src-reg-mas-stablecoin-2023"
       ],
       "confidence": "verified"
@@ -200,8 +209,11 @@
     {
       "jurisdiction": "card-networks",
       "topic": "liability",
-      "text": "Card-network rules do not apply to exact stablecoin settlements. The x402 Foundation runs a card-acceptance working group, but no specification text exists yet; cloudflare:402 is credit billed by Cloudflare as merchant of record under its own terms.",
+      "text": "Visa's rules define a Transaction as the use of a payment credential, which an exact stablecoin settlement does not involve. The x402 Foundation runs a card-acceptance working group (repository created 2026-09-23); a draft card binding for the auth-capture scheme, pull request #3707 opened on 2026-10-06, was unmerged on 2026-10-19. cloudflare:402 is credit billed by Cloudflare as merchant of record under its own terms.",
       "sources": [
+        "src-visa-rules-public",
+        "src-x402-wg-card-acceptance",
+        "src-x402-gh-pr-3707",
         "src-x402-gh-org",
         "src-x402-scheme-batch-cf"
       ],

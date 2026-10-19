@@ -162,7 +162,7 @@
       "specRef": { "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/x402-specification-v2.md", "section": "7.2 POST /settle" },
       "controlPoint": "At settlement: facilitator sanctions and KYT screening (the CDP facilitator runs OFAC and Know Your Transaction checks), onBeforeSettle hooks, deduplication across settle workers.",
       "failures": [
-        { "condition": "The settle call times out or returns settlement_pending", "outcome": "The outcome is indeterminate; the server must reconcile the broadcast hash before it retries." }
+        { "condition": "The settle call times out or returns settlement_pending", "outcome": "Indeterminate: on settlement_pending the server retries settle once and the facilitator reconciles against the hash it broadcast; after a timeout with no hash, the server can check the authorization nonce on chain. The reference middleware sends no data unless settle succeeds." }
       ]
     },
     {
@@ -174,7 +174,7 @@
       "detail": "On the EVM exact path the facilitator submits the authorization to the token contract and pays the gas. The contract checks signature, window and nonce and moves exactly value to payTo. The facilitator cannot change the amount or the recipient.",
       "crossesTrustBoundary": true,
       "specRef": { "url": "https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/specs/schemes/exact/scheme_exact_evm.md", "section": "Settlement" },
-      "observable": "Public: an ordinary token Transfer plus AuthorizationUsed event; nothing on chain marks it as an x402 payment.",
+      "observable": "Public: an ordinary token Transfer plus AuthorizationUsed event. Neither names x402, but indexers can attribute the payment by the facilitator address that sent it or, when the builder-code extension is used, by an ERC-8021 suffix in the calldata.",
       "failures": [ { "condition": "The nonce was used or the balance dropped", "outcome": "The transaction reverts and the facilitator returns success false." } ]
     },
     {
@@ -186,7 +186,7 @@
       "detail": "The server returns the weather data and a PAYMENT-RESPONSE header holding the base64 SettleResponse: success, payer, transaction (the hash), network and amount. The transaction hash becomes the txHash of proofOfPayment.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, spec version x402 v2.0.\nHTTP/1.1 200 OK\nContent-Type: application/json\nPAYMENT-RESPONSE: eyJzdWNjZXNzIjp0cnVlLC...\n\n# decoded header\n{ \"success\": true, \"payer\": \"0xA11C...A11C\", \"transaction\": \"0x5e5e...7a1c\", \"network\": \"eip155:8453\", \"amount\": \"10000\" }",
+        "content": "# Illustrative example, spec version x402 v2.0.\nHTTP/1.1 200 OK\nContent-Type: application/json\nPAYMENT-RESPONSE: eyJzdWNjZXNzIjp0cnVlLC...\n\n# decoded header\n{ \"success\": true, \"payer\": \"0xA11C...A11C\", \"transaction\": \"0x9f9f...beef\", \"network\": \"eip155:8453\", \"amount\": \"10000\" }",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -202,7 +202,7 @@
       "detail": "The client writes the off-chain feedback file first: the required agentRegistry, agentId, clientAddress, createdAt, value and valueDecimals, plus optional tag1 and proofOfPayment {fromAddress, toAddress, chainId, txHash}. The proof lives only here, never on chain.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 123456789,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 90,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"endpoint\": \"https://api.weather.example/weather\",\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x5e5e...7a1c\"\n  }\n}",
+        "content": "// Illustrative example, spec version Draft 2026-01-25.\n{\n  \"agentRegistry\": \"eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432\",\n  \"agentId\": 123456789,\n  \"clientAddress\": \"eip155:8453:0xA11C...A11C\",\n  \"createdAt\": \"2026-10-11T12:00:00Z\",\n  \"value\": 90,\n  \"valueDecimals\": 0,\n  \"tag1\": \"starred\",\n  \"endpoint\": \"https://api.weather.example/weather\",\n  \"proofOfPayment\": {\n    \"fromAddress\": \"0xA11C...A11C\",\n    \"toAddress\": \"0xB0B0...0B0B\",\n    \"chainId\": \"8453\",\n    \"txHash\": \"0x9f9f...beef\"\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -254,6 +254,11 @@
     "src-x402-cdp-bazaar",
     "src-x402-sdk-spendcontrols",
     "src-x402-cdp-facilitator",
+    "src-x402-docs-facilitator-concept",
+    "src-x402-sdk-express",
+    "src-gloss-erc-3009",
+    "src-x402-ext-builder-code",
+    "src-x402scan-repo",
     "src-erc-8004-spec",
     "src-erc-8004-identity-sol",
     "src-erc-8004-reputation-sol"

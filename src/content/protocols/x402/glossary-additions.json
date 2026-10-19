@@ -173,7 +173,7 @@
       "ERC-8021"
     ],
     "plain": "An x402 extension that appends an ERC-8021 suffix to settlement calldata, naming the app, the wallet or facilitator, and the service, so indexers can attribute payments.",
-    "ste": "A short code at the end of the settlement data. It shows which application and facilitator sent the payment.",
+    "ste": "A short code at the end of the settlement data. It shows which application sold the resource and which facilitator sent the payment.",
     "protocols": [
       "x402"
     ],
@@ -203,7 +203,7 @@
     "aliases": [
       "LSAT"
     ],
-    "plain": "An earlier HTTP 402 payment design on Lightning by Lightning Labs, launched as LSAT on 2020-03-30 (macaroon plus BOLT11 invoice) and renamed L402 on 2023-04-20. The bLIP-0026 draft, rewritten on 2026-02-25 and still an open pull request, is token-agnostic with macaroons optional. No source says it is the ancestor of x402.",
+    "plain": "An earlier HTTP 402 payment design on Lightning by Lightning Labs, launched as LSAT on 2020-03-30 (macaroon plus BOLT11 invoice) and renamed L402 on 2023-04-20. The bLIP-0026 draft, rewritten on 2026-02-25 and still an open pull request, is token-agnostic with macaroons optional. Neither its specification nor x402's describes a lineage between the two.",
     "ste": "A different HTTP 402 payment protocol on the Lightning Network.",
     "protocols": [
       "x402"
@@ -221,7 +221,7 @@
     "aliases": [
       "protocol version field"
     ],
-    "plain": "The field in every x402 message that names the protocol version: 1 for the legacy wire format, 2 for the current one.",
+    "plain": "The field in PaymentRequired, PaymentPayload and facilitator requests that names the protocol version: 1 for the legacy wire format, 2 for the current one. Verify and settlement responses do not carry it.",
     "ste": "A field that gives the protocol version. The value 2 is the current version.",
     "protocols": [
       "x402"

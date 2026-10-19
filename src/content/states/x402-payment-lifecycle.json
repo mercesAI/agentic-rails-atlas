@@ -55,7 +55,7 @@
       "id": "rejected",
       "label": "Rejected",
       "terminal": true,
-      "note": "400 for a malformed payload and 402 for a failed payment (spec); the @x402/express middleware answers 502 when the facilitator is unreachable (SDK behavior)."
+      "note": "400 for a malformed payload and 402 for a failed payment (spec); the @x402/express middleware answers 502 when the facilitator times out or returns malformed data (SDK behavior)."
     },
     {
       "id": "responded",
@@ -87,7 +87,7 @@
     {
       "from": "payload-received",
       "to": "rejected",
-      "trigger": "Malformed payload or unsupported scheme, network or flow",
+      "trigger": "Malformed payload or requirements",
       "apiCall": "HTTP 400",
       "specRef": "transports-v2/http.md"
     },
@@ -101,14 +101,14 @@
     {
       "from": "payload-received",
       "to": "rejected",
-      "trigger": "Facilitator returns isValid false",
+      "trigger": "Facilitator returns isValid false, for example for an unsupported scheme or network",
       "apiCall": "POST /verify, then HTTP 402",
       "specRef": "x402-specification-v2.md 9"
     },
     {
       "from": "payload-received",
       "to": "rejected",
-      "trigger": "Facilitator unreachable (@x402/express answers 502; SDK behavior, not in the spec)",
+      "trigger": "Facilitator times out or returns malformed data (@x402/express answers 502; SDK behavior, not in the spec)",
       "apiCall": "HTTP 502",
       "specRef": "typescript/packages/http/express/src/index.ts"
     },
@@ -120,9 +120,22 @@
       "specRef": "x402-specification-v2.md 6.1"
     },
     {
+      "from": "payload-received",
+      "to": "rejected",
+      "trigger": "upfront or escrow flow: first settle fails",
+      "apiCall": "POST /settle, then HTTP 402",
+      "specRef": "x402-specification-v2.md 6.1"
+    },
+    {
       "from": "verified",
       "to": "executed",
       "trigger": "Handler runs",
+      "specRef": "x402-specification-v2.md 6.1"
+    },
+    {
+      "from": "verified",
+      "to": "rejected",
+      "trigger": "Handler fails: no settle, so the client is not charged",
       "specRef": "x402-specification-v2.md 6.1"
     },
     {
@@ -148,8 +161,8 @@
     {
       "from": "settle-pending",
       "to": "settled",
-      "trigger": "Server reconciles on chain and finds the transfer",
-      "specRef": "x402-specification-v2.md 9"
+      "trigger": "SDK retries settle once and the facilitator reconciles against the broadcast hash",
+      "specRef": "docs/core-concepts/facilitator.md"
     },
     {
       "from": "settle-pending",

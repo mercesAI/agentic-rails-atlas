@@ -1,7 +1,7 @@
 ---
 protocol: x402
 title: x402 in Simplified Technical English
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-19"
 ---
 
 <SteDescription>
@@ -14,7 +14,7 @@ Version 2 is the current version. It uses three HTTP headers: PAYMENT-REQUIRED, 
 
 The exact scheme moves one fixed amount one time. The signature of the client includes the amount and the payTo address. Thus, the facilitator cannot change the amount or the address.
 
-The nonce and the time window stop a replay attack. x402 does not identify the client. x402 does not give a refund for an exact settlement. The protocol does not set a limit for the amount that a client pays. The client software or the wallet must apply the limits.
+The nonce and the time window stop a replay attack. The payment does not identify the client. Optional extensions can identify the client. x402 does not give a refund for an exact settlement. The protocol does not set a limit for the amount that a client pays. The client software or the wallet must apply the limits.
 
 </SteDescription>
 
@@ -62,15 +62,16 @@ DO NOT RUN THE HANDLER BEFORE THE `/verify` STEP OR THE `/settle` STEP IS COMPLE
 
 1. Decode the payment payload and the payment requirements from the request.
 2. Make sure that the scheme and the network agree with the payment requirements.
-3. Get the address of the signer from the EIP-712 signature.
+3. Make sure that the EIP-712 signature is valid for the `from` address.
 4. Make sure that the `to` value of the authorization is equal to payTo.
 5. Make sure that the `value` of the authorization is equal to the amount.
 6. Make sure that the time now is after `validAfter` and before `validBefore`.
 7. Read the balance of the payer and the state of the nonce.
-8. If a check fails, send `isValid` as false with the error code.
-9. When the server calls `/settle`, do all of the checks again.
-10. Send the transaction to the network. Keep the transaction identifier.
-11. If you cannot get the receipt, send `settlement_pending` with the transaction identifier.
+8. Test the transfer without a change to the network.
+9. If a check or the test fails, send `isValid` as false with the error code.
+10. When the server calls `/settle`, do all of the checks again.
+11. Send the transaction to the network. Keep the transaction identifier.
+12. If you cannot get the receipt, send `settlement_pending` with the transaction identifier.
 
 </SteProcedure>
 

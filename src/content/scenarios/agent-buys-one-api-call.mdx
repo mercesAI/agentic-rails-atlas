@@ -13,7 +13,7 @@ personas:
   - api-seller
   - facilitator
   - controls-builder
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-19"
 ---
 
 ## The situation
@@ -22,17 +22,17 @@ A research agent needs the current weather for one city, once. No human is prese
 
 ## Actors
 
-- **Client agent** with a wallet that can sign EIP-712 typed data (the buyer).
+- **Client agent** with a wallet that can sign EIP-712 typed data (the buyer).<Cite ids="clm-x402-121" />
 - **Seller resource server**, the weather API, which also owns an ERC-8004 agent identity.
 - **Facilitator**, which verifies and settles x402 payments and does not hold funds.<Cite ids="clm-x402-063 clm-x402-064" />
-- **Bazaar discovery endpoint**, a facilitator's public catalog of paid resources.<Cite ids="clm-x402-083" />
+- **Bazaar discovery endpoint**, a facilitator's catalog of paid resources; the CDP one is public.<Cite ids="src-x402-ext-bazaar clm-x402-160" />
 - **ERC-8004 Identity and Reputation Registries**, singleton contracts that use the same addresses on every listed mainnet.<Cite ids="clm-erc-8004-094 clm-erc-8004-095" />
 - **Storage host** (IPFS or HTTPS) for the registration file and the feedback file.
 - **Readers**: indexers, explorers and later buyers.
 
 ## Step by step
 
-1. **Discover (x402, path A).** The client calls `GET /discovery/resources` on a Bazaar and gets listings with `resource`, `type`, `x402Version`, `accepts` and `lastUpdated`.<Cite ids="clm-x402-083" /> The CDP instance answers without an API key, but it returns listings, not categories.<Cite ids="clm-x402-160 clm-x402-161" />
+1. **Discover (x402, path A).** The client calls `GET /discovery/resources` on a Bazaar and gets listings with `resource`, `type`, `x402Version`, `accepts` and `lastUpdated`.<Cite ids="clm-x402-083" /> The CDP instance answers without an API key.<Cite ids="clm-x402-160" /> Its listings carry seller-supplied tags, a few also carry a seller-declared category, and CDP publishes no category taxonomy (as of 2026-10-19).<Cite ids="clm-x402-161" />
 2. **Discover (ERC-8004, path B).** The client reads the seller's `agentURI` and `agentWallet` from the Identity Registry. `agentWallet` is where the agent receives payments, and setting it needs a signature from the new wallet.<Cite ids="clm-erc-8004-035 clm-erc-8004-036" />
 3. **Read the registration file (ERC-8004).** The file lists `services`, `x402Support`, `active` and `registrations`.<Cite ids="clm-erc-8004-045" /> An agent can prove control of its endpoint domain with a `/.well-known/agent-registration.json` file.<Cite ids="clm-erc-8004-050" />
 4. **Request (x402).** The client calls the endpoint with no payment header and learns the price from the reply.<Cite ids="clm-x402-093" />
@@ -68,20 +68,20 @@ x402 V2.0 is dated 2025-12-09 in the specification's version table.<Cite ids="cl
 
 ## What is observable from outside
 
-On chain, an exact EIP-3009 payment shows only the token's own `Transfer` and `AuthorizationUsed` events, so nothing marks it as x402.<Cite ids="clm-x402-156" /> The `NewFeedback` event carries `agentId`, `clientAddress`, `feedbackIndex`, `value`, `valueDecimals`, the tags, `endpoint`, `feedbackURI` and `feedbackHash`; the last three exist on chain only in that event.<Cite ids="clm-erc-8004-061 clm-erc-8004-058" /> Agent0 subgraphs on The Graph index `Registered`, `MetadataSet`, `NewFeedback` and `FeedbackRevoked`.<Cite ids="clm-erc-8004-122" /> Once published, the feedback file lets anyone join the review to the payment through `txHash`.<Cite ids="clm-erc-8004-075" />
+On chain, an exact EIP-3009 payment shows only the token's own `Transfer` and `AuthorizationUsed` events, and neither names x402.<Cite ids="clm-x402-156" /> Indexers attribute such payments by the facilitator address that sent them, which facilitators list in `/supported`, or by a builder-code suffix in the calldata when that extension is used.<Cite ids="src-x402-spec-v2 src-x402scan-repo clm-x402-089" /> The `NewFeedback` event carries `agentId`, `clientAddress`, `feedbackIndex`, `value`, `valueDecimals`, the tags, `endpoint`, `feedbackURI` and `feedbackHash`; the last three exist on chain only in that event.<Cite ids="clm-erc-8004-061 clm-erc-8004-058" /> Agent0 subgraphs on The Graph index `Registered`, `MetadataSet`, `NewFeedback` and `FeedbackRevoked`.<Cite ids="clm-erc-8004-122" /> Once published, the feedback file lets anyone join the review to the payment through `txHash`.<Cite ids="clm-erc-8004-075" />
 
-What stays private: the 402 exchange itself. Resource URLs, descriptions and amounts in x402 headers travel only between client, server and facilitator.<Cite ids="clm-x402-165" /> On-chain pointers and hashes cannot be deleted, so personal data does not belong in a feedback file.<Cite ids="clm-erc-8004-119" />
+What stays private: the exchange itself. The x402 headers travel only between client, server and facilitator, and the EIP-3009 transfer does not name the resource.<Cite ids="clm-x402-165 clm-x402-121" /> Some details are public anyway: in path A the Bazaar listing shows the resource URL, price and `payTo`, and the transfer shows payer, payee and amount.<Cite ids="clm-x402-160 clm-x402-083 clm-x402-071 clm-x402-156" /> On-chain pointers and hashes cannot be deleted, so personal data does not belong in a feedback file.<Cite ids="clm-erc-8004-119" />
 
 ## What can go wrong
 
 - **Verification fails.** Errors such as `insufficient_funds` or `invalid_exact_evm_payload_signature` stop the call before the handler runs.<Cite ids="clm-x402-110" /> Nobody loses money.
-- **Settle times out.** The outcome is indeterminate: `settlement_pending` is non-terminal and the server must reconcile before retrying.<Cite ids="clm-x402-111" /> The seller carries the risk of serving data it may not be paid for.
+- **Settle times out.** The outcome is indeterminate, since the transfer may still land. On `settlement_pending` the reference server retries settle once, and the facilitator reconciles against the transaction it already broadcast.<Cite ids="clm-x402-111" /> The reference Express middleware sends the data only if settle succeeds, so the seller loses at most the cost of running the handler.<Cite ids="src-x402-sdk-express" /> The client carries the risk: its transfer may still confirm after it received a 402.<Cite ids="src-x402-docs-facilitator-concept src-x402-transport-http-v2" />
 - **Bad data after payment.** The exact scheme defines no refund and x402 has no dispute process, so the client bears the loss.<Cite ids="clm-x402-129 clm-x402-150" /> Its only remedy in this scenario is a low score.
 - **Self-review or fake reviews.** The contract rejects feedback from the agent's owner or operators with "Self-feedback not allowed".<Cite ids="clm-erc-8004-056" /> It does not stop Sybil reviewers, and the spec leaves that to filtering by trusted reviewers.<Cite ids="clm-erc-8004-109" /> One 2026 study found coordinated Sybil behavior among 90.6% of reviewers on Base.<Cite ids="clm-erc-8004-154" />
 - **Fake proof.** A `txHash` that pays someone else is not flagged on chain; `getSummary` still averages the value.<Cite ids="clm-erc-8004-067" />
 - **Changed registration.** A file served over HTTPS can change with no on-chain event.<Cite ids="clm-erc-8004-111" />
 
-Costs fall on two parties. The facilitator pays settlement gas; the CDP facilitator makes the first 1,000 on-chain transactions each month free and then charges $0.001 each (as of 2026-10-11).<Cite ids="clm-x402-186" /> The client pays the gas for `giveFeedback`, measured on 2026-10-11 at about 155,000 to 193,000 gas for a first feedback, depending on whether the agent already had clients.<Cite ids="clm-erc-8004-143 clm-erc-8004-224" /> Applications can sponsor that gas with EIP-7702.<Cite ids="clm-erc-8004-120" />
+Costs fall on three parties. The facilitator pays settlement gas.<Cite ids="clm-x402-191" /> With the CDP facilitator the seller pays a fee: the first 1,000 on-chain transactions each month are free, then $0.001 each (as of 2026-10-19).<Cite ids="clm-x402-186" /> The client pays the gas for `giveFeedback`, measured on 2026-10-11 at about 155,000 to 193,000 gas for a first feedback, depending on whether the agent already had clients.<Cite ids="clm-erc-8004-143 clm-erc-8004-224" /> Applications can sponsor that gas with EIP-7702.<Cite ids="clm-erc-8004-120" />
 
 ## Variants
 

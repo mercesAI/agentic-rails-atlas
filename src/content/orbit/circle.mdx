@@ -12,14 +12,16 @@ latestVersion:
 relations:
   - to: x402
     type: complements
-    note: "Nanopayments run inside the x402 flow with EIP-3009 authorizations; Circle reports Agent Stack payments over x402 settle in USDC."
+    note: "Nanopayments run inside the x402 flow with EIP-3009 authorizations. Circle's Arc release (2026-09-16) says the overwhelming majority of agent-to-agent x402 payments since the Agent Stack launch in May 2026 settled in USDC (vendor claim, no method)."
 sources:
   - src-x402-circle-nanopayments
   - src-x402-fee-circle
+  - src-x402-fee-circle-gateway
   - src-orbit-circle-arc-mainnet
+  - src-orbit-circle-dune-x402-token
   - src-orbit-circle-arc-validators
   - src-orbit-circle-arc-theblock
 lastVerified: "2026-10-11"
 ---
 
-Nanopayments, live on mainnet since 2026-04-29, let a buyer sign EIP-3009 authorizations off-chain at zero gas for amounts from $0.000001 USDC, which Gateway batches and settles in bulk inside the [x402](/p/x402/) flow; the docs page lists no fee schedule. <Cite ids="src-x402-circle-nanopayments src-x402-fee-circle" /> Circle says it launched the Agent Stack (policy-controlled Agent Wallets plus Nanopayments) in May 2026 and opened Arc's public mainnet on 2026-09-16 with a permissioned founding validator cohort that includes BlackRock, DTCC, Mastercard and Visa. <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-arc-validators src-orbit-circle-arc-theblock" /> The Arc release says Arc has not been reviewed or approved by the New York State Department of Financial Services or any other regulator, and it claims that USDC accounts for 98.8% of agent-driven transaction volume, a vendor figure with no stated method (as of 2026-09-16). <Cite ids="src-orbit-circle-arc-mainnet" />
+Nanopayments, live on mainnet since 2026-04-29, let a buyer sign EIP-3009 authorizations off-chain at zero gas for amounts from $0.000001 USDC, which Gateway batches and settles in bulk inside the [x402](/p/x402/) flow. <Cite ids="src-x402-circle-nanopayments src-x402-fee-circle" /> Circle says bulk settlement means neither party pays per-transaction fees. Moving funds out of Gateway costs a gas fee per burn, for example $0.01 from Base, and crosschain transfers add 0.005 percent (as of 2026-10-19). <Cite ids="src-x402-fee-circle src-x402-fee-circle-gateway" /> Circle says it launched the Agent Stack (policy-controlled Agent Wallets plus Nanopayments) in May 2026 and opened Arc's public mainnet on 2026-09-16 with a permissioned founding validator cohort that includes BlackRock, DTCC, Mastercard and Visa. <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-arc-validators src-orbit-circle-arc-theblock" /> The Arc release says Arc has not been reviewed or approved by the New York State Department of Financial Services or any other regulator. <Cite ids="src-orbit-circle-arc-mainnet" /> It also claims that USDC accounts for 98.8% of agent-driven transaction volume, linking a public Dune query of x402 volume by token. The release gives no method or date range (as of 2026-09-16). <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-dune-x402-token" />

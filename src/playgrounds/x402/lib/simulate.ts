@@ -390,11 +390,11 @@ async function authorizationPath(
       to: 'client',
       title: '502 Bad Gateway',
       detail:
-        'The @x402/express middleware turns a facilitator failure into HTTP 502. The handler does not run and nothing moves. The signature stays usable until validBefore, so the client can retry later.',
+        'The @x402/express middleware turns a facilitator timeout (or a malformed facilitator answer) into HTTP 502. The handler does not run and nothing moves. The signature stays usable until validBefore, so the client can retry later.',
       status: 'fail',
       wire: { caption: `${caption}. Body text from @x402/express.`, text: renderHttpResponse({ status: 502, headers: [['Content-Type', 'application/json']], body: facilitatorTimeoutBody('verify', FACILITATOR_TIMEOUT_MS) }) },
     });
-    return finish({ kind: 'gateway', title: '502 Bad Gateway', detail: 'The facilitator was unreachable, so the server refused before running the handler.' }, signing);
+    return finish({ kind: 'gateway', title: '502 Bad Gateway', detail: 'The facilitator timed out, so the server refused before running the handler.' }, signing);
   }
 
   push({
@@ -507,7 +507,7 @@ async function upfrontPath(
       to: 'client',
       title: '502 Bad Gateway',
       detail:
-        'A settle timeout is indeterminate: the facilitator may still have broadcast the transfer. The server must reconcile on chain before it retries or refuses.',
+        'A settle timeout is indeterminate: the facilitator may still have broadcast the transfer. The server should check the chain before it retries or refuses.',
       status: 'fail',
       wire: { caption: `${caption}. Body text from @x402/express.`, text: renderHttpResponse({ status: 502, headers: [['Content-Type', 'application/json']], body: facilitatorTimeoutBody('settle', FACILITATOR_TIMEOUT_MS) }) },
     });

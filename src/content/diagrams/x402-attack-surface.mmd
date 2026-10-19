@@ -6,10 +6,10 @@ flowchart LR
   subgraph W["Wire and edge"]
     w1["402 response altered in transit"]
     w2["Signed header captured and replayed"]
-    w3["Large headers dropped by intermediaries"]
+    w3["Large headers rejected by intermediaries"]
   end
   subgraph S["Resource server"]
-    s1["Route-matching bypass (encoded paths)"]
+    s1["Route-matching bypass (encoded paths, HEAD on GET routes)"]
     s2["Handler runs, settle fails"]
     s3["Cross-resource substitution"]
   end

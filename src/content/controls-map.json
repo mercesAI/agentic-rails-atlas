@@ -255,7 +255,7 @@
       "protocol": "x402",
       "control": "merchant-payee-scoping",
       "support": "native",
-      "note": "The signature covers payTo and the amount; upto also names the one facilitator allowed to settle.",
+      "note": "With EIP-3009 and Permit2 the client's signature covers payTo and the amount; with ERC-7710 the delegation's caveats must. EVM upto also names the one facilitator allowed to settle.",
       "sources": [
         "src-x402-scheme-exact-evm",
         "src-x402-scheme-upto-evm"
@@ -264,30 +264,38 @@
     {
       "protocol": "x402",
       "control": "time-windows-expiry",
-      "support": "native",
-      "note": "validAfter, validBefore, Permit2 deadline, maxTimeoutSeconds and Lightning invoice expiry bound every authorization.",
+      "support": "partial",
+      "note": "validAfter, validBefore, the Permit2 deadline, maxTimeoutSeconds and Lightning invoice expiry bound exact, upto, auth-capture and Lightning authorizations. Batch-settlement vouchers carry no expiry and stay claimable until the escrow is drained; ERC-7710 delegations carry whatever limits the delegator set.",
       "sources": [
         "src-x402-spec-v2",
-        "src-x402-scheme-exact-lnbtc"
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-scheme-batch-evm",
+        "src-x402-scheme-exact-evm"
       ]
     },
     {
       "protocol": "x402",
       "control": "revocation",
       "support": "partial",
-      "note": "A signed exact authorization cannot be recalled before it expires. auth-capture adds void and client reclaim after captureDeadline; batch-settlement channels allow timed withdrawal.",
+      "note": "x402 has no revocation message. The signer can race the facilitator by canceling an unused EVM authorization on chain before settlement: EIP-3009 cancelAuthorization (Base USDC implements it), Permit2 nonce invalidation or revoking an ERC-7710 delegation. auth-capture adds void and client reclaim after the capture deadline; batch-settlement channels allow timed withdrawal.",
       "sources": [
         "src-x402-scheme-auth-capture",
-        "src-x402-scheme-batch-evm"
+        "src-x402-scheme-batch-evm",
+        "src-gloss-erc-3009",
+        "src-x402-base-usdc-cancel-auth",
+        "src-circle-usdc-fiattokenv2",
+        "src-permit2-signature-transfer",
+        "src-x402-scheme-exact-evm"
       ]
     },
     {
       "protocol": "x402",
       "control": "step-up-authentication",
       "support": "none",
-      "note": "The specification defines no step-up or challenge beyond the 402 itself.",
+      "note": "The core specification defines no step-up to the human. The auth-hints extension lets a server require OAuth authentication for specific payment options (a 401 challenge), which identifies the client but is not a risk-based escalation.",
       "sources": [
-        "src-x402-spec-v2"
+        "src-x402-spec-v2",
+        "src-x402-ext-auth-hints"
       ]
     },
     {
@@ -315,11 +323,13 @@
     {
       "protocol": "x402",
       "control": "dispute-support",
-      "support": "none",
-      "note": "No dispute process. exact has no refund; auth-capture adds refunds, and third parties such as x402r add arbitration.",
+      "support": "partial",
+      "note": "No dispute or chargeback process. exact defines no refund; auth-capture adds void, refund and reclaim, batch-settlement channels refund unclaimed escrow, Solana upto returns unused escrow, and third parties such as x402r add arbitration.",
       "sources": [
         "src-x402-scheme-exact",
         "src-x402-scheme-auth-capture",
+        "src-x402-scheme-batch-evm",
+        "src-x402-scheme-upto-svm",
         "src-x402-docs-devtools"
       ]
     },
@@ -337,12 +347,14 @@
       "protocol": "x402",
       "control": "monitoring-signals",
       "support": "partial",
-      "note": "Settlements are public on chain but look like ordinary transfers; /supported, Bazaar and x402scan are public; header contents are private.",
+      "note": "On-chain settlements (EVM, Solana) are public but look like ordinary transfers; /supported, Bazaar and x402scan expose endpoints and 402 offers. Payment payloads, Lightning payments and cloudflare:402 commitments are not public.",
       "sources": [
         "src-x402-scheme-exact-evm",
         "src-x402-erc8004-bp",
         "src-x402-cdp-bazaar",
-        "src-x402scan-repo"
+        "src-x402scan-repo",
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-scheme-batch-cf"
       ]
     },
     {

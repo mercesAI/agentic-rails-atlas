@@ -13,7 +13,7 @@ personas:
   - cdn-security
   - facilitator
   - controls-builder
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-19"
 ---
 
 ## The situation
@@ -26,8 +26,8 @@ There is a fit question too. The gateway targets per-use resources such as websi
 
 ## Actors
 
-- **Crawler**, an autonomous agent with a wallet (variant a) or a Cloudflare billing account (variant b).
-- **Cloudflare edge**, which prices requests and checks payment.
+- **Crawler**, an autonomous agent with a wallet (variant a) or a Cloudflare billing account (variant b).<Cite ids="clm-x402-183 clm-scn-crawler-pays-per-page-008" />
+- **Cloudflare edge**, which prices requests and checks payment.<Cite ids="clm-scn-crawler-pays-per-page-005 clm-scn-crawler-pays-per-page-011" />
 - **Publisher origin**, the seller.
 - **Coinbase x402 facilitator** and **Base**, in variant (a) only.<Cite ids="clm-x402-183" />
 - **Crawler key directory** and **Cloudflare billing**, in variant (b) only; Cloudflare acts as merchant of record there.<Cite ids="clm-x402-068" />
@@ -47,7 +47,7 @@ There is a fit question too. The gateway targets per-use resources such as websi
 
 7. **Register once (x402 extension).** The crawler publishes keys at `/.well-known/http-message-signatures-directory` and registers its signature agent; Cloudflare ties it to a billing identity.<Cite ids="clm-scn-crawler-pays-per-page-008" />
 8. **Request (x402).** The crawler asks for the article.
-9. **402 (x402).** The requirement names `batch-settlement`, `cloudflare:402`, `payTo` set to the constant `merchant`, and asset `USD`.<Cite ids="clm-x402-068 clm-x402-108" /> Schema and optional fields are dropped because large headers may be lost.<Cite ids="clm-x402-234" />
+9. **402 (x402).** The requirement names `batch-settlement`, `cloudflare:402`, `payTo` set to the constant `merchant`, and asset `USD`.<Cite ids="clm-x402-068 clm-x402-108" /> Schema and optional fields are dropped because intermediaries may reject large headers.<Cite ids="clm-x402-234" />
 10. **Sign (x402).** The crawler sends `Signature-Agent`, `Signature-Input` and `Signature`, plus `PAYMENT-SIGNATURE` with amount and asset.<Cite ids="clm-x402-108" /> The signature covers `@authority`, `signature-agent` and `payment-signature`.<Cite ids="clm-scn-crawler-pays-per-page-007" />
 11. **Verify at the edge (x402).** The edge checks the signature, the known agent, amount and asset, freshness and the accepted offer.<Cite ids="clm-scn-crawler-pays-per-page-011" />
 12. **Serve (x402).** The `PAYMENT-RESPONSE` has an empty transaction field.<Cite ids="clm-scn-crawler-pays-per-page-012" />
@@ -66,24 +66,24 @@ The batch-settlement scheme, its `cloudflare:402` binding and the signatures ext
 ## Where controls apply
 
 - **Before authorization.** Budgets are out of scope for x402 and live in SDKs and wallets.<Cite ids="clm-x402-147" /> The TypeScript client caps each payment at $1 by default.<Cite ids="clm-x402-145" /> In variant (b) the credit terms set at registration act as the limit.<Cite ids="clm-scn-crawler-pays-per-page-009" />
-- **At signing.** In variant (a) the client's signature fixes recipient and amount.<Cite ids="clm-x402-126" /> In variant (b) the signature binds the payment header to the request.<Cite ids="clm-scn-crawler-pays-per-page-007" />
-- **At the edge.** Cloudflare's gateway is the enforcement point in both; in variant (b) RFC 9421 identity replaces a wallet.<Cite ids="clm-x402-152" />
+- **At signing.** In variant (a) the client's signature fixes the recipient and the most it can be charged: the price, or a ceiling under variable pricing.<Cite ids="clm-x402-126 clm-x402-104 clm-scn-crawler-pays-per-page-003" /> In variant (b) the signature binds the payment header to the request.<Cite ids="clm-scn-crawler-pays-per-page-007" />
+- **At the edge.** Cloudflare's edge enforces payment in both variants through different products: the Monetization Gateway in (a) and pay-per-crawl on the `cloudflare:402` network in (b), where RFC 9421 identity replaces a wallet.<Cite ids="clm-x402-184 clm-scn-crawler-pays-per-page-008 clm-x402-152" />
 - **At settlement.** Variant (a) has the facilitator, which usually pays gas.<Cite ids="clm-x402-191" /> Variant (b) has Cloudflare's billing.
-- **After the fact.** The exact scheme defines no refund, and x402 has no dispute process.<Cite ids="clm-x402-129 clm-x402-150" /> In variant (b) Cloudflare is merchant of record with its own billing and dispute terms.<Cite ids="clm-x402-168" />
+- **After the fact.** Neither `exact` nor EVM `upto` defines a refund, and x402 has no dispute process.<Cite ids="clm-x402-129 src-x402-scheme-upto-evm clm-x402-150" /> In variant (b) Cloudflare is merchant of record with its own billing and dispute terms.<Cite ids="clm-x402-168" />
 
 ## What is observable from outside
 
-Variant (a) leaves a USDC transfer on Base. Header contents such as resource URLs and amounts stay between client, server and facilitator, so the chain shows the transfer but not the page.<Cite ids="clm-x402-165" /> Variant (b) leaves nothing on any chain: commitments never reach one, and Cloudflare alone holds the link from signature identity to billing account.<Cite ids="clm-x402-166" /> The crawler's key directory is public, since the edge must fetch it.<Cite ids="clm-x402-124" /> The gateway post gives no fee or payout schedule.<Cite ids="clm-scn-crawler-pays-per-page-006" />
+Variant (a) leaves a USDC transfer on Base that shows payer, payee and amount. Header contents such as resource URLs stay between client, server and facilitator, so the chain shows the payment but not the page.<Cite ids="clm-x402-183 clm-x402-156 clm-x402-165" /> Variant (b) leaves nothing on any chain: commitments never reach one, and Cloudflare holds the link from signature identity to billing account.<Cite ids="clm-x402-166" /> Only the crawler's key directory is public, since the edge must fetch it.<Cite ids="clm-x402-124" /> The gateway post gives no fee or payout schedule.<Cite ids="clm-scn-crawler-pays-per-page-006" />
 
 ## What can go wrong
 
-- **Unknown or unregistered crawler (b).** The binding returns `signature_agent_unknown`, `invalid_signature`, `payment_failed` or `price_not_acceptable`.<Cite ids="clm-x402-109" />
-- **No identity check (a).** The gateway post mentions no crawler signature requirement and says identity primitives are planned.<Cite ids="clm-scn-crawler-pays-per-page-004" /> Anyone with a funded wallet can pay.
+- **Unknown or unregistered crawler (b).** The binding returns `signature_agent_unknown`, `invalid_signature` or `payment_failed`; a wrong amount gets `price_not_acceptable`.<Cite ids="clm-x402-109" />
+- **No identity check (a).** The gateway post mentions no crawler signature requirement and says identity primitives are planned.<Cite ids="clm-scn-crawler-pays-per-page-004" /> The closed beta is limited to eligible US-based buyers, yet the post describes no step a buyer completes before paying, so it does not say how that limit is checked.<Cite ids="clm-x402-170 clm-scn-crawler-pays-per-page-004" />
 - **Settle timeout (a).** A timeout is indeterminate; `settlement_pending` is retried and reconciled.<Cite ids="clm-x402-111" />
-- **Concentration.** Critics note that Cloudflare's gateway, like most x402 traffic, routes through Coinbase's facilitator (reported).<Cite ids="clm-x402-233" />
-- **Who bears the loss.** In (a) a paid but failed fetch is the publisher's arrangement to fix, because exact has no refund.<Cite ids="clm-x402-129" /> In (b) pages are served before the bill, and what happens when a batched payment fails is set by the registration terms, not by x402.<Cite ids="clm-scn-crawler-pays-per-page-009" />
+- **Concentration.** Cloudflare's gateway settles through Coinbase's facilitator.<Cite ids="clm-x402-183" /> In a 2025 measurement that facilitator carried most x402 transactions, and the study warns that a flaw in a leading facilitator exposes many services at once.<Cite ids="src-x402-arxiv-2607-19545 clm-x402-233" />
+- **Who bears the loss.** In (a) a paid but failed fetch is the publisher's to fix: neither `exact` nor EVM `upto` defines a way to reverse a settled charge, and the gateway post gives no refund terms.<Cite ids="clm-x402-129 src-x402-scheme-upto-evm clm-scn-crawler-pays-per-page-006" /> In (b) pages are served before the bill, and what happens when a batched payment fails is set by the registration terms, not by x402.<Cite ids="clm-scn-crawler-pays-per-page-009" />
 
 ## Variants
 
 - **Pre-authorized crawler (b).** A crawler with a pre-authorized agreement can sign and pay in its first request and skip the 402.<Cite ids="clm-scn-crawler-pays-per-page-010" />
-- **Paid inference instead of pages (a).** Cloudflare AI Gateway accepts `PAYMENT-METHOD: x402` to pay for inference.<Cite ids="clm-x402-120" />
+- **Paid inference instead of pages (a).** Cloudflare AI Gateway accepts the Cloudflare-specific `Payment-Method: x402` request header to pay for inference.<Cite ids="clm-x402-120" />

@@ -29,7 +29,8 @@
       "misconception": true,
       "claimIds": [
         "clm-x402-098",
-        "clm-x402-084"
+        "clm-x402-084",
+        "clm-x402-072"
       ]
     },
     {
@@ -43,7 +44,7 @@
     },
     {
       "q": "What happened to the deferred scheme?",
-      "a": "Cloudflare proposed it in 2025-09. It merged on 2026-04-15 under the name batch-settlement, together with the credit-backed cloudflare:402 binding. The separate deferred pull request closed without merging.",
+      "a": "Cloudflare proposed it in 2025-09. It merged on 2026-04-15 under the name batch-settlement, together with the credit-backed cloudflare:402 binding. A separate deferred scheme from Edge & Node (PR #426) closed without merging on 2026-05-15, and another deferred proposal (PR #1302) was still open on 2026-10-19.",
       "misconception": true,
       "claimIds": [
         "clm-x402-056",
@@ -53,16 +54,18 @@
     },
     {
       "q": "Can a facilitator steal or redirect the payment?",
-      "a": "Not under exact on EVM: the signature covers the amount and the recipient, so the facilitator can only broadcast what the client signed. It can refuse or delay service, and it sees payment metadata.",
+      "a": "Not under exact on EVM with the default EIP-3009 or the Permit2 method: the signature covers the amount and the recipient, so the facilitator can only broadcast what the client signed. With an ERC-7710 delegation, the delegation's caveats must set those limits. A facilitator can refuse service, as the CDP facilitator does for payments that fail its screening, or stop answering, and it sees payment metadata.",
       "claimIds": [
         "clm-x402-126",
         "clm-x402-064",
+        "clm-x402-153",
+        "clm-x402-246",
         "clm-x402-165"
       ]
     },
     {
       "q": "Can I get a refund?",
-      "a": "Not in the exact scheme, which defines no refund. auth-capture supports void, refund and reclaim, batch-settlement channels allow refunds and withdrawal, and third parties such as x402r add refund and arbitration.",
+      "a": "Not in the exact scheme, which defines no refund. auth-capture supports void, refund and reclaim, batch-settlement channels allow refunds and withdrawal, upto on Solana returns unused escrow to the client, and third parties such as x402r add refund and arbitration.",
       "claimIds": [
         "clm-x402-129",
         "clm-x402-130"
@@ -70,19 +73,22 @@
     },
     {
       "q": "How much does x402 cost?",
-      "a": "The protocol charges nothing. Costs are facilitator fees and gas. The CDP facilitator makes the first 1,000 on-chain transactions each month free, then charges $0.001 per transaction, and verification is free (as of 2026-10-11).",
+      "a": "The protocol charges nothing. Costs are facilitator fees and gas. The CDP facilitator makes the first 1,000 on-chain transactions each month free, then charges $0.001 per transaction, and verification is free (as of 2026-10-19).",
       "claimIds": [
+        "clm-x402-260",
         "clm-x402-186",
         "clm-x402-191"
       ]
     },
     {
       "q": "How big is x402 really?",
-      "a": "Contested. The x402.org counter showed $24.24M over 30 days but was last updated 2026-08-25; Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21); an academic study argues settlement counts can be manufactured almost for free.",
+      "a": "Contested. The x402.org Last 30 Days counter (75.41M transactions, $24.24M) carries no date and has not changed since at least 2025-12-14, so it is not a current 30-day figure. x402scan counted about 3.02M transactions in the 30 days to 2026-10-19. Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21), and Visa's Cuy Sheffield was later reported citing about $19M across about 134M. An academic study argues settlement counts can be manufactured almost for free.",
       "misconception": true,
       "claimIds": [
         "clm-x402-194",
+        "clm-x402-256",
         "clm-x402-198",
+        "clm-x402-199",
         "clm-x402-205",
         "clm-x402-206"
       ]
@@ -99,12 +105,13 @@
     },
     {
       "q": "Is x402 the same as L402?",
-      "a": "No. L402 is an earlier HTTP 402 payment design on Lightning by Lightning Labs, launched as LSAT on 2020-03-30 with a macaroon plus a BOLT11 invoice and renamed L402 on 2023-04-20. Its bLIP-0026 draft, rewritten on 2026-02-25 and still an open pull request, makes macaroons optional. No source states that L402 is the ancestor of x402, and x402's own Lightning binding sends only a preimage, no macaroon.",
+      "a": "No. L402 is an earlier HTTP 402 payment design on Lightning by Lightning Labs, launched as LSAT on 2020-03-30 with a macaroon plus a BOLT11 invoice and renamed L402 on 2023-04-20. Its bLIP-0026 draft, rewritten on 2026-02-25 and still an open pull request, makes macaroons optional. Neither specification describes a lineage between the two, and x402's own Lightning binding sends only a preimage, no macaroon.",
       "misconception": true,
       "claimIds": [
         "clm-x402-222",
         "clm-x402-223",
-        "clm-x402-224"
+        "clm-x402-224",
+        "clm-x402-258"
       ]
     },
     {
@@ -118,7 +125,7 @@
     },
     {
       "q": "Who runs x402scan?",
-      "a": "Merit Systems, which publishes the source on GitHub and is a General member of the x402 Foundation.",
+      "a": "Merit Systems, which publishes the source on GitHub and is a General member of the x402 Foundation (2026-10-19).",
       "claimIds": [
         "clm-x402-227",
         "clm-x402-228"

@@ -2,11 +2,11 @@
   "protocol": "x402",
   "score": 3,
   "scoreReasons": [
-    "Every on-chain settlement is public, with a transaction hash returned to the client, but an exact EIP-3009 payment looks like an ordinary token Transfer plus AuthorizationUsed, so nothing marks it as x402.",
-    "The x402 contracts (Permit2 proxies, batch settlement) emit named events at the same address on every supported EVM chain, which makes those paths easy to index.",
+    "Every on-chain settlement is public, with a transaction hash returned to the client. An exact EIP-3009 payment looks like an ordinary token Transfer plus AuthorizationUsed, so nothing marks it as x402 unless the settlement carries a builder code.",
+    "The x402 contracts (Permit2 proxies, batch settlement) share one CREATE2 address on each EVM chain where they are deployed, which makes those paths easy to index. The proxies' own events carry no fields, so amounts come from the token's Transfer log.",
     "Facilitator capabilities (GET /supported) and the Bazaar resource catalog are public HTTP endpoints, and x402scan publishes an explorer and API.",
-    "The richest data (requirements, resource URLs, amounts before settlement, vouchers, screening decisions) stays in headers and facilitator logs, and credit-backed cloudflare:402 commitments never reach a chain.",
-    "Public volume counters exist but are contested and were not visibly updated after 2026-08-25."
+    "The richest per-request data (which client paid for which resource, signed payloads, vouchers, screening decisions) stays in headers and facilitator logs. Only the offers of listed resources are public in the Bazaar, and credit-backed cloudflare:402 commitments never reach a chain.",
+    "Public volume counters exist but are contested: x402.org has shown the same Last 30 days values since at least 2025-12-14, far above x402scan's 3.02M transactions in the 30 days to 2026-10-19."
   ],
   "public": [
     {
@@ -23,9 +23,10 @@
     {
       "what": "Permit2 and batch-settlement contracts",
       "where": "x402ExactPermit2Proxy 0x402085c248EeA27D92E8b30b2C58ed07f9E20001, x402UptoPermit2Proxy 0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002, x402BatchSettlement 0x4020074e9dF2ce1deE5A9C1b5c3f541D02a10003",
-      "how": "Same addresses on every supported EVM chain; batch channels emit ChannelCreated, Deposited, Claimed, Settled, Refunded, WithdrawInitiated, WithdrawFinalized and ChannelClosed.",
+      "how": "One CREATE2 address on each EVM chain where they are deployed (the contracts README lists the networks). Batch channels emit ChannelCreated, Deposited, Claimed, Settled, Refunded, WithdrawInitiated, WithdrawFinalized and ChannelClosed; the Permit2 proxies emit parameterless Settled or SettledWithPermit events, not the x402PermitTransfer event shown in the spec's reference code.",
       "sources": [
-        "src-x402-contracts"
+        "src-x402-contracts",
+        "src-x402-scheme-exact-evm"
       ]
     },
     {
@@ -40,16 +41,18 @@
     {
       "what": "Resource catalog",
       "where": "GET /discovery/resources and GET /discovery/search; CDP instance at api.cdp.coinbase.com/platform/v2/x402/discovery/resources",
-      "how": "Public listings of resources with accepts entries and lastUpdated; no API key needed on the CDP instance; no category data.",
+      "how": "Public listings with accepts entries, lastUpdated, seller-supplied tags and service names, and 30-day call and unique-payer counts; no API key needed on the CDP instance. Tags are free-form, not a category taxonomy. Since 2026-10-13 the CDP Bazaar screens listing metadata for prompt-injection risk and removes resources that fail.",
       "sources": [
         "src-x402-spec-v2",
-        "src-x402-cdp-bazaar"
+        "src-x402-cdp-bazaar",
+        "src-x402-cdp-get-discovered",
+        "src-x402-cdp-changelog"
       ]
     },
     {
       "what": "Explorer and registry",
       "where": "https://www.x402scan.com and its API routes (buyers, facilitators, merchants, origins, registry, resources, send, wallets)",
-      "how": "Operated by Merit Systems; discovery reads /openapi.json with x-payment-info, then /.well-known/x402, and trusts runtime 402 behavior over static metadata.",
+      "how": "Operated by Merit Systems. Its API routes are paid with x402 ($0.01 to $0.02 per data call) and registry writes need sign-in-with-x authentication. Discovery reads /openapi.json with x-payment-info, then /.well-known/x402, and trusts runtime 402 behavior over static metadata.",
       "sources": [
         "src-x402scan-repo",
         "src-x402scan-discovery"
@@ -75,9 +78,10 @@
     {
       "what": "Project counters and advisories",
       "where": "x402.org, GitHub Security Advisories, the repository",
-      "how": "30-day counters (contested), GHSA advisories, Cantina audit reports, changelogs.",
+      "how": "A Last 30 days counter unchanged since at least 2025-12-14 (contested), GHSA advisories, Cantina audit reports, changelogs.",
       "sources": [
         "src-x402-site",
+        "src-x402-site-wb-20251214",
         "src-x402-ghsa-2025",
         "src-x402-ghsa-2026",
         "src-x402-repo"
@@ -86,8 +90,8 @@
   ],
   "private": [
     {
-      "what": "PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE contents",
-      "why": "They travel only between client, server and facilitator, including resource URLs, descriptions and amounts."
+      "what": "PAYMENT-SIGNATURE and PAYMENT-RESPONSE contents",
+      "why": "They travel only between client, server and facilitator, including which client paid for which resource. PAYMENT-REQUIRED offers go to any requester, and the Bazaar publishes the offers of listed resources."
     },
     {
       "what": "Facilitator logs, KYT and OFAC decisions, pending settlement stores",
@@ -124,9 +128,10 @@
     },
     {
       "signal": "Permit2 proxy settlements",
-      "from": "x402ExactPermit2Proxy and x402UptoPermit2Proxy events at their fixed addresses",
+      "from": "Parameterless Settled() or SettledWithPermit() logs of x402ExactPermit2Proxy and x402UptoPermit2Proxy at their fixed addresses, joined with the token Transfer log in the same transaction",
       "identifiers": [
         "proxy address",
+        "transaction hash",
         "from",
         "to",
         "amount",

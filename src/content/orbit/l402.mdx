@@ -19,12 +19,14 @@ relations:
 sources:
   - src-x402-l402-repo
   - src-orbit-l402-repo-history
+  - src-x402-l402-pr-19
   - src-orbit-l402-blip-pr
   - src-orbit-l402-blip-head
   - src-x402-blip-0026
   - src-orbit-l402-docs
   - src-orbit-l402-aperture
   - src-x402-scheme-exact-lnbtc
+  - src-x402-sdk-features
   - src-orbit-l402-mpp-lightning
 lastVerified: "2026-10-11"
 ---
@@ -45,7 +47,7 @@ The original Lightning Labs specification, which is also the repository text tod
 
 bLIP-0026, as rewritten by Olaoluwa Osuntokun on 2026-02-25, makes L402 token-format agnostic. The challenge becomes `L402 version="0", token="...", invoice="..."`, any token that commits to the preimage is allowed, and macaroons become the RECOMMENDED format rather than a requirement. <Cite ids="src-orbit-l402-blip-head src-orbit-l402-blip-pr" /> The bLIP is pull request #26 in `lightning/blips`, and it was still open and unmerged on 2026-10-11. <Cite ids="src-orbit-l402-blip-pr" />
 
-Lightning Labs aligned its repository with that rewrite on 2026-03-10 and returned to the `macaroon=` header format on 2026-03-20, saying the header changes would be proposed again later. <Cite ids="src-orbit-l402-repo-history src-orbit-l402-blip-pr" /> In short: macaroons are optional in the bLIP-0026 draft (2026-02-25) and required in the Lightning Labs repository text (2026-03-20).
+Lightning Labs aligned its repository with that rewrite on 2026-03-11, when pull request #19 merged (its commits are dated 2026-03-10). It returned to the `macaroon=` header format on 2026-03-20, saying the header changes would be proposed again later. <Cite ids="src-x402-l402-pr-19 src-orbit-l402-repo-history src-orbit-l402-blip-pr" /> In short: macaroons are optional in the bLIP-0026 draft (2026-02-25) and required in the Lightning Labs repository text (2026-03-20).
 
 ## Rail and limits
 
@@ -57,7 +59,7 @@ L402 is live as a deployed protocol through Lightning Labs' Aperture reverse pro
 
 ## How it relates to the eight
 
-Several of the eight now carry Lightning as a payment method without L402's token layer. The [x402](/p/x402/) `exact` scheme has an `lnbtc` binding that reuses the idea of a preimage as proof of payment but carries it in x402's own payment header with no macaroon. <Cite ids="src-x402-scheme-exact-lnbtc" /> The [MPP](/p/stripe-mpp/) specs repository includes Lightning charge and session method drafts authored by Lightspark, which do not mention L402 or macaroons. <Cite ids="src-orbit-l402-mpp-lightning" /> Neither spec claims descent from L402, so the two are best read as parallel HTTP 402 designs rather than one descending from the other.
+Two of the eight, x402 and MPP, now specify Lightning as a payment method without L402's token layer. The [x402](/p/x402/) `exact` scheme has an `lnbtc` binding that reuses the idea of a preimage as proof of payment but carries it in x402's own payment header with no macaroon. <Cite ids="src-x402-scheme-exact-lnbtc" /> No x402 SDK implemented that binding as of 2026-10-19. <Cite ids="src-x402-sdk-features" /> The [MPP](/p/stripe-mpp/) specs repository includes Lightning charge and session method drafts authored by Lightspark, which do not mention L402 or macaroons. <Cite ids="src-orbit-l402-mpp-lightning" /> Neither spec claims descent from L402, so the two are best read as parallel HTTP 402 designs rather than one descending from the other.
 
 ## Status history
 
@@ -66,7 +68,7 @@ Several of the eight now carry Lightning as a payment method without L402's toke
 - 2023-06-06: bLIP-0026 "L402: The Lightning HTTP 402 Protocol" created (PR #26 opened 2023-06-07). <Cite ids="src-orbit-l402-blip-head src-orbit-l402-blip-pr" />
 - 2023-07-05: Aperture `v0.2-beta` release. <Cite ids="src-orbit-l402-aperture" />
 - 2026-02-25: bLIP-0026 rewritten with a token-agnostic `token=` parameter and `version="0"`. <Cite ids="src-orbit-l402-blip-pr src-orbit-l402-blip-head" />
-- 2026-03-10: Lightning Labs repository aligned with the bLIP rewrite and adds an agent-oriented spec (`agent-spec.md`). <Cite ids="src-orbit-l402-repo-history" />
+- 2026-03-11: Lightning Labs repository aligned with the bLIP rewrite and adds an agent-oriented spec (`agent-spec.md`), through pull request #19, whose commits are dated 2026-03-10. <Cite ids="src-x402-l402-pr-19 src-orbit-l402-repo-history" />
 - 2026-03-11: Lightning Labs says development will continue in its standalone L402 repository. <Cite ids="src-orbit-l402-blip-pr" />
 - 2026-03-20: repository returns to the `macaroon=` header format; agent spec kept. <Cite ids="src-orbit-l402-repo-history" />
 - 2026-03-25: Aperture `v0.5.0` release. <Cite ids="src-orbit-l402-aperture" />

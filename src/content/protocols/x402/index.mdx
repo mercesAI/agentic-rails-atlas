@@ -18,17 +18,17 @@ rails:
 stewards:
   - x402 Foundation (x402 a Series of LF Projects, LLC)
   - "Technical Steering Committee: Coinbase, Cloudflare, Stripe"
-governance: "Linux Foundation project under a technical charter adopted 2026-03-31; a Technical Steering Committee of participating organizations decides by majority, with a 75 percent supermajority for Core Principles changes. Originated at Coinbase Developer Platform."
+governance: "Linux Foundation project under a technical charter adopted 2026-03-31; a Technical Steering Committee of participating organizations decides technical matters by majority, with a 75 percent supermajority for Core Principles changes. A Governing Board handles budget and business oversight. Executive director since 2026-10-01: Michael Hursta. Originated at Coinbase Developer Platform."
 license:
-  spec: "Apache-2.0 (repository license; no separate docs license found)"
+  spec: "Apache-2.0 (repository LICENSE); the technical charter puts documentation under CC BY 4.0"
   code: Apache-2.0
 status: live
-statusNote: "Protocol V2 has been live since 2025-12-11. The upto, batch-settlement, auth-capture and Lightning bindings are newer, and SDK coverage differs by language."
+statusNote: "Protocol V2 has been live since 2025-12-11. The upto, batch-settlement, auth-capture and Lightning bindings are newer, SDK coverage differs by language, and no SDK implements the Lightning binding yet."
 firstAnnounced: "2025-05-06"
 latestVersion:
   label: "Spec v2.0 (x402Version 2); SDK @x402/core 2.28.0 on 2026-09-29"
   date: "2025-12-09"
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-19"
 transports:
   - "HTTP (PAYMENT-REQUIRED, PAYMENT-SIGNATURE, PAYMENT-RESPONSE headers)"
   - "MCP (_meta x402/payment and x402/payment-response)"
@@ -60,6 +60,7 @@ disambiguation:
   - "L402 is an earlier HTTP 402 payment design on Lightning by Lightning Labs; the bLIP-0026 draft, still an open proposal, makes macaroons optional."
   - "A402 is an academic proposal (arXiv:2603.01179) that binds payment to service execution."
   - "x402r is a third-party refund and arbitration protocol built on top of x402."
+  - "x401 is Proof's separate HTTP identity challenge protocol (introduced 2026-06-25, launched 2026-10-15), presented as a sibling of x402; it is not part of x402."
 mainFlow: x402-v2-exact-authorization
 stateMachine: x402-payment-lifecycle
 diagrams:
@@ -87,31 +88,31 @@ keyFacts:
     value: "x402 Foundation (x402 a Series of LF Projects, LLC); originated at Coinbase Developer Platform"
     claimIds: [clm-x402-003, clm-x402-012, clm-x402-226]
   - label: Governance
-    value: "Technical Steering Committee: Coinbase (Erik Reppel), Cloudflare (Rohin Lohe), Stripe (Steve Kaliski); majority vote, 75 percent supermajority for Core Principles"
-    claimIds: [clm-x402-013, clm-x402-014, clm-x402-016]
+    value: "Technical Steering Committee: Coinbase (Erik Reppel), Cloudflare (Rohin Lohe), Stripe (Steve Kaliski); majority vote, 75 percent supermajority for Core Principles; a Governing Board handles budget and business oversight (2026-10-19)"
+    claimIds: [clm-x402-013, clm-x402-014, clm-x402-016, clm-x402-252]
   - label: License
-    value: "Apache-2.0; contributions need GPG-signed commits, not a DCO sign-off"
+    value: "Code Apache-2.0 (repository LICENSE); the technical charter puts documentation under CC BY 4.0 and asks for a DCO sign-off on code, and CONTRIBUTING.md requires signed commits"
     claimIds: [clm-x402-026, clm-x402-027, clm-x402-028]
   - label: First announced
-    value: "2025-05-06 (whitepaper and npm launch)"
+    value: "2025-05-06 (whitepaper and public launch; npm x402 0.3.0 the same day)"
     claimIds: [clm-x402-004, clm-x402-005]
   - label: Latest version
     value: "Spec v2.0 dated 2025-12-09, launched 2025-12-11; SDK @x402/core 2.28.0 on 2026-09-29"
     claimIds: [clm-x402-032, clm-x402-034, clm-x402-037]
   - label: Status
-    value: "Live (V2); foundation operational since 2026-07-14 with 40 members"
-    claimIds: [clm-x402-031, clm-x402-022]
+    value: "Live (V2); foundation operational since 2026-07-14 (40 members at launch, 57 listed on 2026-10-19)"
+    claimIds: [clm-x402-031, clm-x402-022, clm-x402-253]
   - label: Transports
-    value: "HTTP headers, MCP _meta, A2A task metadata; facilitator API is always HTTP"
+    value: "HTTP headers, MCP tool results and _meta, A2A task metadata; the facilitator API is standardized as HTTP"
     claimIds: [clm-x402-093, clm-x402-116, clm-x402-117, clm-x402-119]
   - label: Rails
     value: "Crypto first (EVM, Solana, Lightning and more, CAIP-2 ids); fiat codes and a credit-backed Cloudflare network in the spec"
     claimIds: [clm-x402-123, clm-x402-055, clm-x402-168]
   - label: Builds on
     value: "HTTP 402, EIP-712, EIP-3009, Permit2, ERC-7710, CAIP-2, CAIP-122, RFC 9421"
-    claimIds: [clm-x402-121, clm-x402-122, clm-x402-124, clm-x402-048]
+    claimIds: [clm-x402-121, clm-x402-122, clm-x402-124, clm-x402-048, clm-x402-001, clm-x402-072]
   - label: Composes with
-    value: "AP2 (a2a-x402), ERC-8004 (x402Support, proofOfPayment), Stripe MPP (exact maps to charge), Visa TAP (browsingIOU)"
+    value: "AP2 (a2a-x402), ERC-8004 (x402Support, proofOfPayment), Stripe MPP (exact maps to charge), Visa TAP (its browsingIOU answers an HTTP 402 outside the x402 wire format)"
     claimIds: [clm-x402-210, clm-x402-219, clm-x402-213, clm-x402-242]
 ---
 
@@ -119,21 +120,21 @@ keyFacts:
 
 Picture a vending machine on the internet. You press the button for a snack, and instead of the snack the machine shows a price tag: one cent, paid in this kind of money, to this machine. You write a signed note that says "I pay one cent to this machine, and this note is good for the next minute only." You slide the note into the slot and press the button again.
 
-The machine does not count money itself. It hands your note to a helper standing behind it. The helper checks that the signature is really yours, that you have the money, and that nobody used this note before. If all is well, the machine gives you the snack and the helper cashes the note.
+The machine does not count money itself. It hands your note to a helper standing behind it. The helper checks that the signature is really yours, that you have the money, and that nobody used this note before. If all is well, the helper cashes the note and the machine gives you the snack.
 
-The note names the amount and the machine, so the helper cannot change either one. Each note also carries a one-time number and a short expiry, so nobody can use it twice. In the basic version there is no "give me my money back" button, and the machine learns nothing about who you are, only that the note was good.
+The note names the amount and the machine, so the helper cannot change either one. Each note also carries a one-time number and a short expiry, so nobody can use it twice. In the basic version there is no "give me my money back" button, and the machine learns only which wallet signed the note, not your name.
 
 That is x402. The snack is any web page or online service, the note is a digital signature, and the helper is called a facilitator. Software agents can do all of this on their own, with no account, password or card form.
 
 </Mode>
 
-x402 answers one question: how does a server charge for a single HTTP request without accounts, API keys or invoices? The server replies 402 with a header that lists what it accepts: a scheme, a network, an amount, an asset and a payee address.<Cite ids="clm-x402-093 clm-x402-071" /> The client signs a payment that matches one of those entries and retries the same request with the signature in a header.<Cite ids="clm-x402-094" /> The server never touches a chain itself. It hands the signature to a facilitator, which checks it (verify), lets the server respond, then submits it on-chain (settle).<Cite ids="clm-x402-095 clm-x402-063" /> The client's signature binds the amount and the recipient, so a facilitator cannot redirect funds, and a nonce with a validity window stops replays.<Cite ids="clm-x402-126 clm-x402-127" /> What x402 does not give you: refunds under the exact scheme, a dispute process, or any statement about who the client is.<Cite ids="clm-x402-129 clm-x402-150 clm-x402-152" /> Those live in other layers: the auth-capture scheme, ERC-8004, or your own policy.<Cite ids="clm-x402-130 clm-x402-219" />
+x402 answers one question: how does a server charge for a single HTTP request without accounts, API keys or invoices? The server replies 402 with a header that lists what it accepts: a scheme, a network, an amount, an asset and a payee address.<Cite ids="clm-x402-093 clm-x402-071" /> The client signs a payment that matches one of those entries and retries the same request with the signature in a header.<Cite ids="clm-x402-094" /> The server does not need to touch a chain itself. It hands the signature to a facilitator, which checks it (verify), lets the server do the work, then submits it on-chain (settle) before the response goes out.<Cite ids="clm-x402-095 clm-x402-063 clm-x402-065" /> The client's signature binds the amount and the recipient, so a facilitator cannot redirect funds, and a nonce with a validity window stops replays.<Cite ids="clm-x402-126 clm-x402-127" /> What x402 does not give you: refunds under the exact scheme, a dispute process, or, in the payment itself, any statement about who the client is.<Cite ids="clm-x402-129 clm-x402-150 clm-x402-152" /> Those live in other layers: the auth-capture scheme, ERC-8004, or your own policy.<Cite ids="clm-x402-130 clm-x402-219" />
 
 ### Problem and design goals
 
 x402 is an open payment standard that puts payment inside an ordinary HTTP (Hypertext Transfer Protocol) request and response, using the status code 402 Payment Required.<Cite ids="clm-x402-001" /> Its repository says it aims to cover crypto and fiat networks alike, but the bindings written so far are almost all blockchains, plus Lightning and one credit-backed network run by Cloudflare.<Cite ids="clm-x402-002 clm-x402-123 clm-x402-055 clm-x402-108" /> The design came out of Coinbase Developer Platform (CDP): the whitepaper is dated 2025-05-06 and credits Erik Reppel and five co-authors.<Cite ids="clm-x402-003 clm-x402-004" />
 
-The target is a payment that costs a fraction of a cent and happens on the first request, made by software that cannot fill in a sign-up form. Three design choices follow. First, the price travels in the 402 response, so the client needs no account or API (application programming interface) key in advance.<Cite ids="clm-x402-093" /> Second, the client signs an authorization instead of sending funds, and a principle in the repository says no scheme may let the facilitator or the resource server move funds other than as the client intended.<Cite ids="clm-x402-066" /> Third, chain work goes to a facilitator, which usually pays the gas, so neither side has to run blockchain infrastructure.<Cite ids="clm-x402-191 clm-x402-063" />
+The target is a payment that costs a fraction of a cent and happens on the first request, made by software that cannot fill in a sign-up form.<Cite ids="clm-x402-262" /> Three design choices follow. First, the price travels in the 402 response, so the client needs no account or API (application programming interface) key in advance.<Cite ids="clm-x402-093" /> Second, in the default methods the client signs an authorization instead of sending funds; on Lightning it pays an invoice and presents the preimage.<Cite ids="clm-x402-076 clm-x402-102" /> A principle in the repository says no scheme may let the facilitator or the resource server move funds other than as the client intended.<Cite ids="clm-x402-066" /> Third, chain work goes to a facilitator, which usually pays the gas, so neither side has to run blockchain infrastructure.<Cite ids="clm-x402-191 clm-x402-063" />
 
 The specification is just as clear about what it leaves out. Client-side budget management and session handling are out of scope, so spending limits live in SDKs (software development kits) and wallets, not in the protocol.<Cite ids="clm-x402-147" /> Keep that in mind when you read "agent payments" marketing: x402 moves a signed payment, and every decision about whether to sign it belongs to someone else.
 
@@ -141,7 +142,7 @@ The specification is just as clear about what it leaves out. Client-side budget 
 
 x402 has three roles.<Cite ids="clm-x402-063" /> The client is any application or agent that wants a protected resource and can sign a payment. The resource server sells the resource: it publishes requirements, checks payments and serves the response. The facilitator verifies payments and executes them on one or more networks.<Cite ids="clm-x402-063" />
 
-The facilitator is the role newcomers misread most. It does not hold funds and is not a custodian.<Cite ids="clm-x402-064" /> On EVM (Ethereum Virtual Machine) chains it broadcasts the client's signed authorization and pays the gas; on Solana it co-signs the transaction as fee payer.<Cite ids="clm-x402-191" /> On Solana the fee payer can also be the merchant, and the requirements name it in the extra object.<Cite ids="clm-x402-067" /> Anyone can run a facilitator, and a resource server can verify and settle on its own without one.<Cite ids="clm-x402-065" /> The SDK packages point to the public facilitator at x402.org by default, which serves testnets only, so production servers pick a facilitator on purpose.<Cite ids="clm-x402-232" /> Critics note that the CDP facilitator processes most payments even though the protocol is permissionless, and Cloudflare's new gateway also routes through it.<Cite ids="clm-x402-233" />
+The facilitator is easy to misread. It does not hold funds and is not a custodian.<Cite ids="clm-x402-064" /> On EVM (Ethereum Virtual Machine) chains it broadcasts the client's signed authorization and pays the gas; on Solana it co-signs the transaction as fee payer.<Cite ids="clm-x402-191" /> On Solana the fee payer can also be the merchant, and the requirements name it in the extra object.<Cite ids="clm-x402-067" /> Anyone can run a facilitator, and a resource server can verify and settle on its own without one.<Cite ids="clm-x402-065" /> The SDK packages point to the public facilitator at x402.org by default, which serves testnets only, so production servers pick a facilitator on purpose.<Cite ids="clm-x402-232" /> Use is concentrated anyway: in one study of Base and Solana from 2025-10-01 to 2025-12-26, Coinbase's facilitator handled 77.17M of about 119.7M x402 transactions, and Cloudflare's 2026 gateway also settles through it.<Cite ids="clm-x402-233 clm-x402-183" />
 
 Two newer bindings add roles. In the credit-backed `cloudflare:402` network, the network itself is merchant of record and payTo is the constant `merchant`.<Cite ids="clm-x402-068" /> In the auth-capture scheme on EVM, an operator drives hold and capture on an escrow contract, by default the AuthCaptureEscrow contract from base/commerce-payments v1.1.<Cite ids="clm-x402-239" />
 
@@ -513,7 +514,7 @@ Illustrative example, spec version v2.0: a decoded PAYMENT-REQUIRED header. Addr
       "network": "eip155:84532",
       "amount": "10000",
       "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-      "payTo": "0xB0B0000000000000000000000000000000000B0B",
+      "payTo": "0xb0B0000000000000000000000000000000000B0B",
       "maxTimeoutSeconds": 60,
       "extra": {
         "name": "USDC",
@@ -540,9 +541,9 @@ The main sequence in section C plays the default path: version 2 over HTTP, the 
 7. The server posts the same body to POST /settle, and the facilitator broadcasts the transfer and pays the gas.<Cite ids="clm-x402-095 clm-x402-191" />
 8. The server returns 200 with the resource and a base64-encoded SettleResponse in PAYMENT-RESPONSE. A failed settle returns 402 with success false in the same header.<Cite ids="clm-x402-097" />
 
-Every step has a failure path, and section C plays five of them. An expired window, a wrong recipient and a low balance come back from verify as error codes such as `invalid_exact_evm_payload_authorization_valid_before`, `invalid_exact_evm_payload_recipient_mismatch` and `insufficient_funds`.<Cite ids="clm-x402-243 clm-x402-110" /> A replayed payment fails because the token contract records every nonce, and the TypeScript facilitator reads that record before it says yes.<Cite ids="clm-x402-127 clm-x402-245" /> That facilitator reports some reasons in its own words, such as `invalid_exact_evm_recipient_mismatch` and `invalid_exact_evm_nonce_already_used`, which differ from names in the spec, so match on both if you parse them.<Cite ids="clm-x402-244" />
+Every step has a failure path, and section C plays five of them. An expired window, a wrong recipient and a low balance come back from verify as error codes such as `invalid_exact_evm_payload_authorization_valid_before`, `invalid_exact_evm_payload_recipient_mismatch` and `insufficient_funds`.<Cite ids="clm-x402-243 clm-x402-110" /> A replayed payment fails because the token contract records every nonce: the TypeScript facilitator simulates the transfer at verify, the simulation reverts, and a follow-up read of the nonce state names the reason.<Cite ids="clm-x402-127 clm-x402-245" /> That facilitator reports some reasons in its own words, such as `invalid_exact_evm_recipient_mismatch` and `invalid_exact_evm_nonce_already_used`, which differ from names in the spec, so match on both if you parse them.<Cite ids="clm-x402-244" />
 
-A facilitator that does not answer is the awkward case. The TypeScript facilitator client gives up after 90 seconds by default, and the Express middleware turns that into HTTP 502 without running the handler.<Cite ids="clm-x402-246 clm-x402-247" /> A settle that times out is worse: the transfer may already have happened, so the server must look on chain before it retries, and a settlement_pending answer carries the hash to look for.<Cite ids="clm-x402-246 clm-x402-111 clm-x402-081" />
+A facilitator that does not answer is the awkward case. The TypeScript facilitator client gives up after 90 seconds by default, and the Express middleware turns that into HTTP 502 without running the handler.<Cite ids="clm-x402-246 clm-x402-247" /> A settle that times out is worse: the transfer may already have happened, so the server should check the chain before it retries. A settlement_pending answer carries the hash; the SDK retries once, and the facilitator reconciles against that hash.<Cite ids="clm-x402-246 clm-x402-111 clm-x402-081" />
 
 <Mode spec>
 
@@ -617,11 +618,11 @@ A facilitator that does not answer is the awkward case. The TypeScript facilitat
 | Payment failed (verify or settle) | 402 |
 | Server error | 500 |
 | Success | 200 |
-| Permit2 allowance missing (upto, exact Permit2) | 412 |
+| Permit2 allowance too low and no gas-sponsoring extension (upto, exact Permit2) | 412 |
 
 **Error codes named in the specification (section 9).** `insufficient_funds`, `invalid_exact_evm_payload_authorization_valid_after`, `invalid_exact_evm_payload_authorization_valid_before`, `invalid_exact_evm_payload_authorization_value_mismatch`, `invalid_exact_evm_payload_signature`, `invalid_exact_evm_payload_recipient_mismatch`, `invalid_network`, `invalid_payload`, `invalid_payment_requirements`, `invalid_scheme`, `unsupported_scheme`, `invalid_x402_version`, `invalid_transaction_state`, `unexpected_verify_error`, `unexpected_settle_error`, `settlement_pending`. The TypeScript EVM facilitator also emits its own strings, for example `invalid_exact_evm_nonce_already_used` and `invalid_exact_evm_insufficient_balance`.
 
-**Signed type (exact, eip3009).** `TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)`, signed as EIP-712 typed data under the token contract domain.
+**Signed type (exact, eip3009).** `TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)`, signed as EIP-712 typed data under the token contract domain.<Cite ids="clm-x402-121" />
 
 Illustrative example, spec version v2.0: the body the resource server posts to the facilitator. The same body goes to `/verify` and then to `/settle`.
 
@@ -635,7 +636,7 @@ Illustrative example, spec version v2.0: the body the resource server posts to t
       "network": "eip155:84532",
       "amount": "10000",
       "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-      "payTo": "0xB0B0000000000000000000000000000000000B0B",
+      "payTo": "0xb0B0000000000000000000000000000000000B0B",
       "maxTimeoutSeconds": 60,
       "extra": {
         "name": "USDC",
@@ -645,8 +646,8 @@ Illustrative example, spec version v2.0: the body the resource server posts to t
     "payload": {
       "signature": "0xabab...1b",
       "authorization": {
-        "from": "0xA11CE0000000000000000000000000000000A11C",
-        "to": "0xB0B0000000000000000000000000000000000B0B",
+        "from": "0xA11ce0000000000000000000000000000000a11c",
+        "to": "0xb0B0000000000000000000000000000000000B0B",
         "value": "10000",
         "validAfter": "1791720595",
         "validBefore": "1791720660",
@@ -659,7 +660,7 @@ Illustrative example, spec version v2.0: the body the resource server posts to t
     "network": "eip155:84532",
     "amount": "10000",
     "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-    "payTo": "0xB0B0000000000000000000000000000000000B0B",
+    "payTo": "0xb0B0000000000000000000000000000000000B0B",
     "maxTimeoutSeconds": 60,
     "extra": {
       "name": "USDC",
@@ -675,9 +676,9 @@ Illustrative example, spec version v2.0: the body the resource server posts to t
 
 The order of verify, handler and settle is not fixed. V2 names three payment flows in extra.paymentFlow: authorization (verify, run, settle), upfront (settle, then run) and escrow (settle a deposit or hold, run, then settle the final charge).<Cite ids="clm-x402-099" /> Whatever the flow, at least one verify or settle must run before the handler.<Cite ids="clm-x402-100" /> A client must not pay into a flow it does not recognize, and should prefer authorization when a server offers more than one.<Cite ids="clm-x402-101" />
 
-Each flow puts the risk somewhere else. Under authorization the seller has done the work before money moves, so a failed settle is the seller's loss; under upfront, a handler that fails leaves the client charged.<Cite ids="clm-x402-131" /> Lightning uses upfront because nothing can be pulled from a Lightning wallet later. The server issues a fresh BOLT11 invoice (the Lightning invoice format), the client pays it and returns the preimage, and the facilitator checks the hash and records it against replay.<Cite ids="clm-x402-102" /> The auth-capture scheme defaults to escrow: a first settle places a hold, the handler runs, and a second settle captures the real amount or voids the hold.<Cite ids="clm-x402-103" /> Its operations are authorize, charge, capture, void, refund and reclaim, and reclaim lets the client recover an untouched hold after the capture deadline.<Cite ids="clm-x402-114" />
+Each flow puts the risk somewhere else. Under authorization the resource runs before funds move, so a failed settle leaves the seller unpaid for work it has done; under upfront, a handler that fails leaves the client charged.<Cite ids="clm-x402-099 clm-x402-131" /> Lightning uses upfront because nothing can be pulled from a Lightning wallet later. The server issues a fresh BOLT11 invoice (the Lightning invoice format), the client pays it and returns the preimage, and the facilitator checks the hash and records it against replay.<Cite ids="clm-x402-102" /> The auth-capture scheme defaults to escrow: a first settle places a hold, the handler runs, and a second settle captures the real amount or voids the hold.<Cite ids="clm-x402-103" /> Its operations are authorize, charge, capture, void, refund and reclaim, and reclaim lets the client recover an untouched hold after the capture deadline.<Cite ids="clm-x402-114" />
 
-Settlement itself has three outcomes: success, a terminal failure, and settlement_pending, which is not final and which the server retries once and reconciles.<Cite ids="clm-x402-111" /> Over A2A (the Agent2Agent protocol) the task carries its own status values, from payment-required through payment-submitted and payment-verified to payment-completed or payment-failed.<Cite ids="clm-x402-113" /> Batch-settlement channels have an on-chain lifecycle of their own, visible as ChannelCreated, Deposited, Claimed, Settled, Refunded, WithdrawInitiated, WithdrawFinalized and ChannelClosed events.<Cite ids="clm-x402-115" /> The state machine in section C folds all three flows into one diagram.
+Settlement itself has three outcomes: success, a terminal failure, and settlement_pending, which is not final; the SDK's resource server retries once, and the facilitator reconciles against the broadcast hash.<Cite ids="clm-x402-111" /> Over A2A (the Agent2Agent protocol) the task carries its own status values, from payment-required through payment-submitted and payment-verified to payment-completed or payment-failed.<Cite ids="clm-x402-113" /> EVM batch-settlement channels have an on-chain lifecycle of their own, visible as ChannelCreated, Deposited, Claimed, Settled, Refunded, WithdrawInitiated, WithdrawFinalized and ChannelClosed events.<Cite ids="clm-x402-115" /> The state machine in section C folds all three flows into one diagram.
 
 <Mode spec>
 
@@ -736,15 +737,15 @@ Settlement itself has three outcomes: success, a terminal failure, and settlemen
 
 <Mode eli5>
 
-The signed note protects you in two ways: nobody can change the amount or the name on it, and it works only once and only for a minute. It does not protect you from writing the note to the wrong shop, from a shop that takes the money and then serves nothing, or from spending too much in a day. Those checks are up to you and your wallet.
+The signed note protects you in two ways: nobody can change the amount or the name on it, and it works only once and only for a short time that the shop sets. It does not protect you from writing the note to the wrong shop, from a shop that takes the money and then serves nothing, or from spending too much in a day. Those checks are up to you and your wallet.
 
 </Mode>
 
-The core guarantee is narrow and strong. In the exact EVM scheme the client's signature covers the recipient and the amount, so a facilitator can broadcast the payment but cannot change where it goes or how much moves.<Cite ids="clm-x402-126" /> Replay protection comes from a random 32-byte nonce that EIP-3009 tokens refuse to reuse, plus a validAfter and validBefore window.<Cite ids="clm-x402-127" /> In upto, a witness field names the one facilitator allowed to settle.<Cite ids="clm-x402-128" />
+The core guarantee is narrow and strong. With the EIP-3009 or Permit2 method of exact on EVM, the client's signature covers the recipient and the amount, so a facilitator can broadcast the payment but cannot change either. With an ERC-7710 delegation, the delegation's caveats must set those limits.<Cite ids="clm-x402-126" /> Replay protection comes from a random 32-byte nonce that EIP-3009 tokens refuse to reuse, plus a validAfter and validBefore window.<Cite ids="clm-x402-127" /> In upto on EVM, a witness field names the one facilitator allowed to settle.<Cite ids="clm-x402-128" />
 
 Everything else is trust you place in a party. The exact scheme defines no refund, and any remedy is the server's own arrangement.<Cite ids="clm-x402-129" /> Under upto the client trusts the server to charge fairly up to the ceiling.<Cite ids="clm-x402-131" /> There is no dispute process in the protocol.<Cite ids="clm-x402-150" /> Client spending limits are an SDK feature, not a protocol rule, and passing spendControls false turns them off.<Cite ids="clm-x402-146 clm-x402-147" />
 
-SDK bugs have mattered more than protocol bugs so far. Two GitHub advisories rated high hit legacy resource-server packages (2025-08-20) and facilitators that process Solana payments (2026-03-07), and recent core releases closed route-matching bypasses through encoded paths.<Cite ids="clm-x402-132 clm-x402-133 clm-x402-061" /> Neither advisory has a CVE (Common Vulnerabilities and Exposures) identifier.<Cite ids="clm-x402-134" /> Academic work describes five practical attacks on authorization, binding and replay handling, flaws such as cross-resource substitution and a duplicate settlement race, and the missing atomic link between payment and delivery.<Cite ids="clm-x402-138 clm-x402-141 clm-x402-142" /> Section H has the full threat table, and section I lists what a controls layer can add.
+Both published advisories so far concern SDK packages, not the protocol text: rated high, they hit legacy resource-server packages (2025-08-20) and facilitators that process Solana payments (2026-03-06).<Cite ids="clm-x402-132 clm-x402-133" /> Recent core releases also closed route-matching bypasses through encoded paths, and a fix for HEAD requests that reached paid GET handlers merged on 2026-10-13 but was not in a release on 2026-10-19.<Cite ids="clm-x402-061 clm-x402-254" /> Neither advisory has a CVE (Common Vulnerabilities and Exposures) identifier.<Cite ids="clm-x402-134" /> Academic work describes five practical attacks on authorization, binding and replay handling, flaws such as cross-resource substitution and a duplicate settlement race, and the missing atomic link between payment and delivery.<Cite ids="clm-x402-138 clm-x402-141 clm-x402-142" /> Section H has the full threat table, and section I lists what a controls layer can add.
 
 ### Versioning and governance
 
@@ -752,17 +753,17 @@ Two protocol versions exist, and the x402Version field says which one a message 
 
 Package names follow the split. The unscoped npm packages, x402 and x402-express among them, are the V1 legacy set, while the @x402 scoped packages and the PyPI package x402 2.x implement V2.<Cite ids="clm-x402-039" /> PyPI x402 is not legacy: its latest version is 2.25.0, published 2026-09-29.<Cite ids="clm-x402-041" /> The TypeScript packages ship minor releases about weekly and reached 2.28.0 on 2026-09-29.<Cite ids="clm-x402-037 clm-x402-038" />
 
-Governance moved from a company to a foundation. Cloudflare and Coinbase announced a foundation plan on 2025-09-23.<Cite ids="clm-x402-018" /> A technical charter for x402 a Series of LF Projects, LLC was adopted on 2026-03-31. The Linux Foundation announced the x402 Foundation on 2026-04-02 and its operational launch on 2026-07-14, with 40 member organizations.<Cite ids="clm-x402-012 clm-x402-019 clm-x402-022" /> The charter sets up a Technical Steering Committee (TSC) with one vote per representative and majority decisions, and needs a 75 percent supermajority to change the Core Principles.<Cite ids="clm-x402-013 clm-x402-014" /> TSC.md names Coinbase (Erik Reppel), Cloudflare (Rohin Lohe) and Stripe (Steve Kaliski).<Cite ids="clm-x402-016" /> The original repository moved to the x402-foundation organization, and coinbase/x402 is now a fork of it.<Cite ids="clm-x402-008 clm-x402-010" /> The code is Apache-2.0, and contributions need GPG-signed (GNU Privacy Guard) commits.<Cite ids="clm-x402-026 clm-x402-028" /> So: Coinbase originated x402, but it no longer governs it alone.<Cite ids="clm-x402-226" />
+Governance moved from a company to a foundation. Cloudflare and Coinbase announced a foundation plan on 2025-09-23.<Cite ids="clm-x402-018" /> A technical charter for x402 a Series of LF Projects, LLC was adopted on 2026-03-31. The Linux Foundation announced the x402 Foundation on 2026-04-02 and its operational launch on 2026-07-14, with 40 member organizations; on 2026-10-19 its members page listed 57.<Cite ids="clm-x402-012 clm-x402-019 clm-x402-022 clm-x402-253" /> On 2026-10-01 the Linux Foundation named Michael Hursta executive director of the x402 Foundation, and a Governing Board handles budget and business oversight while the TSC makes the technical decisions.<Cite ids="clm-x402-251 clm-x402-252" /> The charter sets up a Technical Steering Committee (TSC) with one vote per representative and majority decisions, and needs a 75 percent supermajority to change the Core Principles.<Cite ids="clm-x402-013 clm-x402-014" /> TSC.md names Coinbase (Erik Reppel), Cloudflare (Rohin Lohe) and Stripe (Steve Kaliski).<Cite ids="clm-x402-016" /> The original repository moved to the x402-foundation organization, and coinbase/x402 is now a fork of it.<Cite ids="clm-x402-008 clm-x402-010" /> The code is Apache-2.0, and the charter puts documentation under CC BY 4.0. CONTRIBUTING.md requires signed commits, and the charter also asks for a DCO (Developer Certificate of Origin) sign-off on code.<Cite ids="clm-x402-026 clm-x402-027 clm-x402-028" /> So: Coinbase originated x402, but it no longer governs it alone.<Cite ids="clm-x402-226" />
 
 Names changed too. The scheme Cloudflare proposed as deferred in 2025-09 became batch-settlement when it merged on 2026-04-15, and old deferred examples still linger in one extension and in the V1 specification.<Cite ids="clm-x402-056 clm-x402-051 clm-x402-058" />
 
 ### Extensibility
 
-x402 grows along three axes. Schemes define how value moves: exact, upto, batch-settlement and auth-capture in V2.<Cite ids="clm-x402-092" /> A new scheme starts as a specification pull request, then gets one reference SDK, then the others.<Cite ids="clm-x402-029" /> Networks are bindings of a scheme: the TypeScript SDK covers 13 network families, from EVM chains and Solana to Lightning, while Go and Python cover fewer.<Cite ids="clm-x402-175 clm-x402-055" /> Extensions add optional features without touching the core: bazaar, sign-in-with-x, payment-identifier, offer-receipt, builder-code, http-message-signatures, auth-hints and two gas-sponsoring extensions.<Cite ids="clm-x402-091" />
+x402 grows along three axes. Schemes define how value moves: exact, upto, batch-settlement and auth-capture in V2.<Cite ids="clm-x402-092" /> A new scheme starts as a specification pull request and is implemented after it merges; a new chain family goes spec first, then one reference SDK, then the others.<Cite ids="clm-x402-029" /> Networks are bindings of a scheme: the TypeScript SDK covers 13 network families, from EVM chains and Solana to TON, XRPL and Cardano, while Go and Python cover fewer.<Cite ids="clm-x402-175" /> The Lightning binding is specified but not yet in any SDK.<Cite ids="clm-x402-055 clm-x402-261" /> Extensions add optional features without touching the core: bazaar, sign-in-with-x, payment-identifier, offer-receipt, builder-code, http-message-signatures, auth-hints and two gas-sponsoring extensions.<Cite ids="clm-x402-091" />
 
-A few deserve a closer look. Bazaar describes how to call a resource over HTTP or MCP (Model Context Protocol), so that a discovery service can list it.<Cite ids="clm-x402-085" /> The CDP Bazaar endpoint answered without an API key, and it returns resource listings, not categories.<Cite ids="clm-x402-160 clm-x402-161" /> Payment-identifier gives idempotency: a server returns 409 when the same identifier arrives with a different payload.<Cite ids="clm-x402-149" /> Offer-receipt signs offers and receipts with EIP-712 or JWS (JSON Web Signature), but the SDK parity table lists it for TypeScript only.<Cite ids="clm-x402-087 clm-x402-151" /> Builder-code appends an ERC-8021 suffix to settlement calldata so indexers can attribute the app and the facilitator, which is attribution, not revenue sharing.<Cite ids="clm-x402-089 clm-x402-154" /> Facilitators can also hand extension results to the server through an EXTENSION-RESPONSES header that buyers never see.<Cite ids="clm-x402-229" />
+A few deserve a closer look. Bazaar describes how to call a resource over HTTP or MCP (Model Context Protocol), so that a discovery service can list it.<Cite ids="clm-x402-085" /> The CDP Bazaar endpoint answers without an API key; its listings carry seller-supplied tags and 30-day usage counts but no category taxonomy, and since 2026-10-13 CDP screens their metadata for prompt-injection text.<Cite ids="clm-x402-160 clm-x402-161 clm-x402-255" /> Payment-identifier gives idempotency: a server returns 409 when the same identifier arrives with a different payload.<Cite ids="clm-x402-149" /> Offer-receipt signs offers and receipts with EIP-712 or JWS (JSON Web Signature), but the SDK parity table lists it for TypeScript only.<Cite ids="clm-x402-087 clm-x402-151" /> Builder-code appends an ERC-8021 suffix to settlement calldata so indexers can attribute the app and the facilitator, which is attribution, not revenue sharing.<Cite ids="clm-x402-089 clm-x402-154" /> Facilitators can also hand extension results to the server through an EXTENSION-RESPONSES header that buyers never see.<Cite ids="clm-x402-229" />
 
-Transports are the third axis. The same objects ride in HTTP headers, in the _meta field of an MCP tool call, and in A2A task metadata, while the facilitator API underneath stays HTTP.<Cite ids="clm-x402-116 clm-x402-117 clm-x402-119" /> Over MCP, if settlement fails after the tool ran, the server should return only the payment error, not the tool output.<Cite ids="clm-x402-248" />
+Transports are the third axis. The same objects ride in HTTP headers, in an MCP tool result and the _meta field of the retried tool call, and in A2A task metadata, while the facilitator API underneath stays HTTP.<Cite ids="clm-x402-116 clm-x402-117 clm-x402-119" /> Over MCP, if settlement fails after the tool ran, the server should return only the payment error, not the tool output.<Cite ids="clm-x402-248" />
 
 <Mode spec>
 
@@ -827,16 +828,16 @@ Transports are the third axis. The same objects ride in HTTP headers, in the _me
 
 ### How it composes with the other seven
 
-x402 is a payment step with no opinion about who the client is or what the user approved, so it pairs with protocols that carry those answers.<Cite ids="clm-x402-152 clm-x402-147" /> Google's AP2 (Agent Payments Protocol) announcement of 2025-09-16 launched an A2A x402 extension with Coinbase, which makes x402 one way to pay under AP2.<Cite ids="clm-x402-210" /> ERC-8004 keeps payments out of its core but gives agents an x402Support flag and lets feedback carry proof of an x402 payment.<Cite ids="clm-x402-219" /> MPP (Machine Payments Protocol), co-authored by Stripe and Tempo, maps x402 exact onto its charge intent and can serve both protocols on one route.<Cite ids="clm-x402-213" /> Visa's TAP (Trusted Agent Protocol) specification has its own object for answering a 402.<Cite ids="clm-x402-242" /> No link to ACP (Agentic Commerce Protocol), maintained by OpenAI and Stripe, or to UCP (Universal Commerce Protocol) appears in their repositories.<Cite ids="clm-x402-217 clm-x402-218" /> The section "Compare and compose" below goes further.
+x402 is a payment step that, in the payment itself, says nothing about who the client is or what the user approved, so it pairs with protocols that carry those answers.<Cite ids="clm-x402-152 clm-x402-147" /> Google's AP2 (Agent Payments Protocol) announcement of 2025-09-16 launched an A2A x402 extension with Coinbase, which makes x402 one way to pay under AP2.<Cite ids="clm-x402-210" /> ERC-8004 keeps payments out of its core but gives agents an x402Support flag and lets feedback carry proof of an x402 payment.<Cite ids="clm-x402-219" /> MPP (Machine Payments Protocol), co-authored by Stripe and Tempo, maps x402 exact onto its charge intent and can serve both protocols on one route.<Cite ids="clm-x402-213 clm-x402-263" /> Visa's TAP (Trusted Agent Protocol) specification has its own object for answering a 402.<Cite ids="clm-x402-242" /> No link to ACP (Agentic Commerce Protocol), maintained by OpenAI and Stripe, or to UCP (Universal Commerce Protocol) appears in their repositories.<Cite ids="clm-x402-217 clm-x402-218 clm-x402-264" /> The section "Compare and compose" below goes further.
 
 ### Limitations and open issues
 
-- **Volume is contested.** The x402.org counter showed 75.41M transactions and $24.24M over 30 days when read on 2026-10-10, yet the page said it was last updated on 2026-08-25.<Cite ids="clm-x402-194" /> The same $24.24M was reported for mid August, so the figure may be stale.<Cite ids="clm-x402-195" /> Visa and Artemis data to 2026-04-21 adjusts activity to about $15.0M across 109.6M transactions.<Cite ids="clm-x402-198" /> Visa's Cuy Sheffield separately cited about $19M across about 134M, and nobody has reconciled the two.<Cite ids="clm-x402-199" /> Artemis flagged 63.94 percent of transactions as gamed on average between 2025-11-09 and 2026-02-07.<Cite ids="clm-x402-201" /> A paper of 2026-07-14 counts 136,708,672 settlements on Base over 280 days and argues that the count can be manufactured almost for free.<Cite ids="clm-x402-205" /> Read every volume figure as a claim with a date and a method.<Cite ids="clm-x402-206" />
-- **Facilitators concentrate trust.** The protocol is permissionless, yet one facilitator carries most payments.<Cite ids="clm-x402-233" /> A facilitator cannot redirect funds, but it can refuse service, and it sees every payment.<Cite ids="clm-x402-126 clm-x402-165" />
-- **Payment and delivery are not atomic.** Under authorization the seller risks unpaid work, under upfront the buyer risks paying for nothing, and A402 proposes a fix.<Cite ids="clm-x402-131 clm-x402-142" />
-- **Headers get big.** Base64 JSON can pass 2 KB and be dropped by intermediaries, which is why the cloudflare:402 binding strips schema and optional fields.<Cite ids="clm-x402-234" />
+- **Volume is contested.** The x402.org counter has shown the same 75.41M transactions and $24.24M under "Last 30 days" in every archived copy since 2025-12-14 and still did on 2026-10-19, so it is not a live 30-day figure.<Cite ids="clm-x402-194 clm-x402-196" /> On 2026-10-19 the x402scan tracker showed about 3.02M transactions and $1.23M for its own 30-day view (reported).<Cite ids="clm-x402-256" /> Visa and Artemis data to 2026-04-21 adjusts activity to about $15.0M across 109.6M transactions.<Cite ids="clm-x402-198" /> Visa's Cuy Sheffield was later reported citing about $19M across about 134M adjusted transactions, with no data date, so the two figures are not directly comparable.<Cite ids="clm-x402-199" /> Artemis flagged 63.94 percent of transactions as gamed on average between 2025-11-09 and 2026-02-07.<Cite ids="clm-x402-201" /> A paper of 2026-07-14 counts 136,708,672 settlements on Base over 280 days and argues that the count can be manufactured almost for free.<Cite ids="clm-x402-205" /> Read every volume figure as a claim with a date and a method.<Cite ids="clm-x402-206" />
+- **Facilitators concentrate trust.** The protocol is permissionless, yet one study found Coinbase's facilitator handling 77.17M of about 119.7M Base and Solana x402 transactions from 2025-10-01 to 2025-12-26.<Cite ids="clm-x402-233" /> A facilitator cannot redirect an EIP-3009 or Permit2 payment, but it can refuse service (the CDP facilitator declines payments that fail its screening), and it sees every payment it handles.<Cite ids="clm-x402-126 clm-x402-153 clm-x402-165" />
+- **Payment and delivery are not atomic.** Under authorization the resource runs before funds move, so a failed settle leaves the seller unpaid for work done; under upfront the buyer risks paying for nothing, and A402 proposes a fix.<Cite ids="clm-x402-099 clm-x402-131 clm-x402-142" />
+- **Headers get big.** Base64 JSON can pass 2 KB, which some HTTP intermediaries reject, so the cloudflare:402 binding omits schema and optional fields.<Cite ids="clm-x402-234" />
 - **Spec drift.** SettleResponse is also called SettlementResponse, deferred examples survive the rename, the TypeScript facilitator uses its own reason strings, and the batch-settlement EVM version table carries a 2025 date for a 2026 file.<Cite ids="clm-x402-235 clm-x402-244 clm-x402-053" />
-- **Uneven SDKs.** Python lacks auth-capture and Solana batch-settlement, and the Java module has no published artifact.<Cite ids="clm-x402-175 clm-x402-044" />
+- **Uneven SDKs.** Python lacks auth-capture and Solana upto and batch-settlement, no SDK implements Lightning yet, and the Java module (org.x402:x402) is not on Maven Central (checked 2026-10-19).<Cite ids="clm-x402-175 clm-x402-261 clm-x402-044" />
 - **Metadata leaks.** Resource URLs and descriptions reach the facilitator, and one paper treats that as a PII (personally identifiable information) channel.<Cite ids="clm-x402-143 clm-x402-165" />
 - **Small steering group.** Three companies sit on the TSC, and Stripe also co-created the competing MPP.<Cite ids="clm-x402-236" />
 
@@ -849,21 +850,24 @@ x402 is a payment step with no opinion about who the client is or what the user 
 - 2025-10: daily transactions surged during a wave of x402-powered memecoin launches (reported).<Cite ids="clm-x402-207" />
 - 2025-12-11: V2 launched.<Cite ids="clm-x402-034" />
 - 2026-01-08 and 2026-01-15: Permit2 support and the bazaar extension merged.<Cite ids="clm-x402-046 clm-x402-047" />
-- 2026-02-02: sign-in-with-x merged; 2026-02-10 and 2026-02-11 brought a Stripe preview and Coinbase Agentic Wallets that use x402 (both reported).<Cite ids="clm-x402-048 clm-x402-181 clm-x402-180" />
-- 2026-03-04: the upto scheme merged; 2026-03-07: the Solana facilitator advisory.<Cite ids="clm-x402-049 clm-x402-133" />
+- 2026-02-02: sign-in-with-x merged; 2026-02-10 brought a Stripe preview (reported), and on 2026-02-11 Coinbase made Agentic Wallet, which pays for x402 services, available.<Cite ids="clm-x402-048 clm-x402-181 clm-x402-180" />
+- 2026-03-04: the upto scheme merged; 2026-03-06: the Solana facilitator advisory.<Cite ids="clm-x402-049 clm-x402-133" />
 - 2026-03-31 and 2026-04-02: the charter was adopted and the Linux Foundation announced the x402 Foundation.<Cite ids="clm-x402-012 clm-x402-019" />
 - 2026-04-15: batch-settlement merged with the cloudflare:402 binding; 2026-04-29: Circle Nanopayments went live.<Cite ids="clm-x402-051 clm-x402-182" />
 - 2026-05-12 and 2026-05-13: TSC.md and the auth-capture scheme.<Cite ids="clm-x402-017 clm-x402-054" />
 - 2026-07-14: the foundation's operational launch with 40 members.<Cite ids="clm-x402-022" />
 - 2026-08-18: spendControls with a $1 default cap in @x402/core 2.23.0.<Cite ids="clm-x402-059" />
-- 2026-09-23: exact on Lightning; 2026-09-30: Cloudflare Monetization Gateway closed beta, settling USDC (USD Coin) on Base through Coinbase's facilitator and separate from the credit-backed cloudflare:402 variant.<Cite ids="clm-x402-055 clm-x402-183 clm-x402-184" />
+- 2026-09-23: exact on Lightning (a specification; no SDK implements it yet); 2026-09-30: Cloudflare Monetization Gateway closed beta, settling USDC (USD Coin) on Base through Coinbase's facilitator and separate from the credit-backed cloudflare:402 variant.<Cite ids="clm-x402-055 clm-x402-183 clm-x402-184" />
+- 2026-10-01: Michael Hursta became executive director of the x402 Foundation.<Cite ids="clm-x402-251" />
+- 2026-10-13: a fix for HEAD requests that reached paid GET handlers merged, unreleased on 2026-10-19, and the CDP Bazaar began screening listing metadata for prompt-injection text.<Cite ids="clm-x402-254 clm-x402-255" />
+- 2026-10-15: SECURITY.md moved vulnerability reports from Coinbase's HackerOne program to private contact with the x402 TSC or maintainers.<Cite ids="clm-x402-136" />
 
 ## Compare and compose
 
-Stripe MPP is the closest sibling, and the two are built to coexist. MPP's documentation says the x402 exact model maps onto MPP's charge intent, and its `mppx` library lets one server route answer with either challenge and accept either credential.<Cite ids="clm-x402-213" /> Stripe sits on the x402 TSC and co-created MPP, so expect the two to keep converging at the edges.<Cite ids="clm-x402-214" /> Pick x402 when you want the facilitator model and the scheme family (upto, batch-settlement, auth-capture); compare the two side by side in the matrix before you commit to one.
+Stripe MPP is the closest sibling, and the two are built to coexist. MPP's documentation says the x402 exact model maps onto MPP's charge intent, and its `mppx` library lets one server route answer with either challenge and accept either credential.<Cite ids="clm-x402-213" /> Stripe sits on the x402 TSC and co-authors MPP with Tempo.<Cite ids="clm-x402-214 clm-x402-263" /> Pick x402 when you want the facilitator model and the scheme family (upto, batch-settlement, auth-capture); compare the two side by side in the matrix before you commit to one.
 
 AP2 and x402 meet through the a2a-x402 extension, launched on 2025-09-16, which carries x402 requirements and payments inside A2A messages and, in its embedded flow, inside AP2 mandates.<Cite ids="clm-x402-210 clm-x402-211" /> That embedding targets AP2 v0.1: it puts the requirements in a CartMandate, and AP2 v0.2 has no Cart mandate, so the two specifications are out of step today.<Cite ids="clm-x402-211" /> The AP2 repository still ships human-present and human-not-present x402 samples.<Cite ids="clm-x402-212" />
 
 ERC-8004 supplies what x402 leaves out: who the agent is and how it behaved. Its registration file has an `x402Support` boolean, and its off-chain feedback file can carry a `proofOfPayment` for an x402 payment.<Cite ids="clm-x402-219" /> Its best practices recommend `agentWallet` as the address that receives x402 payments, and they warn that indexers cannot easily tell x402 payments from ordinary transfers.<Cite ids="clm-x402-220 clm-x402-156" />
 
-Visa TAP answers HTTP 402 in its own way. The TAP specification defines a conditional `browsingIOU` object that the agent sends when a merchant asked for payment with a 402. The merchant checks it against its 402 response and grants access, expecting the funds at settlement.<Cite ids="clm-x402-242" /> TAP's sample merchant backend uses non-standard X-Payment headers, not the x402 wire format.<Cite ids="clm-x402-215" /> Visa and Mastercard are both Premier members of the x402 Foundation, which also runs a card-acceptance working group.<Cite ids="clm-x402-023 clm-x402-221" /> L402, an earlier HTTP 402 payment design on Lightning, sits in the orbit: no source says it is the ancestor of x402.<Cite ids="clm-x402-222" /> Lightning Labs launched it as LSAT on 2020-03-30 with a macaroon plus a BOLT11 invoice and renamed it L402 on 2023-04-20. The bLIP-0026 draft, rewritten on 2026-02-25 and still an open pull request, makes macaroons optional.<Cite ids="clm-x402-223" />
+Visa TAP answers HTTP 402 in its own way. The TAP specification defines a conditional `browsingIOU` object that the agent sends when a merchant asked for payment with a 402. The merchant checks it against its 402 response and grants access, expecting the funds at settlement.<Cite ids="clm-x402-242" /> TAP's sample merchant backend uses non-standard X-Payment headers, not the x402 wire format.<Cite ids="clm-x402-215" /> Visa and Mastercard are both Premier members of the x402 Foundation, which also runs a card-acceptance working group.<Cite ids="clm-x402-023 clm-x402-221" /> L402, an earlier HTTP 402 payment design on Lightning, sits in the orbit; neither its specification nor x402's describes a lineage between the two.<Cite ids="clm-x402-222 clm-x402-258" /> Lightning Labs launched it as LSAT on 2020-03-30 with a macaroon plus a BOLT11 invoice and renamed it L402 on 2023-04-20. The bLIP-0026 draft, rewritten on 2026-02-25 and still an open pull request, makes macaroons optional.<Cite ids="clm-x402-223" />

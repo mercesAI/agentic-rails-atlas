@@ -195,8 +195,8 @@
     "type": "repo",
     "primary": true,
     "published": "2026-03-20",
-    "accessed": "2026-10-11",
-    "notes": "gh api 2026-10-11: repo created 2020-02-07, 91 stars, pushed 2026-06-09. Commits: 8569225 initial 2020-02-06; d31479c 2023-04-20 'docs: update protocol documentation' (renames LSAT to L402 in protocol-specification.md); d7b1e1a and b5b7ac2 2026-03-10 align with bLIP-0026 (token-agnostic); 5e72451 2026-03-20 reverts the token generalization and version field; 592203a 2026-03-20 fixes agent-spec.md to macaroon= format. README at b7b73e6 (2021) titled 'LSAT: Lightning Service Authentication Token'."
+    "accessed": "2026-10-19",
+    "notes": "gh api 2026-10-11: repo created 2020-02-07, 91 stars, pushed 2026-06-09. Commits: 8569225 initial 2020-02-06; d31479c 2023-04-20 'docs: update protocol documentation' (renames LSAT to L402 in protocol-specification.md); d7b1e1a and b5b7ac2 2026-03-10 align with bLIP-0026 (token-agnostic); 5e72451 2026-03-20 reverts the token generalization and version field; 592203a 2026-03-20 fixes agent-spec.md to macaroon= format. README at b7b73e6 (2021) titled 'LSAT: Lightning Service Authentication Token'. PR #19 merged the bLIP-0026 text on 2026-03-11 (05:50 UTC; gh api 2026-10-19); its commits are dated 2026-03-10."
   },
   {
     "id": "src-orbit-l402-blip-pr",
@@ -315,13 +315,13 @@
   },
   {
     "id": "src-x402-fee-circle",
-    "url": "https://developers.circle.com/gateway/nanopayments",
+    "url": "https://developers.circle.com/gateway-nanopayments",
     "title": "Circle Gateway Nanopayments docs",
     "publisher": "Circle",
     "type": "docs",
     "primary": true,
-    "accessed": "2026-10-11",
-    "notes": "Read 2026-10-11: payments from $0.000001 USDC; off-chain authorizations at zero gas; bulk settlement; no fee schedule listed."
+    "accessed": "2026-10-19",
+    "notes": "The earlier URL https://developers.circle.com/gateway/nanopayments now redirects here. Read 2026-10-19: payments from $0.000001 USDC; buyers sign EIP-3009 authorizations off chain at zero gas; 'Gateway settles in bulk, so neither party pays per-transaction fees.' Fees for moving balances are on the Gateway fees page (src-x402-fee-circle-gateway)."
   },
   {
     "id": "src-orbit-circle-arc-mainnet",
@@ -432,12 +432,12 @@
   {
     "id": "src-x402-cf-changelog",
     "url": "https://developers.cloudflare.com/ai-gateway/features/machine-payments/",
-    "title": "Cloudflare AI Gateway: Machine payments (PAYMENT-METHOD: x402)",
+    "title": "Cloudflare AI Gateway: Machine Payments (Payment-Method: x402)",
     "publisher": "Cloudflare",
     "type": "docs",
     "primary": true,
-    "accessed": "2026-10-11",
-    "notes": "Reconstructed: the dossier cites Cloudflare's changelog for the 2026-09-30 closed beta; the dated changelog entry could not be re-located on 2026-10-11, so the Machine payments docs page that documents the PAYMENT-METHOD: x402 header is used. Changelog index: https://developers.cloudflare.com/changelog/"
+    "accessed": "2026-10-19",
+    "notes": "Cloudflare AI Gateway docs page 'Machine Payments' (last updated 2026-09-30), read 2026-10-19: the Cloudflare-specific Payment-Method: x402 request header asks for x402 payment instead of the account's configured billing method; users must be based in the United States and have a credit card on file. Changelog index: https://developers.cloudflare.com/changelog/"
   },
   {
     "id": "src-x402-cf-blog-foundation",
@@ -1273,5 +1273,66 @@
     "primary": true,
     "accessed": "2026-10-18",
     "notes": "gh api search/code for \"ERC-3643\" \"ERC-8004\" in repo:ethereum/ERCs returned one file, ERCS/erc-8226.md, on 2026-10-18. A looser query for 3643 and 8004 under ERCS also matched erc-2333.md (BLS12-381 key generation), which concerns neither. The erc3643.org home page HTML, fetched the same day, mentions neither AI agents nor ERC-8004. Code search covers the default branch and can lag recent commits."
+  },
+  {
+    "id": "src-orbit-kite-docs-seller",
+    "url": "https://docs.gokite.ai/passport/seller",
+    "title": "Kite Passport Service Provider Guide",
+    "publisher": "Kite",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-10-19",
+    "notes": "Read 2026-10-19 (curl and WebFetch): a guide for services that accept x402 or MPP payments from Kite Agent Passport agents. The x402 sample 402 uses x402Version 1, scheme gokite-aa and the X-PAYMENT header; the docs recommend the Pieverse facilitator (https://facilitator.pieverse.io) for Kite chain. No AP2 mention. The docs home page https://docs.gokite.ai/ has an 'I sell to agents' card for x402 or MPP."
+  },
+  {
+    "id": "src-orbit-circle-dune-x402-token",
+    "url": "https://dune.com/queries/6094619/9775125",
+    "title": "[x402] volume by token (Dune query)",
+    "publisher": "Dune",
+    "type": "dataset",
+    "primary": false,
+    "accessed": "2026-10-19",
+    "notes": "Linked from the 98.8% figure in Circle's Arc mainnet release of 2026-09-16 (src-orbit-circle-arc-mainnet). Read 2026-10-19: only the query title loaded; its author, method and date range were not visible."
+  },
+  {
+    "id": "src-orbit-coinbase-agentic-wallet-mcp-docs",
+    "url": "https://docs.cdp.coinbase.com/agentic-wallet/mcp/welcome",
+    "title": "Agentic Wallet MCP: overview",
+    "publisher": "Coinbase Developer Platform",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-10-19",
+    "notes": "Read 2026-10-19: an MCP server and companion wallet app combining wallets, onramps and payments via x402, installed with npx @coinbase/payments-mcp. The former Payments MCP docs URL https://docs.cdp.coinbase.com/payments-mcp/welcome answers HTTP 308 with a redirect to this page (curl 2026-10-19)."
+  },
+  {
+    "id": "src-orbit-coinbase-wallet-mcp-docs",
+    "url": "https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/wallet-mcp",
+    "title": "Wallet MCP",
+    "publisher": "Coinbase Developer Platform",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-10-19",
+    "notes": "Read 2026-10-19: every write action requires the user's approval; x402 payments through Wallet MCP are supported on Base and Base Sepolia. Base docs say Base MCP is now Wallet MCP (src-orbit-base-mcp-moved)."
+  },
+  {
+    "id": "src-orbit-base-mcp-moved",
+    "url": "https://docs.base.org/sdks/migrated-products",
+    "title": "Base Account and Base MCP Have Moved",
+    "publisher": "Base",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-10-19",
+    "notes": "Read 2026-10-19 (https://docs.base.org/agents.md redirects here): the Base MCP documentation moved to Coinbase Developer Platform, where Base MCP is now Wallet MCP; the Base Account SDK is now the Coinbase Wallet SDK."
+  },
+  {
+    "id": "src-orbit-coinbase-base-mcp-cointelegraph",
+    "url": "https://cointelegraph.com/news/base-launches-mcp-ttol-to-connect-crypto-wallets-to-ai-agents",
+    "title": "Base Launches Tool To Connect Crypto With AI Agents",
+    "publisher": "Cointelegraph",
+    "type": "news",
+    "primary": false,
+    "published": "2026-05-27",
+    "accessed": "2026-10-19",
+    "notes": "Read 2026-10-19 (curl HTTP 200; datePublished 2026-05-27T03:49Z): users can ask Claude or ChatGPT to transfer funds, swap tokens and check balances; the Base wallet opens so the user can confirm or cancel each transaction; the agent has no access to private keys."
   }
 ]

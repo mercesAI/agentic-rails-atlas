@@ -3,11 +3,13 @@
   "stewards": [
     {
       "name": "x402 Foundation (x402 a Series of LF Projects, LLC)",
-      "role": "Governs the protocol under a technical charter adopted 2026-03-31; Linux Foundation project since 2026.",
+      "role": "Governs the protocol under a technical charter adopted 2026-03-31, as a Linux Foundation project announced on 2026-04-02. A Governing Board handles budget and business oversight and the TSC makes technical decisions; Michael Hursta (Linux Foundation) has been Executive Director since 2026-10-01.",
       "sources": [
         "src-x402-charter",
         "src-x402-lf-april",
-        "src-x402-lf-july"
+        "src-x402-lf-july",
+        "src-x402-site-leadership",
+        "src-x402-lf-hursta"
       ]
     },
     {
@@ -20,17 +22,18 @@
     },
     {
       "name": "Coinbase Developer Platform",
-      "role": "Originated x402 and wrote the 2025-05-06 whitepaper; runs the largest facilitator.",
+      "role": "Originated x402 and wrote the 2025-05-06 whitepaper; runs the largest facilitator by transactions and volume in x402scan figures reported on 2026-07-21.",
       "sources": [
         "src-x402-whitepaper",
-        "src-x402-cdp-welcome"
+        "src-x402-cdp-welcome",
+        "src-x402-arxiv-2607-19545"
       ]
     }
   ],
   "implementers": [
     {
       "name": "Coinbase CDP facilitator",
-      "role": "Facilitator on Base, Polygon, Arbitrum, World and Solana with KYT and OFAC screening.",
+      "role": "Facilitator on Base, Polygon, Arbitrum, Monad, World and Solana with KYT and OFAC screening (CDP docs, 2026-10-19).",
       "status": "live",
       "sources": [
         "src-x402-fee-cdp",
@@ -54,12 +57,21 @@
       ]
     },
     {
-      "name": "Cloudflare Agents SDK and AI Gateway",
-      "role": "withX402 and paidTool for agents and MCP servers since 2025-09-23; AI Gateway accepts PAYMENT-METHOD: x402.",
+      "name": "Cloudflare Agents SDK",
+      "role": "withX402 and paidTool for agents and MCP servers since 2025-09-23.",
       "status": "live",
       "sources": [
         "src-x402-cf-blog-foundation",
-        "src-x402-cf-changelog"
+        "src-x402-npm-cf-agents"
+      ]
+    },
+    {
+      "name": "Cloudflare AI Gateway machine payments",
+      "role": "Pays for inference on select models over x402 when a request carries the Cloudflare-specific Payment-Method: x402 header; since 2026-09-30, for US-based customers.",
+      "status": "beta",
+      "sources": [
+        "src-x402-cf-changelog",
+        "src-x402-cf-mg-beta"
       ]
     },
     {
@@ -73,18 +85,20 @@
     },
     {
       "name": "Stripe machine payments preview",
-      "role": "Charges agents in USDC on Base through x402 (reported).",
+      "role": "Charges agents in USDC on Base through x402 and records each settled payment as a PaymentIntent; open to US businesses outside New York, other countries on request (2026-10-19).",
       "status": "beta",
       "sources": [
+        "src-x402-stripe-docs",
         "src-x402-stripe-coverage"
       ]
     },
     {
       "name": "Coinbase Agentic Wallets",
-      "role": "Agent wallets reported to transact through x402.",
-      "status": "announced",
+      "role": "Coinbase-managed agent wallet that holds USDC and pays for x402 services within limits the owner sets, through the awal CLI or an MCP server; available since 2026-02-11.",
+      "status": "live",
       "sources": [
-        "src-x402-agentic-wallets-coverage"
+        "src-x402-cdp-agentic-wallet",
+        "src-x402-cdp-changelog"
       ]
     },
     {
@@ -111,7 +125,7 @@
       "name": "@x402/core",
       "version": "2.28.0",
       "url": "https://www.npmjs.com/package/@x402/core",
-      "note": "V2 core types, client and resource server."
+      "note": "V2 core types, client and resource server. Versions in this list as of 2026-10-19; no SDK implemented the Lightning (lnbtc) binding on that date."
     },
     {
       "registry": "npm",
@@ -192,7 +206,7 @@
       "name": "x402",
       "version": "2.25.0",
       "url": "https://pypi.org/project/x402/",
-      "note": "V2 Python SDK, not legacy. Extras httpx, requests, fastapi, flask, svm."
+      "note": "V2 Python SDK, not legacy. Extras include httpx, requests, fastapi, flask, evm, svm, tvm, mcp and extensions."
     },
     {
       "registry": "go",
@@ -213,10 +227,10 @@
     {
       "id": "x402-gh-stars",
       "metric": "GitHub stars, x402-foundation/x402",
-      "value": 6701,
+      "value": 6735,
       "unit": "stars",
-      "asOf": "2026-10-10",
-      "definition": "Stars on the canonical repository.",
+      "asOf": "2026-10-19",
+      "definition": "Stars on the canonical repository (GitHub API, read 2026-10-19).",
       "sources": [
         "src-x402-gh-repo"
       ],
@@ -225,48 +239,52 @@
     {
       "id": "x402-npm-core",
       "metric": "npm downloads of @x402/core, last 30 days",
-      "value": 1492519,
+      "value": 1437614,
       "unit": "downloads",
-      "asOf": "2026-10-10",
-      "definition": "npm registry download count for the V2 core package.",
+      "asOf": "2026-10-19",
+      "definition": "npm registry downloads of the V2 core package in the 30 days from 2026-09-17 to 2026-10-16 (last-month endpoint, read 2026-10-19).",
       "sources": [
-        "src-x402-npm-downloads"
+        "src-x402-npm-downloads",
+        "src-x402-npm-downloads-legacy"
       ],
-      "caveat": "Includes CI installs; the legacy V1 package x402 had 2,007,353 in the same window."
+      "caveat": "Includes CI installs; the legacy V1 package x402 had 1,910,242 in the same window."
     },
     {
       "id": "x402-site-30d-tx",
-      "metric": "x402.org 30-day transactions",
+      "metric": "x402.org \"Last 30 days\" transactions counter",
       "value": "75.41M",
       "unit": "transactions",
-      "asOf": "2026-08-25",
-      "definition": "Self-reported counter on x402.org; the page displayed this on 2026-10-10 with \"Last updated: 2026-08-25\".",
+      "asOf": "2025-12-14",
+      "definition": "Self-reported counter on the x402.org home page, with no date or method on the page. First archived with this value on 2025-12-14 (Wayback Machine) and still shown on 2026-10-19.",
       "sources": [
-        "src-x402-site"
+        "src-x402-site",
+        "src-x402-site-wb-20251214",
+        "src-x402-site-wb-20261012"
       ],
-      "caveat": "Raw count, not adjusted for wash activity; appears not updated since at least mid August 2026.",
+      "caveat": "Unchanged on 2026-10-19; not a live 30-day figure. x402scan reported 3.02M transactions in the 30 days to 2026-10-19, and a Base study measured about 145,500 settlements a day from January to June 2026.",
       "disputed": true,
       "disputeSources": [
-        "src-x402-cryptobriefing",
-        "src-x402-forkast-visa",
+        "src-x402scan-stats-20261019",
         "src-x402-arxiv-2607-12575"
       ]
     },
     {
       "id": "x402-site-30d-vol",
-      "metric": "x402.org 30-day volume",
+      "metric": "x402.org \"Last 30 days\" volume counter",
       "value": "$24.24M",
       "unit": "USD",
-      "asOf": "2026-08-25",
-      "definition": "Self-reported counter on x402.org, read on 2026-10-10.",
+      "asOf": "2025-12-14",
+      "definition": "Self-reported counter on the x402.org home page, with no date or method on the page. First archived with this value on 2025-12-14 (Wayback Machine) and still shown on 2026-10-19.",
       "sources": [
-        "src-x402-site"
+        "src-x402-site",
+        "src-x402-site-wb-20251214",
+        "src-x402-site-wb-20261012"
       ],
-      "caveat": "The same figure was reported for mid August 2026 by Crypto Briefing.",
+      "caveat": "Unchanged on 2026-10-19; not a live 30-day figure. x402scan reported $1.23M in the 30 days to 2026-10-19; in March 2026 a16z put the same 30 days at about $3M on chain and $1.6M after removing wash trades.",
       "disputed": true,
       "disputeSources": [
-        "src-x402-cryptobriefing",
-        "src-x402-forkast-visa"
+        "src-x402scan-stats-20261019",
+        "src-x402-a16z-honest-number"
       ]
     },
     {
@@ -275,15 +293,13 @@
       "value": "$15.0M across 109.6M transactions",
       "unit": "USD and transactions",
       "asOf": "2026-04-21",
-      "definition": "Cumulative data to 2026-04-21 after removing activity Artemis classes as non-organic; average $0.14 per transaction.",
+      "definition": "Cumulative from the May 2025 launch to 2026-04-21, excluding identified wash and test activity (Artemis's proprietary method); about $0.14 per transaction. Raw totals were over $135.7M across 178.3M transactions.",
       "sources": [
-        "src-x402-forkast-visa"
-      ],
-      "caveat": "Secondary report of a Visa and Artemis chart; Visa's Cuy Sheffield separately cited about $19M across about 134M.",
-      "disputed": true,
-      "disputeSources": [
+        "src-x402-visa-artemis-report",
+        "src-x402-visa-groundup",
         "src-x402-visa-coverage"
-      ]
+      ],
+      "caveat": "Report commissioned by Visa. On 2026-07-16 The Defiant reported Visa's Cuy Sheffield citing about $19M across about 134M adjusted transactions, with no data date."
     },
     {
       "id": "x402-artemis-gamed",
@@ -291,23 +307,20 @@
       "value": 63.94,
       "unit": "percent (average)",
       "asOf": "2026-02-07",
-      "definition": "Average share flagged between 2025-11-09 and 2026-02-07; peak 90.21 percent.",
+      "definition": "Average share of x402 transactions Artemis flagged as gamed between 2025-11-09 and 2026-02-07 (peak 90.21 percent), reported by Four Pillars. A separate Base study (2025-09-17 to 2026-06-23, different method) classes 21.20 percent of settlements as fictitious and 63.78 percent as internal to linked clusters.",
       "sources": [
-        "src-x402-4pillars"
+        "src-x402-4pillars",
+        "src-x402-arxiv-2607-12575"
       ],
-      "caveat": "Secondary analysis; the detection logic is not published.",
-      "disputed": true,
-      "disputeSources": [
-        "src-x402-site"
-      ]
+      "caveat": "Secondary report of Artemis data; the detection logic is not published."
     },
     {
       "id": "x402-base-settlements-paper",
       "metric": "Settlements on Base (academic count)",
       "value": 136708672,
       "unit": "settlements",
-      "asOf": "2026-07-14",
-      "definition": "Settlements over a 280 day window, from arXiv:2607.12575.",
+      "asOf": "2026-06-23",
+      "definition": "x402 settlements on Base from 2025-09-17 to 2026-06-23 (280 days), counted in arXiv:2607.12575 (submitted 2026-07-14).",
       "sources": [
         "src-x402-arxiv-2607-12575"
       ],
@@ -323,10 +336,10 @@
       "sources": [
         "src-x402-v2-launch"
       ],
-      "caveat": "Raw self-reported count.",
+      "caveat": "Raw self-reported count. Visa and Artemis counted about 38M adjusted transactions in November 2025 and 109.6M adjusted (178.3M raw) from launch to 2026-04-21.",
       "disputed": true,
       "disputeSources": [
-        "src-x402-forkast-visa",
+        "src-x402-visa-artemis-report",
         "src-x402-arxiv-2607-12575"
       ]
     },
@@ -338,14 +351,26 @@
       "asOf": "2026-04-02",
       "definition": "Quote from Rishin Sharma (Solana Foundation) in the Linux Foundation release of 2026-04-02, for 2026 to date; a self-reported figure from an interested party.",
       "sources": [
-        "src-x402-lf-april"
+        "src-x402-lf-april",
+        "src-x402-cryptobriefing"
       ],
-      "caveat": "About 70 percent of monthly volume was reported for mid August 2026, while Base held about 90 percent of adjusted transactions in Visa and Artemis data; volume share and transaction share differ.",
+      "caveat": "Crypto Briefing reported about 70 percent of monthly volume for mid August 2026. Visa and Artemis data (adjusted, cumulative to 2026-04-21) put Base at about 90 percent of transactions and 93 percent of volume; the windows differ.",
       "disputed": true,
       "disputeSources": [
-        "src-x402-cryptobriefing",
-        "src-x402-visa-coverage"
+        "src-x402-visa-artemis-report"
       ]
+    },
+    {
+      "id": "x402scan-30d-tx",
+      "metric": "x402scan transactions, past 30 days",
+      "value": "3.02M",
+      "unit": "transactions",
+      "asOf": "2026-10-19",
+      "definition": "Past 30 Days view of x402scan's overall stats, read 2026-10-19; the same view showed $1.23M in volume.",
+      "sources": [
+        "src-x402scan-stats-20261019"
+      ],
+      "caveat": "x402scan's own indexing of facilitator settlements; trackers count differently."
     },
     {
       "id": "x402-cumulative-press",
@@ -353,27 +378,30 @@
       "value": "120M to 187M",
       "unit": "transactions",
       "asOf": "2026-09-15",
-      "definition": "Range across trackers reported by Crypto Briefing.",
+      "definition": "Range across unnamed trackers reported by Crypto Briefing on 2026-09-15.",
       "sources": [
         "src-x402-cryptobriefing"
       ],
-      "caveat": "Trackers disagree.",
+      "caveat": "Trackers count differently: x402scan showed 234.69M all-time transactions on 2026-10-19, and Chainalysis reported more than 138 million x402 transactions on Base by the end of its 2026 report period (2026-10-14).",
       "disputed": true,
       "disputeSources": [
-        "src-x402-cryptobriefing"
+        "src-x402scan-stats-20261019",
+        "src-x402-chainalysis-na-2026"
       ]
     },
     {
       "id": "x402-foundation-members",
       "metric": "x402 Foundation members",
-      "value": 40,
+      "value": 57,
       "unit": "organizations",
-      "asOf": "2026-07-14",
-      "definition": "Members at the operational launch, 17 of them Premier.",
+      "asOf": "2026-10-19",
+      "definition": "Organizations listed on x402.org/members: 19 Premier, 26 General and 12 Associate.",
       "sources": [
-        "src-x402-lf-july"
+        "src-x402-site-members",
+        "src-x402-lf-july",
+        "src-x402-lf-hursta"
       ],
-      "caveat": "The listed names count 39 or 40 depending on one combined entry."
+      "caveat": "40 at the 2026-07-14 launch, 17 of them Premier; the Linux Foundation said more than 50 active members on 2026-10-01."
     }
   ],
   "costs": [
@@ -381,68 +409,98 @@
       "item": "CDP facilitator settlement fee",
       "value": "First 1,000 on-chain transactions each month free, then $0.001 per on-chain transaction",
       "whoPays": "Resource server (the facilitator customer)",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "confidence": "verified",
-      "caveat": "Counts on-chain transactions, not payment requests; prices change without notice.",
+      "caveat": "Counts on-chain transactions, not payment requests. CDP began charging on 2026-01-01 after announcing it on 2025-12-01; check the page for current rates.",
       "sources": [
-        "src-x402-fee-cdp"
+        "src-x402-fee-cdp",
+        "src-x402-cdp-facilitator",
+        "src-x402-cdp-changelog"
       ]
     },
     {
       "item": "CDP facilitator verification",
       "value": "Free",
       "whoPays": "Nobody",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "confidence": "verified",
       "caveat": "Applies to /verify calls.",
       "sources": [
-        "src-x402-fee-cdp"
+        "src-x402-fee-cdp",
+        "src-x402-cdp-facilitator"
       ]
     },
     {
       "item": "On-chain transactions per payment (CDP)",
       "value": "exact and EVM upto: one; Solana upto: two; batch-settlement: one claim covers many vouchers",
-      "whoPays": "Facilitator pays gas, recovered through its fee",
-      "asOf": "2026-10-11",
+      "whoPays": "Facilitator pays gas; the seller pays CDP's fee per on-chain transaction",
+      "asOf": "2026-10-19",
       "confidence": "verified",
       "caveat": "Deposits, refunds and withdrawals in batch-settlement count as one transaction each.",
       "sources": [
-        "src-x402-fee-cdp"
+        "src-x402-fee-cdp",
+        "src-x402-cdp-facilitator",
+        "src-x402-scheme-exact-evm"
       ]
     },
     {
-      "item": "Other facilitators",
-      "value": "PayAI: on-chain gas plus 30 percent per settlement since 2026-09-21, paid in $0.001 credits, with 1,000 free credits per receiving wallet for life (about 650 Solana or 430 Base settlements); thirdweb 0.3 percent (secondary); self-hosted pays only gas and operations",
-      "whoPays": "Resource server",
-      "asOf": "2026-10-11",
+      "item": "PayAI facilitator",
+      "value": "On-chain gas plus 30 percent per settlement since 2026-09-21, paid in $0.001 credits; 1,000 free credits per receiving wallet, for life",
+      "whoPays": "Resource server (the facilitator customer)",
+      "asOf": "2026-10-19",
       "confidence": "verified",
-      "caveat": "PayAI figures from its own pricing docs; its facilitator home page still showed an older plan. The thirdweb figure comes from a secondary comparison of 2026-07-12; verify on the vendor page.",
+      "caveat": "Rates are recomputed daily. On 2026-10-19 a Solana exact settlement cost 1.33 credits and a Base exact (EIP-3009) settlement 2.09, so the free credits covered about 750 or 480 settlements.",
       "sources": [
         "src-fee-payai-pricing-docs",
+        "src-fee-payai-live-rates"
+      ]
+    },
+    {
+      "item": "thirdweb facilitator",
+      "value": "0.3 percent of each transaction executed through its facilitator, on all paid plans shown",
+      "whoPays": "The thirdweb account holder (the seller using its facilitator)",
+      "asOf": "2026-10-19",
+      "confidence": "verified",
+      "caveat": "Plan fees and RPC charges are separate.",
+      "sources": [
+        "src-fee-thirdweb-pricing"
+      ]
+    },
+    {
+      "item": "Self-hosted facilitator",
+      "value": "No facilitator fee; the operator pays gas, RPC, operations and compliance costs",
+      "whoPays": "The operator",
+      "asOf": "2026-10-19",
+      "confidence": "reported",
+      "caveat": "From a secondary comparison (Wavect, 2026-07-12, reviewed 2026-09-02).",
+      "sources": [
         "src-x402-fee-wavect"
       ]
     },
     {
       "item": "Gas for a USDC transfer",
-      "value": "Base about $0.005 to $0.01; Solana about $0.001 to $0.005; Ethereum L1 about $1 to $5",
+      "value": "Ethereum L1 about $0.01 on 2026-10-19 ($1 to $5 under normal congestion); Base under $0.005 to $0.01; Solana under $0.001 to $0.005",
       "whoPays": "Facilitator on the exact EVM path and as Solana fee payer, or the merchant when it sponsors",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "confidence": "reported",
-      "caveat": "Secondary mid-2026 estimate under normal congestion.",
+      "caveat": "The Ethereum figure is one EIP-3009 USDC transfer measured on 2026-10-19 (81,053 gas at 0.045 gwei, ETH at $2,432). The other ranges are Spark's mid-2026 low and normal congestion estimates; gas prices move by orders of magnitude.",
       "sources": [
+        "src-x402-fee-eth-eip3009-20261019",
         "src-x402-fee-spark-gas",
+        "src-x402-scheme-exact-evm",
         "src-x402-scheme-exact-svm"
       ]
     },
     {
       "item": "Circle Nanopayments",
-      "value": "Payments from $0.000001 USDC; no per-transaction fee schedule published",
-      "whoPays": "Not stated (buyers sign off-chain at zero gas)",
-      "asOf": "2026-10-11",
+      "value": "Payments from $0.000001 USDC; Circle says batched settlement means neither party pays per-transaction fees",
+      "whoPays": "Neither party per payment (Circle). The buyer makes a one-time on-chain deposit; withdrawals pay a gas fee per burn (for example $0.01 from Base) and crosschain transfers 0.005 percent",
+      "asOf": "2026-10-19",
       "confidence": "verified",
-      "caveat": "Who pays the batch settlement gas is not stated.",
+      "caveat": "Who pays the gas for batch settlement is not stated.",
       "sources": [
-        "src-x402-fee-circle"
+        "src-x402-fee-circle",
+        "src-x402-fee-circle-gateway"
       ]
     },
     {

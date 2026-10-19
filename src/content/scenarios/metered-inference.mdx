@@ -82,11 +82,11 @@ Costs: MPP defines no protocol fee.<Cite ids="clm-stripe-mpp-170" /> For a 50,00
 
 MPP's own documentation names x402 `upto` and EVM `batch-settlement` as the usage-based counterparts to the session.<Cite ids="clm-stripe-mpp-178" />
 
-| Aspect | MPP Tempo session | x402 `upto` | x402 `batch-settlement` |
+| Aspect | MPP Tempo session | x402 `upto` (EVM) | x402 `batch-settlement` (EVM) |
 |---|---|---|---|
 | Up front | Deposit into a channel | Permit2 signature for a ceiling | Deposit into a channel |
 | Per unit | Off-chain cumulative voucher | Nothing; server meters | Cumulative voucher per request |
-| Settlement | Server settles or closes when it chooses | Server settles the metered charge, at most the ceiling | Many vouchers claimed in one transfer |
+| Settlement | Server settles or closes when it chooses | Server settles the metered charge, at most the ceiling | Vouchers claimed in batches on chain, then one settle transfer |
 | Exit without the server | `requestClose`, at least 15 minutes, `withdraw` | Not needed; one charge | `initiateWithdraw`, then `finalizeWithdraw` after 15 minutes to 30 days |
 
-In `upto` the client signs a Permit2 authorization for a ceiling and the server settles the metered charge, which must not exceed it.<Cite ids="clm-x402-104" /> The client must trust the server to charge fairly up to that ceiling.<Cite ids="clm-x402-131" /> `batch-settlement` opens a channel with a deposit, carries a cumulative voucher on each request, and claims many vouchers in one token transfer.<Cite ids="clm-x402-106" /> Its exit is `initiateWithdraw` and then `finalizeWithdraw` after a `withdrawDelay` of 15 minutes to 30 days.<Cite ids="clm-x402-107" /> With mppx one server route can offer both MPP and x402 challenges and accept either credential.<Cite ids="clm-stripe-mpp-179" />
+In `upto` on EVM the client signs a Permit2 authorization for a ceiling and the server settles the metered charge, which must not exceed it.<Cite ids="clm-x402-104" /> The client must trust the server to charge fairly up to that ceiling.<Cite ids="clm-x402-131" /> `batch-settlement` on EVM opens a channel with a deposit and carries a cumulative voucher on each request; the server claims many vouchers in one transaction and settles them in one token transfer.<Cite ids="clm-x402-106 clm-x402-187" /> Its exit is `initiateWithdraw` and then `finalizeWithdraw` after a `withdrawDelay` of 15 minutes to 30 days.<Cite ids="clm-x402-107" /> On Solana both schemes run on an on-chain payment channel, and `upto` escrows the ceiling there. Without the server, the client calls `request_close`, waits out the `withdrawDelay` grace period, then `seal` and `withdraw_payer` return its unspent deposit.<Cite ids="src-x402-scheme-upto-svm src-x402-scheme-batch-svm" /> With mppx one server route can offer both MPP and x402 challenges and accept either credential.<Cite ids="clm-stripe-mpp-179" />

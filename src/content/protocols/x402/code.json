@@ -60,11 +60,12 @@
       "version": "2.25.0",
       "language": "python",
       "side": "server",
-      "code": "from x402 import x402ResourceServer\nfrom x402.http import HTTPFacilitatorClient\nfrom x402.mechanisms.evm.exact import ExactEvmServerScheme\n\nfacilitator = HTTPFacilitatorClient(url=\"https://x402.org/facilitator\")\nserver = x402ResourceServer(facilitator)\nserver.register(\"eip155:*\", ExactEvmServerScheme())\nserver.initialize()",
+      "code": "from x402 import x402ResourceServer\nfrom x402.http import FacilitatorConfig, HTTPFacilitatorClient\nfrom x402.mechanisms.evm.exact import ExactEvmServerScheme\n\nfacilitator = HTTPFacilitatorClient(FacilitatorConfig(url=\"https://x402.org/facilitator\"))\nserver = x402ResourceServer(facilitator)\nserver.register(\"eip155:*\", ExactEvmServerScheme())\nserver.initialize()",
       "docsUrl": "https://github.com/x402-foundation/x402/tree/main/python/x402",
-      "note": "First lines of the Python README server example; the README continues with ResourceConfig and framework middleware.",
+      "note": "Adapted from the Python README server example. The README passes url= straight to HTTPFacilitatorClient, which raises a TypeError in PyPI x402 2.25.0, so this uses FacilitatorConfig as the class docstring does. The README continues with ResourceConfig and framework middleware.",
       "sources": [
-        "src-x402-readme-python"
+        "src-x402-readme-python",
+        "src-x402-sdk-py-facilitator-client"
       ]
     }
   ],
