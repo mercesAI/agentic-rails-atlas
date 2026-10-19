@@ -54,39 +54,40 @@
       "question": "What does TAP call the nonce?",
       "options": [
         "A one-time random value per request",
-        "A hash of the body",
-        "A session identifier shared by all signatures and objects",
-        "A counter"
+        "A hash of the request body",
+        "A session identifier for the signatures",
+        "A counter of the agent's requests"
       ],
       "answer": 2,
-      "explanation": "TAP reuses one nonce across all message signatures and signed body objects in an interaction.",
+      "explanation": "TAP calls the nonce a session identifier: several signatures in one header should share it, and each signed body object repeats it.",
       "claimIds": [
         "clm-visa-tap-042"
       ]
     },
     {
       "id": "visa-tap-q5",
-      "question": "Where does Visa say it hosts TAP public keys?",
+      "question": "Which key URL did the TAP specification name until October 2026?",
       "options": [
         "/.well-known/http-message-signatures-directory",
         "https://mcp.visa.com/.well-known/jwks",
-        "/.well-known/ucp",
-        "In the Signature-Agent header"
+        "/.well-known/ucp on the merchant site",
+        "The URL in the Signature-Agent header"
       ],
       "answer": 1,
-      "explanation": "The specification names Visa's JWKS at mcp.visa.com.",
+      "explanation": "Until October 2026 the specification named Visa's JWKS at mcp.visa.com; the moved page names no URL, and Visa's own code uses that JWKS to encrypt tokens for its MCP server.",
       "claimIds": [
         "clm-visa-tap-069",
-        "clm-visa-tap-112"
+        "clm-visa-tap-112",
+        "clm-visa-tap-239"
       ]
     },
     {
       "id": "visa-tap-q6",
-      "question": "What did that key store hold on 2026-10-11?",
+      "question": "What did that JWKS hold on 2026-10-11 and 2026-10-19?",
       "options": [
         "Ed25519 keys matching the examples",
-        "No keys",
-        "An EC P-256 key",
+        "No keys at all, an empty set",
+        "One EC P-256 key for ES256 signing",
         "One RSA key from a Visa sandbox CA"
       ],
       "answer": 3,
@@ -116,9 +117,9 @@
       "question": "When does a payment container carry a browsingIOU?",
       "options": [
         "When the merchant asked for payment with HTTP 402",
-        "Always",
-        "For key-entered guest checkout",
-        "Only for Mastercard cards"
+        "On every checkout request the agent signs",
+        "For a key-entered guest checkout at the merchant",
+        "Only when the card is a Mastercard card"
       ],
       "answer": 0,
       "explanation": "browsingIOU is present when the merchant requested payment with a 402 response.",
@@ -155,6 +156,7 @@
       "explanation": "Visa announced TAP on 2025-10-14, developed with Cloudflare. 2025-04-30 is VIC's unveiling.",
       "claimIds": [
         "clm-visa-tap-004",
+        "clm-visa-tap-005",
         "clm-visa-tap-008"
       ]
     }

@@ -1,6 +1,6 @@
 {
   "protocol": "visa-tap",
-  "summary": "TAP proves that a key from a payment scheme's store signed this host and path, for a stated purpose, within 8 minutes. Everything else is trust placed in a party: Visa's non-public onboarding and its key store, the verifier's choice to keep nonces, and the merchant's handling of personal data. The minimum signature leaves the method, the query and the body unbound, body objects have no canonical form, and the published key store and examples do not line up. No CVE or advisory names TAP, and no academic attack on it has been published; the threats below come from reading the specification and the sample code.",
+  "summary": "TAP proves that a key from a payment scheme's store signed this host and path, for a stated purpose, within 8 minutes. Everything else is trust placed in a party: Visa's non-public onboarding and its key store, the verifier's choice to keep nonces, and the merchant's handling of personal data. The minimum signature leaves the method, the query and the body unbound, body objects have no defined canonicalization (the specification says only: all fields in the order received). The JWKS the specification named until October 2026 holds no key that matches its examples. As of 2026-10-19 no CVE or GitHub advisory names TAP and no attack paper on it was found on arXiv; the threats below come from reading the specification and the sample code.",
   "threats": [
     {
       "id": "visa-tap-t1",
@@ -73,7 +73,7 @@
     {
       "id": "visa-tap-t5",
       "stride": "I",
-      "title": "Unsalted credential hash reveals card data",
+      "title": "Credential hash with no stated salt may reveal card data",
       "description": "The payment credential hash covers a 16-digit account number, expiry and a 3-digit code with no stated algorithm or salt, so the input space is small.",
       "preconditions": [
         "The attacker sees a payment container with a credential hash",
@@ -106,9 +106,9 @@
       "id": "visa-tap-t7",
       "stride": "S",
       "title": "Key store confusion",
-      "description": "The published JWKS held one RSA key from a sandbox CA and no Ed25519 key, so verifiers may source keys elsewhere or accept keys loosely.",
+      "description": "The JWKS the specification named until October 2026 held one RSA key from a sandbox CA and no Ed25519 key. Visa's own code uses that key for MCP token encryption, so verifiers may source keys elsewhere or accept keys loosely.",
       "preconditions": [
-        "The verifier cannot resolve the agent's keyid from the published JWKS",
+        "The verifier cannot resolve the agent's keyid from the JWKS the specification named until October 2026",
         "An out-of-band key path is used"
       ],
       "impact": "Keys from an untrusted path could be accepted as Visa's.",
@@ -129,7 +129,7 @@
       ],
       "impact": "Legitimate agents blocked; merchants fall back to bot rules.",
       "mitigatedBySpec": "no",
-      "implementerNotes": "Cache keys with a reasonable lifetime; the published JWKS uses a one-hour cache-control; monitor fetch failures.",
+      "implementerNotes": "Cache keys with a reasonable lifetime; the JWKS the specification named until October 2026 uses a one-hour cache-control; monitor fetch failures.",
       "sources": [
         "src-visa-tap-jwks",
         "src-visa-tap-cf-blog"
@@ -243,23 +243,26 @@
     {
       "title": "RAILS: Verification-Native Clearing For Agentic Commerce",
       "date": "2026-06-07",
-      "finding": "Argues that the Visa and Mastercard network agent protocols, along with MCP, A2A, x402 and AP2, assume rather than produce a determination of whether an agent met its obligation; its full text names Visa's TAP, the only paper found that does.",
+      "finding": "Argues that the Visa and Mastercard network agent protocols, along with MCP, A2A, x402 and AP2, assume rather than produce a determination of whether an agent met its obligation. Its full text names Visa's TAP, as do the GLEIF working paper, the Visa and Artemis report and a 2026-10-16 arXiv white paper.",
       "publicationId": "pub-devaloisfranklin-2026-rails",
       "sources": [
-        "src-pub-2606-08790"
+        "src-pub-2606-08790",
+        "src-orbit-kya-gleif-amc-paper",
+        "src-x402-visa-groundup",
+        "src-pub-2610-22899"
       ]
     },
     {
       "title": "A Formal Analysis of Agent Payment Protocols",
       "date": "2026-08-30",
-      "finding": "Models x402, MPP, ACP and AP2 in Tamarin; TAP is not modeled, so no formal analysis of TAP exists.",
+      "finding": "Models x402, MPP, ACP and AP2 in Tamarin; TAP is not modeled, and no formal analysis of TAP was found (arXiv search, 2026-10-19).",
       "publicationId": "pub-jiang-2026-formal",
       "sources": [
         "src-pub-2609-00060"
       ]
     },
     {
-      "title": "FP-Inconsistent: fingerprint inconsistencies in evasive bot traffic",
+      "title": "FP-Inconsistent: Measurement and Analysis of Fingerprint Inconsistencies in Evasive Bot Traffic",
       "date": "2024-06-11",
       "finding": "About half of the traffic bought from 20 bot services evaded two commercial anti-bot products by altering browser fingerprints, the weakness that signed agent requests aim to replace.",
       "publicationId": "pub-venugopalan-2025-fpinconsistent",

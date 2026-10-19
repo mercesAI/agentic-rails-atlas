@@ -22,20 +22,21 @@
     },
     {
       "q": "Is TAP the same as Web Bot Auth?",
-      "a": "No. Both use RFC 9421, and TAP says it is aligned with web-bot-auth, but TAP predates the 2026-09-01 working group draft and differs from it: its own two tags, no required Signature-Agent header, a mandatory nonce, an 8-minute window and Visa's own key store.",
+      "a": "No. Both use RFC 9421, and TAP says it is aligned with web-bot-auth, but TAP predates the 2026-09-01 working group draft and differs from it: its own two tags, no required Signature-Agent header, a mandatory nonce, an 8-minute window (the draft recommends at most 24 hours) and the payment scheme's own key store.",
       "claimIds": [
         "clm-visa-tap-107",
         "clm-visa-tap-106",
         "clm-visa-tap-108",
         "clm-visa-tap-109",
         "clm-visa-tap-111",
-        "clm-visa-tap-112"
+        "clm-visa-tap-112",
+        "clm-visa-tap-113"
       ],
       "misconception": true
     },
     {
       "q": "Is a Visa agentic token the same as a Mastercard agentic token?",
-      "a": "No. Visa's agent credentials are agentic network tokens in Visa Intelligent Commerce; Mastercard Agentic Tokens are a separate Agent Pay product on another network.",
+      "a": "No. Visa calls its agent credentials agentic network tokens or agent-specific tokens in Visa Intelligent Commerce; Mastercard Agentic Tokens are a separate Agent Pay product on another network.",
       "claimIds": [
         "clm-visa-tap-201",
         "clm-visa-tap-200"
@@ -63,27 +64,29 @@
     },
     {
       "q": "Where do I get the agent's public key?",
-      "a": "The specification points to https://mcp.visa.com/.well-known/jwks. On 2026-10-11 that JWKS held one RSA key from a Visa sandbox CA and no Ed25519 key, and Visa has not said how production agent keys are distributed.",
+      "a": "From Visa's key store, at a well-known URL that the current specification does not name. Until October 2026 it named https://mcp.visa.com/.well-known/jwks. That JWKS holds one RSA key from a Visa sandbox CA, which Visa's own code uses to encrypt tokens for its MCP server, and no Ed25519 key (2026-10-19). Visa has not said how production agent keys are distributed.",
       "claimIds": [
         "clm-visa-tap-069",
         "clm-visa-tap-071",
         "clm-visa-tap-072",
+        "clm-visa-tap-239",
         "clm-visa-tap-074"
       ]
     },
     {
       "q": "Does the signature protect the request body?",
-      "a": "No. The minimum covered components are @authority and @path; method, query and a content digest are not required. The body objects carry their own signatures, linked by the nonce and key.",
+      "a": "Not by default. The minimum covered components are @authority and @path; method, query and a content digest are not required, though an agent or scheme may add more. The body objects carry their own signatures, linked by the nonce and key.",
       "claimIds": [
         "clm-visa-tap-117",
         "clm-visa-tap-095",
+        "clm-visa-tap-046",
         "clm-visa-tap-078"
       ],
       "misconception": true
     },
     {
       "q": "Must a merchant adopt TAP to accept agent purchases?",
-      "a": "No. Merchants are not required to use TAP or register with a payment scheme, and those that have not adopted it can ignore the signatures.",
+      "a": "No. Merchants are not required to use TAP, the specification says they do not necessarily have to register with a payment scheme, and those that have not adopted it can ignore the signatures.",
       "claimIds": [
         "clm-visa-tap-034",
         "clm-visa-tap-233"
@@ -102,7 +105,7 @@
     },
     {
       "q": "Does TAP shift chargeback liability?",
-      "a": "TAP is not mentioned in Visa's rules, and Visa calls none of its rules a liability shift. Worldpay wrote on 2026-07-30 that none exists yet and that properly tokenized agent transactions follow existing rules. Visa's rules, which govern Visa and its member institutions and yield to applicable law, do assign responsibility for an agent's actions. Since 2025-10-18 the cardholder has been responsible, within Visa's system, for what an Agentic Payment Provider does in an Agentic Transaction, as if the cardholder had initiated it. Issuers must pay for such transactions made under the cardholder's payment instructions, and from 2026-10-24 a provider's login ID can help defeat a card-absent fraud dispute.",
+      "a": "TAP is not mentioned in Visa's rules, and Visa calls none of its agent rules a liability shift. Worldpay wrote on 2026-07-30 that none exists yet: fraud on properly authenticated, tokenized agent transactions generally follows existing tokenized rules, while disputes short of fraud remain unsettled. Visa's rules, which govern Visa and its member institutions and yield to applicable law, do assign responsibility for an agent's actions. Since 2025-10-18 the cardholder has been responsible, within Visa's system, for what an Agentic Payment Provider does in an Agentic Transaction, as if the cardholder had initiated it. Issuers must pay for such transactions made under the cardholder's payment instructions and must not block them wholesale, and from 2026-10-24 a provider's login ID can help defeat a card-absent fraud dispute.",
       "claimIds": [
         "clm-visa-tap-171",
         "clm-visa-tap-169",

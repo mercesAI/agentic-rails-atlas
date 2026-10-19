@@ -3,10 +3,12 @@
   "items": [
     {
       "question": "How do production agent keys reach merchants and CDNs?",
-      "context": "The published JWKS held one RSA sandbox key on 2026-10-11, while the examples use Ed25519. Visa has not documented another channel.",
+      "context": "The specification named a JWKS at mcp.visa.com until October 2026 and names no key URL today. That JWKS holds one RSA sandbox key, which Visa's own code uses to encrypt MCP tokens, while the examples use Ed25519. Visa's API reference lists a Visa Agent Registry Services entry open only to authorized users (2026-10-19).",
       "sources": [
         "src-visa-tap-jwks",
-        "src-visa-tap-spec"
+        "src-visa-tap-spec",
+        "src-visa-ai-token-manager",
+        "src-visa-tap-apiref"
       ]
     },
     {
@@ -27,7 +29,7 @@
     },
     {
       "question": "Who carries the loss when an agent buys the wrong thing?",
-      "context": "Within Visa's system, Visa's rules (since 2025-10-18) make the cardholder responsible for an Agentic Payment Provider's actions; the rules yield to applicable law. Worldpay (2026-07-30) says no liability shift exists yet, and HM Treasury's consultation on payments regulation, which covered agentic payments, closed on 2026-10-06.",
+      "context": "Within Visa's system, Visa's rules (since 2025-10-18) make the cardholder responsible for an Agentic Payment Provider's actions; the rules yield to applicable law, and Visa calls none of its agent rules a liability shift. Worldpay (2026-07-30) says no liability shift exists yet and that disputes short of fraud are unsettled, and HM Treasury's consultation on payments regulation, which covered agentic payments, closed on 2026-10-06.",
       "sources": [
         "src-visa-rules-public",
         "src-worldpay-liability",
@@ -36,7 +38,7 @@
     },
     {
       "question": "Will Visa and Mastercard share one key directory?",
-      "context": "The TAP specification names a shared approach as a goal, but each network hosts its own today, and Mastercard's location is unknown.",
+      "context": "The TAP specification names a shared approach as a goal. For now Visa runs its own key store; Cloudflare said in 2025 that each network would host a directory, and the only Mastercard directory host in its guide did not resolve on 2026-10-19.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-tap-cf-blog",

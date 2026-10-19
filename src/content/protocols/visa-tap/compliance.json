@@ -1,7 +1,7 @@
 {
   "protocol": "visa-tap",
   "notLegalAdvice": true,
-  "summary": "TAP identifies agents on card-not-present purchases and moves no money, so the rules that bite are card-payment rules: who authorized the transaction (Regulation E and Z, PSD2, UK PSRs), strong customer authentication when the user is absent, and data protection for the IP address, device data and contact values that the consumer object sends to merchants. Visa's rules, which govern Visa and its member institutions and yield to applicable law, have since 2025-10-18 made the cardholder responsible, within Visa's system, for an Agentic Payment Provider's actions. Visa calls none of its rules a liability shift, though issuers must pay for Agentic Transactions made under the cardholder's instructions; Worldpay (2026-07-30) says no liability shift exists yet. The Product Terms put consumer disclosures and consents on the implementer. Rows are dated; check each source before relying on it.",
+  "summary": "TAP identifies agents on card-not-present purchases and moves no money, so the rules that bite are card-payment rules: who authorized the transaction (Regulation E and Z, PSD2, UK PSRs), strong customer authentication when the user is absent, and data protection for the IP address, device data and contact values that the consumer object sends to merchants. Visa's rules, which govern Visa and its member institutions and yield to applicable law, have since 2025-10-18 made the cardholder responsible, within Visa's system, for an Agentic Payment Provider's actions. Visa calls none of its agent rules a liability shift, though issuers must pay for Agentic Transactions made under the cardholder's instructions; Worldpay (2026-07-30) says no liability shift exists yet. The Product Terms put consumer disclosures and consents on the implementer. Rows are dated; check each source before relying on it.",
   "rows": [
     {
       "jurisdiction": "US",
@@ -15,7 +15,7 @@
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "For debit cards, Regulation E excludes transfers by a person the consumer gave the access device to, until the consumer revokes that authority, so a consumer may carry an agent's transfers until notice. TAP itself carries no consent record.",
+      "text": "For debit cards, Regulation E excludes transfers by a person the consumer gave the access device to, unless the consumer has notified the financial institution that such transfers are no longer authorized. A consumer may therefore carry an agent's transfers until the institution is notified. TAP itself carries no consent record.",
       "sources": [
         "src-policy-rege-1005-2"
       ],
@@ -24,7 +24,7 @@
     {
       "jurisdiction": "US",
       "topic": "aml",
-      "text": "TAP adds no sanctions or AML layer; card payments it accompanies follow the issuer's and acquirer's existing programs. OFAC obligations are the same whatever the channel.",
+      "text": "TAP adds no sanctions or AML layer. OFAC says compliance obligations are the same whether a transaction is in digital or fiat currency (FAQ 560): U.S. persons must block the property of persons on the SDN List.",
       "sources": [
         "src-policy-ofac-faq-virtual",
         "src-visa-tap-spec"
@@ -34,9 +34,10 @@
     {
       "jurisdiction": "US",
       "topic": "data-protection",
-      "text": "California's CCPA regulations on automated decisionmaking technology take effect from 2026-01-01; a merchant that uses contextualData or the ID Token in automated decisions should check them.",
+      "text": "California's ADMT regulations took effect on 2026-01-01; a business already using ADMT for significant decisions must comply by 2027-01-01. They cover only significant decisions: providing or denying financial or lending services, housing, education, employment or healthcare. A merchant that uses contextualData or the ID Token only to recognize agents or accept orders is generally not making such a decision.",
       "sources": [
         "src-policy-cppa-admt",
+        "src-policy-cppa-admt-text",
         "src-visa-tap-spec"
       ],
       "confidence": "verified"
@@ -75,7 +76,7 @@
     {
       "jurisdiction": "EU",
       "topic": "ai-rules",
-      "text": "The AI Act's Article 50 transparency duties apply from 2026-08-02; the Digital Omnibus moved Annex III high-risk duties to 2027-12-02. A shopping agent is not high-risk by default, but its operator may need to tell people they deal with an AI system.",
+      "text": "AI Act Article 50(1) applies from 2026-08-02: providers of AI systems meant to interact directly with people must design them so people know they deal with an AI, unless that is obvious. Generative systems on the market before that date have until 2026-12-02 for the Article 50(2) marking duty. The Digital Omnibus moved Annex III high-risk duties to 2027-12-02; a shopping agent is not high-risk by default.",
       "sources": [
         "src-policy-eu-ai-act",
         "src-policy-eu-ai-omnibus"
@@ -104,7 +105,7 @@
     {
       "jurisdiction": "UK",
       "topic": "ai-rules",
-      "text": "The FCA said on 2026-03-25 it will consider with HM Treasury whether regulation must change to support agentic AI payments; there is no AI statute.",
+      "text": "The FCA said on 2026-03-25 it will consider with HM Treasury whether regulation must change to support agentic AI payments.",
       "sources": [
         "src-policy-fca-payments-priorities"
       ],
@@ -113,9 +114,12 @@
     {
       "jurisdiction": "CA",
       "topic": "data-protection",
-      "text": "PIPEDA governs the personal information in the consumer object that Canadian merchants receive.",
+      "text": "PIPEDA governs the personal information in the consumer object that merchants collect in the course of commercial activities. Collection, use and disclosure within Quebec, Alberta or British Columbia falls under provincial law instead, except at federally regulated businesses (exemption orders under section 26(2)(b)).",
       "sources": [
         "src-policy-ca-pipeda",
+        "src-policy-ca-pipeda-qc-order",
+        "src-policy-ca-pipeda-ab-order",
+        "src-policy-ca-pipeda-bc-order",
         "src-visa-tap-spec"
       ],
       "confidence": "verified"
@@ -132,7 +136,7 @@
     {
       "jurisdiction": "SG",
       "topic": "liability",
-      "text": "MAS's E-Payments User Protection Guidelines allocate liability for unauthorized and erroneous e-payments; they do not address agents specifically.",
+      "text": "MAS's E-Payments User Protection Guidelines set liability for unauthorized transactions and duties for erroneous ones on protected accounts. Their liability apportionment does not apply to credit, charge or debit cards issued in Singapore, which follow the ABS Code of Practice for Banks. The Guidelines do not address agents.",
       "sources": [
         "src-policy-mas-eupg"
       ],
@@ -141,7 +145,7 @@
     {
       "jurisdiction": "SG",
       "topic": "ai-rules",
-      "text": "MAS issued Guidelines on AI Risk Management on 2026-10-07, effective 2027-10-07, naming agentic AI systems; Ant International, Mastercard and Visa announced Know Your Agent work through a MAS-convened platform on 2026-09-11, building on TAP (reported).",
+      "text": "MAS issued Guidelines on AI Risk Management on 2026-10-07, effective 2027-10-07, naming agentic AI systems. On 2026-09-10 Ant International, Mastercard and Visa announced they will explore common Know Your Agent principles across their protocols, including TAP. They will work through BuildFin.ai, a MAS-convened platform, building on the SAFR framework (reported).",
       "sources": [
         "src-policy-mas-ai-release",
         "src-policy-ant-kya"
@@ -160,9 +164,10 @@
     {
       "jurisdiction": "card-networks",
       "topic": "liability",
-      "text": "Visa calls no rule a liability shift and adds no agent-specific dispute condition, fee or interchange rate. It does require issuers to pay for Agentic Transactions made under a cardholder's payment instructions and not to block them wholesale. From 2026-10-24 it also accepts an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Worldpay wrote on 2026-07-30 that no liability shift exists yet and that properly tokenized agent transactions follow existing rules.",
+      "text": "Visa calls none of its agent rules a liability shift and adds no agent-specific dispute condition or fee; its April 2026 US interchange schedule has no agentic category. It does require issuers to pay for Agentic Transactions made under a cardholder's payment instructions and not to block them wholesale. From 2026-10-24 it also accepts an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Worldpay wrote on 2026-07-30 that no liability shift exists yet: properly tokenized agent transactions generally follow existing tokenized-transaction rules for fraud, while disputes short of fraud are unsettled.",
       "sources": [
         "src-visa-rules-public",
+        "src-visa-us-irf-2026-04",
         "src-worldpay-liability"
       ],
       "confidence": "reported"

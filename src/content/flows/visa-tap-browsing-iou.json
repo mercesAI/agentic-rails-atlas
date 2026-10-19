@@ -3,7 +3,7 @@
   "protocol": "visa-tap",
   "title": "Visa TAP alternative path: paid content with HTTP 402 and a browsingIOU",
   "summary": "The merchant asks for payment for a resource with HTTP 402. The agent retries with a payment container that holds a signed browsingIOU. The merchant checks the IOU against its 402 data and the signature, then grants access expecting the funds at settlement, which TAP does not define.",
-  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11, rechecked 2026-10-19)",
   "specVersionDate": "2025-10-14",
   "actors": [
     {
@@ -36,7 +36,7 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Browsing IOU"
       }
     },
@@ -53,7 +53,7 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Browsing IOU"
       },
       "failures": [
@@ -68,15 +68,15 @@
       "from": "agent",
       "to": "merchant",
       "label": "Retry with agenticPaymentContainer.browsingIOU",
-      "detail": "The IOU repeats the invoice data and names the acquirer, the page URI, a sequence counter and the agent's payment service, signed with the agent key.",
+      "detail": "The IOU repeats the invoice data and names the acquirer, the page URI, a sequence counter and the agent's payment service, signed with the agent key. The retry is a new request with a fresh nonce. TAP does not say how the container travels on a GET; it is shown here as a body for illustration.",
       "payload": {
         "format": "http",
-        "content": "GET /reviews/123 HTTP/1.1\nHost: shop.example\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-payer-auth\"\nSignature: sig2=:cGF5ZXItc2lnbmF0dXJlLXBsYWNlaG9sZGVy:\n\n{\n  \"agenticPaymentContainer\": {\n    \"nonce\": \"bm9uY2UtcGxhY2Vob2xkZXI\",\n    \"browsingIOU\": {\n      \"invoiceId\": \"inv-0001\",\n      \"amount\": \"0.25\",\n      \"cardAcceptorId\": \"caid-placeholder\",\n      \"acquirerId\": \"aid-placeholder\",\n      \"uri\": \"https://shop.example/reviews/123\",\n      \"sequenceCounter\": \"1\",\n      \"paymentService\": \"example-payment-service\",\n      \"kid\": \"agent-key-1\",\n      \"alg\": \"PS256\",\n      \"signature\": \"placeholder\"\n    },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  }\n}",
+        "content": "GET /reviews/123 HTTP/1.1\nHost: shop.example\nContent-Type: application/json\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225660;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225960;nonce=\"bm9uY2UtaW91LXJldHJ5\";tag=\"agent-payer-auth\"\nSignature: sig2=:cGF5ZXItc2lnbmF0dXJlLXBsYWNlaG9sZGVy:\n\n{\n  \"agenticPaymentContainer\": {\n    \"nonce\": \"bm9uY2UtaW91LXJldHJ5\",\n    \"browsingIOU\": {\n      \"invoiceId\": \"inv-0001\",\n      \"amount\": \"0.25\",\n      \"cardAcceptorId\": \"caid-placeholder\",\n      \"acquirerId\": \"aid-placeholder\",\n      \"uri\": \"https://shop.example/reviews/123\",\n      \"sequenceCounter\": \"1\",\n      \"paymentService\": \"example-payment-service\",\n      \"kid\": \"agent-key-1\",\n      \"alg\": \"PS256\",\n      \"signature\": \"placeholder\"\n    },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Browsing IOU"
       }
     },
@@ -87,7 +87,7 @@
       "label": "Match IOU to the 402 and verify",
       "detail": "The merchant must check that the IOU data matches its 402 response and that the signature is valid.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Browsing IOU"
       },
       "failures": [
@@ -110,7 +110,7 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Browsing IOU"
       }
     },

@@ -27,7 +27,7 @@ relations:
     note: AP2 samples run merchant, credentials provider and processor roles as MCP servers; the AP2 FAQ says an SDK and MCP server are being worked on.
   - to: visa-tap
     type: compatible-with
-    note: Visa publishes MCP server and client packages for its Intelligent Commerce APIs; TAP itself does not depend on MCP.
+    note: Visa runs a remote MCP server for its Intelligent Commerce APIs; its visa/ai repository holds MCP client and token manager packages (not on npm as of 2026-10-19). TAP itself does not depend on MCP.
   - to: mastercard-agent-pay
     type: compatible-with
     note: Mastercard ships a Developers MCP server package; it is not specific to Agent Pay.
@@ -70,7 +70,7 @@ For agentic payments MCP is the plumbing that other rails ride on. Several of th
 - [UCP](/p/ucp/) lists MCP as a transport with an OpenRPC schema, specifies Streamable HTTP rather than SSE, and applies the same RFC 9421 signature rules to MCP POST requests. <Cite ids="src-ucp-mcp-openrpc src-ucp-signatures" />
 - [ERC-8004](/p/erc-8004/) registration files accept an `MCP` service entry with endpoint and version, and feedback entries may name an MCP tool, prompt or resource. <Cite ids="src-erc-8004-spec" />
 - [AP2](/p/ap2/) samples run merchant, credentials provider and payment processor roles as MCP servers, and the AP2 FAQ says an SDK and an MCP server are being worked on. <Cite ids="src-ap2-repo src-x402-ap2-repo src-ap2-faq" />
-- For [Visa TAP](/p/visa-tap/), Visa publishes MCP client and token manager packages for its Intelligent Commerce APIs; TAP itself does not depend on MCP. <Cite ids="src-visa-ai-repo src-visa-mcp-server" />
+- For [Visa TAP](/p/visa-tap/), Visa runs a remote MCP server for its Intelligent Commerce APIs. Its `visa/ai` repository holds MCP client and token manager packages, which were not on npm as of 2026-10-19. TAP itself does not depend on MCP. <Cite ids="src-visa-ai-repo src-visa-mcp-server src-visa-tap-npm-search" />
 - For [Mastercard Agent Pay](/p/mastercard-agent-pay/), Mastercard ships the `@mastercard/developers-mcp` server package, which is a general developer tool rather than an Agent Pay component. <Cite ids="src-mcap-npm-mcp" />
 
 ## Status history

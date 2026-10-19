@@ -1012,8 +1012,8 @@
     {
       "protocol": "visa-tap",
       "dimension": "maturity",
-      "value": "Live at named merchants, still in development",
-      "detail": "Live European purchases 2026-07-02; overview says development and deployment, not in all markets.",
+      "value": "Live at named merchants",
+      "detail": "Live European purchases 2026-07-02. Visa's TAP overview said development and deployment, not in all markets, until Visa retired it in October 2026 (archived 2026-10-12).",
       "sources": [
         "src-visa-eu-live",
         "src-visa-tap-overview"
@@ -1045,10 +1045,11 @@
       "protocol": "visa-tap",
       "dimension": "agent-identity-model",
       "value": "RFC 9421 signature with a key registered by the payment scheme",
-      "detail": "Key store at mcp.visa.com/.well-known/jwks; onboarding not public.",
+      "detail": "The specification named mcp.visa.com/.well-known/jwks until at least 2026-10-10 and names no key URL now; Visa's own code uses that JWKS to encrypt MCP tokens. Onboarding not public.",
       "sources": [
         "src-visa-tap-spec",
-        "src-visa-tap-jwks"
+        "src-visa-tap-jwks",
+        "src-visa-ai-token-manager"
       ],
       "confidence": "verified"
     },
@@ -1098,7 +1099,7 @@
     {
       "protocol": "visa-tap",
       "dimension": "cryptography",
-      "value": "RFC 9421 (Ed25519 in examples), PS256 body objects, JWT and JWS ID Token",
+      "value": "RFC 9421 (Ed25519 in examples), body objects signed with the alg they name (PS256 in examples), JWT and JWS ID Token",
       "sources": [
         "src-visa-tap-spec",
         "src-rfc9421"
@@ -1139,9 +1140,10 @@
       "protocol": "visa-tap",
       "dimension": "refunds-and-disputes",
       "value": "Not in TAP; card dispute rules and VIC signals",
-      "detail": "No agent-specific liability shift published.",
+      "detail": "Visa calls none of its agent rules a liability shift (Worldpay, 2026-07-30: none yet). Issuers must pay for Agentic Transactions made under cardholder instructions; from 2026-10-24 a provider's login ID counts as dispute evidence.",
       "sources": [
         "src-visa-vic-dev",
+        "src-visa-rules-public",
         "src-worldpay-liability"
       ],
       "confidence": "reported"
@@ -1159,11 +1161,12 @@
     {
       "protocol": "visa-tap",
       "dimension": "discovery-mechanism",
-      "value": "Visa key store (JWKS); Agentic Directory announced",
-      "detail": "No public directory list found.",
+      "value": "Visa key store (well-known URL, not named since October 2026); Agent Directory used for live merchant participation since 2026-07-02",
+      "detail": "No public directory list or endpoint found (Visa newsroom and developer pages, 2026-10-19).",
       "sources": [
         "src-visa-tap-spec",
-        "src-visa-jun10"
+        "src-visa-jun10",
+        "src-visa-eu-live"
       ],
       "confidence": "verified"
     },
@@ -1191,7 +1194,7 @@
       "protocol": "visa-tap",
       "dimension": "observability-score",
       "value": "1 of 5",
-      "detail": "Public JWKS and repository; no events, logs or counts.",
+      "detail": "Public repository and the Visa JWKS the specification named until October 2026; no events, logs or counts.",
       "sources": [
         "src-visa-tap-jwks",
         "src-visa-eu-live"
@@ -1202,7 +1205,7 @@
       "protocol": "visa-tap",
       "dimension": "fees-and-who-pays-them",
       "value": "No TAP fee stated; VIC production fees on request; no agent-specific interchange published",
-      "detail": "Evidence of absence from Visa pages and secondary reviews (2026).",
+      "detail": "Evidence of absence from Visa pages and secondary reviews (2026); the VIC fee line is from Visa's developer page as archived on 2026-10-03.",
       "sources": [
         "src-visa-tap-terms",
         "src-visa-vic-dev",
@@ -1214,11 +1217,11 @@
     {
       "protocol": "visa-tap",
       "dimension": "who-pays",
-      "value": "Card economics unchanged",
-      "detail": "Merchant pays usual acquiring fees.",
+      "value": "No agent-specific fee published",
+      "detail": "Visa's April 2026 US interchange schedule has no agentic category, so ordinary card-not-present fees apply as far as published.",
       "sources": [
-        "src-nevermined-vic",
-        "src-worldpay-liability"
+        "src-visa-us-irf-2026-04",
+        "src-visa-rules-public"
       ],
       "confidence": "reported"
     },
@@ -1234,10 +1237,11 @@
     {
       "protocol": "visa-tap",
       "dimension": "composes-with",
-      "value": "Stripe MPP, x402 by name only (browsingIOU answers an HTTP 402 with card fields, not the x402 format), OpenAI ACP and UCP via Intelligent Commerce Connect",
+      "value": "Stripe MPP (card method), OpenAI ACP and UCP via Intelligent Commerce Connect; x402 only as Visa's stated interoperability work with Coinbase (browsingIOU uses none of x402's wire format)",
       "detail": "No documented link to AP2 or ERC-8004.",
       "sources": [
         "src-mpp-card-draft",
+        "src-visa-tap-pr",
         "src-visa-tap-spec",
         "src-visa-icc",
         "src-ap2-repo"
@@ -1247,11 +1251,13 @@
     {
       "protocol": "visa-tap",
       "dimension": "reference-implementations-and-sdks",
-      "value": "visa/trusted-agent-protocol sample (unpackaged); mppx TAP attestation",
-      "detail": "No Visa TAP package on npm or PyPI.",
+      "value": "visa/trusted-agent-protocol sample (unpackaged); mppx TAP attestation; @visa/cli release candidates",
+      "detail": "No standalone Visa TAP library on npm or PyPI (2026-10-19); @visa/cli 5.0.0 release candidates sign TAP requests from 2026-09-18, the 4.0.1 release does not.",
       "sources": [
         "src-visa-tap-gh-meta",
-        "src-mppx-tap"
+        "src-mppx-tap",
+        "src-visa-cli-npm",
+        "src-visa-tap-npm-search"
       ],
       "confidence": "verified"
     },
@@ -1259,7 +1265,7 @@
       "protocol": "visa-tap",
       "dimension": "adoption-evidence",
       "value": "Four merchants named live (2026-07-02); Cloudflare and Akamai at the edge",
-      "detail": "No count of verifying merchants published.",
+      "detail": "No count of verifying merchants published (Visa newsroom and developer pages, 2026-10-19).",
       "sources": [
         "src-visa-eu-live",
         "src-akamai-pr"
@@ -1270,11 +1276,14 @@
       "protocol": "visa-tap",
       "dimension": "published-security-research",
       "value": "None specific",
-      "detail": "RAILS names TAP; the formal analysis of 2026-08-30 does not model it; no CVE.",
+      "detail": "RAILS and a 2026-10-16 white paper name TAP; the formal analysis of 2026-08-30 does not model it. No CVE or GitHub advisory names TAP (NVD and GitHub advisories, 2026-10-19).",
       "sources": [
         "src-pub-2606-08790",
+        "src-pub-2610-22899",
         "src-pub-2609-00060",
-        "src-visa-tap-gh-meta"
+        "src-visa-tap-gh-meta",
+        "src-visa-tap-nvd",
+        "src-gh-advisory-search-tap"
       ],
       "confidence": "verified"
     },

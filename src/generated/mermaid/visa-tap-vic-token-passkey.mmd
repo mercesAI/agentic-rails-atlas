@@ -1,6 +1,6 @@
 sequenceDiagram
   accTitle: Visa Intelligent Commerce link: token, passkey and instruction behind a TAP checkout
-  accDescr: Sequence diagram: Visa Intelligent Commerce link: token, passkey and instruction behind a TAP checkout. 4 participants: Consumer, AI agent, Visa Intelligent Commerce, and Merchant. 8 steps, 8 crossing a trust boundary, 2 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11) (2025-10-14). Step 1: Consumer to AI agent: Ask the agent to add a card. This step crosses a trust boundary. Step 2: AI agent to Visa Intelligent Commerce: POST /vacp/v1/cards. This step crosses a trust boundary. If Step-up fails: No token is provisioned. Step 3: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions. This step crosses a trust boundary. Step 4: Consumer to AI agent: Approve with a passkey. This step crosses a trust boundary. If User declines: No credentials can be retrieved. Step 5: AI agent to Visa Intelligent Commerce: Pass the passkey result with the instruction. This step crosses a trust boundary. Step 6: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/ instructionId /credentials. This step crosses a trust boundary. Step 7: AI agent to Merchant: TAP checkout with the payment container. This step crosses a trust boundary. Step 8: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/ instructionId /confirmations. This step crosses a trust boundary.
+  accDescr: Sequence diagram: Visa Intelligent Commerce link: token, passkey and instruction behind a TAP checkout. 4 participants: Consumer, AI agent, Visa Intelligent Commerce, and Merchant. 7 steps, 7 crossing a trust boundary, 2 failure branches. Based on visa-tap TAP spec, unversioned (read 2026-10-11, rechecked 2026-10-19) VIC API client in visa/ai (2026-09-30) (2025-10-14). Step 1: Consumer to AI agent: Ask the agent to add a card. This step crosses a trust boundary. Step 2: AI agent to Visa Intelligent Commerce: POST /vacp/v1/cards. This step crosses a trust boundary. If Step-up or passkey setup fails: The card is not enabled for the agent unless Visa approved the use case without a passkey. Step 3: Consumer to AI agent: Authenticate the instruction with a passkey. This step crosses a trust boundary. If User declines: No instruction is created and no credentials can be retrieved. Step 4: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions (with the authentication result). This step crosses a trust boundary. Step 5: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/ instructionId /credentials. This step crosses a trust boundary. Step 6: AI agent to Merchant: TAP checkout with the payment container. This step crosses a trust boundary. Step 7: AI agent to Visa Intelligent Commerce: POST /vacp/v1/instructions/ instructionId /confirmations. This step crosses a trust boundary.
   autonumber
   participant p_user as Consumer
   participant p_agent as AI agent
@@ -11,18 +11,16 @@ sequenceDiagram
   alt Expected path
     p_agent->>p_vic: POST /vacp/v1/cards
     Note over p_agent,p_vic: Crosses a trust boundary
-  else Step-up fails
-    Note over p_agent,p_vic: No token is provisioned
+  else Step-up or passkey setup fails
+    Note over p_agent,p_vic: The card is not enabled for the agent unless<br/>Visa approved the use case without a passkey
   end
-  p_agent->>p_vic: POST /vacp/v1/instructions
-  Note over p_agent,p_vic: Crosses a trust boundary
   alt Expected path
-    p_user->>p_agent: Approve with a passkey
+    p_user->>p_agent: Authenticate the instruction with a passkey
     Note over p_user,p_agent: Crosses a trust boundary
   else User declines
-    Note over p_user,p_agent: No credentials can be retrieved
+    Note over p_user,p_agent: No instruction is created and no credentials can be retrieved
   end
-  p_agent->>p_vic: Pass the passkey result with the instruction
+  p_agent->>p_vic: POST /vacp/v1/instructions (with<br/>the authentication result)
   Note over p_agent,p_vic: Crosses a trust boundary
   p_agent->>p_vic: POST<br/>/vacp/v1/instructions/#123;instructionId#125;/credentials
   Note over p_agent,p_vic: Crosses a trust boundary

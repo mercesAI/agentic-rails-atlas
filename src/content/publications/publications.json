@@ -842,7 +842,7 @@
     ],
     "relation": "related",
     "summary": "Specifies terms.txt, a robots.txt-style file for per-path, per-purpose machine-access terms, and an origin-enforced exchange combining Web Bot Auth signatures, signed intent, delegation tokens, HTTP 402 negotiation and signed receipts, with a dependency-free implementation adding 0.20 to 0.65 ms per request. The arXiv comment reports submission to IEEE Internet Computing; it is not accepted as of the arXiv record.",
-    "whyItMatters": "Combines the Web Bot Auth signatures that visa-tap builds on with HTTP 402 negotiation in the style of x402 and stripe-mpp, for content access rather than checkout.",
+    "whyItMatters": "Combines Web Bot Auth signatures (the pattern visa-tap says it is aligned with) with HTTP 402 negotiation in the style of x402 and stripe-mpp, for content access rather than checkout.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{chowdhury2026termstxt,\n  title = {{terms.txt: A Consent and Compensation Protocol for Agentic Web Access}},\n  author = {Rajarshi Chowdhury},\n  year = {2026},\n  eprint = {2609.11152},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.NI},\n  url = {https://arxiv.org/abs/2609.11152}\n}"
@@ -1138,7 +1138,7 @@
     ],
     "relation": "direct",
     "summary": "Defines the agentic clearing problem, deciding whether an agent met its delegated obligation and which settlement action follows, and argues that MCP, A2A, x402, AP2 and the Visa and Mastercard network agent protocols all assume that determination without producing it. RAILS specifies seven primitives and a formal model of admissibility-graded verification yielding a soundness property that no financially material settlement rests on evidence below the obligation's admissibility floor. The abstract names Visa and Mastercard generically rather than by protocol name.",
-    "whyItMatters": "Names x402, ap2 and the Visa and Mastercard agent programs as rails that lack a clearing layer; useful for the atlas comparison of where disputes and fulfillment evidence live. Visa Trusted Agent Protocol: The only paper found that names TAP; places it as the network's edge attestation layer.",
+    "whyItMatters": "Names x402, ap2 and the Visa and Mastercard agent programs as rails that lack a clearing layer; useful for the atlas comparison of where disputes and fulfillment evidence live. Visa Trusted Agent Protocol: One of the few papers that name TAP, with the GLEIF working paper, the Visa and Artemis report and a 2026-10-16 ChainIT white paper (arXiv 2610.22899); places TAP as the network's edge attestation layer.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{valoisfranklin2026rails,\n  title = {{RAILS: Verification-Native Clearing For Agentic Commerce}},\n  author = {Adrian de Valois-Franklin and Alex Bogdan},\n  year = {2026},\n  eprint = {2606.08790},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2606.08790}\n}"
@@ -3845,7 +3845,7 @@
     ],
     "relation": "related",
     "summary": "Proposes Issuer-Sovereign Agentic Payments, in which the cardholder approves a spending rule once with the issuing bank's own authentication component, and at payment time the bank checks the merchant against that rule and generates the card authentication value only if allowed, so the transaction rides normal card rails with issuer validation and no extra execution-time dependency.",
-    "whyItMatters": "A counterproposal to network-led designs such as visa-tap and mastercard-agent-pay, where spending controls are enforced by the network or a credential provider rather than the issuer. Mastercard Agent Pay: Closest academic work to Agent Pay: issuer control over agent payments. No paper analyzes Agent Pay or Verifiable Intent directly. Visa Trusted Agent Protocol: Argues for issuer-side controls, contrasting with network-run agent recognition.",
+    "whyItMatters": "A counterproposal to network-led designs, such as the Visa Intelligent Commerce instructions used with visa-tap and mastercard-agent-pay, where spending controls are enforced by the network or a credential provider rather than the issuer. Mastercard Agent Pay: Closest academic work to Agent Pay: issuer control over agent payments. No paper analyzes Agent Pay or Verifiable Intent directly. Visa Trusted Agent Protocol: Argues for issuer-enforced spending rules, in contrast to network or credential-provider enforcement as in VIC.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{sharma2026issuer,\n  title = {{Issuer-Sovereign Agentic Payments}},\n  author = {Dishant Sharma and Rajneesh Kaushal and Ashu Kanaujia},\n  year = {2026},\n  eprint = {2609.27452},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.27452}\n}"
@@ -4219,7 +4219,7 @@
     ],
     "relation": "grey",
     "summary": "An acquirer's analysis (2026-07-30) noting that Visa, Mastercard and American Express have all launched frameworks for agent transactions while the question of who bears the loss in a dispute remains largely open.",
-    "whyItMatters": "Liability allocation is the unresolved commercial question behind TAP and Agent Pay; this is the merchant-acquirer view of it. Visa Trusted Agent Protocol: Acquirer view that no agent liability shift exists yet.",
+    "whyItMatters": "Liability allocation is the unresolved commercial question behind TAP and Agent Pay; this is the merchant-acquirer view of it. Visa Trusted Agent Protocol: Acquirer view (2026-07-30) that no agent liability shift exists yet, while fraud on properly tokenized agent payments generally follows existing rules.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "publisher",
     "bibtex": "@misc{suresh2026worldpay,\n  title = {{Agentic commerce liability is still being written}},\n  author = {Reshmi Suresh},\n  year = {2026},\n  howpublished = {Worldpay},\n  note = {Article, 2026-07-30},\n  url = {https://worldpay.com/en/insights/articles/agentic-commerce-liability-is-still-being-written}\n}"
@@ -4368,7 +4368,7 @@
     ],
     "relation": "related",
     "summary": "Replays 4,371 human-written attacks from a capture-the-flag event against a live payment agent across 14 models, five policy levels and two tracks, with and without a deterministic pre-action check implementing the author's Open Agent Passport specification. Transfers to recipients the passport did not permit occurred 140 times in 76,842 model-alone evaluations and zero times in 69,297 behind the layer, while 25,370 legitimate payments still executed.",
-    "whyItMatters": "A benchmark of the authorization boundary that AP2 mandates, x402 payment headers and TAP delegation all depend on: deterministic policy enforcement outside the model stopped recipient hijacks that prompting alone did not. The Open Agent Passport is the author's own specification, so read the comparison with that in mind.",
+    "whyItMatters": "A benchmark of the authorization boundary that AP2 mandates, x402 payment headers and VIC instructions all depend on: deterministic policy enforcement outside the model stopped recipient hijacks that prompting alone did not. The Open Agent Passport is the author's own specification, so read the comparison with that in mind.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{uchibeke2026aport,\n  title = {APort Vault: Benchmarking AI Agent Payment Authorization with the Open Agent Passport},\n  author = {Uchi Uchibeke},\n  year = {2026},\n  eprint = {2609.22076},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.22076},\n  note = {arXiv preprint}\n}"
@@ -4513,7 +4513,7 @@
     ],
     "relation": "related",
     "summary": "Buys traffic from 20 bot services against a honey site protected by two commercial anti-bot products and finds that about half the requests evade detection by altering browser fingerprints; inconsistencies among altered attributes then help detect them.",
-    "whyItMatters": "Measures how weak fingerprint-based bot detection is, which is the problem Visa TAP and Mastercard Agent Pay address by having trusted agents sign their requests instead of hiding as browsers. Visa Trusted Agent Protocol: Why fingerprint-based bot detection fails and cryptographic agent identity appeals.",
+    "whyItMatters": "Measures how weak fingerprint-based bot detection is, which is the problem Visa TAP and Mastercard Agent Pay address by having trusted agents sign their requests instead of hiding as browsers. Visa Trusted Agent Protocol: Shows that evasive bots defeat fingerprint-based detection about half the time, the gap that cryptographic agent identity aims to close.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{venugopalan2025fpinconsistent,\n  title = {{FP-Inconsistent: Measurement and Analysis of Fingerprint Inconsistencies in Evasive Bot Traffic}},\n  author = {Hari Venugopalan and Shaoor Munir and Shuaib Ahmed and Tangbaihe Wang and Samuel T. King and Zubair Shafiq},\n  year = {2025},\n  booktitle = {Proceedings of the 2025 ACM Internet Measurement Conference},\n  pages = {134--149},\n  publisher = {ACM},\n  doi = {10.1145/3730567.3732919},\n  url = {https://doi.org/10.1145/3730567.3732919}\n}"

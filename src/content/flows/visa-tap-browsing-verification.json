@@ -3,7 +3,7 @@
   "protocol": "visa-tap",
   "title": "Visa TAP: browsing request verified at the CDN",
   "summary": "The Cloudflare sequence for a browsing request: headers present, key fetched by keyid and cached, time window, nonce uniqueness, tag, signature base rebuilt, Ed25519 verification.",
-  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11, rechecked 2026-10-19)",
   "specVersionDate": "2025-10-14",
   "actors": [
     {
@@ -46,7 +46,7 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Participants"
       }
     },
@@ -58,7 +58,7 @@
       "detail": "The only TAP expectation of a Checkout Enabler is to pass signatures and query parameters unchanged.",
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Participants"
       },
       "failures": [
@@ -90,15 +90,15 @@
       "from": "cdn",
       "to": "keystore",
       "label": "Fetch key by keyid and cache it",
-      "detail": "The CDN fetches the key from the directory and caches it.",
+      "detail": "The CDN fetches the key from the payment scheme's key store and caches it.",
       "payload": {
         "format": "http",
-        "content": "GET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
+        "content": "# The JWKS the TAP specification named until October 2026; the current page names no URL,\n# and Visa's own code uses this JWKS's one RSA key to encrypt tokens for its MCP server.\nGET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Public Keys Retrieval Service"
       },
       "failures": [
@@ -115,7 +115,7 @@
       "label": "Time window",
       "detail": "Now must be between created and expires; TAP also caps the window at 8 minutes.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Timestamps"
       },
       "failures": [
@@ -132,7 +132,7 @@
       "label": "Nonce not seen recently",
       "detail": "The CDN keeps recent nonces and rejects a repeat.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Nonce"
       },
       "failures": [
@@ -171,7 +171,7 @@
         "illustrative": true
       },
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Validate the signature"
       },
       "failures": [

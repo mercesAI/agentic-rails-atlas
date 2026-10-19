@@ -3,8 +3,8 @@
   "protocol": "visa-tap",
   "type": "composition",
   "title": "How Visa TAP composes with the other protocols",
-  "caption": "TAP identifies the agent; payment data comes from VIC. Visa's MPP card method may carry TAP headers, Intelligent Commerce Connect accepts TAP, MPP, ACP and UCP payments, and CDNs verify both TAP and Mastercard Agent Pay. Dotted lines are looser links.",
-  "alt": "Composition diagram. TAP takes payment data from Visa Intelligent Commerce. The Stripe MPP card method, authored by Visa, may add TAP headers. TAP's browsingIOU answers an HTTP 402 but uses a different format from x402. Intelligent Commerce Connect accepts TAP, MPP, ACP and UCP. Cloudflare and Akamai verify TAP and Mastercard Agent Pay, which uses the tag Agent-pay-auth and its own directory. TAP is aligned with but does not conform to the Web Bot Auth draft, which UCP offers as an optional profile.",
-  "sourceOfTruth": { "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications", "label": "TAP specification; Visa and partner announcements" },
-  "sources": ["src-visa-tap-spec", "src-visa-mpp-card", "src-mpp-card-draft", "src-visa-icc", "src-visa-tap-cf-blog", "src-ucp-signatures", "src-mcap-dev-level1", "src-wba-draft"]
+  "caption": "TAP identifies the agent; payment data comes from VIC. Visa's MPP card method may carry TAP headers, Intelligent Commerce Connect accepts TAP, MPP, ACP and UCP payments, Cloudflare verifies both TAP and Mastercard Agent Pay, and Akamai verifies TAP. Dotted lines are looser links.",
+  "alt": "Composition diagram. TAP takes payment data from Visa Intelligent Commerce. The Stripe MPP card method, authored by Visa, may add TAP headers. TAP's browsingIOU answers an HTTP 402 but uses a different format from x402. Intelligent Commerce Connect accepts TAP, MPP, ACP and UCP. Cloudflare verifies TAP and Mastercard Agent Pay, which uses the tag Agent-pay-auth and its own directory; Akamai verifies TAP, announced on 2025-12-17. TAP is aligned with but does not conform to the Web Bot Auth draft, which UCP offers as an optional profile.",
+  "sourceOfTruth": { "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications", "label": "TAP specification; Visa and partner announcements" },
+  "sources": ["src-visa-tap-spec", "src-visa-mpp-card", "src-mpp-card-draft", "src-visa-icc", "src-visa-tap-cf-blog", "src-akamai-pr", "src-ucp-signatures", "src-mcap-dev-level1", "src-wba-draft"]
 }

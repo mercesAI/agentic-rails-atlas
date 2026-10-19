@@ -52,7 +52,7 @@
     {
       "id": "visa-tap-f7",
       "front": "Nonce in TAP",
-      "back": "A session identifier reused across every signature and signed object.",
+      "back": "A session identifier: signatures in one header should share it, and each signed body object repeats it.",
       "claimIds": [
         "clm-visa-tap-042"
       ]
@@ -101,20 +101,22 @@
     },
     {
       "id": "visa-tap-f13",
-      "front": "Visa key store",
-      "back": "https://mcp.visa.com/.well-known/jwks",
+      "front": "Key URL the TAP specification named until October 2026",
+      "back": "https://mcp.visa.com/.well-known/jwks. The moved specification names no URL; Visa's own code uses that JWKS to encrypt tokens for its MCP server.",
       "claimIds": [
-        "clm-visa-tap-069"
+        "clm-visa-tap-069",
+        "clm-visa-tap-239"
       ]
     },
     {
       "id": "visa-tap-f14",
       "front": "TAP license",
-      "back": "Visa Product Terms dated 2025-10-10: revocable, no modification, full conformance.",
+      "back": "Visa Product Terms dated 2025-10-10: revocable, no modification of the specification, sample code adaptable only inside conforming applications, full conformance.",
       "claimIds": [
         "clm-visa-tap-012",
         "clm-visa-tap-013",
-        "clm-visa-tap-014"
+        "clm-visa-tap-014",
+        "clm-visa-tap-015"
       ]
     },
     {

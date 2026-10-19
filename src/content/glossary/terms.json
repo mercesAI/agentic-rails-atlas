@@ -291,7 +291,7 @@
       "Agent Directory",
       "Agentic Registry"
     ],
-    "plain": "Visa's directory, announced 2026-06-10, of agents and merchants it has verified as legitimate participants in agentic commerce. No public list was found.",
+    "plain": "Visa's directory, announced 2026-06-10, of agents and merchants it has verified as legitimate participants in agentic commerce. No public list or endpoint was found in Visa's newsroom or developer pages (searched 2026-10-19).",
     "ste": "A Visa list of agents and merchants that Visa verified.",
     "protocols": [
       "visa-tap"
@@ -1662,13 +1662,14 @@
     "id": "intelligent-commerce-connect",
     "term": "Intelligent Commerce Connect",
     "aliases": [],
-    "plain": "A Visa on-ramp, in pilot since 2026-04-08, that lets merchants accept agent payments initiated through TAP, MPP, ACP and UCP.",
+    "plain": "A Visa on-ramp, announced on 2026-04-08 as a pilot (still described as a pilot on 2026-07-30), that lets merchants accept agent payments initiated through TAP, MPP, ACP and UCP.",
     "ste": "A Visa service that lets merchants accept agent payments from different protocols.",
     "protocols": [
       "visa-tap"
     ],
     "sources": [
-      "src-visa-icc"
+      "src-visa-icc",
+      "src-worldpay-liability"
     ]
   },
   {
@@ -1757,7 +1758,7 @@
       "/.well-known/jwks",
       "jwks_uri"
     ],
-    "plain": "A JSON Web Key Set, the RFC 7517 format for publishing a list of public keys, each with a key type and a `kid`. Visa's TAP key store is a JWKS at `https://mcp.visa.com/.well-known/jwks`, and UCP profiles carry their signing keys as a JWK set in `keys`. The MPP `card` method can point to a server key with `jwksUri`.",
+    "plain": "A JSON Web Key Set, the RFC 7517 format for publishing a list of public keys, each with a key type and a `kid`. Visa's TAP specification named a JWKS at `https://mcp.visa.com/.well-known/jwks` until at least 2026-10-10 and names no key URL now; Visa's own code uses that JWKS to encrypt MCP tokens. UCP profiles carry their signing keys as a JWK set in `keys`. The MPP `card` method can point to a server key with `jwksUri`.",
     "ste": "A JWKS is a JSON document that contains a list of public keys. Verifiers get keys from a JWKS to verify signatures.",
     "protocols": [
       "visa-tap",
@@ -1767,6 +1768,8 @@
     "sources": [
       "src-gloss-rfc-7517",
       "src-visa-tap-spec",
+      "src-visa-tap-jwks",
+      "src-visa-ai-token-manager",
       "src-ucp-schema-profile"
     ]
   },
@@ -2456,13 +2459,14 @@
     "aliases": [
       "purchase instruction"
     ],
-    "plain": "In Visa Intelligent Commerce, the user's instruction to an agent, authenticated with a passkey, against which VIC releases payment credentials. Visa's client creates it with POST /vacp/v1/instructions.",
-    "ste": "An instruction from the consumer to the agent. The consumer approves it with a passkey.",
+    "plain": "In Visa Intelligent Commerce, the user's instruction to an agent, authenticated with a Visa Payment Passkey or another issuer-approved method, against which VIC releases payment credentials. Visa's client creates it with POST /vacp/v1/instructions.",
+    "ste": "An instruction from the consumer to the agent. The consumer approves it with a passkey or with a different method that the issuer accepts.",
     "protocols": [
       "visa-tap"
     ],
     "sources": [
       "src-visa-vic-dev",
+      "src-visa-vic-docs",
       "src-visa-ai-vic-client"
     ]
   },
@@ -3684,7 +3688,7 @@
     "aliases": [
       "VTS"
     ],
-    "plain": "Visa's network tokenization service, which replaces a card number with a token for wallets, merchants and other token requestors. The VIC overview lists VTS APIs among the services that Visa's MCP server reaches. Visa sources for TAP talk about VTS and VIC tokens, not MDES, which is Mastercard's equivalent.",
+    "plain": "Visa's network tokenization service, which replaces a card number with a token for wallets, merchants and other token requestors. Visa's VIC developer overview (archived 2026-10-03) listed VTS APIs among the services that Visa's MCP server reaches. Visa sources for TAP talk about VTS and VIC tokens, not MDES, which is Mastercard's equivalent.",
     "ste": "Visa Token Service (VTS) is the Visa service that replaces a card number with a token. The Visa MCP server gives access to VTS APIs.",
     "protocols": [
       "visa-tap"

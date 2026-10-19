@@ -147,7 +147,7 @@ export async function checkObject(
       : 'The merchant can process the payment data by type.'
     : kind === 'consumer'
       ? 'Spec outcome: the content may be inaccurate; the merchant decides whether to use it.'
-      : 'Spec outcome: the container must not be used for any payment.';
+      : 'Spec outcome: the container should not be used for any payment (a key that cannot be found only makes it possibly inaccurate).';
   return { ok, checks, consequence };
 }
 

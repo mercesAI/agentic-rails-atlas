@@ -401,7 +401,7 @@
       "protocol": "visa-tap",
       "control": "spending-caps",
       "support": "external",
-      "note": "No amounts or limits in TAP; VIC Payment Instructions and network controls apply.",
+      "note": "No spending limits in TAP; the browsingIOU carries the amount from the 402 response but sets no limit. VIC Payment Instructions and network controls apply.",
       "sources": [
         "src-visa-vic-dev",
         "src-visa-tap-spec"
@@ -467,9 +467,10 @@
       "protocol": "visa-tap",
       "control": "dispute-support",
       "support": "external",
-      "note": "VIC signals support dispute resolution; no agent-specific liability shift is published.",
+      "note": "VIC signals support dispute resolution. Visa calls none of its agent rules a liability shift, but issuers must pay for Agentic Transactions made under cardholder instructions. From 2026-10-24 a provider's login ID counts as evidence against card-absent fraud disputes. Worldpay (2026-07-30): no liability shift yet, and disputes short of fraud are unsettled.",
       "sources": [
         "src-visa-vic-dev",
+        "src-visa-rules-public",
         "src-worldpay-liability"
       ]
     },
@@ -486,7 +487,7 @@
       "protocol": "visa-tap",
       "control": "monitoring-signals",
       "support": "partial",
-      "note": "Visa says TAP feeds telemetry into its fraud and risk models; CDNs expose verification results to zone owners.",
+      "note": "Visa says TAP feeds telemetry into its fraud and risk models. Cloudflare exposes a signed-agent field for Web Bot Auth agents (Enterprise Bot Management) but does not document whether TAP verifications set it.",
       "sources": [
         "src-visa-threats",
         "src-cf-signed-agent-field"

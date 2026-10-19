@@ -2,8 +2,8 @@
   "id": "multi-agent-shops-with-visa-card",
   "protocol": "multi",
   "title": "An agent shops on a merchant website with a Visa card: TAP browsing and payer signatures, a VIC token, verification at the CDN",
-  "summary": "An agent enrolled in Visa Intelligent Commerce browses a merchant site with TAP agent-browser-auth signatures, gets a passkey-approved Payment Instruction and an agent-specific token from VIC, then checks out with an agent-payer-auth signature and the agenticConsumer and agenticPaymentContainer body objects. A CDN verifies the header signatures at the edge; the merchant verifies the body objects and authorizes the card payment through its acquirer. The VIC API calls are named as Visa's visa/ai client names them.",
-  "specVersion": "TAP spec, unversioned (read 2026-10-11); VIC API client in visa/ai (2026-09-30)",
+  "summary": "An agent enrolled in Visa Intelligent Commerce browses a merchant site with TAP agent-browser-auth signatures, has the consumer authenticate a purchase instruction with a passkey, creates it in VIC with an agent-specific token, then checks out with an agent-payer-auth signature and the agenticConsumer and agenticPaymentContainer body objects. A CDN verifies the header signatures at the edge; the merchant verifies the body objects and authorizes the card payment through its acquirer. The VIC API calls are named as Visa's visa/ai client names them.",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11, rechecked 2026-10-19); VIC API client in visa/ai (2026-09-30)",
   "specVersionDate": "2025-10-14",
   "actors": [
     { "id": "user", "label": "Consumer", "kind": "human" },
@@ -29,10 +29,10 @@
       "to": "vic",
       "label": "POST /vacp/v1/cards (card enrollment)",
       "protocol": "visa-tap",
-      "detail": "Visa Intelligent Commerce, which Visa presents TAP as an enhancement of, provisions an agent-specific payment token after step-up verification of the cardholder and setup of a passkey. The path is the one Visa's VIC API client in visa/ai calls; the request body is not shown because it is not public.",
+      "detail": "Visa Intelligent Commerce provisions an agent-specific payment token through the Visa Token Service, then runs issuer step-up where required and Visa Payment Passkey setup with device binding. The path is the one Visa's VIC API client in visa/ai calls; the request body is not shown because it is not public.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example. Path from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/cards HTTP/1.1\nHost: sandbox.mcp.visa.com",
+        "content": "# Illustrative example. Path and host from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/cards HTTP/1.1\nHost: sandbox.api.visa.com",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -43,7 +43,7 @@
       "controlPoint": "Before authorization: step-up verification of the cardholder and passkey setup in VIC.",
       "observable": "Private: a bilateral call between the agent and Visa.",
       "failures": [
-        { "condition": "Step-up verification fails", "outcome": "No agent-specific token is provisioned." }
+        { "condition": "Step-up verification or passkey setup fails", "outcome": "The card is not enabled for the agent, and no purchase instruction can be created." }
       ]
     },
     {
@@ -52,7 +52,7 @@
       "to": "cdn",
       "label": "GET product page, signed with tag agent-browser-auth",
       "protocol": "visa-tap",
-      "detail": "The agent signs its browsing request with RFC 9421. Signature-Input covers at least @authority and @path and carries created, expires, keyid, alg, nonce and tag. The nonce is a session value reused in every signature of the session. The values here are placeholders, not the specification's examples, which cannot verify.",
+      "detail": "The agent signs its browsing request with RFC 9421. Signature-Input covers at least @authority and @path and carries created, expires, keyid, alg, nonce and tag. Each request gets a fresh nonce; within one request, the header signatures and any signed body objects share it. The values here are placeholders, not the specification's examples, which cannot verify.",
       "payload": {
         "format": "http",
         "content": "# Illustrative example, TAP spec (unversioned). Placeholder values; not a test vector.\nGET /product/trail-runner HTTP/1.1\nHost: shop.example\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1791763200;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1791763500;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-browser-auth\"\nSignature: sig2=:c2lnbmF0dXJlLXBsYWNlaG9sZGVy:",
@@ -60,7 +60,7 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Agent Recognition Signature; Sample Browsing Request"
       },
       "controlPoint": "At signing: the agent platform can cover @method and a Content-Digest beyond the minimum, and refuse to sign for merchants the consumer did not pick.",
@@ -75,18 +75,18 @@
       "to": "keystore",
       "label": "Fetch the key for keyid",
       "protocol": "visa-tap",
-      "detail": "The CDN looks up the public key by keyid in its cache or fetches the JWK Set at Visa's well-known URL. On 2026-10-11 that URL held one 2048-bit RSA key with a certificate for vic-oauth-jwe.visa.com from a Visa sandbox issuing CA, and no Ed25519 key, so the specification's example keyid cannot be resolved there. How production agent keys are distributed is not published.",
+      "detail": "The CDN looks up the public key by keyid in its cache or fetches it from Visa's key store at a well-known URL. The specification named https://mcp.visa.com/.well-known/jwks until October 2026 and names no URL today. On 2026-10-11 and 2026-10-19 that JWKS held one 2048-bit RSA key with a certificate for vic-oauth-jwe.visa.com from a Visa sandbox issuing CA, and no Ed25519 key, so the specification's example keyid cannot be resolved there; Visa's own code uses that key to encrypt tokens for its MCP server. How production agent keys are distributed is not published.",
       "payload": {
         "format": "http",
-        "content": "# Request as given in the TAP specification.\nGET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
+        "content": "# Request to the JWKS the TAP specification named until October 2026 (it now names none).\nGET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Public Keys Retrieval Service"
       },
-      "observable": "Public: anyone can poll the JWK Set (cache-control public, max-age=3600) and watch keys appear or disappear.",
+      "observable": "Public: anyone can poll that JWK Set (cache-control public, max-age=3600) and watch keys appear or disappear.",
       "failures": [
         { "condition": "No key for keyid, or the key has expired", "outcome": "Block the request; TAP has no revocation list or key status endpoint." }
       ]
@@ -100,11 +100,11 @@
       "detail": "In the order the specification gives: a TAP tag is present, all minimum fields are present, created is past, expires is future and the two are at most 8 minutes apart, the nonce is new if the verifier keeps a record, the key is found, and the signature verifies over the rebuilt signature base.",
       "crossesTrustBoundary": false,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Verification Steps"
       },
       "controlPoint": "At the edge: keep a shared nonce record for at least 8 minutes, reject longer windows, check that the tag fits the page type.",
-      "observable": "Private to the zone owner: on Cloudflare, cf.bot_management.signed_agent (Enterprise Bot Management) exposes the result.",
+      "observable": "Private to the zone owner. Cloudflare exposes cf.bot_management.signed_agent for Web Bot Auth agents (Enterprise Bot Management); whether TAP results appear there is not documented.",
       "failures": [
         { "condition": "Neither agent-browser-auth nor agent-payer-auth in Signature-Input", "outcome": "Not signed by a trusted agent; block or apply ordinary bot policy." },
         { "condition": "Missing field, window over 8 minutes, reused nonce or failed signature", "outcome": "Block the request." }
@@ -129,43 +129,43 @@
       "detail": "The merchant answers with product details, availability and the final cost after taxes and shipping, possibly as a simpler agent-specific page.",
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Participants"
       }
     },
     {
       "n": 8,
+      "from": "user",
+      "to": "agent",
+      "label": "Authenticate the purchase instruction with a passkey",
+      "protocol": "visa-tap",
+      "detail": "The agent asks the consumer to authenticate the purchase instruction with a Visa Payment Passkey or another issuer-approved method. The verification result travels to VIC inside the next request; without it the agent cannot retrieve payment credentials.",
+      "crossesTrustBoundary": true,
+      "specRef": { "url": "https://web.archive.org/web/20261003065321/https://developer.visa.com/capabilities/visa-intelligent-commerce/overview", "section": "Authentication" },
+      "controlPoint": "Before authorization: user consent and step-up, held by VIC.",
+      "failures": [
+        { "condition": "The consumer declines or the passkey check fails", "outcome": "No instruction is created and no credentials can be retrieved; nothing is charged." }
+      ]
+    },
+    {
+      "n": 9,
       "from": "agent",
       "to": "vic",
-      "label": "POST /vacp/v1/instructions (Payment Instruction)",
+      "label": "POST /vacp/v1/instructions (Payment Instruction with the authentication result)",
       "protocol": "visa-tap",
-      "detail": "The agent creates a Payment Instruction in VIC for this purchase. Spending limits and consent live here, not in TAP.",
+      "detail": "The agent creates the Payment Instruction in VIC for this purchase. Visa's client sends the consumer's verification result (assuranceData) inside this request. Spending limits and consent live here, not in TAP.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example. Path from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/instructions HTTP/1.1\nHost: sandbox.mcp.visa.com",
+        "content": "# Illustrative example. Path and host from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/instructions HTTP/1.1\nHost: sandbox.api.visa.com",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://github.com/visa/ai/blob/1c544e5c1ed45c8c075ca57e9e76e7876e34fd42/packages/api-client/src/clients/vic-client.ts",
-        "section": "VIC API client: initiatePurchaseInstruction"
+        "url": "https://github.com/visa/ai/blob/1c544e5c1ed45c8c075ca57e9e76e7876e34fd42/apps/shared-utils/payload-builders/initiate-purchase-instruction.ts",
+        "section": "buildInitiatePurchaseInstructionPayload (assuranceData)"
       },
       "controlPoint": "Before authorization: the instruction is where amount and merchant limits can be set.",
       "observable": "Private: bilateral between the agent and Visa."
-    },
-    {
-      "n": 9,
-      "from": "user",
-      "to": "vic",
-      "label": "Approve the instruction with a passkey",
-      "protocol": "visa-tap",
-      "detail": "The consumer authenticates the Payment Instruction with a Visa Payment Passkey before the agent can retrieve payment credentials.",
-      "crossesTrustBoundary": true,
-      "specRef": { "url": "https://developer.visa.com/capabilities/visa-intelligent-commerce/overview", "section": "Overview" },
-      "controlPoint": "Before authorization: user consent and step-up, held by VIC.",
-      "failures": [
-        { "condition": "The consumer declines or the passkey check fails", "outcome": "No credentials can be retrieved; nothing is charged." }
-      ]
     },
     {
       "n": 10,
@@ -176,7 +176,7 @@
       "detail": "The agent retrieves the payment credentials for the approved instruction: the agent-specific token data it will present at checkout.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example. Path from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/instructions/{instructionId}/credentials HTTP/1.1\nHost: sandbox.mcp.visa.com",
+        "content": "# Illustrative example. Path and host from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/instructions/{instructionId}/credentials HTTP/1.1\nHost: sandbox.api.visa.com",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -192,15 +192,15 @@
       "to": "cdn",
       "label": "POST checkout, signed with tag agent-payer-auth, with agenticConsumer and agenticPaymentContainer",
       "protocol": "visa-tap",
-      "detail": "The agent key-enters the card data in the merchant's guest checkout and signs the request with the payer tag. The body carries agenticConsumer (nonce, idToken, contextualData, kid, alg, signature) and agenticPaymentContainer (nonce, kid, alg, signature, plus a payment credential hash for key-entered guest checkout). Both objects are signed with the same key and nonce as the header. The header signature does not cover the body.",
+      "detail": "The agent key-enters the card data in the merchant's guest checkout and signs the request with the payer tag. The body carries agenticConsumer (nonce, idToken, contextualData, kid, alg, signature) and agenticPaymentContainer (nonce, kid, alg, signature, plus a payment credential hash for key-entered guest checkout). Both objects are signed with the same key as the header and repeat this request's fresh nonce. The minimum header signature does not cover the body.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, TAP spec (unversioned). Placeholders throughout.\n// Header: Signature-Input: sig2=(\"@authority\" \"@path\");...;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-payer-auth\"\n// The merchant's own card form fields travel alongside; their names are merchant-specific.\n{\n  \"agenticConsumer\": {\n    \"nonce\": \"bm9uY2UtcGxhY2Vob2xkZXI\",\n    \"idToken\": \"eyJ...placeholder\",\n    \"contextualData\": { \"countryCode\": \"US\", \"zip\": \"94105\", \"ipAddress\": \"192.0.2.10\", \"deviceData\": {} },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  },\n  \"agenticPaymentContainer\": {\n    \"nonce\": \"bm9uY2UtcGxhY2Vob2xkZXI\",\n    \"paymentCredentialsHash\": \"placeholder\",\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  }\n}",
+        "content": "// Illustrative example, TAP spec (unversioned). Placeholders throughout.\n// Header: Signature-Input: sig2=(\"@authority\" \"@path\");...;nonce=\"bm9uY2UtY2hlY2tvdXQ\";tag=\"agent-payer-auth\"\n// The merchant's own card form fields travel alongside; their names are merchant-specific.\n{\n  \"agenticConsumer\": {\n    \"nonce\": \"bm9uY2UtY2hlY2tvdXQ\",\n    \"idToken\": \"eyJ...placeholder\",\n    \"contextualData\": { \"countryCode\": \"US\", \"zip\": \"94105\", \"ipAddress\": \"192.0.2.10\", \"deviceData\": {} },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  },\n  \"agenticPaymentContainer\": {\n    \"nonce\": \"bm9uY2UtY2hlY2tvdXQ\",\n    \"paymentCredentialsHash\": {},\n    // An object in the specification's example; its inner fields are not published.\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Sample Checkout Request; Consumer Recognition; Payment"
       },
       "controlPoint": "At signing: send consumer data only to the merchant the consumer chose; cover @method and Content-Digest where the merchant accepts them.",
@@ -220,7 +220,7 @@
       "specRef": { "url": "https://blog.cloudflare.com/secure-agentic-commerce/", "section": "Verification steps" },
       "controlPoint": "At the edge: verify every path that matters, including checkout and API routes.",
       "failures": [
-        { "condition": "The signature window has passed while the agent was waiting for the passkey", "outcome": "Block; the agent signs a fresh request." }
+        { "condition": "The agent signed the checkout before the passkey approval and the 8-minute window ran out", "outcome": "Block; the agent signs a fresh request with a new nonce." }
       ]
     },
     {
@@ -232,7 +232,7 @@
       "detail": "For each object the merchant checks required fields, compares its nonce with the header nonce, locates the key for kid and verifies the signature over the other fields in the order received. It hashes the key-entered card data and compares the result with the payment credential hash. It may map the obfuscated email or phone in the ID Token to an account it holds.",
       "crossesTrustBoundary": false,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Consumer Recognition; Payment; Processing of Payment Data"
       },
       "controlPoint": "At the edge (merchant side): do not use consumer or payment data that fails verification, although TAP leaves the consumer object to merchant discretion.",
@@ -268,10 +268,10 @@
       "to": "vic",
       "label": "POST /vacp/v1/instructions/{instructionId}/confirmations",
       "protocol": "visa-tap",
-      "detail": "The agent reports the transaction outcome to Visa. Visa says the commerce signals VIC collects allow quick resolution of most disputes.",
+      "detail": "The agent reports the transaction outcome to Visa. Visa's VIC page said (archived 2026-10-03) that the commerce signals VIC collects allow quick resolution of most disputes; its workflows page says Visa retains this confirmation data for disputes.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example. Path from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/instructions/{instructionId}/confirmations HTTP/1.1\nHost: sandbox.mcp.visa.com",
+        "content": "# Illustrative example. Path and host from Visa's VIC API client (visa/ai, 2026-09-30); body omitted.\nPOST /vacp/v1/instructions/{instructionId}/confirmations HTTP/1.1\nHost: sandbox.api.visa.com",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -290,6 +290,9 @@
     "src-visa-vic-dev",
     "src-visa-ai-vic-client",
     "src-visa-tap-cdn-proxy",
-    "src-cf-signed-agent-field"
+    "src-cf-signed-agent-field",
+    "src-visa-vic-docs",
+    "src-visa-ai-token-manager",
+    "src-visa-ai-instruction-payload"
   ]
 }

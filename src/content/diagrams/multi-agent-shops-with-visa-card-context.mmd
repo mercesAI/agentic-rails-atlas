@@ -5,7 +5,7 @@ flowchart LR
   end
   subgraph VZ["Visa"]
     VIC["Visa Intelligent Commerce: cards, Payment Instructions, credentials, confirmations"]
-    KS["Key store: mcp.visa.com/.well-known/jwks"]
+    KS["Visa key store (URL not named in the spec since October 2026)"]
   end
   subgraph MZ["Merchant zone"]
     CDN["CDN (Site Protection Provider)"]
@@ -14,7 +14,7 @@ flowchart LR
   subgraph PZ["Card rails"]
     AQ["Acquirer, Visa network, issuer"]
   end
-  CO -- "asks; approves instruction with a passkey" --> VIC
+  CO -- "authenticates the instruction with a passkey" --> VIC
   CO -- "chat" --> AG
   AG -- "1 enroll card, instruction, credentials (VIC)" --> VIC
   AG -- "2 browse: tag agent-browser-auth (TAP)" --> CDN

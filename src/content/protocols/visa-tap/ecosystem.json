@@ -8,33 +8,27 @@
         "src-visa-tap-spec",
         "src-visa-tap-terms"
       ]
-    },
-    {
-      "name": "Cloudflare",
-      "role": "Co-developed TAP with Visa and verifies TAP signatures at the edge.",
-      "sources": [
-        "src-visa-tap-pr",
-        "src-visa-tap-cf-blog"
-      ]
     }
   ],
   "implementers": [
     {
       "name": "Cloudflare",
-      "role": "Edge verification; planned Agents SDK support and managed rules (announced 2025-10-24).",
+      "role": "Development partner (co-developed TAP with Visa) and edge verifier; planned Agents SDK support and managed rules (announced 2025-10-24).",
       "status": "live",
       "sources": [
+        "src-visa-tap-pr",
         "src-visa-tap-cf-blog",
         "src-visa-eu-live"
       ]
     },
     {
       "name": "Akamai",
-      "role": "TAP support across Akamai Cloud, announced 2025-12-17.",
-      "status": "announced",
+      "role": "TAP support across Akamai Cloud (announced 2025-12-17); Visa named Akamai among the providers supporting live merchant implementation on 2026-07-02.",
+      "status": "live",
       "sources": [
         "src-akamai-pr",
-        "src-visa-dec18"
+        "src-visa-dec18",
+        "src-visa-eu-live"
       ]
     },
     {
@@ -47,8 +41,8 @@
     },
     {
       "name": "eDreams ODIGEO (eDreams, Opodo, GO Voyages, Travellink)",
-      "role": "Said it uses TAP and the Agentic Directory to recognize verified agents (2026-07-03, secondary report).",
-      "status": "announced",
+      "role": "Said it is using TAP and the Agentic Directory to recognize verified agents (2026-07-03, secondary report).",
+      "status": "live",
       "sources": [
         "src-edreams-pymnts"
       ]
@@ -91,9 +85,16 @@
     {
       "registry": "npm",
       "name": "mppx",
-      "version": "0.13.4",
+      "version": "0.13.5",
       "url": "https://www.npmjs.com/package/mppx",
-      "note": "MIT; mppx/attestation/tap signs and verifies TAP attestations. Not a Visa package."
+      "note": "MIT; mppx/attestation/tap signs and verifies TAP attestations. Not a Visa package. Version as of 2026-10-19 (published 2026-10-15)."
+    },
+    {
+      "registry": "npm",
+      "name": "@visa/cli",
+      "version": "5.0.0-rc.414",
+      "url": "https://www.npmjs.com/package/@visa/cli",
+      "note": "Visa Crypto Labs CLI under Visa's own license. Release candidates from 5.0.0-rc.335 (2026-09-18) sign TAP requests; the latest release, 4.0.1, does not. Version as of 2026-10-19."
     },
     {
       "registry": "npm",
@@ -112,21 +113,21 @@
       "registry": "other",
       "name": "visa/ai workspace packages (@visa/api-client, @visa/mcp-client, @visa/token-manager)",
       "url": "https://github.com/visa/ai",
-      "note": "VIC clients, not published on npm as of 2026-10-11."
+      "note": "VIC clients, not published on npm as of 2026-10-19."
     }
   ],
   "metrics": [
     {
       "id": "visa-tap-gh-stars",
       "metric": "GitHub stars, visa/trusted-agent-protocol",
-      "value": 212,
+      "value": 213,
       "unit": "stars",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "definition": "Stars on the sample repository.",
       "sources": [
         "src-visa-tap-gh-meta"
       ],
-      "caveat": "Interest, not usage; 45 forks."
+      "caveat": "Interest, not usage; 46 forks."
     },
     {
       "id": "visa-tap-named-merchants",
@@ -138,7 +139,7 @@
       "sources": [
         "src-visa-eu-live"
       ],
-      "caveat": "No total count of verifying merchants is published."
+      "caveat": "No total count of verifying merchants is published (Visa newsroom and developer pages, 2026-10-19)."
     },
     {
       "id": "visa-eu-issuers-live",
@@ -194,7 +195,7 @@
       "value": "over 4,700 percent",
       "unit": "change in a year",
       "asOf": "2025-10-14",
-      "definition": "Adobe Data Insights figure for August 2025, cited in Visa launch release of 2025-10-14.",
+      "definition": "Adobe year-over-year figure for July 2025 (published August 2025), cited in Visa's launch release of 2025-10-14.",
       "sources": [
         "src-visa-tap-pr"
       ],
@@ -208,7 +209,7 @@
       "whoPays": "Nobody (no fee published)",
       "asOf": "2025-10-10",
       "confidence": "verified",
-      "caveat": "Terms are revocable and can change with a Visa update.",
+      "caveat": "The license is revocable, and Visa can change the specification at any time; implementers must apply each update within six months.",
       "sources": [
         "src-visa-tap-terms"
       ]
@@ -216,10 +217,10 @@
     {
       "item": "Visa Intelligent Commerce",
       "value": "Free in sandbox; production fees on request from Visa",
-      "whoPays": "Agent platforms and enablers (terms not public)",
+      "whoPays": "Not stated (production fees on request)",
       "asOf": "2026-10-11",
       "confidence": "verified",
-      "caveat": "No public production price.",
+      "caveat": "No public production price. Read live on 2026-10-11; since October 2026 Visa's VIC developer pages require sign-in, so the cited copy is the archive of 2026-10-03.",
       "sources": [
         "src-visa-vic-dev",
         "src-nevermined-vic"
@@ -228,12 +229,13 @@
     {
       "item": "Agent-specific interchange or token fee",
       "value": "Not published",
-      "whoPays": "Card economics unchanged: merchant pays its usual acquiring fees",
-      "asOf": "2026-10-11",
+      "whoPays": "No agent-specific fee published; ordinary acquiring fees apply as far as published",
+      "asOf": "2026-10-19",
       "confidence": "reported",
-      "caveat": "Evidence of absence from Visa's pages and two secondary reviews. Visa's public rules (since 2025-10-18) set no agent-specific fee or interchange rate; treat agent purchases as ordinary tokenized card-not-present payments until Visa publishes otherwise.",
+      "caveat": "Evidence of absence from Visa's pages and two secondary reviews. Visa's public rules (since 2025-10-18) set no agent-specific fee, and its April 2026 US interchange schedule has no agentic category; treat agent purchases as ordinary tokenized card-not-present payments until Visa publishes otherwise.",
       "sources": [
         "src-visa-rules-public",
+        "src-visa-us-irf-2026-04",
         "src-visa-vic-dev",
         "src-nevermined-vic",
         "src-mcc-2026",
@@ -246,7 +248,7 @@
       "whoPays": "Merchant (CDN customer)",
       "asOf": "2026-10-11",
       "confidence": "verified",
-      "caveat": "Plan pricing is not public.",
+      "caveat": "Plan pricing is not public. The field covers Web Bot Auth agents; Cloudflare does not document whether TAP verifications set it.",
       "sources": [
         "src-cf-signed-agent-field"
       ]

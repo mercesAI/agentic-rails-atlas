@@ -1,7 +1,7 @@
 ---
 protocol: visa-tap
 title: Visa Trusted Agent Protocol in Simplified Technical English
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-19"
 ---
 
 <SteDescription>
@@ -10,11 +10,11 @@ The Visa Trusted Agent Protocol (TAP) helps a merchant to identify an AI agent t
 
 The signature uses RFC 9421. Two HTTP headers carry it: Signature-Input and Signature. The signature includes the host and the path of the request. It also includes a time of creation, a time of expiry, a key identifier, an algorithm, a nonce and a tag.
 
-The tag tells the purpose of the request. The tag `agent-browser-auth` is for a visit to a product page. The tag `agent-payer-auth` is for payment. A request without one of these tags does not come from a trusted agent.
+The tag tells the purpose of the request. The tag `agent-browser-auth` is for a visit to a product page. The tag `agent-payer-auth` is for payment. If a request does not have one of these tags, a trusted agent did not sign it.
 
 At checkout, the agent can add two signed objects to the request body. The consumer object helps the merchant to identify a known customer. The payment container gives the payment data. The agent signs the two objects with the same key and the same nonce as the header signature.
 
-The signature does not include the HTTP method, the query or the body. A signature is valid for a maximum of 8 minutes.
+The minimum signature does not include the HTTP method, the query or the body. A signature is valid for a maximum of 8 minutes.
 
 </SteDescription>
 
@@ -60,7 +60,7 @@ DO NOT USE THE PAYMENT CONTAINER FOR A PAYMENT IF ITS SIGNATURE OR ITS NONCE IS 
 
 <SteProcedure title="Sign a TAP request (agent platform)">
 
-1. Get a signing key through the Visa onboarding process.
+1. Give your public key to Visa during the Visa onboarding process.
 2. Make a new nonce for the session.
 3. Set the creation time to the time now.
 4. Set the expiry time to not more than 8 minutes after the creation time.
@@ -68,8 +68,9 @@ DO NOT USE THE PAYMENT CONTAINER FOR A PAYMENT IF ITS SIGNATURE OR ITS NONCE IS 
 6. Select the tag `agent-payer-auth` for a checkout page.
 7. Make the signature base from the host, the path and the parameters.
 8. Sign the signature base with your private key.
-9. Put the signature in the Signature-Input header and the Signature header.
-10. Sign each checkout body object with the same key and the same nonce.
+9. Put the covered components and the parameters in the Signature-Input header.
+10. Put the signature in the Signature header.
+11. Sign each checkout body object with the same key and the same nonce.
 
 </SteProcedure>
 
@@ -78,7 +79,7 @@ DO NOT SEND THE CONSUMER OBJECT TO A MERCHANT THAT THE CONSUMER DID NOT SELECT. 
 </SteCaution>
 
 <SteNote>
-On 2026-10-11, the Visa key store had one RSA key and no Ed25519 key. You cannot find the example key of the specification in the key store.
+Until October 2026, the specification gave the address of a Visa key set. On 2026-10-11 and on 2026-10-19, that key set had one RSA key and no Ed25519 key. You cannot find the example key of the specification in that key set. Visa uses that RSA key to encrypt tokens for its MCP server.
 </SteNote>
 
 <SteNote>
@@ -86,14 +87,14 @@ The examples in the specification do not verify. They use test values from a dif
 </SteNote>
 
 <SteNote>
-TAP does not give a liability rule for agent payments. On 2026-07-30, Worldpay wrote that no liability shift exists.
+TAP does not give a liability rule for agent payments. Since 2025-10-18, the Visa rules make the cardholder responsible, in the Visa system, for the actions of an agentic payment provider in an agentic transaction. Visa does not call one of its agent rules a liability shift. On 2026-07-30, Worldpay wrote that no liability shift exists yet.
 </SteNote>
 
 <SteTerms>
 
 - **agent recognition signature**: The RFC 9421 signature that the agent puts in the HTTP headers of each request.
 - **tag**: The signature parameter that tells the purpose of the request: a visit to a product page or a payment.
-- **nonce**: A value that identifies the session. All signatures of one interaction use the same nonce.
+- **nonce**: A value that identifies the session. All signatures in one header use the same nonce. Each signed body object contains the same nonce.
 - **key store**: The web location where Visa publishes the public keys for verification.
 - **signature base**: The exact text that the agent signs and that the verifier makes again.
 - **consumer recognition object**: The signed body object that helps the merchant to identify a known customer.

@@ -11,12 +11,12 @@
       ],
       "pains": [
         "Two networks with two directories and different tags",
-        "A key store whose single RSA key does not match the Ed25519 examples",
+        "A JWKS, named in the specification until October 2026, whose single RSA key does not match the Ed25519 examples",
         "Nonce records that must be shared across edge locations"
       ],
       "implements": [
         "The header checks: tag, minimum fields, window, nonce, key, signature",
-        "Key caching by keyid with refresh from the Visa JWKS",
+        "Key caching by keyid with refresh from Visa's key store (URL not named since October 2026)",
         "Logging of verification outcomes for the zone owner"
       ],
       "mustTrust": [
@@ -25,13 +25,13 @@
         "Its own RFC 9421 implementation to match the agents' serialization"
       ],
       "questions": [
-        "Where do production agent keys come from, if not the published JWKS?",
+        "Where do production agent keys come from, if not the JWKS the specification used to name?",
         "Must I keep nonces, given that TAP makes it optional?",
         "How do I treat a request that carries both a TAP and a Web Bot Auth signature?"
       ],
       "firstSteps": [
         "Read the TAP specification's verification steps and Cloudflare's 2025-10-24 post",
-        "Fetch https://mcp.visa.com/.well-known/jwks and inspect what it holds",
+        "Fetch https://mcp.visa.com/.well-known/jwks, which the specification named until October 2026, and inspect what it holds",
         "Build a verifier that blocks windows over 8 minutes and repeated nonces"
       ],
       "metrics": [
@@ -39,7 +39,7 @@
         "Verification latency at the edge",
         "Blocks by reason (tag, window, nonce, key, signature)"
       ],
-      "story": "Ana runs bot management for a CDN. A retail customer wants shopping agents in and scrapers out. She turns on TAP verification: the edge reads Signature-Input, checks the tag, the 8-minute window and the nonce, fetches the key for keyid and verifies the signature. On day one the dashboard shows a spike of requests tagged web-bot-auth from an agent that copied Cloudflare's example, and she routes them to the normal bot policy. She also notices the Visa key store holds one RSA key, so she asks Visa how production keys reach her edge. Until she gets an answer, she keeps the rule in log-only mode.",
+      "story": "Ana runs bot management for a CDN. A retail customer wants shopping agents in and scrapers out. She turns on TAP verification: the edge reads Signature-Input, checks the tag, the 8-minute window and the nonce, fetches the key for keyid and verifies the signature. On day one the dashboard shows a spike of requests tagged web-bot-auth from an agent that copied Cloudflare's example, and she routes them to the normal bot policy. She also notices that the JWKS the specification used to name holds one RSA key, so she asks Visa how production keys reach her edge. Until she gets an answer, she keeps the rule in log-only mode.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-tap-cf-blog",
@@ -85,7 +85,7 @@
         "Fraud and chargeback rate on agent orders",
         "Share of agent orders matched to existing accounts"
       ],
-      "story": "Malik leads payments at a fashion retailer. Agents were tripping the bot wall at checkout, so he asks the CDN to let TAP-signed requests through. His team then builds the merchant side: compare each body object's nonce with the header nonce, verify the signatures, and decrypt the payload. The ID Token does not give emails in the clear, so they build a table that maps obfuscated values to existing accounts. Legal asks who carries a dispute on an agent order. He finds that Visa's rules make the cardholder answer, within Visa's system, for an Agentic Payment Provider's actions but call nothing a liability shift. He books the orders as ordinary tokenized card-not-present sales for now.",
+      "story": "Malik leads payments at a fashion retailer. Agents were tripping the bot wall at checkout, so he asks the CDN to let TAP-signed requests through. His team then builds the merchant side: compare each body object's nonce with the header nonce, verify the signatures, and decrypt the payload. The ID Token does not give emails in the clear, so they build a table that maps obfuscated values to existing accounts. Legal asks who carries a dispute on an agent order. He finds that Visa's rules make the cardholder answer, within Visa's system, for an Agentic Payment Provider's actions, and that Visa calls none of its agent rules a liability shift. He books the orders as ordinary tokenized card-not-present sales for now.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-tap-terms",
@@ -132,12 +132,13 @@
         "Checkout success rate per merchant",
         "Signature verification failures reported by merchants"
       ],
-      "story": "Priya builds the shopping agent for an AI assistant. After VIC onboarding, her agent signs each product page request with agent-browser-auth and each checkout with agent-payer-auth, inside an 8-minute window. Checkout also needs the two signed objects, and her first build fails at a merchant because the merchant joined the fields in a different order. With no test vector in the specification, she agrees a byte format with that merchant and files the question with Visa. The user's passkey approval sits in VIC, so her agent never asks for a card number.",
+      "story": "Priya builds the shopping agent for an AI assistant. After VIC onboarding, her agent signs each product page request with agent-browser-auth and each checkout with agent-payer-auth, inside an 8-minute window. At checkout she adds the signed payment container, and the consumer object when the merchant wants it. Her first build fails at a merchant because the merchant joined the fields in a different order. With no test vector in the specification, she agrees a byte format with that merchant and files the question with Visa. The user's approval, by passkey or another issuer-approved method, sits in VIC, so her agent never asks for a card number.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-tap-overview",
         "src-visa-vic-dev",
-        "src-visa-tap-gh-meta"
+        "src-visa-tap-gh-meta",
+        "src-visa-vic-docs"
       ]
     },
     {
@@ -150,7 +151,7 @@
       ],
       "pains": [
         "No public agent transaction indicator from Visa",
-        "No liability shift for agent transactions yet (Worldpay, 2026-07-30)",
+        "Visa calls none of its agent rules a liability shift, and Worldpay (2026-07-30) says none exists yet",
         "Customers who dispute what their agent bought"
       ],
       "implements": [
@@ -178,13 +179,14 @@
         "Fraud and dispute rate on agent purchases",
         "Passkey enrollment rate"
       ],
-      "story": "Lena runs digital fraud at a European bank in the Agentic Ready program. Her cardholders now link cards to shopping agents: VIC runs step-up verification, the user sets up a passkey, and the agent gets its own token. When a purchase arrives she sees a token transaction, not the merchant's TAP check, so she relies on Visa's signals. A customer disputes a hotel booking made by an agent. The passkey approval of the Payment Instruction helps. Within Visa's system the cardholder answers for what an Agentic Payment Provider does, but Visa's rules yield to applicable law such as PSD2. The case runs under the usual dispute rules.",
+      "story": "Lena runs digital fraud at a European bank in the Agentic Ready program. Her cardholders now link cards to shopping agents: VIC provisions the agent's own token, then runs step-up where required and passkey setup. When a purchase arrives she sees a token transaction, not the merchant's TAP check, so she relies on Visa's signals. A customer disputes a hotel booking made by an agent. The passkey approval of the Payment Instruction helps. Within Visa's system the cardholder answers for what an Agentic Payment Provider does, but Visa's rules yield to applicable law such as PSD2. The case runs under the usual dispute rules.",
       "sources": [
         "src-visa-vic-dev",
         "src-visa-ar-eu",
         "src-visa-eu-live",
         "src-worldpay-liability",
-        "src-visa-rules-public"
+        "src-visa-rules-public",
+        "src-visa-vic-docs"
       ]
     },
     {
@@ -202,7 +204,7 @@
       ],
       "implements": [
         "The TAP specification and Product Terms",
-        "The key store at mcp.visa.com",
+        "The TAP key store (the specification named mcp.visa.com until October 2026)",
         "The Agentic Directory and Agent Score"
       ],
       "mustTrust": [
@@ -225,7 +227,7 @@
         "Agent transactions on VIC",
         "Disputes and fraud on agent transactions"
       ],
-      "story": "Tom works on the agentic commerce team at Visa. TAP launched on 2025-10-14 with twelve partners and Cloudflare, and by 2026-07-02 agents completed live purchases at named European merchants. His inbox holds the hard questions: why the key store has one sandbox RSA key, why the examples cannot verify, and why community fixes sit unmerged. He also follows the IETF Web Bot Auth draft, which differs from TAP in tags and key discovery. He drafts a plan for a versioned specification with test vectors and a public directory.",
+      "story": "Tom works on the agentic commerce team at Visa. TAP launched on 2025-10-14, developed with Cloudflare and with feedback from twelve named early partners, and by 2026-07-02 agents completed live purchases at named European merchants. His inbox holds the hard questions: why the JWKS the specification used to name has one sandbox RSA key, why the examples cannot verify, and why community fixes sit unmerged. He also follows the IETF Web Bot Auth draft, which differs from TAP in tags and key discovery. He drafts a plan for a versioned specification with test vectors and a public directory.",
       "sources": [
         "src-visa-tap-pr",
         "src-visa-eu-live",
@@ -357,7 +359,7 @@
         }
       },
       {
-        "step": "Approve the purchase instruction with a passkey (VIC)",
+        "step": "Authenticate the purchase instruction, by passkey or another issuer method (VIC)",
         "marks": {
           "cdn-security": "",
           "merchant-enterprise": "",

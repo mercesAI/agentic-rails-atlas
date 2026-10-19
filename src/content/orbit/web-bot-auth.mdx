@@ -12,7 +12,7 @@ latestVersion:
 relations:
   - to: visa-tap
     type: complements
-    note: TAP (launched 2025-10-14) signs with RFC 9421 and is aligned with the Web Bot Auth direction, but it does not conform to the working group draft (different tags, no Signature-Agent, mandatory nonce, own key directory).
+    note: TAP (launched 2025-10-14) signs with RFC 9421 and is aligned with the Web Bot Auth direction, but it does not conform to the working group draft (different tags, Signature-Agent not required, mandatory nonce, own key directory).
   - to: mastercard-agent-pay
     type: complements
     note: Mastercard's guide uses the same signed-request pattern with its own tag, Agent-pay-auth, and a Mastercard key directory; Cloudflare verifies both networks at the edge.
@@ -65,7 +65,7 @@ The draft has a line of individual predecessors. The architecture and key direct
 
 ## How it relates to the eight
 
-[Visa TAP](/p/visa-tap/) launched on 2025-10-14, almost eleven months before the working group draft, so the draft is not its basis. <Cite ids="src-visa-tap-pr src-wba-draft" /> TAP uses RFC 9421 HTTP Message Signatures and says it is aligned with the Web Bot Auth direction, but it does not conform to the working group draft: it uses its own tags (`agent-browser-auth` and `agent-payer-auth`), has no `Signature-Agent`, makes the nonce mandatory and serves keys from Visa's own key directory. <Cite ids="src-visa-tap-spec src-wba-draft" /> [Mastercard Agent Pay](/p/mastercard-agent-pay/) follows the same pattern with the tag `Agent-pay-auth` and a Mastercard key directory, and Cloudflare describes both networks as building on Web Bot Auth with an added tag and a required nonce. <Cite ids="src-mcap-dev-level1 src-visa-tap-cf-blog src-mcap-cloudflare-blog" />
+[Visa TAP](/p/visa-tap/) launched on 2025-10-14, almost eleven months before the working group draft, so the draft is not its basis. <Cite ids="src-visa-tap-pr src-wba-draft" /> TAP uses RFC 9421 HTTP Message Signatures and says it is aligned with the Web Bot Auth direction, but it does not conform to the working group draft: it uses its own tags (`agent-browser-auth` and `agent-payer-auth`), does not require `Signature-Agent`, makes the nonce mandatory and serves keys from Visa's own key directory. <Cite ids="src-visa-tap-spec src-wba-draft" /> [Mastercard Agent Pay](/p/mastercard-agent-pay/) follows the same pattern with the tag `Agent-pay-auth` and a Mastercard key directory, and Cloudflare describes both networks as building on Web Bot Auth with an added tag and a required nonce. <Cite ids="src-mcap-dev-level1 src-visa-tap-cf-blog src-mcap-cloudflare-blog" />
 
 [UCP](/p/ucp/) added an optional Web Bot Auth profile in v2026-08-25 on top of its own RFC 9421 signing, which puts it closer to the draft than TAP. <Cite ids="src-ucp-signatures src-ucp-release-20260825" /> In [x402](/p/x402/) only Cloudflare's `cloudflare:402` batch-settlement scheme signs requests with the `web-bot-auth` tag. <Cite ids="src-x402-scheme-batch-cf" /> The `mppx` SDK for [MPP](/p/stripe-mpp/) offers optional request attestation for Web Bot Auth and TAP. <Cite ids="src-stripe-mpp-blog-identity" /> An [AP2](/p/ap2/) issue discusses composing AP2 with Web Bot Auth, but AP2 does not adopt it. <Cite ids="src-ap2-issue-268" /> No relation was found for ACP or ERC-8004.
 

@@ -67,12 +67,13 @@
     },
     {
       "id": "clm-visa-tap-007",
-      "text": "Visa presents TAP as an enhancement to Visa Intelligent Commerce (VIC).",
+      "text": "Visa's TAP overview page, retired in October 2026, presented TAP as an enhancement to Visa Intelligent Commerce (VIC).",
       "sources": [
         "src-visa-tap-overview"
       ],
       "confidence": "verified",
-      "topic": "identity"
+      "topic": "identity",
+      "asOf": "2026-10-12"
     },
     {
       "id": "clm-visa-tap-008",
@@ -86,12 +87,13 @@
     },
     {
       "id": "clm-visa-tap-009",
-      "text": "The TAP overview page says the product is in the process of development and deployment and may not be available in all markets.",
+      "text": "Until at least 2026-10-12 Visa's TAP overview page said the product was in the process of development and deployment and might not be available in all markets; Visa retired that page in October 2026, and the Getting started page that replaced it carries no such note.",
       "sources": [
-        "src-visa-tap-overview"
+        "src-visa-tap-overview",
+        "src-visa-tap-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "identity"
     },
     {
@@ -144,7 +146,7 @@
     },
     {
       "id": "clm-visa-tap-015",
-      "text": "The TAP Product Terms forbid modifications to the specification or sample code, apart from implementing or porting them, and assign unpermitted modifications to Visa.",
+      "text": "The TAP Product Terms bar modifications to the specification, allow the sample code to be adapted or ported only as needed to build applications that implement the current specification, and assign any unpermitted modification to Visa.",
       "sources": [
         "src-visa-tap-terms"
       ],
@@ -180,7 +182,7 @@
     },
     {
       "id": "clm-visa-tap-019",
-      "text": "The reference repository visa/trusted-agent-protocol has no open source license; its LICENSE.md binds users to the Visa Developer Center Terms of Use and the TAP Product Terms.",
+      "text": "The repository's LICENSE.md is not an open source license: it binds users to the Visa Developer Center Terms of Use and the TAP Product Terms, while the source files carry MIT-style permission text, and which text governs is not stated.",
       "sources": [
         "src-visa-tap-repo-license"
       ],
@@ -279,12 +281,12 @@
     },
     {
       "id": "clm-visa-tap-029",
-      "text": "As of 2026-10-11 the TAP reference repository had 212 stars and 45 forks on GitHub.",
+      "text": "On 2026-10-19 the TAP reference repository had 213 stars and 46 forks on GitHub.",
       "sources": [
         "src-visa-tap-gh-meta"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "metrics"
     },
     {
@@ -329,7 +331,7 @@
     },
     {
       "id": "clm-visa-tap-034",
-      "text": "The TAP specification says merchants are not required to use the protocol and need not register with payment schemes to accept their credentials.",
+      "text": "The TAP specification says merchants are not required to use the protocol and do not necessarily have to be registered with payment schemes to accept their credentials.",
       "sources": [
         "src-visa-tap-spec"
       ],
@@ -409,7 +411,7 @@
     },
     {
       "id": "clm-visa-tap-042",
-      "text": "TAP defines the nonce as a session identifier that is reused across all message signatures in the header and in the signed body objects.",
+      "text": "TAP defines the nonce as a session identifier: multiple message signatures in one header should share it, and each signed body object repeats the nonce of the message signature.",
       "sources": [
         "src-visa-tap-spec"
       ],
@@ -604,7 +606,7 @@
     },
     {
       "id": "clm-visa-tap-061",
-      "text": "TAP's encrypted payload is encrypted with the merchant's public key and holds a token object (paymentToken, expirationMonth, expirationYear, cardholderName, dynamicData), shipping and billing addresses, and consumer name, email and mobile number.",
+      "text": "TAP's encrypted payload is encrypted with the merchant's public key and holds a Token object (paymentToken, expirationMonth, expirationYear, cardholderName), dynamicData, ShippingAddress and BillingAddress objects, and consumerEmailAddress, consumerName and consumerMobileNumber.",
       "sources": [
         "src-visa-tap-spec"
       ],
@@ -686,13 +688,14 @@
     },
     {
       "id": "clm-visa-tap-069",
-      "text": "TAP says Visa hosts its public keys at https://mcp.visa.com/.well-known/jwks.",
+      "text": "Until at least 2026-10-10 the TAP specification named https://mcp.visa.com/.well-known/jwks as the well-known location of Visa's public keys; the page Visa moved to developer.visa.com/docs (read 2026-10-19) says Visa publishes its keys at a well-known location but names no URL.",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
-      "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "objects"
+      "specVersion": "TAP merchant specification (unversioned; read 2026-10-11, rechecked 2026-10-19)",
+      "topic": "objects",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-070",
@@ -706,22 +709,22 @@
     },
     {
       "id": "clm-visa-tap-071",
-      "text": "On 2026-10-11, https://mcp.visa.com/.well-known/jwks returned a JWK Set with one 2048-bit RSA key and no Ed25519 key.",
+      "text": "On 2026-10-11 and again on 2026-10-19, https://mcp.visa.com/.well-known/jwks returned a JWK Set with one 2048-bit RSA key and no Ed25519 key.",
       "sources": [
         "src-visa-tap-jwks"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "observability"
     },
     {
       "id": "clm-visa-tap-072",
-      "text": "On 2026-10-11, the single key at Visa's well-known JWKS had no alg or use member and carried a certificate for vic-oauth-jwe.visa.com issued by a Visa sandbox issuing CA.",
+      "text": "On 2026-10-11 and 2026-10-19, the single key at https://mcp.visa.com/.well-known/jwks had no alg or use member and carried a certificate for vic-oauth-jwe.visa.com issued by a Visa sandbox issuing CA.",
       "sources": [
         "src-visa-tap-jwks"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "observability"
     },
     {
@@ -736,13 +739,13 @@
     },
     {
       "id": "clm-visa-tap-074",
-      "text": "Visa has not published how production TAP agent keys are distributed beyond the well-known JWKS.",
+      "text": "Visa has not published how production TAP agent keys reach verifiers: as read on 2026-10-19, the specification names no key URL and gives its GET /keys operation no host, and Visa's API reference lists a Visa Agent Registry Services entry open only to authorized users.",
       "sources": [
         "src-visa-tap-spec",
-        "src-visa-tap-jwks"
+        "src-visa-tap-apiref"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
       "topic": "observability"
     },
@@ -839,13 +842,14 @@
     },
     {
       "id": "clm-visa-tap-084",
-      "text": "TAP does not define the format of the HTTP 402 response or how a browsingIOU is settled.",
+      "text": "The TAP merchant specification (read 2026-10-19) defines neither the format of the HTTP 402 response nor how a browsingIOU is settled; it only lists the IOU fields taken from the 402 (invoiceId, amount, cardAcceptorId).",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "flow"
+      "topic": "flow",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-085",
@@ -869,12 +873,12 @@
     },
     {
       "id": "clm-visa-tap-087",
-      "text": "Visa says agents generate TAP signatures following the Visa Intelligent Commerce Client Implementation Guide for onboarded agents, which is not public.",
+      "text": "Visa's TAP overview page, retired in October 2026, said agents generate TAP signatures following the Visa Intelligent Commerce Client Implementation Guide for onboarded agents, which is not public.",
       "sources": [
         "src-visa-tap-overview"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-12",
       "topic": "flow"
     },
     {
@@ -889,13 +893,14 @@
     },
     {
       "id": "clm-visa-tap-089",
-      "text": "TAP defines no stateful objects; the only state is the verifier's nonce record, key cache and signature time window.",
+      "text": "TAP defines no lifecycle objects of its own (no order, mandate or token). The state it relies on sits with the parties: the verifier's optional nonce record and key cache, the merchant's record of the 402 data it issued, the merchant's mapping table from obfuscated phone or email values to its accounts, and the agent's IOU sequence counter.",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
-      "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "states"
+      "specVersion": "TAP merchant specification (unversioned; read 2026-10-11, rechecked 2026-10-19)",
+      "topic": "states",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-090",
@@ -951,14 +956,15 @@
     },
     {
       "id": "clm-visa-tap-095",
-      "text": "TAP does not require a Content-Digest, so the request body is not covered by the TAP message signature.",
+      "text": "TAP's required signature components include no Content-Digest, so unless an agent or scheme adds one, the TAP message signature does not cover the request body.",
       "sources": [
         "src-visa-tap-spec",
         "src-rfc9530"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "crypto"
+      "topic": "crypto",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-096",
@@ -1128,14 +1134,15 @@
     },
     {
       "id": "clm-visa-tap-112",
-      "text": "The Web Bot Auth working group draft serves keys at /.well-known/http-message-signatures-directory, while Visa serves TAP keys at https://mcp.visa.com/.well-known/jwks.",
+      "text": "The Web Bot Auth working group draft finds keys through a Signature-Agent URL, by default a directory at /.well-known/http-message-signatures-directory on that origin, or a JWK Set URI or client metadata document; TAP looks keys up by keyid in the payment scheme's key store, at a well-known URL that its specification named until at least 2026-10-10 and no longer names.",
       "sources": [
         "src-visa-tap-spec",
         "src-wba-draft"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "relations"
+      "topic": "relations",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-113",
@@ -1193,33 +1200,35 @@
     },
     {
       "id": "clm-visa-tap-118",
-      "text": "TAP's payment credential hash has no stated algorithm or salt.",
+      "text": "The TAP merchant specification (read 2026-10-19) states no algorithm or salt for the payment credential hash.",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "security"
+      "topic": "security",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-119",
-      "text": "The GitHub security advisories list for visa/trusted-agent-protocol was empty on 2026-10-11.",
+      "text": "The GitHub security advisories list for visa/trusted-agent-protocol was empty on 2026-10-11 and on 2026-10-19.",
       "sources": [
         "src-visa-tap-gh-meta"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "security"
     },
     {
       "id": "clm-visa-tap-120",
-      "text": "No CVE naming the Trusted Agent Protocol was found as of 2026-10-11.",
+      "text": "On 2026-10-19 an NVD keyword search for 'Trusted Agent Protocol' found no CVE about Visa's TAP (its one hit, CVE-2026-100567, is unrelated), and neither the repository's GitHub advisory list nor a GitHub Advisory Database search named TAP.",
       "sources": [
         "src-visa-tap-gh-meta",
-        "src-visa-tap-nvd"
+        "src-visa-tap-nvd",
+        "src-gh-advisory-search-tap"
       ],
-      "confidence": "reported",
-      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "asOf": "2026-10-19",
       "topic": "security"
     },
     {
@@ -1244,7 +1253,7 @@
     },
     {
       "id": "clm-visa-tap-123",
-      "text": "Cloudflare says Visa and Mastercard each host their own directory for agents registered with them.",
+      "text": "Cloudflare said on 2025-10-24 that Visa and Mastercard would each host their own directory for agents registered with them.",
       "sources": [
         "src-visa-tap-cf-blog"
       ],
@@ -1264,13 +1273,14 @@
     },
     {
       "id": "clm-visa-tap-125",
-      "text": "Agent registration for TAP happens through onboarding to Visa Intelligent Commerce, and that process is not public.",
+      "text": "Agents register for TAP by onboarding to Visa Intelligent Commerce. Visa's rules require an Agentic Payment Provider to enroll in VIC and register with Visa, directly or through an Agentic Payment Enabler; neither the rules nor the TAP specification describes the onboarding or key-registration steps (checked 2026-10-19).",
       "sources": [
         "src-visa-tap-spec",
-        "src-visa-vic-dev"
+        "src-visa-vic-dev",
+        "src-visa-rules-public"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
       "topic": "controls"
     },
@@ -1297,13 +1307,14 @@
     },
     {
       "id": "clm-visa-tap-128",
-      "text": "TAP specifies no revocation list or key status endpoint; an expired or unavailable key blocks verification.",
+      "text": "The TAP merchant specification (read 2026-10-19) defines no revocation list or key status endpoint; a key that cannot be retrieved or has expired means the message should be blocked.",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "controls"
+      "topic": "controls",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-129",
@@ -1318,34 +1329,38 @@
     },
     {
       "id": "clm-visa-tap-130",
-      "text": "TAP defines no receipt; Visa Intelligent Commerce collects commerce signals that Visa says allow quick resolution of most disputes.",
+      "text": "TAP defines no receipt. Visa's VIC developer page said (archived 2026-10-03) that VIC collects commerce signals that allow quick resolution of most disputes; its workflows page (2026-10-19) says Visa retains the agent's post-purchase confirmation data for disputes.",
       "sources": [
         "src-visa-vic-dev",
+        "src-visa-vic-docs",
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "controls"
+      "topic": "controls",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-131",
-      "text": "TAP has no reputation mechanism for agents.",
+      "text": "The TAP merchant specification (read 2026-10-19) defines no reputation mechanism for agents.",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "controls"
+      "topic": "controls",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-132",
-      "text": "TAP is off-chain and defines no events, explorers or indexers.",
+      "text": "TAP is off-chain; its merchant specification (read 2026-10-19) defines no events, explorers or indexers.",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "observability"
+      "topic": "observability",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-133",
@@ -1391,13 +1406,14 @@
     },
     {
       "id": "clm-visa-tap-137",
-      "text": "The TAP specification gives no data minimization or retention rule for consumer recognition data.",
+      "text": "The TAP merchant specification (read 2026-10-19) gives no data minimization or retention rule for consumer recognition data.",
       "sources": [
         "src-visa-tap-spec"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "compliance"
+      "topic": "compliance",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-138",
@@ -1421,21 +1437,25 @@
     },
     {
       "id": "clm-visa-tap-140",
-      "text": "Visa Intelligent Commerce provisions agent-specific payment tokens after step-up verification of the cardholder and setup of a passkey.",
+      "text": "In VIC, enrolling a card provisions an agent-specific token through the Visa Token Service, followed by issuer step-up verification where required and Visa Payment Passkey setup with device binding; credentials can be retrieved only after that, unless Visa has approved the use case to skip the passkey.",
       "sources": [
+        "src-visa-vic-docs",
         "src-visa-vic-dev"
       ],
       "confidence": "verified",
-      "topic": "relations"
+      "topic": "relations",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-141",
-      "text": "In Visa Intelligent Commerce the user authenticates each Payment Instruction with a passkey before the agent retrieves payment credentials.",
+      "text": "In VIC the consumer authenticates each purchase instruction, with a Visa Payment Passkey or another issuer-approved method, before the agent can retrieve payment credentials.",
       "sources": [
+        "src-visa-vic-docs",
         "src-visa-vic-dev"
       ],
       "confidence": "verified",
-      "topic": "relations"
+      "topic": "relations",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-142",
@@ -1459,12 +1479,13 @@
     },
     {
       "id": "clm-visa-tap-144",
-      "text": "The VIC developer page says payments are initially made through guest checkout with key entry (form fill).",
+      "text": "Visa's VIC developer page said (archived 2026-10-03) that payments would initially use guest checkout with key entry (form fill); its workflows page (2026-10-19) has the agent submit the credential to the merchant checkout or a PSP-enabled flow.",
       "sources": [
-        "src-visa-vic-dev"
+        "src-visa-vic-dev",
+        "src-visa-vic-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "relations"
     },
     {
@@ -1660,23 +1681,24 @@
     },
     {
       "id": "clm-visa-tap-164",
-      "text": "Visa published no TAP package on npm or PyPI as of 2026-10-11.",
+      "text": "Visa has published no standalone TAP library on npm or PyPI (checked 2026-10-19). Release candidates of Visa Crypto Labs' @visa/cli 5.0.0 (npm rc tag, from 2026-09-18) sign TAP requests; the current release, 4.0.1, does not.",
       "sources": [
-        "src-visa-tap-gh-meta",
-        "src-visa-ai-repo"
+        "src-visa-tap-npm-search",
+        "src-visa-cli-npm"
       ],
       "confidence": "reported",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "ecosystem"
     },
     {
       "id": "clm-visa-tap-165",
-      "text": "Visa's developer page for Visa Intelligent Commerce says it is free to use in sandbox and asks businesses to contact Visa for production fees.",
+      "text": "Visa's developer page for Visa Intelligent Commerce said (archived 2026-10-03) that VIC is free to use in sandbox and asked businesses to contact Visa for production fees; the VIC pages that replaced it in October 2026 state no fees.",
       "sources": [
-        "src-visa-vic-dev"
+        "src-visa-vic-dev",
+        "src-visa-vic-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-19",
       "topic": "other"
     },
     {
@@ -1700,7 +1722,7 @@
     },
     {
       "id": "clm-visa-tap-168",
-      "text": "A Merchant Cost Consulting article of 2026-05-01 reports that no new agentic interchange categories had been disclosed and expects new network fee categories.",
+      "text": "A Merchant Cost Consulting opinion piece of 2026-05-01 expects new agentic fee categories at the network level and points to Visa's plan to scale CLI commerce with pricing; it names no published agentic interchange rate.",
       "sources": [
         "src-mcc-2026"
       ],
@@ -1720,7 +1742,7 @@
     },
     {
       "id": "clm-visa-tap-170",
-      "text": "Worldpay says properly authenticated, correctly tokenized agent transactions follow existing tokenized-transaction liability rules.",
+      "text": "Worldpay says that when an agent authenticates properly and its token is issued correctly, liability generally follows existing tokenized-transaction rules for fraud, while disputes short of fraud, such as an agent misreading an instruction, remain unsettled.",
       "sources": [
         "src-worldpay-liability"
       ],
@@ -1730,7 +1752,7 @@
     },
     {
       "id": "clm-visa-tap-171",
-      "text": "Visa's rules govern Visa and its member institutions and yield to applicable law. Since 2025-10-18 they have made the cardholder responsible, within Visa's system, for an Agentic Payment Provider's actions in an Agentic Transaction as if the cardholder had initiated it. Visa calls none of these rules a liability shift; they set no agent-specific fee or interchange rate and do not mention TAP.",
+      "text": "Visa's rules govern Visa and its member institutions and yield to applicable law. Since 2025-10-18 they have made the cardholder responsible, within Visa's system, for an Agentic Payment Provider's actions in an Agentic Transaction as if the cardholder had initiated it. Visa calls none of its agent rules a liability shift; they set no agent-specific fee or interchange rate and do not mention TAP.",
       "sources": [
         "src-visa-rules-public"
       ],
@@ -1889,12 +1911,13 @@
     },
     {
       "id": "clm-visa-tap-187",
-      "text": "The sentence making TAP headers optional has been in draft-card-charge-00 since the file's first commit on 2026-01-05, and was still there at the 2026-10-05 repository head.",
+      "text": "The sentence making TAP headers optional has been in draft-card-charge-00 since Visa's Jacob Brans added the file (PR #169, merged 2026-03-14; public in the repository's init commit on 2026-03-18), and was still there at the 2026-10-16 repository head.",
       "sources": [
-        "src-mpp-card-draft"
+        "src-mpp-card-draft",
+        "src-mpp-specs-pr-169"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-05",
+      "asOf": "2026-10-19",
       "topic": "dates"
     },
     {
@@ -1903,7 +1926,7 @@
       "sources": [
         "src-x402-lf-july"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "asOf": "2026-07-14",
       "topic": "relations"
     },
@@ -1929,7 +1952,7 @@
     },
     {
       "id": "clm-visa-tap-191",
-      "text": "The TAP sample merchant returns HTTP 402 with an ad hoc JSON body and X-Payment headers rather than the x402 wire format.",
+      "text": "The TAP sample merchant returns HTTP 402 with an ad hoc JSON body and ad hoc X-Payment-* headers (X-Payment-Required, X-Payment-Amount and others) that its comments call x402 headers, rather than the x402 wire format.",
       "sources": [
         "src-visa-tap-sample-cart"
       ],
@@ -1949,12 +1972,13 @@
     },
     {
       "id": "clm-visa-tap-193",
-      "text": "No wire-level binding between TAP and ACP has been published.",
+      "text": "Neither the TAP merchant specification nor the Agentic Commerce Protocol repository (main at 7fdd78d, searched 2026-10-19) defines a binding between TAP and ACP.",
       "sources": [
-        "src-visa-tap-spec"
+        "src-visa-tap-spec",
+        "src-acp-repo"
       ],
-      "confidence": "reported",
-      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "asOf": "2026-10-19",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
       "topic": "relations"
     },
@@ -2006,7 +2030,7 @@
         "src-fido-pwg",
         "src-fido-agentic"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "relations",
       "asOf": "2026-04-28"
     },
@@ -2032,29 +2056,35 @@
     },
     {
       "id": "clm-visa-tap-201",
-      "text": "Visa's own wording for its agent credentials is agentic network tokens or agent-specific payment tokens, while Agentic Tokens is Mastercard's name for Agent Pay credentials; they are different products on different networks.",
+      "text": "Visa calls its agent credentials agentic network tokens, agent-specific tokens or agentic tokens, while Mastercard Agentic Tokens are Mastercard's Agent Pay credentials; they are different products on different networks.",
       "sources": [
         "src-stripe-spt",
         "src-visa-vic-dev",
+        "src-visa-vic-docs",
+        "src-mc-agent-pay-pr-2025",
         "src-mc-agentic-tokens"
       ],
-      "confidence": "reported",
-      "topic": "relations"
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-202",
-      "text": "No documented relation links TAP and ERC-8004.",
+      "text": "Neither the TAP merchant specification and the visa/trusted-agent-protocol repository (commit 16d59bd) nor the ERC-8004 text and contracts repository mentions the other (searched 2026-10-19).",
       "sources": [
-        "src-visa-tap-spec"
+        "src-visa-tap-spec",
+        "src-visa-tap-repo",
+        "src-erc-8004-spec",
+        "src-erc-8004-contracts-history"
       ],
-      "confidence": "reported",
-      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "asOf": "2026-10-19",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
       "topic": "relations"
     },
     {
       "id": "clm-visa-tap-203",
-      "text": "Visa calls TAP an open framework, but its specification and sample code are under revocable terms that forbid modification.",
+      "text": "Visa calls TAP an open framework, but its specification and sample code are under revocable terms that bar modifying the specification and allow sample-code changes only inside conforming applications.",
       "sources": [
         "src-visa-dec18",
         "src-visa-tap-terms"
@@ -2075,14 +2105,16 @@
     },
     {
       "id": "clm-visa-tap-205",
-      "text": "TAP's specification says a shared key-store approach across payment schemes is a goal, but today each network hosts its own directory.",
+      "text": "The TAP specification names a shared key approach across payment schemes as a goal. For now Visa runs its own key store; Cloudflare said in October 2025 that Visa and Mastercard would each host a directory, and the only Mastercard directory host in its guide did not resolve on 2026-10-19.",
       "sources": [
         "src-visa-tap-spec",
-        "src-visa-tap-cf-blog"
+        "src-visa-tap-cf-blog",
+        "src-mcap-dev-level1"
       ],
       "confidence": "verified",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "criticism"
+      "topic": "criticism",
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-206",
@@ -2145,13 +2177,14 @@
     },
     {
       "id": "clm-visa-tap-212",
-      "text": "The first commit of draft-card-charge-00 was authored on 2026-01-05 and reached the public mpp-specs repository in its init commit on 2026-03-18; the optional TAP sentence is already in that commit.",
+      "text": "Visa's Jacob Brans added draft-card-charge-00 in PR #169, merged on 2026-03-14 while the mpp-specs repository was private; it became public in the repository's init commit on 2026-03-18, and the optional TAP sentence is in it from the start.",
       "sources": [
-        "src-mpp-card-draft"
+        "src-mpp-card-draft",
+        "src-mpp-specs-pr-169"
       ],
       "confidence": "verified",
       "topic": "dates",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-213",
@@ -2215,7 +2248,7 @@
     },
     {
       "id": "clm-visa-tap-219",
-      "text": "When the key for a payment container cannot be located, the TAP specification says only that the content may be inaccurate, while the other payment checks say the data must not be used.",
+      "text": "When the key for a payment container cannot be located, the TAP specification says only that the content may be inaccurate, while its other payment checks say the data should not be used for payment.",
       "sources": [
         "src-visa-tap-spec"
       ],
@@ -2234,14 +2267,14 @@
     },
     {
       "id": "clm-visa-tap-221",
-      "text": "The only Mastercard key directory host in Mastercard's guide, agentpay-key-directory.mastercard.com, did not resolve in DNS on 2026-10-11, so the location of Mastercard's key directory is not publicly known.",
+      "text": "The only Mastercard key directory host in Mastercard's Level 1 guide, agentpay-key-directory.mastercard.com, did not resolve in DNS on 2026-10-11 or 2026-10-19, and Cloudflare's post names no Mastercard directory, so neither source gives a working location.",
       "sources": [
         "src-mcap-dev-level1",
         "src-visa-tap-cf-blog"
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-222",
@@ -2273,13 +2306,13 @@
     },
     {
       "id": "clm-visa-tap-225",
-      "text": "Visa's TAP overview describes three kinds of verifiable information: agent intent, consumer recognition and payment information.",
+      "text": "Visa's TAP overview page, retired in October 2026, described three kinds of verifiable information: agent intent, consumer recognition and payment information.",
       "sources": [
         "src-visa-tap-overview"
       ],
       "confidence": "verified",
       "topic": "identity",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-12"
     },
     {
       "id": "clm-visa-tap-226",
@@ -2339,14 +2372,15 @@
     },
     {
       "id": "clm-visa-tap-232",
-      "text": "Visa's TAP overview lists a consumer's blockchain wallet address among the consumer recognition data an agent may pass, while the specification's object tables define no wallet field.",
+      "text": "Until October 2026 Visa's TAP overview page listed a consumer's blockchain wallet address among the consumer recognition data an agent may pass, which the specification's object tables do not define; Visa's current TAP pages no longer mention it.",
       "sources": [
         "src-visa-tap-overview",
-        "src-visa-tap-spec"
+        "src-visa-tap-spec",
+        "src-visa-tap-docs"
       ],
       "confidence": "verified",
       "topic": "objects",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-19"
     },
     {
       "id": "clm-visa-tap-233",
@@ -2377,13 +2411,13 @@
     },
     {
       "id": "clm-visa-tap-236",
-      "text": "Visa's TAP overview says merchants and their proxies, such as CDNs and bot mitigation services, have historically classed automated web traffic as bots and typically blocked it.",
+      "text": "Visa's TAP overview page, retired in October 2026, said merchants and their proxies, such as CDNs and bot mitigation services, have historically classed automated web traffic as bots and typically blocked it.",
       "sources": [
         "src-visa-tap-overview"
       ],
       "confidence": "verified",
       "topic": "identity",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-12"
     },
     {
       "id": "clm-visa-tap-237",
@@ -2403,6 +2437,83 @@
       "confidence": "verified",
       "asOf": "2026-10-18",
       "topic": "compliance"
+    },
+    {
+      "id": "clm-visa-tap-239",
+      "text": "Visa's own token manager in the visa/ai repository fetches the JWKS at its MCP base URL's /.well-known/jwks and uses that RSA key's certificate to encrypt JWE tokens (RSA-OAEP-256) for Visa's MCP server.",
+      "sources": [
+        "src-visa-ai-token-manager",
+        "src-visa-tap-jwks"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-19",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-visa-tap-240",
+      "text": "Between 2026-10-13 and 2026-10-19 Visa moved its TAP pages to developer.visa.com/docs/trusted-agent-protocol: the specification and Product Terms moved, the overview page was retired, and the moved specification no longer names a key URL.",
+      "sources": [
+        "src-visa-tap-spec",
+        "src-visa-tap-terms",
+        "src-visa-tap-overview",
+        "src-visa-tap-docs"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-19",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-visa-tap-241",
+      "text": "As seen on 2026-10-19, Visa's API reference lists a Trusted Agent Protocol entry labeled v1 with one sandbox endpoint, GET /v1/trustedAgentProtocol, and no schemas; the specification itself carries no version.",
+      "sources": [
+        "src-visa-tap-apiref",
+        "src-visa-tap-spec"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-19",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-visa-tap-242",
+      "text": "A ChainIT white paper posted to arXiv on 2026-10-16 (2610.22899) names Visa's Trusted Agent Protocol in its related work.",
+      "sources": [
+        "src-pub-2610-22899"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-19",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-visa-tap-243",
+      "text": "The mppx SDK gained TAP request attestation in wevm/mppx PR #732, merged on 2026-08-04, and first shipped it in mppx 0.8.17 on 2026-08-10.",
+      "sources": [
+        "src-stripe-mpp-gh-mppx-pr-732",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-08-10",
+      "topic": "dates"
+    },
+    {
+      "id": "clm-visa-tap-244",
+      "text": "EMVCo's draft framework for card-based agentic payments, released for feedback on 2026-09-01, did not name TAP when read on 2026-10-11.",
+      "sources": [
+        "src-mcap-emvco-news"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-11",
+      "topic": "governance"
+    },
+    {
+      "id": "clm-visa-tap-245",
+      "text": "In Visa's VIC API examples the consumer authenticates the purchase instruction first, and the client sends that verification result (assuranceData) inside the POST /vacp/v1/instructions request, to the sandbox REST host sandbox.api.visa.com.",
+      "sources": [
+        "src-visa-ai-instruction-payload",
+        "src-visa-vic-dev"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-09-30",
+      "topic": "flow"
     }
   ]
 }

@@ -448,7 +448,7 @@ export default function Playground() {
               <pre className="vt-pre" tabIndex={SCROLL_TAB} aria-label="Fixture JWKS">
                 {jwks ? JSON.stringify(jwks, null, 2) : 'Generating.'}
               </pre>
-              <Note kind="simplification">A real verifier fetches and caches keys from the agent&apos;s published directory; here the directory is an in-memory fixture.</Note>
+              <Note kind="simplification">A real TAP verifier fetches and caches keys from the payment network&apos;s key store (Visa&apos;s, for Visa agents); here the store is an in-memory fixture.</Note>
             </div>
 
             <div className="vt-card">
@@ -752,7 +752,7 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
         {col('Web Bot Auth draft', sides.wba, 'TAP')}
       </div>
       <p className="vt-src">
-        Web Bot Auth keyid is the JWK thumbprint <code>{thumb}</code>; its keys live at <code>{WBA_DIRECTORY_PATH}</code> on the Signature-Agent host, served as{' '}
+        Web Bot Auth keyid is the JWK thumbprint <code>{thumb}</code>; its keys are found through the Signature-Agent URL, by default at <code>{WBA_DIRECTORY_PATH}</code> on that host, served as{' '}
         <code>{WBA_DIRECTORY_MEDIA_TYPE}</code>. Neither directory is contacted here.
       </p>
       <ScrollRegion label="Visa TAP and Web Bot Auth comparison table">

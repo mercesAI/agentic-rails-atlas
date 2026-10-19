@@ -136,13 +136,13 @@ export const COMPARISON: ComparisonRow[] = [
   { aspect: 'keyid', tap: 'Key identifier, no fixed format', wba: 'MUST be the base64url JWK SHA-256 thumbprint' },
   { aspect: 'alg', tap: 'Required', wba: 'Not in the required list' },
   { aspect: 'Window', tap: 'expires - created at most 8 minutes', wba: 'Expiry RECOMMENDED within 24 hours' },
-  { aspect: 'Key directory', tap: 'Visa-hosted JWKS', wba: `${WBA_DIRECTORY_PATH} on the Signature-Agent host` },
+  { aspect: 'Key directory', tap: "Payment scheme's key store (Visa's URL not named in the spec since October 2026)", wba: `Signature-Agent URL: ${WBA_DIRECTORY_PATH} by default; jwks_uri or cimd also allowed` },
 ];
 
 /** Spec quirks shown in the UI (ATLAS_ERRATA R16 and R17, research dossier). */
 export const SPEC_QUIRKS: string[] = [
   "The TAP spec's example keyid, nonce, timestamps and signature reuse a Web Bot Auth draft test vector, and the browsing and checkout examples print the same signature, so the published examples cannot verify against the requests they sit under.",
   'The example created and expires are 3,600 seconds apart, while the same spec caps the window at 8 minutes. Pick the 3,600-second window below to see a strict verifier block it.',
-  "Visa's published key directory held one RSA key on 2026-10-11 and no Ed25519 key, so the example keyid cannot be resolved there. This playground uses a local fixture directory instead and never contacts Visa.",
+  "The JWKS that Visa's specification named until October 2026 held one RSA key and no Ed25519 key on 2026-10-11 and 2026-10-19, so the example keyid cannot be resolved there; Visa's own code uses that key to encrypt tokens for its MCP server. This playground uses a local fixture directory instead and never contacts Visa.",
   'The examples write alg="Ed25519"; the RFC 9421 algorithm registry name is ed25519 in lowercase. This verifier accepts both.',
 ];

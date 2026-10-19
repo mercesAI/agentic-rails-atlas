@@ -2,19 +2,20 @@
   "protocol": "visa-tap",
   "score": 1,
   "scoreReasons": [
-    "The key store at https://mcp.visa.com/.well-known/jwks is public and can be polled, but on 2026-10-11 it held one RSA sandbox key that does not match the specification's examples.",
+    "The specification named https://mcp.visa.com/.well-known/jwks as Visa's key location until at least 2026-10-10 and names no URL now. That JWKS is public and can be polled; on 2026-10-11 and 2026-10-19 it held one RSA sandbox key, which Visa's own code uses to encrypt MCP tokens.",
     "TAP is off-chain and defines no events, receipts or public logs.",
     "Signature-Input parameters (keyid, tag, nonce, timestamps) are visible only to the merchant, the CDN and intermediaries on the path.",
-    "The Agentic Directory has no public list or endpoint, and no count of verifying merchants or signed requests is published.",
+    "As of 2026-10-19 the Agentic Directory has no public list or endpoint, and no count of verifying merchants or signed requests is published (Visa newsroom and developer pages searched).",
     "The sample repository and its pull requests are public, which shows spec activity but not deployment."
   ],
   "public": [
     {
-      "what": "Visa key store",
+      "what": "Visa JWKS that the specification named until October 2026",
       "where": "https://mcp.visa.com/.well-known/jwks",
-      "how": "HTTP GET returns a JWK Set; served with cache-control public, max-age=3600. Poll it to watch for key additions or removals.",
+      "how": "HTTP GET returns a JWK Set; served with cache-control public, max-age=3600. Poll it to watch for key additions or removals. Its one RSA key serves Visa's MCP token encryption; it is not a confirmed TAP agent key.",
       "sources": [
         "src-visa-tap-jwks",
+        "src-visa-ai-token-manager",
         "src-visa-tap-spec"
       ]
     },
@@ -28,8 +29,8 @@
     },
     {
       "what": "Specification and terms",
-      "where": "developer.visa.com trusted-agent-protocol pages",
-      "how": "Unversioned pages; diff them over time to detect changes.",
+      "where": "developer.visa.com/docs/trusted-agent-protocol pages",
+      "how": "Unversioned pages; diff them over time to detect changes. Visa moved them from /capabilities/ in October 2026, and the move dropped the key URL from the specification.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-tap-terms"
@@ -60,11 +61,11 @@
     },
     {
       "what": "Consumer object and ID Token",
-      "why": "Personal data sent only to the merchant in the request body."
+      "why": "Personal data sent to the merchant in the request body, also readable by a CDN or proxy that terminates TLS in front of it."
     },
     {
       "what": "Payment container and decrypted payload",
-      "why": "Card data for the merchant only."
+      "why": "The encrypted payload is readable only by the merchant; the credential hash and card metadata such as lastFour and paymentAccountReference are not encrypted."
     },
     {
       "what": "Visa telemetry and risk scores",
@@ -72,7 +73,7 @@
     },
     {
       "what": "Cloudflare verification results",
-      "why": "Exposed to the zone owner, for example through cf.bot_management.signed_agent on Enterprise Bot Management."
+      "why": "Cloudflare exposes cf.bot_management.signed_agent for Web Bot Auth agents on Enterprise Bot Management; whether TAP verifications set it is not documented."
     },
     {
       "what": "VIC instructions and confirmations",

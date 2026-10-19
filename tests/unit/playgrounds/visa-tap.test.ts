@@ -314,7 +314,7 @@ describe('body objects', () => {
     const pay = await signObject(paymentContainer(parts, 'payload'), 'ecdsa-p256-sha256', k.privateKey);
     const wrongNonce = await checkObject('payment', pay, { messageNonce: 'other', lookup });
     expect(wrongNonce.checks.find((c) => c.label.startsWith('Nonce'))?.ok).toBe(false);
-    expect(wrongNonce.consequence).toMatch(/must not be used/);
+    expect(wrongNonce.consequence).toMatch(/should not be used/);
     const iou = await signObject(browsingIou(parts), 'ecdsa-p256-sha256', k.privateKey);
     const withIou = await signObject(paymentContainer(parts, 'browsingIOU', iou), 'ecdsa-p256-sha256', k.privateKey);
     expect(Object.keys(withIou.browsingIOU as object)).toContain('sequenceCounter');

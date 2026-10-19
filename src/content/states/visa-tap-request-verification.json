@@ -2,7 +2,7 @@
   "id": "visa-tap-request-verification",
   "protocol": "visa-tap",
   "title": "Visa TAP: one request through verification (verifier-side state)",
-  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11, rechecked 2026-10-19)",
   "sources": [
     "src-visa-tap-spec",
     "src-visa-tap-cf-blog",
@@ -71,10 +71,16 @@
       "terminal": true
     },
     {
+      "id": "data-unused",
+      "label": "Payment data not used",
+      "terminal": true,
+      "note": "Missing fields, a nonce mismatch or a bad signature: the data should not be used for any payment. A key that cannot be found only makes it possibly inaccurate."
+    },
+    {
       "id": "declined",
       "label": "Transaction declined",
       "terminal": true,
-      "note": "Merchant declines the payment and does not use the payment data."
+      "note": "The specification says the merchant should decline when its hash of the key-entered card data differs from the credential hash."
     }
   ],
   "transitions": [
@@ -130,14 +136,14 @@
       "from": "nonce-fresh",
       "to": "key-resolved",
       "trigger": "Key for keyid found",
-      "apiCall": "GET https://mcp.visa.com/.well-known/jwks",
+      "apiCall": "GET <Visa well-known key URL> (not named in the specification since October 2026)",
       "specRef": "Locate the public key"
     },
     {
       "from": "nonce-fresh",
       "to": "blocked",
       "trigger": "Key missing or expired",
-      "apiCall": "GET https://mcp.visa.com/.well-known/jwks",
+      "apiCall": "GET <Visa well-known key URL> (not named in the specification since October 2026)",
       "specRef": "Locate the public key"
     },
     {
@@ -176,9 +182,15 @@
     },
     {
       "from": "objects-checked",
+      "to": "data-unused",
+      "trigger": "Payment container invalid: do not use its payment data",
+      "specRef": "Payment: Verification Steps"
+    },
+    {
+      "from": "objects-checked",
       "to": "declined",
-      "trigger": "Payment container invalid or hash mismatch: decline the transaction",
-      "specRef": "Processing of Payment Data"
+      "trigger": "Credential hash mismatch: decline the transaction",
+      "specRef": "Payment Credential Hash"
     }
   ]
 }

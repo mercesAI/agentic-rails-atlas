@@ -1,7 +1,7 @@
 stateDiagram-v2
   direction TB
   accTitle: Visa TAP: one request through verification (verifier-side state)
-  accDescr: State diagram: Visa TAP: one request through verification (verifier-side state). 13 states: Request received, TAP tag found, Minimum fields present, Inside the window, Nonce not seen, Key resolved, Trusted agent, browsing, Trusted agent, paying, Body objects checked, Served, Not a trusted agent, Blocked, and Transaction declined. Starts in Request received. Ends in Served, Not a trusted agent, Blocked, and Transaction declined. 17 transitions. From Request received to TAP tag found when Signature-Input has a TAP tag. From Request received to Not a trusted agent when No TAP tag. From TAP tag found to Minimum fields present when All minimum fields present. From TAP tag found to Blocked when A field is missing. From Minimum fields present to Inside the window when Timestamps valid. From Minimum fields present to Blocked when Window over 8 minutes or outside now. From Inside the window to Nonce not seen when Nonce unseen, or no record kept. From Inside the window to Blocked when Nonce already recorded. From Nonce not seen to Key resolved when Key for keyid found (GET https://mcp.visa.com/.well-known/jwks). From Nonce not seen to Blocked when Key missing or expired (GET https://mcp.visa.com/.well-known/jwks). From Key resolved to Trusted agent, browsing when Signature valid, tag agent-browser-auth. From Key resolved to Trusted agent, paying when Signature valid, tag agent-payer-auth. From Key resolved to Blocked when Signature invalid. From Trusted agent, browsing to Served when Merchant serves the page. From Trusted agent, paying to Body objects checked when Nonce, kid and signature of each body object checked. From Body objects checked to Served when Payment data processed. From Body objects checked to Transaction declined when Payment container invalid or hash mismatch: decline the transaction.
+  accDescr: State diagram: Visa TAP: one request through verification (verifier-side state). 14 states: Request received, TAP tag found, Minimum fields present, Inside the window, Nonce not seen, Key resolved, Trusted agent, browsing, Trusted agent, paying, Body objects checked, Served, Not a trusted agent, Blocked, Payment data not used, and Transaction declined. Starts in Request received. Ends in Served, Not a trusted agent, Blocked, Payment data not used, and Transaction declined. 18 transitions. From Request received to TAP tag found when Signature-Input has a TAP tag. From Request received to Not a trusted agent when No TAP tag. From TAP tag found to Minimum fields present when All minimum fields present. From TAP tag found to Blocked when A field is missing. From Minimum fields present to Inside the window when Timestamps valid. From Minimum fields present to Blocked when Window over 8 minutes or outside now. From Inside the window to Nonce not seen when Nonce unseen, or no record kept. From Inside the window to Blocked when Nonce already recorded. From Nonce not seen to Key resolved when Key for keyid found (GET Visa well-known key URL (not named in the specification since October 2026)). From Nonce not seen to Blocked when Key missing or expired (GET Visa well-known key URL (not named in the specification since October 2026)). From Key resolved to Trusted agent, browsing when Signature valid, tag agent-browser-auth. From Key resolved to Trusted agent, paying when Signature valid, tag agent-payer-auth. From Key resolved to Blocked when Signature invalid. From Trusted agent, browsing to Served when Merchant serves the page. From Trusted agent, paying to Body objects checked when Nonce, kid and signature of each body object checked. From Body objects checked to Served when Payment data processed. From Body objects checked to Payment data not used when Payment container invalid: do not use its payment data. From Body objects checked to Transaction declined when Credential hash mismatch: decline the transaction.
   state "Request received" as s_received
   state "TAP tag found" as s_tagged
   state "Minimum fields present" as s_fields_ok
@@ -14,6 +14,7 @@ stateDiagram-v2
   state "Served" as s_served
   state "Not a trusted agent" as s_untrusted
   state "Blocked" as s_blocked
+  state "Payment data not used" as s_data_unused
   state "Transaction declined" as s_declined
   [*] --> s_received
   s_received --> s_tagged : Signature-Input has a TAP tag
@@ -32,8 +33,10 @@ stateDiagram-v2
   s_verified_browse --> s_served : Merchant serves the page
   s_verified_pay --> s_objects_checked : Nonce, kid and signature of each body object checked
   s_objects_checked --> s_served : Payment data processed
-  s_objects_checked --> s_declined : Payment container invalid or hash mismatch: decline the transaction
+  s_objects_checked --> s_data_unused : Payment container invalid: do not use its payment data
+  s_objects_checked --> s_declined : Credential hash mismatch: decline the transaction
   s_served --> [*]
   s_untrusted --> [*]
   s_blocked --> [*]
+  s_data_unused --> [*]
   s_declined --> [*]

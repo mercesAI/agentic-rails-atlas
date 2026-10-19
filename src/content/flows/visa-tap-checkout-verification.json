@@ -3,7 +3,7 @@
   "protocol": "visa-tap",
   "title": "Visa TAP: checkout request and body object verification at the merchant",
   "summary": "The merchant verifies the agent-payer-auth signature, then each signed body object, then processes the payment data according to its processing path: credential hash for key entry, encrypted payload for API checkout.",
-  "specVersion": "TAP spec, unversioned (read 2026-10-11)",
+  "specVersion": "TAP spec, unversioned (read 2026-10-11, rechecked 2026-10-19)",
   "specVersionDate": "2025-10-14",
   "actors": [
     {
@@ -33,7 +33,7 @@
       "from": "agent",
       "to": "merchant",
       "label": "POST checkout with agent-payer-auth and body objects",
-      "detail": "Header signature plus agenticConsumer and agenticPaymentContainer, same key and nonce.",
+      "detail": "Header signature plus agenticConsumer and agenticPaymentContainer, same key and nonce. The specification's examples pair an Ed25519 header with PS256 objects, which one key cannot produce; this example copies that pairing.",
       "payload": {
         "format": "http",
         "content": "POST /checkout HTTP/1.1\nHost: shop.example\nContent-Type: application/json\nSignature-Input: sig2=(\"@authority\" \"@path\");created=1767225600;keyid=\"agent-key-1\";alg=\"Ed25519\";expires=1767225900;nonce=\"bm9uY2UtcGxhY2Vob2xkZXI\";tag=\"agent-payer-auth\"\nSignature: sig2=:cGF5ZXItc2lnbmF0dXJlLXBsYWNlaG9sZGVy:\n\n{\n  \"agenticConsumer\": {\n    \"nonce\": \"bm9uY2UtcGxhY2Vob2xkZXI\",\n    \"idToken\": \"eyJ...placeholder\",\n    \"contextualData\": {\n      \"countryCode\": \"US\",\n      \"zip\": \"94105\",\n      \"ipAddress\": \"192.0.2.10\",\n      \"deviceData\": {}\n    },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  },\n  \"agenticPaymentContainer\": {\n    \"nonce\": \"bm9uY2UtcGxhY2Vob2xkZXI\",\n    \"payload\": \"encrypted-to-merchant-key-placeholder\",\n    \"cardMetadata\": {\n      \"lastFour\": \"0000\",\n      \"paymentAccountReference\": \"par-placeholder\",\n      \"shortDescription\": \"Example card\"\n    },\n    \"kid\": \"agent-key-1\",\n    \"alg\": \"PS256\",\n    \"signature\": \"placeholder\"\n  }\n}",
@@ -41,7 +41,7 @@
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Sample Checkout Request"
       }
     },
@@ -52,7 +52,7 @@
       "label": "Verify the header signature",
       "detail": "Same steps as browsing: tag, minimum fields, window, nonce, key, signature.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Verification Steps"
       },
       "failures": [
@@ -69,7 +69,7 @@
       "label": "Consumer object: fields and nonce",
       "detail": "Check nonce, idToken, contextualData, kid, alg and signature are present and the nonce equals the header nonce.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Consumer Recognition"
       },
       "failures": [
@@ -87,12 +87,12 @@
       "detail": "The same Visa key store serves the agent key and the key that verifies the ID Token JWS.",
       "payload": {
         "format": "http",
-        "content": "GET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
+        "content": "# The JWKS the TAP specification named until October 2026; the current page names no URL,\n# and Visa's own code uses this JWKS's one RSA key to encrypt tokens for its MCP server.\nGET /.well-known/jwks HTTP/1.1\nHost: mcp.visa.com",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Public Keys Retrieval Service"
       }
     },
@@ -103,7 +103,7 @@
       "label": "Verify consumer object and ID Token",
       "detail": "Verify the object signature over the fields in the order received, then the ID Token, and map obfuscated contact values to accounts.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Consumer Recognition; ID Token"
       },
       "failures": [
@@ -120,7 +120,7 @@
       "label": "Payment container: fields, nonce, key, signature",
       "detail": "Check nonce, kid, alg and signature, compare the nonce, locate the key and verify.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Payment"
       },
       "failures": [
@@ -141,7 +141,7 @@
       "label": "Process by type",
       "detail": "Key entry: hash the typed card data and compare with the credential hash. API: decrypt payload with the merchant private key.",
       "specRef": {
-        "url": "https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications",
+        "url": "https://developer.visa.com/docs/trusted-agent-protocol/trusted-agent-protocol-specifications",
         "section": "Processing of Payment Data"
       },
       "failures": [
