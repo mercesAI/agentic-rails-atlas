@@ -1,10 +1,10 @@
 {
   "id": "mastercard-agent-pay-failure-unknown-key",
   "protocol": "mastercard-agent-pay",
-  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
-  "specVersionDate": "2026-10-11",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-21)",
+  "specVersionDate": "2026-10-21",
   "title": "Agent Pay failure: the keyid is not in the key directory",
-  "summary": "An agent sends a signed request whose keyid the verifier cannot find in the Mastercard directory, for example an unregistered or delisted agent. Mastercard's decision table says to block.",
+  "summary": "An agent sends a signed request that passes the tag, field, timestamp and nonce checks, but the verifier cannot find its keyid in Mastercard's key directory, for example an unregistered or delisted agent. Mastercard's checklist says to block.",
   "actors": [
     {
       "id": "agent",
@@ -38,10 +38,10 @@
       "from": "agent",
       "to": "cdn",
       "label": "Signed request, unknown keyid",
-      "detail": "The request carries complete Signature-Input parameters and the Agent Pay tag, but the key was never registered or is no longer listed.",
+      "detail": "The request carries complete Signature-Input parameters, a window under 8 minutes, a fresh nonce and the Agent Pay tag, but the key was never registered or is no longer listed. keyid and signature are placeholders.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-11. Values are made up.\nGET /checkout HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agent-keys.example.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";nonce=\"e8N7S2MFd/qrd6T2R3tdfAuuANngKI7LFtKYI/vowzk=\";tag=\"Agent-pay-auth\"\nSignature: sig1=:jdq0SqOwHdyHr9+r5jw3iYZH6aNGKijYp/EstF4RQTQdi5N5YYKrD+mCT1HA1nZDsi6nJKuHxUi/5Syp3rLWBA==:",
+        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-21. Placeholder values; the signature does not verify.\nGET /checkout HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agent-keys.example.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"<key-thumbprint>\";alg=\"ed25519\";nonce=\"<random-nonce>\";tag=\"Agent-pay-auth\"\nSignature: sig1=:<signature>:",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -54,10 +54,11 @@
       "from": "cdn",
       "to": "directory",
       "label": "Look up keyid",
-      "detail": "The directory returns no key for this keyid.",
+      "detail": "After the timestamp and nonce checks pass, the verifier looks up keyid; the directory returns no key.",
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://blog.cloudflare.com/secure-agentic-commerce/"
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
+        "section": "Verification Steps Reference"
       }
     },
     {
@@ -65,7 +66,7 @@
       "from": "cdn",
       "to": "agent",
       "label": "Block",
-      "detail": "Mastercard's merchant decision table says a key not found in the directory means block. The agent never reaches the card form.",
+      "detail": "Mastercard's checklist says a key that cannot be retrieved for keyid means block. The agent never reaches the card form.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"

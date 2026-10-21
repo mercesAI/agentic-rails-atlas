@@ -53,8 +53,8 @@
     },
     {
       "name": "Citi",
-      "role": "First US issuer",
-      "status": "pilot",
+      "role": "First US issuer; Mastercard's CEO said on 2025-10-30 that its cardholders can now use Agent Pay",
+      "status": "live",
       "sources": [
         "src-mcap-sep-2025",
         "src-mcap-q3-transcript"
@@ -62,8 +62,8 @@
     },
     {
       "name": "U.S. Bank",
-      "role": "First US issuer",
-      "status": "pilot",
+      "role": "First US issuer; Mastercard's CEO said on 2025-10-30 that its cardholders can now use Agent Pay",
+      "status": "live",
       "sources": [
         "src-mcap-sep-2025",
         "src-mcap-q3-transcript"
@@ -89,10 +89,11 @@
     },
     {
       "name": "Cloudflare",
-      "role": "Edge verification of agent signatures",
+      "role": "Edge verification of agent signatures; AP4M end-to-end pilot partner, returning 402 through Cloudflare Monetization Gateway in the 2026-10-20 demo",
       "status": "live",
       "sources": [
-        "src-mcap-cloudflare-blog"
+        "src-mcap-cloudflare-blog",
+        "src-mcap-ap4m-early-access"
       ]
     },
     {
@@ -136,6 +137,29 @@
       ]
     },
     {
+      "name": "Worldline and ING",
+      "role": "Live end-to-end agentic transaction orchestrated entirely within Europe (reported 2026-06-02)",
+      "status": "pilot",
+      "sources": [
+        "src-mcap-europe-2026"
+      ]
+    },
+    {
+      "name": "Selected Asia-Pacific and EEMEA issuers (Westpac New Zealand, Axis Bank, RBL Bank, DBS, UOB, CIMB, RHB, HSBC, DBS Hong Kong, Krungthai Card, PrivatBank, maib, Moldindconbank)",
+      "role": "First agentic transactions or controlled pilots, 2026-02 to 2026-07",
+      "status": "pilot",
+      "sources": [
+        "src-mcap-nz-2026",
+        "src-mcap-india-2026",
+        "src-mcap-singapore-2026",
+        "src-mcap-malaysia-2026",
+        "src-mcap-hongkong-2026",
+        "src-mcap-thailand-2026",
+        "src-mcap-ukraine-2026",
+        "src-mcap-moldova-2026"
+      ]
+    },
+    {
       "name": "CardInfoLink",
       "role": "Korea's first live authenticated agentic transaction",
       "status": "pilot",
@@ -154,10 +178,18 @@
     },
     {
       "name": "AP4M participants (32 named, including Coinbase, Tempo, Polygon, Solana Foundation)",
-      "role": "Agent Pay for Machines participants and supporters",
+      "role": "Agent Pay for Machines participants and supporters named in the 2026-06-10 announcement",
       "status": "announced",
       "sources": [
         "src-mcap-ap4m-2026"
+      ]
+    },
+    {
+      "name": "AP4M Early Access pilot partners (Cloudflare, Ant International, AIsa, Base, BVNK, Coinbase, Hype)",
+      "role": "End-to-end pilots before Early Access opened on 2026-10-20: Coinbase Developer Platform wallets fund the agent, Base settles on-chain, BVNK acts as the agent wallet on Mastercard Global Money Platform, AIsa and Cloudflare sell services, Hype is the buyer in the demo",
+      "status": "pilot",
+      "sources": [
+        "src-mcap-ap4m-early-access"
       ]
     },
     {
@@ -206,13 +238,14 @@
       "metric": "Agent Pay transaction volume or value",
       "value": "not published",
       "unit": "n/a",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "definition": "Count or value of Agent Pay transactions.",
       "sources": [
         "src-mcap-trust-2026",
-        "src-mcap-nevermined-review"
+        "src-mcap-europe-2026",
+        "src-mcap-ap4m-early-access"
       ],
-      "caveat": "No Mastercard release reports counts or values."
+      "caveat": "No Mastercard release reports counts or values; the 2026-10-20 AP4M brief counts only the nine payments in its demo."
     },
     {
       "id": "mcap-eu-banks",
@@ -253,9 +286,9 @@
     {
       "id": "mcap-vi-stars",
       "metric": "Verifiable Intent repository stars",
-      "value": 99,
+      "value": 101,
       "unit": "stars",
-      "asOf": "2026-10-13",
+      "asOf": "2026-10-21",
       "definition": "GitHub stargazers of agent-intent/verifiable-intent.",
       "sources": [
         "src-mcap-vi-gh-repo"
@@ -289,14 +322,16 @@
     },
     {
       "item": "Agent-specific interchange, token fee, liability rule or reason code",
-      "value": "None published",
-      "whoPays": "Card economics unchanged (merchant pays usual card fees)",
-      "asOf": "2026-10-11",
+      "value": "None public; the Mastercard Agent Pay Program Standards that the Mastercard Rules (2026-06-02) require are not public",
+      "whoPays": "Not stated; no agent fee found",
+      "asOf": "2026-10-21",
       "confidence": "reported",
-      "caveat": "Evidence of absence from two secondary sources; Mastercard has not stated that fees are unchanged.",
+      "caveat": "No agentic interchange category or token fee was found. A May 2026 merchant-cost note expects new fee categories but names none. Mastercard says standard chargeback rights apply; Worldpay (2026-07-30) says no liability shift exists yet.",
       "sources": [
-        "src-mcap-nevermined-review",
-        "src-mcap-mcc-fees"
+        "src-mastercard-rules-2026-06",
+        "src-mcap-mcc-fees",
+        "src-worldpay-liability",
+        "src-mcap-dev-level1"
       ]
     },
     {
@@ -326,11 +361,12 @@
       "item": "Agent Pay for Machines",
       "value": "No pricing published",
       "whoPays": "not published",
-      "asOf": "2026-06-10",
+      "asOf": "2026-10-21",
       "confidence": "verified",
-      "caveat": "Settlement costs per rail not published.",
+      "caveat": "Neither the 2026-06-10 announcement nor the 2026-10-20 Early Access brief gives pricing; the Early Access documentation is not public. Settlement costs per rail not published.",
       "sources": [
-        "src-mcap-ap4m-2026"
+        "src-mcap-ap4m-2026",
+        "src-mcap-ap4m-early-access"
       ]
     }
   ]

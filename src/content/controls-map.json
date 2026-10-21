@@ -1131,10 +1131,12 @@
       "protocol": "mastercard-agent-pay",
       "control": "revocation",
       "support": "partial",
-      "note": "No public revocation API for agents or tokens; Verifiable Intent 0.1 has no revocation protocol, only JWKS key removal and expiry.",
+      "note": "No public API to revoke an agent or an Agentic Token. MVCT tokens used by Agent Pay integrators can be deleted (Delete Card) and are suspended or cancelled by issuers, with notifications. Verifiable Intent 0.1 has no revocation protocol, only JWKS key removal and expiry.",
       "sources": [
         "src-mcap-vi-security",
-        "src-mcap-dev-llms"
+        "src-mcap-dev-llms",
+        "src-mcap-dev-mvct",
+        "src-mcap-dev-mvct-manage"
       ]
     },
     {
@@ -1173,10 +1175,11 @@
       "protocol": "mastercard-agent-pay",
       "control": "dispute-support",
       "support": "partial",
-      "note": "Standard chargeback rights; no agent-specific reason codes or liability shift; Verifiable Intent leaves dispute choreography out of scope.",
+      "note": "Standard chargeback rights apply (Mastercard). No agent-specific reason code or liability rule is public: the Mastercard Rules (2026-06-02) require Agent Pay Program Standards that are not public, and Worldpay (2026-07-30) says no liability shift exists yet. Verifiable Intent leaves dispute choreography out of scope.",
       "sources": [
         "src-mcap-dev-level1",
-        "src-mcap-launch-2025",
+        "src-mastercard-rules-2026-06",
+        "src-worldpay-liability",
         "src-mcap-vi-security"
       ]
     },
@@ -1193,7 +1196,7 @@
       "protocol": "mastercard-agent-pay",
       "control": "monitoring-signals",
       "support": "native",
-      "note": "Agent transactions recognizable to issuers; probability score in US testing from 2026-09-30; Verifiable Intent risk_data at consent.",
+      "note": "Mastercard aims to make agent transactions recognizable to issuers; a probability score for AI-initiated transactions is rolling out for US testing (announced 2026-09-30); Verifiable Intent risk_data at consent.",
       "sources": [
         "src-mcap-launch-2025",
         "src-mcap-trust-2026",

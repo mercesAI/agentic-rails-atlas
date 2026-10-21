@@ -2,12 +2,12 @@
   "id": "mastercard-agent-pay-edge-decision",
   "protocol": "mastercard-agent-pay",
   "type": "flowchart",
-  "title": "Merchant decision table for signed agent requests",
-  "caption": "Mastercard's Level 1 guide gives merchants a short decision table, and Cloudflare lists the same checks at the edge. Untagged traffic falls back to the ordinary bot policy; a missing field or an unknown key blocks the request.",
-  "alt": "Flowchart. Does the request carry Signature-Input with a scheme tag? If no, apply the non-agent bot policy. If yes, are all required fields present? If no, block. Is the key found in the directory? If no, block. Are created and expires valid and the nonce unused? If no, block. Does the signature verify? If no, block. If yes, treat as a trusted agent.",
+  "title": "Mastercard's verification checklist for signed agent requests",
+  "caption": "The nine steps of the Level 1 guide's checklist in Mastercard's order, with the three timestamp steps drawn as one check: timestamps and the nonce come before the key lookup, and the signature window may be at most 8 minutes. A request without a scheme tag (Agent-pay-auth, agent-browser-auth or agent-payer-auth) falls back to the ordinary bot policy; every other failure blocks it. Cloudflare lists the same kinds of checks at its edge.",
+  "alt": "Flowchart. Does the request carry Signature-Input with a scheme tag? If no, apply the non-agent bot policy. If yes, are all required fields present, including @authority and @path? Is created in the past and expires in the future, at most 8 minutes apart? Was the nonce not seen in the last 8 minutes (if it was, block as a replay)? Is the key for keyid found in the directory? Does the signature verify? Any no blocks the request. If all pass, record the nonce with its expiry and treat the request as a trusted agent.",
   "sourceOfTruth": {
     "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
-    "label": "Mastercard Level 1 guide and Cloudflare, 2025-10-24"
+    "label": "Mastercard Level 1 guide, verification steps reference (read 2026-10-21)"
   },
   "sources": [
     "src-mcap-dev-level1",

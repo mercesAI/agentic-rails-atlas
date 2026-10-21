@@ -48,6 +48,7 @@ composesWith:
   - erc-8004
   - stripe-mpp
   - visa-tap
+  - mastercard-agent-pay
 personas:
   - api-seller
   - agent-dev
@@ -828,7 +829,7 @@ Transports are the third axis. The same objects ride in HTTP headers, in an MCP 
 
 ### How it composes with the other seven
 
-x402 is a payment step that, in the payment itself, says nothing about who the client is or what the user approved, so it pairs with protocols that carry those answers.<Cite ids="clm-x402-152 clm-x402-147" /> Google's AP2 (Agent Payments Protocol) announcement of 2025-09-16 launched an A2A x402 extension with Coinbase, which makes x402 one way to pay under AP2.<Cite ids="clm-x402-210" /> ERC-8004 keeps payments out of its core but gives agents an x402Support flag and lets feedback carry proof of an x402 payment.<Cite ids="clm-x402-219" /> MPP (Machine Payments Protocol), co-authored by Stripe and Tempo, maps x402 exact onto its charge intent and can serve both protocols on one route.<Cite ids="clm-x402-213 clm-x402-263" /> Visa's TAP (Trusted Agent Protocol) specification has its own object for answering a 402.<Cite ids="clm-x402-242" /> No link to ACP (Agentic Commerce Protocol), maintained by OpenAI and Stripe, or to UCP (Universal Commerce Protocol) appears in their repositories.<Cite ids="clm-x402-217 clm-x402-218 clm-x402-264" /> The section "Compare and compose" below goes further.
+x402 is a payment step that, in the payment itself, says nothing about who the client is or what the user approved, so it pairs with protocols that carry those answers.<Cite ids="clm-x402-152 clm-x402-147" /> Google's AP2 (Agent Payments Protocol) announcement of 2025-09-16 launched an A2A x402 extension with Coinbase, which makes x402 one way to pay under AP2.<Cite ids="clm-x402-210" /> ERC-8004 keeps payments out of its core but gives agents an x402Support flag and lets feedback carry proof of an x402 payment.<Cite ids="clm-x402-219" /> MPP (Machine Payments Protocol), co-authored by Stripe and Tempo, maps x402 exact onto its charge intent and can serve both protocols on one route.<Cite ids="clm-x402-213 clm-x402-263" /> Visa's TAP (Trusted Agent Protocol) specification has its own object for answering a 402.<Cite ids="clm-x402-242" /> Mastercard said on 2026-10-20 that its Agent Pay for Machines builds on x402: the service answers 402, and the agent signs an off-chain voucher that providers can redeem later.<Cite ids="clm-x402-265" /> No link to ACP (Agentic Commerce Protocol), maintained by OpenAI and Stripe, or to UCP (Universal Commerce Protocol) appears in their repositories.<Cite ids="clm-x402-217 clm-x402-218 clm-x402-264" /> The section "Compare and compose" below goes further.
 
 ### Limitations and open issues
 
@@ -861,6 +862,7 @@ x402 is a payment step that, in the payment itself, says nothing about who the c
 - 2026-10-01: Michael Hursta became executive director of the x402 Foundation.<Cite ids="clm-x402-251" />
 - 2026-10-13: a fix for HEAD requests that reached paid GET handlers merged, unreleased on 2026-10-19, and the CDP Bazaar began screening listing metadata for prompt-injection text.<Cite ids="clm-x402-254 clm-x402-255" />
 - 2026-10-15: SECURITY.md moved vulnerability reports from Coinbase's HackerOne program to private contact with the x402 TSC or maintainers.<Cite ids="clm-x402-136" />
+- 2026-10-20: Mastercard opened Agent Pay for Machines Early Access and said the service builds on x402.<Cite ids="clm-x402-265" />
 
 ## Compare and compose
 

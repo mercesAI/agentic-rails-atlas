@@ -4,7 +4,19 @@ import { decodeJws, generateEs256Key, importEs256PublicJwk, jwkThumbprint, sameJ
 import { decodeDisclosure, makeArrayDisclosure, makePropertyDisclosure, parseSdJwt, resolveDisclosures, serializeSdJwt } from '@/lib/playground/sd-jwt';
 import { ellipsize, pretty } from '@/lib/playground/util';
 import { fixtureToken, formatMinor, merchantById, MERCHANTS } from '@/playgrounds/mastercard-agent-pay/lib/fixtures';
-import { MASTERCARD_TAG, addToDirectory, paramsLine, parseSignatureInput, signRequest, signatureBase, verifyAtEdge, type FixtureDirectory } from '@/playgrounds/mastercard-agent-pay/lib/httpsig';
+import {
+  MASTERCARD_TAG,
+  MAX_WINDOW_SECONDS,
+  NONCE_TTL_SECONDS,
+  SCHEME_TAGS,
+  addToDirectory,
+  paramsLine,
+  parseSignatureInput,
+  signRequest,
+  signatureBase,
+  verifyAtEdge,
+  type FixtureDirectory,
+} from '@/playgrounds/mastercard-agent-pay/lib/httpsig';
 import {
   EXTENSIONS,
   NOT_PUBLISHED,
@@ -127,50 +139,68 @@ describe('httpsig edge verification', () => {
     expect(parseSignatureInput('sig1=("@path"')).toBeUndefined();
   });
 
-  it('passes a good request as a trusted agent', async () => {
+  it('passes a good request as a trusted agent and records its nonce', async () => {
     const signed = await signRequest(req, key, { created: NOW, keyid });
-    const r = await verifyAtEdge(signed, dir, NOW + 5, new Set());
+    const seen = new Map<string, number>();
+    const r = await verifyAtEdge(signed, dir, NOW + 5, seen);
     expect(r.verdict).toBe('trusted-agent');
+    expect(r.steps.map((s) => s.id)).toEqual(['scheme-tag', 'parameters', 'created', 'expires', 'window-cap', 'nonce', 'key-lookup', 'signature', 'record-nonce']);
     expect(r.steps.every((s) => s.status === 'pass')).toBe(true);
     expect(signed.signatureInput).toContain('tag="Agent-pay-auth"');
+    expect(seen.get(r.nonce as string)).toBe(NOW + 5 + NONCE_TTL_SECONDS);
   });
 
-  it('treats a missing signature as an ordinary bot', async () => {
-    const r = await verifyAtEdge({ ...req }, dir, NOW, new Set());
+  it('treats a missing signature or a tag outside the scheme list as an ordinary bot', async () => {
+    const r = await verifyAtEdge({ ...req }, dir, NOW, new Map());
     expect(r.verdict).toBe('ordinary-bot');
     expect(r.steps[0]?.status).toBe('fail');
     expect(r.steps.slice(1).every((s) => s.status === 'skipped')).toBe(true);
+    const other = await signRequest(req, key, { created: NOW, keyid, tag: 'example-tag' });
+    const o = await verifyAtEdge(other, dir, NOW, new Map());
+    expect(o).toMatchObject({ verdict: 'ordinary-bot', outcome: 'Apply the non-agent bot policy' });
+    expect(o.steps[0]?.id).toBe('scheme-tag');
+    expect(SCHEME_TAGS).toEqual(['Agent-pay-auth', 'agent-browser-auth', 'agent-payer-auth']);
   });
 
-  it('blocks a missing parameter, unknown key, expired window, replayed nonce, wrong tag and tampered path', async () => {
+  it('blocks in checklist order: fields, created, expires, window cap, nonce, key, signature', async () => {
+    const fail = async (r: Parameters<typeof verifyAtEdge>[0], now: number, seen = new Map<string, number>()) =>
+      (await verifyAtEdge(r, dir, now, seen)).steps.find((s) => s.status === 'fail')?.id;
     const good = await signRequest(req, key, { created: NOW, keyid });
     const noNonce = { ...good, signatureInput: good.signatureInput?.replace(/;nonce="[^"]*"/, '') };
-    expect((await verifyAtEdge(noNonce, dir, NOW, new Set())).steps.find((s) => s.status === 'fail')?.id).toBe('parameters');
+    expect(await fail(noNonce, NOW)).toBe('parameters');
+    const noPath = { ...good, signatureInput: good.signatureInput?.replace(' "@path"', '') };
+    expect(await fail(noPath, NOW)).toBe('parameters');
 
-    const stranger = await generateEs256Key('stranger');
-    const unknown = await signRequest(req, stranger, { created: NOW, keyid: 'unregistered-keyid' });
-    const u = await verifyAtEdge(unknown, dir, NOW, new Set());
-    expect(u).toMatchObject({ verdict: 'blocked', outcome: 'Block the request' });
-    expect(u.steps.find((s) => s.status === 'fail')?.id).toBe('key-lookup');
+    expect(await fail(good, NOW - 100)).toBe('created');
+    expect(await fail(good, NOW + 10_000)).toBe('expires');
+    const long = await signRequest(req, key, { created: NOW, keyid, ttlSeconds: 3600 });
+    const l = await verifyAtEdge(long, dir, NOW, new Map());
+    expect(l.steps.find((s) => s.status === 'fail')?.id).toBe('window-cap');
+    expect(MAX_WINDOW_SECONDS).toBe(480);
 
-    expect((await verifyAtEdge(good, dir, NOW + 10_000, new Set())).steps.find((s) => s.status === 'fail')?.id).toBe('window');
-    expect((await verifyAtEdge(good, dir, NOW - 100, new Set())).steps.find((s) => s.status === 'fail')?.id).toBe('window');
-
-    const seen = new Set<string>();
+    const seen = new Map<string, number>();
     expect((await verifyAtEdge(good, dir, NOW + 1, seen)).verdict).toBe('trusted-agent');
     expect(seen.size).toBe(1);
     const replay = await verifyAtEdge(good, dir, NOW + 2, seen);
+    expect(replay).toMatchObject({ verdict: 'blocked', outcome: 'Block the request (replay detected)' });
     expect(replay.steps.find((s) => s.status === 'fail')?.id).toBe('nonce');
 
+    const stranger = await generateEs256Key('stranger');
+    const unknown = await signRequest(req, stranger, { created: NOW, keyid: 'unregistered-keyid' });
+    const u = await verifyAtEdge(unknown, dir, NOW, new Map());
+    expect(u).toMatchObject({ verdict: 'blocked', outcome: 'Block the request' });
+    expect(u.steps.find((s) => s.status === 'fail')?.id).toBe('key-lookup');
+    // An unknown key is found only after the timestamp and nonce checks pass.
+    expect(u.steps.slice(0, 6).every((s) => s.status === 'pass')).toBe(true);
+
     const visaTag = await signRequest(req, key, { created: NOW, keyid, tag: 'agent-browser-auth' });
-    expect((await verifyAtEdge(visaTag, dir, NOW, new Set())).steps.find((s) => s.status === 'fail')?.id).toBe('tag');
+    expect((await verifyAtEdge(visaTag, dir, NOW, new Map())).verdict).toBe('trusted-agent');
 
     const moved = { ...good, path: '/product/43' };
-    const t = await verifyAtEdge(moved, dir, NOW, new Set());
-    expect(t.steps.find((s) => s.status === 'fail')?.id).toBe('signature');
+    expect(await fail(moved, NOW)).toBe('signature');
     const badSig = { ...good, signature: 'sig1=:AAAA:' };
-    expect((await verifyAtEdge(badSig, dir, NOW, new Set())).verdict).toBe('blocked');
-    expect((await verifyAtEdge({ ...good, signature: 'garbage' }, dir, NOW, new Set())).verdict).toBe('blocked');
+    expect((await verifyAtEdge(badSig, dir, NOW, new Map())).verdict).toBe('blocked');
+    expect((await verifyAtEdge({ ...good, signature: 'garbage' }, dir, NOW, new Map())).verdict).toBe('blocked');
   });
 });
 

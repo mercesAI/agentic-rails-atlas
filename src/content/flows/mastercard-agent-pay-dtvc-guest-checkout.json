@@ -1,8 +1,8 @@
 {
   "id": "mastercard-agent-pay-dtvc-guest-checkout",
   "protocol": "mastercard-agent-pay",
-  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
-  "specVersionDate": "2026-10-11",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-21)",
+  "specVersionDate": "2026-10-21",
   "title": "Guest checkout with a Virtual Card Token and a DTVC",
   "summary": "For web guest checkouts with a simple card form, Mastercard points integrators to Mastercard Virtual Card Tokens. After user validation and consent the integrator gets a token number, expiry and a one-time DTVC, which the agent types into the form. Mastercard validates the DTVC at authorization.",
   "actors": [
@@ -15,6 +15,11 @@
       "id": "agent",
       "label": "Agent platform",
       "kind": "agent"
+    },
+    {
+      "id": "checkout",
+      "label": "Mastercard Checkout Solutions (Checkout API)",
+      "kind": "network"
     },
     {
       "id": "network",
@@ -57,20 +62,20 @@
     {
       "n": 2,
       "from": "agent",
-      "to": "network",
-      "label": "Request checkout for merchant domain",
-      "detail": "The integrator, here the agent platform, asks Mastercard for a checkout for a given merchant web domain.",
+      "to": "checkout",
+      "label": "Checkout request for the chosen card",
+      "detail": "The integrator, here the agent platform, makes a Checkout request with the srcDigitalCardId of the token for the chosen card and dpaTransactionOptions.paymentOptions.dynamicDataType set to DYNAMIC_CARD_SECURITY_CODE.",
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/index.md"
+        "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
       }
     },
     {
       "n": 3,
-      "from": "network",
+      "from": "checkout",
       "to": "agent",
       "label": "Return token, expiry and DTVC",
-      "detail": "Mastercard returns the virtual card token, its expiry date and a newly generated one-time DTVC. Mastercard pages expand DTVC both as Dynamic Token Validation Code and as Dynamic Token Verification Code.",
+      "detail": "Mastercard Checkout Solutions returns the virtual card token (the static token number), its expiration date and a newly generated one-time DTVC. Mastercard pages expand DTVC both as Dynamic Token Validation Code and as Dynamic Token Verification Code.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
@@ -108,7 +113,7 @@
       "failures": [
         {
           "condition": "DTVC wrong or already used",
-          "outcome": "Validation fails and the issuer is told (outcome and response code not published)"
+          "outcome": "Validation fails; the outcome and response code are not published"
         }
       ]
     },
@@ -116,7 +121,7 @@
       "n": 7,
       "from": "network",
       "to": "issuer",
-      "label": "Tell issuer DTVC result",
+      "label": "Authorization request with DTVC indicator",
       "detail": "The authorization request tells the issuer whether DTVC validation was performed; the issuer approves or declines.",
       "crossesTrustBoundary": true,
       "specRef": {

@@ -1,6 +1,6 @@
 sequenceDiagram
   accTitle: Agent Pay Level 1 purchase with edge verification
-  accDescr: Sequence diagram: Agent Pay Level 1 purchase with edge verification. 7 participants: Agent platform, CDN or edge (Cloudflare), Mastercard key directory, Merchant, Acquirer or PSP, Mastercard network, and Issuer. 9 steps, 6 crossing a trust boundary, 7 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-10-11). Step 1: Agent platform to CDN or edge (Cloudflare): Signed GET with tag Agent-pay-auth. This step crosses a trust boundary. If No Signature-Input with a scheme tag: Treat as an ordinary bot and apply the non-agent bot policy. If A required parameter is missing: Block the request. Step 2: CDN or edge (Cloudflare) to Mastercard key directory: Fetch public key for keyid. This step crosses a trust boundary. If Key not found in the directory: Block the request. Step 3: CDN or edge (Cloudflare) to CDN or edge (Cloudflare): Verify window, nonce, tag, signature. If Window expired or nonce reused: Block the request. If Signature does not verify: Block the request. Step 4: CDN or edge (Cloudflare) to Merchant: Forward as a trusted agent. Step 5: Agent platform to Merchant: Fill card form with agentic token. This step crosses a trust boundary. If Agent uses a card on file instead of an agentic token: The network cannot recognize the transaction as agentic. Step 6: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary. Step 7: Acquirer or PSP to Mastercard network: Authorization request. This step crosses a trust boundary. If Token used outside its merchant, amount or time limits: Decline (exact response code not published). Step 8: Mastercard network to Issuer: Route to issuer. This step crosses a trust boundary. Step 9: Issuer to Merchant: Approve or decline.
+  accDescr: Sequence diagram: Agent Pay Level 1 purchase with edge verification. 7 participants: Agent platform, CDN or edge (Cloudflare), Mastercard key directory, Merchant, Acquirer or PSP, Mastercard network, and Issuer. 9 steps, 6 crossing a trust boundary, 8 failure branches. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-21) (2026-10-21). Step 1: Agent platform to CDN or edge (Cloudflare): Signed GET with tag Agent-pay-auth. This step crosses a trust boundary. If No Signature-Input with a scheme tag: Treat as an ordinary bot and apply the non-agent bot policy. If A required parameter is missing: Block the request. Step 2: CDN or edge (Cloudflare) to CDN or edge (Cloudflare): Check tag, fields, timestamps and nonce. If created in the future, expires in the past, or a window longer than 8 minutes: Block the request. If Nonce seen in the last 8 minutes: Block the request (replay detected). Step 3: CDN or edge (Cloudflare) to Mastercard key directory: Fetch key for keyid, verify signature. This step crosses a trust boundary. If Key not found in the directory: Block the request. If Signature does not verify: Block the request. Step 4: CDN or edge (Cloudflare) to Merchant: Forward as a trusted agent. Step 5: Agent platform to Merchant: Fill card form with agentic token. This step crosses a trust boundary. If Agent uses a card on file instead of an agentic token: The network cannot recognize the transaction as agentic. Step 6: Merchant to Acquirer or PSP: Submit authorization. This step crosses a trust boundary. Step 7: Acquirer or PSP to Mastercard network: Authorization request. This step crosses a trust boundary. If Token used outside its merchant, amount or time limits: Decline (exact response code not published). Step 8: Mastercard network to Issuer: Route to issuer. This step crosses a trust boundary. Step 9: Issuer to Merchant: Approve or decline.
   autonumber
   participant p_agent as Agent platform
   participant p_cdn as CDN or edge (Cloudflare)
@@ -18,17 +18,19 @@ sequenceDiagram
     Note over p_agent,p_cdn: Block the request
   end
   alt Expected path
-    p_cdn->>p_directory: Fetch public key for keyid
+    p_cdn->>p_cdn: Check tag, fields, timestamps and nonce
+  else created in the future, expires in the past, or a window longer than 8 minutes
+    Note over p_cdn: Block the request
+  else Nonce seen in the last 8 minutes
+    Note over p_cdn: Block the request (replay detected)
+  end
+  alt Expected path
+    p_cdn->>p_directory: Fetch key for keyid, verify signature
     Note over p_cdn,p_directory: Crosses a trust boundary
   else Key not found in the directory
     Note over p_cdn,p_directory: Block the request
-  end
-  alt Expected path
-    p_cdn->>p_cdn: Verify window, nonce, tag, signature
-  else Window expired or nonce reused
-    Note over p_cdn: Block the request
   else Signature does not verify
-    Note over p_cdn: Block the request
+    Note over p_cdn,p_directory: Block the request
   end
   p_cdn->>p_merchant: Forward as a trusted agent
   alt Expected path

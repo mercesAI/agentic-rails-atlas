@@ -2,12 +2,13 @@
   "id": "mastercard-agent-pay-token-lifecycle",
   "protocol": "mastercard-agent-pay",
   "title": "Agentic token lifecycle (as described, not a published state model)",
-  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-21)",
   "sources": [
     "src-mcap-dev-rails",
     "src-mcap-dev-level1",
     "src-mcap-launch-2025",
-    "src-mcap-stripe-spt-2026"
+    "src-mcap-stripe-spt-2026",
+    "src-mcap-mdes-cs-july2026"
   ],
   "states": [
     {
@@ -46,13 +47,13 @@
       "id": "declined",
       "label": "Declined",
       "terminal": true,
-      "note": "Issuer or network declined. Response codes are not published."
+      "note": "Issuer or network declined, for example under the issuer's token spend controls (MDES, in production since 2026-08-05). Response codes are not published."
     },
     {
       "id": "expired-or-revoked",
       "label": "Expired or no longer usable",
       "terminal": true,
-      "note": "Inferred from time-limited and single-use tokens. Mastercard publishes no revocation API or state names."
+      "note": "Inferred from time-limited and single-use tokens. Mastercard publishes no API to revoke an agent or an agentic token, and no state names."
     }
   ],
   "transitions": [

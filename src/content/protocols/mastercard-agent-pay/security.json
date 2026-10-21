@@ -1,6 +1,6 @@
 {
   "protocol": "mastercard-agent-pay",
-  "summary": "Agent Pay's defenses are network controls: only registered and certified agents get tokens, tokens replace card numbers and carry limits, agent requests are signed with a nonce and a short window, and consumers authenticate with passkeys in the live pilots. Much of the program is not public, so the threats below rest on Mastercard's guides, Cloudflare's description and the open Verifiable Intent threat model. No CVE or published attack specific to Agent Pay was found as of 2026-10-11.",
+  "summary": "Agent Pay's defenses are network controls: only registered and certified agents get tokens, tokens replace card numbers and carry limits, agent requests are signed with a nonce and a short window, and consumers authenticate with passkeys in the live pilots. Much of the program is not public, so the threats below rest on Mastercard's guides, Cloudflare's description and the open Verifiable Intent threat model. No CVE or published attack specific to Agent Pay was found as of 2026-10-21.",
   "threats": [
     {
       "id": "mcap-t01",
@@ -123,7 +123,7 @@
       "description": "A consumer says the agent bought something they did not want, within the token limits.",
       "preconditions": [
         "No Verifiable Intent chain kept",
-        "No agent-specific reason code"
+        "No agent-specific reason code in Mastercard's public documents (the Agent Pay Program Standards required by the 2026-06-02 Mastercard Rules are not public)"
       ],
       "impact": "Dispute outcome depends on general chargeback rules; liability is unclear.",
       "mitigatedBySpec": "partial",
@@ -131,7 +131,7 @@
       "sources": [
         "src-mcap-vi-security",
         "src-mcap-dev-level1",
-        "src-mcap-nevermined-review"
+        "src-mastercard-rules-2026-06"
       ]
     },
     {
@@ -162,7 +162,8 @@
       "implementerNotes": "The only host in the docs does not resolve; agree on the location with Mastercard and cache keys with a short lifetime.",
       "sources": [
         "src-mcap-dev-level1",
-        "src-mcap-cloudflare-blog"
+        "src-mcap-cloudflare-blog",
+        "src-mcap-dns-directory"
       ]
     },
     {
@@ -175,7 +176,7 @@
       ],
       "impact": "The network cannot see the payment as agentic, so agent controls and flags do not apply.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Mastercard forbids it for certified agents; merchants cannot detect it from the payment alone.",
+      "implementerNotes": "Mastercard forbids it for agents and says merchants need take no action. Analysis: a merchant probably cannot tell such a payment from an ordinary card-on-file payment, because nothing in it marks an agent.",
       "sources": [
         "src-mcap-dev-level1"
       ]
@@ -241,10 +242,19 @@
     {
       "title": "Issuer-Sovereign Agentic Payments",
       "date": "2026-09-23",
-      "finding": "Closest academic work: argues for issuer control over agent payments; does not analyze Agent Pay itself.",
+      "finding": "Names Agent Pay and argues that its spending rules are enforced by the network or a credential provider rather than the issuer; it gives no security analysis of Agent Pay.",
       "publicationId": "pub-sharma-2026-issuer",
       "sources": [
         "src-mcap-arxiv-issuer"
+      ]
+    },
+    {
+      "title": "RAILS: Verification-Native Clearing For Agentic Commerce",
+      "date": "2026-06-07",
+      "finding": "Names Agent Pay and Verifiable Intent and uses a Verifiable Intent autonomous-mode chain as authority evidence in a worked example; it proposes a clearing layer and gives no security analysis of either.",
+      "publicationId": "pub-devaloisfranklin-2026-rails",
+      "sources": [
+        "src-pub-2606-08790"
       ]
     },
     {
@@ -259,7 +269,7 @@
     {
       "title": "Verifiable Intent issue 29: duplicate digests in L2",
       "date": "2026-07-17",
-      "finding": "Reports that the L2 format conflicts with RFC 9901 and that a common SD-JWT library rejects every L2 credential; open with no maintainer response as of 2026-10-11.",
+      "finding": "Reports that the L2 format conflicts with RFC 9901 and that a common SD-JWT library rejects every L2 credential; open with no comments as of 2026-10-21.",
       "sources": [
         "src-mcap-vi-issue29",
         "src-mcap-rfc9901"

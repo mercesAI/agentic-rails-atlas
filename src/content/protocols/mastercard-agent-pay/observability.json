@@ -2,10 +2,10 @@
   "protocol": "mastercard-agent-pay",
   "score": 1,
   "scoreReasons": [
-    "Nothing is on a public ledger: tokens, authorizations and agent information stay inside card network and issuer systems.",
-    "No event names, webhooks or public endpoints for Agent Pay are published.",
-    "Mastercard publishes partner names and milestones but no transaction counts or values.",
-    "The only public, inspectable artifact is the Verifiable Intent repository, which earns the single point."
+    "Nothing on a public ledger for card-rail Agent Pay: tokens, authorizations and agent information stay inside card network and issuer systems. AP4M pilots settle on Base through Coinbase Developer Platform wallets (Mastercard, 2026-10-20).",
+    "No public Agent Pay event names or endpoints, apart from the MVCT token notifications used for guest checkout; AP4M APIs are in Early Access (2026-10-20) and their documentation is not public.",
+    "Mastercard publishes partner names and milestones but no transaction counts or values; the 2026-10-20 AP4M brief counts only the payments in its demo.",
+    "The only public, inspectable artifact is the Verifiable Intent repository, which earns the single point. The score may change if AP4M Early Access documentation becomes public."
   ],
   "public": [
     {
@@ -21,7 +21,7 @@
     {
       "what": "Verifiable Intent repository activity",
       "where": "GitHub API /repos/agent-intent/verifiable-intent",
-      "how": "Stars, forks, issues and commits; 97 stars and no commits since 2026-04-20 as of 2026-10-11.",
+      "how": "Stars, forks, issues and commits; 101 stars and no commits since 2026-04-20 as of 2026-10-21.",
       "sources": [
         "src-mcap-vi-gh-repo",
         "src-mcap-vi-issues"
@@ -39,9 +39,11 @@
     {
       "what": "Key directory location",
       "where": "/.well-known/http-message-signatures-directory on the Signature-Agent host",
-      "how": "Mastercard points verifiers to this path; the only Mastercard host in the docs, agentpay-key-directory.mastercard.com, did not resolve on 2026-10-11, so the live location is unknown.",
+      "how": "The Web Bot Auth drafts define /.well-known/http-message-signatures-directory; Mastercard's guide shows that path only in a ChatGPT example and gives no Agent Pay path. The only Mastercard host in the docs, agentpay-key-directory.mastercard.com, did not resolve on 2026-10-21, so the live location is unknown.",
       "sources": [
+        "src-wba-draft",
         "src-mcap-dev-level1",
+        "src-mcap-dns-directory",
         "src-mcap-cloudflare-blog"
       ]
     },
@@ -70,7 +72,7 @@
     },
     {
       "what": "Probability scores",
-      "why": "In US testing since 2026-09-30; fields and ranges not published."
+      "why": "Rolling out for US testing (announced 2026-09-30); fields and ranges not published."
     },
     {
       "what": "Intent API records and dispute data",

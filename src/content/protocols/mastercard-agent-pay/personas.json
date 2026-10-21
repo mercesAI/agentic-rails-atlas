@@ -10,8 +10,8 @@
         "Keep fraud and dispute rates flat as agent traffic grows"
       ],
       "pains": [
-        "No published agent-specific reason codes or liability shift",
-        "Agent flags that are not always present, hence the 2026-09-30 probability score test",
+        "No public agent-specific reason codes or liability terms; Mastercard's rules refer to Agent Pay Program Standards that are not public",
+        "Agent flags that are not always present, hence the probability score rolling out for US testing (announced 2026-09-30)",
         "Verifiable Intent evidence that is not yet documented inside live authorizations"
       ],
       "implements": [
@@ -39,18 +39,18 @@
         "Fraud and dispute rate on agent transactions",
         "Share of agent transactions that carry reliable agent information"
       ],
-      "story": "Priya runs card authorization strategy at a mid-sized European bank. On 2026-06-02 Mastercard said all its European issuers were enabled for Agent Pay at network level, so agent transactions may already reach her systems. She wants to approve them without new friction, but her dispute team asks a hard question: when a cardholder says the agent bought the wrong hotel, which reason code applies? Nothing agent-specific is published. She asks Mastercard which message field marks agent involvement, sets a rule to review those transactions separately for a quarter, and reads the Verifiable Intent dispute evidence section to see what proof she could ask for later.",
+      "story": "Priya runs card authorization strategy at a mid-sized European bank. On 2026-06-02 Mastercard said all its European issuers were enabled for Agent Pay at network level, so agent transactions may already reach her systems. She wants to approve them without new friction, but her dispute team asks a hard question: when a cardholder says the agent bought the wrong hotel, which reason code applies? None is public: Mastercard's rules refer participants to Agent Pay Program Standards that are not public. She asks Mastercard which message field marks agent involvement, sets a rule to review those transactions separately for a quarter, and reads the Verifiable Intent dispute evidence section to see what proof she could ask for later.",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-dev-level1",
         "src-mcap-trust-2026",
         "src-mcap-vi-security",
-        "src-mcap-nevermined-review"
+        "src-mastercard-rules-2026-06"
       ]
     },
     {
       "persona": "network",
-      "role": "Mastercard itself: registers and certifies agents, runs the key directory and trusted agent lists, issues and detokenizes agentic tokens, and verifies Verifiable Intent chains before authorization.",
+      "role": "Mastercard itself: registers and certifies agents, keeps the trusted agent lists, is to host a key directory for its agents, issues and detokenizes agentic tokens, and, under the Verifiable Intent spec, validates Verifiable Intent chains before authorization (no public record of this in production yet).",
       "goals": [
         "Make every agent transaction recognizable to every party",
         "Keep raw card numbers away from agents",
@@ -64,7 +64,7 @@
       "implements": [
         "Agent registration, security review and trusted agent lists",
         "Agentic token issuance and detokenization",
-        "The probability score for AI-initiated transactions in US testing"
+        "The probability score for AI-initiated transactions, rolling out for US testing (announced 2026-09-30)"
       ],
       "mustTrust": [
         "Agent developers to keep signing keys safe",
@@ -78,7 +78,7 @@
       ],
       "firstSteps": [
         "Publish a resolvable key directory location",
-        "Document a revocation path for agents and tokens",
+        "Document a revocation path for agents and Agentic Tokens",
         "Fix the duplicate-digest issue in the Verifiable Intent L2 format"
       ],
       "metrics": [
@@ -86,13 +86,15 @@
         "Agentic tokens issued",
         "Share of agent transactions verified with Verifiable Intent"
       ],
-      "story": "Marco works on the network side of Agent Pay. His team certifies agents, keeps the trusted lists and issues the tokens, and since 2026-09-30 it tests a probability score for transactions that look agent-initiated. That score exists because not every agent purchase arrives with a clean flag. His backlog is long: a key directory location that developers can actually resolve, a revocation path for a misbehaving agent, network-side state for Verifiable Intent budgets, and an open issue saying the L2 format lists digests twice. He starts with the directory, because every merchant verification depends on it.",
+      "story": "Marco works on the network side of Agent Pay. His team certifies agents, keeps the trusted lists and issues the tokens, and since 2026-09-30 it has been rolling out, for US testing, a probability score for transactions that look agent-initiated. That score exists because not every agent purchase arrives with a clean flag. His backlog is long: a key directory location that developers can actually resolve, a revocation path for a misbehaving agent, network-side state for Verifiable Intent budgets, and an open issue saying the L2 format lists digests twice. He starts with the directory, because every merchant verification depends on it.",
       "sources": [
         "src-mcap-dev-rails",
         "src-mcap-trust-2026",
         "src-mcap-dev-level1",
         "src-mcap-vi-security",
-        "src-mcap-vi-issue29"
+        "src-mcap-vi-issue29",
+        "src-mcap-cloudflare-blog",
+        "src-mcap-vi-spec"
       ]
     },
     {
@@ -133,12 +135,12 @@
         "False blocks of signed agents",
         "Chargebacks on agent orders"
       ],
-      "story": "Ana runs a small cinema chain website on a hosted platform with Cloudflare in front. She keeps seeing bots in her logs and blocks most of them. Her acquirer tells her that Agent Pay agents sign their requests and that her CDN can check those signatures, while the agent types a token into her normal card form, so her PCI scope stays the same. She registers through the acquirer, switches on signed-agent verification at the edge and leaves her checkout untouched. Her open question is disputes: standard chargeback rules apply, and nothing agent-specific is published yet.",
+      "story": "Ana runs a small cinema chain website on a hosted platform with Cloudflare in front. She keeps seeing bots in her logs and blocks most of them. Her acquirer tells her that Agent Pay agents sign their requests and that her CDN can check those signatures, while the agent types a token into her normal card form, so her PCI scope stays the same. She registers through the acquirer, switches on signed-agent verification at the edge and leaves her checkout untouched. Her open question is disputes: standard chargeback rules apply, and no agent-specific terms are public, because Mastercard's rules refer to Agent Pay Program Standards that are not public.",
       "sources": [
         "src-mcap-dev-rails",
         "src-mcap-dev-level1",
         "src-mcap-cloudflare-blog",
-        "src-mcap-nevermined-review"
+        "src-mastercard-rules-2026-06"
       ]
     },
     {
@@ -150,7 +152,7 @@
         "Hold tokens, never card numbers"
       ],
       "pains": [
-        "No public SDK, API reference or sandbox for Agent Pay",
+        "No public SDK, API reference or sandbox for card Agent Pay (Agent Pay for Machines opened Early Access with APIs and a sandbox on 2026-10-20)",
         "Two spellings of the tag and an example directory host that does not resolve",
         "Form filling on pages built for people"
       ],
@@ -179,14 +181,15 @@
         "Signature verification failures",
         "Time from consent to token"
       ],
-      "story": "Sam leads payments at a startup building a shopping agent. He wants users to say \"book two tickets for Friday\" and have the agent finish the purchase at any merchant. Agent Pay requires a registered key, a security review and tokens instead of card numbers, which suits him, but there is no public SDK or sandbox. He signs requests with RFC 9421 and tests both spellings of the tag. For merchants on Stripe he considers Shared Payment Tokens, which carry Mastercard agentic tokens. He also runs the Verifiable Intent examples, expecting signed intent to become part of certification.",
+      "story": "Sam leads payments at a startup building a shopping agent. He wants users to say \"book two tickets for Friday\" and have the agent finish the purchase at any merchant. Agent Pay requires a registered key, a security review and tokens instead of card numbers, which suits him, but the card path has no public SDK or sandbox. He signs requests with RFC 9421 and tests both spellings of the tag. For merchants on Stripe he considers Shared Payment Tokens, which carry Mastercard agentic tokens. He also runs the Verifiable Intent examples, expecting signed intent to become part of certification.",
       "sources": [
         "src-mcap-dev-rails",
         "src-mcap-dev-level1",
         "src-mcap-dev-testing",
         "src-mcap-stripe-spt-2026",
         "src-mcap-vi-readme",
-        "src-mcap-dev-llms"
+        "src-mcap-dev-llms",
+        "src-mcap-ap4m-early-access"
       ]
     },
     {

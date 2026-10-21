@@ -1,7 +1,7 @@
 ---
 protocol: mastercard-agent-pay
 title: Mastercard Agent Pay in Simplified Technical English
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-21"
 ---
 
 <SteDescription>
@@ -22,17 +22,20 @@ Most of the transactions that Mastercard names are tests or first transactions. 
 
 <SteProcedure title="Accept a payment from an Agent Pay agent (merchant)">
 
-1. Register for Agent Pay through your acquirer or your payment service provider.
+1. Make sure that you are registered for Agent Pay. Ask your acquirer or your payment service provider to do the registration.
 2. Find the Signature-Input header and the Signature header in the request.
-3. If the request has no Agent Pay tag, use your usual policy for bots.
-4. If a required parameter is not in the header, stop the request.
-5. Get the public key for the keyid from the Mastercard key directory.
-6. If you cannot find the key, stop the request.
-7. Make sure that the time now is between the created value and the expires value.
-8. Make sure that the nonce is new.
-9. Verify the signature.
-10. Let the agent put the token in your usual card form.
-11. Send the payment to your acquirer as a usual card payment.
+3. If the request has no Agent Pay tag and no Visa tag, use your usual policy for bots.
+4. If a required parameter is not in the header, stop the request. Make sure that the signature includes @authority and @path.
+5. If the created value is later than the time now, stop the request.
+6. If the expires value is earlier than the time now, stop the request.
+7. If the time from the created value to the expires value is more than 8 minutes, stop the request.
+8. If you received the same nonce in the last 8 minutes, stop the request.
+9. Get the public key for the keyid from the key directory.
+10. If you cannot find the key, stop the request.
+11. Verify the signature. If the signature is not correct, stop the request.
+12. Keep a record of the nonce for 8 minutes.
+13. Let the agent put the token in your usual card form.
+14. Send the payment to your acquirer as a usual card payment.
 
 </SteProcedure>
 
@@ -74,9 +77,10 @@ DO NOT KEEP THE CARD NUMBER OF THE CONSUMER IN YOUR AGENT. CERTIFICATION REQUIRE
 5. Verify the signature of L3a with the agent key in L2.
 6. Make sure that the transaction_id in L3a is equal to the checkout_hash in L3b.
 7. Make sure that the amount and the payee obey the constraints.
-8. Add the amount to the total for this mandate pair.
-9. If the total is more than the budget, stop the payment.
-10. Send the result to the issuer.
+8. If the L2 has no agent_recurrence constraint, accept only one L3 pair for each mandate pair.
+9. Add the amount to the total for this L2 credential.
+10. If the total is more than the budget, stop the payment.
+11. Send the authorization request to the issuer. Let the issuer make the last decision.
 
 </SteProcedure>
 
@@ -85,7 +89,7 @@ DO NOT ACCEPT AN L3 CREDENTIAL THAT HAS A cnf CLAIM. L3 IS THE LAST LEVEL OF DEL
 </SteCaution>
 
 <SteNote>
-The location of the Mastercard key directory is not public. The host in the Mastercard example did not resolve on 2026-10-11.
+Mastercard does not publish the location of its key directory. The host in the Mastercard example did not resolve on 2026-10-21.
 </SteNote>
 
 <SteNote>
@@ -100,7 +104,7 @@ Verifiable Intent version 0.1 has two sets of field names. The names on the main
 
 - **agentic token**: A Mastercard token for payments by a registered agent. Visa uses the same words for a different product.
 - **DTVC**: A security code for one use that Mastercard gives with a virtual card token.
-- **key directory**: The list of public keys of registered agents. Mastercard keeps this list.
+- **key directory**: The list of public keys of registered agents. Cloudflare said in 2025 that each card network will keep its own list.
 - **tag**: The parameter in the signature that tells the purpose of the signature.
 - **trusted agent list**: The list of agents that passed the Mastercard certification.
 - **issuer**: The bank that gives the card to the consumer. It makes the last decision for each payment.

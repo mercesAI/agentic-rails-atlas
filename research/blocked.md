@@ -54,3 +54,5 @@
 - 2026-10-19, mastercard.com: refuses automated downloads of mastercard-rules.pdf (HTTP 403 to curl); the mastercard.us URL returned 404 or 403 in Wayback captures from 2026-05-13 on. Alternative used: the Wayback Machine captures of 2026-07-10 and 2026-09-28 (one file), which hold the 2026-06-02 edition. The Mastercard Agent Pay Program Standards that its rules 9.2.4 and 9.5.1 name were not found by a web search; no alternative.
 - 2026-10-20, help.shopify.com: 403 to curl and WebFetch; read in a browser (Playwright with system Chrome); the Wayback capture of 2026-09-21 carries the same sentences.
 - 2026-10-20, sso.agc.gov.sg: answers inconsistently (403 to curl on 2026-10-11, 200 on 2026-10-20, 202 with a browser user agent); the PDPA text was read on 2026-10-20.
+
+- 2026-10-21 mastercard.com: still returns HTTP 403 to curl, but headed Chrome through Playwright (channel chrome, headless false) reads its HTML pages, and PDFs fetched in the browser context after loading the parent page return 200 (Rules PDF, Trust white paper). theblock.co reads the same way.

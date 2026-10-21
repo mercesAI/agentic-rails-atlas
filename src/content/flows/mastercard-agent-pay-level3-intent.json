@@ -1,8 +1,8 @@
 {
   "id": "mastercard-agent-pay-level3-intent",
   "protocol": "mastercard-agent-pay",
-  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
-  "specVersionDate": "2026-10-11",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-21)",
+  "specVersionDate": "2026-10-21",
   "title": "Level 3 programmatic checkout with the Intent API",
   "summary": "At Level 3 the agent registers the consumer intent with Mastercard's Intent API, receives an intentId and tokenized credentials, and sends both to the merchant's agentic API. The merchant validates the intent against the checkout. Mastercard names the fields but points to the non-public Acceptance Framework for the full schema.",
   "actors": [
@@ -56,10 +56,10 @@
       "from": "agent",
       "to": "network",
       "label": "Register intent (Intent API)",
-      "detail": "Mastercard validates and stores the intent. Field names come from the Level 3 guide; no public schema or endpoint path exists.",
+      "detail": "Mastercard validates and stores the intent. Field names come from the Level 3 guide, whose example Zod schema for a merchant checkout tool shows the shapes; no normative schema or endpoint path is public.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, Agent Pay developer guides as read 2026-10-11. No public schema; field names from the guide, values made up.\n{\n  \"intentSummary\": \"Two cinema tickets for Friday under 40 USD\",\n  \"orders\": [\n    {\n      \"orderExecutionType\": \"IMMEDIATE\",\n      \"orderExpiry\": 1791723600,\n      \"orderTotalAmount\": {\n        \"value\": \"38.00\",\n        \"currency\": \"USD\"\n      },\n      \"items\": [\n        {\n          \"itemId\": \"tkt-std\",\n          \"itemName\": \"Standard ticket\",\n          \"itemQuantity\": 2\n        }\n      ],\n      \"merchants\": [\n        {\n          \"srcDpaId\": \"dpa-0000-example\",\n          \"merchantName\": \"Example Cinemas\"\n        }\n      ]\n    }\n  ]\n}",
+        "content": "// Illustrative example, Agent Pay developer guides as read 2026-10-21. No public schema; field names and shapes follow the Level 3 guide's example Zod schema, values made up. intentId and orderId are Mastercard-generated and absent here.\n{\n  \"intentSummary\": \"Two cinema tickets for Friday under 40 USD\",\n  \"orders\": [\n    {\n      \"orderExecutionType\": \"IMMEDIATE\",\n      \"orderExpiry\": 1791723600,\n      \"orderTotalAmount\": {\n        \"amount\": \"38.00\",\n        \"currency\": \"USD\"\n      },\n      \"items\": [\n        {\n          \"itemId\": \"tkt-std\",\n          \"itemName\": \"Standard ticket\",\n          \"itemUnitPrice\": {\n            \"amount\": \"19.00\",\n            \"currency\": \"USD\"\n          },\n          \"itemQuantity\": 2,\n          \"itemDeliveryMethod\": \"DIGITAL\"\n        }\n      ],\n      \"merchants\": [\n        {\n          \"srcDpaId\": \"dpa-0000-example\",\n          \"merchantName\": \"Example Cinemas\"\n        }\n      ]\n    }\n  ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,

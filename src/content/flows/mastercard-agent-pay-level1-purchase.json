@@ -1,10 +1,10 @@
 {
   "id": "mastercard-agent-pay-level1-purchase",
   "protocol": "mastercard-agent-pay",
-  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
-  "specVersionDate": "2026-10-11",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-21)",
+  "specVersionDate": "2026-10-21",
   "title": "Agent Pay Level 1 purchase with edge verification",
-  "summary": "A registered agent signs its web requests with RFC 9421 and the tag Agent-pay-auth. The CDN or merchant checks the signature against the Mastercard key directory, the agent types its agentic token into the normal card form, and the authorization runs over the existing card rails. Mastercard publishes no wire schema for the network leg.",
+  "summary": "A registered agent signs its web requests with RFC 9421 and the tag Agent-pay-auth. The CDN or merchant runs Mastercard's checklist (tag, fields, timestamps, an 8-minute window and the nonce first, then the key from Mastercard's key directory and the signature), the agent types its agentic token into the normal card form, and the authorization runs over the existing card rails. Mastercard publishes no wire schema for the network leg.",
   "actors": [
     {
       "id": "agent",
@@ -55,10 +55,10 @@
       "from": "agent",
       "to": "cdn",
       "label": "Signed GET with tag Agent-pay-auth",
-      "detail": "The agent signs each request with HTTP Message Signatures (RFC 9421). Signature-Input carries keyid, alg, created, expires, nonce and the tag. Mastercard's guide gives the Mastercard tag as Agent-pay-auth; its testing glossary writes agent-pay-auth. The guide's example Signature-Agent host does not resolve, so this example uses a placeholder host.",
+      "detail": "The agent signs each request with HTTP Message Signatures (RFC 9421). Signature-Input covers @authority and @path and carries keyid, alg, created, expires, nonce and the tag. Mastercard's guide gives the Mastercard tag as Agent-pay-auth; its testing glossary writes agent-pay-auth. The guide's example Signature-Agent host does not resolve, so this example uses a placeholder host, and keyid and signature are placeholders.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-11. Values are made up.\nGET /product/42 HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agent-keys.example.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";nonce=\"e8N7S2MFd/qrd6T2R3tdfAuuANngKI7LFtKYI/vowzk=\";tag=\"Agent-pay-auth\"\nSignature: sig1=:jdq0SqOwHdyHr9+r5jw3iYZH6aNGKijYp/EstF4RQTQdi5N5YYKrD+mCT1HA1nZDsi6nJKuHxUi/5Syp3rLWBA==:",
+        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-21. Placeholder values; the signature does not verify.\nGET /product/42 HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agent-keys.example.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"<key-thumbprint>\";alg=\"ed25519\";nonce=\"<random-nonce>\";tag=\"Agent-pay-auth\"\nSignature: sig1=:<signature>:",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -80,39 +80,45 @@
     {
       "n": 2,
       "from": "cdn",
-      "to": "directory",
-      "label": "Fetch public key for keyid",
-      "detail": "The verifier looks up the agent key named by keyid in the directory hosted by Mastercard. Cloudflare says each network hosts its own directory and names no Mastercard URL; the directory location is not public.",
-      "crossesTrustBoundary": true,
+      "to": "cdn",
+      "label": "Check tag, fields, timestamps and nonce",
+      "detail": "Mastercard's checklist comes first: a scheme tag, every required field including @authority and @path, created in the past, expires in the future, no more than 8 minutes between created and expires, and a nonce not seen in the last 8 minutes.",
       "specRef": {
-        "url": "https://blog.cloudflare.com/secure-agentic-commerce/"
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
+        "section": "Verification Steps Reference"
       },
       "failures": [
         {
-          "condition": "Key not found in the directory",
+          "condition": "created in the future, expires in the past, or a window longer than 8 minutes",
           "outcome": "Block the request"
+        },
+        {
+          "condition": "Nonce seen in the last 8 minutes",
+          "outcome": "Block the request (replay detected)"
         }
       ]
     },
     {
       "n": 3,
       "from": "cdn",
-      "to": "cdn",
-      "label": "Verify window, nonce, tag, signature",
-      "detail": "Checks in order: created and expires bracket the current time, the nonce was not seen before, the tag is valid, the signature base is rebuilt from the covered components and the Ed25519 signature verifies.",
+      "to": "directory",
+      "label": "Fetch key for keyid, verify signature",
+      "detail": "Only then does the verifier look up the agent key named by keyid in Mastercard's key directory, rebuild the signature base from the covered components, verify the signature and record the nonce with its expiry. Cloudflare said in 2025-10 that each network will host its own directory and names no Mastercard URL; the directory location is not public.",
       "specRef": {
-        "url": "https://blog.cloudflare.com/secure-agentic-commerce/"
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
+        "section": "Verification Steps Reference"
       },
       "failures": [
         {
-          "condition": "Window expired or nonce reused",
+          "condition": "Key not found in the directory",
           "outcome": "Block the request"
         },
         {
           "condition": "Signature does not verify",
           "outcome": "Block the request"
         }
-      ]
+      ],
+      "crossesTrustBoundary": true
     },
     {
       "n": 4,
@@ -176,7 +182,7 @@
       "from": "issuer",
       "to": "merchant",
       "label": "Approve or decline",
-      "detail": "The response returns through network and acquirer. Standard chargeback rights apply afterwards; no agent-specific reason code is published.",
+      "detail": "The response returns through network and acquirer. Standard chargeback rights apply afterwards; no agent-specific reason code was found in public, and the Mastercard Rules point Agent Pay participants to Program Standards that are not public.",
       "specRef": {
         "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
       }

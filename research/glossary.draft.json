@@ -573,12 +573,13 @@
     {
       "id": "src-mc-agentic-tokens",
       "url": "https://www.mastercard.com/us/en/news-and-trends/stories/2025/agentic-commerce-framework.html",
-      "title": "Agentic token framework: Driving trusted AI transactions",
-      "publisher": "Mastercard",
+      "title": "Scaling agentic commerce with trust",
+      "publisher": "Mastercard (story by Pablo Fourez, Chief Digital Officer)",
       "type": "announcement",
       "primary": true,
-      "accessed": "2026-10-11",
-      "notes": "curl returned 403; content known only from search excerpts, so claims from it are reported."
+      "published": "2025-10-14",
+      "accessed": "2026-10-21",
+      "notes": "Dated October 14, 2025; curl returns HTTP 403, read in a headed Chrome session on 2026-10-21. Introduces the Mastercard Agent Pay Acceptance Framework and describes agentic tokens as Mastercard's credentials for verified agents. Same page as src-mcap-framework-story."
     },
     {
       "id": "src-mcap-ap4m-2026",
@@ -3281,7 +3282,7 @@
         "agentic network token",
         "Agentic Tokens"
       ],
-      "plain": "A network token issued for purchases made by an AI agent, but the phrase names different products at different networks. At Mastercard, Agentic Tokens are Agent Pay credentials issued only to registered agents and built on Mastercard's existing tokenization. Stripe and Visa call Visa's agent credentials agentic network tokens, which are a separate product on a separate network.",
+      "plain": "A network token issued for purchases made by an AI agent, but the phrase names different products at different networks. At Mastercard, Agentic Tokens are Agent Pay credentials issued only to registered agents and built on Mastercard's existing tokenization. Stripe calls both networks' agent credentials agentic network tokens; Mastercard's are Agent Pay Agentic Tokens and Visa's belong to Visa Intelligent Commerce, separate products on separate networks.",
       "ste": "An agentic token is a network token for purchases by an AI agent. Visa and Mastercard use this name for different products.",
       "protocols": [
         "mastercard-agent-pay",
@@ -3291,7 +3292,8 @@
         "src-mcap-launch-2025",
         "src-mcap-dev-level1",
         "src-stripe-spt",
-        "src-mc-agentic-tokens"
+        "src-mc-agentic-tokens",
+        "src-mcap-stripe-spt-2026"
       ]
     },
     {
@@ -3426,14 +3428,15 @@
       "aliases": [
         "Mastercard Digital Enablement Service"
       ],
-      "plain": "Mastercard Digital Enablement Service, Mastercard's tokenization platform for card numbers, used by wallets and other token requestors. The Agent Pay pages read for this atlas say only that Agentic Tokens build on Mastercard's existing tokenization and do not name MDES. Mastercard is retiring its MDES for Merchants product on 2026-12-31 in favor of Secure Card on File.",
-      "ste": "MDES is the Mastercard service that replaces card numbers with tokens. The Agent Pay pages do not use the name MDES.",
+      "plain": "Mastercard Digital Enablement Service, Mastercard's tokenization platform for card numbers, used by wallets and other token requestors. Mastercard's Agent Pay developer page, as read on 2026-10-21, calls Agent Pay a Remote Commerce Tokenization Program and lists network tokenization through MDES among its technologies. MDES Customer Service release notes (July 2026, in production from 2026-08-05) add token spend controls for issuers enabled for Virtual Card Tokens and Agent Pay. Mastercard is retiring its MDES for Merchants product on 2026-12-31 in favor of Secure Card on File.",
+      "ste": "MDES is the Mastercard service that replaces card numbers with tokens. Agent Pay uses MDES for network tokens.",
       "protocols": [
         "mastercard-agent-pay"
       ],
       "sources": [
         "src-gloss-mdes",
-        "src-mcap-dev-llms",
+        "src-mcap-dev-agentpay",
+        "src-mcap-mdes-cs-july2026",
         "src-mcap-launch-2025"
       ]
     },
@@ -3537,7 +3540,7 @@
       "aliases": [
         "card dispute"
       ],
-      "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes. Visa's rules bar a merchant from making a cardholder waive the right to dispute an agent transaction. From 2026-10-24 they accept an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Neither Visa nor Mastercard has published agent-specific chargeback reason codes.",
+      "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes. Visa's rules bar a merchant from making a cardholder waive the right to dispute an agent transaction. From 2026-10-24 they accept an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Neither Visa nor Mastercard had published agent-specific chargeback reason codes as of 2026-10-21; Mastercard's rules refer to Agent Pay Program Standards that are not public.",
       "ste": "A chargeback is the reversal of a card payment after the cardholder disputes it. The merchant of record handles chargebacks.",
       "protocols": [
         "openai-acp",
@@ -3548,7 +3551,8 @@
         "src-ap2-faq",
         "src-worldpay-liability",
         "src-visa-rules-public",
-        "src-mcap-dev-level1"
+        "src-mcap-dev-level1",
+        "src-mastercard-rules-2026-06"
       ]
     },
     {

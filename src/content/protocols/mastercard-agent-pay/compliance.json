@@ -1,7 +1,7 @@
 {
   "protocol": "mastercard-agent-pay",
   "notLegalAdvice": true,
-  "summary": "Agent Pay runs on card rails, so card law and network rules apply: Regulation Z and E in the US, PSD2 consent and SCA in the EU, the UK Payment Services Regulations, and Mastercard's own rules. No regulator, and not Mastercard, had published agent-specific liability rules as of 2026-10-11. Visa's rules, which govern Visa and its member institutions and yield to applicable law, make the cardholder responsible, within Visa's system, for an Agentic Payment Provider's actions. Visa calls none of its agent rules a liability shift, and Worldpay (2026-07-30) says none exists yet; issuers and acquirers keep existing card liability until that changes.",
+  "summary": "Agent Pay runs on card rails, so card law and network rules apply: Regulation Z and E in the US, PSD2 consent and SCA in the EU, the UK Payment Services Regulations, and Mastercard's own rules. No regulator had published agent-specific liability rules as of 2026-10-21. The Mastercard Rules (2026-06-02 edition) add no agent-specific liability rule, but they require pass-through wallet operators and checkout facilitators in Agent Pay to follow the Mastercard Agent Pay Program Standards, which are not public. Visa's rules, which govern Visa and its member institutions and yield to applicable law, make the cardholder responsible, within Visa's system, for an Agentic Payment Provider's actions. Visa calls none of its agent rules a liability shift, and Worldpay (2026-07-30) says none exists yet; issuers and acquirers keep existing card liability until that changes.",
   "rows": [
     {
       "jurisdiction": "US",
@@ -15,7 +15,7 @@
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "Regulation E excludes transfers by someone the consumer gave the access device to, until the consumer revokes that authority; a consumer who authorizes an agent on a debit card may carry losses until notice.",
+      "text": "For debit cards, Regulation E excludes transfers by a person the consumer gave the access device to, unless the consumer has notified the financial institution that such transfers are no longer authorized. A consumer who authorizes an agent on a debit card may therefore carry the agent's transfers until the institution is notified.",
       "sources": [
         "src-policy-rege-1005-2"
       ],
@@ -33,9 +33,10 @@
     {
       "jurisdiction": "US",
       "topic": "data-protection",
-      "text": "California CCPA rules on automated decisionmaking technology apply from 2026-01-01 and may cover agent platforms that make purchase decisions.",
+      "text": "California's ADMT regulations took effect on 2026-01-01; a business already using ADMT for significant decisions must comply by 2027-01-01. They cover only significant decisions: providing or denying financial or lending services, housing, education, employment or healthcare. An agent platform that chooses purchases, or a merchant that accepts agent orders, is generally not making such a decision.",
       "sources": [
-        "src-policy-cppa-admt"
+        "src-policy-cppa-admt",
+        "src-policy-cppa-admt-text"
       ],
       "confidence": "verified"
     },
@@ -52,16 +53,16 @@
     {
       "jurisdiction": "EU",
       "topic": "liability",
-      "text": "PSD2 ties authorization to payer consent; applying that to a standing agent mandate, such as a Verifiable Intent Autonomous mandate, is untested.",
+      "text": "PSD2 treats a payment as authorized only with the payer's consent, which can be given in advance and for a series of transactions in the form agreed with the payment service provider (Article 64), and caps payer liability for unauthorized ones. Whether a Verifiable Intent Autonomous mandate counts as that agreed form of consent is untested.",
       "sources": [
         "src-policy-eu-psd2"
       ],
-      "confidence": "reported"
+      "confidence": "verified"
     },
     {
       "jurisdiction": "EU",
       "topic": "ai-rules",
-      "text": "AI Act Article 50 transparency applies from 2026-08-02: people must be told when they interact with an AI system, which reaches agent platforms selling to consumers.",
+      "text": "AI Act Article 50(1) applies from 2026-08-02: providers of AI systems meant to interact directly with people must design them so people know they deal with an AI, unless that is obvious. Generative systems on the market before that date have until 2026-12-02 for the Article 50(2) marking duty.",
       "sources": [
         "src-policy-eu-ai-act",
         "src-policy-eu-ai-omnibus"
@@ -109,19 +110,22 @@
     {
       "jurisdiction": "CA",
       "topic": "liability",
-      "text": "No agent-specific payment liability rule was found in Canada; the Retail Payment Activities Act applies to payment service providers since 2025-09-08.",
+      "text": "The Retail Payment Activities Act has required payment service providers to have risk management and safeguarding frameworks since 2025-09-08. No agent-specific liability rule was found on the Bank of Canada's retail payments supervision page (read 2026-10-20).",
       "sources": [
         "src-policy-boc-rpaa",
         "src-policy-ca-rpaa"
       ],
-      "confidence": "unverified"
+      "confidence": "verified"
     },
     {
       "jurisdiction": "CA",
       "topic": "data-protection",
-      "text": "PIPEDA governs the personal information agent platforms and merchants collect in Canada.",
+      "text": "PIPEDA governs personal information, such as the consumer data in mastercardIdToken and Verifiable Intent claims, that agent platforms and merchants collect, use or disclose in the course of commercial activities. Collection, use and disclosure within Quebec, Alberta or British Columbia falls under provincial law instead, except at federally regulated businesses (exemption orders under section 26(2)(b)).",
       "sources": [
-        "src-policy-ca-pipeda"
+        "src-policy-ca-pipeda",
+        "src-policy-ca-pipeda-qc-order",
+        "src-policy-ca-pipeda-ab-order",
+        "src-policy-ca-pipeda-bc-order"
       ],
       "confidence": "verified"
     },
@@ -138,7 +142,7 @@
     {
       "jurisdiction": "SG",
       "topic": "liability",
-      "text": "The MAS E-Payments User Protection Guidelines set liability for unauthorized e-payments; agent purchases are not addressed specifically.",
+      "text": "MAS's E-Payments User Protection Guidelines set liability for unauthorized transactions and duties for erroneous ones on protected accounts. Their liability apportionment does not apply to credit, charge or debit cards issued in Singapore, which follow the ABS Code of Practice for Banks. The Guidelines do not address agents.",
       "sources": [
         "src-policy-mas-eupg"
       ],
@@ -147,10 +151,10 @@
     {
       "jurisdiction": "card-networks",
       "topic": "liability",
-      "text": "Mastercard says standard chargeback rights apply to agentic transactions; no agent-specific reason codes or liability shift were published as of 2026-10-11.",
+      "text": "Mastercard says standard chargeback rights apply to agentic transactions. The 2026-06-02 Mastercard Rules add no agent-specific liability rule. They require pass-through wallet operators and checkout facilitators in Agent Pay to follow the Mastercard Agent Pay Program Standards. A web search on 2026-10-19 found no public copy of those standards, and Worldpay (2026-07-30) says no liability shift exists yet.",
       "sources": [
         "src-mcap-dev-level1",
-        "src-mcap-nevermined-review",
+        "src-mastercard-rules-2026-06",
         "src-worldpay-liability"
       ],
       "confidence": "reported"

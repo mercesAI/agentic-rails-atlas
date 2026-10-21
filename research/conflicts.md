@@ -135,3 +135,12 @@ Source conflicts found while building. Both sources are kept on the site; the pr
 - Kite AI: AP2 commit 61f5de4 (PR 161, 2026-02-09) adds Kite to the partners list as a spec contributor, and Kite's home page shows a Google Cloud (AP2) logo, but no Kite product implementing AP2 was found.
 - arXiv 2607.21824 (Louck) analyzes AP2 v0.2.0 (14 findings) but describes AP2 with v0.1 Intent, Cart and Payment Mandates in its background; its "ACP" is the Agent Communication Protocol, not OpenAI's.
 - arXiv 2610.21063 (Kodathala and others) lists twelve approval-path attacks but applies only five to AP2 (three rejected, two partial); the site states the five.
+
+## 2026-10-21 fact check (Mastercard Agent Pay)
+- Agent Pay for Machines status: the 2026-06-10 release headline says Mastercard "launches" AP4M while the body says the service "will allow" such payments; the 2026-10-20 brief opens Early Access. The site calls AP4M announced on 2026-06-10 and in Early Access since 2026-10-20.
+- MDES: launch and regional releases say only "built on Mastercard tokenization"; the Agent Pay developer page (undated, read 2026-10-21) names network tokenization via MDES. The site now names MDES from that page, which supersedes the follow-up's 2.2 wording.
+- Trust Framework white paper: the Investor Relations copy of the 2026-09-30 release has no link; the mastercard.com copy links the white paper "Trust for agentic commerce". The site cites the white paper.
+- Key directory: Cloudflare (2025-10) said the networks "will be hosting" their directories; Mastercard's example host agentpay-key-directory.mastercard.com does not resolve (2026-10-11 and 2026-10-21). The site keeps the future tense.
+- Signature window: Mastercard's Level 1 checklist caps expires minus created at 8 minutes, while its own example header uses a one-hour window. The site follows the checklist.
+- Verifiable Intent cites Token Status List as RFC 9701; RFC 9701 is a different document, and Token Status List is still draft-ietf-oauth-status-list-21.
+- Liability: Mastercard's public documents give no agent-specific reason code or liability rule, while the 2026-06-02 Rules require Agent Pay participants to follow non-public Program Standards; a review cited for the absence covered only the price table.

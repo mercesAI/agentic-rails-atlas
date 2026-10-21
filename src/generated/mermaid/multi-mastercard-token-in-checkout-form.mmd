@@ -1,6 +1,6 @@
 sequenceDiagram
   accTitle: A Mastercard Virtual Card Token in an existing checkout form: a signed agent at the edge, a DTVC in card fields, Verifiable Intent L3a and L3b
-  accDescr: Sequence diagram: A Mastercard Virtual Card Token in an existing checkout form: a signed agent at the edge, a DTVC in card fields, Verifiable Intent L3a and L3b. 8 participants: Consumer, Agent platform (registered agent), CDN or merchant edge, Mastercard key directory (location not public), Merchant checkout, Acquirer or PSP, Mastercard network and token service, and Issuer. 14 steps, 13 crossing a trust boundary, 6 failure branches. Based on several protocols Agent Pay developer guides (unversioned, read 2026-10-11) Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: Consumer to Agent platform (registered agent): Delegate the purchase: sign Verifiable Intent L2 (specified live use not shown publicly). This step crosses a trust boundary. Step 2: Agent platform (registered agent) to CDN or merchant edge: GET product page, RFC 9421 signature with tag Agent-pay-auth. This step crosses a trust boundary. Step 3: CDN or merchant edge to Mastercard key directory (location not public): Fetch the agent key by keyid (directory location unknown). This step crosses a trust boundary. If Key not found in the directory: Mastercard's Level 1 decision table blocks the request. Step 4: CDN or merchant edge to Merchant checkout: Verify window, nonce, tag and signature, then forward. This step crosses a trust boundary. If No Signature-Input or no scheme tag: Sent to the merchant's non-agent bot policy. If A required field is missing: Blocked. Step 5: Merchant checkout to Agent platform (registered agent): Checkout page with standard card fields (and a checkout_jwt, per spec). This step crosses a trust boundary. Step 6: Agent platform (registered agent) to Mastercard network and token service: Request a Virtual Card Token checkout for the merchant domain. This step crosses a trust boundary. Step 7: Mastercard network and token service to Agent platform (registered agent): Return the token, its expiry and a one-time DTVC. This step crosses a trust boundary. Step 8: Agent platform (registered agent) to Agent platform (registered agent): Sign L3a and L3b linked by checkout_hash (specified live use not shown publicly). Step 9: Agent platform (registered agent) to CDN or merchant edge: POST the card form: token, expiry and DTVC in standard fields. This step crosses a trust boundary. Step 10: Agent platform (registered agent) to Merchant checkout: Present L1, L2 and L3b to the merchant (specified transport not defined). This step crosses a trust boundary. If checkout_hash differs from the merchant's own checkout_jwt hash: Checkout-payment mismatch the merchant rejects the order. Step 11: Merchant checkout to Acquirer or PSP: Submit the authorization. This step crosses a trust boundary. Step 12: Acquirer or PSP to Mastercard network and token service: Authorization: detokenize, validate the DTVC, check L3a (per spec). This step crosses a trust boundary. If The DTVC fails or was already used: The issuer is told the DTVC result and can decline. If The amount exceeds the L2 amount_range or budget: Per spec the network rejects the chain no published response code. Step 13: Mastercard network and token service to Issuer: Route with the DTVC result and assurance data. This step crosses a trust boundary. Step 14: Issuer to Merchant checkout: Approve or decline, then disputes under standard rules. This step crosses a trust boundary.
+  accDescr: Sequence diagram: A Mastercard Virtual Card Token in an existing checkout form: a signed agent at the edge, a DTVC in card fields, Verifiable Intent L3a and L3b. 8 participants: Consumer, Agent platform (registered agent), CDN or merchant edge, Mastercard key directory (location not public), Merchant checkout, Acquirer or PSP, Mastercard (Checkout Solutions, network and token service), and Issuer. 14 steps, 13 crossing a trust boundary, 8 failure branches. Based on several protocols Agent Pay developer guides (unversioned, read 2026-10-21) Verifiable Intent 0.1 (main at 356c296) (2026-04-20). Step 1: Consumer to Agent platform (registered agent): Delegate the purchase: sign Verifiable Intent L2 (specified live use not shown publicly). This step crosses a trust boundary. Step 2: Agent platform (registered agent) to CDN or merchant edge: GET product page, RFC 9421 signature with tag Agent-pay-auth. This step crosses a trust boundary. Step 3: CDN or merchant edge to Mastercard key directory (location not public): Check tag, fields, timestamps and nonce, then fetch the agent key (directory location unknown). This step crosses a trust boundary. If A required field is missing: Blocked. If Window longer than 8 minutes or nonce seen in the last 8 minutes: Blocked. If Key not found in the directory: Mastercard's Level 1 decision table blocks the request. Step 4: CDN or merchant edge to Merchant checkout: Verify the signature, record the nonce, then forward. This step crosses a trust boundary. If No Signature-Input or no scheme tag: Sent to the merchant's non-agent bot policy. If Signature does not verify: Blocked. Step 5: Merchant checkout to Agent platform (registered agent): Checkout page with standard card fields (and a checkout_jwt, per spec). This step crosses a trust boundary. Step 6: Agent platform (registered agent) to Mastercard (Checkout Solutions, network and token service): Request a Virtual Card Token checkout for the merchant domain. This step crosses a trust boundary. Step 7: Mastercard (Checkout Solutions, network and token service) to Agent platform (registered agent): Return the token, its expiry and a one-time DTVC. This step crosses a trust boundary. Step 8: Agent platform (registered agent) to Agent platform (registered agent): Sign L3a and L3b linked by checkout_hash (specified live use not shown publicly). Step 9: Agent platform (registered agent) to CDN or merchant edge: POST the card form: token, expiry and DTVC in standard fields. This step crosses a trust boundary. Step 10: Agent platform (registered agent) to Merchant checkout: Present L1, L2 and L3b to the merchant (specified transport not defined). This step crosses a trust boundary. If checkout_hash differs from the merchant's own checkout_jwt hash: Checkout-payment mismatch the merchant rejects the order. Step 11: Merchant checkout to Acquirer or PSP: Submit the authorization. This step crosses a trust boundary. Step 12: Acquirer or PSP to Mastercard (Checkout Solutions, network and token service): Authorization: detokenize, validate the DTVC, check L3a (per spec). This step crosses a trust boundary. If The DTVC fails or was already used: Validation fails the authorization tells the issuer whether DTVC validation was performed, and the response code is not published. If The amount exceeds the L2 amount_range or budget: Per spec the network rejects the chain no published response code. Step 13: Mastercard (Checkout Solutions, network and token service) to Issuer: Route with the DTVC validation indicator. This step crosses a trust boundary. Step 14: Issuer to Merchant checkout: Approve or decline, then disputes under standard rules. This step crosses a trust boundary.
   autonumber
   participant p_user as Consumer
   participant p_agent as Agent platform (registered agent)
@@ -8,24 +8,28 @@ sequenceDiagram
   participant p_directory as Mastercard key directory (location not public)
   participant p_merchant as Merchant checkout
   participant p_acquirer as Acquirer or PSP
-  participant p_network as Mastercard network and token service
+  participant p_network as Mastercard (Checkout Solutions, network and token service)
   participant p_issuer as Issuer
   p_user->>p_agent: Delegate the purchase: sign Verifiable Intent<br/>L2 (specified#59; live use not shown publicly)
   Note over p_user,p_agent: Crosses a trust boundary
   p_agent->>p_cdn: GET product page, RFC 9421<br/>signature with tag Agent-pay-auth
   Note over p_agent,p_cdn: Crosses a trust boundary
   alt Expected path
-    p_cdn->>p_directory: Fetch the agent key by keyid<br/>(directory location unknown)
+    p_cdn->>p_directory: Check tag, fields, timestamps and nonce, then<br/>fetch the agent key (directory location unknown)
     Note over p_cdn,p_directory: Crosses a trust boundary
+  else A required field is missing
+    Note over p_cdn,p_directory: Blocked.
+  else Window longer than 8 minutes or nonce seen in the last 8 minutes
+    Note over p_cdn,p_directory: Blocked.
   else Key not found in the directory
     Note over p_cdn,p_directory: Mastercard#39;s Level 1 decision table blocks the request.
   end
   alt Expected path
-    p_cdn->>p_merchant: Verify window, nonce, tag<br/>and signature, then forward
+    p_cdn->>p_merchant: Verify the signature, record the nonce, then forward
     Note over p_cdn,p_merchant: Crosses a trust boundary
   else No Signature-Input or no scheme tag
     Note over p_cdn,p_merchant: Sent to the merchant#39;s non-agent bot policy.
-  else A required field is missing
+  else Signature does not verify
     Note over p_cdn,p_merchant: Blocked.
   end
   p_merchant->>p_agent: Checkout page with standard card<br/>fields (and a checkout_jwt, per spec)
@@ -49,11 +53,11 @@ sequenceDiagram
     p_acquirer->>p_network: Authorization: detokenize, validate<br/>the DTVC, check L3a (per spec)
     Note over p_acquirer,p_network: Crosses a trust boundary
   else The DTVC fails or was already used
-    Note over p_acquirer,p_network: The issuer is told the DTVC result and can decline.
+    Note over p_acquirer,p_network: Validation fails#59; the authorization tells the<br/>issuer whether DTVC validation was performed,<br/>and the response code is not published.
   else The amount exceeds the L2 amount_range or budget
     Note over p_acquirer,p_network: Per spec the network rejects the<br/>chain#59; no published response code.
   end
-  p_network->>p_issuer: Route with the DTVC result and assurance data
+  p_network->>p_issuer: Route with the DTVC validation indicator
   Note over p_network,p_issuer: Crosses a trust boundary
   p_issuer->>p_merchant: Approve or decline, then<br/>disputes under standard rules
   Note over p_issuer,p_merchant: Crosses a trust boundary

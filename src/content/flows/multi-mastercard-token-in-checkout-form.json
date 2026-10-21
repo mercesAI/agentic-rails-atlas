@@ -2,8 +2,8 @@
   "id": "multi-mastercard-token-in-checkout-form",
   "protocol": "multi",
   "title": "A Mastercard Virtual Card Token in an existing checkout form: a signed agent at the edge, a DTVC in card fields, Verifiable Intent L3a and L3b",
-  "summary": "A registered agent signs its requests with RFC 9421 and Mastercard's single tag Agent-pay-auth, and the merchant's CDN verifies them against a Mastercard key directory whose public location is unknown. At checkout the agent gets a Mastercard Virtual Card Token with a one-time DTVC and types them into the merchant's standard card fields. Verifiable Intent L3a (payment, for the network) and L3b (checkout, for the merchant) are linked by checkout_hash; that layer is specified, and its live use is not shown publicly.",
-  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11); Verifiable Intent 0.1 (main at 356c296)",
+  "summary": "A registered agent signs its requests with RFC 9421 and Mastercard's single tag Agent-pay-auth, and the merchant's CDN runs Mastercard's checklist and fetches the agent key from a Mastercard key directory whose public location is unknown. At checkout the agent gets a Mastercard Virtual Card Token with a one-time DTVC and types them into the merchant's standard card fields. Verifiable Intent L3a (payment, for the network) and L3b (checkout, for the merchant) are linked by checkout_hash; that layer is specified, and its live use is not shown publicly.",
+  "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-21); Verifiable Intent 0.1 (main at 356c296)",
   "specVersionDate": "2026-04-20",
   "actors": [
     {
@@ -38,7 +38,7 @@
     },
     {
       "id": "network",
-      "label": "Mastercard network and token service",
+      "label": "Mastercard (Checkout Solutions, network and token service)",
       "kind": "network"
     },
     {
@@ -74,10 +74,10 @@
       "to": "cdn",
       "label": "GET product page, RFC 9421 signature with tag Agent-pay-auth",
       "protocol": "mastercard-agent-pay",
-      "detail": "Only registered agents can transact on the network. The agent signs each request in the Web Bot Auth style: Signature-Input carries keyid, alg, created, expires, nonce and Mastercard's single tag, written Agent-pay-auth in the Level 1 guide and agent-pay-auth in the testing glossary. The guide's example also sends Signature-Agent pointing at agentpay-key-directory.mastercard.com, a host that did not resolve on 2026-10-11.",
+      "detail": "Only registered agents can transact on the network. The agent signs each request in the Web Bot Auth style: Signature-Input carries keyid, alg, created, expires, nonce and Mastercard's single tag, written Agent-pay-auth in the Level 1 guide and agent-pay-auth in the testing glossary. The guide's example also sends Signature-Agent pointing at agentpay-key-directory.mastercard.com, a host that did not resolve on 2026-10-11 or 2026-10-21.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-11. Placeholder values.\nGET /product/42 HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agentpay-key-directory.mastercard.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"<key-thumbprint>\";alg=\"ed25519\";nonce=\"<random-nonce>\";tag=\"Agent-pay-auth\"\nSignature: sig1=:<signature>:",
+        "content": "# Illustrative example, Agent Pay developer guides as read 2026-10-21. Placeholder values.\nGET /product/42 HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://agentpay-key-directory.mastercard.com/\"\nSignature-Input: sig1=(\"@authority\" \"@path\");created=1791720000;expires=1791720480;keyid=\"<key-thumbprint>\";alg=\"ed25519\";nonce=\"<random-nonce>\";tag=\"Agent-pay-auth\"\nSignature: sig1=:<signature>:",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -92,16 +92,24 @@
       "n": 3,
       "from": "cdn",
       "to": "directory",
-      "label": "Fetch the agent key by keyid (directory location unknown)",
+      "label": "Check tag, fields, timestamps and nonce, then fetch the agent key (directory location unknown)",
       "protocol": "mastercard-agent-pay",
-      "detail": "The verifier looks up the key in the directory Mastercard hosts for its registered agents. Cloudflare names no Mastercard directory URL, and the only host in Mastercard's guide did not resolve, so where a verifier outside Mastercard's partners fetches keys is not publicly known.",
+      "detail": "Mastercard's checklist runs first at the edge: a scheme tag, every required field including @authority and @path, created in the past, expires in the future, at most 8 minutes between them, and a nonce not seen in the last 8 minutes. Only then does the verifier look up the key for keyid. Cloudflare said in 2025-10 that Mastercard would host a directory for its registered agents and names no URL, and the only host in Mastercard's guide did not resolve, so where a verifier outside Mastercard's partners fetches keys is not publicly known.",
       "crossesTrustBoundary": true,
       "specRef": {
-        "url": "https://blog.cloudflare.com/secure-agentic-commerce/",
-        "section": "Verification steps"
+        "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
+        "section": "Verification Steps Reference"
       },
-      "observable": "Not observable: no public Mastercard key directory could be found on 2026-10-11.",
+      "observable": "Not observable: no public Mastercard key directory could be found on 2026-10-21.",
       "failures": [
+        {
+          "condition": "A required field is missing",
+          "outcome": "Blocked."
+        },
+        {
+          "condition": "Window longer than 8 minutes or nonce seen in the last 8 minutes",
+          "outcome": "Blocked."
+        },
         {
           "condition": "Key not found in the directory",
           "outcome": "Mastercard's Level 1 decision table blocks the request."
@@ -112,14 +120,14 @@
       "n": 4,
       "from": "cdn",
       "to": "merchant",
-      "label": "Verify window, nonce, tag and signature, then forward",
+      "label": "Verify the signature, record the nonce, then forward",
       "protocol": "mastercard-agent-pay",
-      "detail": "The edge checks that created and expires bracket the current time, that the nonce is new, that the tag is valid, rebuilds the signature base and verifies the signature. Merchants can verify in their own backend or let a CDN do it. Mastercard's own sample verification code accepts only the two Visa tag values, so a verifier copied from it would reject this request.",
+      "detail": "The edge rebuilds the signature base, verifies the signature and records the nonce with its expiry. Merchants can verify in their own backend or let a CDN do it. Mastercard's own sample verification code accepts only the two Visa tag values, so a verifier copied from it would reject this request.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md"
       },
-      "controlPoint": "At the edge: accept Agent-pay-auth in either case, keep a nonce record, block unknown keys.",
+      "controlPoint": "At the edge: accept Agent-pay-auth in either case, keep a nonce record for 8 minutes, block unknown keys.",
       "observable": "Private to the zone owner, for example through the CDN's bot management fields.",
       "failures": [
         {
@@ -127,7 +135,7 @@
           "outcome": "Sent to the merchant's non-agent bot policy."
         },
         {
-          "condition": "A required field is missing",
+          "condition": "Signature does not verify",
           "outcome": "Blocked."
         }
       ]
@@ -199,7 +207,7 @@
       "detail": "The agent signs the checkout request with Agent-pay-auth and types the token into the card number field, its expiry into the expiry field and the DTVC into the security code field. The token looks like a card number to the merchant, so PCI scope does not change. The edge verifies the signature again before forwarding.",
       "payload": {
         "format": "text",
-        "content": "Illustrative example. Field names are the merchant's own; values are placeholders.\ncard number    <virtual card token, 16 digits>\nexpiry         <token expiry>\nsecurity code  <one-time DTVC>",
+        "content": "Illustrative example. Field names are the merchant's own; values are placeholders.\ncard number    <virtual card token number>\nexpiry         <token expiry>\nsecurity code  <one-time DTVC>",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -242,7 +250,7 @@
       "to": "network",
       "label": "Authorization: detokenize, validate the DTVC, check L3a (per spec)",
       "protocol": "mastercard-agent-pay",
-      "detail": "Mastercard processes the token and validates the DTVC at authorization. Per Verifiable Intent, the network validates the credential chain as a pre-authorization step, checks that L3a transaction_id equals the L3b checkout_hash, enforces one L3 pair per L2 pair and tracks cumulative spend. How L3a reaches the network alongside a form-entered token is not documented.",
+      "detail": "Mastercard processes the token and validates the DTVC at authorization. Per Verifiable Intent, the network validates the credential chain as a pre-authorization step, checks that L3a transaction_id equals the L3b checkout_hash, accepts one L3 pair per mandate pair unless an agent_recurrence constraint allows several, and tracks cumulative spend per L2. How L3a reaches the network alongside a form-entered token is not documented.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/making-payments-mvct/index.md"
@@ -251,7 +259,7 @@
       "failures": [
         {
           "condition": "The DTVC fails or was already used",
-          "outcome": "The issuer is told the DTVC result and can decline."
+          "outcome": "Validation fails; the authorization tells the issuer whether DTVC validation was performed, and the response code is not published."
         },
         {
           "condition": "The amount exceeds the L2 amount_range or budget",
@@ -263,7 +271,7 @@
       "n": 13,
       "from": "network",
       "to": "issuer",
-      "label": "Route with the DTVC result and assurance data",
+      "label": "Route with the DTVC validation indicator",
       "protocol": "mastercard-agent-pay",
       "detail": "The authorization request tells the issuer whether DTVC validation was performed. The issuer makes the final approve or decline decision.",
       "crossesTrustBoundary": true,

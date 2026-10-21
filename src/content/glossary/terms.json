@@ -150,12 +150,13 @@
     "aliases": [
       "Acceptance Framework"
     ],
-    "plain": "Mastercard's rules and integration paths for merchants accepting agent payments, launched in October 2025. Mastercard's guides refer to it for full details, but its specification is not public.",
+    "plain": "Mastercard's rules and integration paths for merchants accepting agent payments, introduced on 2025-10-14 and shared on Mastercard Developers for feedback. Mastercard's guides refer to it for full details, but its specification is not public.",
     "ste": "The Mastercard rules for merchants that accept payments from agents. The full text is not public.",
     "protocols": [
       "mastercard-agent-pay"
     ],
     "sources": [
+      "src-mcap-framework-story",
       "src-mcap-latam-2025",
       "src-mcap-dev-level3"
     ]
@@ -166,13 +167,14 @@
     "aliases": [
       "AP4M"
     ],
-    "plain": "A Mastercard service launched on 2026-06-10 for high-frequency, low-value payments by agents and machines, with credentialing, permissioning, transacting and settlement across cards, accounts and stablecoins. No API or pricing is published.",
+    "plain": "A Mastercard service, announced on 2026-06-10, for high-frequency, low-value payments by agents and machines, with credentialing, permissioning, transacting and settlement across cards, accounts and stablecoins. Mastercard says it builds on x402 and opened Early Access with buyer- and seller-side APIs, a toolkit and a sandbox on 2026-10-20; no pricing is published.",
     "ste": "A Mastercard service for many small payments by agents and machines. It can settle on cards, accounts or stablecoins.",
     "protocols": [
       "mastercard-agent-pay"
     ],
     "sources": [
-      "src-mcap-ap4m-2026"
+      "src-mcap-ap4m-2026",
+      "src-mcap-ap4m-early-access"
     ]
   },
   {
@@ -181,13 +183,15 @@
     "aliases": [
       "Trust Framework"
     ],
-    "plain": "The name Mastercard gave on 2026-09-30 to the identity, intent, controls, execution and intelligence parts of Agent Pay, together with a probability score test in the US. No white paper was found.",
-    "ste": "The name for the five trust parts of Agent Pay: identity, intent, controls, execution and intelligence.",
+    "plain": "The name Mastercard gave on 2026-09-30 to five capabilities of Agent Pay: identity, intent, controls, trusted execution and intelligence. Its white paper Trust for agentic commerce (September 2026) also introduces the Agent Pay Ready mark and lists named offerings such as Agentic Disputes; it gives no technical specification, pricing or liability rule.",
+    "ste": "The name for the five trust parts of Agent Pay: identity, intent, controls, trusted execution and intelligence.",
     "protocols": [
       "mastercard-agent-pay"
     ],
     "sources": [
-      "src-mcap-trust-2026"
+      "src-mcap-trust-2026",
+      "src-mcap-trust-whitepaper",
+      "src-mcap-trust-whitepaper-page"
     ]
   },
   {
@@ -196,7 +200,7 @@
     "aliases": [
       "probability score"
     ],
-    "plain": "A Mastercard signal, in US testing since 2026-09-30, that estimates how likely it is that an AI agent initiated a transaction. Fields and thresholds are not published.",
+    "plain": "A Mastercard signal, rolling out for US testing (announced 2026-09-30), that estimates how likely it is that an AI agent initiated a transaction. Fields and thresholds are not published.",
     "ste": "A Mastercard value that shows how probable it is that an agent started a payment.",
     "protocols": [
       "mastercard-agent-pay"
@@ -310,7 +314,7 @@
       "agentic network token",
       "Agentic Tokens"
     ],
-    "plain": "A network token issued for purchases made by an AI agent, but the phrase names different products at different networks. At Mastercard, Agentic Tokens are Agent Pay credentials issued only to registered agents and built on Mastercard's existing tokenization. Stripe and Visa call Visa's agent credentials agentic network tokens, which are a separate product on a separate network.",
+    "plain": "A network token issued for purchases made by an AI agent, but the phrase names different products at different networks. At Mastercard, Agentic Tokens are Agent Pay credentials issued only to registered agents and built on Mastercard's existing tokenization. Stripe calls both networks' agent credentials agentic network tokens; Mastercard's are Agent Pay Agentic Tokens and Visa's belong to Visa Intelligent Commerce, separate products on separate networks.",
     "ste": "An agentic token is a network token for purchases by an AI agent. Visa and Mastercard use this name for different products.",
     "protocols": [
       "visa-tap",
@@ -320,7 +324,8 @@
       "src-mcap-launch-2025",
       "src-mcap-dev-level1",
       "src-stripe-spt",
-      "src-mc-agentic-tokens"
+      "src-mc-agentic-tokens",
+      "src-mcap-stripe-spt-2026"
     ]
   },
   {
@@ -670,7 +675,7 @@
     "aliases": [
       "card dispute"
     ],
-    "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes. Visa's rules bar a merchant from making a cardholder waive the right to dispute an agent transaction. From 2026-10-24 they accept an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Neither Visa nor Mastercard has published agent-specific chargeback reason codes.",
+    "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes. Visa's rules bar a merchant from making a cardholder waive the right to dispute an agent transaction. From 2026-10-24 they accept an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Neither Visa nor Mastercard had published agent-specific chargeback reason codes as of 2026-10-21; Mastercard's rules refer to Agent Pay Program Standards that are not public.",
     "ste": "A chargeback is the reversal of a card payment after the cardholder disputes it. The merchant of record handles chargebacks.",
     "protocols": [
       "openai-acp",
@@ -681,7 +686,8 @@
       "src-ap2-faq",
       "src-worldpay-liability",
       "src-visa-rules-public",
-      "src-mcap-dev-level1"
+      "src-mcap-dev-level1",
+      "src-mastercard-rules-2026-06"
     ]
   },
   {
@@ -1993,14 +1999,15 @@
     "aliases": [
       "Mastercard Digital Enablement Service"
     ],
-    "plain": "Mastercard Digital Enablement Service, Mastercard's tokenization platform for card numbers, used by wallets and other token requestors. The Agent Pay pages read for this atlas say only that Agentic Tokens build on Mastercard's existing tokenization and do not name MDES. Mastercard is retiring its MDES for Merchants product on 2026-12-31 in favor of Secure Card on File.",
-    "ste": "MDES is the Mastercard service that replaces card numbers with tokens. The Agent Pay pages do not use the name MDES.",
+    "plain": "Mastercard Digital Enablement Service, Mastercard's tokenization platform for card numbers, used by wallets and other token requestors. Mastercard's Agent Pay developer page, as read on 2026-10-21, calls Agent Pay a Remote Commerce Tokenization Program and lists network tokenization through MDES among its technologies. MDES Customer Service release notes (July 2026, in production from 2026-08-05) add token spend controls for issuers enabled for Virtual Card Tokens and Agent Pay. Mastercard is retiring its MDES for Merchants product on 2026-12-31 in favor of Secure Card on File.",
+    "ste": "MDES is the Mastercard service that replaces card numbers with tokens. Agent Pay uses MDES for network tokens.",
     "protocols": [
       "mastercard-agent-pay"
     ],
     "sources": [
       "src-gloss-mdes",
-      "src-mcap-dev-llms",
+      "src-mcap-dev-agentpay",
+      "src-mcap-mdes-cs-july2026",
       "src-mcap-launch-2025"
     ]
   },

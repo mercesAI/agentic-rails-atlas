@@ -2300,12 +2300,13 @@
   {
     "id": "src-mc-agentic-tokens",
     "url": "https://www.mastercard.com/us/en/news-and-trends/stories/2025/agentic-commerce-framework.html",
-    "title": "Agentic token framework: Driving trusted AI transactions",
-    "publisher": "Mastercard",
+    "title": "Scaling agentic commerce with trust",
+    "publisher": "Mastercard (story by Pablo Fourez, Chief Digital Officer)",
     "type": "announcement",
     "primary": true,
-    "accessed": "2026-10-11",
-    "notes": "curl returned 403; content known only from search excerpts, so claims from it are reported."
+    "published": "2025-10-14",
+    "accessed": "2026-10-21",
+    "notes": "Dated October 14, 2025; curl returns HTTP 403, read in a headed Chrome session on 2026-10-21. Introduces the Mastercard Agent Pay Acceptance Framework and describes agentic tokens as Mastercard's credentials for verified agents. Same page as src-mcap-framework-story."
   },
   {
     "id": "src-mcap-acp-schema",
@@ -2396,6 +2397,26 @@
     "notes": "Names no Mastercard key directory URL; says Visa and Mastercard will host their own directories."
   },
   {
+    "id": "src-mcap-dev-agentpay",
+    "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/agent-pay/",
+    "title": "Mastercard Agent Pay (Mastercard Checkout Solutions, Products)",
+    "publisher": "Mastercard Developers",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "Read on 2026-10-21 in a headed Chrome session (the HTML is rendered by JavaScript; earlier reads saw only a shell). Calls Agent Pay a Remote Commerce Tokenization Program and lists its technologies as network tokenization through the Mastercard Digital Enablement Service (MDES), Mastercard Payment Passkeys, fraud and cybersecurity solutions and the Agent Pay Acceptance Framework. Describes the Agent Pay Ready Mark, says integrators must register with Mastercard (most as Token Requestors) and must use Agentic Tokens with DSRP or DTVC. The page text carries no date and Wayback captures of 2025-11-22 and 2026-09-22 show only a shell, so its content is dated by the read, not by publication."
+  },
+  {
+    "id": "src-mcap-dev-agentpay-gated",
+    "url": "https://developer.mastercard.com/mastercard-agent-pay/documentation/",
+    "title": "Mastercard Agent Pay service documentation (login required)",
+    "publisher": "Mastercard Developers",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "In a headed Chrome session on 2026-10-21 the URL redirected to the Mastercard Developers login page with the message that access to the page can be requested after logging in. The content was not read. Wayback CDX lists paths under this service from 2026-06-12 to 2026-10-16, all JavaScript shells."
+  },
+  {
     "id": "src-mcap-dev-level1",
     "url": "https://developer.mastercard.com/merchant-cloud/documentation/tutorials-and-guides/agentic-commerce-guide/21/index.md",
     "title": "Level 1 Agentic Commerce: Enable Agent Support with Minimal Changes",
@@ -2444,6 +2465,16 @@
     "primary": true,
     "accessed": "2026-10-11",
     "notes": "Names DTVC \"Dynamic Token Validation Code\" and directs Agent Pay integrators to MVCT for web guest checkout."
+  },
+  {
+    "id": "src-mcap-dev-mvct-manage",
+    "url": "https://developer.mastercard.com/mastercard-checkout-solutions/documentation/use-cases/virtual-card-tokens/managing-tokens-mvct/index.md",
+    "title": "Mastercard Virtual Card Tokens: Manage Tokens",
+    "publisher": "Mastercard Developers (Checkout Solutions)",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "Integrators must send Delete Card (DELETE /cards/{cardId}) when a consumer deletes a tokenized card, and receive Card Notification (POST /notifications/card) updates when the issuer sets a card or token to SUSPENDED, CANCELLED or ACTIVE. Read as Markdown on 2026-10-21. Covers MVCT tokens, which Mastercard points Agent Pay integrators to for guest checkout; it describes no way to revoke an agent or an Agentic Token."
   },
   {
     "id": "src-mcap-dev-mvct-pay",
@@ -2511,6 +2542,16 @@
     "type": "docs",
     "primary": true,
     "accessed": "2026-10-11"
+  },
+  {
+    "id": "src-mcap-dns-directory",
+    "url": "https://dns.google/resolve?name=agentpay-key-directory.mastercard.com&type=A",
+    "title": "DNS lookup of agentpay-key-directory.mastercard.com",
+    "publisher": "Agentic Rails Atlas (own lookup through public resolvers)",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "The host appears in the Signature-Agent header of the Level 1 guide's example. Lookups through the system resolver, 1.1.1.1 and 8.8.8.8 returned NXDOMAIN (SOA mastercard.com) on 2026-10-11 and again on 2026-10-21; the Google DNS JSON endpoint at this URL returned Status 3 (NXDOMAIN) on 2026-10-21."
   },
   {
     "id": "src-mcap-doi-3ds",
@@ -2622,6 +2663,16 @@
     "notes": "Perspective piece; lists 36 European banks that completed controlled live transactions."
   },
   {
+    "id": "src-mcap-fido-gh-org",
+    "url": "https://api.github.com/orgs/fido-alliance/repos",
+    "title": "FIDO Alliance GitHub organization repositories (API listing)",
+    "publisher": "GitHub",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "On 2026-10-21 the newest repository in the fido-alliance organization was created on 2025-06-26 (fido-device-onboard-feedback); none holds AP2 or Verifiable Intent."
+  },
+  {
     "id": "src-mcap-fido-pr",
     "url": "https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/",
     "title": "FIDO Alliance to Develop Standards for Trusted AI Agent Interactions",
@@ -2644,6 +2695,17 @@
     "notes": "Same record as src-ap2-fido-pwg-2025."
   },
   {
+    "id": "src-mcap-framework-story",
+    "url": "https://www.mastercard.com/us/en/news-and-trends/stories/2025/agentic-commerce-framework.html",
+    "title": "Scaling agentic commerce with trust",
+    "publisher": "Mastercard (story by Pablo Fourez, Chief Digital Officer)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2025-10-14",
+    "accessed": "2026-10-21",
+    "notes": "Dated October 14, 2025; read in a headed Chrome session on 2026-10-21 (curl gets HTTP 403). The same text is at /global/en/news-and-trends/stories/2025/scaling-agentic-commerce-with-trust.html. Introduces the Mastercard Agent Pay Acceptance Framework, says it is shared on Mastercard Developers for feedback, and describes Web Bot Auth at the CDN layer, DTVC in existing checkout forms, and a deeper path with trusted agent recognition, purchase intent data, agentic tokens and consumer identity. The merged source src-mc-agentic-tokens (visa-tap research) carries the same URL under another title."
+  },
+  {
     "id": "src-mcap-google-fido-blog",
     "url": "https://blog.google/products-and-platforms/platforms/google-pay/agent-payments-protocol-fido-alliance/",
     "title": "We're donating Agent Payments Protocol to the FIDO Alliance to support the future of secure, agentic payments",
@@ -2653,6 +2715,37 @@
     "published": "2026-04-28",
     "accessed": "2026-10-11",
     "notes": "Same record as src-ap2-google-fido-blog."
+  },
+  {
+    "id": "src-mcap-hongkong-2026",
+    "url": "https://www.mastercard.com/news/ap/en-hk/newsroom/press-releases/en-hk/2026/mastercard-completes-its-first-live-agentic-transaction-in-hong-kong/",
+    "title": "Mastercard Completes its First Live Agentic Transaction in Hong Kong",
+    "publisher": "Mastercard (Hong Kong newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-03-27",
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. Conducted with HSBC and DBS Hong Kong; a ride booked through hoppa by CardInfoLink's agent, confirmed with Mastercard Payment Passkeys."
+  },
+  {
+    "id": "src-mcap-ietf-status-list",
+    "url": "https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/",
+    "title": "Token Status List (draft-ietf-oauth-status-list)",
+    "publisher": "IETF Datatracker",
+    "type": "standard",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "The Datatracker API on 2026-10-21 gave revision 21, dated 2026-08-13, with no RFC number. Verifiable Intent's security model cites this specification as RFC 9701, November 2025."
+  },
+  {
+    "id": "src-mcap-india-2026",
+    "url": "https://www.mastercard.com/news/ap/en-in/newsroom/press-releases/en-in/2026/february/mastercard-demonstrates-readiness-for-a-new-era-of-ai-powered-payments-in-india-with-its-first-authenticated-agentic-commerce-transaction/",
+    "title": "Mastercard demonstrates readiness for a new era of AI-powered payments in India with its first authenticated agentic commerce transaction",
+    "publisher": "Mastercard (India newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. Filed under February 2026; the page gives no day. A fully authenticated transaction at the India AI Impact Summit in New Delhi with Mastercard cards issued by Axis Bank and RBL Bank."
   },
   {
     "id": "src-mcap-korea-2026",
@@ -2698,15 +2791,48 @@
     "notes": "mastercard.com and investor.mastercard.com return 403 to curl and WebFetch; read the Investor Relations PDF copy on the q4cdn host."
   },
   {
+    "id": "src-mcap-malaysia-2026",
+    "url": "https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-conducts-first-live-agentic-transaction-in-malaysia-with-cimb-and-rhb-pilot/",
+    "title": "Mastercard conducts first live agentic transaction in Malaysia with CIMB and RHB Pilot",
+    "publisher": "Mastercard (Asia Pacific newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-03-04",
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. A pilot in a controlled environment with CIMB and RHB; the release says commercial deployment will be rolled out in phases."
+  },
+  {
     "id": "src-mcap-mcc-fees",
-    "url": "https://merchantcostconsulting.com/?p=8876",
-    "title": "Merchant Cost Consulting note on agentic card fees",
-    "publisher": "Merchant Cost Consulting",
+    "url": "https://merchantcostconsulting.com/lower-credit-card-processing-fees/visa-mastercard-earnings-merchant-impact/",
+    "title": "Visa and Mastercard Just Reported Earnings: Merchant Impact",
+    "publisher": "Merchant Cost Consulting (Matt Rej)",
     "type": "analysis",
     "primary": false,
     "published": "2026-05-01",
-    "accessed": "2026-10-11",
-    "notes": "HTTP 403 on 2026-10-11; content taken from ATLAS_FOLLOWUP.md Appendix B (opened 2026-10-10)."
+    "accessed": "2026-10-21",
+    "notes": "The short link merchantcostconsulting.com/?p=8876 redirects here. curl gets HTTP 403 (2026-10-11 and 2026-10-21); read in a headed Chrome session on 2026-10-21. The note says new fee categories are being built around agentic commerce and that entirely new network fee categories could emerge as it scales; it names none."
+  },
+  {
+    "id": "src-mcap-mdes-cs-july2026",
+    "url": "https://developer.mastercard.com/mdes-customer-service/documentation/release-history/release-notes-july2026/index.md",
+    "title": "MDES Customer Service release notes, July 2026",
+    "publisher": "Mastercard Developers",
+    "type": "docs",
+    "primary": true,
+    "published": "2026-06-29",
+    "accessed": "2026-10-21",
+    "notes": "Initial version 2026-06-29, dates updated 2026-07-07, version history added 2026-08-07; MTF 2026-07-29, production 2026-08-05, available globally. Change 1 introduces Token Spend Control APIs (search, create, update, delete) that let issuers enabled for the Mastercard Virtual Card Token and Mastercard Agent Pay programs set token-level spend limits (daily, weekly, monthly, per transaction, single use, absolute) and allow or block lists (MCC, merchant ID, transaction category code, transaction type, geography); Mastercard declines tokenized transactions that break the rules."
+  },
+  {
+    "id": "src-mcap-moldova-2026",
+    "url": "https://www.mastercard.com/news/eemea/en/newsroom/press-releases/en/2026/july/mastercard-completes-moldova-s-first-payments-executed-by-an-ai-agent-with-maib-and-moldindconbank/",
+    "title": "Mastercard completes Moldova's first payments executed by an AI agent with maib and Moldindconbank",
+    "publisher": "Mastercard (EEMEA newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-07-08",
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. A pilot with maib and Moldindconbank through Mastercard Agent Pay."
   },
   {
     "id": "src-mcap-mpp-card-spec",
@@ -2738,8 +2864,8 @@
     "type": "analysis",
     "primary": false,
     "published": "2026-08-28",
-    "accessed": "2026-10-11",
-    "notes": "Vendor blog; Nevermined is itself listed as an AP4M participant (conflict of interest)."
+    "accessed": "2026-10-21",
+    "notes": "Vendor blog; Nevermined is itself listed as an AP4M participant (conflict of interest). Read again on 2026-10-21: it supports only that Mastercard publishes no universal self-service price table for Agent Pay; it says nothing on interchange, liability, chargeback reason codes or volume."
   },
   {
     "id": "src-mcap-npm-mcp",
@@ -2771,6 +2897,27 @@
     "published": "2026-07-18",
     "accessed": "2026-10-11",
     "notes": "Version 0.1.0 by Lukas J. Han; repository lukasjhan/verifiable-intent, not the agent-intent organization."
+  },
+  {
+    "id": "src-mcap-nvd-search",
+    "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=Agent%20Pay",
+    "title": "NVD CVE API keyword searches for Agent Pay and Verifiable Intent",
+    "publisher": "NIST National Vulnerability Database",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-10-21",
+    "notes": "Keyword searches for Agent Pay and for Verifiable Intent returned totalResults 0 on 2026-10-21. The GitHub security advisories of agent-intent/verifiable-intent and mastercard/developers-agent-toolkit and the global advisory database for @mastercard/developers-mcp listed none on the same day."
+  },
+  {
+    "id": "src-mcap-nz-2026",
+    "url": "https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-completes-new-zealand-s-first-authenticated-agentic-transactions-with-westpac-bringing-trust-transparency-and-security-to-ai-powered-commerce/",
+    "title": "Mastercard completes New Zealand's first authenticated agentic transactions with Westpac",
+    "publisher": "Mastercard (Asia Pacific newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-02-17",
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. A Westpac debit card bought Event Cinemas tickets and a second transaction booked QT Hotels accommodation, processed through IPSI with Maincode's Matilda model."
   },
   {
     "id": "src-mcap-payos-2025",
@@ -2834,8 +2981,9 @@
     "type": "news",
     "primary": false,
     "published": "2025-10-30",
-    "accessed": "2026-10-11",
-    "notes": "Third-party transcript; quote on the first agentic transaction taking place on the network that quarter."
+    "accessed": "2026-10-21",
+    "archiveUrl": "https://web.archive.org/web/20251103060426/https://www.insidermonkey.com/blog/mastercard-incorporated-nysema-q3-2025-earnings-call-transcript-1638742/",
+    "notes": "Third-party transcript; quote on the first agentic transaction taking place on the network that quarter. The CEO also says U.S. Bank and Citibank cardholders can now use Agent Pay and that the rest of Mastercard's US issuers will be enabled in November. The live page asked for a login on 2026-10-21; the text was read from the Wayback Machine capture of 2025-11-03."
   },
   {
     "id": "src-mcap-rfc7800",
@@ -2858,6 +3006,17 @@
     "published": "2024-02-01",
     "accessed": "2026-10-11",
     "notes": "Published February 2024; day set to 01."
+  },
+  {
+    "id": "src-mcap-rfc9701",
+    "url": "https://www.rfc-editor.org/rfc/rfc9701.json",
+    "title": "RFC 9701: JSON Web Token (JWT) Response for OAuth Token Introspection (RFC Editor metadata)",
+    "publisher": "RFC Editor",
+    "type": "standard",
+    "primary": true,
+    "published": "2025-01-01",
+    "accessed": "2026-10-21",
+    "notes": "Metadata read on 2026-10-21: title JSON Web Token (JWT) Response for OAuth Token Introspection, authors T. Lodderstedt and V. Dzhuvinov, from draft-ietf-oauth-jwt-introspection-response-12, Proposed Standard, January 2025. The published date records the month only."
   },
   {
     "id": "src-mcap-rfc9901",
@@ -2902,6 +3061,17 @@
     "notes": "Investor Relations PDF copy."
   },
   {
+    "id": "src-mcap-singapore-2026",
+    "url": "https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-delivers-its-first-live-agentic-transaction-in-singapore-with-dbs-and-uob/",
+    "title": "Mastercard delivers its first live agentic transaction in Singapore with DBS and UOB",
+    "publisher": "Mastercard (Asia Pacific newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-03-04",
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. A ride booked through hoppa by CardInfoLink's agent; says each transaction uses a Mastercard Agentic Token and purchase confirmation is secured with Mastercard Payment Passkeys."
+  },
+  {
     "id": "src-mcap-stripe-pricing",
     "url": "https://stripe.com/pricing",
     "title": "Pricing and fees (Stripe, US page)",
@@ -2922,6 +3092,17 @@
     "published": "2026-03-03",
     "accessed": "2026-10-11",
     "notes": "SPT support for Mastercard Agent Pay and Visa Intelligent Commerce agentic network tokens, plus Affirm and Klarna."
+  },
+  {
+    "id": "src-mcap-thailand-2026",
+    "url": "https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-and-krungthai-card-complete-first-live-agentic-transaction-in-thailand/",
+    "title": "Mastercard and Krungthai Card complete first live agentic transaction in Thailand",
+    "publisher": "Mastercard (Asia Pacific newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-04-07",
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. A pilot with Krungthai Card in a controlled pilot environment; a ride booked through Elife."
   },
   {
     "id": "src-mcap-toolkit-api",
@@ -2966,6 +3147,28 @@
     "notes": "Investor Relations PDF copy; dateline Phoenix. Names the Agent Pay Trust Framework, the probability score test, Cloudflare and Skyfire."
   },
   {
+    "id": "src-mcap-trust-whitepaper",
+    "url": "https://www.mastercard.com/content/dam/mccom/shared/news-and-trends/stories/2026/trust-for-agentic-commerce-white-paper/Trust%20for%20agentic%20commerce%20white%20paper.pdf",
+    "title": "Trust for agentic commerce: Powering secure value exchange in a world where AI agents shop, pay and act on our behalf",
+    "publisher": "Mastercard (white paper, September 2026)",
+    "type": "other",
+    "primary": true,
+    "published": "2026-09-30",
+    "accessed": "2026-10-21",
+    "notes": "16-page PDF dated September 2026 (PDF created 2026-09-24, Last-Modified 2026-09-29), offered from the landing page that the mastercard.com copy of the 2026-09-30 release links as Mastercard's Agent Pay Trust Framework. mastercard.com refuses curl; the PDF was fetched inside a headed Chrome session on 2026-10-21. Describes five capabilities (identity, intent, controls, trusted execution, intelligence), introduces the Agent Pay Ready mark for participants that meet Agent Pay program requirements, and lists the offerings behind the framework, including Agentic Disputes and Agent Pay for Machines with verifiable promise-to-pay artifacts. It gives no technical specification, Agent Pay volume, pricing or liability rule; its market figures are third-party projections (ICSC and McKinsey, Gartner)."
+  },
+  {
+    "id": "src-mcap-trust-whitepaper-page",
+    "url": "https://www.mastercard.com/us/en/news-and-trends/Insights/2026/mastercard-agentic-commerce-trust-white-paper.html",
+    "title": "Trust for agentic commerce (white paper landing page)",
+    "publisher": "Mastercard",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-09-30",
+    "accessed": "2026-10-21",
+    "notes": "Dated September 30, 2026; read in a headed Chrome session on 2026-10-21. The mastercard.com version of the 2026-09-30 release (press/2026/september/new-trust-and-intelligence-services.html) links the phrase Mastercard's Agent Pay Trust Framework to this page; the Investor Relations PDF copy of the release has no such link. Its download button serves the PDF recorded as src-mcap-trust-whitepaper."
+  },
+  {
     "id": "src-mcap-ucp-endorsers",
     "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/ad9950ba5c7bcd02af648f849bf7344052f76f57/docs/index.md",
     "title": "UCP documentation home (endorser list)",
@@ -2997,6 +3200,17 @@
     "published": "2026-08-25",
     "accessed": "2026-10-11",
     "notes": "Was dev.ucp.shopping.ap2_mandate from v2026-01-11 to v2026-04-08 (see research/protocols/ucp.md)."
+  },
+  {
+    "id": "src-mcap-ukraine-2026",
+    "url": "https://www.mastercard.com/news/eemea/en/newsroom/press-releases/en/2026/june-2026/mastercard-and-privatbank-complete-ukraine-s-first-payment-executed-by-an-ai-agent/",
+    "title": "Mastercard and PrivatBank complete Ukraine's first payment executed by an AI agent",
+    "publisher": "Mastercard (EEMEA newsroom)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-06-23",
+    "accessed": "2026-10-21",
+    "notes": "Read in a headed Chrome session on 2026-10-21. Ukraine's first agentic transaction through Mastercard Agent Pay, with PrivatBank."
   },
   {
     "id": "src-mcap-usenix-mixup",
@@ -3049,8 +3263,8 @@
     "publisher": "GitHub",
     "type": "dataset",
     "primary": true,
-    "accessed": "2026-10-11",
-    "notes": "created_at 2026-03-05T09:41:38Z; pushed_at 2026-04-20; 97 stars and 20 forks on 2026-10-11; license Apache-2.0."
+    "accessed": "2026-10-21",
+    "notes": "created_at 2026-03-05T09:41:38Z; pushed_at 2026-04-20; 97 stars and 20 forks on 2026-10-11, 101 stars and 20 forks on 2026-10-21; not archived; last commit on main 2026-04-20; license Apache-2.0."
   },
   {
     "id": "src-mcap-vi-issue15",
@@ -3166,6 +3380,17 @@
     "published": "2026-02-18",
     "accessed": "2026-10-11",
     "notes": "Header date 2026-02-18; file as of commit 356c296 (2026-04-20)."
+  },
+  {
+    "id": "src-mcap-vi-story",
+    "url": "https://www.mastercard.com/us/en/news-and-trends/stories/2026/verifiable-intent.html",
+    "title": "When AI starts buying for you, trust becomes the product",
+    "publisher": "Mastercard (story by Pablo Fourez, Chief Digital Officer)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-03-05",
+    "accessed": "2026-10-21",
+    "notes": "Dated March 5, 2026; read in a headed Chrome session on 2026-10-21 (curl gets HTTP 403; the same text is at /global/en/news-and-trends/stories/2026/verifiable-intent.html). Introduces Verifiable Intent, co-developed with Google, open-sourced on GitHub and at verifiableintent.dev. Says Verifiable Intent will be integrated into Mastercard Agent Pay's intent APIs in the coming months and that API specifications and developer tools for it will be available soon on Mastercard Developers. Quotes Google, Adyen, Basis Theory, Checkout.com, Getnet, Fiserv, IBM and Worldpay."
   },
   {
     "id": "src-mcap-vi-tag",
@@ -11586,6 +11811,17 @@
     "primary": true,
     "accessed": "2026-10-10",
     "notes": "NOTICE at https://github.com/x402-foundation/x402/blob/f8f83309706b14cc696962f0a002eeeb66c3dc26/NOTICE reads Copyright 2026 x402 Foundation."
+  },
+  {
+    "id": "src-x402-mc-ap4m-early-access",
+    "url": "https://www.mastercard.com/global/en/news-and-trends/press/2026/october/Mastercard-Agent-Pay-for-Machines-in-action.html",
+    "title": "What happens when AI agents start paying each other? Watch Mastercard Agent Pay for Machines in action",
+    "publisher": "Mastercard (news brief)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-10-20",
+    "accessed": "2026-10-21",
+    "notes": "News brief dated 2026-10-20 (Cloudflare Connect). Says Agent Pay for Machines builds on x402; in the pilot demo a service answers 402 Payment Required through Cloudflare Monetization Gateway, the agent signs an off-chain payment voucher within its approved limit, and providers can combine vouchers and redeem them later. Coinbase Developer Platform provides wallet infrastructure, Base the on-chain settlement network, and BVNK acts as the agent wallet using Mastercard Global Money Platform. Opens AP4M Early Access (first buyer- and seller-side APIs, toolkit, sandbox, documentation) after end-to-end pilots with Cloudflare, Ant International, AIsa, Base, BVNK, Coinbase and Hype. Names no pricing. mastercard.com refuses curl; read on 2026-10-21 in a headed Chrome session. Same page as src-mcap-ap4m-early-access."
   },
   {
     "id": "src-x402-mcglynn-counter",

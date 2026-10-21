@@ -2,9 +2,10 @@
  * RFC 9421 HTTP message signature for the Agent Pay edge check, built on the shared http-sig module.
  * Header and parameter names follow the Level 1 guide: Signature-Agent, Signature-Input, Signature, with
  * keyid, alg, created, expires, nonce and the Mastercard tag `Agent-pay-auth`.
+ * The edge check follows the nine steps of the Level 1 guide's verification checklist in order.
  * Teaching simplifications: ES256 (`ecdsa-p256-sha256`) instead of the guide's Ed25519 example, only
  * `@authority` and `@path` are covered, and the key set is a local fixture, not a Mastercard directory
- * (its location is not public).
+ * (the only host Mastercard shows does not resolve).
  */
 import { randomBase64Url } from '@/lib/playground/bytes';
 import { importEs256PublicJwk, jwkThumbprint, signBytes, verifyBytes, type EcJwk as Jwk, type Es256Key } from '@/lib/playground/es256';
@@ -133,8 +134,15 @@ export function parseSignatureInput(value: string): ParsedInput | undefined {
 
 export type EdgeVerdict = 'trusted-agent' | 'ordinary-bot' | 'blocked';
 
+/** The scheme tags in step 1 of the Level 1 guide's checklist. Matching is exact; the guides do not say whether case matters. */
+export const SCHEME_TAGS: readonly string[] = [MASTERCARD_TAG, 'agent-browser-auth', 'agent-payer-auth'];
+/** Step 5 of the checklist: expires minus created must be at most 8 minutes. */
+export const MAX_WINDOW_SECONDS = 480;
+/** Step 6 and 9: nonces are remembered for 8 minutes. */
+export const NONCE_TTL_SECONDS = 480;
+
 export interface EdgeStep {
-  id: 'scheme-tag' | 'parameters' | 'key-lookup' | 'window' | 'nonce' | 'tag' | 'signature';
+  id: 'scheme-tag' | 'parameters' | 'created' | 'expires' | 'window-cap' | 'nonce' | 'key-lookup' | 'signature' | 'record-nonce';
   label: string;
   status: 'pass' | 'fail' | 'skipped';
   detail: string;
@@ -142,7 +150,7 @@ export interface EdgeStep {
 
 export interface EdgeResult {
   verdict: EdgeVerdict;
-  /** Outcome text taken from the Level 1 flow failures list. */
+  /** Outcome text from the "On Failure" column of the Level 1 checklist. */
   outcome: string;
   steps: EdgeStep[];
   nonce?: string;
@@ -157,19 +165,27 @@ export async function addToDirectory(dir: FixtureDirectory, key: Es256Key): Prom
   return keyid;
 }
 
-const ORDER: EdgeStep['id'][] = ['scheme-tag', 'parameters', 'key-lookup', 'window', 'nonce', 'tag', 'signature'];
+/** The nine steps of the Level 1 guide's verification checklist, in its order. */
+const ORDER: EdgeStep['id'][] = ['scheme-tag', 'parameters', 'created', 'expires', 'window-cap', 'nonce', 'key-lookup', 'signature', 'record-nonce'];
 const LABELS: Record<EdgeStep['id'], string> = {
-  'scheme-tag': 'Signature-Input and Signature present',
-  parameters: 'Required parameters present',
-  'key-lookup': 'keyid found in the key set',
-  window: 'created and expires bracket the current time',
-  nonce: 'Nonce not seen before',
-  tag: 'Tag is valid for Agent Pay',
+  'scheme-tag': 'Signature-Input and Signature present with a scheme tag',
+  parameters: 'Required fields present, including @authority and @path',
+  created: 'created is in the past',
+  expires: 'expires is in the future',
+  'window-cap': 'expires minus created is at most 8 minutes',
+  nonce: 'Nonce not seen in the last 8 minutes',
+  'key-lookup': 'Public key for keyid found in the key set',
   signature: 'Signature base rebuilt and signature verifies',
+  'record-nonce': 'Nonce recorded with its expiry',
 };
 
-/** Checks in the order of the Level 1 flow. `seenNonces` is mutated when a request passes the nonce check. */
-export async function verifyAtEdge(req: SignedRequest, dir: FixtureDirectory, now: number, seenNonces: Set<string>): Promise<EdgeResult> {
+const REQUIRED_COMPONENTS = ['@authority', '@path'] as const;
+
+/**
+ * Checks in the order of the Level 1 guide's checklist. `seenNonces` maps a nonce to the time until which it is
+ * remembered; a request that passes every check records its nonce (step 9).
+ */
+export async function verifyAtEdge(req: SignedRequest, dir: FixtureDirectory, now: number, seenNonces: Map<string, number>): Promise<EdgeResult> {
   const steps: EdgeStep[] = [];
   const stop = (id: EdgeStep['id'], detail: string, verdict: EdgeVerdict, outcome: string, nonce?: string): EdgeResult => {
     steps.push({ id, label: LABELS[id], status: 'fail', detail });
@@ -177,26 +193,39 @@ export async function verifyAtEdge(req: SignedRequest, dir: FixtureDirectory, no
     return { verdict, outcome, steps, nonce };
   };
   const ok = (id: EdgeStep['id'], detail: string) => steps.push({ id, label: LABELS[id], status: 'pass', detail });
+  const block = 'Block the request';
 
   const input = req.signatureInput ? parseSignatureInput(req.signatureInput) : undefined;
   if (!req.signatureInput || !req.signature || !input) {
-    return stop('scheme-tag', 'No Signature-Input with a scheme tag', 'ordinary-bot', 'Treat as an ordinary bot and apply the non-agent bot policy');
+    return stop('scheme-tag', 'No Signature-Input and Signature headers', 'ordinary-bot', 'Apply the non-agent bot policy');
   }
-  ok('scheme-tag', 'Both headers present');
-  const missing = (['created', 'expires', 'keyid', 'alg', 'nonce', 'tag'] as const).filter((k) => input[k] === undefined);
-  if (missing.length) return stop('parameters', `Missing: ${missing.join(', ')}`, 'blocked', 'Block the request');
-  ok('parameters', 'created, expires, keyid, alg, nonce and tag are all present');
+  if (input.tag === undefined || !SCHEME_TAGS.includes(input.tag)) {
+    return stop('scheme-tag', `Tag ${input.tag === undefined ? 'missing' : `"${input.tag}"`} is not one of ${SCHEME_TAGS.join(', ')}`, 'ordinary-bot', 'Apply the non-agent bot policy');
+  }
+  ok('scheme-tag', `Both headers present; tag "${input.tag}"`);
+  const missing: string[] = [
+    ...REQUIRED_COMPONENTS.filter((c) => !input.components.includes(c)),
+    ...(['created', 'expires', 'keyid', 'alg', 'nonce'] as const).filter((k) => input[k] === undefined),
+  ];
+  if (missing.length) return stop('parameters', `Missing: ${missing.join(', ')}`, 'blocked', block);
+  ok('parameters', '@authority, @path, created, keyid, expires, tag, alg and nonce are all present');
+  const created = input.created as number;
+  const expires = input.expires as number;
+  if (created > now) return stop('created', `created=${created} is after now=${now}`, 'blocked', block);
+  ok('created', `created=${created}, now=${now}`);
+  if (expires <= now) return stop('expires', `expires=${expires} is not after now=${now}`, 'blocked', block);
+  ok('expires', `expires=${expires}, now=${now}`);
+  if (expires - created > MAX_WINDOW_SECONDS) {
+    return stop('window-cap', `expires - created = ${expires - created} s, more than ${MAX_WINDOW_SECONDS} s`, 'blocked', block);
+  }
+  ok('window-cap', `expires - created = ${expires - created} s`);
+  const nonce = input.nonce as string;
+  const until = seenNonces.get(nonce);
+  if (until !== undefined && until > now) return stop('nonce', 'This nonce was used by an earlier request in the last 8 minutes', 'blocked', 'Block the request (replay detected)');
+  ok('nonce', 'No earlier use of this nonce in the last 8 minutes');
   const jwk = dir.get(input.keyid as string);
-  if (!jwk) return stop('key-lookup', 'Key not found in the fixture key set', 'blocked', 'Block the request');
+  if (!jwk) return stop('key-lookup', 'Key not found in the fixture key set', 'blocked', block, nonce);
   ok('key-lookup', 'Public key found in the local fixture key set');
-  if ((input.created as number) > now + 1 || (input.expires as number) <= now) {
-    return stop('window', `created=${input.created}, expires=${input.expires}, now=${now}`, 'blocked', 'Block the request');
-  }
-  ok('window', `created=${input.created}, expires=${input.expires}, now=${now}`);
-  if (seenNonces.has(input.nonce as string)) return stop('nonce', 'This nonce was used by an earlier request', 'blocked', 'Block the request');
-  ok('nonce', 'First use of this nonce');
-  if (input.tag !== MASTERCARD_TAG) return stop('tag', `Tag is "${input.tag}", expected "${MASTERCARD_TAG}"`, 'blocked', 'Block the request', input.nonce);
-  ok('tag', `Tag is "${MASTERCARD_TAG}"`);
   let valid = false;
   try {
     const sig = parseSignatureHeader(req.signature).get(LABEL);
@@ -204,8 +233,9 @@ export async function verifyAtEdge(req: SignedRequest, dir: FixtureDirectory, no
   } catch {
     valid = false;
   }
-  if (!valid) return stop('signature', 'The signature does not match the rebuilt signature base', 'blocked', 'Block the request', input.nonce);
+  if (!valid) return stop('signature', 'The signature does not match the rebuilt signature base', 'blocked', block, nonce);
   ok('signature', 'Signature verifies against the covered components');
-  seenNonces.add(input.nonce as string);
-  return { verdict: 'trusted-agent', outcome: 'Forward as a trusted agent', steps, nonce: input.nonce };
+  seenNonces.set(nonce, now + NONCE_TTL_SECONDS);
+  ok('record-nonce', `Remembered until ${now + NONCE_TTL_SECONDS}`);
+  return { verdict: 'trusted-agent', outcome: 'Forward as a trusted agent', steps, nonce };
 }

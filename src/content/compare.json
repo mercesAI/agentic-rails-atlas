@@ -854,7 +854,7 @@
     {
       "protocol": "x402",
       "dimension": "composes-with",
-      "value": "AP2 (a2a-x402, AP2 v0.1 target), ERC-8004, Stripe MPP",
+      "value": "AP2 (a2a-x402, AP2 v0.1 target), ERC-8004, Stripe MPP, Mastercard Agent Pay for Machines (builds on x402, 2026-10-20)",
       "detail": "Visa TAP is a looser fit: its browsingIOU answers an HTTP 402 with card-settlement fields, not the x402 format, and Visa's sample merchant names its flow x402. The ACP and UCP repositories do not mention x402 (searched 2026-10-19).",
       "sources": [
         "src-x402-a2a-spec",
@@ -863,7 +863,8 @@
         "src-x402-visa-tap-spec-docs",
         "src-x402-visa-tap-repo",
         "src-acp-repo",
-        "src-ucp-repo"
+        "src-ucp-repo",
+        "src-x402-mc-ap4m-early-access"
       ],
       "confidence": "verified"
     },
@@ -2907,7 +2908,7 @@
       "protocol": "mastercard-agent-pay",
       "dimension": "governance-model",
       "value": "Proprietary network program",
-      "detail": "No public spec, version or governance body; VI is open at FIDO.",
+      "detail": "No public spec, version or governance body found (2026-10-21); VI is open at FIDO.",
       "sources": [
         "src-mcap-dev-level3",
         "src-mcap-fido-pr"
@@ -2918,7 +2919,7 @@
       "protocol": "mastercard-agent-pay",
       "dimension": "license-spec-and-code",
       "value": "Program proprietary; VI Apache-2.0",
-      "detail": "Acceptance Framework spec not public.",
+      "detail": "Acceptance Framework spec not public (none found, 2026-10-21).",
       "sources": [
         "src-mcap-vi-readme",
         "src-mcap-dev-level3"
@@ -2938,10 +2939,10 @@
       "protocol": "mastercard-agent-pay",
       "dimension": "latest-version-and-date",
       "value": "Unversioned; VI 0.1 (main 2026-04-20)",
-      "detail": "Latest program addition: Trust Framework, 2026-09-30.",
+      "detail": "Latest program addition: Agent Pay for Machines Early Access, 2026-10-20.",
       "sources": [
         "src-mcap-vi-pr23",
-        "src-mcap-trust-2026"
+        "src-mcap-ap4m-early-access"
       ],
       "confidence": "verified"
     },
@@ -2949,11 +2950,12 @@
       "protocol": "mastercard-agent-pay",
       "dimension": "maturity",
       "value": "Pilots or first transactions",
-      "detail": "Network-level enablement in Europe since 2026-06-02; named transactions controlled.",
+      "detail": "Network-level enablement in Europe (reported 2026-06-02); AP4M in Early Access since 2026-10-20; named transactions controlled or pilots.",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-santander-2026",
-        "src-mcap-latam-2026"
+        "src-mcap-latam-2026",
+        "src-mcap-ap4m-early-access"
       ],
       "confidence": "verified"
     },
@@ -3062,21 +3064,23 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "revocation",
-      "value": "Not documented",
-      "detail": "No public revocation API; VI 0.1 has no revocation protocol.",
+      "value": "No agent revocation; MVCT token delete and issuer suspend; VI key removal or expiry only",
+      "detail": "No public API to revoke an agent or an Agentic Token. MVCT tokens can be deleted by the integrator and suspended or cancelled by the issuer; Verifiable Intent 0.1 has no revocation protocol.",
       "sources": [
         "src-mcap-vi-security",
-        "src-mcap-dev-llms"
+        "src-mcap-dev-llms",
+        "src-mcap-dev-mvct-manage"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "refunds-and-disputes",
-      "value": "Standard chargebacks; no agent reason codes",
+      "value": "Standard chargebacks; no public agent reason codes (program standards not public)",
+      "detail": "The 2026-06-02 Mastercard Rules require Agent Pay Program Standards that are not public.",
       "sources": [
         "src-mcap-dev-level1",
-        "src-mcap-nevermined-review"
+        "src-mastercard-rules-2026-06"
       ],
       "confidence": "reported"
     },
@@ -3093,9 +3097,10 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "discovery-mechanism",
-      "value": "None for merchants; key directory for agent keys",
+      "value": "None for card merchants; key directory for agent keys; AP4M: registered provider discovery (Early Access, 2026-10-20)",
       "sources": [
-        "src-mcap-cloudflare-blog"
+        "src-mcap-cloudflare-blog",
+        "src-mcap-ap4m-early-access"
       ],
       "confidence": "verified"
     },
@@ -3131,22 +3136,23 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "fees-and-who-pays-them",
-      "value": "Not published; card economics unchanged",
-      "detail": "No price table, interchange category, token fee or liability rule published.",
+      "value": "Not published",
+      "detail": "No public price table (Nevermined, 2026-08-28); no agentic interchange category or token fee found; Agent Pay Program Standards not public.",
       "sources": [
         "src-mcap-nevermined-review",
-        "src-mcap-mcc-fees"
+        "src-mcap-mcc-fees",
+        "src-mastercard-rules-2026-06"
       ],
       "confidence": "reported"
     },
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "who-pays",
-      "value": "Card economics unchanged",
-      "detail": "Merchant pays its usual card acceptance fees.",
+      "value": "Not stated; no agent fee found",
+      "detail": "Presumably the merchant's usual card acceptance fees; Mastercard has not said so.",
       "sources": [
         "src-mcap-dev-level1",
-        "src-mcap-nevermined-review"
+        "src-mastercard-rules-2026-06"
       ],
       "confidence": "reported"
     },
@@ -3164,7 +3170,7 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "composes-with",
-      "value": "AP2 and UCP via VI, ACP via Stripe SPT, x402 (member)",
+      "value": "x402 (AP4M builds on it, 2026-10-20); AP2 and UCP via VI (designed to work with AP2); ACP via Stripe SPT",
       "detail": "MPP is not a composition: Tempo said in Mastercard's 2026-06-10 AP4M release that it is working with Mastercard on MPP compatibility, but Mastercard names no MPP link, and its 2026-10-20 brief opening AP4M Early Access builds AP4M on x402.",
       "sources": [
         "src-mcap-vi-landscape",
@@ -3178,12 +3184,13 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "reference-implementations-and-sdks",
-      "value": "VI Python reference SDK; no Agent Pay SDK",
-      "detail": "The Agent Toolkit is documentation only.",
+      "value": "VI Python reference SDK; no public SDK for card Agent Pay; AP4M Early Access APIs and toolkit (2026-10-20)",
+      "detail": "The Agent Toolkit reads documentation only. AP4M Early Access gives enrolled developers buyer- and seller-side APIs, a toolkit and a sandbox; access terms are not public.",
       "sources": [
         "src-mcap-vi-pyproject",
         "src-mcap-dev-llms",
-        "src-mcap-toolkit-api"
+        "src-mcap-toolkit-api",
+        "src-mcap-ap4m-early-access"
       ],
       "confidence": "verified"
     },
@@ -3224,7 +3231,8 @@
       "dimension": "biggest-open-question",
       "value": "Liability for agent purchases within limits",
       "sources": [
-        "src-mcap-nevermined-review",
+        "src-worldpay-liability",
+        "src-mastercard-rules-2026-06",
         "src-mcap-vi-issue15"
       ],
       "confidence": "reported"
@@ -3673,10 +3681,12 @@
     {
       "protocol": "mastercard-agent-pay",
       "axis": "decentralization",
-      "value": 0,
-      "justification": "Mastercard alone registers agents, runs the directory and issues tokens.",
+      "value": 1,
+      "justification": "Mastercard registers agents and issues tokens, as Visa does for TAP; Skyfire is a named Know Your Agent partner, and AP4M pilots settle on Base.",
       "sources": [
-        "src-mcap-dev-rails"
+        "src-mcap-dev-rails",
+        "src-mcap-trust-2026",
+        "src-mcap-ap4m-early-access"
       ]
     },
     {
@@ -3714,9 +3724,10 @@
       "protocol": "mastercard-agent-pay",
       "axis": "dispute-support",
       "value": 2,
-      "justification": "Card chargeback rights apply; no agent-specific codes; VI evidence without liability rules.",
+      "justification": "Card chargeback rights apply; no public agent-specific codes (Agent Pay Program Standards not public); VI evidence without liability rules.",
       "sources": [
         "src-mcap-dev-level1",
+        "src-mastercard-rules-2026-06",
         "src-mcap-vi-security"
       ]
     }

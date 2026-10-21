@@ -58,15 +58,16 @@ function Wire({ title, raw, decoded, example }: { title: string; raw: string; de
 
 // ------------------------------------------------------------------ token lifecycle
 
-type Injection = 'none' | 'no-signature' | 'unregistered-key' | 'expired-window' | 'replayed-nonce' | 'wrong-tag' | 'tampered-path';
+type Injection = 'none' | 'no-signature' | 'unregistered-key' | 'expired-window' | 'long-window' | 'replayed-nonce' | 'wrong-tag' | 'tampered-path';
 
 const INJECTIONS: { value: Injection; label: string }[] = [
   { value: 'none', label: 'Valid signed request' },
   { value: 'no-signature', label: 'Missing signature headers' },
   { value: 'unregistered-key', label: 'Key not in the key set' },
   { value: 'expired-window', label: 'Expired signature window' },
+  { value: 'long-window', label: 'Window longer than 8 minutes (one hour)' },
   { value: 'replayed-nonce', label: 'Replayed nonce' },
-  { value: 'wrong-tag', label: 'Wrong tag (agent-browser-auth)' },
+  { value: 'wrong-tag', label: 'Tag not on the scheme list (example-tag)' },
   { value: 'tampered-path', label: 'Path changed after signing' },
 ];
 
@@ -79,7 +80,7 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
   const [agentKey, setAgentKey] = useState<Es256Key | null>(null);
   const [passkey, setPasskey] = useState<Es256Key | null>(null);
   const directory = useRef<FixtureDirectory>(new Map());
-  const seen = useRef<Set<string>>(new Set());
+  const seen = useRef<Map<string, number>>(new Map());
   const [keyid, setKeyid] = useState('');
   const [clock, setClock] = useState(nowSec);
   const [state, setState] = useState<TokenState | null>(null);
@@ -173,7 +174,13 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
     } else if (injection === 'no-signature') {
       signed = { ...base };
     } else {
-      signed = await signRequest(base, agentKey, { created, keyid, tag: injection === 'wrong-tag' ? 'agent-browser-auth' : MASTERCARD_TAG, signatureAgent: AGENT_KEY_HOST });
+      signed = await signRequest(base, agentKey, {
+        created,
+        keyid,
+        ttlSeconds: injection === 'long-window' ? 3600 : undefined,
+        tag: injection === 'wrong-tag' ? 'example-tag' : MASTERCARD_TAG,
+        signatureAgent: AGENT_KEY_HOST,
+      });
       if (injection === 'tampered-path') signed = { ...signed, path: '/product/43' };
       if (injection === 'replayed-nonce') results.push(await verifyAtEdge(signed, directory.current, clock, seen.current));
     }
@@ -276,7 +283,7 @@ function LifecyclePanel({ announce }: { announce: (s: string) => void }) {
           </button>
         </div>
         <Note kind="simplification">
-          Signing uses ECDSA P-256 (<code>ecdsa-p256-sha256</code>) and covers only <code>@authority</code> and <code>@path</code>; the guide example uses Ed25519. The key set is a local fixture, because the Mastercard directory location is not public and Mastercard publishes no URL for it.
+          Signing uses ECDSA P-256 (<code>ecdsa-p256-sha256</code>) and covers only <code>@authority</code> and <code>@path</code>; the guide example uses Ed25519. The edge check follows the nine steps of Mastercard&apos;s Level 1 checklist in order. The key set is a local fixture, because Mastercard&apos;s only published host, <code>agentpay-key-directory.mastercard.com</code>, does not resolve.
         </Note>
       </fieldset>
 
