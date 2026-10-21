@@ -1,7 +1,7 @@
 ---
 protocol: stripe-mpp
 title: Stripe MPP in Simplified Technical English
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-21"
 ---
 
 <SteDescription>
@@ -14,7 +14,7 @@ The core specification is an individual Internet-Draft at the IETF. It is not an
 
 MPP is not only for crypto money. Some payment methods use stablecoins on Tempo or on other networks. The stripe method uses Shared Payment Tokens for cards. The card method from Visa uses encrypted card tokens. The `lightning` method uses Bitcoin.
 
-The server makes the challenge identifier from all of the challenge values with a secret key. Thus, nobody can change the amount or the recipient. Each challenge identifier operates one time only.
+The server connects the challenge identifier to each challenge value, but not to the description. Usually, the server calculates the identifier from these values with a secret key. Thus, nobody can change the amount or the recipient. Each challenge identifier operates one time only.
 
 In AP2 documents, the letters MPP mean Merchant Payment Processor. That is a different thing.
 
@@ -46,7 +46,7 @@ DO NOT WRITE A CREDENTIAL TO A LOG FILE OR TO AN ERROR MESSAGE. A DIFFERENT PERS
 <SteProcedure title="Accept an MPP payment (server)">
 
 1. Select the payment methods that your buyers can use.
-2. Make a secret key of 32 bytes or more for the challenges.
+2. If you use the `mppx` SDK, make a secret key of 32 bytes or more.
 3. If a request has no credential, send status 402 with a challenge.
 4. Set the Cache-Control header to no-store on the 402 response.
 5. When a credential arrives, calculate the challenge identifier again.
@@ -63,7 +63,7 @@ DO NOT WRITE A CREDENTIAL TO A LOG FILE OR TO AN ERROR MESSAGE. A DIFFERENT PERS
 DO NOT SEND THE RESOURCE BEFORE THE PAYMENT IS VERIFIED. AN UNPAID CLIENT CAN GET THE RESOURCE.
 </SteCaution>
 
-<SteProcedure title="Close a payment channel (agent)">
+<SteProcedure title="Close a Tempo payment channel (agent)">
 
 1. Send a credential with the close action and the last voucher.
 2. Read the receipt. Make sure that the spent amount is correct.
@@ -74,7 +74,7 @@ DO NOT SEND THE RESOURCE BEFORE THE PAYMENT IS VERIFIED. AN UNPAID CLIENT CAN GE
 </SteProcedure>
 
 <SteCaution>
-DO NOT KEEP A PAYMENT CHANNEL OPEN WHEN YOU DO NOT USE IT. A CHANNEL DOES NOT EXPIRE, AND THE DEPOSIT STAYS LOCKED.
+DO NOT KEEP A PAYMENT CHANNEL OPEN WHEN YOU DO NOT USE IT. A TEMPO CHANNEL DOES NOT EXPIRE, AND THE DEPOSIT STAYS LOCKED.
 </SteCaution>
 
 <SteNote>

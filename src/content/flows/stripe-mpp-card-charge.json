@@ -3,8 +3,8 @@
   "protocol": "stripe-mpp",
   "title": "MPP charge with the card method (Visa-authored, encrypted network token)",
   "summary": "The server offers card networks and an RSA key. The client asks its Client Enabler for a network token and cryptogram encrypted to that key, and the server passes the JWE to its Server Enabler, which authorizes on the card network.",
-  "specVersion": "draft-card-charge-00",
-  "specVersionDate": "2026-09-09",
+  "specVersion": "draft-card-charge-00 (undated, repository text of 2026-04-16, unchanged at commit 50309c8)",
+  "specVersionDate": "2026-04-16",
   "actors": [
     {
       "id": "client",
@@ -61,7 +61,7 @@
       "from": "ce",
       "to": "client",
       "label": "Encrypted payload",
-      "detail": "The Client Enabler provisions a network token and cryptogram, for example through Visa Intelligent Commerce, and encrypts them as a JWE (RSA-OAEP) for the server key. Neither client nor server can read it.",
+      "detail": "The Client Enabler provisions a network token and cryptogram, for example through Visa Intelligent Commerce, and encrypts them as a JWE (RSA-OAEP-256 key wrapping, A256GCM content encryption) for the server key. Neither client nor server can read it.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md",
@@ -101,7 +101,7 @@
       "from": "se",
       "to": "net",
       "label": "Authorize",
-      "detail": "The Server Enabler decrypts and requests authorization on the network. Card economics and chargeback rules apply as usual.",
+      "detail": "The Server Enabler decrypts the payload with its private key and submits an authorization request on the card network, where the issuer approves or declines. Reversibility follows card network chargeback rules.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md"
@@ -122,7 +122,7 @@
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/card/draft-card-charge-00.md",
-        "section": "Receipt"
+        "section": "Receipt Generation"
       }
     }
   ],

@@ -6,6 +6,7 @@ import { canonicalize } from '@/lib/playground/canonical-json';
 import { decodeJson, encodeCanonical, encodeJson, isCanonical } from '@/playgrounds/stripe-mpp/lib/codec';
 import {
   PAYMENT_AUTHORIZATION,
+  WRONG_FIELD_SIMPLIFICATION,
   bindingInput,
   buildCredential,
   computeChallengeId,
@@ -104,12 +105,16 @@ describe('fixtures', () => {
   });
 });
 
-describe('challenge binding (core HMAC-SHA256 test vectors)', () => {
+describe('challenge binding (HMAC-SHA256 test vectors of the repository text at 50309c8, from PR 362)', () => {
   const base = { realm: 'api.example.com', method: 'tempo', intent: 'charge', request: 'eyJhbW91bnQiOiIxMDAwMDAwIn0' };
   it('builds the slot layout', () => {
     expect(bindingInput(base)).toBe('api.example.com|tempo|charge|eyJhbW91bnQiOiIxMDAwMDAwIn0|||');
     expect(bindingInput({ ...base, header: PAYMENT_AUTHORIZATION })).toBe(
       'api.example.com|tempo|charge|eyJhbW91bnQiOiIxMDAwMDAwIn0|||Payment-Authorization|',
+    );
+    // Repository order: header before opaque (the posted -01 of 2026-09-09 would append header last).
+    expect(bindingInput({ ...base, header: PAYMENT_AUTHORIZATION, opaque: 'eyJwaSI6InBpXzEyMyJ9' })).toBe(
+      'api.example.com|tempo|charge|eyJhbW91bnQiOiIxMDAwMDAwIn0|||Payment-Authorization|eyJwaSI6InBpXzEyMyJ9',
     );
   });
   it('reproduces the three spec ids', async () => {
@@ -192,6 +197,9 @@ describe('challenge serialization and verification', () => {
     expect(bad.status === 402 && bad.problem.type.endsWith('malformed-credential')).toBe(true);
     const wrongField = await verifyCredential(state, value, { field: 'Payment-Authorization', now: NOW, reference: 'r' });
     expect(wrongField.status).toBe(402);
+    // The core names no problem type for a credential in the wrong field; the simulation labels its choice.
+    expect(wrongField.status === 402 && wrongField.problem.type.endsWith('invalid-challenge')).toBe(true);
+    expect(wrongField.status === 402 && wrongField.simplification).toBe(WRONG_FIELD_SIMPLIFICATION);
     const proof = await verifyCredential(state, value, { field, now: NOW, proofValid: false, reference: 'r' });
     expect(proof.status === 402 && proof.problem.type.endsWith('verification-failed')).toBe(true);
     const denied = await verifyCredential(state, value, { field, now: NOW, policyDenies: true, reference: 'r' });
@@ -214,12 +222,23 @@ describe('challenge serialization and verification', () => {
 describe('intents and methods', () => {
   it('builds tempo requests per intent on the simulated chain', () => {
     const charge = buildRequest('charge', { amount: 5n, description: 'd', externalId: 'e' });
-    expect(charge).toMatchObject({ amount: '5', currency: FIXTURE_TOKEN.address, recipient: FIXTURE_RECIPIENT, methodDetails: { chainId: SIM_CHAIN_ID } });
+    expect(charge).toMatchObject({
+      amount: '5',
+      currency: FIXTURE_TOKEN.address.toLowerCase(),
+      recipient: FIXTURE_RECIPIENT.toLowerCase(),
+      methodDetails: { chainId: SIM_CHAIN_ID },
+    });
     const sub = buildRequest('subscription', { amount: 5n, periodUnit: 'week', periodCount: 1 });
     expect(sub).toMatchObject({ periodUnit: 'week', periodCount: '1', methodDetails: { accessKey: { keyType: 'p256' } } });
     const sess = buildRequest('session', { amount: 25n, suggestedDeposit: 1000n });
-    expect(sess).toMatchObject({ unitType: 'llm_token', suggestedDeposit: '1000', methodDetails: { escrowContract: FIXTURE_ESCROW, sessionProtocol: 'v1' } });
+    expect(sess).toMatchObject({ unitType: 'llm_token', suggestedDeposit: '1000', methodDetails: { escrowContract: FIXTURE_ESCROW.toLowerCase(), sessionProtocol: 'v1' } });
     expect(sess).not.toHaveProperty('expires');
+    // Tempo session and subscription drafts: implementations MUST use lowercase hex when generating addresses.
+    for (const r of [charge, sub, sess]) {
+      const addresses = JSON.stringify(r).match(/0x[0-9a-fA-F]{40}/g) ?? [];
+      expect(addresses.length).toBeGreaterThan(1);
+      for (const a of addresses) expect(a).toBe(a.toLowerCase());
+    }
     expect(didPkh('0xA')).toBe('did:pkh:eip155:402402:0xA');
   });
   it('lists the 11 method ids and their intents', () => {

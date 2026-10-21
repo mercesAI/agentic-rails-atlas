@@ -7,10 +7,25 @@
  * unannotated in a later block). Skips headings, code, links, buttons and existing terms. Reads
  * src/content/glossary/terms.json at build time; a no-op when it is empty.
  * No unist helpers are needed; the walk is a small recursive function.
+ *
+ * Terms scoped to protocols (for example the Stripe MPP meanings of "session" or
+ * "charge") annotate only pages about one of those protocols: a protocol page uses
+ * its own slug, a scenario its frontmatter `protocols`, an orbit page the `to` of its
+ * frontmatter `relations`; any other page, or a file without a path, gets unscoped
+ * terms only. A scoped term flagged `commonWord` (an ordinary word such as "session")
+ * is left out on orbit pages, because a relation does not make every use of the word
+ * there carry the protocol's meaning. Frontmatter comes from `file.data.astro.frontmatter`, which Astro's MDX
+ * pipeline sets on the vfile; when it is missing, the file is read from disk.
  */
+import { readFileSync } from 'node:fs';
+import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { buildMatcher, loadGlossaryTerms, type MatchableTerm } from './lookup';
 
-interface VFileLike { path?: string; history?: string[] }
+interface VFileLike {
+  path?: string;
+  history?: string[];
+  data?: { astro?: { frontmatter?: Record<string, unknown> } };
+}
 interface HastText { type: 'text'; value: string }
 interface HastParent { type: string; tagName?: string; name?: string | null; properties?: Record<string, unknown>; children?: HastNode[] }
 type HastNode = HastText | HastParent;
@@ -29,28 +44,81 @@ function hasTermClass(node: HastParent): boolean {
   return Array.isArray(cls) ? cls.includes('term') : cls === 'term';
 }
 
+function filePath(file: VFileLike | undefined): string {
+  return (file?.path ?? file?.history?.[0] ?? '').replace(/\\/g, '/');
+}
+
 /** Slug of the protocol page being compiled (`src/content/protocols/<slug>/...`), if any. */
 export function protocolSlugOf(file: VFileLike | undefined): string | undefined {
-  const path = file?.path ?? file?.history?.[0] ?? '';
-  return path.replace(/\\/g, '/').match(/\/content\/protocols\/([^/]+)\//)?.[1];
+  return filePath(file).match(/\/content\/protocols\/([^/]+)\//)?.[1];
+}
+
+/** Frontmatter of the file: Astro's copy on the vfile, else parsed from disk; {} when neither works. */
+function frontmatterOf(file: VFileLike | undefined): Record<string, unknown> {
+  const fm = file?.data?.astro?.frontmatter;
+  if (fm && typeof fm === 'object') return fm;
+  const path = filePath(file).replace(/[?#].*$/, '');
+  if (!path) return {};
+  try {
+    const parsed = parseFrontmatter(readFileSync(path, 'utf8'), { frontmatter: 'empty-with-lines' });
+    return parsed.frontmatter && typeof parsed.frontmatter === 'object' ? (parsed.frontmatter as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
+
+/**
+ * Protocols whose scoped glossary terms may annotate this page: the slug of a
+ * protocol page, a scenario's frontmatter `protocols`, the `to` of each orbit
+ * relation, and none for any other page.
+ */
+export function pageProtocolsOf(file: VFileLike | undefined): string[] {
+  return pageScopeOf(file).protocols;
+}
+
+/** True for an orbit page, whose protocols come from relations rather than from what the page is about. */
+function isOrbitPage(file: VFileLike | undefined): boolean {
+  return /\/content\/orbit\/[^/]+\.mdx?(?:[?#]|$)/.test(filePath(file));
+}
+
+/** The page's protocols, and whether scoped terms flagged `commonWord` may annotate it. */
+export function pageScopeOf(file: VFileLike | undefined): { protocols: string[]; commonWords: boolean } {
+  const slug = protocolSlugOf(file);
+  if (slug) return { protocols: [slug], commonWords: true };
+  const path = filePath(file);
+  if (/\/content\/scenarios\/[^/]+\.mdx?(?:[?#]|$)/.test(path)) return { protocols: strings(frontmatterOf(file).protocols), commonWords: true };
+  if (isOrbitPage(file)) {
+    const relations = frontmatterOf(file).relations;
+    const protocols = Array.isArray(relations)
+      ? relations.flatMap((r) => (r && typeof r === 'object' && typeof (r as { to?: unknown }).to === 'string' ? [(r as { to: string }).to] : []))
+      : [];
+    return { protocols, commonWords: false };
+  }
+  return { protocols: [], commonWords: true };
 }
 
 export default function rehypeGlossary(options: RehypeGlossaryOptions = {}) {
   const terms = options.terms ?? loadGlossaryTerms(options.termsPath);
   const matchers = new Map<string, ReturnType<typeof buildMatcher>>();
-  // On a protocol page, a term scoped to other protocols (for example the Stripe MPP
-  // intent "charge") must not annotate ordinary words, so it is left out of that page's matcher.
-  const matcherFor = (slug: string | undefined) => {
-    const key = slug ?? '';
+  // A term scoped to other protocols (for example the Stripe MPP intent "charge") must not
+  // annotate ordinary words or another protocol's meaning, so it is left out of the matcher
+  // of every page that is not about one of its protocols.
+  const matcherFor = ({ protocols, commonWords }: { protocols: string[]; commonWords: boolean }) => {
+    const allowed = [...new Set(protocols)].sort();
+    const key = `${commonWords ? 'c' : 'n'}:${allowed.join(' ')}`;
     if (!matchers.has(key)) {
-      const scoped = slug ? terms.filter((t) => !t.protocols?.length || t.protocols.includes(slug)) : terms;
+      const scoped = terms.filter(
+        (t) => !t.protocols?.length || (t.protocols.some((p) => allowed.includes(p)) && (commonWords || !t.commonWord)),
+      );
       matchers.set(key, buildMatcher(scoped));
     }
     return matchers.get(key) ?? null;
   };
 
   return (tree: HastParent, file?: VFileLike): void => {
-    const matcher = matcherFor(protocolSlugOf(file));
+    const matcher = matcherFor(pageScopeOf(file));
     if (!matcher) return;
     let seen = new Set<string>();
 

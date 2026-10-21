@@ -3,7 +3,7 @@
   "items": [
     {
       "question": "Will the core reach an IETF working group?",
-      "context": "The draft is an individual submission; its first name expired before renewal under a new name, and mpp.dev's standards-track wording is stronger than the Datatracker record.",
+      "context": "The draft is an individual submission. It moved to a new name (draft-httpauth-payment-00 on 2026-06-19, -01 on 2026-09-09) while the old name was still active, and the old name expired on 2026-09-18. mpp.dev's standards-track wording is stronger than the Datatracker record.",
       "sources": [
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-ietf-ryan",
@@ -12,56 +12,69 @@
     },
     {
       "question": "Will session become a standardized intent?",
-      "context": "The contribution rules need two methods, and six methods already define session, yet PR #280 closed unmerged on 2026-09-28.",
+      "context": "The contribution rules need two methods, and as of 2026-10-21 six methods define session, yet PR #280 closed unmerged on 2026-09-28.",
       "sources": [
         "src-stripe-mpp-gh-pr-280",
-        "src-stripe-mpp-specs-contributing"
-      ]
-    },
-    {
-      "question": "How much MPP activity is real commerce?",
-      "context": "MPPscan's last 30 days average under one cent per transaction, and 126 of 129 directory listings accept Tempo.",
-      "sources": [
-        "src-stripe-mpp-mppscan",
-        "src-stripe-mpp-directory-api"
-      ]
-    },
-    {
-      "question": "Does Stripe's reported 1.5 percent stablecoin fee apply to MPP charges?",
-      "context": "Reported in December 2025; the current Stripe page states no percentage and the MPP docs list only minimums.",
-      "sources": [
-        "src-stripe-mpp-yahoo-fee",
-        "src-stripe-mpp-stripe-docs"
-      ]
-    },
-    {
-      "question": "Should channels expire?",
-      "context": "Channels and vouchers have no expiry; servers are only advised to close idle channels after about 30 days.",
-      "sources": [
-        "src-stripe-mpp-tempo-session"
-      ]
-    },
-    {
-      "question": "Will MPP gain a user authorization object, or rely on AP2-style mandates?",
-      "context": "MPP carries no user mandate, and no specification binds it to AP2.",
-      "sources": [
-        "src-stripe-mpp-core-01",
-        "src-stripe-mpp-ap2-glossary"
-      ]
-    },
-    {
-      "question": "Will Mastercard publish an MPP method or statement of its own?",
-      "context": "Only Tempo's quote inside Mastercard's release exists; no method spec.",
-      "sources": [
-        "src-mcap-ap4m-2026",
+        "src-stripe-mpp-specs-contributing",
         "src-stripe-mpp-specs-repo"
       ]
     },
     {
-      "question": "What do the 40 Tamarin findings mean for MPP specifically?",
-      "context": "The abstract does not break the findings out per protocol.",
+      "question": "How much MPP activity is real commerce?",
+      "context": "On 2026-10-21 MPPscan's last 30 days averaged about one cent (1.1 cents) per transaction (785,833 transactions, 8,620 USD), and 135 of 138 directory listings accepted Tempo. MPPscan publishes no counting method, while Visa and Artemis exclude identified wash and test activity from their totals.",
       "sources": [
-        "src-stripe-mpp-arxiv-2609-00060"
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-directory-api",
+        "src-stripe-mpp-visa-groundup"
+      ]
+    },
+    {
+      "question": "Does Stripe's published 1.5 percent stablecoin fee apply to MPP charges?",
+      "context": "Stripe's US pricing page lists stablecoin payments at 1.5 percent of the amount, with gas sponsorship included, and Shared Payment Tokens at 0.15 USD per SPT issued. The MPP docs list only minimums and do not say which rates apply to MPP charges.",
+      "sources": [
+        "src-stripe-mpp-stripe-pricing",
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-yahoo-fee"
+      ]
+    },
+    {
+      "question": "Should channels expire?",
+      "context": "Tempo, EVM and Hedera channels and vouchers have no expiry, and the Tempo spec only advises servers to close channels idle for about 30 days. Solana vouchers can carry expiresAt and XRPL channels Expiration or CancelAfter.",
+      "sources": [
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-evm",
+        "src-stripe-mpp-hedera",
+        "src-stripe-mpp-solana",
+        "src-stripe-mpp-xrpl"
+      ]
+    },
+    {
+      "question": "Will MPP gain a user authorization object, or rely on AP2-style mandates?",
+      "context": "The MPP core defines no user mandate. Method-level grants (Tempo access keys, SPT usage limits, debit mandates for subscriptions) authorize payments but do not record what the user asked an agent to buy. As of 2026-10-21 neither the MPP specs nor the AP2 repository refers to the other.",
+      "sources": [
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-tempo-subscription",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-ap2-glossary",
+        "src-stripe-mpp-ucp-repo"
+      ]
+    },
+    {
+      "question": "Will Mastercard publish an MPP method or statement of its own?",
+      "context": "Only Tempo's quote inside Mastercard's 2026-06-10 release exists, and no method spec; Mastercard's 2026-10-20 Early Access brief builds Agent Pay for Machines on x402 and names no MPP.",
+      "sources": [
+        "src-mcap-ap4m-2026",
+        "src-stripe-mpp-mc-ap4m-early-access",
+        "src-stripe-mpp-specs-repo"
+      ]
+    },
+    {
+      "question": "Have the 12 MPP findings in arXiv:2609.00060 been fixed in the specs or SDKs?",
+      "context": "Table III counts 12 new and 9 known MPP cases, such as MPP-14, where a retry after a lost response counts Tempo session spend twice. The authors say they reported the new cases and that the counts are not demonstrated production vulnerabilities. mppx 0.14.0 (2026-10-21) added idempotency keys for Tempo session charges; no source links it to MPP-14.",
+      "sources": [
+        "src-stripe-mpp-arxiv-2609-00060",
+        "src-stripe-mpp-mppx-changelog"
       ]
     }
   ]

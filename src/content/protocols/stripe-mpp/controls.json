@@ -16,8 +16,8 @@
     {
       "protocol": "stripe-mpp",
       "control": "agent-registration-kya",
-      "support": "none",
-      "note": "The core forbids requiring accounts for payment; any know-your-customer step belongs to a method (the stripe method needs Stripe accounts on both sides).",
+      "support": "external",
+      "note": "No agent registry in MPP, and the core forbids requiring accounts for payment; any know-your-customer step belongs to a method, and the stripe method needs Stripe accounts on both sides.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-stripe-charge"
@@ -59,11 +59,13 @@
       "protocol": "stripe-mpp",
       "control": "time-windows-expiry",
       "support": "partial",
-      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at, but session channels and vouchers never expire.",
+      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at. Tempo session channels and vouchers never expire, as in the EVM and Hedera drafts; XRPL channels can carry Expiration or CancelAfter, and Solana sessions have idle timeouts and an optional voucher expiresAt.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-intent-subscription",
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-session-methods"
       ]
     },
     {
@@ -100,9 +102,12 @@
       "protocol": "stripe-mpp",
       "control": "receipts-evidence",
       "support": "native",
-      "note": "Payment-Receipt with a method reference on every paid response; session receipts add spent and acceptedCumulative, plus a final SSE event.",
+      "note": "Payment-Receipt with a method reference, recommended by the core and required on every successful payment by the Tempo, stripe and card charge drafts and the Tempo session draft; session receipts add spent and acceptedCumulative, and a streamed response also ends with a receipt.",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-charge",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge",
         "src-stripe-mpp-tempo-session"
       ]
     },
@@ -120,7 +125,7 @@
       "protocol": "stripe-mpp",
       "control": "reputation",
       "support": "none",
-      "note": "No reputation layer; the discovery draft only mentions future on-chain anchoring compatible with ERC-8004.",
+      "note": "No reputation layer. The discovery draft's informative guidance lets aggregators add trust scores, uptime and volume data, and its comparison with prior art says the draft is compatible with future on-chain anchoring, naming the ERC-8004 registries.",
       "sources": [
         "src-stripe-mpp-discovery"
       ]
@@ -139,10 +144,12 @@
     {
       "protocol": "stripe-mpp",
       "control": "kill-switch",
-      "support": "none",
-      "note": "No protocol stop; a payer stops signing or force-closes, and an operator revokes keys at the wallet or disables a Stripe account.",
+      "support": "external",
+      "note": "No protocol stop. A payer stops signing or force-closes a channel, a Tempo account holder revokes access keys through the AccountKeychain precompile, and the agent side that issued an SPT can revoke it before the seller uses it.",
       "sources": [
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-tempo-subscription",
+        "src-fee-stripe-spt-docs"
       ]
     }
   ],
@@ -164,18 +171,20 @@
       ]
     },
     {
-      "title": "Identity is an add-on",
-      "description": "Request attestation is an mppx feature, not part of the core draft.",
+      "title": "No native agent identity",
+      "description": "The core carries only an optional payer identifier. Request attestation is an mppx feature, not part of the core draft, and the card method lets a client add TAP signature headers.",
       "sources": [
         "src-stripe-mpp-blog-identity",
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-card-charge"
       ]
     },
     {
-      "title": "Channels without expiry",
-      "description": "Open channels and unsettled vouchers persist until closed.",
+      "title": "Tempo channels without expiry",
+      "description": "Open Tempo session channels and unsettled vouchers persist until closed, as in the EVM and Hedera drafts; all three only advise servers to close channels idle for about 30 days or more. XRPL channels can expire, and Solana sessions use idle timeouts.",
       "sources": [
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-session-methods"
       ]
     },
     {
@@ -219,10 +228,11 @@
     {
       "point": "at-settlement",
       "what": "Screen and reconcile.",
-      "how": "Stripe fraud tools for Stripe-settled payments; TIP-20 policy registry allow and block lists on Tempo.",
+      "how": "Stripe fraud tools for Stripe-settled payments. On Tempo, each token's issuer chooses its allow or block list in the Tempo Policy Registry (TIP-403); a seller can set a receive policy that limits which tokens and senders it accepts, and a blocked payment still succeeds but is held in ReceivePolicyGuard to be claimed later.",
       "sources": [
         "src-stripe-mpp-stripe-blog",
-        "src-stripe-mpp-tempo-tip20"
+        "src-stripe-mpp-tempo-tip20",
+        "src-stripe-mpp-tempo-tip403"
       ]
     },
     {
@@ -266,25 +276,30 @@
       ]
     },
     {
-      "item": "Run mppx 0.8.2 or later (Rust mpp 0.8.0 or later).",
-      "why": "Earlier versions have published bypasses.",
+      "item": "Run the latest mppx (0.14.1 on 2026-10-21); 0.8.2 fixed the last published mppx advisory. Run Rust mpp 0.12.0 or later and pympp 0.10.1 or later.",
+      "why": "Earlier versions have published advisories, including payment bypasses, and mppx fixed further replay bugs without an advisory in 0.8.7 and 0.13.2.",
       "sources": [
         "src-stripe-mpp-ghsa-other",
-        "src-stripe-mpp-ghsa-rs"
+        "src-stripe-mpp-ghsa-rs",
+        "src-stripe-mpp-ghsa-mpp-rs",
+        "src-stripe-mpp-ghsa-pympp",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx"
       ]
     },
     {
       "item": "Cap session deposits and track every open channel.",
-      "why": "Channels never expire; the deposit is the worst case.",
+      "why": "Tempo session channels never expire, and the deposit is the worst case.",
       "sources": [
         "src-stripe-mpp-tempo-session"
       ]
     },
     {
       "item": "Cap fee payer spend.",
-      "why": "Sponsored fees were drained in 2026 advisories.",
+      "why": "Proof-of-concept attacks in 2026 mppx and pympp advisories made a sponsoring server pay about 5 to 9 times the normal fee.",
       "sources": [
-        "src-stripe-mpp-ghsa-other"
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-pympp"
       ]
     },
     {

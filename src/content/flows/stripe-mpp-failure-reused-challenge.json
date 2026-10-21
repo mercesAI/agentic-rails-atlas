@@ -91,10 +91,18 @@
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
         "section": "Status Codes"
-      }
+      },
+      "failures": [
+        {
+          "condition": "The server runs mppx 0.13.5 or later and the replayed credential is a Tempo charge (SDK behavior, not draft text)",
+          "outcome": "403 with problem type verification-failed and no new challenge, so the client does not pay again."
+        }
+      ]
     }
   ],
   "sources": [
-    "src-stripe-mpp-core-01"
+    "src-stripe-mpp-core-01",
+    "src-stripe-mpp-docs-http-402",
+    "src-stripe-mpp-mppx-changelog"
   ]
 }

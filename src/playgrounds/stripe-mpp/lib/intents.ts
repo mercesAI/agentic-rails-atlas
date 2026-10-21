@@ -3,7 +3,9 @@
  * charge: draft-payment-intent-charge-00 and draft-tempo-charge-00 (payload type "hash").
  * subscription: draft-payment-intent-subscription-00 and draft-tempo-subscription-00 (payload type "keyAuthorization").
  * session: draft-tempo-session-00 (amount is price per unit; methodDetails.escrowContract required; v1 protocol).
- * Chain id is the simulated 402402; token, recipient, escrow and access key are fixtures.
+ * Chain id is the simulated 402402; token, recipient, escrow and access key are fixtures. Addresses go out in
+ * lowercase hex: draft-tempo-session-00 and draft-tempo-subscription-00 require lowercase when generating addresses,
+ * and draft-tempo-charge-00 accepts it.
  */
 import { FIXTURE_ACCESS_KEY, FIXTURE_ESCROW, FIXTURE_RECIPIENT, FIXTURE_TOKEN, SIM_CHAIN_ID, type Intent } from './fixtures';
 
@@ -21,8 +23,11 @@ export interface RequestInputs {
   subscriptionExpires?: string;
 }
 
+/** Lowercase hex form of an address, as the Tempo session and subscription drafts require. */
+const lower = (address: string): string => address.toLowerCase();
+
 export function buildRequest(intent: Intent, i: RequestInputs): Record<string, unknown> {
-  const common = { amount: i.amount.toString(), currency: FIXTURE_TOKEN.address, recipient: FIXTURE_RECIPIENT };
+  const common = { amount: i.amount.toString(), currency: lower(FIXTURE_TOKEN.address), recipient: lower(FIXTURE_RECIPIENT) };
   if (intent === 'charge') {
     return {
       ...common,
@@ -38,14 +43,14 @@ export function buildRequest(intent: Intent, i: RequestInputs): Record<string, u
       periodCount: String(i.periodCount ?? 30),
       subscriptionExpires: i.subscriptionExpires ?? '2027-10-11T00:00:00Z',
       ...(i.description ? { description: i.description } : {}),
-      methodDetails: { accessKey: { accessKeyAddress: FIXTURE_ACCESS_KEY, keyType: 'p256' }, chainId: SIM_CHAIN_ID },
+      methodDetails: { accessKey: { accessKeyAddress: lower(FIXTURE_ACCESS_KEY), keyType: 'p256' }, chainId: SIM_CHAIN_ID },
     };
   }
   return {
     ...common,
     unitType: i.unitType ?? 'llm_token',
     ...(i.suggestedDeposit !== undefined ? { suggestedDeposit: i.suggestedDeposit.toString() } : {}),
-    methodDetails: { chainId: SIM_CHAIN_ID, escrowContract: FIXTURE_ESCROW, sessionProtocol: 'v1' },
+    methodDetails: { chainId: SIM_CHAIN_ID, escrowContract: lower(FIXTURE_ESCROW), sessionProtocol: 'v1' },
   };
 }
 

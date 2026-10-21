@@ -16,6 +16,12 @@ export interface MatchableTerm extends TooltipTerm {
   aliases: string[];
   /** Protocol slugs the term belongs to. Empty means it applies on every page. */
   protocols?: string[];
+  /**
+   * The term is an ordinary English word in its protocol's sense (for example the Stripe MPP
+   * "session" or "charge"). Such a term annotates only its protocol's own pages and scenarios
+   * that list the protocol, never an orbit page that merely relates to it.
+   */
+  commonWord?: boolean;
 }
 
 export const TERMS_PATH = 'src/content/glossary/terms.json';
@@ -35,6 +41,7 @@ export function loadGlossaryTerms(path: string = resolve(process.cwd(), TERMS_PA
           plain: typeof r.plain === 'string' ? r.plain : '',
           aliases: Array.isArray(r.aliases) ? r.aliases.filter((a): a is string => typeof a === 'string') : [],
           protocols: Array.isArray(r.protocols) ? r.protocols.filter((a): a is string => typeof a === 'string') : [],
+          commonWord: r.commonWord === true,
         },
       ];
     });

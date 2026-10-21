@@ -1,6 +1,6 @@
 {
   "protocol": "stripe-mpp",
-  "summary": "MPP binds every challenge parameter to its id, makes ids and proofs single use, forbids side effects before payment and requires TLS, so tampering and replay are covered at protocol level. What it leaves to clients is deciding whether a challenge is honest, because a malicious server can bind a bad price as easily as a good one. Credentials are bearer tokens. Loss limits, refunds and disputes come from the rail. The worst incidents so far were SDK bugs, not protocol flaws: four mppx advisories and one Rust advisory in 2026, all fixed.",
+  "summary": "MPP binds the challenge id to every defined challenge parameter except the human-readable description, makes ids and proofs single use, forbids side effects before payment and requires TLS, so tampering and replay are covered at protocol level. What it leaves to clients is deciding whether a challenge is honest, because a malicious server can bind a bad price as easily as a good one. Credentials are bearer tokens. Loss limits, refunds and disputes come from the rail. As of 2026-10-21 the MPP SDK repositories had published nine security advisories, all for SDK bugs and all fixed: five for mppx, two for the Rust crate mpp and two for pympp. Outside finders reported them, and none reports exploitation. A formal analysis posted on 2026-08-30 counts 12 previously undocumented formal-consistency cases for MPP, which its authors say are not demonstrated vulnerabilities in production deployments. Advisory dates below are the dates each repository published the advisory.",
   "threats": [
     {
       "id": "stripe-mpp-t1",
@@ -13,10 +13,11 @@
       ],
       "impact": "The client pays the attacker; on-chain charges are final.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Binding only protects a challenge after the server issues it. Clients must check amount, recipient, currency and expires and ignore description, as the core requires; enforce an allowlist before signing.",
+      "implementerNotes": "Binding only protects a challenge after the server issues it. Clients must check amount, recipient, currency and expires and ignore description, as the core requires; enforce an allowlist before signing. With redirect following turned on, pympp before 0.10.1 could pay a challenge reached through a cross-origin redirect (GHSA-5r9p-36vq-j23h).",
       "sources": [
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-intent-charge"
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-ghsa-pympp"
       ]
     },
     {
@@ -46,11 +47,12 @@
       ],
       "impact": "Free service or double charge.",
       "mitigatedBySpec": "yes",
-      "implementerNotes": "Ids are single use and methods must give single-use proofs; concurrent duplicates must settle at most once. mppx and the Rust SDK had replay bugs fixed in 0.4.8, 0.4.11 and 0.8.0.",
+      "implementerNotes": "Ids are single use and methods must give single-use proofs; concurrent duplicates must settle at most once. mppx and the Rust SDK had replay bugs fixed in 0.4.8, 0.4.11 and 0.8.0, and mppx shipped further replay fixes without an advisory in 0.8.7 and 0.13.2.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-ghsa-other",
-        "src-stripe-mpp-ghsa-rs"
+        "src-stripe-mpp-ghsa-rs",
+        "src-stripe-mpp-mppx-changelog"
       ]
     },
     {
@@ -60,13 +62,14 @@
       "description": "A stripe/charge implementation ignores Stripe's Idempotent-Replayed signal, so one SPT credential pays for several new challenges.",
       "preconditions": [
         "Server mppx before 0.4.11",
-        "Idempotency key not tied to the challenge"
+        "Server does not record consumed challenge ids or used SPTs"
       ],
       "impact": "Seller delivers several times for one payment (CVE-2026-34210).",
-      "mitigatedBySpec": "partial",
-      "implementerNotes": "Use the idempotency key built from challenge id and SPT, treat Idempotent-Replayed as a replay, and upgrade mppx.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Implementation bug, fixed in mppx 0.4.11. The vulnerable code already built the Stripe idempotency key from the challenge id and the SPT, so a replayed credential got Stripe's cached PaymentIntent back and mppx counted it as a new payment. The stripe draft requires servers to enforce single-use challenge ids and to check that an SPT was not used before; treat Idempotent-Replayed as a replay.",
       "sources": [
         "src-stripe-mpp-ghsa-34210",
+        "src-stripe-mpp-mppx-fix-34210",
         "src-stripe-mpp-stripe-charge"
       ]
     },
@@ -79,11 +82,12 @@
         "Server mppx before 0.4.11"
       ],
       "impact": "Payee loses unsettled earnings or the channel is closed against its will (CVE-2026-34209).",
-      "mitigatedBySpec": "no",
-      "implementerNotes": "Implementation bug, fixed in mppx 0.4.11; servers must compare with less-than-or-equal and capture max(spent, settled) on close.",
+      "mitigatedBySpec": "yes",
+      "implementerNotes": "Implementation bug, fixed in mppx 0.4.11. Since 2026-06-25 (pull request 278) the Tempo session draft requires a server to check that a close voucher covers at least the greater of its recorded spent amount and the on-chain settled amount, and in v2 to capture max(spent, settled).",
       "sources": [
         "src-stripe-mpp-ghsa-34209",
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-gh-pr-278"
       ]
     },
     {
@@ -93,13 +97,14 @@
       "description": "When the server sponsors fees, an attacker pads calldata or adds access lists so each sponsored transaction burns more gas than the policy expected.",
       "preconditions": [
         "feePayer true",
-        "Server mppx before 0.8.2"
+        "Server mppx before 0.8.2 or pympp before 0.9.1"
       ],
-      "impact": "Server's fee wallet drains (CVE-2026-63627, CVE-2026-63628).",
+      "impact": "Server's fee wallet drains (CVE-2026-63627, CVE-2026-63628; GHSA-v858-xh7w-8jr5 in pympp).",
       "mitigatedBySpec": "no",
       "implementerNotes": "Cap calldata size and reject access lists for sponsored transactions; set a daily ceiling on the fee wallet.",
       "sources": [
         "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-pympp",
         "src-stripe-mpp-tempo-charge"
       ]
     },
@@ -137,8 +142,8 @@
     {
       "id": "stripe-mpp-t9",
       "stride": "D",
-      "title": "Channel liabilities that never end",
-      "description": "Channels and vouchers have no expiry, so deposits stay locked and unsettled vouchers stay claimable until someone closes the channel.",
+      "title": "Tempo session liabilities that never end",
+      "description": "Tempo session channels and vouchers have no expiry, as in the EVM and Hedera session drafts, so deposits stay locked and unsettled vouchers stay claimable until someone closes the channel. Other session methods differ: XRPL channels can carry Expiration or CancelAfter, and Solana sessions add idle timeouts and an optional voucher expiresAt.",
       "preconditions": [
         "Client forgets to close",
         "Server disappears"
@@ -147,7 +152,8 @@
       "mitigatedBySpec": "partial",
       "implementerNotes": "Servers should close idle channels; clients should track channels and force-close, waiting at least 16 minutes after requestClose.",
       "sources": [
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-session-methods"
       ]
     },
     {
@@ -261,7 +267,7 @@
     {
       "title": "A Formal Analysis of Agent Payment Protocols",
       "date": "2026-08-30",
-      "finding": "Tamarin models of x402, MPP, ACP and AP2 with 40 previously undocumented formal-consistency findings across the four; the abstract does not break them out per protocol.",
+      "finding": "Tamarin models of x402, MPP, ACP and AP2. Of its 40 previously undocumented formal-consistency cases, 12 concern MPP (beside 9 known ones), among them MPP-14, where a retry after a lost response counts Tempo session spend twice. The authors say the counts are not demonstrated vulnerabilities in production deployments and that they disclosed their findings to the maintainers.",
       "publicationId": "pub-jiang-2026-formal",
       "sources": [
         "src-stripe-mpp-arxiv-2609-00060"
@@ -279,10 +285,11 @@
     {
       "title": "Free-Riding the Agentic Web: A Systematic Security Analysis of x402 Payments",
       "date": "2026-05-29",
-      "finding": "Attacks on x402 payment binding and delivery that apply by analogy to MPP charge implementations; the paper does not name MPP.",
+      "finding": "Four flaw classes in x402 payment binding and delivery: cross-resource substitution, duplicate-settlement races, allowance overdraft and denial of settlement. Version 2 (2026-06-22) names MPP among HTTP 402 payment protocols and as future work for model checking, but tests only x402. Its first two classes resemble the cross-route and concurrent replay bugs that mppx fixed in 0.4.8, under an advisory published on 2026-03-26.",
       "publicationId": "pub-ling-2026-freeriding",
       "sources": [
-        "src-stripe-mpp-arxiv-other"
+        "src-stripe-mpp-arxiv-2605-30998",
+        "src-stripe-mpp-ghsa-other"
       ]
     }
   ],
@@ -311,7 +318,7 @@
     {
       "id": "CVE-2026-34210",
       "date": "2026-03-26",
-      "summary": "GHSA-8mhj-rffc-rcvw: mppx before 0.4.11 ignored Stripe's Idempotent-Replayed header, so one SPT credential could be replayed. Fixed in 0.4.11; NVD published 2026-03-31.",
+      "summary": "GHSA-8mhj-rffc-rcvw: mppx before 0.4.11 ignored Stripe's Idempotent-Replayed header, so one SPT credential could be replayed. Fixed in 0.4.11; NVD published 2026-03-31. The GitHub Advisory Database rates it medium (CVSS 4.0 score 6.0) and NVD rates it high (CVSS 3.1 score 8.1).",
       "severity": "medium",
       "confidence": "verified",
       "sources": [
@@ -321,12 +328,13 @@
     },
     {
       "id": "GHSA-fxc9-7j2w-vx54",
-      "date": "2026-03-29",
+      "date": "2026-03-26",
       "summary": "Critical advisory for the Rust crate mpp before 0.8.0: free and replayed charges, griefed sessions, fee payer manipulation and replayed stripe charges. No CVE id.",
       "severity": "critical",
       "confidence": "verified",
       "sources": [
-        "src-stripe-mpp-ghsa-rs"
+        "src-stripe-mpp-ghsa-rs",
+        "src-stripe-mpp-ghsa-mpp-rs"
       ]
     },
     {
@@ -347,6 +355,36 @@
       "confidence": "verified",
       "sources": [
         "src-stripe-mpp-ghsa-other"
+      ]
+    },
+    {
+      "id": "GHSA-v858-xh7w-8jr5",
+      "date": "2026-07-01",
+      "summary": "pympp before 0.9.1: fee payer gas draining by calldata padding, the same attack as CVE-2026-63627 in mppx. Fixed in 0.9.1. The advisory names CVE-2026-63634.",
+      "severity": "low",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-pympp"
+      ]
+    },
+    {
+      "id": "GHSA-5r9p-36vq-j23h",
+      "date": "2026-08-25",
+      "summary": "pympp 0.10.0 and earlier: with redirect following turned on, PaymentTransport paid a 402 challenge from a cross-origin redirect target, so an attacker who controlled that target could choose the amount and recipient. The default client does not follow redirects. Fixed in 0.10.1. No CVE id.",
+      "severity": "medium",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-pympp"
+      ]
+    },
+    {
+      "id": "GHSA-8xhq-x7vw-8rcw",
+      "date": "2026-08-27",
+      "summary": "Rust crate mpp 0.11.0 and earlier: server middleware could attach a Payment-Receipt to a failed response, and body-aware routes answered a failed verification with a bare 402 and no fresh challenge. Fixed in 0.12.0. No CVE id.",
+      "severity": "medium",
+      "confidence": "verified",
+      "sources": [
+        "src-stripe-mpp-ghsa-mpp-rs"
       ]
     }
   ],

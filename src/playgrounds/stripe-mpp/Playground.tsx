@@ -157,7 +157,7 @@ export default function Playground() {
   return (
     <div className="mp">
       <p className="mp-tag">
-        Follows {CORE_SPEC} (core), the charge and subscription intent drafts, and {SESSION_SPEC}. Chain id 402402 is simulated (not assigned in the public chain registry on 2026-10-18); the token
+        Follows {CORE_SPEC} (core, repository text at commit 50309c8), the charge and subscription intent drafts, and {SESSION_SPEC}. Chain id 402402 is simulated (not assigned in the public chain registry on 2026-10-18); the token
         and addresses are fixtures. Payer key {account.address.slice(0, 10)}... exists in this tab only.
       </p>
       {/* Every panel stays mounted; a hidden panel keeps its channel, challenge and translator state. */}
@@ -191,7 +191,7 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [fresh, setFresh] = useState<Challenge | null>(null);
   const [payload, setPayload] = useState<Record<string, unknown> | null>(null);
-  const [result, setResult] = useState<{ text: string; tone: 'ok' | 'fail' | 'warn'; summary: string }[]>([]);
+  const [result, setResult] = useState<{ text: string; tone: 'ok' | 'fail' | 'warn'; summary: string; simplification?: string }[]>([]);
   const [paste, setPaste] = useState('');
   const [issuedAt, setIssuedAt] = useState(() => new Date());
   const [busy, setBusy] = useState(false);
@@ -307,7 +307,7 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
       ...(intent === 'subscription' ? { receiptExtra: { subscriptionId: bytesToBase64Url(crypto.getRandomValues(new Uint8Array(16))) } } : {}),
     };
     const runs = failure === 'replay' ? 2 : 1;
-    const out: { text: string; tone: 'ok' | 'fail' | 'warn'; summary: string }[] = [];
+    const out: { text: string; tone: 'ok' | 'fail' | 'warn'; summary: string; simplification?: string }[] = [];
     let newFresh: Challenge | null = null;
     for (let i = 0; i < runs; i++) {
       const v = await verifyCredential(state, value, opts);
@@ -321,7 +321,12 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
           : v.status === 403
             ? '403 Forbidden: paid, but denied by policy. No new challenge.'
             : `${i === 1 ? 'Second send: ' : ''}${v.status} with problem type ${v.problem.type.split('/').pop()}${v.freshChallenge ? ' and a fresh challenge' : ''}.`;
-      out.push({ text: verdictText(v, newFresh ?? undefined), tone: v.status === 200 ? 'ok' : v.status === 403 ? 'warn' : 'fail', summary });
+      out.push({
+        text: verdictText(v, newFresh ?? undefined),
+        tone: v.status === 200 ? 'ok' : v.status === 403 ? 'warn' : 'fail',
+        summary,
+        ...(v.status !== 200 && v.status !== 403 && v.simplification ? { simplification: v.simplification } : {}),
+      });
     }
     setFresh(newFresh);
     setResult(out);
@@ -398,6 +403,12 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
           <strong>Challenge id binding</strong> (HMAC-SHA256 with a server key made in this tab)
         </p>
         <pre tabIndex={SCROLL_TAB} aria-label="Challenge id binding">{`input = "${bindingInput(challenge)}"\nid    = base64url(HMAC-SHA256(server_secret, input)) = ${challenge.id}`}</pre>
+        {challenge.header && (
+          <Note kind="quirk">
+            The header slot sits before opaque, as in the repository text after mpp-specs PR 362 (2026-09-21) and in mppx. The posted draft-httpauth-payment-01 (2026-09-09) appends it after
+            opaque, so the two layouts give different ids for this challenge.
+          </Note>
+        )}
       </div>
       <Wire label={`3. Retry with the credential in ${field}`} value={`GET ${FIXTURE_PATH} HTTP/1.1\nHost: ${FIXTURE_HOST}\n${field === PAYMENT_AUTHORIZATION ? 'Authorization: Bearer sim-token\n' : ''}${field}: ${credValue}`} decoded={JSON.stringify(credential, null, 2)} />
       <div className="mp-row">
@@ -432,6 +443,7 @@ function Builder({ uid, serverKey, used, payer, signer, onAnnounce }: BuilderPro
               {decodedReceipt(r.text)}
             </pre>
           )}
+          {r.simplification && <Note kind="simplification">{r.simplification}</Note>}
         </div>
       ))}
       {fresh && (

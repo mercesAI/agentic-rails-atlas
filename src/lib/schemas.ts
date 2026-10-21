@@ -751,6 +751,8 @@ export const GlossaryTerm = z.object({
   plain: z.string(),
   ste: z.string(),
   protocols: z.array(z.string()),
+  /** An ordinary word in its protocol's sense: annotated only on that protocol's pages and scenarios, not on orbit pages. */
+  commonWord: z.boolean().optional(),
   sources: z.array(z.string()).min(1),
 });
 export type GlossaryTerm = z.infer<typeof GlossaryTerm>;

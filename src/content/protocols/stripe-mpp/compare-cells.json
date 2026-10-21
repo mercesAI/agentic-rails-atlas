@@ -17,10 +17,12 @@
       "value": "Payment credential and settlement rails; optional discovery",
       "sources": [
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-discovery"
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-intent-charge"
       ],
       "confidence": "verified",
-      "detail": "No identity, mandate or checkout layer; disputes depend on the rail."
+      "detail": "No identity, mandate or checkout layer in the specs (identity is limited to an optional payer source in the credential; mppx adds optional request attestation); disputes depend on the rail."
     },
     {
       "protocol": "stripe-mpp",
@@ -39,10 +41,11 @@
       "value": "Core as an individual IETF draft; methods by rails; no foundation",
       "sources": [
         "src-stripe-mpp-ietf-current",
-        "src-stripe-mpp-governance"
+        "src-stripe-mpp-governance",
+        "src-stripe-mpp-specs-repo"
       ],
       "confidence": "verified",
-      "detail": "No working group, charter or steering committee."
+      "detail": "No working group, charter or steering committee in the IETF record or the MPP repositories (2026-10-21)."
     },
     {
       "protocol": "stripe-mpp",
@@ -61,6 +64,7 @@
       "value": "2026-03-18",
       "sources": [
         "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-tempo-mainnet",
         "src-stripe-mpp-gh-specs-commits"
       ],
       "confidence": "verified",
@@ -69,13 +73,14 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "latest-version-and-date",
-      "value": "draft-httpauth-payment-01 (2026-09-09); mppx 0.13.4 (2026-10-08)",
+      "value": "draft-httpauth-payment-01 (2026-09-09); mppx 0.14.1 (2026-10-21)",
       "sources": [
         "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-ietf-ryan",
         "src-stripe-mpp-npm-mppx"
       ],
       "confidence": "verified",
-      "detail": "Old name draft-ryan-httpauth-payment expired 2026-09-18."
+      "detail": "Latest as of 2026-10-21. Old name draft-ryan-httpauth-payment expired 2026-09-18."
     },
     {
       "protocol": "stripe-mpp",
@@ -83,11 +88,12 @@
       "value": "Live deployments on a draft spec",
       "sources": [
         "src-stripe-mpp-tempo-mainnet",
+        "src-stripe-mpp-stripe-blog",
         "src-stripe-mpp-stripe-docs",
         "src-stripe-mpp-iana"
       ],
       "confidence": "verified",
-      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier; no IANA registrations."
+      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier and no IANA registrations (as of 2026-10-21)."
     },
     {
       "protocol": "stripe-mpp",
@@ -95,7 +101,8 @@
       "value": "HTTP authentication headers; JSON-RPC and MCP; SSE receipts",
       "sources": [
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-mcp-transport"
+        "src-stripe-mpp-mcp-transport",
+        "src-stripe-mpp-tempo-session"
       ],
       "confidence": "verified",
       "detail": "MCP error -32042 and _meta credential and receipt."
@@ -109,7 +116,7 @@
         "src-stripe-mpp-docs-methods"
       ],
       "confidence": "verified",
-      "detail": "11 method ids in the spec repo; mpp.dev documents two more."
+      "detail": "11 method ids in the spec repo; mpp.dev documents two more, monad and redotpay (as of 2026-10-21)."
     },
     {
       "protocol": "stripe-mpp",
@@ -140,6 +147,7 @@
       "dimension": "human-present-and-human-not-present-support",
       "value": "Both",
       "sources": [
+        "src-stripe-mpp-specs-repo",
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-stripe-charge"
       ],
@@ -165,7 +173,9 @@
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-charge",
         "src-stripe-mpp-stripe-charge",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-lightning",
+        "src-stripe-mpp-tempo-session"
       ],
       "confidence": "verified",
       "detail": "Signed Tempo transaction, SPT id, JWE network token, Lightning preimage or EIP-712 voucher."
@@ -173,7 +183,7 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "cryptography",
-      "value": "HMAC-SHA256 binding, JCS, RFC 9530 digest, EIP-712 secp256k1, JWE RSA-OAEP",
+      "value": "HMAC-SHA256 binding, JCS, RFC 9530 digest, EIP-712 secp256k1, JWE RSA-OAEP-256 with A256GCM",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-session",
@@ -245,7 +255,8 @@
       "value": "Optional /openapi.json with x-service-info and x-payment-info",
       "sources": [
         "src-stripe-mpp-discovery",
-        "src-stripe-mpp-directory-api"
+        "src-stripe-mpp-directory-api",
+        "src-stripe-mpp-mppscan"
       ],
       "confidence": "verified",
       "detail": "No .well-known path; mpp.dev directory and MPPscan."
@@ -271,7 +282,7 @@
         "src-stripe-mpp-directory-api"
       ],
       "confidence": "verified",
-      "detail": "Five core authors from two companies; Tempo validators are permissioned; 126 of 129 listings accept Tempo."
+      "detail": "Five core authors from two companies; Tempo validators are permissioned; 135 of 138 directory listings accept Tempo (2026-10-21)."
     },
     {
       "protocol": "stripe-mpp",
@@ -292,18 +303,19 @@
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-fees",
         "src-stripe-mpp-stripe-docs",
-        "src-fee-stripe-spt-docs"
+        "src-stripe-mpp-stripe-pricing"
       ],
       "confidence": "verified",
-      "detail": "Tempo gas at most about 0.0006 USD per 50,000-gas transfer, paid by the client unless the server sponsors; Stripe minimums 0.50 USD (cards) and 0.01 USDC; Stripe stablecoin fee reported, not confirmed for MPP; SPT pricing not published (as of 2026-10-11)."
+      "detail": "Tempo base fee for a 50,000-gas transfer capped at about 0.0006 USD, plus any priority fee, paid by the client unless the server sponsors. Stripe's US pricing page lists stablecoin payments at 1.5 percent and Shared Payment Tokens at 0.15 USD per SPT issued (listed since at least 2026-04-23), but does not say how either applies to MPP or which party an SPT is billed to. Stripe's MPP minimums: 0.50 USD for SPT cards and 0.01 USDC (2026-10-21)."
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "who-pays",
-      "value": "Client pays gas unless the server sponsors; card economics unchanged",
+      "value": "Client pays gas unless the server sponsors; Stripe lists 0.15 USD per SPT issued without naming who pays",
       "sources": [
         "src-stripe-mpp-tempo-session",
-        "src-stripe-mpp-stripe-docs"
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-stripe-pricing"
       ],
       "confidence": "verified",
       "detail": "Server always pays settle and close; Stripe can pay Tempo fees with hostedFeePayer."
@@ -315,7 +327,9 @@
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-session",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-mcp-transport"
       ],
       "confidence": "verified",
       "detail": "Plus OpenAPI and JSON-RPC for extensions."
@@ -323,21 +337,24 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "composes-with",
-      "value": "x402, Stripe SPT (ACP), Visa TAP and VIC, Mastercard AP4M (Tempo's statement)",
+      "value": "x402, Stripe SPT (also used by ACP), Visa TAP and VIC",
       "sources": [
         "src-stripe-mpp-vs-x402",
         "src-stripe-mpp-stripe-charge",
+        "src-stripe-acp-launch",
         "src-stripe-mpp-visa-card",
         "src-mcap-ap4m-2026",
-        "src-stripe-mpp-ucp-repo"
+        "src-stripe-mpp-mc-ap4m-early-access",
+        "src-stripe-mpp-ucp-repo",
+        "src-stripe-mpp-discovery"
       ],
       "confidence": "verified",
-      "detail": "AP2 complementary with no cross-reference; no UCP or ERC-8004 link."
+      "detail": "AP2 complementary with no cross-reference. Mastercard AP4M is not a composition: Tempo said in Mastercard's 2026-06-10 release that it is working on MPP compatibility, and Mastercard's 2026-10-20 Early Access brief builds AP4M on x402 and names no MPP. The UCP and ERC-8004 repositories never mention MPP; MPP's discovery draft compares itself with ERC-8004 and calls itself compatible with future on-chain anchoring."
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "reference-implementations-and-sdks",
-      "value": "mppx 0.13.4 (TypeScript), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
+      "value": "mppx 0.14.1 (TypeScript, 2026-10-21), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
       "sources": [
         "src-stripe-mpp-npm-mppx",
         "src-stripe-mpp-sdk-registries",
@@ -354,20 +371,22 @@
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api"
       ],
-      "confidence": "verified",
-      "detail": "MPPscan: 4,072,426 transactions and 435,476 USD all time, 8,774 USD in the last 30 days (2026-10-11); 129 directory services."
+      "confidence": "reported",
+      "detail": "MPPscan: 4,250,945 transactions and 437,665 USD all time, 8,620 USD in the 30 days to 2026-10-21; 138 directory services, 135 of them accepting Tempo (2026-10-21)."
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "published-security-research",
-      "value": "Yes: one formal analysis and six SDK advisories",
+      "value": "Yes: one formal analysis, one SoK that includes MPP, and nine SDK advisories (2026-10-21)",
       "sources": [
         "src-stripe-mpp-arxiv-2609-00060",
+        "src-stripe-mpp-arxiv-2604-15367",
         "src-stripe-mpp-ghsa-other",
-        "src-stripe-mpp-ghsa-rs"
+        "src-stripe-mpp-ghsa-mpp-rs",
+        "src-stripe-mpp-ghsa-pympp"
       ],
       "confidence": "verified",
-      "detail": "Tamarin model in arXiv:2609.00060; CVE-2026-34209, CVE-2026-34210, CVE-2026-63627, CVE-2026-63628 and two critical GHSAs."
+      "detail": "Tamarin models in arXiv:2609.00060 (12 new and 9 known MPP cases); SoK arXiv:2604.15367. Advisories, all fixed: mppx GHSA-8x4m-qw58-3pcx, CVE-2026-34209, CVE-2026-34210, CVE-2026-63627 and CVE-2026-63628; Rust mpp GHSA-fxc9-7j2w-vx54 and GHSA-8xhq-x7vw-8rcw; pympp CVE-2026-63634 and GHSA-5r9p-36vq-j23h."
     },
     {
       "protocol": "stripe-mpp",
@@ -420,6 +439,8 @@
       "value": 3,
       "justification": "Live since 2026-03-18 with several SDKs, but the core is an individual draft and Stripe's integration is labeled Frontier.",
       "sources": [
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-sdk-index",
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-stripe-docs"
       ]
@@ -428,7 +449,7 @@
       "protocol": "stripe-mpp",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Millions of indexed transactions but under one cent each recently, and few non-Tempo listings.",
+      "justification": "Millions of indexed transactions averaging about one cent each in the 30 days to 2026-10-21, and few non-Tempo listings.",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api"
@@ -470,8 +491,8 @@
     {
       "protocol": "stripe-mpp",
       "control": "agent-registration-kya",
-      "support": "none",
-      "note": "The core forbids requiring accounts for payment; any know-your-customer step belongs to a method (the stripe method needs Stripe accounts on both sides).",
+      "support": "external",
+      "note": "No agent registry in MPP, and the core forbids requiring accounts for payment; any know-your-customer step belongs to a method, and the stripe method needs Stripe accounts on both sides.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-stripe-charge"
@@ -513,11 +534,13 @@
       "protocol": "stripe-mpp",
       "control": "time-windows-expiry",
       "support": "partial",
-      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at, but session channels and vouchers never expire.",
+      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at. Tempo session channels and vouchers never expire, as in the EVM and Hedera drafts; XRPL channels can carry Expiration or CancelAfter, and Solana sessions have idle timeouts and an optional voucher expiresAt.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-intent-subscription",
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-session-methods"
       ]
     },
     {
@@ -554,9 +577,12 @@
       "protocol": "stripe-mpp",
       "control": "receipts-evidence",
       "support": "native",
-      "note": "Payment-Receipt with a method reference on every paid response; session receipts add spent and acceptedCumulative, plus a final SSE event.",
+      "note": "Payment-Receipt with a method reference, recommended by the core and required on every successful payment by the Tempo, stripe and card charge drafts and the Tempo session draft; session receipts add spent and acceptedCumulative, and a streamed response also ends with a receipt.",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-charge",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge",
         "src-stripe-mpp-tempo-session"
       ]
     },
@@ -574,7 +600,7 @@
       "protocol": "stripe-mpp",
       "control": "reputation",
       "support": "none",
-      "note": "No reputation layer; the discovery draft only mentions future on-chain anchoring compatible with ERC-8004.",
+      "note": "No reputation layer. The discovery draft's informative guidance lets aggregators add trust scores, uptime and volume data, and its comparison with prior art says the draft is compatible with future on-chain anchoring, naming the ERC-8004 registries.",
       "sources": [
         "src-stripe-mpp-discovery"
       ]
@@ -593,10 +619,12 @@
     {
       "protocol": "stripe-mpp",
       "control": "kill-switch",
-      "support": "none",
-      "note": "No protocol stop; a payer stops signing or force-closes, and an operator revokes keys at the wallet or disables a Stripe account.",
+      "support": "external",
+      "note": "No protocol stop. A payer stops signing or force-closes a channel, a Tempo account holder revokes access keys through the AccountKeychain precompile, and the agent side that issued an SPT can revoke it before the seller uses it.",
       "sources": [
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-tempo-subscription",
+        "src-fee-stripe-spt-docs"
       ]
     }
   ]

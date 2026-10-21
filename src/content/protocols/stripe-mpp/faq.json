@@ -15,7 +15,7 @@
     },
     {
       "q": "Is MPP an IETF standard?",
-      "a": "No. The core is an individual Internet-Draft, draft-httpauth-payment-01 (2026-09-09), with no working group, stream or intended status. IANA has registered none of its header or scheme names as of 2026-10-11.",
+      "a": "No. The core is an individual Internet-Draft, draft-httpauth-payment-01 (2026-09-09), with no working group, stream or intended status. IANA has registered none of its header or scheme names as of 2026-10-21.",
       "misconception": true,
       "claimIds": [
         "clm-stripe-mpp-006",
@@ -53,7 +53,7 @@
     },
     {
       "q": "Is session a standard MPP intent?",
-      "a": "Not yet. Only charge and subscription are in specs/intents. Session is defined inside six method specs, and the pull request for a generic session intent closed unmerged on 2026-09-28, even though a June blog post called sessions a formal intent.",
+      "a": "Not yet. As of 2026-10-21 only charge and subscription are in specs/intents. Session is defined inside six method specs, and the pull request for a generic session intent closed unmerged on 2026-09-28, even though a June blog post called sessions a formal intent.",
       "misconception": true,
       "claimIds": [
         "clm-stripe-mpp-049",
@@ -64,7 +64,7 @@
     },
     {
       "q": "How is MPP different from x402?",
-      "a": "MPP uses HTTP authentication headers (WWW-Authenticate, Authorization, Payment-Receipt) and lets the server or rail settle; x402 uses its own headers and a facilitator. MPP maps x402 exact to charge, and mppx can serve both on one route.",
+      "a": "MPP uses HTTP authentication headers (WWW-Authenticate, Authorization, Payment-Receipt), while x402 defines its own PAYMENT-REQUIRED, PAYMENT-SIGNATURE and PAYMENT-RESPONSE headers. MPP's documentation maps x402 exact to charge, and mppx can serve both on one route.",
       "claimIds": [
         "clm-stripe-mpp-177",
         "clm-stripe-mpp-178",
@@ -73,9 +73,11 @@
     },
     {
       "q": "Can a leaked credential be used by someone else?",
-      "a": "Yes, until it is used. Credentials are bearer tokens, so servers and intermediaries must never log them, and TLS 1.2 or later is required.",
+      "a": "Yes, until it is used or its challenge expires. Credentials are bearer tokens, so servers and intermediaries must never log them, and TLS 1.2 or later is required.",
       "claimIds": [
         "clm-stripe-mpp-122",
+        "clm-stripe-mpp-123",
+        "clm-stripe-mpp-092",
         "clm-stripe-mpp-118"
       ]
     },
@@ -97,29 +99,33 @@
     },
     {
       "q": "Does MPP support refunds and chargebacks?",
-      "a": "It depends on the method. Card routes keep chargebacks; Stripe stablecoin payments have no disputes; on-chain charges are final unless the seller refunds.",
+      "a": "It depends on the method. Card routes keep chargebacks. Stripe stablecoin payments have no disputes, and refunds go back in stablecoin to the original wallet. A Tempo charge settles with deterministic finality, so only a new transfer from the seller can return the money.",
       "claimIds": [
         "clm-stripe-mpp-136",
-        "clm-stripe-mpp-167"
+        "clm-stripe-mpp-167",
+        "clm-stripe-mpp-157"
       ]
     },
     {
       "q": "Does Mastercard support MPP?",
-      "a": "Mastercard has not said so in its own words. In its 2026-06-10 Agent Pay for Machines release, Tempo says it is working with Mastercard on MPP compatibility. There is no Mastercard method spec; the Visa card method accepts mastercard as a network value.",
+      "a": "Mastercard has not said so in its own words. In its 2026-06-10 Agent Pay for Machines release, Tempo says it is working with Mastercard on MPP compatibility, and Mastercard's 2026-10-20 Early Access brief builds that product on x402 and names no MPP. There is no Mastercard method spec; the Visa card method accepts mastercard as a network value.",
       "misconception": true,
       "claimIds": [
         "clm-stripe-mpp-202",
+        "clm-stripe-mpp-213",
+        "clm-stripe-mpp-190",
         "clm-stripe-mpp-203",
         "clm-stripe-mpp-191"
       ]
     },
     {
       "q": "Were Anthropic, OpenAI and Shopify MPP design partners?",
-      "a": "No source says so. Tempo's launch post names them as partners for stablecoin use cases on Tempo; only Visa is called an MPP design partner.",
+      "a": "No primary source says so. Some launch coverage (byteiota, 2026-03-18) calls Anthropic and OpenAI MPP design partners, but Tempo's launch post names Anthropic, OpenAI and Shopify as partners for stablecoin use cases on Tempo, and calls only Visa a design partner in connection with MPP.",
       "misconception": true,
       "claimIds": [
         "clm-stripe-mpp-017",
-        "clm-stripe-mpp-015"
+        "clm-stripe-mpp-015",
+        "clm-stripe-mpp-261"
       ]
     }
   ]

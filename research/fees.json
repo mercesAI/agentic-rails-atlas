@@ -58,8 +58,8 @@
       "publisher": "Stripe",
       "type": "docs",
       "primary": true,
-      "notes": "Read 2026-10-11 and 2026-10-20: preview terms (API version 2026-09-30.preview), no SPT price schedule shown. On 2026-10-20 the seller variant adds the SPT Resolve API (a granted token resolved once into fpan, network_token, agentic_token or dpan credentials for a third-party processor, encrypted unless the seller has given Stripe a PCI Attestation of Compliance), lists consumed, resolved, expired or revoked as deactivation reasons, and names American Express ACE Kit beside Mastercard Agent Pay and Visa Intelligent Commerce; the agent variant still names Mastercard and Visa only and says consumed, expired or revoked. Same URL as src-stripe-spt in the openai-acp dossier (visa-tap uses that id for a Stripe blog post, so a new id is used here).",
-      "accessed": "2026-10-20"
+      "notes": "Read 2026-10-11, 2026-10-20 and 2026-10-21: labeled Public preview, preview terms (API version 2026-09-30.preview), no price on the docs pages. The price, 0.15 USD per SPT issued, is on Stripe's US pricing page (src-openai-acp-stripe-pricing), listed since at least 2026-04-23; its Learn more link opens the agent variant of this page. On 2026-10-20 the seller variant adds the SPT Resolve API (a granted token resolved once into fpan, network_token, agentic_token or dpan credentials for a third-party processor, encrypted unless the seller has given Stripe a PCI Attestation of Compliance), lists consumed, resolved, expired or revoked as deactivation reasons, and names American Express ACE Kit beside Mastercard Agent Pay and Visa Intelligent Commerce; the agent variant still names Mastercard and Visa only and says consumed, expired or revoked. Same URL as src-stripe-spt in the openai-acp dossier (visa-tap uses that id for a Stripe blog post, so a new id is used here).",
+      "accessed": "2026-10-21"
     },
     {
       "id": "src-x402-fee-cdp",
@@ -364,30 +364,33 @@
       "fact": "Stripe MPP minimum amounts: 0.50 USD for card payments through Shared Payment Tokens; 0.01 USDC for stablecoin payments. hostedFeePayer: true (mppx 0.9.2 or later, live mode) makes Stripe pay customers' Tempo network fees.",
       "asOf": "2026-10-11",
       "confidence": "verified",
-      "caveat": "Minimums, not fees. No MPP-specific price schedule is published.",
+      "caveat": "Minimums, not fees. Stripe's MPP docs name no MPP-specific price; its US pricing page lists 0.15 USD per SPT issued and 1.5 percent for stablecoin payments without saying how either applies to MPP.",
       "sources": [
-        "src-stripe-mpp-stripe-docs"
+        "src-stripe-mpp-stripe-docs",
+        "src-openai-acp-stripe-pricing"
       ]
     },
     {
       "protocol": "stripe-mpp",
-      "fact": "Stripe stablecoin payments: 1.5 percent per transaction was reported at launch; the docs list a $10,000 per-transaction customer limit, no disputes and refunds in stablecoin.",
-      "asOf": "2025-12-10",
-      "confidence": "reported",
-      "caveat": "The current Stripe docs page states no percentage; whether the fee applies to MPP charges is unverified.",
+      "fact": "Stripe stablecoin payments: Stripe's US pricing page lists 1.5 percent of the transaction amount in USD, including conversion to fiat, wallet and AML screening, fraud prevention and gas sponsorship (reported in the press since 2025-12-10); the docs list a $10,000 per-transaction customer limit, no disputes and refunds in stablecoin.",
+      "asOf": "2026-10-21",
+      "confidence": "verified",
+      "caveat": "Stripe's MPP docs name no separate MPP rate, so whether this rate applies to MPP charges is not stated. The 0.8 percent promotional stablecoin rate on the same page belongs to Link.",
       "sources": [
+        "src-openai-acp-stripe-pricing",
         "src-stripe-mpp-yahoo-fee",
         "src-stripe-mpp-stripe-stablecoin"
       ]
     },
     {
       "protocol": "stripe-mpp",
-      "fact": "Stripe Shared Payment Tokens are in public preview; no SPT pricing is published.",
-      "asOf": "2026-10-11",
+      "fact": "Stripe Shared Payment Tokens are in public preview; Stripe's US pricing page lists them at 0.15 USD per SPT issued, listed since at least 2026-04-23, without naming the party billed.",
+      "asOf": "2026-10-21",
       "confidence": "verified",
-      "caveat": "Corrects the follow-up seed, which said private preview.",
+      "caveat": "Corrects the follow-up seed, which said private preview, and the earlier reading that no SPT price was published (the SPT docs pages show none). How the price applies to SPTs used through MPP is not stated.",
       "sources": [
-        "src-fee-stripe-spt-docs"
+        "src-fee-stripe-spt-docs",
+        "src-openai-acp-stripe-pricing"
       ]
     },
     {

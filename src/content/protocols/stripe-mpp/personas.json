@@ -12,7 +12,7 @@
       "pains": [
         "Managing the HMAC secret that every challenge id depends on",
         "Choosing between charge and a session for streaming endpoints",
-        "Keeping up with SDK advisories (four mppx advisories in 2026)"
+        "Keeping up with SDK advisories and changelog fixes (five mppx advisories in 2026, the last fixed in 0.8.2)"
       ],
       "implements": [
         "mppx server with one or more methods and a secretKey",
@@ -32,7 +32,7 @@
       "firstSteps": [
         "Run the mppx server quick start on the Moderato testnet",
         "Add a second method (stripe) to the same route and read both challenges",
-        "Pin mppx to 0.8.2 or later and subscribe to the repository advisories"
+        "Run the latest mppx (0.14.1 on 2026-10-21) and watch both its advisories and its changelog, which lists security fixes without an advisory"
       ],
       "metrics": [
         "Paid requests per route",
@@ -44,7 +44,9 @@
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-mppx-repo",
         "src-stripe-mpp-ghsa-other",
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx"
       ]
     },
     {
@@ -57,7 +59,7 @@
       ],
       "pains": [
         "Bearer credentials that anyone can spend if they leak",
-        "Channels that never expire unless the client closes them",
+        "Tempo channels that never expire: they stay open until the server closes them or the client forces a close",
         "Method support that differs by SDK"
       ],
       "implements": [
@@ -94,7 +96,7 @@
     },
     {
       "persona": "psp",
-      "role": "Settles MPP charges on card and fiat rails: Stripe for the stripe method, or a Client or Server Enabler for the Visa card method.",
+      "role": "Processes MPP charges on card and fiat rails: Stripe for the stripe method, or, in the card method written by Visa, a Server Enabler that decrypts the token and requests authorization from the card network (a Client Enabler provisions the token).",
       "goals": [
         "Bring existing card and wallet acceptance to machine clients",
         "Keep raw card data out of client and server scope",
@@ -103,10 +105,10 @@
       "pains": [
         "Replayed SPT credentials (CVE-2026-34210)",
         "Mapping one challenge to one PaymentIntent or authorization",
-        "No published SPT pricing"
+        "Unclear SPT cost allocation: Stripe's US pricing page lists 0.15 USD per SPT issued, listed since at least 2026-04-23, but does not name the party billed"
       ],
       "implements": [
-        "PaymentIntent creation with confirm true and an idempotency key from challenge id and SPT",
+        "PaymentIntent creation with confirm true, an idempotency key from challenge id and SPT, and a check of Stripe's Idempotent-Replayed header",
         "JWE decryption and network authorization as Server Enabler",
         "Network token and cryptogram provisioning as Client Enabler"
       ],
@@ -118,7 +120,7 @@
       "questions": [
         "Is this payment card-not-present with agent involvement, and how do disputes work?",
         "What metadata ties a PaymentIntent to its challenge?",
-        "Do stablecoin charges carry a percentage fee?"
+        "Does Stripe's listed 1.5 percent stablecoin rate apply to MPP charges?"
       ],
       "firstSteps": [
         "Read draft-stripe-charge-00 and draft-card-charge-00",
@@ -130,12 +132,16 @@
         "Dispute rate by method",
         "Duplicate charge incidents"
       ],
-      "story": "Lena works on acceptance at a payment processor that already serves Visa merchants. Visa's card method lets her team act as a Server Enabler: merchant servers forward an encrypted token they cannot read, her service decrypts it and asks the network for authorization. Card economics and chargebacks stay as they are. On the first week a merchant's buggy client sends the same credential twice; her idempotency checks return the first authorization instead of charging again. She reports authorization rates for agent traffic separately, because nobody yet knows whether it behaves like ordinary card-not-present volume.",
+      "story": "Lena works on acceptance at a payment processor that already serves Visa merchants. The card method, written by Visa, lets her team act as a Server Enabler: merchant servers forward an encrypted token they cannot read, her service decrypts it and asks the network for authorization. Chargebacks still follow card network rules, and Visa's rules now include agent-specific provisions. In the first week a merchant's buggy client sends the same credential twice; her idempotency checks return the first authorization instead of charging again. She reports authorization rates for agent traffic separately, because nobody yet knows whether it behaves like ordinary card-not-present volume.",
       "sources": [
         "src-stripe-mpp-card-charge",
         "src-stripe-mpp-stripe-charge",
         "src-stripe-mpp-ghsa-34210",
-        "src-stripe-mpp-stripe-docs"
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-stripe-pricing",
+        "src-stripe-mpp-mppx-fix-34210",
+        "src-visa-rules-public"
       ]
     },
     {
@@ -192,8 +198,8 @@
       ],
       "pains": [
         "No protocol kill switch or revocation message",
-        "Channels without expiry",
-        "Identity only as an SDK add-on"
+        "Tempo channels without expiry",
+        "No native agent identity: only an optional payer id, optional TAP headers in the card method and mppx's request attestation"
       ],
       "implements": [
         "Policy extensions that run before mppx signs",
@@ -220,11 +226,13 @@
         "Open channel value at risk",
         "Time to stop an agent"
       ],
-      "story": "Sam runs the controls team for a company with 300 agents. MPP gives him clean hooks: every payment starts with a decoded challenge, and mppx runs his extension before it signs. His extension checks a per-agent budget, a recipient allowlist and a maximum price per unit for sessions. A dashboard joins stored receipts with on-chain settlements. The gap he cannot close in policy is time: channels never expire, so his nightly job force-closes channels idle for a day. When an agent misbehaves, he revokes its key at the wallet, because the protocol has no stop button.",
+      "story": "Sam runs the controls team for a company with 300 agents. MPP gives him clean hooks: every payment starts with a decoded challenge, and mppx runs his extension before it signs. His extension checks a per-agent budget, a recipient allowlist and a maximum price per unit for sessions. A dashboard joins stored receipts with on-chain settlements. The gap he cannot close in policy is time: Tempo channels never expire, so his nightly job force-closes channels idle for a day. When an agent misbehaves, he revokes its key at the wallet, because the protocol has no stop button.",
       "sources": [
         "src-stripe-mpp-mppx-repo",
         "src-stripe-mpp-tempo-session",
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-blog-identity"
       ]
     }
   ],

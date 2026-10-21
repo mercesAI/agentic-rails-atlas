@@ -1,6 +1,6 @@
 sequenceDiagram
   accTitle: MPP failure: a used credential is sent again (replay)
-  accDescr: Sequence diagram: MPP failure: a used credential is sent again (replay). 2 participants: Client (agent) and Resource server. 6 steps, 5 crossing a trust boundary. Based on stripe-mpp draft-httpauth-payment-01 (2026-09-09). Step 1: Client (agent) to Resource server: GET /v1/forecast. This step crosses a trust boundary. Step 2: Resource server to Client (agent): 402 with challenge. This step crosses a trust boundary. Step 3: Client (agent) to Resource server: First retry pays. This step crosses a trust boundary. Step 4: Client (agent) to Resource server: Same credential again. This step crosses a trust boundary. Step 5: Resource server to Resource server: Look up the id. Step 6: Resource server to Client (agent): 402, fresh challenge, invalid-challenge. This step crosses a trust boundary.
+  accDescr: Sequence diagram: MPP failure: a used credential is sent again (replay). 2 participants: Client (agent) and Resource server. 6 steps, 5 crossing a trust boundary, 1 failure branch. Based on stripe-mpp draft-httpauth-payment-01 (2026-09-09). Step 1: Client (agent) to Resource server: GET /v1/forecast. This step crosses a trust boundary. Step 2: Resource server to Client (agent): 402 with challenge. This step crosses a trust boundary. Step 3: Client (agent) to Resource server: First retry pays. This step crosses a trust boundary. Step 4: Client (agent) to Resource server: Same credential again. This step crosses a trust boundary. Step 5: Resource server to Resource server: Look up the id. Step 6: Resource server to Client (agent): 402, fresh challenge, invalid-challenge. This step crosses a trust boundary. If The server runs mppx 0.13.5 or later and the replayed credential is a Tempo charge (SDK behavior, not draft text): 403 with problem type verification-failed and no new challenge, so the client does not pay again.
   autonumber
   participant p_client as Client (agent)
   participant p_server as Resource server
@@ -13,5 +13,9 @@ sequenceDiagram
   p_client->>p_server: Same credential again
   Note over p_client,p_server: Crosses a trust boundary
   p_server->>p_server: Look up the id
-  p_server-->>p_client: 402, fresh challenge, invalid-challenge
-  Note over p_server,p_client: Crosses a trust boundary
+  alt Expected path
+    p_server-->>p_client: 402, fresh challenge, invalid-challenge
+    Note over p_server,p_client: Crosses a trust boundary
+  else The server runs mppx 0.13.5 or later and the replayed credential is a Tempo charge (SDK behavior, not draft text)
+    Note over p_server,p_client: 403 with problem type verification-failed and no<br/>new challenge, so the client does not pay again.
+  end

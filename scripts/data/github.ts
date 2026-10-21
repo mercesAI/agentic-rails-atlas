@@ -1,6 +1,9 @@
 /**
  * GitHub fetcher (ATLAS_PROMPT.md 11): stars, open issues, last push, last
  * commit, latest release or tag for every repository in scripts/data/repos.json.
+ * `latestTag` is the latest release's tag when the repository has a release: the
+ * tags endpoint lists tags by name, not by date, so its first entry can be an old tag
+ * (for example a hash-suffixed one); the first listed tag is used only without a release.
  * Token: GITHUB_TOKEN, then `gh auth token`, then unauthenticated (fewer calls).
  * Never throws. A repository that fails keeps its previous snapshot record
  * (marked stale). Writes src/data/snapshots/github/<date>.json, a copy at
@@ -46,6 +49,14 @@ export interface GithubSnapshot {
   fetchedAt: string;
   authenticated: boolean;
   repos: Record<string, RepoRecord>;
+}
+
+/**
+ * The tag a snapshot reports for a repository: the latest release's tag when it has a
+ * release, otherwise the first tag the tags endpoint lists (ordered by name, not date).
+ */
+export function latestTagOf(latestRelease: { tag: string } | null, firstListedTag: string | null): string | null {
+  return latestRelease?.tag ?? firstListedTag ?? null;
 }
 
 function token(): string | undefined {
@@ -94,7 +105,7 @@ export async function fetchGithub(): Promise<FetchResult<GithubSnapshot>> {
         let lastCommit: RepoRecord['lastCommit'] = null;
         const rel = await api<{ tag_name: string; name: string | null; published_at: string | null; html_url: string }>(`/repos/${full}/releases/latest`);
         if (rel.ok && rel.json) latestRelease = { tag: rel.json.tag_name, name: rel.json.name, publishedAt: rel.json.published_at, url: rel.json.html_url };
-        if (tok || !latestRelease) {
+        if (!latestRelease) {
           const tags = await api<{ name: string }[]>(`/repos/${full}/tags?per_page=1`);
           if (tags.ok && Array.isArray(tags.json)) latestTag = tags.json[0]?.name ?? null;
         }
@@ -115,7 +126,7 @@ export async function fetchGithub(): Promise<FetchResult<GithubSnapshot>> {
           pushedAt: repo.pushed_at,
           lastCommit,
           latestRelease,
-          latestTag: latestTag ?? latestRelease?.tag ?? null,
+          latestTag: latestTagOf(latestRelease, latestTag),
           license: repo.license?.spdx_id ?? null,
           fetchedAt: nowIso(),
         };

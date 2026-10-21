@@ -3,9 +3,17 @@
   "stewards": [
     {
       "name": "Tempo Labs",
-      "role": "Co-author of the core (three of five authors) and of most intent, transport and Tempo method drafts; runs mpp.dev.",
+      "role": "Co-author of the core (three of five authors); sole author of both intent drafts, the MCP transport draft and the three Tempo method drafts; co-author of the discovery draft (with Merit Systems) and the stripe method drafts (with Stripe); runs mpp.dev.",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-mcp-transport",
+        "src-stripe-mpp-tempo-charge",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-tempo-subscription",
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-stripe-charge",
         "src-stripe-mpp-specs-repo"
       ]
     },
@@ -25,6 +33,11 @@
         "src-stripe-mpp-lightning",
         "src-stripe-mpp-usdc",
         "src-stripe-mpp-evm",
+        "src-stripe-mpp-solana",
+        "src-stripe-mpp-stellar",
+        "src-stripe-mpp-hedera",
+        "src-stripe-mpp-nearintents",
+        "src-stripe-mpp-xrpl",
         "src-stripe-mpp-governance"
       ]
     }
@@ -32,10 +45,12 @@
   "implementers": [
     {
       "name": "Stripe (MPP acceptance with deposit addresses and SPTs)",
-      "role": "Accepts MPP payments in stablecoins and cards, Klarna and Affirm through SPTs; docs labeled Frontier.",
+      "role": "Accepts MPP payments in stablecoins (USDC.e on Tempo, USDC on Solana) and in cards, Klarna and Affirm through SPTs, and runs streaming payments over MPP sessions on Tempo; stablecoin payments are open to businesses in every US state except New York; docs labeled Frontier.",
       "status": "beta",
       "sources": [
         "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-stripe-machine",
+        "src-stripe-mpp-stripe-streaming",
         "src-stripe-mpp-stripe-sessions"
       ]
     },
@@ -59,11 +74,13 @@
     },
     {
       "name": "Lightspark",
-      "role": "Lightning method author.",
-      "status": "announced",
+      "role": "Lightning method author. mpp.dev names @buildonspark/lightning-mpp-sdk (0.1.4, 2026-03-18), whose npm maintainers include Lightspark addresses, as the lightning implementation; session support is listed as coming soon (2026-10-21).",
+      "status": "live",
       "sources": [
-        "src-stripe-mpp-tempo-mainnet",
-        "src-stripe-mpp-lightning"
+        "src-stripe-mpp-lightning",
+        "src-stripe-mpp-npm-lightning",
+        "src-stripe-mpp-docs-lightning",
+        "src-stripe-mpp-tempo-mainnet"
       ]
     },
     {
@@ -100,11 +117,21 @@
       ]
     },
     {
-      "name": "Tempo Wallet MPP Credits",
-      "role": "Lets users fund agents by card.",
+      "name": "Tempo Wallet MACH",
+      "role": "On-chain credit that an agent spends over MPP at approved merchants on Tempo, within limits the user approves: 1 USD buys 1 MACH through Coinflow, and MACH does not expire and cannot be sent to another personal wallet, redeemed for cash, swapped or bridged. On 2026-10-21, 19 directory listings carried the supportsMACH flag.",
       "status": "live",
       "sources": [
-        "src-stripe-mpp-tempo-credits"
+        "src-stripe-mpp-tempo-wallet-agent",
+        "src-stripe-mpp-directory-api"
+      ]
+    },
+    {
+      "name": "Tempo Wallet MPP Credits (legacy)",
+      "role": "Card-funded credits for MPP services, announced 2026-06-17. On 2026-10-21 Tempo Wallet calls them legacy and keeps them separate from MACH; buying MACH does not convert them.",
+      "status": "unknown",
+      "sources": [
+        "src-stripe-mpp-tempo-credits",
+        "src-stripe-mpp-tempo-wallet-agent"
       ]
     }
   ],
@@ -112,92 +139,101 @@
     {
       "registry": "npm",
       "name": "mppx",
-      "version": "0.13.4",
+      "version": "0.14.1",
       "url": "https://www.npmjs.com/package/mppx",
-      "note": "TypeScript SDK by wevm, MIT; server, client, CLI, proxy; serves x402 too since 0.9.0. Version as of 2026-10-11."
+      "note": "TypeScript SDK by wevm, MIT; server, client, CLI, proxy; serves x402 exact offers since 0.6.29 (2026-06-02) and has dual MPP and x402 framework wrappers since 0.9.0 (2026-08-27). Version 0.14.1 of 2026-10-21, latest as of that date."
     },
     {
       "registry": "pypi",
       "name": "pympp",
-      "version": "0.11.0",
+      "version": "0.14.0",
       "url": "https://pypi.org/project/pympp/",
-      "note": "Python SDK by tempoxyz. Version as of 2026-10-11."
+      "note": "Python SDK by tempoxyz. Version 0.14.0 of 2026-10-13, latest as of 2026-10-21."
     },
     {
       "registry": "crates",
       "name": "mpp",
-      "version": "0.15.0",
+      "version": "0.16.0",
       "url": "https://crates.io/crates/mpp",
-      "note": "Rust SDK (tempoxyz/mpp-rs). Version as of 2026-10-11."
+      "note": "Rust SDK (tempoxyz/mpp-rs). Version 0.16.0 of 2026-10-19, latest as of 2026-10-21."
     },
     {
       "registry": "go",
       "name": "github.com/tempoxyz/mpp-go",
       "version": "v0.2.0",
       "url": "https://pkg.go.dev/github.com/tempoxyz/mpp-go",
-      "note": "Go SDK. Version as of 2026-10-11."
+      "note": "Go SDK. Version v0.2.0 of 2026-07-01, latest as of 2026-10-21."
     },
     {
       "registry": "rubygems",
       "name": "mpp-rb",
-      "version": "0.1.6",
+      "version": "0.1.9",
       "url": "https://rubygems.org/gems/mpp-rb",
-      "note": "Ruby SDK in stripe/mpp-rb. Version as of 2026-10-11."
+      "note": "Ruby SDK in stripe/mpp-rb. Version 0.1.9 of 2026-10-19, latest as of 2026-10-21."
     },
     {
       "registry": "npm",
       "name": "mpp-card",
       "version": "0.1.8",
       "url": "https://www.npmjs.com/package/mpp-card",
-      "note": "Visa card method SDK; proprietary license; no TAP signing code. Version as of 2026-10-11."
+      "note": "Visa card method SDK; proprietary license; no TAP signing code. Version as of 2026-10-21."
     },
     {
       "registry": "npm",
       "name": "@solana/mpp",
       "version": "0.7.0",
       "url": "https://www.npmjs.com/package/@solana/mpp",
-      "note": "Solana method. Version as of 2026-10-11."
+      "note": "Solana method. Version as of 2026-10-21."
     },
     {
       "registry": "npm",
       "name": "@stellar/mpp",
       "version": "0.7.1",
       "url": "https://www.npmjs.com/package/@stellar/mpp",
-      "note": "Stellar method. Version as of 2026-10-11."
+      "note": "Stellar method. Version as of 2026-10-21."
+    },
+    {
+      "registry": "npm",
+      "name": "@buildonspark/lightning-mpp-sdk",
+      "version": "0.1.4",
+      "url": "https://www.npmjs.com/package/@buildonspark/lightning-mpp-sdk",
+      "note": "Lightning method SDK that extends mppx, in the Spark organization's repository (MIT), with Lightspark addresses among its npm maintainers; mpp.dev lists session support as coming soon. Version 0.1.4 of 2026-03-18, latest as of 2026-10-21."
     }
   ],
   "metrics": [
     {
       "id": "stripe-mpp-mppscan-tx-all",
       "metric": "MPPscan transactions, all time",
-      "value": 4072426,
+      "value": 4250945,
       "unit": "transactions",
-      "asOf": "2026-10-11",
-      "definition": "MPPscan's count of MPP payments, mostly on Tempo.",
+      "asOf": "2026-10-21",
+      "definition": "MPPscan's count of MPP payments.",
       "sources": [
-        "src-stripe-mpp-mppscan"
+        "src-stripe-mpp-mppscan",
+        "src-stripe-mpp-visa-groundup",
+        "src-stripe-mpp-merit-glossary"
       ],
-      "caveat": "Indexer's own definition; includes test and self-dealing traffic it cannot filter. A June 2026 article shows the same live figure, so it is not a June value.",
+      "caveat": "The indexer's own definition: MPPscan publishes no counting method and does not say whether test or wash payments are excluded, while Visa and Artemis exclude identified wash and test activity from their adjusted totals. A Merit Systems page dated 2026-06-24 shows the same live figures, so they are not June values.",
       "disputed": false
     },
     {
       "id": "stripe-mpp-mppscan-vol-all",
       "metric": "MPPscan volume, all time",
-      "value": 435476,
+      "value": 437665,
       "unit": "USD",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "definition": "Sum of indexed payment values.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "About 0.11 USD per transaction on average."
+      "caveat": "About 0.10 USD per transaction on average."
     },
     {
       "id": "stripe-mpp-mppscan-senders",
       "metric": "MPPscan unique senders and recipients, all time",
-      "value": "224,244 / 6,101",
+      "value": "224,823 / 6,138",
       "unit": "addresses",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "definition": "Distinct sending and receiving addresses.",
       "sources": [
         "src-stripe-mpp-mppscan"
@@ -207,21 +243,21 @@
     {
       "id": "stripe-mpp-mppscan-30d",
       "metric": "MPPscan last 30 days",
-      "value": "998,771 transactions; 8,774 USD",
+      "value": "785,833 transactions; 8,620 USD",
       "unit": "transactions and USD",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "definition": "Rolling 30-day window.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "Under one cent per transaction, which points to many tiny or test payments."
+      "caveat": "About one cent (1.1 cents) per transaction on average."
     },
     {
       "id": "stripe-mpp-mppscan-7d",
       "metric": "MPPscan last 7 days (homepage default)",
-      "value": "126,902 transactions; 1,484 USD",
+      "value": "120,727 transactions; 1,560 USD",
       "unit": "transactions and USD",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "definition": "Rolling 7-day window shown by default on the homepage.",
       "sources": [
         "src-stripe-mpp-mppscan"
@@ -231,10 +267,10 @@
     {
       "id": "stripe-mpp-directory",
       "metric": "mpp.dev directory services",
-      "value": 129,
+      "value": 138,
       "unit": "services",
-      "asOf": "2026-10-11",
-      "definition": "Listings in mpp.dev/api/services; 126 accept tempo, 10 stripe, 1 evm.",
+      "asOf": "2026-10-21",
+      "definition": "Listings in mpp.dev/api/services; 135 accept tempo, 10 stripe, 1 evm; 19 carry the supportsMACH flag.",
       "sources": [
         "src-stripe-mpp-directory-api"
       ],
@@ -255,14 +291,15 @@
     {
       "id": "stripe-mpp-visa-artemis",
       "metric": "Visa and Artemis MPP measurement",
-      "value": "about 25,000 USD over about 115,000 transfers",
-      "unit": "USD and transfers",
+      "value": "about 25,000 USD over about 115,000 transactions",
+      "unit": "USD and transactions",
       "asOf": "2026-04-21",
-      "definition": "Cumulative to 2026-04-21 as reported.",
+      "definition": "Adjusted totals from the mid-March 2026 launch to 2026-04-21, excluding identified wash and test activity (Visa and Artemis, on Artemis on-chain data).",
       "sources": [
+        "src-stripe-mpp-visa-groundup",
         "src-stripe-mpp-forkast-visa"
       ],
-      "caveat": "Secondary report (Forkast, 2026-07-20); about 0.22 USD each.",
+      "caveat": "About 0.22 USD each. Visa's summary page was last updated 2026-07-14; Forkast (2026-07-20) repeats the figures.",
       "disputed": false
     },
     {
@@ -284,7 +321,7 @@
       "item": "Protocol fee",
       "value": "None defined in any MPP spec; costs come from the rail",
       "whoPays": "Not applicable",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "confidence": "verified",
       "caveat": "Rail and processor fees still apply.",
       "sources": [
@@ -293,13 +330,14 @@
     },
     {
       "item": "Tempo network fee",
-      "value": "Paid in USD TIP-20 stablecoins through the Fee AMM; a 50,000-gas transfer costs at most about 0.0006 USD, with a quiet-period floor near 0.00003 USD",
+      "value": "Paid in USD TIP-20 stablecoins through the Fee AMM; the base fee for a 50,000-gas transfer is capped at about 0.0006 USD, with a quiet-period floor near 0.00003 USD, and optional priority fees come on top",
       "whoPays": "Client by default; server when feePayer is true for charge, open and topUp; server always for settle and close",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "confidence": "verified",
       "caveat": "Depends on Tempo base fee parameters; fees go to the proposing validator.",
       "sources": [
         "src-stripe-mpp-tempo-fees",
+        "src-stripe-mpp-tempo-charge",
         "src-stripe-mpp-tempo-session"
       ]
     },
@@ -318,7 +356,7 @@
       "item": "Stripe hostedFeePayer",
       "value": "Stripe pays customers' Tempo network fees",
       "whoPays": "Stripe",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "confidence": "verified",
       "caveat": "Needs mppx 0.9.2 or later, live mode and a Tempo deposit address on the same account; not with Connect.",
       "sources": [
@@ -329,45 +367,51 @@
       "item": "Stripe MPP minimums",
       "value": "0.50 USD for SPT card payments; 0.01 USDC for stablecoin payments",
       "whoPays": "Payer (minimum charge size)",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-21",
       "confidence": "verified",
       "caveat": "Minimums, not fees.",
       "sources": [
-        "src-stripe-mpp-stripe-docs"
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-stripe-machine"
       ]
     },
     {
       "item": "Stripe stablecoin payment fee",
-      "value": "1.5 percent per transaction, reported at launch of stablecoin payments",
+      "value": "1.5 percent of the transaction amount in USD, with conversion to fiat, wallet and AML screening, fraud prevention and gas sponsorship included (Stripe's US pricing page)",
       "whoPays": "Merchant",
-      "asOf": "2025-12-10",
-      "confidence": "reported",
-      "caveat": "The current Stripe docs page states no percentage; whether it applies to MPP charges is unverified.",
+      "asOf": "2026-10-21",
+      "confidence": "verified",
+      "caveat": "Stripe's machine payments docs take MPP stablecoin payments through the Stablecoins and Crypto payment method, but no Stripe page names a rate for MPP or says whether this one applies to MPP charges. The 0.8 percent promotional stablecoin rate on the same page belongs to Link. The press reported the 1.5 percent in December 2025.",
       "sources": [
-        "src-stripe-mpp-yahoo-fee",
-        "src-stripe-mpp-stripe-stablecoin"
+        "src-stripe-mpp-stripe-pricing",
+        "src-stripe-mpp-stripe-machine",
+        "src-stripe-mpp-stripe-stablecoin",
+        "src-stripe-mpp-yahoo-fee"
       ]
     },
     {
       "item": "Shared Payment Token fee",
-      "value": "Not published; SPT docs labeled Public preview",
-      "whoPays": "Unknown",
-      "asOf": "2026-10-11",
+      "value": "0.15 USD per SPT issued (Stripe's US pricing page)",
+      "whoPays": "Not stated; Stripe prices it per SPT issued, and the page's Learn more link opens the agent-side SPT docs",
+      "asOf": "2026-10-21",
       "confidence": "verified",
-      "caveat": "Absence of a public schedule, not a zero fee.",
+      "caveat": "Listed since at least 2026-04-23, the first archived copy that shows it. The page does not name the party billed or say how the price applies to SPTs used through MPP; the SPT docs, labeled Public preview, show no price.",
       "sources": [
+        "src-stripe-mpp-stripe-pricing",
         "src-fee-stripe-spt-docs"
       ]
     },
     {
       "item": "Card method",
-      "value": "Card economics unchanged (interchange and acquirer fees); no MPP-specific card pricing published",
-      "whoPays": "Merchant",
-      "asOf": "2026-10-11",
+      "value": "No MPP-specific card pricing published",
+      "whoPays": "No MPP-specific fee published; standard card acceptance costs (interchange, scheme and acquirer fees) are assumed to apply",
+      "asOf": "2026-10-21",
       "confidence": "reported",
-      "caveat": "Inferred from Visa's announcement; no price list.",
+      "caveat": "Evidence of absence: Visa's 2026-03-18 announcement and the card method spec name no price, and a secondary review of Visa Intelligent Commerce (Nevermined, 2026-08-19) reports no published agent-specific interchange or token fee. The atlas treats these payments as standard tokenized card-not-present economics until the networks publish otherwise. Stripe's SPT price belongs to the stripe method, not to this card method.",
       "sources": [
-        "src-stripe-mpp-visa-card"
+        "src-stripe-mpp-visa-card",
+        "src-stripe-mpp-card-charge",
+        "src-nevermined-vic"
       ]
     }
   ]

@@ -441,13 +441,13 @@
     },
     {
       "id": "clm-stripe-mpp-046",
-      "text": "The latest mppx release is 0.13.4, published 2026-10-08.",
+      "text": "The latest mppx release is 0.14.1, published 2026-10-21.",
       "sources": [
         "src-stripe-mpp-npm-mppx"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-047",
@@ -469,14 +469,14 @@
     },
     {
       "id": "clm-stripe-mpp-049",
-      "text": "As of 2026-10-11 specs/intents in mpp-specs contains only the charge and subscription intents; session is defined inside individual method specs.",
+      "text": "As of 2026-10-21 specs/intents in mpp-specs contains only the charge and subscription intents; session is defined inside individual method specs.",
       "sources": [
         "src-stripe-mpp-specs-repo",
         "src-stripe-mpp-gh-pr-280"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-050",
@@ -570,9 +570,10 @@
     },
     {
       "id": "clm-stripe-mpp-059",
-      "text": "The recommended stateless binding computes the challenge id as base64url HMAC-SHA256 over realm, method, intent, request, expires, digest, an optional header slot and opaque, joined by pipes.",
+      "text": "In the repository text of the core draft at commit 50309c8, after PR #362 (merged 2026-09-21), the recommended stateless binding computes the challenge id as base64url HMAC-SHA256 over realm, method, intent, request, expires, digest, an optional header slot and opaque, joined by pipes; the -01 posted on 2026-09-09 appends header after opaque, so the two layouts differ only when header is present.",
       "sources": [
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-ietf-01-text"
       ],
       "confidence": "verified",
       "topic": "crypto",
@@ -817,7 +818,7 @@
       ],
       "confidence": "verified",
       "topic": "objects",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-083",
@@ -879,7 +880,7 @@
       ],
       "confidence": "verified",
       "topic": "objects",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-089",
@@ -893,13 +894,13 @@
     },
     {
       "id": "clm-stripe-mpp-090",
-      "text": "As of 2026-10-11 IANA lists neither the Payment authentication scheme nor the Accept-Payment, Payment-Authorization or Payment-Receipt fields.",
+      "text": "As of 2026-10-21 IANA lists neither the Payment authentication scheme nor the Accept-Payment, Payment-Authorization or Payment-Receipt fields.",
       "sources": [
         "src-stripe-mpp-iana"
       ],
       "confidence": "verified",
       "topic": "governance",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-091",
@@ -1073,7 +1074,7 @@
     },
     {
       "id": "clm-stripe-mpp-108",
-      "text": "Tempo session v1 uses the TempoStreamChannel escrow contract, and v2 uses a TIP-20 channel reserve precompile selected by methodDetails.sessionProtocol.",
+      "text": "Tempo session v1 uses the TempoStreamChannel escrow contract, and v2 uses the TIP-20 channel escrow precompile; methodDetails.sessionProtocol says which.",
       "sources": [
         "src-stripe-mpp-tempo-session"
       ],
@@ -1274,13 +1275,14 @@
     },
     {
       "id": "clm-stripe-mpp-128",
-      "text": "CVE-2026-34210 (GHSA-8mhj-rffc-rcvw) is a medium-severity mppx bug before 0.4.11 where stripe/charge ignored Stripe's Idempotent-Replayed header, so one SPT credential could be replayed.",
+      "text": "CVE-2026-34210 (GHSA-8mhj-rffc-rcvw) is an mppx bug before 0.4.11 where stripe/charge ignored Stripe's Idempotent-Replayed header, so one SPT credential could be replayed; the GitHub Advisory Database rates it medium (CVSS 4.0 score 6.0) and NVD rates it high (CVSS 3.1 score 8.1).",
       "sources": [
         "src-stripe-mpp-ghsa-34210",
         "src-stripe-mpp-nvd"
       ],
       "confidence": "verified",
-      "topic": "security"
+      "topic": "security",
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-129",
@@ -1333,14 +1335,14 @@
     },
     {
       "id": "clm-stripe-mpp-134",
-      "text": "MPP has no native agent identity; mppx adds optional RFC 9421 request attestation for Web Bot Auth and Visa TAP.",
+      "text": "The MPP core defines no native agent identity and no user mandate: its terminology covers only the payment challenge, credential, method, intent, request and payload. mppx adds optional RFC 9421 request attestation for Web Bot Auth and Visa TAP.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-blog-identity"
       ],
       "confidence": "verified",
       "topic": "controls",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-135",
@@ -1413,7 +1415,7 @@
     },
     {
       "id": "clm-stripe-mpp-142",
-      "text": "The stripe method keeps raw card data away from client and server, which the spec says reduces PCI DSS scope.",
+      "text": "The stripe method keeps raw payment method details away from the client, which the spec says reduces PCI DSS scope.",
       "sources": [
         "src-stripe-mpp-stripe-charge"
       ],
@@ -1423,12 +1425,14 @@
     },
     {
       "id": "clm-stripe-mpp-143",
-      "text": "TIP-20 tokens can reference TIP-403 policy registry allow and block lists.",
+      "text": "Each TIP-20 token can reference a policy in the Tempo Policy Registry (TIP-403), which holds allow-list and block-list policies that tokens check on every transfer.",
       "sources": [
-        "src-stripe-mpp-tempo-tip20"
+        "src-stripe-mpp-tempo-tip20",
+        "src-stripe-mpp-tempo-tip403"
       ],
       "confidence": "verified",
-      "topic": "compliance"
+      "topic": "compliance",
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-144",
@@ -1464,13 +1468,13 @@
     },
     {
       "id": "clm-stripe-mpp-147",
-      "text": "The mpp.dev payments directory listed 129 services on 2026-10-11, of which 126 accept tempo, 10 stripe and 1 evm.",
+      "text": "The mpp.dev payments directory listed 138 services on 2026-10-21, of which 135 accept tempo, 10 stripe and 1 evm; 19 carry the supportsMACH flag that the directory added on 2026-10-20.",
       "sources": [
         "src-stripe-mpp-directory-api"
       ],
       "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-148",
@@ -1648,14 +1652,14 @@
     },
     {
       "id": "clm-stripe-mpp-165",
-      "text": "A 1.5 percent fee for Stripe stablecoin payments was reported in December 2025; whether it applies to MPP stablecoin charges is not stated by Stripe.",
+      "text": "Stripe's US pricing page lists stablecoin payments at 1.5 percent of the transaction amount in USD, with conversion to fiat, wallet and AML screening, fraud prevention and gas sponsorship included, a rate the press reported in December 2025. The page does not say whether it applies to MPP charges, and its 0.8 percent promotional stablecoin rate is listed under Link.",
       "sources": [
-        "src-stripe-mpp-yahoo-fee",
-        "src-stripe-mpp-stripe-stablecoin"
+        "src-stripe-mpp-stripe-pricing",
+        "src-stripe-mpp-yahoo-fee"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2025-12-10"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-166",
@@ -1666,7 +1670,7 @@
       ],
       "confidence": "unverified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-167",
@@ -1680,13 +1684,13 @@
     },
     {
       "id": "clm-stripe-mpp-168",
-      "text": "No public fee schedule for Stripe Shared Payment Tokens was found.",
+      "text": "Stripe's US pricing page lists Shared Payment Tokens at 0.15 USD per SPT issued, a price present in archived copies from 2026-04-23 on. The page does not name the party billed or say how the price applies to SPTs used through MPP, and its Learn more link opens the agent-side SPT documentation.",
       "sources": [
-        "src-stripe-mpp-stripe-docs"
+        "src-stripe-mpp-stripe-pricing"
       ],
-      "confidence": "unverified",
+      "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-169",
@@ -1710,33 +1714,33 @@
     },
     {
       "id": "clm-stripe-mpp-171",
-      "text": "MPPscan reported 4,072,426 MPP transactions, 435,476 USD of volume, 224,244 unique senders and 6,101 unique recipients all time as of 2026-10-11.",
+      "text": "MPPscan reported 4,250,945 MPP transactions, 437,665 USD of volume, 224,823 unique senders and 6,138 unique recipients all time as of 2026-10-21.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
       "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-172",
-      "text": "MPPscan reported 998,771 transactions and 8,774 USD of volume in the 30 days to 2026-10-11, under one cent per transaction on average.",
+      "text": "MPPscan reported 785,833 transactions and 8,620 USD of volume in the 30 days to 2026-10-21, about one cent (1.1 cents) per transaction on average.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
       "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-173",
-      "text": "MPPscan's homepage showed 126,902 transactions, 1,484 USD, 3,711 senders and 167 recipients for the 7 days to 2026-10-11.",
+      "text": "MPPscan's homepage, whose default window is the last 7 days, showed 120,727 transactions, 1,560 USD, 4,041 senders (labeled Agents) and 161 recipients (labeled Servers) for the 7 days to 2026-10-21.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
       "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-174",
@@ -1751,11 +1755,12 @@
     },
     {
       "id": "clm-stripe-mpp-175",
-      "text": "Visa and Artemis measured about 25,000 USD across about 115,000 MPP transfers up to 2026-04-21.",
+      "text": "Visa's summary of its joint report with Artemis says MPP settled about 25,000 USD across roughly 115,000 transactions in its first weeks after launch, adjusted totals that exclude identified wash and test activity, on Artemis data as of 2026-04-21.",
       "sources": [
+        "src-stripe-mpp-visa-groundup",
         "src-stripe-mpp-forkast-visa"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "metrics",
       "asOf": "2026-04-21"
     },
@@ -1868,7 +1873,8 @@
       "text": "The stripe MPP method carries Stripe Shared Payment Tokens, the same token family Stripe uses for agentic checkout alongside ACP.",
       "sources": [
         "src-stripe-mpp-stripe-charge",
-        "src-stripe-mpp-stripe-blog"
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-acp-launch"
       ],
       "confidence": "verified",
       "topic": "relations"
@@ -1895,23 +1901,26 @@
     },
     {
       "id": "clm-stripe-mpp-189",
-      "text": "Tempo and Stripe are in the initial partner group of Mastercard Agent Pay for Machines announced on 2026-06-10.",
+      "text": "Mastercard's 2026-06-10 release for Agent Pay for Machines lists Stripe and Tempo among its initial participants and supporters.",
       "sources": [
+        "src-mcap-ap4m-2026",
         "src-stripe-mpp-ap4m-coverage"
       ],
-      "confidence": "reported",
+      "confidence": "verified",
       "topic": "relations",
       "asOf": "2026-06-10"
     },
     {
       "id": "clm-stripe-mpp-190",
-      "text": "No Tempo or Mastercard page confirming that Agent Pay for Machines is MPP-compatible could be found, so that claim is unverified.",
+      "text": "Neither Mastercard nor Tempo has a page of its own that confirms MPP compatibility for Agent Pay for Machines: the only statement is Tempo's quote in Mastercard's 2026-06-10 release, and Mastercard's 2026-10-20 Early Access brief builds the product on x402 and names no MPP.",
       "sources": [
+        "src-mcap-ap4m-2026",
+        "src-stripe-mpp-mc-ap4m-early-access",
         "src-stripe-mpp-ap4m-coverage"
       ],
-      "confidence": "unverified",
+      "confidence": "reported",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-191",
@@ -1970,7 +1979,7 @@
     },
     {
       "id": "clm-stripe-mpp-196",
-      "text": "Open MPP payment channels and unsettled vouchers persist until closed, and the spec only advises servers to close channels idle for about 30 days or more.",
+      "text": "Open Tempo session channels and unsettled vouchers persist until closed, and the Tempo session spec only advises servers to close channels idle for about 30 days or more.",
       "sources": [
         "src-stripe-mpp-tempo-session"
       ],
@@ -2017,9 +2026,10 @@
     },
     {
       "id": "clm-stripe-mpp-201",
-      "text": "Sprites and State Channels (arXiv:1702.05812, 2017) is a foundation for the payment-channel design MPP sessions use.",
+      "text": "Sprites and State Channels (arXiv:1702.05812, 2017) formalizes state channels and payment channels, the construction family behind MPP's Tempo session method; the MPP specs do not cite it.",
       "sources": [
-        "src-stripe-mpp-arxiv-other"
+        "src-stripe-mpp-arxiv-other",
+        "src-stripe-mpp-tempo-session"
       ],
       "confidence": "verified",
       "topic": "other"
@@ -2036,14 +2046,14 @@
     },
     {
       "id": "clm-stripe-mpp-203",
-      "text": "No Tempo page listing Agent Pay for Machines as MPP-compatible was found; the compatibility statement exists only as Tempo's quote inside Mastercard's release.",
+      "text": "A search on 2026-10-21 of tempo.xyz, mpp.dev and its repository, and the open web found no Tempo page that lists Agent Pay for Machines as MPP-compatible; the compatibility statement exists only as Tempo's quote inside Mastercard's release.",
       "sources": [
         "src-mcap-ap4m-2026",
         "src-stripe-mpp-ap4m-coverage"
       ],
-      "confidence": "verified",
-      "asOf": "2026-10-11",
-      "topic": "relations"
+      "confidence": "reported",
+      "topic": "relations",
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-204",
@@ -2097,13 +2107,14 @@
     },
     {
       "id": "clm-stripe-mpp-209",
-      "text": "Stripe's Shared Payment Tokens documentation is labeled Public preview and shows no price schedule as of 2026-10-11.",
+      "text": "Stripe's Shared Payment Tokens documentation is labeled Public preview and shows no price; the price, 0.15 USD per SPT issued, is on Stripe's US pricing page.",
       "sources": [
-        "src-fee-stripe-spt-docs"
+        "src-fee-stripe-spt-docs",
+        "src-stripe-mpp-stripe-pricing"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
-      "topic": "ecosystem"
+      "topic": "ecosystem",
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-210",
@@ -2124,6 +2135,168 @@
       "confidence": "verified",
       "specVersion": "draft-tempo-charge-00",
       "topic": "flow"
+    },
+    {
+      "id": "clm-stripe-mpp-212",
+      "text": "Since mppx 0.13.5 (2026-10-15), mppx answers a replayed or already-claimed Tempo charge credential, or a settled transfer bound to another challenge, with a final 403 that keeps the verification-failed problem type and carries no new challenge, so automatic clients do not pay again. mpp.dev has documented this mppx behavior since 2026-10-19.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-docs-http-402",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "topic": "flow",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-213",
+      "text": "Mastercard's news brief of 2026-10-20 opened Agent Pay for Machines Early Access, with a first version of buyer- and seller-side APIs, a toolkit, a sandbox and documentation, after pilots with Cloudflare, Ant International, AIsa, Base, BVNK, Coinbase and Hype; it says the product builds on x402 and names no Tempo, Stripe or MPP.",
+      "sources": [
+        "src-stripe-mpp-mc-ap4m-early-access"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-214",
+      "text": "Tempo Wallet's agent payments page sells MACH, an on-chain credit for payments at approved merchants on Tempo: 1 USD buys 1 MACH through Coinflow, and MACH does not expire and cannot be sent to another personal wallet, redeemed for cash, swapped or bridged. The page calls MPP Credits legacy and keeps them separate from MACH.",
+      "sources": [
+        "src-stripe-mpp-tempo-wallet-agent",
+        "src-stripe-mpp-tempo-credits"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-215",
+      "text": "Stripe's machine payments docs accept stablecoin payments over MPP on Tempo (USDC.e) and Solana (USDC), and over x402 on Base (USDC); stablecoin payments are open to businesses in every US state except New York, and businesses elsewhere can request access in more than 30 countries.",
+      "sources": [
+        "src-stripe-mpp-stripe-machine"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-216",
+      "text": "Stripe's Accept streaming payments guide, labeled Frontier, runs MPP sessions on Tempo: the server charges each unit of work in increments as small as 0.000001 USDC and settles to the Stripe balance in whole cents, 0.01 USD at minimum, forfeiting sub-cent remainders; its setup enables Stripe's hosted fee payer.",
+      "sources": [
+        "src-stripe-mpp-stripe-streaming",
+        "src-stripe-mpp-stripe-machine"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-217",
+      "text": "As of 2026-10-21 the MPP SDK repositories had published nine security advisories, dated here by repository publication: five for mppx (GHSA-8x4m-qw58-3pcx, critical, no CVE; CVE-2026-34209, high; CVE-2026-34210, medium per GitHub; all 2026-03-26; CVE-2026-63627 and CVE-2026-63628, medium, 2026-07-01), two for the Rust crate mpp (GHSA-fxc9-7j2w-vx54, critical, 2026-03-26; GHSA-8xhq-x7vw-8rcw, medium, 2026-08-27) and two for pympp (CVE-2026-63634, low, 2026-07-01; GHSA-5r9p-36vq-j23h, medium, 2026-08-25).",
+      "sources": [
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-mpp-rs",
+        "src-stripe-mpp-ghsa-pympp"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-218",
+      "text": "All nine published MPP SDK advisories were SDK bugs credited to outside finders or reporters; none reports exploitation, and all are fixed: mppx in 0.4.8, 0.4.11 and 0.8.2, the Rust crate mpp in 0.8.0 and 0.12.0, and pympp in 0.9.1 and 0.10.1. The global GitHub Advisory Database lists six of them; the later Rust advisory and both pympp advisories appear only in their repositories.",
+      "sources": [
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-mpp-rs",
+        "src-stripe-mpp-ghsa-pympp"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-219",
+      "text": "arXiv:2609.00060 counts 9 known and 12 previously undocumented formal-consistency cases for MPP, among them MPP-14, where a retry after a lost response counts Tempo session spend twice; the authors say the counts are not demonstrated vulnerabilities in production deployments and that they disclosed their findings to the maintainers.",
+      "sources": [
+        "src-stripe-mpp-arxiv-2609-00060"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-220",
+      "text": "The mppx changelog lists security fixes after 0.8.2 that have no published advisory: replay checks for settled session vouchers in 0.8.7, and in 0.13.2 a fix that stops a settled Tempo charge transaction from passing replay protection again and an end to automatic redirects on credential-bearing retries.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-221",
+      "text": "mpp.dev names the npm package @buildonspark/lightning-mpp-sdk, an mppx extension whose reference implementation uses Spark, as the implementation of the lightning method and says its session support is coming soon; npm lists 0.1.0 on 2026-03-16 and the latest, 0.1.4, on 2026-03-18, with Lightspark addresses among its maintainers.",
+      "sources": [
+        "src-stripe-mpp-docs-lightning",
+        "src-stripe-mpp-npm-lightning"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-222",
+      "text": "On 2026-10-21 the latest releases of the other official MPP SDKs were pympp 0.14.0 (2026-10-13), the Rust crate mpp 0.16.0 (2026-10-19), mpp-rb 0.1.9 (2026-10-19) and mpp-go v0.2.0 (2026-07-01).",
+      "sources": [
+        "src-stripe-mpp-sdk-registries"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-10-21"
+    },
+    {
+      "id": "clm-stripe-mpp-223",
+      "text": "The card method is PSP-agnostic, and its payload network value can be visa, mastercard, amex or discover.",
+      "sources": [
+        "src-stripe-mpp-card-charge"
+      ],
+      "confidence": "verified",
+      "topic": "objects",
+      "specVersion": "draft-card-charge-00"
+    },
+    {
+      "id": "clm-stripe-mpp-224",
+      "text": "Stripe's 2026-03-18 launch post says businesses can accept MPP payments from agents in stablecoins and in fiat with cards and buy now, pay later methods through Shared Payment Tokens, using the PaymentIntents API.",
+      "sources": [
+        "src-stripe-mpp-stripe-blog"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-03-18"
+    },
+    {
+      "id": "clm-stripe-mpp-260",
+      "text": "mppx 0.14.0, published 2026-10-21, added idempotency keys and one-time credits for Tempo session charges, and its settle() no longer captures a voucher above the channel's spent amount, a breaking change.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-stripe-mpp-261",
+      "text": "Some launch coverage called Anthropic and OpenAI MPP design partners: byteiota's article of 2026-03-18 lists Anthropic, OpenAI, Visa, Mastercard and DoorDash as design partners, while Tempo's own launch post names them as partners for stablecoin use cases on Tempo.",
+      "sources": [
+        "src-stripe-mpp-byteiota",
+        "src-stripe-mpp-tempo-mainnet"
+      ],
+      "confidence": "reported",
+      "topic": "ecosystem",
+      "asOf": "2026-03-18"
     }
   ]
 }

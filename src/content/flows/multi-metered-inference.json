@@ -3,8 +3,8 @@
   "protocol": "multi",
   "title": "Metered inference: an MPP session on Tempo with vouchers, a top-up and a cooperative close",
   "summary": "An agent streams tokens from an inference API priced per unit. The server answers with an MPP challenge for the tempo method and the session intent; the agent opens a payment channel with a deposit, pays with off-chain cumulative vouchers as tokens arrive, tops up when the deposit runs low, and closes cooperatively. A forced close with a grace period is the fallback when the server stops answering.",
-  "specVersion": "MPP core draft-httpauth-payment-01; Tempo session draft-tempo-session-00 (v2 text merged 2026-06-25)",
-  "specVersionDate": "2026-06-25",
+  "specVersion": "MPP core draft-httpauth-payment-01 (posted 2026-09-09); Tempo session draft-tempo-session-00 (v2 text merged 2026-06-25, repository text of 2026-10-05 at commit 50309c8)",
+  "specVersionDate": "2026-10-05",
   "actors": [
     { "id": "client", "label": "Client agent", "kind": "agent" },
     { "id": "server", "label": "Inference API server", "kind": "server" },
@@ -32,10 +32,10 @@
       "to": "client",
       "label": "402 with WWW-Authenticate: Payment, method tempo, intent session",
       "protocol": "stripe-mpp",
-      "detail": "The challenge carries id, realm, method, intent, expires and a base64url request. For a session the amount is a price per unit; unitType, suggestedDeposit, recipient and methodDetails (escrowContract, chainId, sessionProtocol) complete it. Session is defined by the Tempo method, not by a standardized MPP intent.",
+      "detail": "The challenge carries id, realm, method, intent, expires and a base64url request. For a session the amount is a price per unit; unitType, suggestedDeposit, recipient and methodDetails (escrowContract, chainId, sessionProtocol) complete it, and for v2 the escrowContract names the TIP-20 channel escrow precompile (or a compatible deployment). Session is defined by the Tempo method, not by a standardized MPP intent.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, spec version draft-tempo-session-00.\nHTTP/1.1 402 Payment Required\nCache-Control: no-store\nWWW-Authenticate: Payment id=\"kM9xPqWvT2nJrHsY4aDfEb\",\n  realm=\"api.llm-service.example\",\n  method=\"tempo\",\n  intent=\"session\",\n  expires=\"2026-10-11T12:05:00Z\",\n  request=\"eyJhbW91bnQiOiIyNSIs...\"\n\n# decoded request\n{\n  \"amount\": \"25\",\n  \"unitType\": \"llm_token\",\n  \"suggestedDeposit\": \"10000000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0x742d...fe00\",\n  \"methodDetails\": { \"escrowContract\": \"0x9d13...Fa70\", \"chainId\": 4217, \"sessionProtocol\": \"v2\" }\n}",
+        "content": "# Illustrative example, spec version draft-tempo-session-00.\nHTTP/1.1 402 Payment Required\nCache-Control: no-store\nWWW-Authenticate: Payment id=\"kM9xPqWvT2nJrHsY4aDfEb\",\n  realm=\"api.llm-service.example\",\n  method=\"tempo\",\n  intent=\"session\",\n  expires=\"2026-10-11T12:05:00Z\",\n  request=\"eyJhbW91bnQiOiIyNSIs...\"\n\n# decoded request\n{\n  \"amount\": \"25\",\n  \"unitType\": \"llm_token\",\n  \"suggestedDeposit\": \"10000000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0x742d...fe00\",\n  \"methodDetails\": { \"escrowContract\": \"0x4d50500000000000000000000000000000000000\", \"chainId\": 4217, \"sessionProtocol\": \"v2\" }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -77,7 +77,7 @@
       "to": "escrow",
       "label": "Broadcast the open transaction",
       "protocol": "stripe-mpp",
-      "detail": "The server broadcasts the signed transaction, adding a fee payer signature only if its challenge offered feePayer true; otherwise the client's transaction pays its own fee in a USD TIP-20 token. The server then verifies the channel against the descriptor.",
+      "detail": "The server broadcasts the signed transaction, adding a fee payer signature only if its challenge offered feePayer true; otherwise the client's transaction names a USD TIP-20 fee token and the client or a sponsor pays the fee. The server then verifies the channel against the descriptor.",
       "crossesTrustBoundary": true,
       "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Open Verification" },
       "observable": "Public: the open call and the deposit on Tempo mainnet (chain 4217); payer, payee and token are visible."
@@ -165,7 +165,7 @@
       "detail": "The server broadcasts the topUp and the new deposit is usable at once. Separately, the server may call settle at any time (periodically, by threshold or for gas reasons) to claim the gap between the newest voucher and what is already settled. The server pays the fees for settle and close.",
       "crossesTrustBoundary": true,
       "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Settlement Timing" },
-      "controlPoint": "At settlement: TIP-20 policy allow and block lists on Tempo apply to the token transfers.",
+      "controlPoint": "At settlement: the TIP-403 transfer policy that the token's issuer chose decides who may send and receive the token; that is the issuer's control, not the agent's or the seller's.",
       "observable": "Public: topUp and settle calls on chain; only settled amounts appear, not each voucher."
     },
     {
@@ -203,12 +203,12 @@
       "n": 13,
       "from": "server",
       "to": "client",
-      "label": "Final receipt with txHash (SSE payment-receipt event)",
+      "label": "200 to the close request with Payment-Receipt (close txHash)",
       "protocol": "stripe-mpp",
-      "detail": "The stream ends with a payment-receipt event carrying the final acceptedCumulative, spent and the close txHash.",
+      "detail": "The response to the close request carries a Payment-Receipt with the final acceptedCumulative, spent and the close txHash. The stream itself ended earlier with its own payment-receipt event, which carries acceptedCumulative and spent.",
       "payload": {
-        "format": "text",
-        "content": "# Illustrative example, spec version draft-tempo-session-00.\nevent: payment-receipt\ndata: {\"method\":\"tempo\",\"intent\":\"session\",\"status\":\"success\",\"reference\":\"0x6d0f...8e9f\",\"channelId\":\"0x6d0f...8e9f\",\"acceptedCumulative\":\"12500000\",\"spent\":\"12500000\",\"txHash\":\"0x1a2b...7890\"}",
+        "format": "json",
+        "content": "// Illustrative example, spec version draft-tempo-session-00 (decoded Payment-Receipt of the close response).\n{ \"method\": \"tempo\", \"intent\": \"session\", \"status\": \"success\", \"timestamp\": \"2026-10-11T12:10:00Z\",\n  \"reference\": \"0x6d0f...8e9f\", \"challengeId\": \"kM9xPqWvT2nJrHsY4aDfEb\", \"channelId\": \"0x6d0f...8e9f\",\n  \"acceptedCumulative\": \"12500000\", \"spent\": \"12500000\", \"txHash\": \"0x1a2b...7890\" }",
         "illustrative": true
       },
       "specRef": { "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/tempo/draft-tempo-session-00.md", "section": "Receipt Generation" },
@@ -220,6 +220,8 @@
     "src-stripe-mpp-tempo-session",
     "src-stripe-mpp-core-01",
     "src-stripe-mpp-blog-sessions",
+    "src-stripe-mpp-docs-repo",
+    "src-stripe-mpp-tempo-tip20",
     "src-x402-scheme-upto-evm",
     "src-x402-scheme-batch-evm"
   ]

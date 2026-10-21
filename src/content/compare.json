@@ -1592,11 +1592,12 @@
       "protocol": "openai-acp",
       "dimension": "fees-and-who-pays-them",
       "value": "No protocol fee; OpenAI says no fees on purchases completed on the merchant's site or app (2026-10-20) and publishes no in-chat rate; the 2025 \"small fee\" and reported 4 percent are history",
-      "detail": "Merchant PSP fees unchanged; SPT pricing not published (preview); Shopify may charge per-channel Agentic Storefronts fees set in Shopify Admin.",
+      "detail": "Merchant PSP fees unchanged; Stripe's US pricing page lists 0.15 USD per SPT issued (listed since at least 2026-04-23) without naming the party billed; Shopify may charge per-channel Agentic Storefronts fees set in Shopify Admin.",
       "sources": [
         "src-chatgpt-merchants",
         "src-openai-buy-it",
         "src-pymnts-4pct",
+        "src-openai-acp-stripe-pricing",
         "src-fee-stripe-spt-docs",
         "src-fee-shopify-agentic-terms"
       ],
@@ -2093,10 +2094,12 @@
       "protocol": "stripe-mpp",
       "dimension": "layers-covered",
       "value": "Payment credential and settlement rails; optional discovery",
-      "detail": "No identity, mandate or checkout layer; disputes depend on the rail.",
+      "detail": "No identity, mandate or checkout layer in the specs (identity is limited to an optional payer source in the credential; mppx adds optional request attestation); disputes depend on the rail.",
       "sources": [
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-discovery"
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-intent-charge"
       ],
       "confidence": "verified"
     },
@@ -2115,10 +2118,11 @@
       "protocol": "stripe-mpp",
       "dimension": "governance-model",
       "value": "Core as an individual IETF draft; methods by rails; no foundation",
-      "detail": "No working group, charter or steering committee.",
+      "detail": "No working group, charter or steering committee in the IETF record or the MPP repositories (2026-10-21).",
       "sources": [
         "src-stripe-mpp-ietf-current",
-        "src-stripe-mpp-governance"
+        "src-stripe-mpp-governance",
+        "src-stripe-mpp-specs-repo"
       ],
       "confidence": "verified"
     },
@@ -2140,6 +2144,7 @@
       "detail": "With Tempo mainnet; spec repository created 2026-01-05.",
       "sources": [
         "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-tempo-mainnet",
         "src-stripe-mpp-gh-specs-commits"
       ],
       "confidence": "verified"
@@ -2147,10 +2152,11 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "latest-version-and-date",
-      "value": "draft-httpauth-payment-01 (2026-09-09); mppx 0.13.4 (2026-10-08)",
-      "detail": "Old name draft-ryan-httpauth-payment expired 2026-09-18.",
+      "value": "draft-httpauth-payment-01 (2026-09-09); mppx 0.14.1 (2026-10-21)",
+      "detail": "Latest as of 2026-10-21. Old name draft-ryan-httpauth-payment expired 2026-09-18.",
       "sources": [
         "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-ietf-ryan",
         "src-stripe-mpp-npm-mppx"
       ],
       "confidence": "verified"
@@ -2159,9 +2165,10 @@
       "protocol": "stripe-mpp",
       "dimension": "maturity",
       "value": "Live deployments on a draft spec",
-      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier; no IANA registrations.",
+      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier and no IANA registrations (as of 2026-10-21).",
       "sources": [
         "src-stripe-mpp-tempo-mainnet",
+        "src-stripe-mpp-stripe-blog",
         "src-stripe-mpp-stripe-docs",
         "src-stripe-mpp-iana"
       ],
@@ -2174,7 +2181,8 @@
       "detail": "MCP error -32042 and _meta credential and receipt.",
       "sources": [
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-mcp-transport"
+        "src-stripe-mpp-mcp-transport",
+        "src-stripe-mpp-tempo-session"
       ],
       "confidence": "verified"
     },
@@ -2182,7 +2190,7 @@
       "protocol": "stripe-mpp",
       "dimension": "settlement-rails",
       "value": "Tempo and other chains, Stripe SPTs, card networks, Lightning",
-      "detail": "11 method ids in the spec repo; mpp.dev documents two more.",
+      "detail": "11 method ids in the spec repo; mpp.dev documents two more, monad and redotpay (as of 2026-10-21).",
       "sources": [
         "src-stripe-mpp-specs-repo",
         "src-stripe-mpp-docs-methods"
@@ -2219,6 +2227,7 @@
       "value": "Both",
       "detail": "Built for unattended clients; browser wallets should ask a human to confirm; SPT creation may prompt 3DS.",
       "sources": [
+        "src-stripe-mpp-specs-repo",
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-stripe-charge"
       ],
@@ -2244,14 +2253,16 @@
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-charge",
         "src-stripe-mpp-stripe-charge",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-lightning",
+        "src-stripe-mpp-tempo-session"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "cryptography",
-      "value": "HMAC-SHA256 binding, JCS, RFC 9530 digest, EIP-712 secp256k1, JWE RSA-OAEP",
+      "value": "HMAC-SHA256 binding, JCS, RFC 9530 digest, EIP-712 secp256k1, JWE RSA-OAEP-256 with A256GCM",
       "detail": "TLS 1.2 or later required.",
       "sources": [
         "src-stripe-mpp-core-01",
@@ -2324,7 +2335,8 @@
       "detail": "No .well-known path; mpp.dev directory and MPPscan.",
       "sources": [
         "src-stripe-mpp-discovery",
-        "src-stripe-mpp-directory-api"
+        "src-stripe-mpp-directory-api",
+        "src-stripe-mpp-mppscan"
       ],
       "confidence": "verified"
     },
@@ -2343,7 +2355,7 @@
       "protocol": "stripe-mpp",
       "dimension": "decentralization",
       "value": "Open spec, concentrated authorship",
-      "detail": "Five core authors from two companies; Tempo validators are permissioned; 126 of 129 listings accept Tempo.",
+      "detail": "Five core authors from two companies; Tempo validators are permissioned; 135 of 138 directory listings accept Tempo (2026-10-21).",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-consensus",
@@ -2366,23 +2378,24 @@
       "protocol": "stripe-mpp",
       "dimension": "fees-and-who-pays-them",
       "value": "No protocol fee; rail fees",
-      "detail": "Tempo gas at most about 0.0006 USD per 50,000-gas transfer, paid by the client unless the server sponsors; Stripe minimums 0.50 USD (cards) and 0.01 USDC; Stripe stablecoin fee reported, not confirmed for MPP; SPT pricing not published (as of 2026-10-11).",
+      "detail": "Tempo base fee for a 50,000-gas transfer capped at about 0.0006 USD, plus any priority fee, paid by the client unless the server sponsors. Stripe's US pricing page lists stablecoin payments at 1.5 percent and Shared Payment Tokens at 0.15 USD per SPT issued (listed since at least 2026-04-23), but does not say how either applies to MPP or which party an SPT is billed to. Stripe's MPP minimums: 0.50 USD for SPT cards and 0.01 USDC (2026-10-21).",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-fees",
         "src-stripe-mpp-stripe-docs",
-        "src-fee-stripe-spt-docs"
+        "src-stripe-mpp-stripe-pricing"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "who-pays",
-      "value": "Client pays gas unless the server sponsors; card economics unchanged",
+      "value": "Client pays gas unless the server sponsors; Stripe lists 0.15 USD per SPT issued without naming who pays",
       "detail": "Server always pays settle and close; Stripe can pay Tempo fees with hostedFeePayer.",
       "sources": [
         "src-stripe-mpp-tempo-session",
-        "src-stripe-mpp-stripe-docs"
+        "src-stripe-mpp-stripe-docs",
+        "src-stripe-mpp-stripe-pricing"
       ],
       "confidence": "verified"
     },
@@ -2394,28 +2407,33 @@
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-tempo-session",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-mcp-transport"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "composes-with",
-      "value": "x402, Stripe SPT (ACP), Visa TAP and VIC, Mastercard AP4M (Tempo's statement)",
-      "detail": "AP2 complementary with no cross-reference; no UCP or ERC-8004 link.",
+      "value": "x402, Stripe SPT (also used by ACP), Visa TAP and VIC",
+      "detail": "AP2 complementary with no cross-reference. Mastercard AP4M is not a composition: Tempo said in Mastercard's 2026-06-10 release that it is working on MPP compatibility, and Mastercard's 2026-10-20 Early Access brief builds AP4M on x402 and names no MPP. The UCP and ERC-8004 repositories never mention MPP; MPP's discovery draft compares itself with ERC-8004 and calls itself compatible with future on-chain anchoring.",
       "sources": [
         "src-stripe-mpp-vs-x402",
         "src-stripe-mpp-stripe-charge",
+        "src-stripe-acp-launch",
         "src-stripe-mpp-visa-card",
         "src-mcap-ap4m-2026",
-        "src-stripe-mpp-ucp-repo"
+        "src-stripe-mpp-mc-ap4m-early-access",
+        "src-stripe-mpp-ucp-repo",
+        "src-stripe-mpp-discovery"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "reference-implementations-and-sdks",
-      "value": "mppx 0.13.4 (TypeScript), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
+      "value": "mppx 0.14.1 (TypeScript, 2026-10-21), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
       "detail": "Community SDKs in Elixir, Go and Swift.",
       "sources": [
         "src-stripe-mpp-npm-mppx",
@@ -2428,22 +2446,24 @@
       "protocol": "stripe-mpp",
       "dimension": "adoption-evidence",
       "value": "Live but small and mostly Tempo",
-      "detail": "MPPscan: 4,072,426 transactions and 435,476 USD all time, 8,774 USD in the last 30 days (2026-10-11); 129 directory services.",
+      "detail": "MPPscan: 4,250,945 transactions and 437,665 USD all time, 8,620 USD in the 30 days to 2026-10-21; 138 directory services, 135 of them accepting Tempo (2026-10-21).",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api"
       ],
-      "confidence": "verified"
+      "confidence": "reported"
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "published-security-research",
-      "value": "Yes: one formal analysis and six SDK advisories",
-      "detail": "Tamarin model in arXiv:2609.00060; CVE-2026-34209, CVE-2026-34210, CVE-2026-63627, CVE-2026-63628 and two critical GHSAs.",
+      "value": "Yes: one formal analysis, one SoK that includes MPP, and nine SDK advisories (2026-10-21)",
+      "detail": "Tamarin models in arXiv:2609.00060 (12 new and 9 known MPP cases); SoK arXiv:2604.15367. Advisories, all fixed: mppx GHSA-8x4m-qw58-3pcx, CVE-2026-34209, CVE-2026-34210, CVE-2026-63627 and CVE-2026-63628; Rust mpp GHSA-fxc9-7j2w-vx54 and GHSA-8xhq-x7vw-8rcw; pympp CVE-2026-63634 and GHSA-5r9p-36vq-j23h.",
       "sources": [
         "src-stripe-mpp-arxiv-2609-00060",
+        "src-stripe-mpp-arxiv-2604-15367",
         "src-stripe-mpp-ghsa-other",
-        "src-stripe-mpp-ghsa-rs"
+        "src-stripe-mpp-ghsa-mpp-rs",
+        "src-stripe-mpp-ghsa-pympp"
       ],
       "confidence": "verified"
     },
@@ -3134,12 +3154,14 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "composes-with",
-      "value": "AP2 and UCP via VI, ACP via Stripe SPT, MPP (Tempo statement), x402 (member)",
+      "value": "AP2 and UCP via VI, ACP via Stripe SPT, x402 (member)",
+      "detail": "MPP is not a composition: Tempo said in Mastercard's 2026-06-10 AP4M release that it is working with Mastercard on MPP compatibility, but Mastercard names no MPP link, and its 2026-10-20 brief opening AP4M Early Access builds AP4M on x402.",
       "sources": [
         "src-mcap-vi-landscape",
         "src-mcap-stripe-spt-2026",
         "src-mcap-ap4m-2026",
-        "src-mcap-x402-lf-july"
+        "src-mcap-x402-lf-july",
+        "src-mcap-ap4m-early-access"
       ],
       "confidence": "verified"
     },
@@ -3530,6 +3552,8 @@
       "value": 3,
       "justification": "Live since 2026-03-18 with several SDKs, but the core is an individual draft and Stripe's integration is labeled Frontier.",
       "sources": [
+        "src-stripe-mpp-stripe-blog",
+        "src-stripe-mpp-sdk-index",
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-stripe-docs"
       ]
@@ -3538,7 +3562,7 @@
       "protocol": "stripe-mpp",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Millions of indexed transactions but under one cent each recently, and few non-Tempo listings.",
+      "justification": "Millions of indexed transactions averaging about one cent each in the 30 days to 2026-10-21, and few non-Tempo listings.",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api"

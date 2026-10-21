@@ -39,8 +39,8 @@
       "HMAC binding",
       "challenge id binding"
     ],
-    "plain": "Tying an MPP challenge id to all its parameters, usually with an HMAC-SHA256 over them, so a client cannot change what it pays for and a server can verify statelessly.",
-    "ste": "The server makes the challenge identifier from the challenge values with a secret key. Thus, nobody can change the values.",
+    "plain": "Tying an MPP challenge id to every challenge parameter except description, so a client cannot change what it pays for. The mechanism is up to the server; for stateless checks the spec recommends an HMAC-SHA256 over the values.",
+    "ste": "The server connects the challenge identifier to the challenge values, but not to the description. Usually, the server uses a secret key for this. If a person changes a value, the server does not accept the payment.",
     "protocols": [
       "stripe-mpp"
     ],
@@ -85,7 +85,7 @@
     "id": "client-enabler",
     "term": "Client Enabler",
     "aliases": [
-      "token service provider (card method)"
+      "vault provider or TSP (card method)"
     ],
     "plain": "In the Visa-authored MPP card method, the party that provisions a network token and cryptogram for the client and encrypts them for the server.",
     "ste": "The party that gets a card token for the client and encrypts it for the server.",
@@ -181,7 +181,7 @@
     "aliases": [
       "MPP explorer"
     ],
-    "plain": "A public explorer by Merit Systems that indexes MPP servers, agents, transactions and volume, mostly on Tempo.",
+    "plain": "A public explorer by Merit Systems that indexes MPP servers, agents, transactions and volume.",
     "ste": "A public web site that shows MPP payments and servers.",
     "protocols": [
       "stripe-mpp"
@@ -197,8 +197,8 @@
       "accessKey",
       "keyAuthorization"
     ],
-    "plain": "A Tempo key authorization with limits that the payer signs once so a server can collect recurring MPP subscription charges.",
-    "ste": "A key with limits that the payer approves. The server uses it to collect each subscription payment.",
+    "plain": "A delegated Tempo signing key, limited by an expiry, a per-period spending limit and the recipient, that the payer authorizes once with a signed keyAuthorization so the server can collect one renewal per billing period.",
+    "ste": "A key with limits that the payer approves one time. The server uses it to collect each subscription payment.",
     "protocols": [
       "stripe-mpp"
     ],
@@ -208,10 +208,11 @@
   },
   {
     "id": "channel-reserve-precompile",
-    "term": "TIP-20 channel reserve",
+    "term": "TIP-20 channel escrow precompile",
     "aliases": [
-      "session v2",
-      "TIP-1034"
+      "TIP-20 channel reserve",
+      "TIP-1034",
+      "session v2"
     ],
     "plain": "The Tempo precompile that holds session deposits in MPP session protocol v2, replacing the v1 escrow contract.",
     "ste": "The built-in Tempo function that holds the deposit for a session, version 2.",

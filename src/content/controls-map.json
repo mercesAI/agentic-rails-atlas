@@ -794,8 +794,8 @@
     {
       "protocol": "stripe-mpp",
       "control": "agent-registration-kya",
-      "support": "none",
-      "note": "The core forbids requiring accounts for payment; any know-your-customer step belongs to a method (the stripe method needs Stripe accounts on both sides).",
+      "support": "external",
+      "note": "No agent registry in MPP, and the core forbids requiring accounts for payment; any know-your-customer step belongs to a method, and the stripe method needs Stripe accounts on both sides.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-stripe-charge"
@@ -837,11 +837,13 @@
       "protocol": "stripe-mpp",
       "control": "time-windows-expiry",
       "support": "partial",
-      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at, but session channels and vouchers never expire.",
+      "note": "Challenges carry expires, subscriptions subscriptionExpires and SPTs expires_at. Tempo session channels and vouchers never expire, as in the EVM and Hedera drafts; XRPL channels can carry Expiration or CancelAfter, and Solana sessions have idle timeouts and an optional voucher expiresAt.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-intent-subscription",
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-session-methods"
       ]
     },
     {
@@ -878,9 +880,12 @@
       "protocol": "stripe-mpp",
       "control": "receipts-evidence",
       "support": "native",
-      "note": "Payment-Receipt with a method reference on every paid response; session receipts add spent and acceptedCumulative, plus a final SSE event.",
+      "note": "Payment-Receipt with a method reference, recommended by the core and required on every successful payment by the Tempo, stripe and card charge drafts and the Tempo session draft; session receipts add spent and acceptedCumulative, and a streamed response also ends with a receipt.",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-tempo-charge",
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-card-charge",
         "src-stripe-mpp-tempo-session"
       ]
     },
@@ -898,7 +903,7 @@
       "protocol": "stripe-mpp",
       "control": "reputation",
       "support": "none",
-      "note": "No reputation layer; the discovery draft only mentions future on-chain anchoring compatible with ERC-8004.",
+      "note": "No reputation layer. The discovery draft's informative guidance lets aggregators add trust scores, uptime and volume data, and its comparison with prior art says the draft is compatible with future on-chain anchoring, naming the ERC-8004 registries.",
       "sources": [
         "src-stripe-mpp-discovery"
       ]
@@ -917,10 +922,12 @@
     {
       "protocol": "stripe-mpp",
       "control": "kill-switch",
-      "support": "none",
-      "note": "No protocol stop; a payer stops signing or force-closes, and an operator revokes keys at the wallet or disables a Stripe account.",
+      "support": "external",
+      "note": "No protocol stop. A payer stops signing or force-closes a channel, a Tempo account holder revokes access keys through the AccountKeychain precompile, and the agent side that issued an SPT can revoke it before the seller uses it.",
       "sources": [
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-tempo-subscription",
+        "src-fee-stripe-spt-docs"
       ]
     },
     {

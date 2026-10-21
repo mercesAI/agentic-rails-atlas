@@ -32,12 +32,12 @@ const nf = new Intl.NumberFormat('en-US');
           {r.date && <time datetime={r.date}>{r.date}</time>}
         </p>
         <p class="resource__note">{r.note}</p>
-        {gh && (gh.stars !== undefined || gh.lastCommit || gh.latestTag) && (
+        {gh && (gh.stars !== undefined || gh.lastCommit || gh.latestRelease || gh.latestTag) && (
           <p class="resource__gh">
-            GitHub snapshot:
+            GitHub snapshot{gh.fetchedAt && <> of <time datetime={gh.fetchedAt}>{gh.fetchedAt}</time></>}:
             {gh.stars !== undefined && <> {nf.format(gh.stars)} stars.</>}
             {gh.lastCommit && <> Last commit <time datetime={gh.lastCommit}>{gh.lastCommit}</time>.</>}
-            {gh.latestTag && <> Latest tag <code>{gh.latestTag}</code>.</>}
+            {gh.latestRelease ? <> Latest release <code>{gh.latestRelease}</code>.</> : gh.latestTag && <> Latest tag <code>{gh.latestTag}</code>.</>}
           </p>
         )}
       </li>

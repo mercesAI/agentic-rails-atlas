@@ -41,10 +41,11 @@
       "sources": [
         "src-stripe-mpp-stripe-blog",
         "src-stripe-mpp-tempo-mainnet",
-        "src-stripe-mpp-visa-card"
+        "src-stripe-mpp-visa-card",
+        "src-stripe-mpp-ietf-ryan"
       ],
       "confidence": "verified",
-      "detail": "Stripe and Tempo posts; Visa card spec and SDK; Lightspark Lightning; directory with more than 100 services; draft-ryan -01 posted."
+      "detail": "Stripe and Tempo posts (Stripe: stablecoins, plus cards and buy now, pay later methods through SPTs); Visa card spec and SDK; Lightspark Lightning; directory with more than 100 services; draft-ryan -01 posted (02:45 UTC)."
     },
     {
       "date": "2026-03-24",
@@ -67,17 +68,19 @@
         "src-stripe-mpp-ghsa-other"
       ],
       "confidence": "verified",
-      "detail": "GHSA-8x4m-qw58-3pcx (critical), CVE-2026-34209 and CVE-2026-34210; NVD published the CVEs on 2026-03-31."
+      "detail": "Repository advisories GHSA-8x4m-qw58-3pcx (critical, fixed in 0.4.8), CVE-2026-34209 and CVE-2026-34210 (fixed in 0.4.11); the GitHub Advisory Database listed them on 2026-03-29 and NVD published the CVEs on 2026-03-31."
     },
     {
-      "date": "2026-03-29",
+      "date": "2026-03-26",
       "lane": "Stripe MPP",
       "title": "Rust mpp crate advisory GHSA-fxc9-7j2w-vx54",
       "kind": "security",
       "sources": [
+        "src-stripe-mpp-ghsa-mpp-rs",
         "src-stripe-mpp-ghsa-rs"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "detail": "Critical, fixed in 0.8.0. Repository advisory 2026-03-26; GitHub Advisory Database 2026-03-29."
     },
     {
       "date": "2026-04-13",
@@ -102,13 +105,14 @@
     {
       "date": "2026-04-29",
       "lane": "Stripe MPP",
-      "title": "Stripe adds cards, Klarna and Affirm through SPTs",
-      "kind": "launch",
+      "title": "Stripe Sessions recap names Klarna and Affirm among MPP payment methods through SPTs",
+      "kind": "announce",
       "sources": [
-        "src-stripe-mpp-stripe-sessions"
+        "src-stripe-mpp-stripe-sessions",
+        "src-stripe-mpp-stripe-blog"
       ],
       "confidence": "verified",
-      "detail": "Announced at Stripe Sessions."
+      "detail": "Cards and buy now, pay later methods through SPTs were already in Stripe's 2026-03-18 launch post."
     },
     {
       "date": "2026-05-12",
@@ -179,12 +183,14 @@
     {
       "date": "2026-07-01",
       "lane": "Stripe MPP",
-      "title": "Fee payer draining advisories (CVE-2026-63627, CVE-2026-63628)",
+      "title": "Fee payer draining advisories (CVE-2026-63627, CVE-2026-63628, CVE-2026-63634)",
       "kind": "security",
       "sources": [
-        "src-stripe-mpp-ghsa-other"
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-pympp"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "detail": "Two medium mppx advisories fixed in 0.8.2 and a low pympp advisory fixed in 0.9.1 (repository publication dates)."
     },
     {
       "date": "2026-07-29",
@@ -219,6 +225,17 @@
       "confidence": "verified"
     },
     {
+      "date": "2026-08-25",
+      "lane": "Stripe MPP",
+      "title": "pympp advisory GHSA-5r9p-36vq-j23h",
+      "kind": "security",
+      "sources": [
+        "src-stripe-mpp-ghsa-pympp"
+      ],
+      "confidence": "verified",
+      "detail": "Medium: PaymentTransport could pay attacker-controlled challenges after cross-origin redirects; fixed in 0.10.1."
+    },
+    {
       "date": "2026-08-27",
       "lane": "Stripe MPP",
       "title": "mppx 0.9.0 dual MPP and x402 wrappers",
@@ -227,6 +244,17 @@
         "src-stripe-mpp-mppx-changelog"
       ],
       "confidence": "verified"
+    },
+    {
+      "date": "2026-08-27",
+      "lane": "Stripe MPP",
+      "title": "Rust mpp crate advisory GHSA-8xhq-x7vw-8rcw",
+      "kind": "security",
+      "sources": [
+        "src-stripe-mpp-ghsa-mpp-rs"
+      ],
+      "confidence": "verified",
+      "detail": "Medium: a Payment-Receipt could be attached to failed responses, and body-layer failures returned a bare 402; fixed in 0.12.0. Not in the GitHub Advisory Database."
     },
     {
       "date": "2026-09-08",
@@ -271,14 +299,40 @@
       "confidence": "verified"
     },
     {
-      "date": "2026-10-08",
+      "date": "2026-10-15",
       "lane": "Stripe MPP",
-      "title": "mppx 0.13.4 released",
+      "title": "mppx 0.13.5 answers replayed Tempo charge credentials with a final 403",
       "kind": "release",
       "sources": [
-        "src-stripe-mpp-npm-mppx"
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-docs-http-402"
       ],
-      "confidence": "verified"
+      "confidence": "verified",
+      "detail": "SDK behavior, not in the draft: no new challenge, so automatic clients do not pay again; mpp.dev documented it on 2026-10-19."
+    },
+    {
+      "date": "2026-10-20",
+      "lane": "Stripe MPP",
+      "title": "Mastercard opens Agent Pay for Machines Early Access on x402, naming no MPP",
+      "kind": "announce",
+      "sources": [
+        "src-stripe-mpp-mc-ap4m-early-access"
+      ],
+      "confidence": "verified",
+      "detail": "Mastercard's news brief says the product builds on x402 and names no Tempo, Stripe or MPP."
+    },
+    {
+      "date": "2026-10-21",
+      "lane": "Stripe MPP",
+      "title": "mppx 0.14.1 released",
+      "kind": "release",
+      "sources": [
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "detail": "0.14.0, the same day, added idempotency keys and credits for Tempo session charges and stopped settle() from capturing a voucher above spent (breaking)."
     }
   ]
 }

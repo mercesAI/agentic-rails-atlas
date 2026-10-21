@@ -4,7 +4,7 @@
   "type": "other",
   "title": "MPP attack surface",
   "caption": "Where attacks land and which rule answers them. Three of the server items are past SDK advisories, now fixed.",
-  "alt": "Flowchart in four zones. Client: overpay by a malicious server, answered by client checks; leaked credential, answered by TLS and never logging. Path: a proxy caching a Payment-Authorization response, answered by Cache-Control private or no-store; spoofed discovery data, answered by treating the 402 challenge as authoritative. Server and SDK: replay of a consumed id or SPT, fee payer drained by padded calldata, close voucher equal to settled amount. Channel: never-expiring channel left open; unresponsive server at close, answered by forced close after 15 minutes.",
+  "alt": "Flowchart in four zones. Client: overpay by a malicious server, answered by client checks; leaked credential, answered by TLS and never logging. Path: a proxy caching a Payment-Authorization response, answered by Cache-Control private or no-store; spoofed discovery data, answered by treating the 402 challenge as authoritative. Server and SDK: replay of a consumed id or SPT, fee payer drained by padded calldata, close voucher equal to settled amount. Channel: a channel without expiry left open (Tempo, EVM and Hedera channels have none); unresponsive server at close, answered by forced close after 15 minutes.",
   "sourceOfTruth": {
     "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
     "label": "Core security considerations and GitHub advisories"
@@ -14,6 +14,8 @@
     "src-stripe-mpp-ghsa-34209",
     "src-stripe-mpp-ghsa-34210",
     "src-stripe-mpp-ghsa-other",
-    "src-stripe-mpp-tempo-session"
+    "src-stripe-mpp-tempo-session",
+    "src-stripe-mpp-evm",
+    "src-stripe-mpp-hedera"
   ]
 }

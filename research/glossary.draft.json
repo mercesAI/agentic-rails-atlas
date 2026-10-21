@@ -2201,6 +2201,7 @@
       "protocols": [
         "stripe-mpp"
       ],
+      "commonWord": true,
       "sources": [
         "src-stripe-mpp-core-01"
       ]
@@ -2217,6 +2218,7 @@
       "protocols": [
         "stripe-mpp"
       ],
+      "commonWord": true,
       "sources": [
         "src-stripe-mpp-core-01"
       ]
@@ -2227,14 +2229,17 @@
       "aliases": [
         "payment intent type"
       ],
-      "plain": "In MPP, the kind of payment a challenge asks for, given in the `intent` parameter. The drafts define `charge` (one payment), `session` (metered payments over a channel, Tempo only) and `subscription` (recurring payments). It has nothing to do with a Stripe PaymentIntent object or with Mastercard's Verifiable Intent.",
-      "ste": "In MPP, the intent tells the type of payment. The three intents are charge, session and subscription.",
+      "plain": "In MPP, the kind of payment a challenge asks for, given in the `intent` parameter. The intents folder of `mpp-specs` standardizes `charge` (one payment) and `subscription` (recurring payments). `session` (metered payments over a channel) has no intent document of its own: six payment methods (tempo, evm, solana, hedera, lightning and xrpl) each define it as an experimental intent, and a pull request for a generic session intent was closed unmerged on 2026-09-28. It has nothing to do with a Stripe PaymentIntent object or with Mastercard's Verifiable Intent.",
+      "ste": "In MPP, the intent tells the type of payment. The standard intents are charge and subscription. Some payment methods also define a session.",
       "protocols": [
         "stripe-mpp"
       ],
       "sources": [
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-intent-charge"
+        "src-stripe-mpp-intent-charge",
+        "src-stripe-mpp-intent-subscription",
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-gh-pr-280"
       ]
     },
     {
@@ -2248,6 +2253,7 @@
       "protocols": [
         "stripe-mpp"
       ],
+      "commonWord": true,
       "sources": [
         "src-stripe-mpp-intent-charge"
       ]
@@ -2259,13 +2265,16 @@
         "session intent",
         "Tempo session"
       ],
-      "plain": "The MPP intent for metered use, such as paying per model token. The client deposits into an on-chain escrow channel, then sends signed vouchers with a rising `cumulativeAmount` as it consumes the service, and the server settles on-chain when it chooses. The session draft is experimental and defined for the Tempo method in `mpp-specs`.",
-      "ste": "Session is the MPP intent for a payment that increases with use. The client sends signed vouchers while it uses the service.",
+      "plain": "In MPP, metered payment over a channel, such as paying per model token. MPP has no standardized session intent: six payment methods (tempo, evm, solana, hedera, lightning and xrpl) each define their own experimental session, and a pull request for a generic session intent was closed unmerged on 2026-09-28. In the Tempo session the client deposits into an on-chain escrow channel, then sends signed vouchers with a rising `cumulativeAmount` as it uses the service, and the server settles on-chain when it chooses.",
+      "ste": "In MPP, a session is a payment that increases with use. Each payment method that has a session defines it. The client sends signed vouchers while it uses the service.",
       "protocols": [
         "stripe-mpp"
       ],
+      "commonWord": true,
       "sources": [
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-gh-pr-280"
       ]
     },
     {
@@ -2280,6 +2289,7 @@
       "protocols": [
         "stripe-mpp"
       ],
+      "commonWord": true,
       "sources": [
         "src-stripe-mpp-intent-subscription"
       ]

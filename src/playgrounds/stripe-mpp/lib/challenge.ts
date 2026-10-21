@@ -1,8 +1,11 @@
 /**
  * Challenge, credential, receipt and problem documents of the "Payment" HTTP authentication scheme
- * (specs/core/draft-httpauth-payment-01.md). The challenge `id` uses the recommended HMAC-SHA256 binding:
- * realm|method|intent|request|expires|digest[|header]|opaque, base64url without padding. The HMAC runs in
- * WebCrypto on a key generated in this browser. Auth-param order follows mppx Challenge.serialize.
+ * (specs/core/draft-httpauth-payment-01.md as it stands in mpp-specs at commit 50309c8). The challenge `id` uses
+ * the recommended HMAC-SHA256 binding in the slot order of that repository text, which mpp-specs PR 362 (merged
+ * 2026-09-21) set and mppx Challenge.ts also uses: realm|method|intent|request|expires|digest[|header]|opaque,
+ * base64url without padding. The posted draft-httpauth-payment-01 (2026-09-09) appends header after opaque
+ * instead, so the two layouts give different ids only when header is present. The HMAC runs in WebCrypto on a key
+ * generated in this browser. Auth-param order follows mppx Challenge.serialize.
  */
 import { base64UrlToUtf8, bytesToBase64Url } from '@/lib/playground/bytes';
 import { decodeJson, encodeJson } from './codec';
@@ -41,7 +44,10 @@ export interface Receipt {
   [extra: string]: unknown;
 }
 
-/** HMAC input string. Absent optional slots are empty strings; the header slot appears only when present. */
+/**
+ * HMAC input string. Absent optional slots are empty strings; the header slot appears only when present, before
+ * opaque (repository text after PR 362 and mppx; the posted -01 puts it last).
+ */
 export function bindingInput(c: UnsignedChallenge): string {
   const values = [c.realm, c.method, c.intent, c.request, c.expires ?? '', c.digest ?? ''];
   if (c.header !== undefined) values.push(c.header);
@@ -208,6 +214,10 @@ export function problem(code: ProblemCode, detail: string): Problem {
   return { type: `${PROBLEM_BASE}${code}`, title: TITLES[code], status: PROBLEM_STATUS[code], detail };
 }
 
+/** The core says which field must carry the credential but names no problem type for the wrong one. */
+export const WRONG_FIELD_SIMPLIFICATION =
+  'The core requires refusing a credential sent in a field the challenge did not select but names no problem type; the simulation answers invalid-challenge.';
+
 /** Server-side state for verification: the HMAC key and the ids already consumed (single use). */
 export interface ServerState {
   key: CryptoKey;
@@ -218,7 +228,7 @@ export interface ServerState {
 export type Verdict =
   | { status: 200; receipt: Receipt }
   | { status: 403; detail: string }
-  | { status: 400 | 402 | 500; problem: Problem; freshChallenge: boolean };
+  | { status: 400 | 402 | 500; problem: Problem; freshChallenge: boolean; simplification?: string };
 
 export interface VerifyOptions {
   /** The header field the credential arrived in. */
@@ -250,6 +260,7 @@ export async function verifyCredential(state: ServerState, raw: string, o: Verif
       status: 402,
       problem: problem('invalid-challenge', `The credential arrived in ${o.field}, but the challenge selected ${credentialField(c)}.`),
       freshChallenge: true,
+      simplification: WRONG_FIELD_SIMPLIFICATION,
     };
   }
   if (!c.id || state.used.has(c.id)) {

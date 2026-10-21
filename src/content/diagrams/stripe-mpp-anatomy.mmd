@@ -2,7 +2,8 @@ flowchart TB
   subgraph C1["Challenge: WWW-Authenticate: Payment (402)"]
     R1["Required: id, realm, method, intent, request"]
     O1["Optional: digest, expires, description, header, opaque"]
-    B1["id = HMAC-SHA256 over realm|method|intent|request|expires|digest|header|opaque"]
+    B1["Recommended id: HMAC-SHA256 over realm|method|intent|request|expires|digest|opaque, empty slot when absent, description never bound"]
+    B2["With header set: ...|digest|header|opaque<br/>in the repository text after<br/>PR 362 (2026-09-21) and in mppx.<br/>The posted -01 (2026-09-09)<br/>appends header after opaque."]
   end
   subgraph C2["Credential: Authorization: Payment base64url"]
     E2["challenge: echo of every parameter received"]
@@ -16,5 +17,6 @@ flowchart TB
   end
   R1 --> B1
   O1 --> B1
+  B1 -.- B2
   C1 -- "client pays, then retries" --> C2
   C2 -- "server verifies and settles" --> C3

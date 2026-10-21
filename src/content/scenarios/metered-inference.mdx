@@ -13,7 +13,7 @@ personas:
   - agent-dev
   - controls-builder
   - wallet-cp
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-21"
 ---
 
 ## The situation
@@ -25,8 +25,8 @@ The Machine Payments Protocol (MPP) handles this with a payment channel on the T
 ## Actors
 
 - **Client agent** with a Tempo wallet, or with a delegated `authorizedSigner` key that signs vouchers.<Cite ids="clm-scn-metered-inference-002" />
-- **Inference API server**, the payee, which issues challenges, keeps per-channel accounting and settles.
-- **Tempo channel escrow**: a contract in session v1 and a TIP-20 channel reserve precompile in v2.<Cite ids="clm-stripe-mpp-108" /> Tempo mainnet is chain 4217 and produces blocks about every 600 ms with deterministic finality.<Cite ids="clm-stripe-mpp-155 clm-stripe-mpp-157" />
+- **Inference API server**, the payee, which issues challenges, keeps per-channel accounting and settles.<Cite ids="clm-stripe-mpp-100 src-stripe-mpp-tempo-session" />
+- **Tempo channel escrow**: a contract in session v1 and a TIP-20 channel escrow precompile in v2.<Cite ids="clm-stripe-mpp-108" /> Tempo mainnet is chain 4217 and produces blocks about every 600 ms with deterministic finality.<Cite ids="clm-stripe-mpp-155 clm-stripe-mpp-157" />
 
 ## Step by step
 
@@ -60,20 +60,20 @@ The current core draft is `draft-httpauth-payment-01`, published 2026-09-09; it 
 
 - **Before authorization.** A policy reads the decoded challenge: recipient allowlist, price per unit, method preference.<Cite ids="src-stripe-mpp-core-01" /> Every top-up is a new spending decision and deserves the same check.
 - **At signing.** The deposit is the hard cap: vouchers cannot exceed it, so exposure is bounded by what the agent locked.<Cite ids="clm-stripe-mpp-126" /> MPP has no budget object of its own; limits come from the rail, here the deposit.<Cite ids="clm-stripe-mpp-135" />
-- **At the edge.** A 403 means the payment was valid but policy denies access, with no new challenge.<Cite ids="clm-stripe-mpp-093" />
+- **At the edge.** In the core spec, a 403 means the payment was valid but policy denies access, with no new challenge.<Cite ids="clm-stripe-mpp-093" />
 - **At settlement.** TIP-20 policy allow and block lists on Tempo act on the token transfers.<Cite ids="src-stripe-mpp-tempo-tip20" />
 - **After the fact.** Receipts carry `spent` and `acceptedCumulative`, so the agent can reconcile them against the close transaction. Channels have no expiry and vouchers have no `validUntil`, so idle channels need a policy to close them.<Cite ids="clm-stripe-mpp-107 clm-stripe-mpp-196" />
 
 ## What is observable from outside
 
-Tempo settlement is public, and MPPscan by Merit Systems indexes MPP servers, agents, transactions and volume.<Cite ids="clm-stripe-mpp-138" /> MPPscan reported 998,771 transactions and 8,774 USD of volume in the 30 days to 2026-10-11.<Cite ids="clm-stripe-mpp-172" /> On chain an observer sees the open, each top-up, any settle and the close, with payer, payee and amounts.<Cite ids="src-stripe-mpp-tempo-session" /> The vouchers themselves stay off chain, so per-token pricing and the timing of use stay between agent and server.<Cite ids="clm-scn-metered-inference-004" /> Challenges, credentials and receipts are bilateral HTTP headers.<Cite ids="clm-stripe-mpp-124" />
+Tempo settlement is public, and MPPscan by Merit Systems indexes MPP servers, agents, transactions and volume.<Cite ids="clm-stripe-mpp-138" /> MPPscan reported 785,833 transactions and 8,620 USD of volume in the 30 days to 2026-10-21, about 1.1 cents per transaction.<Cite ids="clm-stripe-mpp-172" /> On chain an observer sees the open, each top-up, any settle and the close, with payer, payee and amounts.<Cite ids="src-stripe-mpp-tempo-session" /> The vouchers themselves stay off chain, so per-token pricing and the timing of use stay between agent and server.<Cite ids="clm-scn-metered-inference-004" /> Challenges, credentials and receipts are bilateral HTTP headers.<Cite ids="clm-stripe-mpp-091 clm-stripe-mpp-124 clm-stripe-mpp-125" />
 
 ## What can go wrong
 
 - **The server stops answering.** The agent calls `requestClose`, waits a grace period of at least 15 minutes during which the server can still settle, then calls `withdraw`.<Cite ids="clm-stripe-mpp-103" /> The spec advises waiting at least 16 minutes.<Cite ids="clm-stripe-mpp-104" /> The agent loses time, not money beyond what it signed.
 - **A top-up during a pending close.** It cancels the close request and emits `CloseRequestCancelled`.<Cite ids="clm-stripe-mpp-205" />
-- **Bad vouchers.** A wrong signer, a total above the deposit or a too-small increase is rejected; the server serves nothing more and carries the risk of anything it delivered beyond its last accepted voucher.<Cite ids="clm-scn-metered-inference-001" />
-- **SDK bugs.** CVE-2026-34209 let a close voucher equal to the settled amount close or grief a channel for free in mppx before 0.4.11.<Cite ids="clm-stripe-mpp-127" /> Both MPP SDKs had critical advisories within two weeks of launch.<Cite ids="clm-stripe-mpp-198" />
+- **Bad vouchers.** A wrong signer, a total above the deposit or a too-small increase is rejected; the server serves nothing more and carries the risk of anything it delivered beyond its last accepted voucher.<Cite ids="clm-scn-metered-inference-005 clm-scn-metered-inference-001" />
+- **SDK bugs.** CVE-2026-34209 let a close voucher equal to the settled amount close or grief a channel for free in mppx before 0.4.11.<Cite ids="clm-stripe-mpp-127" /> The TypeScript (`mppx`) and Rust (`mpp`) SDKs both had critical advisories within two weeks of launch.<Cite ids="clm-stripe-mpp-198" />
 - **Wrong cost model.** Session v2 cut gas for opening a channel with an existing reserve balance by 72.1 percent, but raised gas for settling to a new payee balance by 79.4 percent. The 72 percent figure is a best case for one operation, not a general saving.<Cite ids="clm-stripe-mpp-169" />
 
 Costs: MPP defines no protocol fee.<Cite ids="clm-stripe-mpp-170" /> For a 50,000-gas transfer Tempo's base fee is capped at about $0.0006 (as of 2026-10-11).<Cite ids="clm-stripe-mpp-161" />

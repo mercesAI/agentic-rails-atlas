@@ -3,8 +3,8 @@
   "protocol": "stripe-mpp",
   "title": "MPP over MCP: a paid tool call",
   "summary": "Over JSON-RPC the challenge arrives as error -32042 with request as a native JSON object; the client retries tools/call with the credential in _meta, and the result carries the receipt in _meta.",
-  "specVersion": "draft-payment-transport-mcp-00",
-  "specVersionDate": "2026-09-09",
+  "specVersion": "draft-payment-transport-mcp-00 (undated, repository text of 2026-04-16, unchanged at commit 50309c8)",
+  "specVersionDate": "2026-04-16",
   "actors": [
     {
       "id": "client",
@@ -39,10 +39,10 @@
       "from": "server",
       "to": "client",
       "label": "error -32042 Payment Required",
-      "detail": "error.data holds httpStatus 402, the challenges array and an optional problem object.",
+      "detail": "error.data holds httpStatus 402, the challenges array and an optional problem object. Each challenge carries request as plain JSON in the payment method's schema, here a Tempo charge with a TIP-20 currency and a recipient.",
       "payload": {
         "format": "json",
-        "content": "# Illustrative example, spec version draft-payment-transport-mcp-00\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"error\": {\n    \"code\": -32042,\n    \"message\": \"Payment Required\",\n    \"data\": {\n      \"httpStatus\": 402,\n      \"challenges\": [\n        { \"id\": \"qB3wErTyU7iOpAsD9fGhJk\", \"realm\": \"api.example.com\", \"method\": \"tempo\", \"intent\": \"charge\",\n          \"request\": { \"amount\": \"1000\", \"currency\": \"usd\" }, \"expires\": \"2026-10-11T12:05:00Z\" }\n      ]\n    }\n  }\n}",
+        "content": "# Illustrative example, spec version draft-payment-transport-mcp-00\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"error\": {\n    \"code\": -32042,\n    \"message\": \"Payment Required\",\n    \"data\": {\n      \"httpStatus\": 402,\n      \"challenges\": [\n        { \"id\": \"qB3wErTyU7iOpAsD9fGhJk\", \"realm\": \"api.example.com\", \"method\": \"tempo\", \"intent\": \"charge\",\n          \"request\": { \"amount\": \"1000\", \"currency\": \"0x20c0000000000000000000000000000000000000\",\n                       \"recipient\": \"0xb0b0000000000000000000000000000000000b0b\" }, \"expires\": \"2026-10-11T12:05:00Z\" }\n      ]\n    }\n  }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,

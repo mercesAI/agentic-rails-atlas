@@ -3,7 +3,7 @@
   "protocol": "stripe-mpp",
   "title": "MPP charge with the stripe method (Shared Payment Token)",
   "summary": "The challenge names the seller profile and accepted payment method types. The client creates a Shared Payment Token scoped to that seller and sends its id; the server creates and confirms a PaymentIntent and returns the PaymentIntent id as the receipt reference.",
-  "specVersion": "draft-stripe-charge-00",
+  "specVersion": "draft-stripe-charge-00 (undated, repository text of 2026-09-09, unchanged at commit 50309c8)",
   "specVersionDate": "2026-09-09",
   "actors": [
     {
@@ -54,7 +54,7 @@
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
-        "section": "Client Behavior"
+        "section": "Stripe Charge Flow"
       }
     },
     {
@@ -83,12 +83,12 @@
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
-        "section": "Settlement"
+        "section": "Settlement Procedure"
       },
       "failures": [
         {
-          "condition": "Stripe answers with Idempotent-Replayed for a new challenge",
-          "outcome": "Treat as replay; mppx before 0.4.11 missed this (CVE-2026-34210)."
+          "condition": "The same credential is sent again: same challenge id and SPT, so the same idempotency key, and Stripe returns the earlier PaymentIntent with Idempotent-Replayed: true",
+          "outcome": "Reject it as a replay. mppx before 0.4.11 counted it as a new payment (CVE-2026-34210); the draft also requires single-use challenge ids."
         }
       ]
     },
@@ -123,7 +123,7 @@
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/methods/stripe/draft-stripe-charge-00.md",
-        "section": "Receipt"
+        "section": "Receipt Generation"
       }
     }
   ],

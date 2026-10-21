@@ -607,6 +607,7 @@
     "protocols": [
       "stripe-mpp"
     ],
+    "commonWord": true,
     "sources": [
       "src-stripe-mpp-core-01"
     ]
@@ -618,8 +619,8 @@
       "HMAC binding",
       "challenge id binding"
     ],
-    "plain": "Tying an MPP challenge id to all its parameters, usually with an HMAC-SHA256 over them, so a client cannot change what it pays for and a server can verify statelessly.",
-    "ste": "The server makes the challenge identifier from the challenge values with a secret key. Thus, nobody can change the values.",
+    "plain": "Tying an MPP challenge id to every challenge parameter except description, so a client cannot change what it pays for. The mechanism is up to the server; for stateless checks the spec recommends an HMAC-SHA256 over the values.",
+    "ste": "The server connects the challenge identifier to the challenge values, but not to the description. Usually, the server uses a secret key for this. If a person changes a value, the server does not accept the payment.",
     "protocols": [
       "stripe-mpp"
     ],
@@ -629,10 +630,11 @@
   },
   {
     "id": "channel-reserve-precompile",
-    "term": "TIP-20 channel reserve",
+    "term": "TIP-20 channel escrow precompile",
     "aliases": [
-      "session v2",
-      "TIP-1034"
+      "TIP-20 channel reserve",
+      "TIP-1034",
+      "session v2"
     ],
     "plain": "The Tempo precompile that holds session deposits in MPP session protocol v2, replacing the v1 escrow contract.",
     "ste": "The built-in Tempo function that holds the deposit for a session, version 2.",
@@ -655,6 +657,7 @@
     "protocols": [
       "stripe-mpp"
     ],
+    "commonWord": true,
     "sources": [
       "src-stripe-mpp-intent-charge"
     ]
@@ -764,7 +767,7 @@
     "id": "client-enabler",
     "term": "Client Enabler",
     "aliases": [
-      "token service provider (card method)"
+      "vault provider or TSP (card method)"
     ],
     "plain": "In the Visa-authored MPP card method, the party that provisions a network token and cryptogram for the client and encrypts them for the server.",
     "ste": "The party that gets a card token for the client and encrypts it for the server.",
@@ -963,6 +966,7 @@
     "protocols": [
       "stripe-mpp"
     ],
+    "commonWord": true,
     "sources": [
       "src-stripe-mpp-core-01"
     ]
@@ -1708,14 +1712,17 @@
     "aliases": [
       "payment intent type"
     ],
-    "plain": "In MPP, the kind of payment a challenge asks for, given in the `intent` parameter. The drafts define `charge` (one payment), `session` (metered payments over a channel, Tempo only) and `subscription` (recurring payments). It has nothing to do with a Stripe PaymentIntent object or with Mastercard's Verifiable Intent.",
-    "ste": "In MPP, the intent tells the type of payment. The three intents are charge, session and subscription.",
+    "plain": "In MPP, the kind of payment a challenge asks for, given in the `intent` parameter. The intents folder of `mpp-specs` standardizes `charge` (one payment) and `subscription` (recurring payments). `session` (metered payments over a channel) has no intent document of its own: six payment methods (tempo, evm, solana, hedera, lightning and xrpl) each define it as an experimental intent, and a pull request for a generic session intent was closed unmerged on 2026-09-28. It has nothing to do with a Stripe PaymentIntent object or with Mastercard's Verifiable Intent.",
+    "ste": "In MPP, the intent tells the type of payment. The standard intents are charge and subscription. Some payment methods also define a session.",
     "protocols": [
       "stripe-mpp"
     ],
     "sources": [
       "src-stripe-mpp-core-01",
-      "src-stripe-mpp-intent-charge"
+      "src-stripe-mpp-intent-charge",
+      "src-stripe-mpp-intent-subscription",
+      "src-stripe-mpp-specs-repo",
+      "src-stripe-mpp-gh-pr-280"
     ]
   },
   {
@@ -2100,7 +2107,7 @@
     "aliases": [
       "MPP explorer"
     ],
-    "plain": "A public explorer by Merit Systems that indexes MPP servers, agents, transactions and volume, mostly on Tempo.",
+    "plain": "A public explorer by Merit Systems that indexes MPP servers, agents, transactions and volume.",
     "ste": "A public web site that shows MPP payments and servers.",
     "protocols": [
       "stripe-mpp"
@@ -2982,13 +2989,16 @@
       "session intent",
       "Tempo session"
     ],
-    "plain": "The MPP intent for metered use, such as paying per model token. The client deposits into an on-chain escrow channel, then sends signed vouchers with a rising `cumulativeAmount` as it consumes the service, and the server settles on-chain when it chooses. The session draft is experimental and defined for the Tempo method in `mpp-specs`.",
-    "ste": "Session is the MPP intent for a payment that increases with use. The client sends signed vouchers while it uses the service.",
+    "plain": "In MPP, metered payment over a channel, such as paying per model token. MPP has no standardized session intent: six payment methods (tempo, evm, solana, hedera, lightning and xrpl) each define their own experimental session, and a pull request for a generic session intent was closed unmerged on 2026-09-28. In the Tempo session the client deposits into an on-chain escrow channel, then sends signed vouchers with a rising `cumulativeAmount` as it uses the service, and the server settles on-chain when it chooses.",
+    "ste": "In MPP, a session is a payment that increases with use. Each payment method that has a session defines it. The client sends signed vouchers while it uses the service.",
     "protocols": [
       "stripe-mpp"
     ],
+    "commonWord": true,
     "sources": [
-      "src-stripe-mpp-tempo-session"
+      "src-stripe-mpp-tempo-session",
+      "src-stripe-mpp-specs-repo",
+      "src-stripe-mpp-gh-pr-280"
     ]
   },
   {
@@ -3224,6 +3234,7 @@
     "protocols": [
       "stripe-mpp"
     ],
+    "commonWord": true,
     "sources": [
       "src-stripe-mpp-intent-subscription"
     ]
@@ -3322,8 +3333,8 @@
       "accessKey",
       "keyAuthorization"
     ],
-    "plain": "A Tempo key authorization with limits that the payer signs once so a server can collect recurring MPP subscription charges.",
-    "ste": "A key with limits that the payer approves. The server uses it to collect each subscription payment.",
+    "plain": "A delegated Tempo signing key, limited by an expiry, a per-period spending limit and the recipient, that the payer authorizes once with a signed keyAuthorization so the server can collect one renewal per billing period.",
+    "ste": "A key with limits that the payer approves one time. The server uses it to collect each subscription payment.",
     "protocols": [
       "stripe-mpp"
     ],

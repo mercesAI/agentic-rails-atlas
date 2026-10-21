@@ -35,6 +35,7 @@ import type {
   StateMachine,
 } from '../../../lib/schemas';
 import { citeIdsIn, splitBodySource } from './split-body';
+import { githubMetaFromRecord, type GithubMeta } from './github-meta';
 
 /*
  * Typed wrappers: content.ts `getFlow`, `getStateMachine` and `getDiagramMeta`
@@ -52,33 +53,12 @@ const COMPARE_MODULES = import.meta.glob<MdxModule>('/src/content/protocols/*/co
 const COMPARE_RAW = import.meta.glob<string>('/src/content/protocols/*/compare.mdx', { query: '?raw', import: 'default' });
 const GITHUB = import.meta.glob<unknown>('/src/generated/github/*.json', { eager: true, import: 'default' });
 
-export interface GithubMeta {
-  stars?: number;
-  lastCommit?: string;
-  latestTag?: string;
-}
+export type { GithubMeta };
 
 /** Reads the snapshot written by scripts/data (shape tolerant: several key spellings). */
 export function githubMeta(repo: string | undefined): GithubMeta | null {
   if (!repo) return null;
-  const file = GITHUB[`/src/generated/github/${repo.replace('/', '__')}.json`];
-  if (!file || typeof file !== 'object') return null;
-  const r = file as Record<string, unknown>;
-  const pick = (...keys: string[]) => {
-    for (const k of keys) {
-      const v = k.split('.').reduce<unknown>((o, p) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[p] : undefined), r);
-      if (v !== undefined && v !== null && v !== '') return v;
-    }
-    return undefined;
-  };
-  const stars = pick('stars', 'stargazers_count', 'stargazerCount', 'repo.stargazers_count');
-  const lastCommit = pick('lastCommit', 'lastCommitDate', 'pushed_at', 'pushedAt', 'lastCommit.date', 'repo.pushed_at');
-  const latestTag = pick('latestTag', 'latestRelease.tag_name', 'latestRelease.tag', 'latestRelease', 'release.tag_name');
-  return {
-    stars: typeof stars === 'number' ? stars : undefined,
-    lastCommit: typeof lastCommit === 'string' ? lastCommit.slice(0, 10) : undefined,
-    latestTag: typeof latestTag === 'string' ? latestTag : undefined,
-  };
+  return githubMetaFromRecord(GITHUB[`/src/generated/github/${repo.replace('/', '__')}.json`]);
 }
 
 /**

@@ -3,8 +3,8 @@
   "protocol": "stripe-mpp",
   "title": "MPP subscription: activation and one renewal per period",
   "summary": "The client grants a recurring authorization once. The server collects the first period on activation and returns a subscriptionId, then collects at most one renewal per later period, before or with delivery. Any failure returns 402 with a fresh challenge.",
-  "specVersion": "draft-payment-intent-subscription-00 with draft-tempo-subscription-00",
-  "specVersionDate": "2026-07-29",
+  "specVersion": "draft-payment-intent-subscription-00 with draft-tempo-subscription-00 (added 2026-07-29, repository text of 2026-08-07, unchanged at commit 50309c8)",
+  "specVersionDate": "2026-08-07",
   "actors": [
     {
       "id": "client",
@@ -31,7 +31,7 @@
       "detail": "request carries amount, currency, periodUnit and periodCount; Tempo also needs recipient and subscriptionExpires and allows only day or week.",
       "payload": {
         "format": "json",
-        "content": "# decoded request (Illustrative example, spec version draft-tempo-subscription-00; placeholders)\n{\n  \"amount\": \"5000000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0xB0B0000000000000000000000000000000000B0B\",\n  \"periodUnit\": \"week\",\n  \"periodCount\": \"1\",\n  \"subscriptionExpires\": \"2027-01-01T00:00:00Z\",\n  \"methodDetails\": { \"chainId\": 42431, \"accessKey\": { \"accessKeyAddress\": \"0xAcce...55ed\", \"keyType\": \"p256\" } }\n}",
+        "content": "# decoded request (Illustrative example, spec version draft-tempo-subscription-00; placeholders)\n{\n  \"amount\": \"5000000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0xb0b0000000000000000000000000000000000b0b\",\n  \"periodUnit\": \"week\",\n  \"periodCount\": \"1\",\n  \"subscriptionExpires\": \"2027-01-01T00:00:00Z\",\n  \"methodDetails\": { \"chainId\": 42431, \"accessKey\": { \"accessKeyAddress\": \"0xacce55ed00000000000000000000000000000000\", \"keyType\": \"p256\" } }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,

@@ -45,10 +45,10 @@
       "from": "server",
       "to": "client",
       "label": "402 with WWW-Authenticate: Payment",
-      "detail": "The server returns 402 with Cache-Control no-store and one challenge per offer. The id is an HMAC over realm, method, intent, request and expires, so the server can verify it later without storage. The request value is base64url JCS JSON with the amount in base units.",
+      "detail": "The server returns 402 with Cache-Control no-store and one challenge per offer. With the recommended HMAC-SHA256 binding the id covers realm, method, intent, request, expires, digest and opaque (an empty string stands in for an absent value), plus header when the challenge sets it, so the server can verify it later without storage. The request value is base64url JCS JSON with the amount in base units.",
       "payload": {
         "format": "http",
-        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nContent-Type: application/problem+json\nWWW-Authenticate: Payment id=\"kM9xPqWvT2nJrHsY4aDfEb\",\n    realm=\"api.example.com\",\n    method=\"tempo\",\n    intent=\"charge\",\n    expires=\"2026-10-11T12:05:00Z\",\n    request=\"eyJhbW91bnQiOiIxMDAwMCIsLi4ufQ\"\n\n{\"type\":\"https://paymentauth.org/problems/payment-required\",\"title\":\"Payment Required\",\"status\":402,\"challengeId\":\"kM9xPqWvT2nJrHsY4aDfEb\"}\n\n# decoded request (Illustrative example, spec version draft-tempo-charge-00; Moderato testnet, placeholder addresses)\n{\n  \"amount\": \"10000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0xB0B0000000000000000000000000000000000B0B\",\n  \"methodDetails\": { \"chainId\": 42431, \"feePayer\": true }\n}",
+        "content": "HTTP/1.1 402 Payment Required\nCache-Control: no-store\nContent-Type: application/problem+json\nWWW-Authenticate: Payment id=\"kM9xPqWvT2nJrHsY4aDfEb\",\n    realm=\"api.example.com\",\n    method=\"tempo\",\n    intent=\"charge\",\n    expires=\"2026-10-11T12:05:00Z\",\n    request=\"eyJhbW91bnQiOiIxMDAwMCIsLi4ufQ\"\n\n{\"type\":\"https://paymentauth.org/problems/payment-required\",\"title\":\"Payment Required\",\"status\":402,\"challengeId\":\"kM9xPqWvT2nJrHsY4aDfEb\"}\n\n# decoded request (Illustrative example, spec version draft-tempo-charge-00; Moderato testnet, placeholder addresses)\n{\n  \"amount\": \"10000\",\n  \"currency\": \"0x20c0000000000000000000000000000000000000\",\n  \"recipient\": \"0xb0b0000000000000000000000000000000000b0b\",\n  \"methodDetails\": { \"chainId\": 42431, \"feePayer\": true }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -112,7 +112,7 @@
       "from": "server",
       "to": "server",
       "label": "Verify binding, expiry and proof",
-      "detail": "The server recomputes the HMAC over the echoed parameters, checks that the id is unused and not expired, decodes the signed transaction and checks token, amount, recipient and validBefore.",
+      "detail": "The server recomputes the HMAC over the echoed parameters, checks that the id is unused and not expired, then decodes the signed transaction and checks the token, amount and recipient, plus the memo and splits when the challenge sets them.",
       "specRef": {
         "url": "https://github.com/tempoxyz/mpp-specs/blob/50309c8e67e6d64b5547f1cc354fb327bda1301e/specs/core/draft-httpauth-payment-01.md",
         "section": "Challenge Binding"
