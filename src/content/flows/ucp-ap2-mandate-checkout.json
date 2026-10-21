@@ -70,7 +70,7 @@
    "detail": "The business signs the checkout without the ap2 field, canonicalized with JCS, as a JWS with detached content (header..signature). The header names alg (ES256, ES384 or ES512) and kid.",
    "payload": {
     "format": "json",
-    "content": "// Illustrative example, spec version 2026-08-25. Signature not real.\n{\n  \"id\": \"chk_123\",\n  \"status\": \"ready_for_complete\",\n  \"ap2\": {\n    \"merchant_authorization\": \"eyJhbGciOiJFUzI1NiIsImtpZCI6InNob3BfMjAyNiJ9..MEUCIQ...\"\n  }\n}",
+    "content": "// Illustrative example, spec version 2026-08-25. Signature not real; the value only has the detached-JWS shape (header..signature).\n{\n  \"id\": \"chk_123\",\n  \"status\": \"ready_for_complete\",\n  \"ap2\": {\n    \"merchant_authorization\": \"eyJhbGciOiJFUzI1NiIsImtpZCI6InNob3BfMjAyNiJ9..MEUCIQfixture\"\n  }\n}",
     "illustrative": true
    },
    "crossesTrustBoundary": true,
@@ -105,7 +105,7 @@
    "detail": "The checkout mandate is an SD-JWT with key binding that contains the full checkout, including the business signature, so the platform signature covers it. The payment mandate travels in payment.instruments[*].credential.token.",
    "payload": {
     "format": "json",
-    "content": "// Illustrative example, spec version 2026-08-25. Tokens not real.\n{\n  \"payment\": {\n    \"instruments\": [\n      {\n        \"id\": \"instr_1\",\n        \"handler_id\": \"gpay_1234\",\n        \"type\": \"card\",\n        \"credential\": {\n          \"type\": \"PAYMENT_GATEWAY\",\n          \"token\": \"<payment mandate, composite token>\"\n        }\n      }\n    ]\n  },\n  \"ap2\": {\n    \"checkout_mandate\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~\"\n  }\n}",
+    "content": "// Illustrative example, spec version 2026-08-25. Tokens not real; the mandate value only has the SD-JWT with key binding shape.\n{\n  \"payment\": {\n    \"instruments\": [\n      {\n        \"id\": \"instr_1\",\n        \"handler_id\": \"gpay_1234\",\n        \"type\": \"card\",\n        \"credential\": {\n          \"type\": \"PAYMENT_GATEWAY\",\n          \"token\": \"<payment mandate, composite token>\"\n        }\n      }\n    ]\n  },\n  \"ap2\": {\n    \"checkout_mandate\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9.eyJmaXh0dXJlIjp0cnVlfQ.c2ln~WyJzYWx0Il0~a2I\"\n  }\n}",
     "illustrative": true
    },
    "crossesTrustBoundary": true,

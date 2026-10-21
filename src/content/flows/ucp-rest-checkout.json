@@ -41,7 +41,8 @@
   "src-ucp-schema-payment",
   "src-ucp-signatures",
   "src-ucp-order",
-  "src-ucp-schema-profile"
+  "src-ucp-schema-profile",
+  "src-ucp-pr-659"
  ],
  "steps": [
   {
@@ -161,10 +162,10 @@
    "from": "business",
    "to": "platform",
    "label": "201 checkout, status incomplete",
-   "detail": "Every response carries a ucp envelope with the version used, the active capabilities and the payment handlers for this cart. The checkout has an id, a status, line items, totals, required legal links and an expires_at that defaults to 6 hours after creation. Messages tell the platform what is missing.",
+   "detail": "Every response carries a ucp envelope with the version used, the active capabilities and the payment handlers for this cart. The checkout has an id, a status, line items (each with its own totals), checkout totals, required legal links and an expires_at that defaults to 6 hours after creation. Messages tell the platform what is missing.",
    "payload": {
     "format": "json",
-    "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [\n        {\n          \"id\": \"gpay_1234\",\n          \"version\": \"2026-08-25\",\n          \"available_instruments\": [\n            {\n              \"type\": \"card\"\n            }\n          ]\n        }\n      ]\n    }\n  },\n  \"id\": \"chk_123\",\n  \"status\": \"incomplete\",\n  \"currency\": \"USD\",\n  \"line_items\": [\n    {\n      \"id\": \"li_1\",\n      \"item\": {\n        \"id\": \"item_123\",\n        \"title\": \"Red T-Shirt\",\n        \"price\": 2500\n      },\n      \"quantity\": 2\n    }\n  ],\n  \"totals\": [\n    {\n      \"type\": \"subtotal\",\n      \"amount\": 5000\n    },\n    {\n      \"type\": \"total\",\n      \"amount\": 5000\n    }\n  ],\n  \"messages\": [\n    {\n      \"type\": \"error\",\n      \"code\": \"missing\",\n      \"path\": \"$.buyer.email\",\n      \"content\": \"Buyer email is required\",\n      \"severity\": \"recoverable\"\n    }\n  ],\n  \"links\": [\n    {\n      \"type\": \"terms_of_service\",\n      \"url\": \"https://shop.example/terms\"\n    }\n  ],\n  \"expires_at\": \"2026-10-11T18:00:00Z\",\n  \"continue_url\": \"https://shop.example/checkout-sessions/chk_123\"\n}",
+    "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [\n        {\n          \"id\": \"gpay_1234\",\n          \"version\": \"2026-08-25\",\n          \"available_instruments\": [\n            {\n              \"type\": \"card\"\n            }\n          ]\n        }\n      ]\n    }\n  },\n  \"id\": \"chk_123\",\n  \"status\": \"incomplete\",\n  \"currency\": \"USD\",\n  \"line_items\": [\n    {\n      \"id\": \"li_1\",\n      \"item\": {\n        \"id\": \"item_123\",\n        \"title\": \"Red T-Shirt\",\n        \"price\": 2500\n      },\n      \"quantity\": 2,\n      \"totals\": [\n        {\n          \"type\": \"subtotal\",\n          \"amount\": 5000\n        },\n        {\n          \"type\": \"total\",\n          \"amount\": 5000\n        }\n      ]\n    }\n  ],\n  \"totals\": [\n    {\n      \"type\": \"subtotal\",\n      \"amount\": 5000\n    },\n    {\n      \"type\": \"total\",\n      \"amount\": 5000\n    }\n  ],\n  \"messages\": [\n    {\n      \"type\": \"error\",\n      \"code\": \"missing\",\n      \"path\": \"$.buyer.email\",\n      \"content\": \"Buyer email is required\",\n      \"severity\": \"recoverable\"\n    }\n  ],\n  \"links\": [\n    {\n      \"type\": \"terms_of_service\",\n      \"url\": \"https://shop.example/terms\"\n    }\n  ],\n  \"expires_at\": \"2026-10-11T18:00:00Z\",\n  \"continue_url\": \"https://shop.example/checkout-sessions/chk_123\"\n}",
     "illustrative": true
    },
    "crossesTrustBoundary": true,
@@ -309,10 +310,10 @@
    "from": "business",
    "to": "platform",
    "label": "POST webhook_url: signed order event",
-   "detail": "The platform put a webhook_url in the config of its dev.ucp.shopping.order capability. The business posts the full order snapshot there with Standard Webhooks headers and an RFC 9421 signature. The platform must reject an event whose signer profile does not match the business of the order.",
+   "detail": "The platform put a webhook_url in the config of its dev.ucp.shopping.order capability. The business posts the full order snapshot there with a UCP-Agent header naming its own profile, Standard Webhooks headers and an RFC 9421 signature that covers ucp-agent, content-digest and content-type. The platform must reject an event whose signer profile does not match the business of the order. A draft change of 2026-10-16 (PR 659, in no release) also requires the signature to cover webhook-id and webhook-timestamp, keeps both values on retries and has platforms deduplicate on Webhook-Id.",
    "payload": {
     "format": "http",
-    "content": "# Illustrative example, spec version 2026-08-25. Signature not real; body trimmed.\nPOST /webhooks/ucp/orders HTTP/1.1\nHost: agent.example\nWebhook-Id: evt_001\nWebhook-Timestamp: 1791734400\nContent-Digest: sha-256=:...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"content-digest\");keyid=\"shop_2026\"\nSignature: sig1=:...:\n\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\"\n  },\n  \"id\": \"order_789\",\n  \"checkout_id\": \"chk_123\",\n  \"permalink_url\": \"https://shop.example/orders/order_789\",\n  \"currency\": \"USD\",\n  \"fulfillment\": {\n    \"events\": [\n      {\n        \"id\": \"ful_1\",\n        \"occurred_at\": \"2026-10-12T09:00:00Z\",\n        \"type\": \"shipped\",\n        \"line_items\": [\n          {\n            \"id\": \"li_1\",\n            \"quantity\": 2\n          }\n        ]\n      }\n    ]\n  }\n}",
+    "content": "# Illustrative example, spec version 2026-08-25. Signature not real; body trimmed.\n# webhook-id and webhook-timestamp in the signed components follow the draft of 2026-10-16 (PR 659), not the release.\nPOST /webhooks/ucp/orders HTTP/1.1\nHost: agent.example\nContent-Type: application/json\nUCP-Agent: profile=\"https://shop.example/.well-known/ucp\"\nWebhook-Id: evt_001\nWebhook-Timestamp: 1791802800\nContent-Digest: sha-256=:...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"ucp-agent\" \"content-digest\" \"content-type\" \"webhook-id\" \"webhook-timestamp\");keyid=\"shop_2026\"\nSignature: sig1=:...:\n\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\"\n  },\n  \"id\": \"order_789\",\n  \"checkout_id\": \"chk_123\",\n  \"permalink_url\": \"https://shop.example/orders/order_789\",\n  \"currency\": \"USD\",\n  \"fulfillment\": {\n    \"events\": [\n      {\n        \"id\": \"ful_1\",\n        \"occurred_at\": \"2026-10-12T09:00:00Z\",\n        \"type\": \"shipped\",\n        \"line_items\": [\n          {\n            \"id\": \"li_1\",\n            \"quantity\": 2\n          }\n        ]\n      }\n    ]\n  }\n}",
     "illustrative": true
    },
    "crossesTrustBoundary": true,
@@ -324,6 +325,10 @@
     {
      "condition": "Unsigned webhook or signer does not match the order business",
      "outcome": "The platform must reject the event; it can reconcile with GET /orders/order_789."
+    },
+    {
+     "condition": "A retry arrives with the same Webhook-Id",
+     "outcome": "Deduplicate on Webhook-Id (draft rule since 2026-10-16); the body is a full snapshot, so applying it again changes nothing."
     }
    ]
   }

@@ -623,3 +623,5 @@ An arXiv abstract search for "Universal Commerce Protocol" returned 2 results on
 1. The 2026-03-19 date for the cart, catalog and identity-linking or loyalty update on Google: only secondary coverage, which itself disagrees on whether loyalty or identity linking was the headline.
 2. The September 2026 Shopify auto-enrollment: secondary only (PPC Land quoting merchant emails); scope and eligibility rules not confirmed by Google or Shopify.
 3. Whether the endorser and co-developer counts on ucp.dev are stable: the homepage lists names, not counts, and the co-developer total depends on deduplicating Google across verticals (21 unique of 23 slots).
+
+Addendum 2026-10-20: the lodging capability merged on 2026-09-24 (PR 780) and was announced on 2026-09-25; Google said on 2026-09-16 that UCP enables direct checkout for hundreds of thousands of brands and retailers (no exact count or volume published).

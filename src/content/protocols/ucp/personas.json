@@ -12,7 +12,7 @@
    "pains": [
     "Two-layer negotiation and full-replacement updates are easy to get subtly wrong",
     "Attribution gaps when checkout happens on a platform surface",
-    "Reported automatic enrollment of Shopify merchants in Google's native checkout without an explicit opt-in"
+    "Shopify's direct checkout on Google AI Mode and Gemini is on by default for eligible stores, with an opt-out rather than an opt-in"
    ],
    "implements": [
     "The business profile with capabilities, payment handlers and a keys array",
@@ -86,7 +86,7 @@
     "Time from create to completed",
     "Escalations per 100 checkouts"
    ],
-   "story": "Ravi runs the shopping agent of a large assistant app. Each store his agent visits has a slightly different profile: one offers cart and loyalty, another only checkout. His code picks the highest common version, prunes the loyalty extension when checkout is missing, and sends the platform profile in UCP-Agent on every call. One night a store times out on complete. The agent polls Get Checkout, sees complete_in_progress, and waits instead of resending. The order shows up as completed an hour later, with one charge. Ravi adds the case to his test suite and moves on to identity linking.",
+   "story": "Ravi runs the shopping agent of a large assistant app. Each store his agent visits has a slightly different profile: one offers cart and checkout with the fulfillment extension, another only cart. His code picks the highest common version, prunes an extension when none of its parent capabilities is shared (fulfillment needs checkout or catalog), and sends the platform profile in UCP-Agent on every call. One night a store times out on complete. The agent polls Get Checkout, sees complete_in_progress, and waits instead of resending. The order shows up as completed an hour later, with one charge. Ravi adds the case to his test suite and moves on to identity linking.",
    "sources": [
     "src-ucp-overview",
     "src-ucp-checkout",

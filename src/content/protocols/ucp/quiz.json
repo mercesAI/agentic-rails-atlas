@@ -35,10 +35,10 @@
    "id": "ucp-q3",
    "question": "What does a business compute when a request arrives with UCP-Agent?",
    "options": [
-    "A price quote",
+    "A price quote for the line items in the request",
     "The capability intersection at the highest shared version",
-    "A payment mandate",
-    "An OAuth token"
+    "A payment mandate bound to the buyer's credential",
+    "An OAuth access token for the platform profile"
    ],
    "answer": 1,
    "explanation": "It keeps capabilities both list, picks the highest common version and prunes orphaned extensions.",
@@ -50,10 +50,10 @@
    "id": "ucp-q4",
    "question": "What must accompany status requires_escalation?",
    "options": [
-    "An order id",
-    "A payment mandate",
+    "An order id and a permalink_url for the buyer",
+    "A payment mandate signed by the credential provider",
     "A continue_url and an escalation-severity message",
-    "A 3DS action"
+    "A 3DS action and a device data collection step"
    ],
    "answer": 2,
    "explanation": "The business must provide continue_url and at least one requires_buyer_input or requires_buyer_review message.",
@@ -67,8 +67,8 @@
    "options": [
     "dev.ucp.shopping.ap2_mandate",
     "dev.ucp.common.payment.ap2_mandate",
-    "com.google.ap2",
-    "dev.ucp.common.ap2_mandates"
+    "dev.ucp.shopping.payment.ap2_mandate",
+    "dev.ucp.common.payment.ap2_mandates"
    ],
    "answer": 1,
    "explanation": "It was renamed from dev.ucp.shopping.ap2_mandate when payment extensions moved to common.",
@@ -81,9 +81,9 @@
    "question": "How does Update Checkout behave?",
    "options": [
     "It is a full replacement of the resource",
-    "It patches only the fields sent",
-    "It appends line items",
-    "It is not allowed after create"
+    "It patches only the fields that the platform sent",
+    "It appends the new line items to the existing ones",
+    "It is not allowed once the checkout has been created"
    ],
    "answer": 0,
    "explanation": "PUT replaces the whole checkout, so omitted fields are removed.",
@@ -125,9 +125,9 @@
    "id": "ucp-q9",
    "question": "How does UCP handle replay protection?",
    "options": [
-    "Signature timestamps only",
-    "A blockchain nonce",
-    "Session cookies",
+    "Signature timestamps checked by the business",
+    "A nonce recorded on a blockchain by the platform",
+    "Session cookies issued by the business to the platform",
     "A signed Idempotency-Key stored by the business"
    ],
    "answer": 3,
@@ -141,10 +141,10 @@
    "id": "ucp-q10",
    "question": "In which direction do payment credentials flow?",
    "options": [
-    "Business to platform",
+    "From the business to the platform",
     "Platform to business only",
-    "Both ways",
-    "PSP to platform"
+    "Both ways, business and platform",
+    "From the PSP back to the platform"
    ],
    "answer": 1,
    "explanation": "Credentials flow platform to business only and must not be echoed back.",

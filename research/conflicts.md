@@ -109,3 +109,10 @@ Source conflicts found while building. Both sources are kept on the site; the pr
 - 2026-10-20, Stripe and ACP: Stripe's docs paired "UCP or ACP" for selling through agents until at least 2026-10-12 and now name UCP for merchants who run their own checkout, with a separate ACP protocol page. The archived page is kept for the dated statement; the current pages are primary.
 - 2026-10-20, Stripe SPT page variants: the seller variant names American Express ACE Kit beside Mastercard Agent Pay and Visa Intelligent Commerce and lists "resolved" among the deactivation reasons; the agent variant names only Mastercard and Visa and omits "resolved". The seller variant is the newer text; each statement names the variant read.
 - 2026-10-20, Delegate Authentication: Stripe's ACP protocol page calls it "authorization with OAuth 2.0"; the ACP RFC specifies 3-D Secure 2. The RFC is primary.
+
+## 2026-10-20 fact check (UCP)
+
+- 2026-10-20, Google checkout fees: Shopify's help page says there are no fees for selling in Google AI Mode and Gemini's direct checkout beyond standard payment processing (Shopify's statement about its channel); Shopify's Agentic Storefronts terms (2026-10-06) say Shopify may assess a fee for certain participating channels; Google publishes no fee statement; The Register (2026-01-12) quotes Google as not planning to take a cut. Each statement keeps its source and date; Shopify's help page is primary for Shopify merchants today.
+- 2026-10-20, UCP rollout: the 2026-05-20 announcement said Canada, then Australia and the UK; Google's Merchant Center help (2026-10-20) says Australia and Canada follow next year and gives no UK date. The current help page is primary; the announcement is kept as dated.
+- 2026-10-20, the lodging capability date: the pull request merged on 2026-09-24; the announcement is dated 2026-09-25. The merge record is primary.
+- 2026-10-20, Mastercard and UCP: Mastercard's pages say it supports UCP and is bringing Agent Pay to Copilot Checkout; neither the UCP specification nor Mastercard documents an Agent Pay integration inside UCP. Both statements are kept with their sources.

@@ -1,7 +1,7 @@
 ---
 protocol: ucp
 title: UCP in Simplified Technical English
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-20"
 ---
 
 <SteDescription>
@@ -43,6 +43,10 @@ DO NOT SEND A NEW COMPLETE CHECKOUT REQUEST WITH A NEW IDEMPOTENCY KEY IF THE FI
 If the response to a complete checkout request does not arrive, get the checkout first. Send the same request again with the same key only if the status is still not clear.
 </SteNote>
 
+<SteCaution>
+DO NOT ACCEPT AN ORDER WEBHOOK THAT HAS NO VALID SIGNATURE FROM THE BUSINESS OF THAT ORDER. AN ATTACKER CAN SEND FALSE ORDER EVENTS.
+</SteCaution>
+
 <SteProcedure title="Accept UCP checkouts (business)">
 
 1. Publish your profile at /.well-known/ucp with Cache-Control public and a max-age of 60 seconds or more.
@@ -64,10 +68,6 @@ DO NOT KEEP A COMPROMISED KEY IN THE KEYS ARRAY OF YOUR PROFILE. THE KEY STAYS V
 
 <SteCaution>
 DO NOT SEND THE PAYMENT CREDENTIAL BACK TO THE PLATFORM IN A RESPONSE. CREDENTIALS MUST GO ONLY FROM THE PLATFORM TO THE BUSINESS.
-</SteCaution>
-
-<SteCaution>
-DO NOT ACCEPT AN ORDER WEBHOOK THAT HAS NO VALID SIGNATURE FROM THE BUSINESS OF THAT ORDER. AN ATTACKER CAN SEND FALSE ORDER EVENTS.
 </SteCaution>
 
 <SteNote>

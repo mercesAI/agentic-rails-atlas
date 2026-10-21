@@ -14,14 +14,14 @@ personas:
   - psp
   - wallet-cp
   - controls-builder
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-20"
 ---
 
 ## The situation
 
 A shopper asks Gemini for a pair of trail running shoes in size 10 under a set price, picks one, and pays with the card saved in Google Pay. The shopper is present for the whole purchase. The merchant, not Google, is the merchant of record and keeps the financial liability and the order.<Cite ids="clm-ucp-006" />
 
-Two layers are involved, and they are not equally live. UCP-powered checkout began rolling out to US shoppers in AI Mode in Search and the Gemini app on 2026-02-11, starting with Etsy and Wayfair items.<Cite ids="clm-ucp-174" /> The AP2 mandate layer is specified inside UCP as an optional extension.<Cite ids="clm-ucp-193" /> Google said on 2026-05-19 that it would begin bringing AP2 to its products in the coming months, starting with Gemini Spark.<Cite ids="clm-ap2-169" /> Production use of AP2 mandates is unverified anywhere, including inside UCP, as of 2026-10-11.<Cite ids="clm-ap2-139" /> Read the AP2 steps below as "per spec; live use unverified".
+Two layers are involved, and they are not equally live. UCP-powered checkout began rolling out to US shoppers in AI Mode in Search and the Gemini app on 2026-02-11, starting with Etsy and Wayfair items.<Cite ids="clm-ucp-174" /> The AP2 mandate layer is specified inside UCP as an optional extension.<Cite ids="clm-ucp-193" /> Google said on 2026-05-19 that it would begin bringing AP2 to its products in the coming months, starting with Gemini Spark.<Cite ids="clm-ap2-169" /> Production use of AP2 mandates is unverified anywhere, including inside UCP, as of 2026-10-20.<Cite ids="clm-ap2-139 clm-ucp-197" /> Read the AP2 steps below as "per spec; live use unverified".
 
 ## Actors
 
@@ -47,7 +47,7 @@ Two layers are involved, and they are not equally live. UCP-powered checkout beg
 11. **Processor verifies (AP2).** The Merchant Payment Processor checks that the credential is scoped to this checkout, for example by finding the closed Payment Mandate inside it.<Cite ids="clm-ap2-200" />
 12. **Authorize (card rails).** The merchant's PSP must be able to process Google's tokens; the merchant does not need Google Pay on its own site.<Cite ids="clm-ucp-189" />
 13. **Order and receipts (UCP, AP2).** Complete returns `completed` with an order.<Cite ids="clm-ucp-100" /> Per AP2 the processor returns a signed Payment Receipt and the merchant a signed Checkout Receipt.<Cite ids="clm-ap2-090" />
-14. **Order webhooks (UCP).** The merchant posts full order snapshots to the platform's `config.webhook_url` with `Webhook-Id` and `Webhook-Timestamp`.<Cite ids="clm-ucp-081 clm-ucp-114" /> Webhooks must be signed with RFC 9421, and the platform must reject events whose signer does not match the order's business.<Cite ids="clm-ucp-115" />
+14. **Order webhooks (UCP).** The merchant posts full order snapshots to the platform's `config.webhook_url` with `Webhook-Id` and `Webhook-Timestamp`.<Cite ids="clm-ucp-081 clm-ucp-114" /> A draft change of 2026-10-16 puts both headers under the signature.<Cite ids="clm-ucp-244" /> Webhooks must be signed with RFC 9421, and the platform must reject events whose signer does not match the order's business.<Cite ids="clm-ucp-115" />
 
 ## Which protocol does what
 
@@ -65,7 +65,7 @@ AP2 v0.2 was released on 2026-04-28.<Cite ids="clm-ap2-027" /> The UCP release t
 
 ## Where controls apply
 
-- **Before authorization.** The platform allowlists businesses and capability namespaces and checks the advertised handlers before it creates a checkout.<Cite ids="src-ucp-overview" /> UCP has no spending cap field; caps belong to AP2 mandates or the credential provider.<Cite ids="clm-ucp-151" />
+- **Before authorization.** The platform allowlists businesses and capability namespaces and checks the advertised handlers before it creates a checkout.<Cite ids="src-ucp-overview" /> UCP has no spending cap field; a cap can only come from outside UCP, such as AP2's amount_range constraint or a credential provider's token limits.<Cite ids="clm-ucp-151" />
 - **At signing.** Consent binds to one merchant-signed checkout. The checkout mandate contains the full checkout including `ap2.merchant_authorization`, so the platform's signature covers the merchant's.<Cite ids="clm-ucp-112" /> Without AP2, the agent must hand the checkout to a trusted, deterministic UI for the user to review and place the order.<Cite ids="clm-ucp-097" />
 - **At the edge.** With API keys, OAuth or mTLS, the merchant must confirm that the caller may act for the profile in `UCP-Agent`.<Cite ids="clm-ucp-143" /> Replay protection rests on a signed `Idempotency-Key`.<Cite ids="clm-ucp-136" />
 - **At settlement.** PSP fraud screening applies, and 3DS stays with the business, handler and PSP rather than in UCP messages.<Cite ids="clm-ucp-108" /> AP2 v0.2 specifies no step-up; a failed check falls back through `unresolved_constraint`.<Cite ids="clm-ap2-118" />
@@ -73,7 +73,7 @@ AP2 v0.2 was released on 2026-04-28.<Cite ids="clm-ap2-027" /> The UCP release t
 
 ## What is observable from outside
 
-Business profiles are public and cacheable, so anyone can see the capabilities, transports, payment handlers and keys a domain advertises, including whether it accepts AP2.<Cite ids="clm-ucp-155" /> The rest is private. Checkout sessions, payment credentials, mandates and webhooks flow point to point.<Cite ids="src-ucp-overview" /> AP2 defines no public registry, explorer or event stream.<Cite ids="clm-ap2-131" /> Google keeps the order data shown on the shopper's My orders page until the shopper asks for deletion.<Cite ids="clm-ucp-161" />
+Business profiles are public and cacheable, so anyone can see the capabilities, transports, payment handlers and keys a domain advertises, including whether it accepts AP2.<Cite ids="clm-ucp-155" /> The rest is private. Checkout sessions, payment credentials, mandates and webhooks flow point to point.<Cite ids="src-ucp-overview" /> AP2 defines no public registry, explorer or event stream.<Cite ids="clm-ap2-131" /> Google keeps the order data shown on the shopper's My orders page indefinitely, until the shopper asks for deletion.<Cite ids="clm-ucp-161" />
 
 ## What can go wrong
 
@@ -84,7 +84,7 @@ Business profiles are public and cacheable, so anyone can see the capabilities, 
 - **Wrong item or price.** The merchant is merchant of record and carries the order; the shopper accepted the merchant's terms during checkout.<Cite ids="clm-ucp-162" /> AP2 leaves liability to the payment networks.<Cite ids="clm-ap2-120" />
 - **Forged webhook.** The platform must reject events whose signer is not the order's business.<Cite ids="clm-ucp-115" />
 
-Costs: Google publishes no fee schedule; because the merchant uses its own PSP, its normal processing fees presumably apply, which is an inference, not a statement from Google.<Cite ids="clm-ucp-190" /> Google told The Register it does not plan to take a cut of sales.<Cite ids="clm-ucp-188" />
+Costs: Google publishes no fee statement; the merchant uses its own PSP, and Shopify says its merchants pay only standard payment processing fees in Google's direct checkout.<Cite ids="clm-ucp-190 clm-ucp-239" /> Google told The Register it does not plan to take a cut of sales.<Cite ids="clm-ucp-188" />
 
 ## Variants
 

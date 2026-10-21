@@ -3,10 +3,10 @@
  "score": 2,
  "scoreReasons": [
   "Business profiles at /.well-known/ucp are public and cacheable, so anyone can see which capabilities, transports, handlers and keys a domain advertises.",
-  "No public registry, index or explorer of UCP businesses exists, so finding profiles means crawling domains (unverified absence as of 2026-10-11).",
+  "No public registry, index or explorer of UCP businesses was found in the specification, the Universal-Commerce-Protocol GitHub organization or a web search (as of 2026-10-20), so finding profiles means crawling domains.",
   "Checkouts, orders, tokens and webhooks are bilateral and private; no ledger or public log records transactions.",
   "Governance and releases are public: GitHub releases, Discussions, announcements and a meeting-minutes repository.",
-  "No merchant counts or volumes are published by Google or the project."
+  "Google gives only an order of magnitude for merchants (hundreds of thousands of brands and retailers, 2026-09-16); no exact count and no transaction volume is published."
  ],
  "public": [
   {
@@ -47,7 +47,7 @@
   {
    "what": "Release channels",
    "where": "https://ucp.dev/versions.json",
-   "how": "Lists draft and dated versions; latest aliased to 2026-08-25 on 2026-10-11.",
+   "how": "Lists draft and dated versions; latest aliased to 2026-08-25 on 2026-10-20.",
    "sources": [
     "src-ucp-site-versions"
    ]
@@ -65,7 +65,7 @@
   {
    "what": "Google traffic markers",
    "where": "HTTP headers at the business",
-   "how": "UCP-Agent plus User-Agent beginning Google/UCP; health checks with Google-UCP-Prober/1.0.",
+   "how": "UCP-Agent plus User-Agent beginning Google/UCP; health checks with Google-UCP-Prober/1.0; Google's FAQ (updated 2026-10-16) also offers mutual TLS against Google's UCP root certificate authorities.",
    "sources": [
     "src-ucp-google-faq"
    ]
@@ -82,7 +82,7 @@
   },
   {
    "what": "Order webhooks (orderEvent)",
-   "why": "Sent to the platform's webhook_url with Webhook-Id and Webhook-Timestamp."
+   "why": "Sent to the platform's webhook_url with Webhook-Id, Webhook-Timestamp and an RFC 9421 signature; a draft change of 2026-10-16 (PR 659, in no release) adds both headers to the signed components."
   },
   {
    "what": "Embedded checkout messages",

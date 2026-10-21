@@ -133,10 +133,10 @@
    "from": "business",
    "to": "platform",
    "label": "Response ucp envelope: version and active capabilities",
-   "detail": "The business includes the version used and the active capabilities in every response, so the platform always knows which schema applies.",
+   "detail": "The business includes the version used, the active capabilities and the payment handlers for this checkout in every response, so the platform always knows which schema applies. The handlers are omitted in this abbreviated example.",
    "payload": {
     "format": "json",
-    "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ]\n    }\n  }\n}",
+    "content": "// Illustrative example, spec version 2026-08-25. Abbreviated: the required payment_handlers map is omitted.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ],\n      \"dev.ucp.shopping.fulfillment\": [\n        {\n          \"version\": \"2026-08-25\"\n        }\n      ]\n    }\n  }\n}",
     "illustrative": true
    },
    "crossesTrustBoundary": true,

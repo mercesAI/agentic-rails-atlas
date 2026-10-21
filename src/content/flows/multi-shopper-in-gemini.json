@@ -32,7 +32,7 @@
       "detail": "Gemini reads the merchant profile: ucp.version, services, capabilities (dev.ucp.shopping.checkout, dev.ucp.shopping.order and, if offered, dev.ucp.common.payment.ap2_mandate), payment_handlers including com.google.pay, and the keys array used to verify the merchant's signatures.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"services\": { \"dev.ucp.shopping\": [ { \"version\": \"2026-08-25\", \"transport\": \"rest\", \"endpoint\": \"https://shoes.example/ucp\" } ] },\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [ { \"version\": \"2026-08-25\" } ],\n      \"dev.ucp.shopping.order\": [ { \"version\": \"2026-08-25\" } ],\n      \"dev.ucp.common.payment.ap2_mandate\": [ { \"version\": \"2026-08-25\" } ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [ { \"id\": \"gpay_1234\", \"version\": \"2024-12-03\" } ]\n    }\n  },\n  \"keys\": [ { \"kty\": \"EC\", \"crv\": \"P-256\", \"kid\": \"shoes-2026\", \"x\": \"...\", \"y\": \"...\" } ]\n}",
+        "content": "// Illustrative example, spec version 2026-08-25.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"services\": { \"dev.ucp.shopping\": [ { \"version\": \"2026-08-25\", \"transport\": \"rest\", \"endpoint\": \"https://shoes.example/ucp\" } ] },\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [ { \"version\": \"2026-08-25\", \"schema\": \"https://ucp.dev/2026-08-25/schemas/shopping/checkout.json\" } ],\n      \"dev.ucp.shopping.order\": [ { \"version\": \"2026-08-25\", \"schema\": \"https://ucp.dev/2026-08-25/schemas/shopping/order.json\" } ],\n      \"dev.ucp.common.payment.ap2_mandate\": [ { \"version\": \"2026-08-25\", \"extends\": \"dev.ucp.shopping.checkout\", \"schema\": \"https://ucp.dev/2026-08-25/schemas/common/payment_ap2_mandate.json\" } ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [ { \"id\": \"gpay_1234\", \"version\": \"2024-12-03\" } ]\n    }\n  },\n  \"keys\": [ { \"kty\": \"EC\", \"crv\": \"P-256\", \"kid\": \"shoes-2026\", \"x\": \"...\", \"y\": \"...\" } ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -65,10 +65,10 @@
       "to": "gemini",
       "label": "Checkout with ap2.merchant_authorization",
       "protocol": "ucp",
-      "detail": "The merchant returns the checkout (status, line_items, totals, links). With AP2 active it must sign every checkout response: ap2.merchant_authorization is a JWS with detached content over the JCS-canonicalized checkout without the ap2 field.",
+      "detail": "The merchant returns the checkout with a ucp envelope (version, active capabilities, payment handlers), status, line_items with their totals, checkout totals and links. With AP2 active it must sign every checkout response: ap2.merchant_authorization is a JWS with detached content over the JCS-canonicalized checkout without the ap2 field.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, spec version 2026-08-25. Signature not real.\n{\n  \"id\": \"chk_123\",\n  \"status\": \"ready_for_complete\",\n  \"currency\": \"USD\",\n  \"line_items\": [ { \"id\": \"li_1\", \"item\": { \"id\": \"trail_runner_m10\", \"title\": \"Trail runner, size 10\", \"price\": 12999 }, \"quantity\": 1 } ],\n  \"totals\": [ { \"type\": \"total\", \"amount\": 13999 } ],\n  \"links\": [ { \"type\": \"terms_of_service\", \"url\": \"https://shoes.example/terms\" } ],\n  \"ap2\": { \"merchant_authorization\": \"eyJhbGciOiJFUzI1NiIsImtpZCI6InNob2VzLTIwMjYifQ..MEUCIQ...\" }\n}",
+        "content": "// Illustrative example, spec version 2026-08-25. Signature not real; the value only has the detached-JWS shape.\n{\n  \"ucp\": {\n    \"version\": \"2026-08-25\",\n    \"status\": \"success\",\n    \"capabilities\": {\n      \"dev.ucp.shopping.checkout\": [ { \"version\": \"2026-08-25\" } ],\n      \"dev.ucp.shopping.order\": [ { \"version\": \"2026-08-25\" } ],\n      \"dev.ucp.common.payment.ap2_mandate\": [ { \"version\": \"2026-08-25\" } ]\n    },\n    \"payment_handlers\": {\n      \"com.google.pay\": [ { \"id\": \"gpay_1234\", \"version\": \"2024-12-03\", \"available_instruments\": [ { \"type\": \"card\" } ] } ]\n    }\n  },\n  \"id\": \"chk_123\",\n  \"status\": \"ready_for_complete\",\n  \"currency\": \"USD\",\n  \"line_items\": [ { \"id\": \"li_1\", \"item\": { \"id\": \"trail_runner_m10\", \"title\": \"Trail runner, size 10\", \"price\": 12999 }, \"quantity\": 1, \"totals\": [ { \"type\": \"subtotal\", \"amount\": 12999 }, { \"type\": \"total\", \"amount\": 12999 } ] } ],\n  \"totals\": [ { \"type\": \"subtotal\", \"amount\": 12999 }, { \"type\": \"tax\", \"amount\": 1000 }, { \"type\": \"total\", \"amount\": 13999 } ],\n  \"links\": [ { \"type\": \"terms_of_service\", \"url\": \"https://shoes.example/terms\" } ],\n  \"ap2\": { \"merchant_authorization\": \"eyJhbGciOiJFUzI1NiIsImtpZCI6InNob2VzLTIwMjYifQ..MEUCIQfixture\" }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -137,14 +137,14 @@
       "detail": "Gemini completes with exactly one payment instrument: handler_id gpay_1234, type card, and a credential whose token, under the AP2 extension, carries the payment mandate as a composite token. ap2.checkout_mandate holds the SD-JWT with key binding. The request is signed with RFC 9421 and its body bound by Content-Digest.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, spec version 2026-08-25. Tokens and signatures not real.\nPOST /ucp/checkout-sessions/chk_123/complete HTTP/1.1\nHost: shoes.example\nUCP-Agent: profile=\"https://platform.example/ucp-profile\"\nIdempotency-Key: 9b2f...\nContent-Digest: sha-256=:X48E9q...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"ucp-agent\" \"idempotency-key\" \"content-digest\" \"content-type\");keyid=\"platform-2026\"\nSignature: sig1=:6G4i8TS6oUkG...:\nContent-Type: application/json\n\n{\n  \"payment\": { \"instruments\": [ {\n    \"id\": \"pi_gpay_5678\", \"handler_id\": \"gpay_1234\", \"type\": \"card\", \"selected\": true,\n    \"display\": { \"brand\": \"visa\", \"last_digits\": \"5678\" },\n    \"credential\": { \"type\": \"PAYMENT_GATEWAY\", \"token\": \"<Google Pay token with payment mandate>\" }\n  } ] },\n  \"ap2\": { \"checkout_mandate\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~\" }\n}",
+        "content": "# Illustrative example, spec version 2026-08-25. Tokens and signatures not real; the mandate value only has the SD-JWT with key binding shape.\nPOST /ucp/checkout-sessions/chk_123/complete HTTP/1.1\nHost: shoes.example\nUCP-Agent: profile=\"https://platform.example/ucp-profile\"\nIdempotency-Key: 9b2f...\nContent-Digest: sha-256=:X48E9q...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"ucp-agent\" \"idempotency-key\" \"content-digest\" \"content-type\");keyid=\"platform-2026\"\nSignature: sig1=:6G4i8TS6oUkG...:\nContent-Type: application/json\n\n{\n  \"payment\": { \"instruments\": [ {\n    \"id\": \"pi_gpay_5678\", \"handler_id\": \"gpay_1234\", \"type\": \"card\", \"selected\": true,\n    \"display\": { \"brand\": \"visa\", \"last_digits\": \"5678\" },\n    \"credential\": { \"type\": \"PAYMENT_GATEWAY\", \"token\": \"<Google Pay token with payment mandate>\" }\n  } ] },\n  \"ap2\": { \"checkout_mandate\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9.eyJmaXh0dXJlIjp0cnVlfQ.c2ln~WyJzYWx0Il0~a2I\" }\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
       "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/payment/extensions/ap2-mandates.md", "section": "Step 3: Submission (complete_checkout)" },
       "failures": [
         { "condition": "AP2 was negotiated but ap2.checkout_mandate is missing", "outcome": "mandate_required; the merchant must reject the complete." },
-        { "condition": "The response to complete is lost", "outcome": "Retry with the same Idempotency-Key; during complete_in_progress the platform must not start a new update or complete." }
+        { "condition": "The response to complete is lost", "outcome": "Poll Get Checkout with bounded backoff and stop at expires_at; only if the state is still unclear, resend the identical request with the same Idempotency-Key. During complete_in_progress the platform must not start a new update or complete." }
       ]
     },
     {
@@ -206,10 +206,10 @@
       "to": "gemini",
       "label": "Order webhook, RFC 9421 signed",
       "protocol": "ucp",
-      "detail": "As the order ships or changes, the merchant POSTs full order snapshots to the webhook_url Gemini published in its order capability. Headers follow Standard Webhooks (Webhook-Id, Webhook-Timestamp) and the request is signed with RFC 9421 over a Content-Digest; the platform must reject events whose signer does not match the order's business.",
+      "detail": "As the order ships or changes, the merchant POSTs full order snapshots to the webhook_url Gemini published in its order capability. Headers follow Standard Webhooks (Webhook-Id, Webhook-Timestamp) and the request is signed with RFC 9421 over a Content-Digest, the UCP-Agent header and the Content-Type; the platform must reject events whose signer does not match the order's business. A draft change of 2026-10-16 (PR 659, in no release) also puts webhook-id and webhook-timestamp under the signature, keeps them on retries and has platforms deduplicate on Webhook-Id.",
       "payload": {
         "format": "http",
-        "content": "# Illustrative example, spec version 2026-08-25. Signature not real.\nPOST /webhooks/ucp/orders HTTP/1.1\nHost: platform.example\nContent-Type: application/json\nUCP-Agent: profile=\"https://shoes.example/.well-known/ucp\"\nWebhook-Id: evt_123\nWebhook-Timestamp: 1791806400\nContent-Digest: sha-256=:X48E9q...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\");keyid=\"shoes-2026\"\nSignature: sig1=:MEUCIQDTxNq8...:\n\n{\"id\":\"order_abc123\",\"checkout_id\":\"chk_123\",\"fulfillment\":{...},...}",
+        "content": "# Illustrative example, spec version 2026-08-25. Signature not real.\n# webhook-id and webhook-timestamp in the signed components follow the draft of 2026-10-16 (PR 659), not the release.\nPOST /webhooks/ucp/orders HTTP/1.1\nHost: platform.example\nContent-Type: application/json\nUCP-Agent: profile=\"https://shoes.example/.well-known/ucp\"\nWebhook-Id: evt_123\nWebhook-Timestamp: 1791806400\nContent-Digest: sha-256=:X48E9q...:\nSignature-Input: sig1=(\"@method\" \"@authority\" \"@path\" \"ucp-agent\" \"content-digest\" \"content-type\" \"webhook-id\" \"webhook-timestamp\");keyid=\"shoes-2026\"\nSignature: sig1=:MEUCIQDTxNq8...:\n\n{\"id\":\"order_abc123\",\"checkout_id\":\"chk_123\",\"fulfillment\":{...},...}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -227,6 +227,7 @@
     "src-ucp-ap2-spec",
     "src-ucp-order",
     "src-ucp-signatures",
+    "src-ucp-pr-659",
     "src-ucp-google-faq",
     "src-ap2-spec-v02",
     "src-ap2-flows",

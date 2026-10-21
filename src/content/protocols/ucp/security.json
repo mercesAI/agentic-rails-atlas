@@ -1,6 +1,6 @@
 {
  "protocol": "ucp",
- "summary": "UCP authenticates the parties and protects messages: platforms are identified by a profile URL and its keys, requests, responses and webhooks can carry RFC 9421 signatures with a Content-Digest, replay is stopped by signed idempotency keys, and credentials flow one way as opaque tokens. It deliberately leaves out trust in a platform's intent, spending limits and reputation, and onboarding is permissionless, so abuse handling (discovery budgets, SSRF guards, allowlists) falls on each business. Without the AP2 extension the final safeguard is a human placing the order in a trusted UI. No advisory or CVE naming UCP existed on 2026-10-11, and two arXiv papers name UCP.",
+ "summary": "UCP authenticates the parties and protects messages: platforms are identified by a profile URL and its keys, requests, responses and webhooks can carry RFC 9421 signatures with a Content-Digest, replay is stopped by signed idempotency keys, and credentials flow one way as opaque tokens. It deliberately leaves out trust in a platform's intent, spending limits and reputation, and onboarding is permissionless, so abuse handling (discovery budgets, SSRF guards, allowlists) falls on each business. Without the AP2 extension the final safeguard is a human placing the order in a trusted UI. No GitHub security advisory and no NVD record naming UCP was found on 2026-10-20, and two arXiv papers name UCP.",
  "threats": [
   {
    "id": "ucp-t1",
@@ -13,10 +13,11 @@
    ],
    "impact": "Orders and data requests attributed to a trusted platform.",
    "mitigatedBySpec": "partial",
-   "implementerNotes": "Verify RFC 9421 signatures against the keys in the named profile, or confirm that the API key, OAuth client or mTLS identity may act for that profile, as the spec requires.",
+   "implementerNotes": "Verify RFC 9421 signatures against the keys in the named profile, or confirm that the API key, OAuth client or mTLS identity may act for that profile, as the spec requires. For Google traffic, Google's FAQ (updated 2026-10-16) offers mutual TLS against its UCP root certificate authorities.",
    "sources": [
     "src-ucp-overview",
-    "src-ucp-signatures"
+    "src-ucp-signatures",
+    "src-ucp-google-faq"
    ]
   },
   {

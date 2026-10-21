@@ -1,7 +1,7 @@
 {
  "protocol": "ucp",
  "notLegalAdvice": true,
- "summary": "UCP is a checkout protocol on existing card rails, so most rules land where they already do: the business is merchant of record, its PSP handles authentication, AML screening and disputes, and card and payment-services law decides liability. The new questions are consent (who approved what, which the trusted UI or an AP2 mandate records), AI transparency, and the data a platform sees. UCP checkout runs in the US today, with Canada, Australia and the UK announced. Rows are dated; check each source.",
+ "summary": "UCP is a checkout protocol on existing card rails, so most rules land where they already do: the business is merchant of record, its PSP handles authentication, AML screening and disputes, and card and payment-services law decides liability. The new questions are consent (who approved what, which the trusted UI or an AP2 mandate records), AI transparency, and the data a platform sees. UCP checkout runs in the US today; Google says Australia and Canada follow next year and named the UK on 2026-05-20 without a date. Rows are dated; check each source.",
  "rows": [
   {
    "jurisdiction": "US",
@@ -25,9 +25,10 @@
   {
    "jurisdiction": "US",
    "topic": "ai-rules",
-   "text": "No federal statute or CFPB rule governs AI shopping agents. A senator's letter dated 2026-02-03 asked Google about data sharing and upselling in Gemini checkout built on UCP (reported).",
+   "text": "A Federal Register search of CFPB documents for AI agents since 2025-01-01 (run 2026-10-20) found no rule or proposal; no federal statute specific to AI shopping agents was found (unverified). A senator's letter dated 2026-02-03 asked Google about data sharing and upselling in Gemini checkout built on UCP.",
    "sources": [
     "src-policy-fr-cfpb-ai-search",
+    "src-ucp-warren-release",
     "src-ucp-eweek-warren"
    ],
    "confidence": "reported"
@@ -35,9 +36,10 @@
   {
    "jurisdiction": "US",
    "topic": "data-protection",
-   "text": "California's CCPA rules on automated decisionmaking technology apply from 2026-01-01; checkout data shared with an agent platform and signals such as buyer IP are personal information.",
+   "text": "California's CCPA regulations took effect 2026-01-01; a business that uses automated decisionmaking technology for a significant decision must meet the ADMT requirements by 2027-01-01 (section 7200(b)). Checkout data shared with an agent platform and signals such as buyer IP are personal information.",
    "sources": [
     "src-policy-cppa-admt",
+    "src-policy-cppa-admt-text",
     "src-ucp-overview"
    ],
    "confidence": "verified"
@@ -75,7 +77,7 @@
   {
    "jurisdiction": "EU",
    "topic": "ai-rules",
-   "text": "AI Act Article 50 transparency applies from 2026-08-02: a buyer must know they deal with an AI system. A shopping agent is not high-risk by default.",
+   "text": "AI Act Article 50 transparency applies from 2026-08-02: a buyer must know they deal with an AI system. Generative systems placed on the market before 2026-08-02 have until 2026-12-02 to meet the Article 50(2) marking duty (Regulation (EU) 2026/1744). A shopping agent is not high-risk by default.",
    "sources": [
     "src-policy-eu-ai-act",
     "src-policy-eu-ai-omnibus"
@@ -95,11 +97,12 @@
   {
    "jurisdiction": "UK",
    "topic": "liability",
-   "text": "Under the Payment Services Regulations 2017 a payment is authorized only with payer consent (regulation 67), and payer liability for misappropriated instruments is capped at GBP 35 (regulation 77). Google said UCP checkout would reach the UK after Canada and Australia.",
+   "text": "Under the Payment Services Regulations 2017 a payment is authorized only with payer consent (regulation 67), and payer liability for misappropriated instruments is capped at GBP 35 (regulation 77). Google said on 2026-05-20 that UCP checkout would reach the UK after Canada and Australia; no UK date was published as of 2026-10-20.",
    "sources": [
     "src-policy-uk-psrs-67",
     "src-policy-uk-psrs-77",
-    "src-ucp-google-gml"
+    "src-ucp-google-gml",
+    "src-ucp-google-mc-help"
    ],
    "confidence": "verified"
   },
@@ -133,10 +136,11 @@
   {
    "jurisdiction": "CA",
    "topic": "liability",
-   "text": "No agent-specific payment liability rule was found; Google said UCP checkout would roll out in Canada in the coming months (as of 2026-05-20).",
+   "text": "No agent-specific payment liability rule was found. Google said on 2026-05-20 that UCP checkout would roll out in Canada in the coming months; its Merchant Center help (read 2026-10-20) now says Australia and Canada follow next year.",
    "sources": [
     "src-policy-ca-cdb",
-    "src-ucp-google-gml"
+    "src-ucp-google-gml",
+    "src-ucp-google-mc-help"
    ],
    "confidence": "unverified"
   },
@@ -181,11 +185,11 @@
   {
    "jurisdiction": "SG",
    "topic": "data-protection",
-   "text": "The Personal Data Protection Act 2012 applies to buyer data (statute site blocked; reported).",
+   "text": "The Personal Data Protection Act 2012 governs the collection, use and disclosure of personal data by organizations, which covers buyer data in checkouts and identity linking.",
    "sources": [
     "src-policy-sg-pdpa"
    ],
-   "confidence": "reported"
+   "confidence": "verified"
   },
   {
    "jurisdiction": "card-networks",
