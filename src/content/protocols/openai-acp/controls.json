@@ -1,15 +1,16 @@
 {
   "protocol": "openai-acp",
-  "summary": "ACP natively scopes a delegated token by amount, currency, merchant, session, single use and expiry, supports 3DS step-up and makes idempotency mandatory. It leaves agent identity, registration, user consent, revocation, reputation and disputes to platforms, PSPs or other protocols. The best places for an independent controls layer are the agent before it sets the allowance, the PSP when the token is charged, and the merchant edge where bearer keys and signatures are checked.",
+  "summary": "ACP natively scopes a delegated token by amount, currency, merchant, session, single use and expiry, supports 3DS step-up and makes idempotency mandatory. It leaves agent identity, registration, user consent, revocation, reputation and disputes to platforms, PSPs or other protocols. The best places for an independent controls layer are the agent before it sets the allowance, the PSP when the token is charged, and the merchant edge where bearer tokens and signatures are checked.",
   "native": [
     {
       "protocol": "openai-acp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "Bilateral bearer key plus a recommended detached Signature and Timestamp with algorithms agreed out of band; no agent identity scheme.",
+      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme.",
       "sources": [
         "src-openai-acp-rfc-checkout",
-        "src-openai-acp-openapi-delegate-payment-20260417"
+        "src-openai-acp-openapi-delegate-payment-20260417",
+        "src-openai-acp-openapi-webhook-20260417"
       ]
     },
     {
@@ -65,7 +66,7 @@
       "protocol": "openai-acp",
       "control": "revocation",
       "support": "external",
-      "note": "No revoke endpoint in ACP; Stripe SPTs can be revoked. Agents can cancel open sessions.",
+      "note": "No revoke endpoint in ACP; the agent can revoke a Stripe SPT until it is consumed or resolved. Agents can cancel open sessions.",
       "sources": [
         "src-openai-acp-rfcs-dir",
         "src-fee-stripe-spt-docs"
@@ -171,7 +172,14 @@
     },
     {
       "title": "No revocation in the spec",
-      "description": "A delegated token cannot be revoked through ACP; only vendor products such as Stripe SPT offer it.",
+      "description": "A delegated token cannot be revoked through ACP; only vendor products such as Stripe SPT offer it, and only until the token is consumed or resolved.",
+      "sources": [
+        "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "title": "Allowance enforcement ends where the credential leaves the PSP",
+      "description": "Stripe's SPT Resolve API (read 2026-10-20) lets a seller resolve a granted token once into fpan, network token, agentic token or dpan credentials for a third-party processor. The docs describe no usage_limits enforcement by that processor.",
       "sources": [
         "src-fee-stripe-spt-docs"
       ]
@@ -199,7 +207,7 @@
     {
       "point": "at-edge",
       "what": "Accept or reject the agent at the merchant API",
-      "how": "Bearer key checks, detached signature and timestamp checks, egress IP allowlisting, idempotency enforcement.",
+      "how": "Bearer token checks, detached signature and timestamp checks, egress IP allowlisting, idempotency enforcement.",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-commerce-docs"
@@ -282,6 +290,13 @@
       "why": "ACP has no signed consent for disputes.",
       "sources": [
         "src-openai-buy-it"
+      ]
+    },
+    {
+      "item": "Treat a resolved SPT as cardholder data and keep it out of logs.",
+      "why": "The Resolve API returns card or token credentials to a PCI-attested seller; Stripe encrypts them otherwise.",
+      "sources": [
+        "src-fee-stripe-spt-docs"
       ]
     }
   ]

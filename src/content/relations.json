@@ -152,10 +152,12 @@
     "from": "openai-acp",
     "to": "ucp",
     "type": "competes-with",
-    "note": "Both define merchant-hosted agent checkout sessions; five status names match and both publish well-known discovery documents, but no bridge or mapping exists. Stripe supports both.",
+    "note": "Both define merchant-hosted agent checkout sessions; five status names match and both publish well-known discovery documents, but no bridge or mapping exists. Stripe co-maintains ACP and documents UCP for sellers who run their own checkout (its hub paired UCP or ACP until at least 2026-10-12).",
     "sources": [
       "src-ucp-checkout-schema",
-      "src-stripe-agentic-commerce",
+      "src-stripe-acp-protocol-page",
+      "src-stripe-acs-sellers",
+      "src-stripe-agentic-commerce-wb-20261012",
       "src-openai-acp-rfcs-dir"
     ]
   },
@@ -163,7 +165,7 @@
     "from": "openai-acp",
     "to": "visa-tap",
     "type": "compatible-with",
-    "note": "No documented protocol link. Stripe says it might use Visa Intelligent Commerce tokens under SPT card payments, so Visa agent tokens can sit under an ACP payment.",
+    "note": "Visa Intelligent Commerce tokens under SPTs: Stripe says it might use them for SPT card payments, so Visa agent tokens can sit under an ACP payment. TAP itself has no documented link to ACP.",
     "sources": [
       "src-fee-stripe-spt-docs"
     ]

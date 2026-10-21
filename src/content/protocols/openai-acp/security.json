@@ -1,12 +1,12 @@
 {
   "protocol": "openai-acp",
-  "summary": "ACP's one strong control is the allowance: a delegated token works for one merchant, one session, one use, up to a maximum amount and until an expiry, enforced by the PSP. Everything else is bilateral trust. Agents and merchants share bearer keys, request signatures are only recommended on checkout and contradictory on Delegate Payment, request freshness is a SHOULD, and nothing records that the buyer approved the purchase. Order webhooks are well specified with HMAC and a 300-second window. No CVE or GitHub advisory exists, the published research models ACP formally but reports findings only in aggregate, and the practical risks sit in implementations: key handling, card data at PSPs, content injection into the agent and drift between snapshots.",
+  "summary": "ACP's one strong control is the allowance: a delegated token works for one merchant, one session, one use, up to a maximum amount and until an expiry, enforced by the PSP. Everything else is bilateral trust. The merchant authenticates the agent with a bearer token agreed out of band, and the agent verifies webhooks with a shared HMAC secret. Request signatures are only recommended on checkout and contradictory on Delegate Payment, request freshness is a SHOULD, and nothing records that the buyer approved the purchase. Order webhooks are well specified with HMAC and a 300-second window. As of 2026-10-20 no CVE or GitHub advisory exists (advisories API and NVD keyword search), and the published research models ACP formally but reports findings only in aggregate. The practical risks sit in implementations: key handling, card data at PSPs, content injection into the agent and drift between snapshots. At a PCI-attested seller a Stripe SPT can also be resolved once into card credentials, which brings card data back into the seller's scope.",
   "threats": [
     {
       "id": "openai-acp-t1",
       "stride": "S",
-      "title": "Stolen bearer key impersonates an agent",
-      "description": "Agents and merchants authenticate with a bilateral bearer key. Anyone holding the key can create and complete sessions as that agent.",
+      "title": "Stolen bearer token impersonates an agent",
+      "description": "The merchant authenticates the agent with a bearer token agreed out of band; the agent verifies the merchant's webhooks with a separate HMAC secret. Anyone holding the agent's token can create and complete sessions as that agent.",
       "preconditions": [
         "The key leaks from logs, config or a compromised service",
         "Request signatures are not enforced by the merchant"
@@ -16,6 +16,7 @@
       "implementerNotes": "Require the detached Signature and Timestamp on every request even though they are only recommended, rotate keys, and allowlist the agent platform's egress IP ranges.",
       "sources": [
         "src-openai-acp-rfc-checkout",
+        "src-openai-acp-openapi-webhook-20260417",
         "src-openai-commerce-docs"
       ]
     },
@@ -74,7 +75,7 @@
       "id": "openai-acp-t5",
       "stride": "R",
       "title": "No proof of what the buyer approved",
-      "description": "ACP carries no signed user consent. After a dispute, neither merchant nor issuer can prove the buyer approved this purchase.",
+      "description": "ACP carries no signed user consent. After a dispute, neither merchant nor issuer can prove the buyer approved this purchase. A community issue of 2026-10-15 adds a related gap: a merchant whose PSP adds no field of its own keeps no record of which agent or platform placed the order. A representment then has nothing to point at; no maintainer had replied by 2026-10-20.",
       "preconditions": [
         "A buyer disputes an agent purchase"
       ],
@@ -84,24 +85,26 @@
       "sources": [
         "src-openai-acp-rfcs-dir",
         "src-vi-protocols",
-        "src-openai-buy-it"
+        "src-openai-buy-it",
+        "src-openai-acp-gh-issue-315"
       ]
     },
     {
       "id": "openai-acp-t6",
       "stride": "I",
       "title": "Card data exposure through direct Delegate Payment",
-      "description": "PCI DSS Level 1 merchants and PSPs that host Delegate Payment receive raw card numbers and CVC.",
+      "description": "PCI DSS Level 1 merchants and PSPs that host Delegate Payment receive raw card numbers and CVC. By 2026-10-20 (absent from the 2026-09-21 capture of the seller page) a seller on another processor can also resolve a granted Stripe SPT once into fpan, network_token, agentic_token or dpan credentials; Stripe encrypts them unless the seller has filed a PCI Attestation of Compliance.",
       "preconditions": [
         "Logging of request bodies",
         "Weak vault controls"
       ],
       "impact": "Card data breach and PCI DSS findings.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Never log full card numbers or CVC; OpenAI may ask for an attestation of compliance before enabling production access.",
+      "implementerNotes": "Never log full card numbers or CVC; OpenAI may ask for an attestation of compliance before enabling production access. Treat resolved SPT credentials as cardholder data.",
       "sources": [
         "src-openai-acp-rfc-delegate-payment",
-        "src-openai-commerce-docs"
+        "src-openai-commerce-docs",
+        "src-fee-stripe-spt-docs"
       ]
     },
     {
@@ -212,7 +215,7 @@
       "id": "openai-acp-s2",
       "title": "Leaked agent key used for fake orders",
       "preconditions": [
-        "Agent bearer key leaks",
+        "Agent bearer token leaks",
         "Merchant accepts requests without signatures or IP allowlisting"
       ],
       "steps": [

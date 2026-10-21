@@ -101,3 +101,11 @@ Source conflicts found while building. Both sources are kept on the site; the pr
 - 2026-10-19, MPP card draft date (supersedes the 2026-10-11 "resolved" entry above): PR 169 merged 2026-03-14 while the repository was private; the public init commit of 2026-03-18 carries a squashed author date of 2026-01-05. The pull request record is primary.
 - 2026-10-19, know-your-agent release date: the Asian Banker page says 2026-09-10, PYMNTS cites a Wednesday 2026-09-09 release, and Ant's follow-up is dated 2026-09-11. The dated release page (2026-09-10) is primary.
 - 2026-10-19, Visa directory name: "Agentic Directory" (2026-06-10) and "Agent Directory" (2026-07-02) are both Visa's own names.
+
+## 2026-10-20 fact check (OpenAI ACP)
+
+- 2026-10-20, ACP creators: Stripe's ACP page says the standard was "created by Stripe, OpenAI, and Meta"; the repository's NOTICE and governance records name OpenAI and Stripe as founders, with Meta joining the CLA on 2026-03-19 and the technical steering committee on 2026-04-24. The repository is primary; the site states both.
+- 2026-10-20, ChatGPT checkout fees: OpenAI's merchant page says there are no fees for purchases completed on the merchant's site or app; OpenAI's 2025-09-29 post said merchants pay a small fee on completed purchases, and press reported 4 percent for Shopify merchants in January 2026 (later reports say it was dropped). Each statement keeps its date; OpenAI's current page is primary for today.
+- 2026-10-20, Stripe and ACP: Stripe's docs paired "UCP or ACP" for selling through agents until at least 2026-10-12 and now name UCP for merchants who run their own checkout, with a separate ACP protocol page. The archived page is kept for the dated statement; the current pages are primary.
+- 2026-10-20, Stripe SPT page variants: the seller variant names American Express ACE Kit beside Mastercard Agent Pay and Visa Intelligent Commerce and lists "resolved" among the deactivation reasons; the agent variant names only Mastercard and Visa and omits "resolved". The seller variant is the newer text; each statement names the variant read.
+- 2026-10-20, Delegate Authentication: Stripe's ACP protocol page calls it "authorization with OAuth 2.0"; the ACP RFC specifies 3-D Secure 2. The RFC is primary.

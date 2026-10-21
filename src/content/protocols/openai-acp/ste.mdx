@@ -1,7 +1,7 @@
 ---
 protocol: openai-acp
 title: ACP in Simplified Technical English
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-20"
 ---
 
 <SteDescription>
@@ -14,7 +14,7 @@ The merchant is the merchant of record. OpenAI is not the merchant of record. Th
 
 The token has an allowance. The allowance gives one merchant, one checkout session, one maximum amount, one currency and one expiry time. The merchant can use the token one time only.
 
-ACP does not identify the agent with a public key directory. The agent and the merchant use a secret API key between them. ACP does not record proof that the buyer approved the purchase. The Shared Payment Token is a product of Stripe. It is not part of the ACP specification.
+ACP does not identify the agent with a public key directory. The merchant gives a secret API key to the agent. The merchant signs its webhooks with a shared secret. ACP does not record proof that the buyer approved the purchase. The Shared Payment Token is a product of Stripe. It is not part of the ACP specification.
 
 Each version of ACP has a date, for example 2026-04-17. The client sends this date in the API-Version header.
 
@@ -22,7 +22,7 @@ Each version of ACP has a date, for example 2026-04-17. The client sends this da
 
 <SteProcedure title="Buy a product with ACP (agent)">
 
-1. Send a POST request to `/checkout_sessions` with the line items and the currency.
+1. Send a POST request to `/checkout_sessions` with the line items, the currency and the capabilities of the agent.
 2. Put the API key, the API-Version header and an Idempotency-Key header in each POST request.
 3. Show the line items, the totals and the messages from the merchant to the buyer.
 4. Send the address and the fulfillment option of the buyer in an update request.
@@ -78,7 +78,7 @@ The OpenAI documentation and the ACP specification do not agree on some names an
 </SteNote>
 
 <SteNote>
-The ACP specification does not define six checkout status values. Do not use these values for important decisions without an agreement with the other party.
+The ACP RFC text does not describe six of the eleven checkout status values that the JSON Schema lists. Do not use these six values for important decisions without an agreement with the other party.
 </SteNote>
 
 <SteTerms>

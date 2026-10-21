@@ -1,12 +1,12 @@
 {
   "protocol": "openai-acp",
   "notLegalAdvice": true,
-  "summary": "ACP keeps the regulated roles where they already are: the merchant is merchant of record and system of record for orders, payments, taxes and compliance, and the PSP handles card data. That makes card rules, PCI DSS, strong customer authentication and consumer-protection law apply much as they do to any card-not-present sale. The open questions are about the agent: whether a buyer confirmation in an AI interface counts as consent for liability rules, how AI transparency rules apply to the surface, and how much buyer data the agent passes on. Rows are dated; check each source before you rely on it.",
+  "summary": "ACP keeps the regulated roles where they already are: the merchant is merchant of record and system of record for orders, payments, taxes and compliance, and the PSP handles card data. That makes card rules, PCI DSS, strong customer authentication and consumer-protection law apply much as they do to any card-not-present sale. The open questions are about the agent. Does a buyer confirmation in an AI interface count as consent for liability rules, how do AI transparency rules apply to the surface, and how much buyer data does the agent pass on? Rows are dated; check each source before you rely on it.",
   "rows": [
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "The merchant is merchant of record and handles refunds and chargebacks. For card purchases, Regulation Z limits unauthorized use to use without actual, implied or apparent authority, capped at the lesser of $50 or the amount before notice; whether an agent acting outside the buyer's intent has apparent authority is untested.",
+      "text": "The merchant is merchant of record and handles refunds and chargebacks. For card purchases, Regulation Z limits unauthorized use to use without actual, implied or apparent authority, capped at the lesser of $50 or the amount before notice. Whether an agent acting outside the buyer's intent has apparent authority is untested.",
       "sources": [
         "src-openai-commerce-docs",
         "src-policy-regz-1026-12"
@@ -44,9 +44,10 @@
     {
       "jurisdiction": "US",
       "topic": "data-protection",
-      "text": "California's ADMT regulations under the CCPA apply from 2026-01-01. Checkout shares buyer contact data, addresses and optional risk signals such as IP address and device fingerprint with the merchant.",
+      "text": "California's CCPA regulations on automated decisionmaking technology took effect 2026-01-01; a business that uses ADMT for a significant decision about a consumer must comply by 2027-01-01 (11 CCR section 7200). The text lists financial or lending services, housing, education, employment and healthcare as significant decisions. Checkout shares buyer contact data, addresses and optional risk signals such as IP address and device fingerprint with the merchant.",
       "sources": [
         "src-policy-cppa-admt",
+        "src-policy-cppa-admt-text",
         "src-openai-acp-schema-checkout-20260417"
       ],
       "confidence": "verified"
@@ -54,7 +55,7 @@
     {
       "jurisdiction": "US",
       "topic": "ai-rules",
-      "text": "No federal statute governs AI shopping agents, and the CFPB has issued no AI-agent rule.",
+      "text": "As of 2026-10-20 a Federal Register search of CFPB documents since 2025-01-01 for 'artificial intelligence' and agent returned no rule or proposal specific to AI shopping agents. The search covers CFPB documents only, and a full-text search can miss other wording.",
       "sources": [
         "src-policy-fr-cfpb-ai-search"
       ],
@@ -84,17 +85,17 @@
     {
       "jurisdiction": "EU",
       "topic": "ai-rules",
-      "text": "AI Act Article 50 transparency applies from 2026-08-02: people must be told when they interact with an AI system, which concerns the agent surface, not the merchant API.",
+      "text": "AI Act Article 50(1) applies from 2026-08-02: providers of AI systems meant to interact directly with people must design them so people know they deal with an AI, unless that is obvious. That duty concerns the agent surface, not the merchant API. Generative systems on the market before that date have until 2026-12-02 for the Article 50(2) marking duty. The Digital Omnibus moved Annex III high-risk duties to 2027-12-02; a shopping agent is not high-risk by default.",
       "sources": [
-        "src-policy-eu-ai-omnibus",
-        "src-policy-eu-ai-act"
+        "src-policy-eu-ai-act",
+        "src-policy-eu-ai-omnibus"
       ],
       "confidence": "verified"
     },
     {
       "jurisdiction": "EU",
       "topic": "data-protection",
-      "text": "GDPR applies to buyer data passed in checkout and to marketing consent. ACP records opt-ins through marketing_consent_options and marketing_consents but does not name GDPR.",
+      "text": "GDPR applies to buyer data passed in checkout and to marketing consent. ACP records opt-ins through marketing_consent_options and marketing_consents; its marketing consent RFC cites GDPR, CAN-SPAM and CCPA as reasons for explicit consent but assigns no GDPR role to any party.",
       "sources": [
         "src-policy-eu-gdpr",
         "src-openai-acp-rfc-marketing-consent"
@@ -104,8 +105,10 @@
     {
       "jurisdiction": "EU",
       "topic": "liability",
-      "text": "PSD3 and the Payment Services Regulation reached provisional agreement but were not in the Official Journal in the latest sources found; they contain no agent-specific provisions.",
+      "text": "PSD3 and the Payment Services Regulation reached provisional agreement on 2025-11-27; as of 2026-10-19 the Legislative Observatory listed both files as awaiting the Council's first-reading position, with no Official Journal publication. Readiness guides report no agent-specific provisions.",
       "sources": [
+        "src-reg-ep-psr-train",
+        "src-policy-oeil-psr",
         "src-policy-obt-psd3"
       ],
       "confidence": "reported"
@@ -123,9 +126,11 @@
     {
       "jurisdiction": "UK",
       "topic": "sca",
-      "text": "The FCA said on 2026-03-25 it will consider with HM Treasury whether rules must change for agentic AI payments; onshored SCA rules apply to ACP card payments as to any remote card payment.",
+      "text": "The FCA said on 2026-03-25 it will consider with HM Treasury whether rules must change for agentic AI payments. Regulation 100 of the Payment Services Regulations 2017 requires strong customer authentication when a payer initiates an electronic remote payment, with dynamic linking to amount and payee, subject to exemptions in the technical standards. ACP's 3DS2 path is how a merchant's PSP can apply it.",
       "sources": [
-        "src-policy-fca-payments-priorities"
+        "src-policy-fca-payments-priorities",
+        "src-policy-uk-psrs-100",
+        "src-openai-acp-rfc-delegate-auth"
       ],
       "confidence": "verified"
     },
@@ -141,7 +146,7 @@
     {
       "jurisdiction": "CA",
       "topic": "liability",
-      "text": "No agent-specific payment liability rule was found. Stripe SPTs are available in Canada, and the Retail Payment Activities Act applies to payment service providers since 2025-09-08.",
+      "text": "A web search on 2026-10-20 found no Canadian payment liability rule specific to AI agents. Stripe SPTs are available in Canada, and the Retail Payment Activities Act's risk management and funds safeguarding requirements have applied to payment service providers since 2025-09-08.",
       "sources": [
         "src-fee-stripe-spt-docs",
         "src-policy-boc-rpaa"

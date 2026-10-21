@@ -69,10 +69,11 @@
       "protocol": "openai-acp",
       "dimension": "latest-version-and-date",
       "value": "2026-04-17 (dated folder)",
-      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18.",
+      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18, none through 2026-10-20.",
       "sources": [
         "src-openai-acp-changelog-20260417",
-        "src-openai-acp-gh-commits"
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-gh-comments"
       ],
       "confidence": "verified"
     },
@@ -80,7 +81,7 @@
       "protocol": "openai-acp",
       "dimension": "maturity",
       "value": "Beta spec, Draft RFCs; deployed for feeds in ChatGPT",
-      "detail": "2025 in-chat checkout scaled back in March 2026; payment sheet in private beta.",
+      "detail": "2025 in-chat checkout scaled back in March 2026; external checkout from ChatGPT plugins generally available; payment sheet in private beta.",
       "sources": [
         "src-openai-acp-readme",
         "src-openai-product-discovery",
@@ -115,11 +116,12 @@
     {
       "protocol": "openai-acp",
       "dimension": "agent-identity-model",
-      "value": "Bilateral bearer key per agent and merchant pair",
-      "detail": "Detached Signature recommended; no registry or key directory.",
+      "value": "Bearer token per agent and merchant pair, agreed out of band; HMAC secret for webhooks",
+      "detail": "The merchant authenticates the agent with a bearer token; the agent verifies merchant webhooks with a shared HMAC secret. Detached Signature recommended; no registry or key directory.",
       "sources": [
         "src-openai-acp-rfc-checkout",
-        "src-openai-acp-openapi-delegate-payment-20260417"
+        "src-openai-acp-openapi-delegate-payment-20260417",
+        "src-openai-acp-openapi-webhook-20260417"
       ],
       "confidence": "verified"
     },
@@ -281,21 +283,24 @@
     {
       "protocol": "openai-acp",
       "dimension": "fees-and-who-pays-them",
-      "value": "No protocol fee; OpenAI charges merchants \"a small fee\" (rate unpublished); a 4 percent Shopify figure is reported only",
-      "detail": "Merchant PSP fees unchanged; SPT pricing not published (public preview).",
+      "value": "No protocol fee; OpenAI says no fees on purchases completed on the merchant's site or app (2026-10-20) and publishes no in-chat rate; the 2025 \"small fee\" and reported 4 percent are history",
+      "detail": "Merchant PSP fees unchanged; SPT pricing not published (preview); Shopify may charge per-channel Agentic Storefronts fees set in Shopify Admin.",
       "sources": [
+        "src-chatgpt-merchants",
         "src-openai-buy-it",
         "src-pymnts-4pct",
-        "src-fee-stripe-spt-docs"
+        "src-fee-stripe-spt-docs",
+        "src-fee-shopify-agentic-terms"
       ],
       "confidence": "reported"
     },
     {
       "protocol": "openai-acp",
       "dimension": "who-pays",
-      "value": "Merchant pays platform fee",
-      "detail": "Card economics otherwise unchanged.",
+      "value": "Merchant pays its PSP; no OpenAI fee on external checkout (2026-10-20)",
+      "detail": "The 2025 in-chat platform fee statement is history; payment sheet pricing is unpublished. Card economics otherwise unchanged.",
       "sources": [
+        "src-chatgpt-merchants",
         "src-openai-buy-it",
         "src-openai-commerce-docs"
       ],
@@ -316,11 +321,14 @@
     {
       "protocol": "openai-acp",
       "dimension": "composes-with",
-      "value": "Stripe SPT; Visa and Mastercard agent tokens under SPTs; UCP side by side",
-      "detail": "No documented link to x402, ERC-8004, TAP or AP2.",
+      "value": "Stripe SPT; Visa, Mastercard and American Express agent tokens under SPTs; UCP side by side",
+      "detail": "Stripe's seller SPT page names Amex ACE Kit beside Visa and Mastercard (2026-10-20); its agent page names Visa and Mastercard only. Stripe co-maintains ACP and gives ACP and UCP separate protocol pages; its hub paired 'UCP or ACP' until at least 2026-10-12. No documented link to x402, ERC-8004, AP2 or TAP itself; Visa Intelligent Commerce tokens sit under SPTs.",
       "sources": [
         "src-fee-stripe-spt-docs",
-        "src-stripe-agentic-commerce",
+        "src-openai-acp-maintainers",
+        "src-stripe-acp-protocol-page",
+        "src-stripe-ucp-page",
+        "src-stripe-agentic-commerce-wb-20261012",
         "src-openai-acp-rfcs-dir"
       ],
       "confidence": "verified"
@@ -340,9 +348,11 @@
       "protocol": "openai-acp",
       "dimension": "adoption-evidence",
       "value": "Named partners, no volume data",
-      "detail": "Seven retailers for discovery; Copilot, PayPal, Walmart announcements; no GMV published.",
+      "detail": "Seven retailers for discovery; Target, Walmart and Etsy apps in ChatGPT; Copilot and PayPal announcements; no GMV published.",
       "sources": [
         "src-openai-product-discovery",
+        "src-openai-target-partnership",
+        "src-retaildive-etsy-app",
         "src-ms-copilot-checkout",
         "src-paypal-acp"
       ],
@@ -352,10 +362,11 @@
       "protocol": "openai-acp",
       "dimension": "published-security-research",
       "value": "Little: one formal model covering ACP among four protocols",
-      "detail": "No CVEs or advisories; an audit-trail critique.",
+      "detail": "No CVEs or advisories (GitHub advisories API and NVD keyword search, 2026-10-20); an audit-trail critique.",
       "sources": [
         "src-arxiv-2609-00060",
         "src-openai-acp-gh-advisories",
+        "src-nvd-acp-search",
         "src-arxiv-2607-19436"
       ],
       "confidence": "verified"
@@ -408,10 +419,11 @@
       "protocol": "openai-acp",
       "axis": "maturity",
       "value": 2,
-      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18.",
+      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18 (no maintainer comment, review, merge or commit between 2026-07-18 and 2026-10-20; the one maintainer action was closing SEP PR 178 unmerged on 2026-08-09).",
       "sources": [
         "src-openai-acp-readme",
-        "src-openai-acp-gh-commits"
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-gh-comments"
       ]
     },
     {
@@ -450,10 +462,11 @@
       "protocol": "openai-acp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "Bilateral bearer key plus a recommended detached Signature and Timestamp with algorithms agreed out of band; no agent identity scheme.",
+      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme.",
       "sources": [
         "src-openai-acp-rfc-checkout",
-        "src-openai-acp-openapi-delegate-payment-20260417"
+        "src-openai-acp-openapi-delegate-payment-20260417",
+        "src-openai-acp-openapi-webhook-20260417"
       ]
     },
     {
@@ -509,7 +522,7 @@
       "protocol": "openai-acp",
       "control": "revocation",
       "support": "external",
-      "note": "No revoke endpoint in ACP; Stripe SPTs can be revoked. Agents can cancel open sessions.",
+      "note": "No revoke endpoint in ACP; the agent can revoke a Stripe SPT until it is consumed or resolved. Agents can cancel open sessions.",
       "sources": [
         "src-openai-acp-rfcs-dir",
         "src-fee-stripe-spt-docs"

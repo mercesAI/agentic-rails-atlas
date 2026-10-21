@@ -29,23 +29,33 @@
   "implementers": [
     {
       "name": "ChatGPT product discovery (OpenAI)",
-      "role": "Agent surface ingesting merchant feeds through ACP; Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot and Wayfair named on 2026-03-24.",
+      "role": "Agent surface ingesting merchant feeds through ACP; Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot and Wayfair named on 2026-03-24. On 2026-10-20 OpenAI's merchant page said shopping is live for US users, applicants wait on a waitlist, and a self-serve merchant platform is planned later this year.",
       "status": "live",
       "sources": [
-        "src-openai-product-discovery"
+        "src-openai-product-discovery",
+        "src-chatgpt-merchants"
       ]
     },
     {
-      "name": "ChatGPT apps external checkout (OpenAI)",
-      "role": "Users finish on the merchant's own checkout; generally available.",
+      "name": "ChatGPT plugins (formerly the Apps SDK) external checkout (OpenAI)",
+      "role": "Users finish on the merchant's own checkout; generally available, with approval currently limited to plugins for physical goods (2026-10-20). OpenAI's merchant page says there are no fees for purchases made on the merchant's site or app.",
       "status": "live",
+      "sources": [
+        "src-openai-apps-monetization",
+        "src-chatgpt-merchants"
+      ]
+    },
+    {
+      "name": "ChatGPT plugins checkout with saved payment methods (OpenAI)",
+      "role": "Documented on 2026-10-20 as a third path: the plugin shows only payment methods the customer already saved with the merchant, and the customer confirms in ChatGPT. It cannot collect new credentials, which need the payment sheet. The page gives it no availability label.",
+      "status": "unknown",
       "sources": [
         "src-openai-apps-monetization"
       ]
     },
     {
       "name": "ChatGPT payment sheet (OpenAI)",
-      "role": "In-chat payment for select marketplace partners; PSPs Adyen, Checkout.com, Fiserv, PayPal, Stripe, Worldpay.",
+      "role": "In-chat payment sheet in ChatGPT plugins (formerly the Apps SDK), a private beta for select marketplace partners; PSPs Adyen, Checkout.com, Fiserv, PayPal, Stripe, Worldpay.",
       "status": "beta",
       "sources": [
         "src-openai-apps-monetization"
@@ -62,11 +72,14 @@
     },
     {
       "name": "Stripe (Shared Payment Tokens, Agentic Commerce Suite)",
-      "role": "Delegate Payment implementation and seller tooling for ACP or UCP.",
+      "role": "Delegate Payment implementation (SPTs, preview) and the Agentic Commerce Suite for agents (private preview), which Stripe says works across multiple commerce protocols. Stripe keeps a protocol page each for ACP and UCP and names UCP in its seller guides for merchant-run checkout (2026-10-20).",
       "status": "beta",
       "sources": [
         "src-fee-stripe-spt-docs",
-        "src-stripe-agentic-commerce",
+        "src-stripe-acp-protocol-page",
+        "src-stripe-ucp-page",
+        "src-stripe-acs-sellers",
+        "src-stripe-acs-embedded",
         "src-stripe-acs-launch"
       ]
     },
@@ -90,19 +103,40 @@
     },
     {
       "name": "Walmart",
-      "role": "Announced Instant Checkout plans on 2025-10-14; by 2026-03-24 described as a Walmart app in ChatGPT with its own payments.",
-      "status": "announced",
+      "role": "Announced Instant Checkout plans on 2025-10-14. On 2026-03-24 OpenAI said a Walmart app in ChatGPT with account linking, loyalty and Walmart payments was available in web browsers, with iOS and Android to follow; Retail Dive reported the same on 2026-03-25.",
+      "status": "live",
       "sources": [
         "src-walmart-openai",
-        "src-openai-product-discovery"
+        "src-openai-product-discovery",
+        "src-retaildive-walmart-sparky"
       ]
     },
     {
       "name": "Shopify (Shopify Catalog)",
-      "role": "Product data reaches ChatGPT through Shopify Catalog; purchases complete on the merchant store.",
+      "role": "Product data reaches ChatGPT through Shopify Catalog with no extra merchant work; Shopify's VP of Product, quoted by OpenAI, said purchases complete on the merchant's store through an in-app browser. OpenAI's merchant page says Shopify and Etsy catalogs are already integrated with no setup or application (2026-10-20).",
       "status": "live",
       "sources": [
+        "src-openai-product-discovery",
+        "src-chatgpt-merchants"
+      ]
+    },
+    {
+      "name": "Target app in ChatGPT",
+      "role": "OpenAI announced the Target app in ChatGPT on 2025-11-19, launching in beta the following week, with multi-item baskets and checkout through the user's Target account. Target was also named for ACP product discovery on 2026-03-24.",
+      "status": "beta",
+      "sources": [
+        "src-openai-target-partnership",
         "src-openai-product-discovery"
+      ]
+    },
+    {
+      "name": "Etsy app in ChatGPT",
+      "role": "Reported live in beta on 2026-05-05 (Retail Dive, 2026-05-14, citing Etsy's product chief): users tag Etsy in a prompt and click through to Etsy to buy. Etsy sellers were the first ACP Instant Checkout merchants in 2025; OpenAI's merchant page lists Etsy catalogs as already integrated (2026-10-20).",
+      "status": "beta",
+      "sources": [
+        "src-retaildive-etsy-app",
+        "src-openai-buy-it",
+        "src-chatgpt-merchants"
       ]
     },
     {
@@ -148,9 +182,9 @@
     {
       "id": "acp-gh-stars",
       "metric": "GitHub stars, agentic-commerce-protocol/agentic-commerce-protocol",
-      "value": 1570,
+      "value": 1583,
       "unit": "stars",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-20",
       "definition": "Stars on the specification repository.",
       "sources": [
         "src-openai-acp-gh-repo"
@@ -160,14 +194,26 @@
     {
       "id": "acp-gh-forks",
       "metric": "GitHub forks",
-      "value": 253,
+      "value": 256,
       "unit": "forks",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-20",
       "definition": "Forks of the specification repository.",
       "sources": [
         "src-openai-acp-gh-repo"
       ],
       "caveat": "Interest, not adoption."
+    },
+    {
+      "id": "acp-gh-open-issues",
+      "metric": "Open issues and pull requests",
+      "value": 146,
+      "unit": "items",
+      "asOf": "2026-10-20",
+      "definition": "The GitHub API open_issues_count for the specification repository, which includes open pull requests.",
+      "sources": [
+        "src-openai-acp-gh-repo"
+      ],
+      "caveat": "Community activity; 48 comments since 2026-07-18, none by a maintainer."
     },
     {
       "id": "acp-cla-signatories",
@@ -197,10 +243,11 @@
       "metric": "Commits after the 2026-04-17 release",
       "value": 18,
       "unit": "commits",
-      "asOf": "2026-10-11",
-      "definition": "Commits on main from 2026-04-24 to 2026-07-18; none after.",
+      "asOf": "2026-10-20",
+      "definition": "Commits on main from 2026-04-24 to 2026-07-18; none from then to 2026-10-20, and no maintainer comment or review either.",
       "sources": [
-        "src-openai-acp-gh-commits"
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-gh-comments"
       ]
     },
     {
@@ -244,7 +291,7 @@
       "metric": "ACP transaction volume or GMV",
       "value": "not published",
       "unit": "n/a",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-20",
       "definition": "No official volume, GMV or merchant count from OpenAI, Stripe or the project.",
       "sources": [
         "src-openai-buy-it",
@@ -255,35 +302,50 @@
   ],
   "costs": [
     {
-      "item": "ChatGPT Instant Checkout platform fee",
+      "item": "External checkout from ChatGPT",
+      "value": "No fees for purchases made on the merchant's own site or app",
+      "whoPays": "Nobody beyond the merchant's own PSP fees",
+      "asOf": "2026-10-20",
+      "confidence": "verified",
+      "caveat": "OpenAI's merchant page as read on 2026-10-20; the page cannot be dated (Wayback copies are JavaScript shells). Its FAQ says there are no fees on purchases that start in ChatGPT and that OpenAI is moving away from a standalone Instant Checkout experience, with purchases completed on merchant-owned sites or apps.",
+      "sources": [
+        "src-chatgpt-merchants",
+        "src-openai-apps-monetization"
+      ]
+    },
+    {
+      "item": "ChatGPT Instant Checkout platform fee (2025 form)",
       "value": "\"A small fee on completed purchases\"; no rate published",
       "whoPays": "Merchant",
       "asOf": "2025-09-29",
       "confidence": "verified",
-      "caveat": "OpenAI's own wording; free for users; whether it applies after the March 2026 change is not stated.",
+      "caveat": "OpenAI's wording at the 2025-09-29 launch; free for users. History: the in-chat Instant Checkout was scaled back in March 2026, and OpenAI's merchant page now says there are no fees for purchases completed on the merchant's own site or app (2026-10-20).",
       "sources": [
-        "src-openai-buy-it"
+        "src-openai-buy-it",
+        "src-openai-product-discovery",
+        "src-chatgpt-merchants"
       ]
     },
     {
-      "item": "Reported fee for Shopify merchants on ChatGPT checkout sales",
+      "item": "Reported fee for Shopify merchants on ChatGPT checkout sales (2026-01-21)",
       "value": "4 percent of the sale, on top of Shopify fees",
       "whoPays": "Merchant (Shopify)",
       "asOf": "2026-01-21",
       "confidence": "reported",
-      "caveat": "PYMNTS relaying The Information and a Shopify spokesperson; not published by OpenAI. The same report said Google and Microsoft charged no extra fee for now.",
+      "caveat": "History: PYMNTS relaying The Information and a Shopify spokesperson in January 2026; not published by OpenAI, and the in-chat checkout it referred to was scaled back in March 2026. The same report said Google and Microsoft charged no extra fee for now.",
       "sources": [
         "src-pymnts-4pct"
       ]
     },
     {
       "item": "Shopify Agentic Storefronts channel fee",
-      "value": "Set per channel in Shopify Admin; rate not public",
+      "value": "Set per Participating Channel in Shopify Admin; the terms print no rate",
       "whoPays": "Merchant (Shopify)",
-      "asOf": "2026-07-29",
-      "confidence": "reported",
-      "caveat": "Secondary article; not checked against Shopify terms.",
+      "asOf": "2026-10-06",
+      "confidence": "verified",
+      "caveat": "Shopify's Agentic Storefronts Supplemental Terms (last updated 2026-10-06), section 6.1: Shopify may assess a fee for certain channels, on top of subscription and transaction fees, collected by the payment processor. The terms do not say which channels carry a fee.",
       "sources": [
+        "src-fee-shopify-agentic-terms",
         "src-fee-shopify-agentic-ecp"
       ]
     },
@@ -291,7 +353,7 @@
       "item": "ACP protocol",
       "value": "No protocol fee; Apache-2.0; no fee for TSC or working group seats",
       "whoPays": "Nobody",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-20",
       "confidence": "verified",
       "caveat": "Costs come from platforms and PSPs, not the spec.",
       "sources": [
@@ -301,11 +363,11 @@
     },
     {
       "item": "Stripe Shared Payment Token",
-      "value": "Not published (public preview)",
+      "value": "Not published (preview)",
       "whoPays": "Not published",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-20",
       "confidence": "verified",
-      "caveat": "Absence of a price on Stripe's SPT page; preview terms apply.",
+      "caveat": "Absence of a price on Stripe's SPT pages, which still carry preview terms (API version 2026-09-30.preview) on 2026-10-20.",
       "sources": [
         "src-fee-stripe-spt-docs"
       ]
@@ -314,7 +376,7 @@
       "item": "Card processing",
       "value": "The merchant's normal PSP fees",
       "whoPays": "Merchant",
-      "asOf": "2026-10-11",
+      "asOf": "2026-10-20",
       "confidence": "verified",
       "caveat": "Card economics are unchanged because the merchant charges the payment.",
       "sources": [

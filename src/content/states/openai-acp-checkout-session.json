@@ -138,9 +138,9 @@
     {
       "from": "in_progress",
       "to": "completed",
-      "trigger": "Order created",
+      "trigger": "Order created (transition inferred; the RFC never describes in_progress)",
       "apiCall": "POST /checkout_sessions/{id}/complete",
-      "specRef": "RFC 4.4"
+      "specRef": "schema status value only; transition inferred"
     },
     {
       "from": "ready_for_payment",
@@ -176,6 +176,48 @@
       "trigger": "expires_at passes (inferred from name)",
       "apiCall": "none",
       "specRef": "schema only"
+    },
+    {
+      "from": "incomplete",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5 (405 only when completed or canceled)"
+    },
+    {
+      "from": "requires_escalation",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5 (405 only when completed or canceled)"
+    },
+    {
+      "from": "authentication_required",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5 (405 only when completed or canceled)"
+    },
+    {
+      "from": "pending_approval",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5 (405 only when completed or canceled)"
+    },
+    {
+      "from": "in_progress",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5 (405 only when completed or canceled)"
+    },
+    {
+      "from": "complete_in_progress",
+      "to": "canceled",
+      "trigger": "Agent cancels, optional intent_trace",
+      "apiCall": "POST /checkout_sessions/{id}/cancel",
+      "specRef": "RFC 4.5 (405 only when completed or canceled)"
     }
   ],
   "sources": [

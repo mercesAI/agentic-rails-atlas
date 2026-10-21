@@ -12,7 +12,7 @@
       "pains": [
         "Each merchant needs its own bearer key and onboarding",
         "Merchants implement different versions and drift from the examples",
-        "Six checkout statuses have no RFC definition"
+        "Five checkout statuses have no RFC definition, and the RFC status list omits six"
       ],
       "implements": [
         "Checkout client for create, update, complete and cancel",
@@ -59,7 +59,7 @@
       ],
       "pains": [
         "Approval for ChatGPT feeds is limited to approved partners",
-        "Fees are not published by OpenAI",
+        "OpenAI says no fees for purchases on your own site or app and none on purchases that start in ChatGPT; it is moving away from standalone Instant Checkout",
         "Unclear which platform covers which protocol"
       ],
       "implements": [
@@ -90,7 +90,8 @@
         "src-openai-product-discovery",
         "src-openai-commerce-docs",
         "src-openai-acp-schema-feed-20260417",
-        "src-openai-buy-it"
+        "src-openai-buy-it",
+        "src-chatgpt-merchants"
       ]
     },
     {
@@ -230,7 +231,7 @@
     },
     {
       "persona": "agent-dev",
-      "role": "Builds an agent or app that calls ACP merchants over REST or MCP, or a ChatGPT app with the payment sheet.",
+      "role": "Builds an agent or app that calls ACP merchants over REST or MCP, or a ChatGPT plugin (formerly app) with the payment sheet.",
       "goals": [
         "Use one client for many merchants",
         "Choose between REST and MCP transports",
@@ -238,7 +239,7 @@
       ],
       "pains": [
         "MCP binding and REST differ on idempotency",
-        "The Apps SDK complete_checkout tool is not the ACP tool",
+        "The ChatGPT plugin (formerly Apps SDK) complete_checkout tool is not the ACP tool",
         "No official SDK"
       ],
       "implements": [
@@ -264,7 +265,7 @@
         "Retries and replays",
         "Unknown status values seen"
       ],
-      "story": "Ana writes an agent that shops across merchants and prefers MCP. She maps the five ACP tools, passes api_version and an idempotency key in meta, and treats JSON-RPC error -32000 as an ACP error object. Her first bug comes from the ChatGPT payment sheet docs: their complete_checkout tool is an Apps SDK tool, not the ACP binding's complete_checkout_session, so her merchant mock never answered. She also finds that the binding still lets the idempotency key be optional, while REST requires it, so she always sends one. Unknown statuses such as pending_approval go to a holding screen.",
+      "story": "Ana writes an agent that shops across merchants and prefers MCP. She maps the five ACP tools, passes api_version and an idempotency key in meta, and treats JSON-RPC error -32000 as an ACP error object. Her first bug comes from the ChatGPT payment sheet docs: their complete_checkout tool is a ChatGPT plugin tool (formerly Apps SDK), not the ACP binding's complete_checkout_session, so her merchant mock never answered. She also finds that the binding still lets the idempotency key be optional, while REST requires it, so she always sends one. Unknown statuses such as pending_approval go to a holding screen.",
       "sources": [
         "src-openai-acp-mcp-binding",
         "src-openai-apps-monetization",

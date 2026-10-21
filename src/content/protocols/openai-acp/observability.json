@@ -5,8 +5,8 @@
     "All checkout, Delegate Payment, webhook and feed traffic is bilateral HTTPS between agent, merchant and PSP; nothing is written to a public ledger.",
     "The only standard public artifact per seller is the optional /.well-known/acp.json discovery document, which lists versions, transports and services but no volume.",
     "There is no public registry or explorer of ACP merchants or agents, and the ACP site says discovery mechanisms were still being developed.",
-    "The project is transparent about the spec: the GitHub repository shows commits, SEPs, the CLA list and governance.",
-    "No official transaction volume, GMV or merchant count has been published."
+    "The project is transparent about the spec: the GitHub repository shows commits, SEPs, the CLA list and governance, though no maintainer commented, merged or committed between 2026-07-18 and 2026-10-20.",
+    "No official transaction volume, GMV or merchant count has been published (checked 2026-10-20)."
   ],
   "public": [
     {
@@ -21,29 +21,32 @@
     {
       "what": "Specification activity and governance",
       "where": "github.com/agentic-commerce-protocol/agentic-commerce-protocol",
-      "how": "Commits, pull requests, SEPs, changelog files, MAINTAINERS.md and legal/cla/SIGNATORIES.md.",
+      "how": "Commits, pull requests, SEPs, changelog files, MAINTAINERS.md and legal/cla/SIGNATORIES.md; the comments API shows community activity without maintainer replies since 2026-07-18.",
       "sources": [
         "src-openai-acp-gh-repo",
         "src-openai-acp-gh-commits",
+        "src-openai-acp-gh-comments",
         "src-openai-acp-cla-signatories"
       ]
     },
     {
       "what": "Product announcements and partner lists",
-      "where": "OpenAI, Stripe, PayPal and Microsoft newsrooms; OpenAI developer docs",
-      "how": "Named retailers, PSPs and platforms with dates; no volumes.",
+      "where": "OpenAI, Stripe, PayPal and Microsoft newsrooms; OpenAI developer docs; chatgpt.com/merchants",
+      "how": "Named retailers, PSPs and platforms with dates; OpenAI's merchant page states the fee position, US availability and a waitlist; no volumes.",
       "sources": [
         "src-openai-product-discovery",
         "src-openai-apps-monetization",
+        "src-chatgpt-merchants",
         "src-stripe-acs-launch"
       ]
     },
     {
       "what": "Security advisories",
-      "where": "GitHub security advisories for the repository",
-      "how": "None published as of 2026-10-11.",
+      "where": "GitHub security advisories for the repository; NVD keyword search",
+      "how": "None published as of 2026-10-20 (advisories API 0, NVD keyword search 0).",
       "sources": [
-        "src-openai-acp-gh-advisories"
+        "src-openai-acp-gh-advisories",
+        "src-nvd-acp-search"
       ]
     }
   ],
@@ -66,7 +69,7 @@
     },
     {
       "what": "Stripe SPT events",
-      "why": "shared_payment.issued_token.* and shared_payment.granted_token.deactivated go only to the Stripe accounts involved."
+      "why": "shared_payment.issued_token.* and shared_payment.granted_token.deactivated (consumed, resolved, expired or revoked) go only to the Stripe accounts involved."
     }
   ],
   "indexerCaptures": [

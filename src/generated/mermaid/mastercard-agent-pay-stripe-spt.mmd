@@ -1,6 +1,6 @@
 sequenceDiagram
   accTitle: Agent Pay token inside a Stripe Shared Payment Token
-  accDescr: Sequence diagram: Agent Pay token inside a Stripe Shared Payment Token. 6 participants: Consumer, Agent platform, Stripe, Mastercard network, Merchant, and Issuer. 6 steps, 6 crossing a trust boundary. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-03-03). Step 1: Consumer to Agent platform: Authorize agent purchase. This step crosses a trust boundary. Step 2: Stripe to Mastercard network: Provision agentic network token. This step crosses a trust boundary. Step 3: Stripe to Agent platform: Share as SPT. This step crosses a trust boundary. Step 4: Agent platform to Merchant: Pay with SPT. This step crosses a trust boundary. Step 5: Merchant to Mastercard network: Authorize. This step crosses a trust boundary. Step 6: Mastercard network to Issuer: Issuer decides. This step crosses a trust boundary.
+  accDescr: Sequence diagram: Agent Pay token inside a Stripe Shared Payment Token. 6 participants: Consumer, Agent platform, Stripe, Mastercard network, Merchant, and Issuer. 6 steps, 6 crossing a trust boundary. Based on mastercard-agent-pay Agent Pay developer guides (unversioned, read 2026-10-11) (2026-03-03). Step 1: Consumer to Agent platform: Authorize agent purchase. This step crosses a trust boundary. Step 2: Stripe to Mastercard network: Provision agentic network token. This step crosses a trust boundary. Step 3: Stripe to Agent platform: Share with the agent. This step crosses a trust boundary. Step 4: Agent platform to Merchant: Pay with SPT. This step crosses a trust boundary. Step 5: Merchant to Mastercard network: Authorize. This step crosses a trust boundary. Step 6: Mastercard network to Issuer: Issuer decides. This step crosses a trust boundary.
   autonumber
   participant p_consumer as Consumer
   participant p_agent as Agent platform
@@ -12,7 +12,7 @@ sequenceDiagram
   Note over p_consumer,p_agent: Crosses a trust boundary
   p_stripe->>p_network: Provision agentic network token
   Note over p_stripe,p_network: Crosses a trust boundary
-  p_stripe->>p_agent: Share as SPT
+  p_stripe->>p_agent: Share with the agent
   Note over p_stripe,p_agent: Crosses a trust boundary
   p_agent->>p_merchant: Pay with SPT
   Note over p_agent,p_merchant: Crosses a trust boundary

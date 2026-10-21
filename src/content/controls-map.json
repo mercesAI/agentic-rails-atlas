@@ -506,10 +506,11 @@
       "protocol": "openai-acp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "Bilateral bearer key plus a recommended detached Signature and Timestamp with algorithms agreed out of band; no agent identity scheme.",
+      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme.",
       "sources": [
         "src-openai-acp-rfc-checkout",
-        "src-openai-acp-openapi-delegate-payment-20260417"
+        "src-openai-acp-openapi-delegate-payment-20260417",
+        "src-openai-acp-openapi-webhook-20260417"
       ]
     },
     {
@@ -565,7 +566,7 @@
       "protocol": "openai-acp",
       "control": "revocation",
       "support": "external",
-      "note": "No revoke endpoint in ACP; Stripe SPTs can be revoked. Agents can cancel open sessions.",
+      "note": "No revoke endpoint in ACP; the agent can revoke a Stripe SPT until it is consumed or resolved. Agents can cancel open sessions.",
       "sources": [
         "src-openai-acp-rfcs-dir",
         "src-fee-stripe-spt-docs"

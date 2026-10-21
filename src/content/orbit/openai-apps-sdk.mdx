@@ -1,9 +1,9 @@
 ---
 slug: openai-apps-sdk
-name: "OpenAI Apps SDK (ChatGPT apps)"
+name: "OpenAI plugins (formerly the Apps SDK; ChatGPT apps)"
 category: agent-communication
 starred: false
-oneLiner: "OpenAI's MCP-based framework for building apps that run inside ChatGPT, including checkout from the app's interface."
+oneLiner: "OpenAI's MCP-based framework for building plugins (formerly apps) that run inside ChatGPT and Codex, including checkout from the plugin's interface."
 steward: "OpenAI"
 status: "Live with beta parts"
 relations:
@@ -13,9 +13,9 @@ relations:
 sources:
   - src-openai-apps-monetization
   - src-openai-acp-readme
-  - src-stripe-apps-mcp
+  - src-chatgpt-merchants
   - src-retailsystems-pivot
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-20"
 ---
 
-Apps built with the SDK connect ChatGPT to a developer's MCP server. Its monetization guide makes external checkout generally available and has a ChatGPT payment sheet in private beta: the widget calls `window.openai.requestCheckout`, ChatGPT sends a payment token to the developer's MCP server in a `complete_checkout` tool call, and the merchant's PSP (Adyen, Checkout.com, Fiserv, PayPal, Stripe or Worldpay) charges it. <Cite ids="src-openai-apps-monetization src-stripe-apps-mcp" /> Raw payment methods require the [ACP](/p/openai-acp/) Delegate Payment endpoint and PCI DSS Level 1, and the ACP README points merchants to OpenAI's implementation for ChatGPT. <Cite ids="src-openai-apps-monetization src-openai-acp-readme" /> In March 2026 trade press reported an OpenAI spokesperson saying that Instant Checkout was moving to Apps (reported). <Cite ids="src-retailsystems-pivot" />
+OpenAI now files this documentation under Plugins: the /apps-sdk URLs have redirected to /plugins since at least 2026-08-09 (Wayback), the pages say "plugin developers", and the site title names ChatGPT and Codex. <Cite ids="src-openai-apps-monetization" /> Plugins connect ChatGPT to a developer's MCP server. The monetization page (read 2026-10-20) makes external checkout generally available, with approval currently limited to plugins for physical goods. <Cite ids="src-openai-apps-monetization" /> A second path lets a plugin show only payment methods the customer already saved with the merchant; it cannot collect new credentials. <Cite ids="src-openai-apps-monetization" /> The ChatGPT payment sheet stays in private beta for select marketplaces. The widget calls `window.openai.requestCheckout`, ChatGPT sends a payment token to the developer's MCP server in a `complete_checkout` tool call, and the merchant's PSP (Adyen, Checkout.com, Fiserv, PayPal, Stripe or Worldpay) charges it. <Cite ids="src-openai-apps-monetization" /> Raw payment methods require the [ACP](/p/openai-acp/) Delegate Payment endpoint and PCI DSS Level 1, and the ACP README points merchants to OpenAI's implementation for ChatGPT. <Cite ids="src-openai-apps-monetization src-openai-acp-readme" /> In March 2026 trade press reported an OpenAI spokesperson saying that Instant Checkout was moving to Apps (reported). <Cite ids="src-retailsystems-pivot" /> OpenAI's merchant page says there are no fees for purchases made on the merchant's own site or app (read 2026-10-20). <Cite ids="src-chatgpt-merchants" />

@@ -4,7 +4,7 @@
   "specVersion": "Agent Pay developer guides (unversioned, read 2026-10-11)",
   "specVersionDate": "2026-03-03",
   "title": "Agent Pay token inside a Stripe Shared Payment Token",
-  "summary": "Stripe provisions a Mastercard agentic network token scoped to the customer's intent and hands it to the agent as a Shared Payment Token. This is how an ACP checkout processed by Stripe can carry an Agent Pay token.",
+  "summary": "Stripe provisions a Mastercard agentic network token scoped to the customer's intent and, in Stripe's wording, shares it with the agent; the seller receives only a Shared Payment Token, which the agent issues. This is how an ACP checkout processed by Stripe can carry an Agent Pay token.",
   "actors": [
     {
       "id": "consumer",
@@ -65,8 +65,8 @@
       "n": 3,
       "from": "stripe",
       "to": "agent",
-      "label": "Share as SPT",
-      "detail": "The agent receives a Shared Payment Token, not the network token or the card number.",
+      "label": "Share with the agent",
+      "detail": "Stripe shares the agentic network token with the agent (Stripe's wording); the seller receives only a Shared Payment Token, which the agent issues.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce"

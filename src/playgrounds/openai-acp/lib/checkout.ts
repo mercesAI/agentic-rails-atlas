@@ -27,7 +27,7 @@ const T = (from: Status, to: Status, kind: TransitionKind, trigger: string, api:
   basis,
 });
 
-/** All transitions in the 2026-04-17 state file, plus the same ready_for_payment to in_progress edge labeled inferred. */
+/** All transitions in the 2026-04-17 state file, including cancel from every non-final status (RFC 4.5) and the in_progress edges labeled inferred. */
 export const TRANSITIONS: readonly Transition[] = [
   T('not_ready_for_payment', 'ready_for_payment', 'update', 'Buyer data and fulfillment choice complete', 'POST /checkout_sessions/{id}', 'implied'),
   T('incomplete', 'not_ready_for_payment', 'update', 'Required data added', 'POST /checkout_sessions/{id}', 'inferred'),
@@ -39,10 +39,16 @@ export const TRANSITIONS: readonly Transition[] = [
   T('ready_for_payment', 'complete_in_progress', 'complete', 'Complete accepted, payment still processing', 'POST /checkout_sessions/{id}/complete', 'inferred'),
   T('complete_in_progress', 'completed', 'event', 'Payment confirmed, order created', 'GET /checkout_sessions/{id}', 'inferred'),
   T('ready_for_payment', 'in_progress', 'complete', 'Processing, meaning not detailed', 'POST /checkout_sessions/{id}/complete', 'inferred'),
-  T('in_progress', 'completed', 'event', 'Order created', 'POST /checkout_sessions/{id}/complete', 'spec'),
+  T('in_progress', 'completed', 'event', 'Order created, the RFC never describes in_progress', 'POST /checkout_sessions/{id}/complete', 'inferred'),
   T('ready_for_payment', 'completed', 'complete', 'Complete succeeds; response carries an order', 'POST /checkout_sessions/{id}/complete', 'spec'),
   T('not_ready_for_payment', 'canceled', 'cancel', 'Agent cancels, optional intent_trace', 'POST /checkout_sessions/{id}/cancel', 'spec'),
   T('ready_for_payment', 'canceled', 'cancel', 'Agent cancels, optional intent_trace', 'POST /checkout_sessions/{id}/cancel', 'spec'),
+  T('incomplete', 'canceled', 'cancel', 'Agent cancels, optional intent_trace (RFC 4.5: 405 only when completed or canceled)', 'POST /checkout_sessions/{id}/cancel', 'spec'),
+  T('requires_escalation', 'canceled', 'cancel', 'Agent cancels, optional intent_trace (RFC 4.5: 405 only when completed or canceled)', 'POST /checkout_sessions/{id}/cancel', 'spec'),
+  T('authentication_required', 'canceled', 'cancel', 'Agent cancels, optional intent_trace (RFC 4.5: 405 only when completed or canceled)', 'POST /checkout_sessions/{id}/cancel', 'spec'),
+  T('pending_approval', 'canceled', 'cancel', 'Agent cancels, optional intent_trace (RFC 4.5: 405 only when completed or canceled)', 'POST /checkout_sessions/{id}/cancel', 'spec'),
+  T('in_progress', 'canceled', 'cancel', 'Agent cancels, optional intent_trace (RFC 4.5: 405 only when completed or canceled)', 'POST /checkout_sessions/{id}/cancel', 'spec'),
+  T('complete_in_progress', 'canceled', 'cancel', 'Agent cancels, optional intent_trace (RFC 4.5: 405 only when completed or canceled)', 'POST /checkout_sessions/{id}/cancel', 'spec'),
   T('ready_for_payment', 'expired', 'clock', 'expires_at passes', 'none', 'inferred'),
   T('not_ready_for_payment', 'expired', 'clock', 'expires_at passes', 'none', 'inferred'),
 ];

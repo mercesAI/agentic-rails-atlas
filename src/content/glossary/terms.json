@@ -2584,8 +2584,8 @@
     "aliases": [
       "payment sheet"
     ],
-    "plain": "An Apps SDK checkout surface in ChatGPT, in private beta for select marketplace partners, that sends a payment token to the merchant's MCP server.",
-    "ste": "A payment window in ChatGPT apps. Only some partners can use it.",
+    "plain": "A ChatGPT plugin (formerly Apps SDK) checkout surface, in private beta for select marketplace partners, that sends a payment token to the merchant's MCP server.",
+    "ste": "A payment window in ChatGPT. Only some partners can use it.",
     "protocols": [
       "openai-acp"
     ],
@@ -3015,15 +3015,16 @@
       "spt_",
       "shared_payment_granted_token"
     ],
-    "plain": "A Stripe payment primitive that lets an agent share a buyer's saved payment method with one seller without exposing card details. The agent issues an SPT with `usage_limits` (`currency`, `max_amount`, `expires_at`), and the seller confirms a PaymentIntent with it. It is Stripe's implementation of ACP delegated payment and also the credential of the `stripe` method in MPP, but it is not part of either spec.",
-    "ste": "A Shared Payment Token (SPT) is a Stripe token that gives one seller limited use of a payment method. The seller does not see the card details.",
+    "plain": "A Stripe payment primitive that lets an agent share a buyer's saved payment method with one seller without exposing card details to a seller that charges through Stripe. The agent issues an SPT with `usage_limits` (`currency`, `max_amount`, `expires_at`), and the seller confirms a PaymentIntent with it. By 2026-10-20 (absent from the 2026-09-21 capture of the seller page) a seller on another processor can instead resolve a granted SPT once into card or network-token credentials, encrypted unless it has filed a PCI Attestation of Compliance. It is Stripe's implementation of ACP delegated payment and also the credential of the `stripe` method in MPP, but it is not part of either spec.",
+    "ste": "A Shared Payment Token (SPT) is a Stripe token that gives one seller limited use of a payment method. A seller that charges through Stripe does not see the card details.",
     "protocols": [
       "openai-acp",
       "stripe-mpp"
     ],
     "sources": [
       "src-stripe-spt",
-      "src-stripe-mpp-stripe-charge"
+      "src-stripe-mpp-stripe-charge",
+      "src-fee-stripe-spt-docs"
     ]
   },
   {

@@ -3,6 +3,7 @@ flowchart TB
   SPT["Stripe SPT (Stripe product)"]
   VIC["Visa Intelligent Commerce tokens"]
   MAP["Mastercard Agent Pay tokens"]
+  AMX["American Express ACE Kit tokens<br/>(Stripe seller page by 2026-10-20;<br/>absent from the 2026-09-21 capture)"]
   MPP["Stripe MPP"]
   UCP["UCP"]
   AP2["AP2 mandates"]
@@ -12,6 +13,7 @@ flowchart TB
   ACP -- "Delegate Payment implemented by" --> SPT
   SPT -- "may carry" --> VIC
   SPT -- "may carry" --> MAP
+  SPT -- "may carry" --> AMX
   MPP -- "accepts cards via" --> SPT
   ACP -. "side by side, no bridge" .- UCP
   AP2 -. "no mandates in ACP" .- ACP
