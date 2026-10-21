@@ -54,7 +54,7 @@
       "protocol": "ap2",
       "control": "time-windows-expiry",
       "support": "native",
-      "note": "iat and exp on every mandate, payment.execution_date windows and payment.agent_recurrence frequency.",
+      "note": "Optional iat and exp claims on every mandate type (exp recommended for open mandates), payment.execution_date windows and payment.agent_recurrence frequency.",
       "sources": [
         "src-ap2-schema-open-payment",
         "src-ap2-schema-payment"
@@ -245,10 +245,12 @@
     },
     {
       "item": "Set exp to the shortest time the task needs.",
-      "why": "Expiry is the only way an open mandate ends.",
+      "why": "No user-side revocation exists; apart from exp, an open mandate stops only when receipts or exhausted budget and recurrence limits end it.",
       "sources": [
         "src-ap2-spec-v02",
-        "src-ap2-implementation"
+        "src-ap2-implementation",
+        "src-ap2-agent-authorization",
+        "src-ap2-payment-mandate-doc"
       ]
     },
     {

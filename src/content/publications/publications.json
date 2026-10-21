@@ -1079,7 +1079,7 @@
     ],
     "relation": "related",
     "summary": "CaMeL wraps the LLM in a protective system layer that extracts control and data flow from the trusted user query, so retrieved data can never alter program flow, and attaches capabilities to values so tool calls are checked against security policies. It solved 77 percent of AgentDojo tasks with provable security versus 84 percent for an undefended agent.",
-    "whyItMatters": "The capability model is a natural enforcement point for payment policy: an AP2 cart mandate or an x402 spend limit can be expressed as a CaMeL policy on the payment tool's arguments.",
+    "whyItMatters": "The capability model is a natural enforcement point for payment policy: an AP2 open mandate's constraints (for example payment.amount_range) or an x402 spend limit can be expressed as a CaMeL policy on the payment tool's arguments.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "doi-negotiation",
     "bibtex": "@inproceedings{debenedetti2026camel,\n  title = {Defeating Prompt Injections by Design},\n  author = {Edoardo Debenedetti and Ilia Shumailov and Tianqi Fan and Jamie Hayes and Nicholas Carlini and Daniel Fabian and Christoph Kern and Chongyang Shi and Andreas Terzis and Florian Tramèr},\n  year = {2026},\n  booktitle = {2026 IEEE Conference on Secure and Trustworthy Machine Learning (SaTML)},\n  publisher = {IEEE},\n  pages = {587-618},\n  doi = {10.1109/SaTML68715.2026.00040},\n  eprint = {2503.18813},\n  archivePrefix = {arXiv},\n  url = {https://arxiv.org/abs/2503.18813}\n}"
@@ -1968,7 +1968,7 @@
     ],
     "relation": "related",
     "summary": "Proposes the Verifiable Action Card, which rebuilds the confirmation prompt in an agentic browser from the action that will actually execute, shows it in trusted browser chrome and binds approval to that exact action at dispatch. On a 24-scenario benchmark it cuts attack success from 68% to 100% down to 0% across the tested models.",
-    "whyItMatters": "Human confirmation is the step-up that card agent programs and AP2 rely on for higher-risk purchases; this shows how that confirmation can be forged and one way to bind it to the real transaction.",
+    "whyItMatters": "Human confirmation is the step-up that card agent programs use for higher-risk purchases and the fallback AP2 v0.2 uses after an unresolved_constraint error (AP2 itself specifies no step-up); this shows how that confirmation can be forged and one way to bind it to the real transaction.",
     "verifiedAt": "2026-10-11",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{irshad2026vac,\n  title = {{The Verifiable Action Card: Trustworthy Human-in-the-Loop Control for Secure Autonomous Agents}},\n  author = {Hasnain Irshad and Anam Mughees and Neelam Mughees and Abdullah Mughees and Imtiaz Ali Soomro},\n  year = {2026},\n  eprint = {2609.18411},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.18411}\n}"
@@ -2147,6 +2147,33 @@
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{kang2026governancegaps,\n  title = {{Governance Gaps in Agent Interoperability Protocols: What MCP, A2A, and ACP Cannot Express}},\n  author = {Richard Kang and Yudho Diponegoro},\n  year = {2026},\n  eprint = {2606.31498},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.MA},\n  url = {https://arxiv.org/abs/2606.31498}\n}"
+  },
+  {
+    "id": "pub-kodathala-2026-approve",
+    "title": "Approve What, Exactly? Effect Binding and Trusted Rendering for Agent Step-Up Authorization",
+    "authors": [
+      "Sai Varun Kodathala",
+      "Prashanth Pollishetty",
+      "Jaylen Cargill"
+    ],
+    "year": 2026,
+    "peerReviewed": false,
+    "arxiv": "2610.21063",
+    "url": "https://arxiv.org/abs/2610.21063",
+    "themes": [
+      "security",
+      "consent",
+      "benchmarks"
+    ],
+    "protocols": [
+      "ap2"
+    ],
+    "relation": "direct",
+    "summary": "Defines twelve attacks on the approval path of agent payments, such as decoy recipients, amount cancellation, label spoofing and threshold splitting, and runs them against AP2, Microsoft's action-bound approval design and MCP elicitation. It audits ten agent runtimes and builds ASU, a gateway that renders the approval card from a canonical effect descriptor, has a passkey sign its digest and executes only the stored call, with Tamarin proofs of its binding properties.",
+    "whyItMatters": "Five of the twelve attacks apply to AP2 v0.2.0 at commit e1ea56d (the paper marks the rest not applicable): the constraint layer rejected every executed binding attack, the sample approval card showed a partial rendering weakness, and payment.budget accumulates only if the integrator stores earlier usage. AP2: Five of its twelve approval-path attacks apply to AP2 v0.2.0: binding held; the sample card's rendering and budget accumulation depend on the integrator.",
+    "verifiedAt": "2026-10-21",
+    "verifiedVia": "arxiv",
+    "bibtex": "@misc{kodathala2026approve,\n  title = {{Approve What, Exactly? Effect Binding and Trusted Rendering for Agent Step-Up Authorization}},\n  author = {Sai Varun Kodathala and Prashanth Pollishetty and Jaylen Cargill},\n  year = {2026},\n  eprint = {2610.21063},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2610.21063}\n}"
   },
   {
     "id": "pub-kolt-2025-governing",
@@ -2615,7 +2642,7 @@
     ],
     "relation": "related",
     "summary": "Extracts a verified finite-state machine (37 states and 76 transitions from 929 formalized statements) from the A2A specification with LLM assistance and reasons over it to find 11 protocol-level vulnerabilities exploitable by specification-compliant adversaries, including cross-client context injection, credential harvesting through identity loss in multi-hop delegation chains, and exfiltration through unattested capability claims.",
-    "whyItMatters": "ap2 and the a2a-x402 extension are layered on A2A, so specification-level flaws in A2A delegation and identity flow directly into their trust assumptions.",
+    "whyItMatters": "The a2a-x402 extension and the AP2 samples run on A2A, so specification-level flaws in A2A delegation and identity flow into their trust assumptions.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{lotfi2026a2abreak,\n  title = {{A2ABreak: Systematic Security Analysis of the A2A Protocol}},\n  author = {Alireza Lotfi and Mirza Masfiqur Rahman and Imtiaz Karim and Elisa Bertino},\n  year = {2026},\n  eprint = {2609.10871},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.10871}\n}"
@@ -2636,13 +2663,11 @@
       "agent-protocols"
     ],
     "protocols": [
-      "openai-acp",
-      "ucp",
       "ap2"
     ],
-    "relation": "related",
+    "relation": "direct",
     "summary": "Argues that the most consequential risks in agentic commerce platforms sit in the protocol between agents and commerce services rather than in the model, documenting 33 structural vulnerabilities across three platforms that succeed deterministically regardless of model, three of which chain into a payment hijack. Contributes a taxonomy, AIP-Bench as a deterministic benchmark, and PCAT, a platform-agnostic defense that removes four of five structural attack classes.",
-    "whyItMatters": "Cross-platform evidence that protocol design, not model alignment, decides the security of openai-acp, ap2 and ucp style checkout flows; the three platforms are not named in the abstract, so the mapping is unconfirmed. Agentic Commerce Protocol (ACP): Protocol-level attacks on agentic commerce platforms; does not name ACP but covers the same layer. UCP: Cross-platform attack taxonomy for agentic commerce platforms; context for section H.",
+    "whyItMatters": "The full text names its three platforms: CoralOS, Fetch.ai uAgents and Google AP2 v0.2.0, with 14 AP2 findings proven by code against the reference implementation. It names neither OpenAI's ACP nor UCP (its one ACP is the Agent Communication Protocol), and its background still describes AP2 with v0.1 Intent, Cart and Payment Mandates. AP2: Reports 14 vulnerabilities in AP2 v0.2.0, proven by code against the reference implementation.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{louck2026protocollevel,\n  title = {{Protocol-Level Attacks on Agentic Commerce Platforms: A Cross-Platform Taxonomy, AIP-Bench, and Unified Defense}},\n  author = {Yedidel Louck},\n  year = {2026},\n  eprint = {2607.21824},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2607.21824}\n}"
@@ -3013,7 +3038,7 @@
     ],
     "relation": "related",
     "summary": "Proposes an evaluation that scores trust (nothing happens the user did not agree to, including spend limits and ignoring strangers' instructions) and task completion on the same runs in a simulated world of businesses with websites, inboxes and phone lines. The authors' assistant harness completes 71 percent of errands and keeps trust on 94 percent of trap runs versus 50 to 64 and 59 to 75 percent for base models; the study is a vendor evaluating its own product.",
-    "whyItMatters": "Operationalizes the consumer-side guarantees that delegation designs such as AP2 intent and cart mandates and TAP promise, and shows how much of the result comes from the harness rather than the model.",
+    "whyItMatters": "Operationalizes the consumer-side guarantees that delegation designs such as AP2 open mandates and TAP promise (the paper itself does not name AP2), and shows how much of the result comes from the harness rather than the model.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{olieslagers2026trust,\n  title = {Trust and Task Completion in the World of Consumer AI Agents},\n  author = {Jeroen Olieslagers and Eduardo Pujol and Gal Zahavi and Lukas Ingemarsson and Shivani Poddar},\n  year = {2026},\n  eprint = {2609.33017},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2609.33017},\n  note = {arXiv preprint}\n}"
@@ -3248,7 +3273,7 @@
     ],
     "relation": "related",
     "summary": "Introduces Invocation-Bound Capability Tokens, an append-only token chain that fuses identity, attenuated authorization and provenance binding, in a compact JWT mode and a chained Biscuit mode with Datalog policies for multi-hop delegation across MCP, A2A and HTTP. Python and Rust implementations add sub-millisecond overhead, and all 600 adversarial attempts were rejected.",
-    "whyItMatters": "Delegation tokens for the A2A and MCP layers that ap2 and the a2a-x402 extension sit on, and a descendant of the Macaroons caveat model. AP2: Verifiable delegation across MCP and A2A.",
+    "whyItMatters": "Delegation tokens for the A2A and MCP layers that the AP2 samples and the a2a-x402 extension use, and a descendant of the Macaroons caveat model. AP2: Verifiable delegation across MCP and A2A.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{prakash2026aip,\n  title = {{AIP: Agent Identity Protocol for Verifiable Delegation Across MCP and A2A}},\n  author = {Sunil Prakash},\n  year = {2026},\n  eprint = {2603.24775},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2603.24775}\n}"
@@ -3274,7 +3299,7 @@
     ],
     "relation": "related",
     "summary": "Proposes a governance proxy that enforces signed, machine-readable mandates on MCP tool calls, blocking non-conforming calls and recording every decision in a hash-chained, timestamp-anchored audit trail. The mandate is modeled on the civil-law delegation of authority and mapped to EU AI Act, GDPR, NIS2 and eIDAS 2 obligations; the paper describes implementation status and an evaluation plan rather than results.",
-    "whyItMatters": "A mandate concept parallel to AP2's intent and cart mandates, applied at the tool-call layer and tied to EU legal instruments, which is useful for the compliance view of delegation. AP2: Signed mandates enforced on tool calls, mapped to EU law.",
+    "whyItMatters": "A mandate concept parallel to AP2's open and closed Checkout and Payment Mandates, applied at the tool-call layer and tied to EU legal instruments, which is useful for the compliance view of delegation. AP2: Signed mandates enforced on tool calls, mapped to EU law.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{racioppi2026mandato,\n  title = {Mandato: Protocol-Level Enforcement of Digitally Signed Mandates on AI Agent Actions with Cryptographically Chained Audit Trails},\n  author = {Giovanni Racioppi},\n  year = {2026},\n  eprint = {2608.14074},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2608.14074},\n  note = {arXiv preprint}\n}"
@@ -3966,7 +3991,7 @@
     ],
     "relation": "related",
     "summary": "Proposes a framework for authenticated, authorized and auditable delegation of authority from humans to AI agents, extending OAuth 2.0 and OpenID Connect with agent-specific credentials and metadata, and a method for translating natural-language permissions into auditable access control configurations.",
-    "whyItMatters": "The reference design for delegation chains that ap2 mandates, visa-tap agent identity and openai-acp checkout each assume but implement differently. AP2: Delegation credentials for agents, the idea behind open mandates. Visa Trusted Agent Protocol: Delegated agent credentials, the user-to-agent link that TAP leaves to VIC.",
+    "whyItMatters": "The reference design for delegation chains that ap2 mandates, visa-tap agent identity and openai-acp checkout each assume but implement differently. AP2: Authenticated delegation from humans to agents; background for open mandates (the paper does not name AP2). Visa Trusted Agent Protocol: Delegated agent credentials, the user-to-agent link that TAP leaves to VIC.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{south2025delegation,\n  title = {{Authenticated Delegation and Authorized AI Agents}},\n  author = {Tobin South and Samuele Marro and Thomas Hardjono and Robert Mahari and Cedric Deslandes Whitney and Dazza Greenwood and Alan Chan and Alex Pentland},\n  year = {2025},\n  eprint = {2501.09674},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CY},\n  url = {https://arxiv.org/abs/2501.09674}\n}"
@@ -4473,8 +4498,8 @@
       "ap2"
     ],
     "relation": "direct",
-    "summary": "A vision paper arguing that once buyers are agents paying over agent-native rails such as x402 and AP2, the scarce resource becomes trustworthy product information rather than product matching. It sketches a market in which buyer agents pay fractions of a cent to unlock seller- and reviewer-supplied evidence, with reviewer trust scored reputationally, and lists the NLP problems this creates.",
-    "whyItMatters": "Names x402 and AP2 directly as the rails that make per-fact micropayments feasible; its reputational scoring of reviewers is a role that ERC-8004 registries also aim to fill, although the paper does not name ERC-8004.",
+    "summary": "A vision paper arguing that once buyers are agents paying through agent-native layers such as x402 (payment) and AP2 (authorization), the scarce resource becomes trustworthy product information rather than product matching. It sketches a market in which buyer agents pay fractions of a cent to unlock seller- and reviewer-supplied evidence, with reviewer trust scored reputationally, and lists the NLP problems this creates.",
+    "whyItMatters": "Names x402 (payment) and AP2 (authorization against the user's budget) as the agent-native layers that make per-fact micropayments feasible; it is a vision paper, not an analysis of either, and its reputational scoring of reviewers is a role that ERC-8004 registries also aim to fill, although the paper does not name ERC-8004.",
     "verifiedAt": "2026-10-10",
     "verifiedVia": "arxiv",
     "bibtex": "@misc{ventirozos2026paying,\n  title = {Paying to Know: Micro-Transaction Markets for Verified Product Information in Agentic E-Commerce},\n  author = {Filippos Ventirozos and Matthew Shardlow},\n  year = {2026},\n  eprint = {2606.24783},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CL},\n  url = {https://arxiv.org/abs/2606.24783},\n  note = {arXiv preprint}\n}"
@@ -4586,7 +4611,6 @@
     "protocols": [
       "x402",
       "visa-tap",
-      "ap2",
       "mastercard-agent-pay"
     ],
     "relation": "grey",

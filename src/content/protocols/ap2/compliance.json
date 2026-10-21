@@ -1,7 +1,7 @@
 {
   "protocol": "ap2",
   "notLegalAdvice": true,
-  "summary": "AP2 moves no money, so payment law reaches it through the parties that use mandates: issuers, Credential Providers, processors and merchants. Its main legal value is evidence: a signed record of what the user authorized, which is the central fact in any unauthorized-transaction dispute under Regulation E, Regulation Z, PSD2 or the UK PSRs. Open questions are whether an open mandate counts as consent to each later transaction, how strong customer authentication works when the user is absent, and who carries the loss when an agent stays inside its limits but misreads the user. Within Visa's system, Visa's rules put an agent's errors on the cardholder, who is responsible for an Agentic Payment Provider's actions as if the cardholder had initiated them. Those rules yield to applicable law. The specification claims no compliance with any of these rules.",
+  "summary": "AP2 moves no money, so payment law reaches it through the parties that use mandates: issuers, Credential Providers, processors and merchants. Its main legal value is evidence: a signed record of what the user authorized, which is the central fact in any unauthorized-transaction dispute under Regulation E, Regulation Z, PSD2 or the UK PSRs. Open questions are whether an open mandate counts as consent to each later transaction, how strong customer authentication works when the user is absent, and who carries the loss when an agent stays inside its limits but misreads the user. Within Visa's system, Visa's rules make the cardholder responsible for an Agentic Payment Provider's actions in an Agentic Transaction as if the cardholder had initiated it; Visa does not call this a liability shift, the cardholder keeps the right to dispute, and the rules yield to applicable law. The specification claims no compliance with any of these rules.",
   "rows": [
     {
       "jurisdiction": "US",
@@ -26,7 +26,7 @@
     {
       "jurisdiction": "US",
       "topic": "ai-rules",
-      "text": "No federal statute or CFPB rule on AI agents in payments was found; Senator Warner asked Treasury on 2026-06-02 to examine liability for agentic payment rails.",
+      "text": "A Federal Register search of CFPB documents on 2026-10-20 found no CFPB rule or proposal on AI agents; that search does not cover statutes. Senator Warner asked Treasury on 2026-06-02 to examine liability for agentic payment rails.",
       "sources": [
         "src-policy-fr-cfpb-ai-search",
         "src-policy-warner-summary"
@@ -36,7 +36,7 @@
     {
       "jurisdiction": "US",
       "topic": "aml",
-      "text": "AP2 has no KYC, sanctions or know-your-agent layer. AML and sanctions duties stay with the Credential Provider, processor and network that already carry them.",
+      "text": "AP2 has no KYC, sanctions or know-your-agent layer. OFAC says sanctions obligations are the same in digital and fiat currency and bind U.S. persons, including firms that engage in online commerce or process transactions (FAQ 560). In an AP2 purchase they reach the merchants, processors, issuers and networks under OFAC jurisdiction; AML program duties stay with the parties that already carry them.",
       "sources": [
         "src-ap2-spec-v02",
         "src-policy-ofac-faq-virtual"
@@ -46,7 +46,7 @@
     {
       "jurisdiction": "US",
       "topic": "data-protection",
-      "text": "Regulation P governs how financial institutions share consumer financial information; risk_data and disclosed mandate fields reaching a Credential Provider fall under the provider's existing duties.",
+      "text": "Regulation P governs how covered financial institutions share consumers' nonpublic personal information. Where the Credential Provider is such an institution, risk_data and disclosed mandate fields it receives fall under its existing Regulation P duties; a Credential Provider that is not one has none.",
       "sources": [
         "src-policy-glba-reg-p",
         "src-ap2-schema-payment"
@@ -66,7 +66,7 @@
     {
       "jurisdiction": "EU",
       "topic": "liability",
-      "text": "PSD2 requires payer consent to the specific transaction and caps payer liability for unauthorized ones. Whether a signed open mandate is consent to each later transaction is untested.",
+      "text": "PSD2 treats a payment as authorized only with the payer's consent, which can be given in advance and for a series of transactions in the form agreed with the payment service provider (Article 64), and caps payer liability for unauthorized ones. Whether a signed open mandate counts as that agreed form of consent is untested.",
       "sources": [
         "src-policy-eu-psd2",
         "src-ap2-agent-authorization"
@@ -76,8 +76,9 @@
     {
       "jurisdiction": "EU",
       "topic": "sca",
-      "text": "PSD3 and the Payment Services Regulation reached provisional agreement on 2025-11-27 and were not in the Official Journal in the latest sources found; no agent-specific provisions were reported.",
+      "text": "PSD3 and the Payment Services Regulation reached provisional agreement on 2025-11-27; on 2026-10-19 the Parliament's procedure files showed both still awaiting the Council's first-reading position, with no act in the Official Journal. No agent-specific provisions were reported.",
       "sources": [
+        "src-policy-oeil-psr",
         "src-policy-arthurcox-psd3",
         "src-policy-obt-psd3"
       ],
@@ -86,7 +87,7 @@
     {
       "jurisdiction": "EU",
       "topic": "ai-rules",
-      "text": "AI Act transparency duties under Article 50 apply from 2026-08-02; the Digital Omnibus moved Annex III high-risk duties to 2027-12-02. A shopping or payment agent is not high-risk by default.",
+      "text": "AI Act transparency duties under Article 50 apply from 2026-08-02; generative systems placed on the market before that date have until 2026-12-02 for the Article 50(2) marking duty. The Digital Omnibus (Regulation (EU) 2026/1744) moved Annex III high-risk obligations to 2027-12-02. A shopping or payment agent is not high-risk by default.",
       "sources": [
         "src-policy-eu-ai-omnibus",
         "src-policy-eu-ai-act"
@@ -135,7 +136,7 @@
     {
       "jurisdiction": "CA",
       "topic": "liability",
-      "text": "The Retail Payment Activities Act has required payment service providers to have risk management and safeguarding frameworks since 2025-09-08. No agent-specific liability rule was found.",
+      "text": "The Retail Payment Activities Act has required payment service providers to have risk management and safeguarding frameworks since 2025-09-08. No agent-specific liability rule was found on the Bank of Canada's retail payments supervision page (read 2026-10-20).",
       "sources": [
         "src-policy-boc-rpaa"
       ],
@@ -144,16 +145,19 @@
     {
       "jurisdiction": "CA",
       "topic": "data-protection",
-      "text": "PIPEDA governs private-sector personal information, including risk_data and disclosed mandate fields held by Canadian parties.",
+      "text": "PIPEDA governs personal information, such as risk_data and disclosed mandate fields, that organizations collect, use or disclose in the course of commercial activities. Collection, use and disclosure within Quebec, Alberta or British Columbia falls under provincial law instead, except at federally regulated businesses (exemption orders under section 26(2)(b)).",
       "sources": [
-        "src-policy-ca-pipeda"
+        "src-policy-ca-pipeda",
+        "src-policy-ca-pipeda-qc-order",
+        "src-policy-ca-pipeda-ab-order",
+        "src-policy-ca-pipeda-bc-order"
       ],
       "confidence": "verified"
     },
     {
       "jurisdiction": "SG",
       "topic": "liability",
-      "text": "The MAS E-Payments User Protection Guidelines allocate liability for unauthorized and erroneous e-payments.",
+      "text": "MAS's E-Payments User Protection Guidelines set liability for unauthorized transactions and duties for erroneous ones on protected accounts. Their liability apportionment does not apply to credit, charge or debit cards issued in Singapore, which follow the ABS Code of Practice for Banks. The Guidelines do not address agents.",
       "sources": [
         "src-policy-mas-eupg"
       ],

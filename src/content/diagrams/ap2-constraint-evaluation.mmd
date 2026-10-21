@@ -2,7 +2,7 @@ flowchart TD
   A["Receive open and closed mandates"] --> B{"Chain verifies under Delegate SD-JWT?<br/>closed signed by key in cnf, sd_hash matches"}
   B -- "no" --> E1["Error receipt: invalid_credential (terminal)"]
   B -- "yes" --> C{"Closed mandate keeps every value<br/>the open mandate fixed?"}
-  C -- "no" --> E2["Error receipt: invalid_mandate (terminal)"]
+  C -- "no" --> E2["Error receipt: invalid_mandate (terminal)<br/>this site's reading; the spec maps no code here"]
   C -- "yes" --> D["Take the next constraint"]
   D --> F{"Known constraint type?"}
   F -- "no" --> E3["Error receipt: unresolved_constraint"]

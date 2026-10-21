@@ -65,13 +65,7 @@
       "specRef": {
         "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/specification.md",
         "section": "Agentic Payment Protocol (v0.2), scope"
-      },
-      "failures": [
-        {
-          "condition": "The merchant does not accept mandates for this action",
-          "outcome": "It can answer mandates_not_supported, a signal to fall back to a non-agentic flow."
-        }
-      ]
+      }
     },
     {
       "n": 3,
@@ -151,7 +145,7 @@
       "detail": "The surface signs mandate.checkout.1 and mandate.payment.1. The hash of checkout_jwt appears in both (checkout_hash and transaction_id), which links them for good. Under the Trusted Agent Provider model the key belongs to the agent provider and must stay out of the agent's reach.",
       "payload": {
         "format": "sd-jwt",
-        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate as an SD-JWT signed with user_sk (Trusted Surface).\n# transaction_id equals checkout_hash: both are the hash of checkout_jwt.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791720000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"a8b7c6d5\",\n    \"sd_hash\": \"uixo...0Ck\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosures\": [\n    \"FW6M...Idw\",\n    {\n      \"vct\": \"mandate.payment.1\",\n      \"transaction_id\": \"Nv3Wq...X8\",\n      \"payee\": {\n        \"id\": \"merchant_1\",\n        \"name\": \"Example Outdoor Store\"\n      },\n      \"payment_amount\": {\n        \"amount\": 27999,\n        \"currency\": \"USD\"\n      },\n      \"payment_instrument\": {\n        \"id\": \"pi_7f3c\",\n        \"type\": \"card\",\n        \"description\": \"Card ending 4242\"\n      }\n    }\n  ]\n}",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate as an SD-JWT signed with user_sk (Trusted Surface).\n# transaction_id equals checkout_hash: both are the hash of checkout_jwt.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791720000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"a8b7c6d5\",\n    \"sd_hash\": \"uixo...0Ck\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosures\": [\n    [\n      \"FW6M...Idw\",\n      {\n        \"vct\": \"mandate.payment.1\",\n        \"transaction_id\": \"Nv3Wq...X8\",\n        \"payee\": {\n          \"id\": \"merchant_1\",\n          \"name\": \"Example Outdoor Store\"\n        },\n        \"payment_amount\": {\n          \"amount\": 27999,\n          \"currency\": \"USD\"\n        },\n        \"payment_instrument\": {\n          \"id\": \"pi_7f3c\",\n          \"type\": \"card\",\n          \"description\": \"Card ending 4242\"\n        }\n      }\n    ]\n  ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": false,
@@ -242,6 +236,10 @@
         {
           "condition": "A verification step fails for any other reason",
           "outcome": "The merchant must return a Checkout Receipt JWT carrying the error."
+        },
+        {
+          "condition": "The merchant does not use mandates for this action",
+          "outcome": "It answers mandates_not_supported in a Checkout Receipt, a signal to fall back to a non-agentic flow."
         }
       ]
     },

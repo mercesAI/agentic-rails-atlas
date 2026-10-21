@@ -128,3 +128,10 @@ Source conflicts found while building. Both sources are kept on the site; the pr
 - draft-tempo-session-00: its example appendix pairs the v1 testnet TempoStreamChannel address with a v2 mainnet challenge, and its v2 examples omit the descriptor its payload tables require. The site's flows follow the tables. mppx 0.13.1 and later add a closeSignature to the v2 close payload that the draft does not define; the flows follow the draft.
 - draft-payment-transport-mcp-00 examples use a tempo request with currency "usd", which draft-tempo-charge-00 does not allow; the site's MCP flow uses a valid TIP-20 request.
 - Free-riding paper (arXiv 2605.30998): v1 never names MPP; v2 names it but tests only x402. MiCA's transitional period ended on 2026-07-01 at the latest, not uniformly on that date.
+
+## 2026-10-21 fact check (AP2)
+- FIDO's public repository: the Payments Technical Working Group's slides at the W3C and GS1 workshop (2026-09-08) list "September 2026: AP2/VI specs moved to public repository for review"; on 2026-10-21 no such repository or public draft was found on FIDO's specification, agentic AI and payments pages, its news or the fido-alliance GitHub organization, and AP2 main is still e1ea56d. The site reports the slide's timeline as FIDO's stated targets and the absence as a dated search.
+- AP2 collaborators: Google's launch post (2025-09-16) says Google works with "more than 60 organizations" on agentic payments and names 16; it does not say all of them developed AP2. The site keeps both statements apart.
+- Kite AI: AP2 commit 61f5de4 (PR 161, 2026-02-09) adds Kite to the partners list as a spec contributor, and Kite's home page shows a Google Cloud (AP2) logo, but no Kite product implementing AP2 was found.
+- arXiv 2607.21824 (Louck) analyzes AP2 v0.2.0 (14 findings) but describes AP2 with v0.1 Intent, Cart and Payment Mandates in its background; its "ACP" is the Agent Communication Protocol, not OpenAI's.
+- arXiv 2610.21063 (Kodathala and others) lists twelve approval-path attacks but applies only five to AP2 (three rejected, two partial); the site states the five.

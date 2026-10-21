@@ -15,9 +15,9 @@ layersSecondary:
 rails:
   - rail-agnostic
 stewards:
-  - "FIDO Alliance (Payments Technical Working Group and Agentic Authentication Technical Working Group)"
+  - "FIDO Alliance (Payments Technical Working Group)"
   - "Google (code samples and SDK in google-agentic-commerce/AP2)"
-governance: "Google donated AP2 to the FIDO Alliance on 2026-04-28. Specification work continues in FIDO working groups, while Google keeps the samples and SDK on GitHub. FIDO has published no AP2 deliverable, and no commit has landed on the repository's main branch since 2026-04-29."
+governance: "Google donated AP2 to the FIDO Alliance on 2026-04-28. Specification work continues in FIDO's Payments Technical Working Group, which in September 2026 presented targets of harmonized AP2 and Verifiable Intent specifications by the end of 2026 and a first consolidated version by mid-2027. Google keeps the samples and SDK on GitHub. As of 2026-10-21 no public FIDO draft based on AP2 was found, and no commit had landed on the repository's main branch since 2026-04-29."
 license:
   spec: "Apache-2.0 (repository license, which covers the docs and schemas)"
   code: Apache-2.0
@@ -27,7 +27,7 @@ firstAnnounced: "2025-09-16"
 latestVersion:
   label: "v0.2.0 (specification titled Agentic Payment Protocol v0.2)"
   date: "2026-04-28"
-lastVerified: "2026-10-11"
+lastVerified: "2026-10-21"
 transports:
   - "Transport-agnostic: runs inside a commerce protocol"
   - "UCP extension dev.ucp.common.payment.ap2_mandate"
@@ -40,7 +40,7 @@ buildsOn:
   - RFC 7800 cnf
   - OpenID4VP 1.0
   - W3C Digital Credentials API
-  - JWS with ES256
+  - JWS (ES256 in all examples)
   - ISO 4217
 composesWith:
   - ucp
@@ -54,7 +54,7 @@ personas:
   - agent-dev
   - compliance
 disambiguation:
-  - "AP2 is the Agent Payments Protocol, created at Google and now developed in FIDO Alliance working groups. The v0.2 specification document is titled Agentic Payment Protocol."
+  - "AP2 is the Agent Payments Protocol, created at Google and now developed in the FIDO Alliance's Payments Technical Working Group. The v0.2 specification document is titled Agentic Payment Protocol."
   - "AP2 is not A2A (Agent2Agent). A2A is one transport that the AP2 samples use."
   - "In AP2, MPP means Merchant Payment Processor, a role. It is not the Machine Payments Protocol from Stripe and Tempo."
   - "AP2's Trusted Agent Provider is a delegation model. It is not Visa's Trusted Agent Protocol (TAP)."
@@ -82,16 +82,16 @@ playground:
   note: "Build v0.1 or v0.2 mandates, try carts that break the constraints, sign with ephemeral ES256 keys and watch each verifier recompute checkout_hash, transaction_id, sd_hash and the cnf binding; simulation only, no real funds."
 keyFacts:
   - label: Steward
-    value: "FIDO Alliance working groups for the specification; Google for the GitHub samples and SDK"
+    value: "FIDO Alliance Payments Technical Working Group for the specification; Google for the GitHub samples and SDK"
     claimIds: [clm-ap2-022, clm-ap2-023, clm-ap2-017]
   - label: Governance
-    value: "Donated to FIDO on 2026-04-28; the Agentic Authentication group was new that day, the Payments group already existed; no FIDO deliverable published"
-    claimIds: [clm-ap2-012, clm-ap2-019, clm-ap2-018, clm-ap2-021]
+    value: "Donated to FIDO on 2026-04-28 and developed in its Payments Technical Working Group; FIDO targets harmonized AP2 and Verifiable Intent specifications by end 2026 and a first consolidated version by mid-2027; no public FIDO draft found as of 2026-10-21"
+    claimIds: [clm-ap2-012, clm-ap2-017, clm-ap2-209, clm-ap2-021]
   - label: License
     value: "Apache-2.0"
     claimIds: [clm-ap2-005]
   - label: First announced
-    value: "2025-09-16, with more than 60 organizations named as collaborators"
+    value: "2025-09-16; the launch post said Google was working with more than 60 organizations on agentic payments and named 16"
     claimIds: [clm-ap2-007, clm-ap2-008]
   - label: Latest version
     value: "v0.2.0, released 2026-04-28; main idle since 2026-04-29"
@@ -106,7 +106,7 @@ keyFacts:
     value: "None of its own: authorization evidence on top of cards, bank transfers or stablecoins"
     claimIds: [clm-ap2-002]
   - label: Builds on
-    value: "SD-JWT VC, Delegate SD-JWT draft, RFC 7800 cnf, OpenID4VP, Digital Credentials API, ES256"
+    value: "SD-JWT VC, Delegate SD-JWT draft, RFC 7800 cnf, OpenID4VP, Digital Credentials API, JWS (ES256 in all examples)"
     claimIds: [clm-ap2-108, clm-ap2-065, clm-ap2-100, clm-ap2-111]
   - label: Composes with
     value: "UCP (native extension), x402 (a2a-x402, targets v0.1), Mastercard Verifiable Intent (same vct values)"
@@ -117,23 +117,23 @@ keyFacts:
 
 Imagine you send a helper to the shops with a signed note from you. There are two kinds of note.
 
-The first kind is exact: "Buy this pair of boots, from this shop, for this price, paid with my blue card." You read it on your own phone, which you trust, and you sign it there. The helper cannot change a word, because the shop, the bank and the card company can all check your signature and see that the note matches the receipt the shop wrote.
+The first kind is exact: "Buy this pair of boots, from this shop, for this price, paid with my blue card." You read it on your own phone, which you trust, and you sign it there. The helper cannot change a word, because the shop, the bank and the card company can all check your signature and see that the note matches the signed bill the shop wrote.
 
 The second kind is a list of limits: "Buy one tent from this shop or that one, spend no more than three hundred, and do it before Friday." You sign that list and also write down the helper's own stamp. Later, when the helper finds a good tent, it writes an exact note itself and stamps it. Anyone can check two things: that the stamp is the one you named, and that the exact note stays inside your limits. If something looks odd, the shop can say "please ask the owner," and you approve the exact purchase yourself.
 
-At the end, the shop and the bank each give a signed receipt that points back to the note. If there is an argument later, everyone can line up the notes and the receipts and see what you agreed to.
+At the end, the shop and its payment company each give a signed receipt that points back to the note. In an argument later, the notes and receipts show what you agreed to.
 
-That is AP2. The notes are called mandates, your phone is the trusted surface, and the helper is a shopping agent. AP2 does not move the money itself. The money still travels over cards, bank transfers or digital tokens. And there is one thing the notes cannot do yet: you cannot tear up a note early. It simply runs out at the time written on it.
+That is AP2. The notes are called mandates, your phone is the trusted surface, and the helper is a shopping agent. AP2 does not move the money itself. The money still travels over cards, bank transfers or digital tokens. And there is one thing the notes cannot do yet: you cannot tear up a note early. It stops only when its end time passes or its limits run out.
 
 </Mode>
 
-AP2 (the Agent Payments Protocol) answers one question: when an agent pays, how can the merchant, the card issuer and the network tell what the person behind it actually agreed to? Its answer is the mandate, a signed record of user approval.<Cite ids="clm-ap2-001" /> Version 0.2 has two kinds, Checkout Mandates and Payment Mandates, and each comes closed (the exact checkout and amount) or open (constraints such as merchants, items, a price range or a budget).<Cite ids="clm-ap2-031 clm-ap2-066 clm-ap2-067" /> A user signs closed mandates on a non-agentic Trusted Surface, or signs open mandates that name the agent's key, so the agent can later sign closed ones itself.<Cite ids="clm-ap2-087 clm-ap2-091 clm-ap2-092" /> Hashes of the merchant-signed checkout tie every mandate and every receipt to one transaction.<Cite ids="clm-ap2-053 clm-ap2-060 clm-ap2-081" /> What AP2 does not give you: a payment rail, a way to revoke a mandate early, step-up authentication in v0.2, or proof that it runs in production anywhere.<Cite ids="clm-ap2-002 clm-ap2-117 clm-ap2-118 clm-ap2-139" /> Money still moves over cards, bank transfers or stablecoins, and the checkout messages come from a commerce protocol such as the Universal Commerce Protocol (UCP).<Cite ids="clm-ap2-002 clm-ap2-104" />
+AP2 (the Agent Payments Protocol) answers one question: when an agent pays, how can the merchant, the card issuer and the network tell what the person behind it actually agreed to? Its answer is the mandate, a signed record of user approval.<Cite ids="clm-ap2-001" /> Version 0.2 has two kinds, Checkout Mandates and Payment Mandates, and each comes closed (the exact checkout and amount) or open (constraints such as merchants, items, a price range or a budget).<Cite ids="clm-ap2-031 clm-ap2-066 clm-ap2-067" /> A user signs closed mandates on a non-agentic Trusted Surface, or signs open mandates that name the agent's key, so the agent can later sign closed ones itself.<Cite ids="clm-ap2-087 clm-ap2-091 clm-ap2-092" /> Hashes of the merchant-signed checkout tie each closed mandate to one transaction, and each receipt carries the hash of the closed mandate it answers.<Cite ids="clm-ap2-053 clm-ap2-060 clm-ap2-081" /> What AP2 does not give you: a payment rail, a way to revoke a mandate early, step-up authentication in v0.2, or proof that it runs in production anywhere.<Cite ids="clm-ap2-002 clm-ap2-117 clm-ap2-118 clm-ap2-139" /> Money still moves over cards, bank transfers or stablecoins, and the checkout messages come from a commerce protocol such as the Universal Commerce Protocol (UCP).<Cite ids="clm-ap2-002 clm-ap2-104" />
 
 ### Problem and design goals
 
-AP2, the Agent Payments Protocol, was announced by Google on 2025-09-16, with more than 60 organizations named as collaborators.<Cite ids="clm-ap2-007 clm-ap2-008" /> The problem it targets is evidence. Card and bank systems were built on the assumption that a person pressed the buy button, so when software presses it, nobody downstream can tell whether the purchase matches what the person wanted. AP2 adds a signed artifact that every party can check in code and keep for later disputes.<Cite ids="clm-ap2-001 clm-ap2-097" />
+AP2, the Agent Payments Protocol, was announced by Google on 2025-09-16. The launch post said AP2 was developed with leading payments and technology companies, and that Google was working with more than 60 organizations on agentic payments; it named 16 of them.<Cite ids="clm-ap2-007 clm-ap2-008" /> The problem it targets is evidence. Card and bank systems were built on the assumption that a person pressed the buy button, so when software presses it, nobody downstream can tell whether the purchase matches what the person wanted. AP2 adds a signed artifact that every party can check in code and keep for later disputes.<Cite ids="clm-ap2-001 clm-ap2-097" />
 
-Three design choices follow from that goal. First, AP2 assumes that prompt injection cannot be prevented, so it treats every large language model (LLM) and every agent as a potential attacker.<Cite ids="clm-ap2-116" /> The person approves on a Trusted Surface that must be non-agentic, and every role validates in deterministic code, agentic or not.<Cite ids="clm-ap2-041 clm-ap2-042" /> Second, AP2 is a security layer, not a commerce or payment protocol. Version 0.2 describes itself as a feature inside a commerce protocol and leaves catalog, cart and checkout calls to that protocol; it is designed to fit UCP.<Cite ids="clm-ap2-003 clm-ap2-104" /> Third, it is rail-agnostic: the mandate carries authorization evidence on top of whatever payment method the parties already use, and AP2 defines no fee of its own.<Cite ids="clm-ap2-002 clm-ap2-144" />
+Three design choices follow from that goal. First, AP2 assumes that prompt injection cannot be prevented, so it treats every large language model (LLM) and every agent as a potential attacker.<Cite ids="clm-ap2-116" /> The person approves on a Trusted Surface that must be non-agentic, and every role validates in deterministic code, agentic or not.<Cite ids="clm-ap2-041 clm-ap2-042" /> Second, AP2 is a security layer, not a commerce protocol or a payment rail. Version 0.2 describes itself as a feature inside a commerce protocol and leaves catalog, cart and checkout calls to that protocol; it is designed to fit UCP.<Cite ids="clm-ap2-003 clm-ap2-104" /> Third, it is rail-agnostic: the mandate carries authorization evidence on top of whatever payment method the parties already use, and AP2 defines no fee of its own.<Cite ids="clm-ap2-002 clm-ap2-144" />
 
 Read the version label carefully. Most explanations written in 2025 describe v0.1, which had Intent, Cart and Payment Mandates. Version 0.2 removed the Intent and Cart Mandates entirely.<Cite ids="clm-ap2-031 clm-ap2-032" />
 
@@ -157,7 +157,7 @@ Open mandates replace exact values with constraints. The open Checkout Mandate (
 
 There are ten constraint types. Checkout has `checkout.allowed_merchants` and `checkout.line_items`.<Cite ids="clm-ap2-066" /> Payment has `payment.agent_recurrence`, `payment.allowed_payees`, `payment.allowed_payment_instruments`, `payment.allowed_pisps`, `payment.amount_range`, `payment.budget`, `payment.execution_date` and `payment.reference`.<Cite ids="clm-ap2-067" /> A verifier must treat any constraint type it does not recognize as failed.<Cite ids="clm-ap2-074" />
 
-Two receipts close the loop. The Payment Receipt, signed by the processor, requires `status`, `iss`, `iat`, `reference` and `payment_id`, plus confirmation ids on success or an error code on failure.<Cite ids="clm-ap2-079" /> The Checkout Receipt, signed by the merchant, carries `order_id` on success.<Cite ids="clm-ap2-080" /> Each `reference` is the hash of the closed mandate it answers.<Cite ids="clm-ap2-081" />
+Two receipts close the loop. The processor signs the Payment Receipt; a Credential Provider or network that rejects the Payment Mandate signs one too. It requires `status`, `iss`, `iat`, `reference` and `payment_id`, plus confirmation ids on success or an error code on failure.<Cite ids="clm-ap2-079 clm-ap2-182" /> The Checkout Receipt, signed by the merchant, carries `order_id` on success.<Cite ids="clm-ap2-080" /> Each `reference` is the hash of the closed mandate it answers.<Cite ids="clm-ap2-081" />
 
 <Mode spec>
 
@@ -398,14 +398,14 @@ Two receipts close the loop. The Payment Receipt, signed by the processor, requi
     "type": "allowed: Merchant[] (SD array)",
     "required": false,
     "description": "The checkout merchant must be among the revealed entries.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/open_payment_mandate.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/open_checkout_mandate.json"
   },
   {
     "name": "checkout.line_items",
     "type": "items: [{id, acceptable_items[{id, title}], quantity}]",
     "required": false,
     "description": "Every requirement matched by checkout items without reuse; max-flow suggested.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/open_payment_mandate.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/open_checkout_mandate.json"
   },
   {
     "name": "payment.amount_range",
@@ -478,35 +478,35 @@ Two receipts close the loop. The Payment Receipt, signed by the processor, requi
     "type": "id, name, website",
     "required": true,
     "description": "id and name required.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/amount.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/merchant.json"
   },
   {
     "name": "PaymentInstrument",
     "type": "id, type, description",
     "required": true,
     "description": "id and type required; a new instrument defines a new type.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/amount.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/payment_instrument.json"
   },
   {
     "name": "PISP",
     "type": "legal_name, brand_name, domain_name",
     "required": true,
     "description": "All required; domain_name described as secured by the TPP eIDAS QWAC.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/amount.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/pisp.json"
   },
   {
     "name": "Item",
     "type": "id, title, price (integer, minor units), image_url",
     "required": true,
     "description": "Said to match the UCP item type of 2026-04-08.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/amount.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/item.json"
   },
   {
     "name": "JWK",
     "type": "kty EC, crv P-256, alg ES256, x, y, kid, ...",
     "required": true,
     "description": "kty required; P-256 public keys only.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/amount.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/types/jwk.json"
   }
 ]} />
 
@@ -522,7 +522,7 @@ Two receipts close the loop. The Payment Receipt, signed by the processor, requi
     "name": "iss",
     "type": "string",
     "required": true,
-    "description": "Issuer of the receipt: processor (payment) or merchant (checkout).",
+    "description": "The verifier that issued the receipt: the processor, or a Credential Provider or network that rejects a Payment Mandate (payment); the merchant (checkout).",
     "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/payment_receipt.json"
   },
   {
@@ -558,7 +558,7 @@ Two receipts close the loop. The Payment Receipt, signed by the processor, requi
     "type": "string",
     "required": false,
     "description": "Checkout Receipt, required when status is Success.",
-    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/payment_receipt.json"
+    "specRef": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/code/sdk/schemas/ap2/checkout_receipt.json"
   },
   {
     "name": "error, error_description",
@@ -603,7 +603,7 @@ Verifiers always receive closed mandates, whatever the mode; what changes is how
 
 The specification itself notes that, because the user approves the exact checkout, this mode can often be replaced by an ordinary e-commerce journey between merchant and Trusted Surface.<Cite ids="clm-ap2-184" /> The interesting mode is the other one. In human-not-present (autonomous) mode the user signs open mandates that include the agent's key in `cnf`, and leaves.<Cite ids="clm-ap2-091" /> Later the agent finds a checkout, signs closed mandates with its own key, and `sd_hash` binds each closed mandate to its open parent.<Cite ids="clm-ap2-092 clm-ap2-180" /> Verifiers check the chain, check that the closed mandate keeps every value the open one fixed, and evaluate each constraint.<Cite ids="clm-ap2-202" /> The agent must present only the disclosures needed for that evaluation.<Cite ids="clm-ap2-186" />
 
-Failures come back as signed receipts with one of four codes: `invalid_credential`, `unresolved_constraint`, `invalid_mandate` and `mandates_not_supported`.<Cite ids="clm-ap2-082 clm-ap2-182" /> The first and third are terminal; the other two may signal a fallback.<Cite ids="clm-ap2-083" /> A merchant that cannot confirm the constraints answers `unresolved_constraint`, and the agent can turn the purchase into a human-present one by bringing the user back.<Cite ids="clm-ap2-096" /> Section C plays that fallback, a broken chain and an unsupported verifier, plus the dispute check and the OpenID4VP delegation path.
+Failures come back as signed receipts. AP2 defines four error codes for all action authorizations: `invalid_credential`, `unresolved_constraint`, `invalid_mandate` and `mandates_not_supported`.<Cite ids="clm-ap2-082 clm-ap2-182" /> The receipt's error field is a plain string, and UCP adds codes of its own.<Cite ids="clm-ap2-215 clm-ap2-172" /> The first and third are terminal; the other two may signal a fallback.<Cite ids="clm-ap2-083" /> A merchant that cannot confirm the constraints answers `unresolved_constraint`, and the agent can turn the purchase into a human-present one by bringing the user back.<Cite ids="clm-ap2-096" /> Section C plays that fallback, a broken chain and an unsupported verifier, plus the dispute check and the OpenID4VP delegation path.
 
 <Mode spec>
 
@@ -679,7 +679,7 @@ Failures come back as signed receipts with one of four codes: `invalid_credentia
 
 AP2 v0.2 defines no session status enum, but its objects move through clear states. A mandate is open (bound to an agent key, with constraints) or closed (bound to one transaction).<Cite ids="clm-ap2-102" /> A presentation ends in a receipt whose status is `Success` or `Error`.<Cite ids="clm-ap2-079 clm-ap2-080" /> After a success, the agent stores the open mandate, the closed mandate and the receipt together. It then narrows the open mandate, often so that it cannot be used again.<Cite ids="clm-ap2-103" /> `payment.budget` and `payment.agent_recurrence` allow bounded reuse, which means somebody must remember earlier presentations.<Cite ids="clm-ap2-069 clm-ap2-070" />
 
-Two rules keep the states honest. The agent must not present a new closed mandate from the same open mandate until it holds a rejection receipt for the previous one, which prevents one approval from paying for several checkouts.<Cite ids="clm-ap2-093" /> And open mandates should expire as soon as the task allows, because expiry is the only exit: v0.2 defines no way to revoke a mandate before `exp`.<Cite ids="clm-ap2-094 clm-ap2-117" />
+Two rules keep the states honest. The agent must not present a new closed mandate from the same open mandate until it holds a rejection receipt for the previous one, which prevents one approval from paying for several checkouts.<Cite ids="clm-ap2-093" /> And open mandates should expire as soon as the task allows, because the user has no other way to end one early: v0.2 defines no way to revoke a mandate before `exp`.<Cite ids="clm-ap2-094 clm-ap2-117" /> The `iat` and `exp` claims are optional in all four schemas, so a mandate need not carry an end time at all. Apart from expiry, an open mandate stops only when its budget or recurrence limits are used up or the agent narrows it after a success.<Cite ids="clm-ap2-213 clm-ap2-214" />
 
 ### Security and trust model (summary)
 
@@ -691,13 +691,13 @@ The notes are hard to fake and hard to reuse: each one names the exact checkout,
 
 The guarantees are strong where hashes reach. A stolen Payment Mandate is useless for another checkout because `transaction_id` names this one; a reused open mandate fails because closed mandates carry `sd_hash` and must be signed with the key in `cnf`.<Cite ids="clm-ap2-060 clm-ap2-092 clm-ap2-065" /> Selective disclosure is mandatory for constraints, digests are salted, and decoy digests are allowed, so a merchant need not learn the rest of the user's limits.<Cite ids="clm-ap2-123 clm-ap2-186" />
 
-The gaps sit before the signature and after it. Research on v0.2 found 48 threats, eight in the High band, and its central point is that a valid signature does not prove the transaction reflects intent if the context before authorization was manipulated.<Cite ids="clm-ap2-163 clm-ap2-198" /> Prompt-injection studies on AP2 sample agents steered product choice and extracted data.<Cite ids="clm-ap2-166 clm-ap2-174" /> Replay across retries and concurrency needs consume-once checks that the specification does not define.<Cite ids="clm-ap2-165 clm-ap2-126" /> Version 0.2 specifies no step-up authentication: a failed check falls back through `unresolved_constraint`, while v0.1 let any party demand a 3DS2 or one-time-password challenge.<Cite ids="clm-ap2-118 clm-ap2-119" /> The non-normative Executive Summary still mentions 3DS2, which is legacy wording.<Cite ids="clm-ap2-121" /> Liability stays with the payment networks.<Cite ids="clm-ap2-120" /> No CVE (Common Vulnerabilities and Exposures) entry or GitHub advisory exists for the repository.<Cite ids="clm-ap2-125" /> Section H has the full threat table.
+The gaps sit before the signature and after it. Research on v0.2 found 48 threats, eight in the High band, and its central point is that a valid signature does not prove the transaction reflects intent if the context before authorization was manipulated.<Cite ids="clm-ap2-163 clm-ap2-198" /> Prompt-injection studies on AP2 sample agents steered product choice and extracted data.<Cite ids="clm-ap2-166 clm-ap2-174" /> Replay across retries and concurrency needs consume-once checks. The specification puts that duty on the Shopping Agent: no new closed mandate from the same open mandate until it holds a rejection receipt. Credential Providers, networks and processors may reject overlapping mandates or invalidate tokens, but need not.<Cite ids="clm-ap2-165 clm-ap2-093 clm-ap2-130 clm-ap2-126" /> A code-level study of v0.2.0 reports 14 vulnerabilities in the reference implementation. An attack study found that the constraint layer rejected every binding attack it ran; its weak points were the sample approval card and budget tracking left to the integrator.<Cite ids="clm-ap2-212 clm-ap2-211" /> Version 0.2 specifies no step-up authentication: a failed check falls back through `unresolved_constraint`, while v0.1 let any party demand a 3DS2 or one-time-password challenge.<Cite ids="clm-ap2-118 clm-ap2-119" /> The non-normative Executive Summary still mentions 3DS2, which is legacy wording.<Cite ids="clm-ap2-121" /> AP2 assigns no liability: it leaves liability rules to the payment networks and offers mandates and receipts as evidence for disputes.<Cite ids="clm-ap2-120" /> No CVE (Common Vulnerabilities and Exposures) entry or GitHub advisory was found for the repository as of 2026-10-21, searching its GitHub advisories, the GitHub Advisory Database and the NVD.<Cite ids="clm-ap2-125" /> Section H has the full threat table.
 
 ### Versioning and governance
 
 Two tagged versions exist: v0.1.0 on 2025-09-16 and v0.2.0 on 2026-04-28.<Cite ids="clm-ap2-026 clm-ap2-027" /> The v0.2 document is titled "Agentic Payment Protocol (v0.2)", though the project name everywhere else is Agent Payments Protocol.<Cite ids="clm-ap2-035" /> Inside a version, each mandate type versions itself through its `vct` suffix.<Cite ids="clm-ap2-034" /> The figure in section C shows the v0.1 to v0.2 model change.
 
-Governance moved on the day v0.2 shipped. Google donated AP2 to the FIDO Alliance on 2026-04-28 to keep it platform-agnostic and community-led, and Mastercard contributed its Verifiable Intent framework at the same time.<Cite ids="clm-ap2-012 clm-ap2-013 clm-ap2-014" /> FIDO formed one new group that day, the Agentic Authentication Technical Working Group, chaired by members from CVS Health, Google and OpenAI.<Cite ids="clm-ap2-015 clm-ap2-019" /> The payments group, chaired by Mastercard and Visa, already existed since 2025-04-29 and is where the contributions are to be developed.<Cite ids="clm-ap2-017 clm-ap2-018" /> FIDO gave no deliverable or date, and no public FIDO draft based on AP2 was found as of 2026-10-11.<Cite ids="clm-ap2-020 clm-ap2-021" /> So governance sits with FIDO, not with Google alone; Google keeps improving the samples and SDK.<Cite ids="clm-ap2-022 clm-ap2-023" /> The repository is Apache-2.0 and exported from Google's internal tree.<Cite ids="clm-ap2-005 clm-ap2-006" /> No commit has landed on `main` since 2026-04-29, while outside contributors opened 43 issues and 58 pull requests up to 2026-10-11, none merged.<Cite ids="clm-ap2-028 clm-ap2-029 clm-ap2-030" />
+Governance moved on the day v0.2 shipped. Google donated AP2 to the FIDO Alliance on 2026-04-28 to keep it platform-agnostic and community-led, and Mastercard contributed its Verifiable Intent framework at the same time.<Cite ids="clm-ap2-012 clm-ap2-013 clm-ap2-014" /> FIDO formed one new group that day, the Agentic Authentication Technical Working Group, chaired by members from CVS Health, Google and OpenAI.<Cite ids="clm-ap2-015 clm-ap2-019" /> The payments group, chaired by Mastercard and Visa, already existed since 2025-04-29 and is where the contributions are to be developed.<Cite ids="clm-ap2-017 clm-ap2-018" /> FIDO gave no deliverable or date at the time.<Cite ids="clm-ap2-020" /> In September 2026 the Payments Technical Working Group presented targets. The AP2 and Verifiable Intent specifications were to go to a public repository for review that month, with harmonized specifications by the end of 2026 and a first consolidated version by mid-2027.<Cite ids="clm-ap2-209" /> No public FIDO draft or repository based on AP2 was found as of 2026-10-21.<Cite ids="clm-ap2-021" /> So governance sits with FIDO, not with Google alone; Google keeps improving the samples and SDK.<Cite ids="clm-ap2-022 clm-ap2-023" /> The repository is Apache-2.0 and exported from Google's internal tree.<Cite ids="clm-ap2-005 clm-ap2-006" /> No commit has landed on `main` since 2026-04-29, while outside contributors opened 65 pull requests and 47 issues up to 2026-10-21, none merged.<Cite ids="clm-ap2-028 clm-ap2-029 clm-ap2-030" />
 
 ### Extensibility
 
@@ -711,7 +711,7 @@ AP2 needs a commerce protocol around it, and UCP is the one it was built for. UC
 
 The specification has visible loose ends. The Checkout JWT signature rule contradicts itself: the main text forbids deterministic signatures such as Ed25519, while the security considerations allow them with enough salt; issue 268 has tracked this since 2026-05-26.<Cite ids="clm-ap2-112 clm-ap2-113 clm-ap2-114" /> The Mandate Receipt prose uses a `result` field where the schemas use `status`.<Cite ids="clm-ap2-159" /> The security document writes `mandate.payment.reference` where the schema says `payment.reference`.<Cite ids="clm-ap2-161" /> The specification dates RFC 9901 to February 2025; the RFC Editor says November 2025.<Cite ids="clm-ap2-115" /> Mandate chaining depends on Delegate SD-JWT, an individual draft posted to the IETF on 2026-04-22.<Cite ids="clm-ap2-109" />
 
-Practical gaps matter more. There is no revocation, no agent registry and no agent identification beyond the key in `cnf`; who the agent is belongs to the commerce layer.<Cite ids="clm-ap2-117 clm-ap2-129 clm-ap2-124" /> Stateful constraints need a party to track history, and the specification does not say who.<Cite ids="clm-ap2-069" /> Dispute retention, retrieval and adjudication are out of scope.<Cite ids="clm-ap2-098" /> The Python SDK is not on PyPI, and the PyPI and npm packages named `ap2` belong to strangers.<Cite ids="clm-ap2-135 clm-ap2-136" /> Above all, production use of AP2 mandates is unverified anywhere, including inside UCP; one third party self-reports a deployment.<Cite ids="clm-ap2-139 clm-ap2-140" />
+Practical gaps matter more. There is no revocation, no agent registry and no agent identification beyond the key in `cnf`; who the agent is belongs to the commerce layer.<Cite ids="clm-ap2-117 clm-ap2-129 clm-ap2-124" /> Stateful constraints need a party to track history, and the specification does not say who; an attack study found that a budget accumulates only when the integrator stores earlier usage.<Cite ids="clm-ap2-069 clm-ap2-211" /> Dispute retention, retrieval and adjudication are out of scope.<Cite ids="clm-ap2-098" /> The Python SDK is not on PyPI, and the PyPI and npm packages named `ap2` belong to strangers.<Cite ids="clm-ap2-135 clm-ap2-136" /> Above all, production use of AP2 mandates is unverified anywhere, including inside UCP; one third party self-reports a deployment.<Cite ids="clm-ap2-139 clm-ap2-140" />
 
 ### What changed in 2025 and 2026
 
@@ -759,4 +759,4 @@ Mastercard's Verifiable Intent is AP2's closest sibling and now sits beside it a
 
 x402 meets AP2 through a2a-x402. Its v0.2 Embedded Flow nests the x402 payment requirements inside an AP2 `CartMandate` and the signed payment inside a `PaymentMandate`.<Cite ids="clm-ap2-148 clm-ap2-175" /> Those are v0.1 objects. AP2 v0.2 has no Cart mandate, and neither specification defines the v0.2 mapping, so the documented embedding is out of step with current AP2.<Cite ids="clm-ap2-149" /> The AP2 repository still ships x402 samples for both modes.<Cite ids="clm-ap2-105" />
 
-ERC-8226, a draft Ethereum standard created on 2026-04-12, is the on-chain analogue of an open mandate. A verified principal grants an agent scoped, time-bounded, capped authority, with on-chain revocation and freeze that AP2 lacks, and ERC-8004 serves as its identity layer.<Cite ids="clm-ap2-156 clm-ap2-157 clm-ap2-197" /> It does not mention AP2.<Cite ids="clm-ap2-158" /> Visa TAP, OpenAI ACP and Stripe MPP have no documented link to AP2; Visa co-chairs the FIDO payments group where AP2 now lives.<Cite ids="clm-ap2-155 clm-ap2-017" />
+ERC-8226, a draft Ethereum standard created on 2026-04-12, is the on-chain analogue of an open mandate. A verified principal grants an agent scoped, time-bounded, capped authority, with on-chain revocation and freeze that AP2 lacks. It is agnostic to the agent identity system and names ERC-8004 as one example of an agent registry.<Cite ids="clm-ap2-156 clm-ap2-157 clm-ap2-197" /> It does not mention AP2.<Cite ids="clm-ap2-158" /> The AP2 repository, unchanged on `main` since 2026-04-29, does not mention Visa TAP, OpenAI ACP or the Machine Payments Protocol from Stripe and Tempo; Visa co-chairs the FIDO payments group where AP2 now lives.<Cite ids="clm-ap2-155 clm-ap2-029 clm-ap2-017" />

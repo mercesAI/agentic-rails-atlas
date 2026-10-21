@@ -153,7 +153,7 @@
       "detail": "The agent signs closed Checkout and Payment Mandates as key-binding JWTs with the key named in cnf. The checkout_jwt hash links them, and sd_hash binds each to its open parent. It discloses only what the verifier needs.",
       "payload": {
         "format": "sd-jwt",
-        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate signed by the agent with agent_sk (the key in cnf).\n# sd_hash binds it to the user-signed open mandate it extends.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791760000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"c1d2e3f4\",\n    \"sd_hash\": \"hash-of-the-open-mandate-SD-JWT\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosure\": [\n    \"FW6M...Idw\",\n    {\n      \"vct\": \"mandate.payment.1\",\n      \"transaction_id\": \"Nv3Wq...X8\",\n      \"payee\": {\n        \"id\": \"merchant_1\",\n        \"name\": \"Example Outdoor Store\"\n      },\n      \"payment_amount\": {\n        \"amount\": 24900,\n        \"currency\": \"USD\"\n      },\n      \"payment_instrument\": {\n        \"id\": \"pi_7f3c\",\n        \"type\": \"card\",\n        \"description\": \"Card ending 4242\"\n      }\n    }\n  ]\n}",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Closed Payment Mandate signed by the agent with agent_sk (the key in cnf).\n# sd_hash binds it to the user-signed open mandate it extends.\n{\n  \"header\": {\n    \"alg\": \"ES256\",\n    \"typ\": \"kb+sd-jwt\"\n  },\n  \"payload\": {\n    \"delegate_payload\": [\n      {\n        \"...\": \"G2Du...TgM\"\n      }\n    ],\n    \"iat\": 1791760000,\n    \"aud\": \"credential-provider\",\n    \"nonce\": \"c1d2e3f4\",\n    \"sd_hash\": \"hash-of-the-open-mandate-SD-JWT\",\n    \"_sd_alg\": \"sha-256\"\n  },\n  \"disclosures\": [\n    [\n      \"FW6M...Idw\",\n      {\n        \"vct\": \"mandate.payment.1\",\n        \"transaction_id\": \"Nv3Wq...X8\",\n        \"payee\": {\n          \"id\": \"merchant_1\",\n          \"name\": \"Example Outdoor Store\"\n        },\n        \"payment_amount\": {\n          \"amount\": 24900,\n          \"currency\": \"USD\"\n        },\n        \"payment_instrument\": {\n          \"id\": \"pi_7f3c\",\n          \"type\": \"card\",\n          \"description\": \"Card ending 4242\"\n        }\n      }\n    ]\n  ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": false,
@@ -234,7 +234,7 @@
       "detail": "The processor verifies the Payment Mandates in the token and both bindings, then signs the receipt. It also goes to the Credential Provider and the network.",
       "payload": {
         "format": "jwt",
-        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Payment Receipt JWT payload, signed by the Merchant Payment Processor (payment_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://processor.example\",\n  \"iat\": 1791720030,\n  \"reference\": \"k9Pq...hash-of-closed-payment-mandate\",\n  \"payment_id\": \"pay_2b71\",\n  \"psp_confirmation_id\": \"psp_88a1\",\n  \"network_confirmation_id\": \"net_51c0\"\n}",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Payment Receipt JWT payload, signed by the Merchant Payment Processor (payment_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://processor.example\",\n  \"iat\": 1791760030,\n  \"reference\": \"k9Pq...hash-of-closed-payment-mandate\",\n  \"payment_id\": \"pay_2b71\",\n  \"psp_confirmation_id\": \"psp_88a1\",\n  \"network_confirmation_id\": \"net_51c0\"\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -251,7 +251,7 @@
       "detail": "Signed by the merchant, referencing the hash of the closed Checkout Mandate.",
       "payload": {
         "format": "jwt",
-        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Checkout Receipt JWT payload, signed by the Merchant (checkout_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://outdoor.example\",\n  \"iat\": 1791720031,\n  \"reference\": \"r4Tz...hash-of-closed-checkout-mandate\",\n  \"order_id\": \"ord_6610\"\n}",
+        "content": "# Illustrative example, spec version v0.2. Decoded view; hashes and signatures shortened.\n# Checkout Receipt JWT payload, signed by the Merchant (checkout_receipt.json).\n{\n  \"status\": \"Success\",\n  \"iss\": \"https://outdoor.example\",\n  \"iat\": 1791760031,\n  \"reference\": \"r4Tz...hash-of-closed-checkout-mandate\",\n  \"order_id\": \"ord_6610\"\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,

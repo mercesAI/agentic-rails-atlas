@@ -24,9 +24,10 @@
     {
       "protocol": "ap2",
       "dimension": "stewards",
-      "value": "FIDO Alliance working groups; Google for samples and SDK",
+      "value": "FIDO Alliance Payments Technical Working Group; Google for samples and SDK",
       "sources": [
         "src-ap2-fido-pr",
+        "src-ap2-fido-wg-page",
         "src-ap2-faq"
       ],
       "confidence": "verified",
@@ -41,7 +42,7 @@
         "src-ap2-fido-pwg-2025"
       ],
       "confidence": "verified",
-      "detail": "Payments Technical Working Group chaired by Mastercard and Visa; no public deliverable yet."
+      "detail": "Payments Technical Working Group chaired by Mastercard and Visa; no public deliverable found as of 2026-10-21."
     },
     {
       "protocol": "ap2",
@@ -82,8 +83,8 @@
         "src-ap2-faq",
         "src-ap2-pub-2608-23858"
       ],
-      "confidence": "unverified",
-      "detail": "No verified production use."
+      "confidence": "verified",
+      "detail": "No verified production use (searches of Google, UCP and partner pages, 2026-10-21)."
     },
     {
       "protocol": "ap2",
@@ -103,10 +104,11 @@
       "value": "None of its own (rail-agnostic)",
       "sources": [
         "src-ap2-spec-v02",
-        "src-ap2-schema-types"
+        "src-ap2-schema-types",
+        "src-ap2-a2a-x402-v02"
       ],
       "confidence": "verified",
-      "detail": "Cards, bank transfers, PISPs and x402 via a2a-x402."
+      "detail": "Cards, PISP bank payments and push payments; x402 through a2a-x402, whose embedded flow targets AP2 v0.1 objects."
     },
     {
       "protocol": "ap2",
@@ -196,13 +198,15 @@
     {
       "protocol": "ap2",
       "dimension": "revocation",
-      "value": "None; expiry only",
+      "value": "None; exp and exhausted limits only",
       "sources": [
         "src-ap2-implementation",
-        "src-ap2-spec-v02"
+        "src-ap2-spec-v02",
+        "src-ap2-agent-authorization",
+        "src-ap2-payment-mandate-doc"
       ],
       "confidence": "verified",
-      "detail": "The spec recommends the shortest exp."
+      "detail": "No user-side revoke; an open mandate stops at its optional exp or when receipts, budget or recurrence limits end it. The spec recommends the shortest exp."
     },
     {
       "protocol": "ap2",
@@ -310,7 +314,7 @@
         "src-ap2-repo"
       ],
       "confidence": "verified",
-      "detail": "No documented link with TAP, ACP, MPP or ERC-8004."
+      "detail": "No documented link with TAP, ACP, the Machine Payments Protocol or ERC-8004 in the AP2 repository at e1ea56d (checked 2026-10-21)."
     },
     {
       "protocol": "ap2",
@@ -333,20 +337,25 @@
         "src-ap2-gh-repo"
       ],
       "confidence": "unverified",
-      "detail": "One self-reported deployment (issue 345); 3,216 GitHub stars on 2026-10-11."
+      "detail": "One self-reported deployment (issue 345); 3,240 GitHub stars on 2026-10-21."
     },
     {
       "protocol": "ap2",
       "dimension": "published-security-research",
-      "value": "Yes: several 2026 papers; no CVE",
+      "value": "Yes: eight 2026 papers; no CVE or GitHub advisory found (2026-10-21)",
       "sources": [
         "src-ap2-pub-2608-23858",
         "src-ap2-pub-2601-22569",
         "src-ap2-pub-2602-06345",
+        "src-ap2-pub-2604-15367",
+        "src-ap2-pub-2607-21824",
+        "src-ap2-pub-2609-00060",
+        "src-ap2-pub-2609-11757",
+        "src-ap2-pub-2610-21063",
         "src-ap2-gh-advisories"
       ],
       "confidence": "verified",
-      "detail": "48 threats (2608.23858), prompt injection, replay, formal analysis."
+      "detail": "48 threats (2608.23858), prompt injection, replay, Tamarin models (2609.00060), 14 code-proven findings (2607.21824) and approval-path attacks (2610.21063); searched NVD, GitHub repository advisories and the GitHub Advisory Database."
     },
     {
       "protocol": "ap2",
@@ -366,10 +375,11 @@
       "value": "Will FIDO publish it and will anyone deploy it?",
       "sources": [
         "src-ap2-fido-pr",
+        "src-ap2-fido-w3c-deck",
         "src-ap2-faq"
       ],
       "confidence": "unverified",
-      "detail": "No FIDO deliverable and no verified production use as of 2026-10-11."
+      "detail": "No public FIDO deliverable and no verified production use as of 2026-10-21; FIDO targets a first consolidated specification for mid-2027."
     }
   ],
   "radar": [
@@ -377,10 +387,11 @@
       "protocol": "ap2",
       "axis": "openness",
       "value": 4,
-      "justification": "Apache-2.0 specification and schemas in public; specification work now in FIDO, whose drafts are member-only.",
+      "justification": "Apache-2.0 specification and schemas in public; specification work now in a FIDO working group open to members, with no public draft found as of 2026-10-21.",
       "sources": [
         "src-ap2-repo",
-        "src-ap2-fido-pr"
+        "src-ap2-fido-pr",
+        "src-ap2-fido-spec-download"
       ]
     },
     {
@@ -397,10 +408,11 @@
       "protocol": "ap2",
       "axis": "maturity",
       "value": 2,
-      "justification": "v0.2 specification with schemas and samples; spec contradictions open and no public FIDO draft.",
+      "justification": "v0.2 specification with schemas and samples; spec contradictions open and no public FIDO draft as of 2026-10-21; FIDO targets a consolidated first version for mid-2027.",
       "sources": [
         "src-ap2-gh-releases",
-        "src-ap2-issue-268"
+        "src-ap2-issue-268",
+        "src-ap2-fido-w3c-deck"
       ]
     },
     {
@@ -487,7 +499,7 @@
       "protocol": "ap2",
       "control": "time-windows-expiry",
       "support": "native",
-      "note": "iat and exp on every mandate, payment.execution_date windows and payment.agent_recurrence frequency.",
+      "note": "Optional iat and exp claims on every mandate type (exp recommended for open mandates), payment.execution_date windows and payment.agent_recurrence frequency.",
       "sources": [
         "src-ap2-schema-open-payment",
         "src-ap2-schema-payment"

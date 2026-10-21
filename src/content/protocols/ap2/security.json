@@ -1,6 +1,6 @@
 {
   "protocol": "ap2",
-  "summary": "AP2 assumes every LLM and agent can be turned against the user, so it puts the user's approval on a non-agentic Trusted Surface and binds every mandate to one checkout with hashes. Within that design, tampering with the checkout or payment and reusing a stolen mandate are well covered. The open problems sit before and after the signature: prompt injection that steers what the agent picks, replay at runtime because verifiers have no consume-once rule, no revocation of open mandates, no step-up in v0.2, and no retention rule for dispute evidence. No CVE or advisory exists for the repository; the published findings come from 2026 research papers and unreviewed GitHub issues.",
+  "summary": "AP2 assumes every LLM and agent can be turned against the user, so it puts the user's approval on a non-agentic Trusted Surface and binds each closed mandate to one checkout with hashes, while open mandates are bound to the agent's key. Within that design, tampering with the checkout or payment and reusing a stolen mandate are well covered. The open problems sit before and after the signature: prompt injection that steers what the agent picks, replay at runtime because verifiers have no consume-once rule, no revocation of open mandates, no step-up in v0.2, and no retention rule for dispute evidence. No CVE or advisory was found for the repository (GitHub repository advisories, GitHub Advisory Database and NVD, searched 2026-10-21); the published findings come from 2026 research papers and unreviewed GitHub issues.",
   "threats": [
     {
       "id": "ap2-t1",
@@ -97,10 +97,11 @@
       ],
       "impact": "Purchases beyond what the user approved.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "The deterministic part of the agent must not sign overlapping mandates without a rejection receipt; Credential Providers, networks or processors may reject overlaps or invalidate tokens.",
+      "implementerNotes": "The specification puts the duty on the Shopping Agent: it must not present another mandate from the same open mandate until it holds a rejection receipt for the previous one (the security considerations put this on the agent's non-deterministic portion). The implementation considerations suggest deterministic code that checks each closed mandate before it is signed. Credential Providers, networks or Merchant Payment Processors may reject overlaps or invalidate tokens.",
       "sources": [
         "src-ap2-security",
-        "src-ap2-spec-v02"
+        "src-ap2-spec-v02",
+        "src-ap2-implementation"
       ]
     },
     {
@@ -300,7 +301,7 @@
     {
       "title": "A Formal Analysis of Agent Payment Protocols",
       "date": "2026-08-30",
-      "finding": "Tamarin models of x402, MPP, ACP and AP2; 40 new formal-consistency findings across 86 cases.",
+      "finding": "Tamarin models of x402, the Machine Payments Protocol (MPP), ACP and AP2; 40 new formal-consistency findings across 86 cases.",
       "publicationId": "pub-jiang-2026-formal",
       "sources": [
         "src-ap2-pub-2609-00060"
@@ -313,6 +314,24 @@
       "publicationId": "pub-mao-2026-sok",
       "sources": [
         "src-ap2-pub-2604-15367"
+      ]
+    },
+    {
+      "title": "Protocol-Level Attacks on Agentic Commerce Platforms: A Cross-Platform Taxonomy, AIP-Bench, and Unified Defense",
+      "date": "2026-07-23",
+      "finding": "14 vulnerabilities in AP2 v0.2.0, established by code proofs against the reference implementation, with one run live end to end; the other two platforms studied are CoralOS and Fetch.ai uAgents.",
+      "publicationId": "pub-louck-2026-protocollevel",
+      "sources": [
+        "src-ap2-pub-2607-21824"
+      ]
+    },
+    {
+      "title": "Approve What, Exactly? Effect Binding and Trusted Rendering for Agent Step-Up Authorization",
+      "date": "2026-10-15",
+      "finding": "Five of twelve approval-path attacks apply to AP2 v0.2.0 at e1ea56d and were run against it: the constraint layer rejected every executed binding attack; the sample approval card showed a partial rendering weakness, and payment.budget accumulates only if the integrator stores earlier usage.",
+      "publicationId": "pub-kodathala-2026-approve",
+      "sources": [
+        "src-ap2-pub-2610-21063"
       ]
     }
   ],

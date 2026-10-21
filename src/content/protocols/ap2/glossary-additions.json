@@ -11,7 +11,8 @@
       "ap2"
     ],
     "sources": [
-      "src-ap2-spec-v02"
+      "src-ap2-spec-v02",
+      "src-ap2-security"
     ]
   },
   {
@@ -20,13 +21,14 @@
     "aliases": [
       "Checkout JWT"
     ],
-    "plain": "The merchant-signed JSON Web Token of the checkout that a Checkout Mandate carries. Its hash binds every mandate and receipt to one purchase.",
-    "ste": "The checkout that the merchant signs. Its hash links the mandates.",
+    "plain": "The merchant-signed JSON Web Token of the checkout that a Checkout Mandate carries. Its hash (checkout_hash in the closed Checkout Mandate, transaction_id in the closed Payment Mandate) binds the closed mandates to one purchase; open mandates carry no checkout hash.",
+    "ste": "The checkout that the merchant signs. Its hash links the closed mandates to the checkout.",
     "protocols": [
       "ap2"
     ],
     "sources": [
-      "src-ap2-schema-checkout"
+      "src-ap2-schema-checkout",
+      "src-ap2-schema-payment"
     ]
   },
   {

@@ -30,6 +30,7 @@
       "pub-goenka-2026-tesspay",
       "pub-see-2026-compliance",
       "pub-louck-2026-whisper",
+      "pub-kodathala-2026-approve",
       "pub-mohammadkhani-2026-asp",
       "pub-gong-2026-ais",
       "pub-li-2026-402pilot",
@@ -630,13 +631,11 @@
         "agent-protocols"
       ],
       "protocols": [
-        "openai-acp",
-        "ap2",
-        "ucp"
+        "ap2"
       ],
-      "relation": "related",
+      "relation": "direct",
       "summary": "Argues that the most consequential risks in agentic commerce platforms sit in the protocol between agents and commerce services rather than in the model, documenting 33 structural vulnerabilities across three platforms that succeed deterministically regardless of model, three of which chain into a payment hijack. Contributes a taxonomy, AIP-Bench as a deterministic benchmark, and PCAT, a platform-agnostic defense that removes four of five structural attack classes.",
-      "whyItMatters": "Cross-platform evidence that protocol design, not model alignment, decides the security of openai-acp, ap2 and ucp style checkout flows; the three platforms are not named in the abstract, so the mapping is unconfirmed.",
+      "whyItMatters": "The full text names its three platforms: CoralOS, Fetch.ai uAgents and Google AP2 v0.2.0, with 14 AP2 findings proven by code against the reference implementation. It names neither OpenAI's ACP nor UCP (its one ACP is the Agent Communication Protocol), and its background still describes AP2 with v0.1 Intent, Cart and Payment Mandates.",
       "verifiedAt": "2026-10-10",
       "verifiedVia": "arxiv",
       "bibtex": "@misc{louck2026protocollevel,\n  title = {{Protocol-Level Attacks on Agentic Commerce Platforms: A Cross-Platform Taxonomy, AIP-Bench, and Unified Defense}},\n  author = {Yedidel Louck},\n  year = {2026},\n  eprint = {2607.21824},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2607.21824}\n}"
@@ -959,7 +958,7 @@
       ],
       "relation": "related",
       "summary": "Introduces Invocation-Bound Capability Tokens, an append-only token chain that fuses identity, attenuated authorization and provenance binding, in a compact JWT mode and a chained Biscuit mode with Datalog policies for multi-hop delegation across MCP, A2A and HTTP. Python and Rust implementations add sub-millisecond overhead, and all 600 adversarial attempts were rejected.",
-      "whyItMatters": "Delegation tokens for the A2A and MCP layers that ap2 and the a2a-x402 extension sit on, and a descendant of the Macaroons caveat model.",
+      "whyItMatters": "Delegation tokens for the A2A and MCP layers that the AP2 samples and the a2a-x402 extension use, and a descendant of the Macaroons caveat model.",
       "verifiedAt": "2026-10-10",
       "verifiedVia": "arxiv",
       "bibtex": "@misc{prakash2026aip,\n  title = {{AIP: Agent Identity Protocol for Verifiable Delegation Across MCP and A2A}},\n  author = {Sunil Prakash},\n  year = {2026},\n  eprint = {2603.24775},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2603.24775}\n}"
@@ -1298,6 +1297,33 @@
       "bibtex": "@misc{louck2026whisper,\n  title = {{Signing the Transaction but Not the Decision: Whisper Attacks and a Binding Defense for AP2}},\n  author = {Yedidel Louck and Amit Dvir and Ariel Stulman},\n  year = {2026},\n  eprint = {2609.11757},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.11757}\n}"
     },
     {
+      "id": "pub-kodathala-2026-approve",
+      "title": "Approve What, Exactly? Effect Binding and Trusted Rendering for Agent Step-Up Authorization",
+      "authors": [
+        "Sai Varun Kodathala",
+        "Prashanth Pollishetty",
+        "Jaylen Cargill"
+      ],
+      "year": 2026,
+      "peerReviewed": false,
+      "arxiv": "2610.21063",
+      "url": "https://arxiv.org/abs/2610.21063",
+      "themes": [
+        "security",
+        "consent",
+        "benchmarks"
+      ],
+      "protocols": [
+        "ap2"
+      ],
+      "relation": "direct",
+      "summary": "Defines twelve attacks on the approval path of agent payments, such as decoy recipients, amount cancellation, label spoofing and threshold splitting, and runs them against AP2, Microsoft's action-bound approval design and MCP elicitation. It audits ten agent runtimes and builds ASU, a gateway that renders the approval card from a canonical effect descriptor, has a passkey sign its digest and executes only the stored call, with Tamarin proofs of its binding properties.",
+      "whyItMatters": "Five of the twelve attacks apply to AP2 v0.2.0 at commit e1ea56d (the paper marks the rest not applicable): the constraint layer rejected every executed binding attack, the sample approval card showed a partial rendering weakness, and payment.budget accumulates only if the integrator stores earlier usage.",
+      "verifiedAt": "2026-10-21",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{kodathala2026approve,\n  title = {{Approve What, Exactly? Effect Binding and Trusted Rendering for Agent Step-Up Authorization}},\n  author = {Sai Varun Kodathala and Prashanth Pollishetty and Jaylen Cargill},\n  year = {2026},\n  eprint = {2610.21063},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2610.21063}\n}"
+    },
+    {
       "id": "pub-mohammadkhani-2026-asp",
       "title": "Agentic Settlement Protocol: An Application Profile for Refundable, Delayed-Fulfilment Agent Commerce on Stablecoin Rails",
       "authors": [
@@ -1616,7 +1642,7 @@
       ],
       "relation": "related",
       "summary": "Extracts a verified finite-state machine (37 states and 76 transitions from 929 formalized statements) from the A2A specification with LLM assistance and reasons over it to find 11 protocol-level vulnerabilities exploitable by specification-compliant adversaries, including cross-client context injection, credential harvesting through identity loss in multi-hop delegation chains, and exfiltration through unattested capability claims.",
-      "whyItMatters": "ap2 and the a2a-x402 extension are layered on A2A, so specification-level flaws in A2A delegation and identity flow directly into their trust assumptions.",
+      "whyItMatters": "The a2a-x402 extension and the AP2 samples run on A2A, so specification-level flaws in A2A delegation and identity flow into their trust assumptions.",
       "verifiedAt": "2026-10-10",
       "verifiedVia": "arxiv",
       "bibtex": "@misc{lotfi2026a2abreak,\n  title = {{A2ABreak: Systematic Security Analysis of the A2A Protocol}},\n  author = {Alireza Lotfi and Mirza Masfiqur Rahman and Imtiaz Karim and Elisa Bertino},\n  year = {2026},\n  eprint = {2609.10871},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2609.10871}\n}"

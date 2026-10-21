@@ -75,7 +75,7 @@
       "to": "agent",
       "label": "Merchant-signed checkout (checkout_jwt); mandate required",
       "protocol": "ap2",
-      "detail": "The merchant signs the checkout as a JWT and requires a mandate. AP2 requires a non-deterministic signature such as ECDSA for this JWT so that checkout_hash cannot be guessed.",
+      "detail": "The merchant signs the checkout as a JWT and requires a mandate. AP2's specification text requires a non-deterministic signature such as ECDSA for this JWT so that checkout_hash cannot be guessed; its security considerations instead allow a deterministic one if the checkout carries a high-entropy salt (issue 268).",
       "crossesTrustBoundary": true,
       "specRef": { "url": "https://github.com/google-agentic-commerce/AP2/blob/e1ea56db72a6385bce3e5c1112b3a56ce60acb43/docs/ap2/checkout_mandate.md", "section": "Mandate Schema" }
     },
@@ -220,6 +220,7 @@
     "src-ap2-schema-open-checkout",
     "src-ap2-schema-open-payment",
     "src-ap2-schema-receipts",
-    "src-ap2-security"
+    "src-ap2-security",
+    "src-ap2-issue-268"
   ]
 }

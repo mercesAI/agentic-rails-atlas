@@ -28,8 +28,8 @@
       "Agent2Agent protocol",
       "A2A protocol"
     ],
-    "plain": "The Agent2Agent protocol, an open standard hosted at the Linux Foundation that lets independent AI agents discover each other and exchange messages and tasks. IBM's Agent Communication Protocol merged into it in August 2025. AP2, UCP and x402 all define A2A bindings, and A2A is about agent messaging, while AP2 is about payment mandates.",
-    "ste": "A2A is an open protocol for messages and tasks between AI agents. AP2, UCP and x402 can send their data over A2A.",
+    "plain": "The Agent2Agent protocol, an open standard hosted at the Linux Foundation that lets independent AI agents discover each other and exchange messages and tasks. IBM's Agent Communication Protocol merged into it in August 2025. UCP and x402 define A2A bindings; AP2 v0.1 published an A2A extension, and the AP2 v0.2 samples still run over A2A. A2A is about agent messaging, while AP2 is about payment mandates.",
+    "ste": "A2A is an open protocol for messages and tasks between AI agents. UCP, x402 and the AP2 samples can send their data over A2A.",
     "protocols": [
       "x402",
       "ucp",
@@ -39,7 +39,9 @@
       "src-gloss-a2a-spec",
       "src-ibm-acp-a2a",
       "src-ucp-a2a",
-      "src-x402-transport-a2a-v2"
+      "src-x402-transport-a2a-v2",
+      "src-ap2-spec-v01",
+      "src-ap2-repo"
     ]
   },
   {
@@ -714,13 +716,14 @@
     "aliases": [
       "Checkout JWT"
     ],
-    "plain": "The merchant-signed JSON Web Token of the checkout that a Checkout Mandate carries. Its hash binds every mandate and receipt to one purchase.",
-    "ste": "The checkout that the merchant signs. Its hash links the mandates.",
+    "plain": "The merchant-signed JSON Web Token of the checkout that a Checkout Mandate carries. Its hash (checkout_hash in the closed Checkout Mandate, transaction_id in the closed Payment Mandate) binds the closed mandates to one purchase; open mandates carry no checkout hash.",
+    "ste": "The checkout that the merchant signs. Its hash links the closed mandates to the checkout.",
     "protocols": [
       "ap2"
     ],
     "sources": [
-      "src-ap2-schema-checkout"
+      "src-ap2-schema-checkout",
+      "src-ap2-schema-payment"
     ]
   },
   {
@@ -3049,7 +3052,8 @@
       "ap2"
     ],
     "sources": [
-      "src-ap2-spec-v02"
+      "src-ap2-spec-v02",
+      "src-ap2-security"
     ]
   },
   {
