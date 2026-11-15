@@ -2,6 +2,51 @@
 
 Build completed 2026-10-13. Sources were read between 2026-10-10 and 2026-10-13. This report follows `private/ATLAS_PROMPT.md` Section 15.1. The v1.1 follow-up work (`private/ATLAS_FOLLOWUP.md`) was folded into the same build; see `REPORT_v1.1.md`.
 
+## Refresh 2026-11-14
+
+Sources were re-read on 2026-11-14 (some reads ran past midnight UTC). Thirteen discovery areas each had a scout and an independent verifier, plus four top-up verifiers, and a consolidator ranked 126 items (40 big, 84 medium, 2 minor). Nine writers applied every OpenAI ACP item and, elsewhere, the big items and the medium items that left site text stale; 26 purely additive medium items were deferred. Ten independent critics then checked every writer's changes (199 problems, 188 fixed in place, the rest settled by the lead), and ten more agents drafted and checked the errata rows and reports. Reports: `verification/<slug>-2026-11-14.md` for each protocol and `verification/refresh-2026-11-14.md` for the method and the cross-site pages.
+
+### What changed
+
+- **OpenAI.** ChatGPT Wallet (2026-11-13), built with American Express, Mastercard and Visa, is rolling out first in dots for US ChatGPT Pro subscribers. It pays with a card network token on the merchant's existing checkout, and OpenAI does not present it as ACP. Between 2026-11-12 and 2026-11-13 OpenAI rewrote its commerce docs into the Commerce in ChatGPT partner playbook, which no longer names ACP, while the ACP specification is unchanged since 2026-07-18 and OpenAI's merchant page still says shopping is built on ACP. ChatGPT's cloud browser signs certain requests with Web Bot Auth. New orbit page: ChatGPT Wallet.
+- **Identity and standards.** Web Bot Auth draft -01 (2026-10-29) fetches keys from each Signature-Agent URL as a JWK Set. Sierra announced Personal Agent Protocol 1.0, which it develops with Meta (2026-11-13; new orbit page). The IETF OAuth working group adopted Delegate SD-JWT (2026-10-30), MCP 2026-07-28 is stateless, and World archived AgentKit (2026-10-20).
+- **x402 and ERC-8004.** A third-party CVE (CVE-2026-113603, 2026-10-20) covers a sign-in-with-x bypass, the deprecated V1 middleware has an open route bypass, and x402.org removed its static counter. 8004scan counted 2,062,896 agents on 2026-11-14 (reported) after batch registrations on Base and Arc.
+- **UCP.** Direct checkout began rolling out to Canadian shoppers (2026-11-04), and Ask was backported into the 2026-08-25 release branch (2026-11-02).
+- **Stripe MPP and Visa TAP.** mppx 0.16.0 replaced request attestation with per-route identity, and 0.16.0 to 0.19.0 carry breaking changes; the core draft's repository text adds a second 403 case. Visa's VIC docs are public again and outline onboarding with the Visa Agent Registry Service, and the 2026-10-24 rules edition renumbers the agent section to 4.1.23.
+- **Mastercard Agent Pay and AP2.** Agent Pay's status moves from pilot to mixed: Shopify reported Shop Pay token use in agent purchases (2026-10-28), and Verifiable Intent was used in one live flight purchase (2026-11-12). The Delegate SD-JWT draft that AP2 builds on is now a working group draft.
+- **Policy.** The Council adopted its first-reading positions on PSD3 and the PSR (2026-10-29), and the OCC published its GENIUS Act final rule (2026-10-23).
+
+### Corrections, conflicts and gaps
+
+- 47 errata rows, F76 to F122 in `ATLAS_ERRATA.md`. Statements that were dated and later overtaken are described in the reports instead.
+- 23 new source conflicts in `research/conflicts.md` and 51 refused hosts in `research/blocked.md`.
+- Still unverified: the help.openai.com articles on Wallet and the cloud browser (403), the DRCF statement's own text, and Stripe's US SPT price (the pricing page redirected to the Canadian one). To re-check: IETF 127 outcomes (after 2026-11-20), UCP's 2026-12-08 milestone and the Parliament plenary on PSD3 and the PSR (indicative 2026-12-14).
+
+### Content now
+
+2,060 protocol claims (1,967 verified, 84 reported, 9 unverified: 95 percent verified), up from 1,954; 58 scenario claims; 1,457 source records; 174 publications; 229 glossary terms; 47 orbit pages (2 new); 84 global timeline events.
+
+### Gate results (2026-11-15)
+
+| Gate | Result |
+|---|---|
+| `pnpm merge` | 0 errors, 14 warnings (glossary definitions that differ between files) |
+| `pnpm diagrams` | 147 inputs, 0 stale |
+| `pnpm check` | 0 errors (412 content files) |
+| `pnpm test` | 773 of 773 |
+| `pnpm lint:style` | 0 errors, 0 warnings |
+| `pnpm lint:ste` | pass for all 8 |
+| `pnpm verify:sources` | 0 errors (1,457 sources, 126 orphans) |
+| `pnpm verify:coverage` | 8 of 8 pass, no waivers |
+| `pnpm verify:citations` | 173 of 174 matched; 1 publisher page (McKinsey) returns 403 |
+| `pnpm build` | 65 pages |
+| `pnpm e2e` (system Chrome) | 310 passed, 14 skipped |
+| `pnpm verify:links` | 1,555 URLs: 1,485 ok, 70 warnings (bot challenges, bot-blocking hosts, rate limits, timeouts), 0 failures; one earlier run failed on a transient DNS miss for research.ibm.com |
+
+### Also in this round
+
+Visitor statistics: Cloudflare Web Analytics counts people and the GraphQL Analytics API counts bots and AI crawlers, read by `pnpm stats` (`docs/ANALYTICS.md`); it goes live after the owner finishes the Cloudflare steps. The link checker now treats Vercel and AWS WAF challenges as warnings and accepts documented non-404 answers (`scripts/verify/bot-blocking-hosts.json`). The v1.2 tag waits for the deploy.
+
 ## What was built
 
 - **Home** (`/`): the bubble universe with Constellation, Layers, Rails map and Timeline modes, an orbit toggle, a persona filter, relation edges, an accessible card list, "Changed in the last 60 days" and a progress ring.
@@ -86,6 +131,7 @@ See `research/blocked.md` and the Methodology page. The most frequent blocks wer
 ## Suggested next steps
 
 - Run `REFRESH_PROMPT.md` monthly; the fee figures, SDK versions and live counters move fastest.
+- Next refresh (after 2026-11-14): the 26 deferred medium items listed in `verification/refresh-2026-11-14.md`, the retailer agent terms and WebMCP pages, an Agent0 subgraph endpoint for `pnpm data` (its snapshot is still from 2026-10-11), and one canonical id for each group of records that share a URL.
 - Write the three missing orbit pages and hand-written controls-layer annotations.
 - Local labs (ERC-8004 on Anvil first), the unified agent record and the decision helper from `private/ATLAS_PROMPT.md` Section 16.
 - Optimize the universe bundle (D3 submodules) and move playground CSS into lazy chunks.

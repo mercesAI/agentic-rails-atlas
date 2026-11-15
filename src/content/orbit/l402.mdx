@@ -16,6 +16,9 @@ relations:
   - to: stripe-mpp
     type: competes-with
     note: MPP also uses the HTTP 402 challenge pattern, and its specs repository defines Lightning charge and session methods (Lightspark authors) that do not use L402 tokens.
+  - to: stripe-mpp
+    type: compatible-with
+    note: Lightning Labs' Aperture proxy serves both. By its release notes it has offered MPP's Payment scheme beside L402 since v0.5.0 (2026-03-25), with one 402 that can carry both challenges, and v0.6.0 (2026-11-05) brought that implementation up to the spec. The MPP repositories do not list Aperture.
 sources:
   - src-x402-l402-repo
   - src-orbit-l402-repo-history
@@ -25,10 +28,12 @@ sources:
   - src-x402-blip-0026
   - src-orbit-l402-docs
   - src-orbit-l402-aperture
+  - src-stripe-mpp-aperture-v050
+  - src-stripe-mpp-aperture-v060
   - src-x402-scheme-exact-lnbtc
   - src-x402-sdk-features
   - src-orbit-l402-mpp-lightning
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
 ## What it is
@@ -55,11 +60,11 @@ L402 rides on the Lightning Network, Bitcoin's payment-channel network, so payme
 
 ## Status
 
-L402 is live as a deployed protocol through Lightning Labs' Aperture reverse proxy, whose `v0.5.0` release came out on 2026-03-25. <Cite ids="src-orbit-l402-aperture" /> The `lightninglabs/L402` repository was last pushed on 2026-06-09. <Cite ids="src-orbit-l402-repo-history" /> The bLIP-0026 header reads "Active" with a created date of 2023-06-06, but the pull request that carries it is not merged. <Cite ids="src-orbit-l402-blip-head src-orbit-l402-blip-pr" />
+L402 is live as a deployed protocol through Lightning Labs' Aperture reverse proxy, whose latest release as of 2026-11-14, `v0.6.0`, came out on 2026-11-05, the first since `v0.5.0` of 2026-03-25. <Cite ids="src-orbit-l402-aperture src-stripe-mpp-aperture-v060" /> It adds metered pricing, in which one Lightning payment buys a bundle that later requests draw down through a price server, and invoices minted from a Wavelength wallet, so a seller can run Aperture without its own lnd node. <Cite ids="src-stripe-mpp-aperture-v060" /> The `lightninglabs/L402` repository was last pushed on 2026-06-09. <Cite ids="src-orbit-l402-repo-history" /> The bLIP-0026 header reads "Active" with a created date of 2023-06-06, but the pull request that carries it is not merged. <Cite ids="src-orbit-l402-blip-head src-orbit-l402-blip-pr" />
 
 ## How it relates to the eight
 
-Two of the eight, x402 and MPP, now specify Lightning as a payment method without L402's token layer. The [x402](/p/x402/) `exact` scheme has an `lnbtc` binding that reuses the idea of a preimage as proof of payment but carries it in x402's own payment header with no macaroon. <Cite ids="src-x402-scheme-exact-lnbtc" /> No x402 SDK implemented that binding as of 2026-10-19. <Cite ids="src-x402-sdk-features" /> The [MPP](/p/stripe-mpp/) specs repository includes Lightning charge and session method drafts authored by Lightspark, which do not mention L402 or macaroons. <Cite ids="src-orbit-l402-mpp-lightning" /> Neither spec claims descent from L402, so the two are best read as parallel HTTP 402 designs rather than one descending from the other.
+Two of the eight, x402 and MPP, now specify Lightning as a payment method without L402's token layer. The [x402](/p/x402/) `exact` scheme has an `lnbtc` binding that reuses the idea of a preimage as proof of payment but carries it in x402's own payment header with no macaroon. <Cite ids="src-x402-scheme-exact-lnbtc" /> No x402 SDK implemented that binding as of 2026-10-19. <Cite ids="src-x402-sdk-features" /> The [MPP](/p/stripe-mpp/) specs repository includes Lightning charge and session method drafts authored by Lightspark, which do not mention L402 or macaroons. <Cite ids="src-orbit-l402-mpp-lightning" /> Neither spec claims descent from L402, so the two are best read as parallel HTTP 402 designs rather than one descending from the other. In practice the designs meet in Aperture. Lightning Labs says it has implemented MPP's Payment scheme beside L402 since `v0.5.0`, whose release notes already describe one 402 that advertises both challenges. It says `v0.6.0` brought the implementation up to the spec: a service configured for both answers an unpaid request with one 402 that carries an L402 challenge and a Payment challenge and accepts either. <Cite ids="src-stripe-mpp-aperture-v050 src-stripe-mpp-aperture-v060" /> The MPP repositories do not list Aperture, so its MPP support is Lightning Labs' claim. <Cite ids="src-stripe-mpp-aperture-v060" />
 
 ## Status history
 
@@ -71,4 +76,5 @@ Two of the eight, x402 and MPP, now specify Lightning as a payment method withou
 - 2026-03-11: Lightning Labs repository aligned with the bLIP rewrite and adds an agent-oriented spec (`agent-spec.md`), through pull request #19, whose commits are dated 2026-03-10. <Cite ids="src-x402-l402-pr-19 src-orbit-l402-repo-history" />
 - 2026-03-11: Lightning Labs says development will continue in its standalone L402 repository. <Cite ids="src-orbit-l402-blip-pr" />
 - 2026-03-20: repository returns to the `macaroon=` header format; agent spec kept. <Cite ids="src-orbit-l402-repo-history" />
-- 2026-03-25: Aperture `v0.5.0` release. <Cite ids="src-orbit-l402-aperture" />
+- 2026-03-25: Aperture `v0.5.0` release, which also serves MPP's Payment scheme beside L402, by Lightning Labs' account. <Cite ids="src-orbit-l402-aperture src-stripe-mpp-aperture-v050" />
+- 2026-11-05: Aperture `v0.6.0` release: metered pricing, Wavelength-backed invoices and, by Lightning Labs' account, an MPP implementation brought up to the spec. <Cite ids="src-stripe-mpp-aperture-v060" />

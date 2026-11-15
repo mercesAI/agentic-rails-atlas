@@ -1,7 +1,7 @@
 ---
 protocol: stripe-mpp
 title: Stripe MPP in Simplified Technical English
-lastVerified: "2026-10-21"
+lastVerified: "2026-11-14"
 ---
 
 <SteDescription>
@@ -47,20 +47,28 @@ DO NOT WRITE A CREDENTIAL TO A LOG FILE OR TO AN ERROR MESSAGE. A DIFFERENT PERS
 
 1. Select the payment methods that your buyers can use.
 2. If you use the `mppx` SDK, make a secret key of 32 bytes or more.
-3. If a request has no credential, send status 402 with a challenge.
-4. Set the Cache-Control header to no-store on the 402 response.
-5. When a credential arrives, calculate the challenge identifier again.
-6. Make sure that nobody used the challenge identifier before.
-7. Make sure that the challenge did not expire.
-8. Verify the payment proof with the payment method.
-9. If a check fails, send status 402 with a new challenge.
-10. Record the challenge identifier as used.
-11. Send the resource with the Payment-Receipt header.
+3. If you use the `mppx` SDK in production, give the Tempo method a shared store.
+4. If the resource also needs a different authentication, verify it first.
+5. If that authentication fails, send status 401 without a payment challenge.
+6. If a request has no credential, send status 402 with a challenge.
+7. Set the Cache-Control header to no-store on the 402 response.
+8. When a credential arrives, verify the different authentication before the payment.
+9. Calculate the challenge identifier again.
+10. Make sure that nobody used the challenge identifier before.
+11. Make sure that the challenge did not expire.
+12. Verify the payment proof with the payment method.
+13. If a check fails, send status 402 with a new challenge.
+14. Record the challenge identifier as used.
+15. Send the resource with the Payment-Receipt header.
 
 </SteProcedure>
 
 <SteCaution>
 DO NOT SEND THE RESOURCE BEFORE THE PAYMENT IS VERIFIED. AN UNPAID CLIENT CAN GET THE RESOURCE.
+</SteCaution>
+
+<SteCaution>
+DO NOT SETTLE THE PAYMENT IF THE DIFFERENT AUTHENTICATION FAILS. THE CLIENT CAN SEND THE SAME CREDENTIAL AGAIN AND MUST NOT PAY TWO TIMES.
 </SteCaution>
 
 <SteProcedure title="Close a Tempo payment channel (agent)">

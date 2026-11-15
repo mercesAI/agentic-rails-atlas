@@ -42,7 +42,7 @@ Generated 2026-10-10 by the part-b research agent. Output file: `research/public
 - pub-sun-2026-sok-economic: arXiv:2610.01756, SoK: Decentralized Agent Economic Infrastructure
 - pub-li-2026-skillshift: arXiv:2609.02564, A Finger on the Scale: Covert Policy Steering through Agentic Skills
 - pub-zheng-2026-kita: arXiv:2609.05901, From Review to Authorization: Key-Isolated Threshold Signing for LLM Agents
-- pub-zhu-2026-runtime: arXiv:2609.14744, Runtime Authorization for Resources Acquired by AI Agents
+- (dropped 2026-11-15) pub-zhu-2026-runtime: arXiv:2609.14744 duplicated pub-zhu-2026-runtimeauth in publications.a.json; the entry was removed from publications.b.json
 - pub-racioppi-2026-mandato: arXiv:2608.14074, Mandato: Protocol-Level Enforcement of Digitally Signed Mandates on AI Agent Actions with Cryptographically Chained Audit Trails
 - pub-tong-2026-aidguard: arXiv:2608.21159, AID-Guard: Stateful Authorization for Delegated Agent Effects
 - pub-petersgill-2026-multicamel: arXiv:2610.05640, Can CaMeLs Talk? Securing Multi-Agent Systems Against Indirect Prompt Injection Attacks
@@ -79,3 +79,8 @@ Generated 2026-10-10 by the part-b research agent. Output file: `research/public
 - New-paper search: nine arXiv API queries sorted by submittedDate (agentic commerce, x402, ERC-8004, AP2 and agent payments, reputation and Sybil, prompt injection with commerce terms, shopping agents, benchmarks, agent economies, delegation), filtered to submissions since 2026-08-01. Abstracts of 22 candidates were read; 14 were added, the rest are listed above.
 - Years follow the published version where a venue is confirmed (Rothschild 2026, CaMeL 2026, tau-bench 2025, WebArena 2024) and the arXiv submission year otherwise.
 - BibTeX: article for journals (CACM, DSS), inproceedings for conferences and workshops, misc with eprint and archivePrefix=arXiv for preprints.
+
+## Refresh 2026-11-14
+
+- `pub-chard-2026-cairn` (arXiv 2609.19502): a Crossref title search (2026-11-15T03:58Z UTC) found the peer-reviewed version in the proceedings of the 2026 IEEE International Conference on eScience, DOI 10.1109/eScience70237.2026.00090 (Crossref record created 2026-11-13, same title and seven authors). The record now has `peerReviewed: true`, the venue, the DOI, an inproceedings BibTeX entry, `verifiedVia: crossref` and `verifiedAt: 2026-11-14`.
+- `pub-piet-2026-plan` (arXiv 2605.14290): version 2 (2026-10-23T21:29:13Z, arXiv API read 2026-11-15T03:38Z UTC) renames the paper "Web Agents Should Adopt the Compile-and-Execute Paradigm" and reports that 81 percent of WebArena tasks can be completed with a purely static program (version 1: 80 percent). The record keeps its id and now uses the new title, summary and BibTeX title, with the old title named in the summary.

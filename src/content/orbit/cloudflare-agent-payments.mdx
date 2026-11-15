@@ -12,7 +12,7 @@ latestVersion:
 relations:
   - to: x402
     type: complements
-    note: "Cloudflare co-founded the x402 Foundation, wrote the cloudflare:402 binding into the x402 spec, settles Monetization Gateway payments with x402, and builds Wallets to pay with x402."
+    note: "Cloudflare co-founded the x402 Foundation, wrote the cloudflare:402 binding into the x402 spec, settles Monetization Gateway payments with x402 (exact for fixed prices, upto for variable prices), and builds Wallets to pay with x402."
   - to: visa-tap
     type: complements
     note: "TAP was developed with Cloudflare, which verifies TAP signatures at its edge."
@@ -28,14 +28,18 @@ sources:
   - src-x402-cf-blog-foundation
   - src-x402-scheme-batch-cf
   - src-x402-gh-pr-1145
+  - src-orbit-cloudflare-mg-docs
+  - src-orbit-cloudflare-mg-payment-validation
   - src-orbit-cloudflare-wallets-blog
   - src-orbit-cloudflare-wallets-pr
   - src-orbit-cloudflare-wallets-docs
   - src-orbit-cloudflare-net-dollar
+  - src-orbit-cloudflare-q3-2026
   - src-orbit-cloudflare-radar-api
   - src-visa-tap-cf-blog
   - src-cf-verified-bots
-lastVerified: "2026-10-11"
+  - src-orbit-cf-personal-agents-changelog
+lastVerified: "2026-11-14"
 ---
 
-Cloudflare co-founded the x402 Foundation with Coinbase (announced 2025-09-23), and its Monetization Gateway entered closed beta on 2026-09-30 for eligible US-based sellers and buyers, settling USDC on Base through Coinbase's [x402](/p/x402/) facilitator; the separate credit-backed `cloudflare:402` batch-settlement network in the x402 spec is not the beta's settlement path. <Cite ids="src-x402-cf-blog-foundation src-x402-cf-mg-beta src-x402-cf-changelog src-x402-scheme-batch-cf src-x402-gh-pr-1145" /> Cloudflare Wallets were announced on 2026-08-04 with only handle reservation open, and NET Dollar, announced on 2025-09-25 as a planned US dollar-backed stablecoin, had no launch found as of 2026-10-11. <Cite ids="src-orbit-cloudflare-wallets-blog src-orbit-cloudflare-wallets-pr src-orbit-cloudflare-wallets-docs src-orbit-cloudflare-net-dollar" /> Cloudflare verifies [Visa TAP](/p/visa-tap/) and [Mastercard Agent Pay](/p/mastercard-agent-pay/) signatures at its edge and, since 2026-07-01, lists signed agents as a category of Verified Bots. <Cite ids="src-visa-tap-cf-blog src-cf-verified-bots" /> The Radar API needs an API token, and Radar data is licensed under CC BY-NC 4.0. <Cite ids="src-orbit-cloudflare-radar-api" />
+Cloudflare co-founded the x402 Foundation with Coinbase (announced 2025-09-23), and its Monetization Gateway entered closed beta on 2026-09-30 for eligible US-based sellers and buyers, settling USDC on Base through Coinbase's [x402](/p/x402/) facilitator; the separate credit-backed `cloudflare:402` batch-settlement network in the x402 spec is not the beta's settlement path. <Cite ids="src-x402-cf-blog-foundation src-x402-cf-mg-beta src-x402-cf-changelog src-x402-scheme-batch-cf src-x402-gh-pr-1145" /> On 2026-11-14 Cloudflare's docs still described the gateway as a closed beta for buyers and sellers based in the United States (page last updated 2026-11-01). <Cite ids="src-orbit-cloudflare-mg-docs" /> Fixed prices use the x402 `exact` scheme. Variable prices use `upto`: the seller's origin reports the actual amount, capped at the buyer's authorized maximum, in a `PAYMENT-SETTLEMENT` header that the gateway removes before the response reaches the buyer (documented on a page last updated 2026-09-30). <Cite ids="src-orbit-cloudflare-mg-payment-validation" /> Cloudflare Wallets were announced on 2026-08-04, and on 2026-11-14 handle reservation was still the only part open; a reserved handle cannot yet send, receive or hold funds. <Cite ids="src-orbit-cloudflare-wallets-blog src-orbit-cloudflare-wallets-pr src-orbit-cloudflare-wallets-docs" /> NET Dollar, announced on 2025-09-25 as a planned US dollar-backed stablecoin, had no launch found as of 2026-11-14: neither the press releases listed on Cloudflare's press page that day (the newest dated 2026-11-05) nor its third-quarter 2026 results (2026-11-05) mention it. <Cite ids="src-orbit-cloudflare-net-dollar src-orbit-cloudflare-q3-2026" /> Cloudflare verifies [Visa TAP](/p/visa-tap/) and [Mastercard Agent Pay](/p/mastercard-agent-pay/) signatures at its edge and, since 2026-07-01, lists signed agents as a category of Verified Bots; its per-agent access policies for personal agents (2026-11-04) are covered on the [Cloudflare Verified Bots](/orbit/cloudflare-verified-bots/) page. <Cite ids="src-visa-tap-cf-blog src-cf-verified-bots src-orbit-cf-personal-agents-changelog" /> The Radar API needs an API token, and Radar data is licensed under CC BY-NC 4.0. <Cite ids="src-orbit-cloudflare-radar-api" />

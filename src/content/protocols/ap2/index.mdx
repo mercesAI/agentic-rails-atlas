@@ -27,7 +27,7 @@ firstAnnounced: "2025-09-16"
 latestVersion:
   label: "v0.2.0 (specification titled Agentic Payment Protocol v0.2)"
   date: "2026-04-28"
-lastVerified: "2026-10-21"
+lastVerified: "2026-11-14"
 transports:
   - "Transport-agnostic: runs inside a commerce protocol"
   - "UCP extension dev.ucp.common.payment.ap2_mandate"
@@ -36,7 +36,7 @@ transports:
 buildsOn:
   - SD-JWT (RFC 9901)
   - SD-JWT VC
-  - Delegate SD-JWT (individual draft)
+  - Delegate SD-JWT (IETF OAuth working group draft)
   - RFC 7800 cnf
   - OpenID4VP 1.0
   - W3C Digital Credentials API
@@ -106,8 +106,8 @@ keyFacts:
     value: "None of its own: authorization evidence on top of cards, bank transfers or stablecoins"
     claimIds: [clm-ap2-002]
   - label: Builds on
-    value: "SD-JWT VC, Delegate SD-JWT draft, RFC 7800 cnf, OpenID4VP, Digital Credentials API, JWS (ES256 in all examples)"
-    claimIds: [clm-ap2-108, clm-ap2-065, clm-ap2-100, clm-ap2-111]
+    value: "SD-JWT VC, Delegate SD-JWT (an IETF OAuth working group draft since 2026-10-30), RFC 7800 cnf, OpenID4VP, Digital Credentials API, JWS (ES256 in all examples)"
+    claimIds: [clm-ap2-108, clm-ap2-216, clm-ap2-065, clm-ap2-100, clm-ap2-111]
   - label: Composes with
     value: "UCP (native extension), x402 (a2a-x402, targets v0.1), Mastercard Verifiable Intent (same vct values)"
     claimIds: [clm-ap2-106, clm-ap2-149, clm-ap2-152]
@@ -709,7 +709,7 @@ AP2 needs a commerce protocol around it, and UCP is the one it was built for. UC
 
 ### Limitations and open issues
 
-The specification has visible loose ends. The Checkout JWT signature rule contradicts itself: the main text forbids deterministic signatures such as Ed25519, while the security considerations allow them with enough salt; issue 268 has tracked this since 2026-05-26.<Cite ids="clm-ap2-112 clm-ap2-113 clm-ap2-114" /> The Mandate Receipt prose uses a `result` field where the schemas use `status`.<Cite ids="clm-ap2-159" /> The security document writes `mandate.payment.reference` where the schema says `payment.reference`.<Cite ids="clm-ap2-161" /> The specification dates RFC 9901 to February 2025; the RFC Editor says November 2025.<Cite ids="clm-ap2-115" /> Mandate chaining depends on Delegate SD-JWT, an individual draft posted to the IETF on 2026-04-22.<Cite ids="clm-ap2-109" />
+The specification has visible loose ends. The Checkout JWT signature rule contradicts itself: the main text forbids deterministic signatures such as Ed25519, while the security considerations allow them with enough salt; issue 268 has tracked this since 2026-05-26.<Cite ids="clm-ap2-112 clm-ap2-113 clm-ap2-114" /> The Mandate Receipt prose uses a `result` field where the schemas use `status`.<Cite ids="clm-ap2-159" /> The security document writes `mandate.payment.reference` where the schema says `payment.reference`.<Cite ids="clm-ap2-161" /> The specification dates RFC 9901 to February 2025; the RFC Editor says November 2025.<Cite ids="clm-ap2-115" /> Mandate chaining depends on Delegate SD-JWT. It was posted as an individual draft on 2026-04-22, and the IETF OAuth working group adopted it on 2026-10-30 as `draft-ietf-oauth-delegate-sd-jwt-00`; it is still a draft, not an RFC.<Cite ids="clm-ap2-109 clm-ap2-216" /> AP2 v0.2 cites the text from before adoption, and its Python SDK still writes the old `typ` `kb+sd-jwt+kb` for open-mandate hops, which the working group draft renamed `kb-sd-jwt+kb`. A verifier that applies the new text strictly rejects those chains.<Cite ids="clm-ap2-108 clm-ap2-217" />
 
 Practical gaps matter more. There is no revocation, no agent registry and no agent identification beyond the key in `cnf`; who the agent is belongs to the commerce layer.<Cite ids="clm-ap2-117 clm-ap2-129 clm-ap2-124" /> Stateful constraints need a party to track history, and the specification does not say who; an attack study found that a budget accumulates only when the integrator stores earlier usage.<Cite ids="clm-ap2-069 clm-ap2-211" /> Dispute retention, retrieval and adjudication are out of scope.<Cite ids="clm-ap2-098" /> The Python SDK is not on PyPI, and the PyPI and npm packages named `ap2` belong to strangers.<Cite ids="clm-ap2-135 clm-ap2-136" /> Above all, production use of AP2 mandates is unverified anywhere, including inside UCP; one third party self-reports a deployment.<Cite ids="clm-ap2-139 clm-ap2-140" />
 
@@ -722,6 +722,7 @@ Practical gaps matter more. There is no revocation, no agent registry and no age
 - 2026-05-19: Google said AP2 would come to Google products, starting with Gemini Spark.<Cite ids="clm-ap2-169" />
 - 2026-08-25: UCP renamed its extension and aligned it with v0.2.<Cite ids="clm-ap2-171 clm-ap2-146" />
 - 2026-09-04: a third-party Internet-Draft binding delivery evidence to AP2 reached -01, still naming v0.1 objects.<Cite ids="clm-ap2-141 clm-ap2-142" />
+- 2026-10-30: the IETF OAuth working group adopted Delegate SD-JWT, the draft that chains open and closed mandates, as `draft-ietf-oauth-delegate-sd-jwt-00`.<Cite ids="clm-ap2-216" />
 
 <Mode spec>
 

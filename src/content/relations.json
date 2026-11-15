@@ -60,21 +60,24 @@
     "from": "mastercard-agent-pay",
     "to": "ap2",
     "type": "complements",
-    "note": "Agent Pay is not AP2. Through Verifiable Intent it uses the same four mandate vct values as AP2 v0.2 on main, with aligned constraint semantics and a mandate. key prefix; both were contributed to FIDO on 2026-04-28. No live VI use inside AP2 is documented.",
+    "note": "Agent Pay is not AP2. Through Verifiable Intent it uses the same four mandate vct values as AP2 v0.2 on main, with aligned constraint semantics and a mandate. key prefix; both were contributed to FIDO on 2026-04-28. No live VI use inside AP2 is documented as of 2026-11-14; the one announced live VI use (2026-11-12) was an Agent Pay purchase.",
     "sources": [
       "src-mcap-vi-format",
       "src-mcap-ap2-schema-open-payment",
-      "src-mcap-fido-pr"
+      "src-mcap-fido-pr",
+      "src-mcap-travelport-2026-11"
     ]
   },
   {
     "from": "mastercard-agent-pay",
     "to": "openai-acp",
     "type": "compatible-with",
-    "note": "Indirect: Stripe Shared Payment Tokens can carry Mastercard agentic network tokens, so an ACP checkout processed by Stripe can use one. ACP itself names Mastercard only as a card brand.",
+    "note": "Indirect: Stripe Shared Payment Tokens can carry Mastercard agentic network tokens, so an ACP checkout processed by Stripe can use one. ACP itself names Mastercard only as a card brand. Separately, Mastercard is one of three network partners of OpenAI's ChatGPT Wallet (2026-11-13), which OpenAI presents without reference to ACP and without naming a Mastercard program; Mastercard's CEO said on 2026-10-29 that a strategic partnership with OpenAI includes the use of Agent Pay (reported).",
     "sources": [
       "src-mcap-stripe-spt-2026",
-      "src-mcap-acp-schema"
+      "src-mcap-acp-schema",
+      "src-openai-chatgpt-wallet",
+      "src-mcap-q3-2026-transcript"
     ]
   },
   {
@@ -135,41 +138,50 @@
     "from": "openai-acp",
     "to": "mastercard-agent-pay",
     "type": "compatible-with",
-    "note": "No documented protocol link. Stripe says it might use Mastercard Agent Pay tokens under SPT card payments.",
+    "note": "No documented protocol link. Stripe says it might use Mastercard Agent Pay tokens under SPT card payments. Mastercard is one of three networks behind ChatGPT Wallet (2026-11-13), which OpenAI does not present as ACP; Mastercard's CEO said on 2026-10-29 that a broader OpenAI partnership includes the use of Agent Pay (reported), but no source names the program behind Wallet tokens.",
     "sources": [
-      "src-fee-stripe-spt-docs"
+      "src-fee-stripe-spt-docs",
+      "src-openai-chatgpt-wallet",
+      "src-openai-acp-ma-q3-2026-call"
     ]
   },
   {
     "from": "openai-acp",
     "to": "stripe-mpp",
     "type": "same-steward",
-    "note": "Stripe co-maintains ACP and co-authors MPP with Tempo; MPP accepts cards through the same Shared Payment Token family that implements ACP Delegate Payment.",
+    "note": "Stripe co-maintains ACP and co-authors MPP with Tempo; MPP accepts cards through the same Shared Payment Token family, the token the ACP website names when it calls Stripe the first compatible PSP. Stripe's Link Agent Wallet also hands agents SPTs for MPP with method stripe (2026-11-14).",
     "sources": [
       "src-stripe-mpp-docs",
-      "src-openai-commerce-docs"
+      "src-openai-acp-site",
+      "src-openai-acp-link-pay-online"
     ]
   },
   {
     "from": "openai-acp",
     "to": "ucp",
     "type": "competes-with",
-    "note": "Both define merchant-hosted agent checkout sessions; five status names match and both publish well-known discovery documents, but no bridge or mapping exists. Stripe co-maintains ACP and documents UCP for sellers who run their own checkout (its hub paired UCP or ACP until at least 2026-10-12).",
+    "note": "Both define merchant-hosted agent checkout sessions; five status names match and both publish well-known discovery documents, but no bridge or mapping exists. Stripe co-maintains ACP and documents UCP for sellers who run their own checkout (its hub paired UCP or ACP until at least 2026-10-12). OpenAI's 2026-11-13 commerce plugin guide shows a reference checkout whose field names follow UCP's checkout schema rather than ACP's, without naming either, and Sierra's Personal Agent Protocol 1.0 carries commerce through UCP and does not mention ACP (2026-11-14).",
     "sources": [
       "src-ucp-checkout-schema",
       "src-stripe-acp-protocol-page",
       "src-stripe-acs-sellers",
       "src-stripe-agentic-commerce-wb-20261012",
-      "src-openai-acp-rfcs-dir"
+      "src-openai-acp-rfcs-dir",
+      "src-openai-commerce-build-plugin",
+      "src-openai-acp-ucp-message-error",
+      "src-openai-acp-sierra-pap-10"
     ]
   },
   {
     "from": "openai-acp",
     "to": "visa-tap",
     "type": "compatible-with",
-    "note": "Visa Intelligent Commerce tokens under SPTs: Stripe says it might use them for SPT card payments, so Visa agent tokens can sit under an ACP payment. TAP itself has no documented link to ACP.",
+    "note": "Visa Intelligent Commerce tokens under SPTs: Stripe says it might use them for SPT card payments, so Visa agent tokens can sit under an ACP payment. TAP itself has no documented link to ACP. Visa announced a strategic collaboration with OpenAI under Visa Intelligent Commerce on 2026-06-10 and is one of three networks behind ChatGPT Wallet (2026-11-13); no source ties either to TAP, and OpenAI documents plain Web Bot Auth for ChatGPT's cloud browser, naming neither TAP's tags nor Visa's key store (as of 2026-11-14).",
     "sources": [
-      "src-fee-stripe-spt-docs"
+      "src-fee-stripe-spt-docs",
+      "src-openai-acp-visa-openai-22496",
+      "src-openai-chatgpt-wallet",
+      "src-openai-commerce-agent-access"
     ]
   },
   {
@@ -210,12 +222,13 @@
     "from": "stripe-mpp",
     "to": "visa-tap",
     "type": "embeds",
-    "note": "The Visa-authored card method lets a client add TAP signature headers (in the spec since 2026-03-18); Visa says the card spec and SDK are built on VIC and TAP; mppx adds TAP request attestation.",
+    "note": "The Visa-authored card method lets a client add TAP signature headers (in the spec since 2026-03-18); Visa says the card spec and SDK are built on VIC and TAP; mppx checks TAP signatures outside the spec, as request attestation until 0.16.0 (2026-10-28) and as a per-route identity verifier and prover since.",
     "sources": [
       "src-stripe-mpp-card-charge",
       "src-stripe-mpp-card-history",
       "src-stripe-mpp-visa-card",
-      "src-stripe-mpp-blog-identity"
+      "src-stripe-mpp-blog-identity",
+      "src-stripe-mpp-mppx-changelog"
     ]
   },
   {
@@ -277,13 +290,14 @@
     "from": "ucp",
     "to": "openai-acp",
     "type": "competes-with",
-    "note": "Both specify agent checkout with the merchant as merchant of record; no bridge or mapping is specified. Stripe co-develops ACP and sits on UCP councils.",
+    "note": "Both specify agent checkout with the merchant as merchant of record; no bridge or mapping is specified. Stripe co-develops ACP and sits on UCP councils. OpenAI's plugin guide of 2026-11-13 shows a reference checkout that follows UCP's field names and enums rather than ACP's, naming neither protocol.",
     "sources": [
       "src-ucp-glossary",
-      "src-openai-commerce-docs",
+      "src-openai-acp-readme",
       "src-stripe-acp-launch",
       "src-ucp-maintainers",
-      "src-ucp-announcements"
+      "src-ucp-announcements",
+      "src-openai-commerce-build-plugin"
     ]
   },
   {
@@ -330,11 +344,12 @@
     "from": "visa-tap",
     "to": "stripe-mpp",
     "type": "compatible-with",
-    "note": "Visa authored the MPP card method; draft-card-charge-00 lets a client add TAP signature headers, Visa says the card spec and mpp-card SDK are built on VIC and TAP, and mppx signs and verifies TAP attestations.",
+    "note": "Visa authored the MPP card method; draft-card-charge-00 lets a client add TAP signature headers, Visa says the card spec and mpp-card SDK are built on VIC and TAP, and mppx signs and verifies TAP signatures as per-route identity provers and verifiers (since 0.16.0, 2026-10-28).",
     "sources": [
       "src-mpp-card-draft",
       "src-visa-mpp-card",
-      "src-mppx-tap"
+      "src-mppx-tap",
+      "src-visa-tap-mppx-changelog"
     ]
   },
   {

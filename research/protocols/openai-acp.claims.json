@@ -81,12 +81,13 @@
     },
     {
       "id": "clm-openai-acp-009",
-      "text": "MAINTAINERS.md lists OpenAI, Stripe and Meta as lead maintainers of ACP.",
+      "text": "MAINTAINERS.md lists OpenAI, Stripe and Meta as lead maintainers of ACP; the file is unchanged at commit 7fdd78d, the last commit through 2026-11-14.",
       "sources": [
-        "src-openai-acp-maintainers"
+        "src-openai-acp-maintainers",
+        "src-openai-acp-gh-commits"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "governance"
     },
     {
@@ -121,12 +122,13 @@
     },
     {
       "id": "clm-openai-acp-013",
-      "text": "The ACP Technical Steering Committee had three members on 2026-10-11: OpenAI, Stripe and Meta.",
+      "text": "The ACP Technical Steering Committee had three members on 2026-11-14: OpenAI, Stripe and Meta.",
       "sources": [
-        "src-openai-acp-governance"
+        "src-openai-acp-governance",
+        "src-openai-acp-gh-commits"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "governance"
     },
     {
@@ -366,7 +368,7 @@
         "src-openai-acp-gh-repo"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "dates"
     },
     {
@@ -376,17 +378,19 @@
         "src-openai-acp-gh-commits"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "versions"
     },
     {
       "id": "clm-openai-acp-039",
-      "text": "No commit landed in the ACP repository between 2026-07-18 and 2026-10-11.",
+      "text": "No commit landed in the ACP repository between 2026-07-18 and 2026-11-14, and the repository has no tag, release or security advisory; every branch head dates from 2026-07-18 or earlier.",
       "sources": [
-        "src-openai-acp-gh-commits"
+        "src-openai-acp-gh-commits",
+        "src-openai-acp-gh-repo",
+        "src-openai-acp-gh-advisories"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "versions"
     },
     {
@@ -441,17 +445,18 @@
     },
     {
       "id": "clm-openai-acp-045",
-      "text": "OpenAI is not the merchant of record in ACP; the merchant selling the goods is, and customers see the merchant's name on their card statement.",
+      "text": "OpenAI is not the merchant of record. Until the 2026-11-13 rewrite, its ACP docs (read 2026-10-11) said the merchant selling the goods is the merchant of record and that customers see the merchant's name on their card statement; its Accept payments guide says the business handles the order, fulfillment, customer support and fraud decisions (as of 2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs"
+        "src-openai-commerce-docs",
+        "src-openai-commerce-accept-payments"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "actors"
     },
     {
       "id": "clm-openai-acp-046",
-      "text": "Under ACP the merchant handles refunds and chargebacks because it accepted the payment as merchant of record.",
+      "text": "Under ACP the merchant handles refunds and chargebacks because it accepted the payment as merchant of record, as OpenAI's ACP docs said until their 2026-11-13 rewrite (read 2026-10-11).",
       "sources": [
         "src-openai-commerce-docs"
       ],
@@ -472,34 +477,36 @@
     },
     {
       "id": "clm-openai-acp-048",
-      "text": "Direct integration with OpenAI's Delegated Payment Spec is only for PSPs or PCI DSS Level 1 merchants using their own vaults.",
+      "text": "OpenAI's plugin Checkout API reference lets a merchant with a PCI DSS Level 1 certificate receive raw card data by implementing the ACP Delegate Payment endpoint (as of 2026-11-14). Until the 2026-11-13 rewrite, OpenAI's commerce docs reserved direct integration with its Delegated Payment Spec for PSPs and PCI DSS Level 1 merchants with their own vaults.",
       "sources": [
+        "src-openai-apps-monetization",
         "src-openai-commerce-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "actors"
     },
     {
       "id": "clm-openai-acp-049",
-      "text": "OpenAI calls Stripe's Shared Payment Token the first Delegated Payment Spec-compatible implementation.",
+      "text": "The ACP website calls Stripe the first compatible PSP, with its Shared Payment Token (as of 2026-11-14); until the 2026-11-13 rewrite, OpenAI's commerce docs called the SPT the first Delegated Payment Spec-compatible implementation.",
       "sources": [
+        "src-openai-acp-site",
         "src-openai-commerce-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "actors"
     },
     {
       "id": "clm-openai-acp-050",
       "text": "The Shared Payment Token is a Stripe product used with ACP, not part of the ACP specification.",
       "sources": [
-        "src-openai-commerce-docs",
         "src-acp-stripe-spt-docs",
-        "src-openai-acp-schema-checkout-20260417"
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-acp-site"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "actors"
     },
     {
@@ -1012,12 +1019,13 @@
     },
     {
       "id": "clm-openai-acp-100",
-      "text": "OpenAI prepares the delegated payment request with a maximum chargeable amount and an expiry based on what the user chose to buy.",
+      "text": "OpenAI's plugin Checkout API reference shows the delegated payment request it sends to a PCI DSS Level 1 merchant, with an allowance of reason one_time, max_amount, currency, checkout_session_id, merchant_id and expires_at (as of 2026-11-14). Until the 2026-11-13 rewrite, its commerce docs said OpenAI sets the maximum amount and expiry from what the user chose to buy.",
       "sources": [
+        "src-openai-apps-monetization",
         "src-openai-commerce-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "flow"
     },
     {
@@ -1167,32 +1175,39 @@
     },
     {
       "id": "clm-openai-acp-115",
-      "text": "OpenAI's own feed API uses /product_feeds paths and adds a promotions API.",
+      "text": "Until the 2026-11-13 rewrite, OpenAI's commerce docs described an OpenAI feed API on /product_feeds paths with a promotions API (read 2026-10-11). The rewritten docs document no feed API; OpenAI's Ads API instead updates existing feed variants with PATCH /feeds/{feed_id}/products (as of 2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs"
+        "src-openai-commerce-docs",
+        "src-openai-commerce-product-feeds",
+        "src-openai-acp-ads-delta-feeds"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "flow"
     },
     {
       "id": "clm-openai-acp-116",
-      "text": "OpenAI recommends sending a full feed once a day by file upload and sending updates through the API during the day.",
+      "text": "As read on 2026-10-11, OpenAI's commerce docs recommended a full feed once a day by file upload plus API updates during the day. Since the 2026-11-13 rewrite they describe only full snapshots by manual upload, a hosted URL or SFTP, while OpenAI's Ads docs pair SFTP catalog uploads with a Delta Feeds API for title, price and availability changes (as of 2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs"
+        "src-openai-commerce-docs",
+        "src-openai-commerce-product-feeds",
+        "src-openai-acp-ads-product-feeds",
+        "src-openai-acp-ads-delta-feeds"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "flow"
     },
     {
       "id": "clm-openai-acp-117",
-      "text": "Onboarding product feeds into ChatGPT is limited to approved partners who apply through a form.",
+      "text": "Until the 2026-11-13 rewrite, OpenAI's commerce docs limited feed onboarding to approved partners who apply through a form. The rewritten docs send businesses to Business Hub, where a business claims its profile and must verify its identity before uploading products, while OpenAI's merchant page still shows an application form and a waitlist (as of 2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs"
+        "src-openai-commerce-docs",
+        "src-openai-commerce-product-feeds",
+        "src-chatgpt-merchants"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "ecosystem"
     },
     {
@@ -1341,7 +1356,7 @@
     },
     {
       "id": "clm-openai-acp-132",
-      "text": "The ACP checkout RFC says TLS 1.3 must be used, while OpenAI's production guide asks for TLS 1.2 or later on port 443.",
+      "text": "The ACP checkout RFC says TLS 1.3 must be used, while OpenAI's production guide, as read on 2026-10-11 and removed in the 2026-11-13 rewrite, asked for TLS 1.2 or later on port 443.",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-commerce-docs"
@@ -1412,7 +1427,7 @@
     },
     {
       "id": "clm-openai-acp-139",
-      "text": "OpenAI says it intends to move entirely to network tokens as they become supported and that eligible cards are upgraded through network tokenization.",
+      "text": "As read on 2026-10-11, OpenAI's ACP docs said it intended to move entirely to network tokens as they become supported and that eligible cards are upgraded through network tokenization; the 2026-11-13 rewrite removed that page.",
       "sources": [
         "src-openai-commerce-docs"
       ],
@@ -1433,12 +1448,14 @@
     },
     {
       "id": "clm-openai-acp-141",
-      "text": "OpenAI asks merchants to allowlist its published egress IP ranges for ACP calls.",
+      "text": "OpenAI publishes egress IP ranges for ChatGPT integrations (plugins, connectors, GPT Actions and agentic commerce) and says an IP allowlist does not replace request authentication; its cloud browser needs no allowlist, and sites should verify its signatures before granting an exception (as of 2026-11-14). Until the 2026-11-13 rewrite, OpenAI's ACP docs asked merchants to allowlist those ranges for ACP calls.",
       "sources": [
+        "src-openai-acp-ip-egress",
+        "src-openai-commerce-agent-access",
         "src-openai-commerce-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "security"
     },
     {
@@ -1454,12 +1471,13 @@
     },
     {
       "id": "clm-openai-acp-143",
-      "text": "No GitHub security advisories or CVEs exist for the ACP repository as of 2026-10-11.",
+      "text": "No GitHub security advisory exists for the ACP repository as of 2026-11-14 (the repository and global advisory APIs return none), and an NVD keyword search returned no CVE on 2026-10-20.",
       "sources": [
-        "src-openai-acp-gh-advisories"
+        "src-openai-acp-gh-advisories",
+        "src-nvd-acp-search"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "security"
     },
     {
@@ -1536,7 +1554,7 @@
     },
     {
       "id": "clm-openai-acp-151",
-      "text": "OpenAI's docs say the Product Feed Spec and Agentic Checkout Spec carry no cardholder data, while direct Delegate Payment integration handles cardholder data and is likely in PCI scope.",
+      "text": "As read on 2026-10-11, OpenAI's ACP docs said the Product Feed Spec and Agentic Checkout Spec carry no cardholder data, while direct Delegate Payment integration handles cardholder data and is likely in PCI scope; the 2026-11-13 rewrite removed those pages.",
       "sources": [
         "src-openai-commerce-docs"
       ],
@@ -1546,9 +1564,10 @@
     },
     {
       "id": "clm-openai-acp-152",
-      "text": "OpenAI may require a PCI attestation of compliance before enabling production Delegate Payment access.",
+      "text": "As read on 2026-10-11, OpenAI's ACP docs said OpenAI may require a PCI attestation of compliance before enabling production Delegate Payment access; the commerce docs rewritten on 2026-11-13 do not mention PCI (search 2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs"
+        "src-openai-commerce-docs",
+        "src-openai-commerce-playbook"
       ],
       "confidence": "verified",
       "asOf": "2026-10-11",
@@ -1566,12 +1585,13 @@
     },
     {
       "id": "clm-openai-acp-154",
-      "text": "OpenAI prohibits products such as adult content, alcohol, nicotine, gambling, weapons and prescription-only medications from ChatGPT shopping.",
+      "text": "OpenAI's plugin guidelines bar plugins from selling goods such as adult content, gambling, illegal or regulated drugs, prescription and age-restricted medications, tobacco and nicotine, and weapons; the list covers plugins and does not name alcohol (as of 2026-11-14). OpenAI's ACP docs, as read on 2026-10-11, listed alcohol among products excluded from ChatGPT shopping.",
       "sources": [
+        "src-openai-acp-plugin-guidelines",
         "src-openai-commerce-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "compliance"
     },
     {
@@ -1597,7 +1617,7 @@
     },
     {
       "id": "clm-openai-acp-157",
-      "text": "OpenAI's production checklist names the webhooks order_created and order_updated, which differs from the spec's order_create and order_update.",
+      "text": "As read on 2026-10-11, OpenAI's production checklist named the webhooks order_created and order_updated, which differs from the spec's order_create and order_update; the checklist was removed in the 2026-11-13 rewrite.",
       "sources": [
         "src-openai-commerce-docs",
         "src-openai-acp-openapi-webhook-20260417"
@@ -1639,12 +1659,12 @@
     },
     {
       "id": "clm-openai-acp-161",
-      "text": "Stripe SPTs carry usage_limits with currency, max_amount and expires_at, and the agent sets max_amount to the transaction total.",
+      "text": "Stripe SPTs carry usage_limits with currency, max_amount and expires_at, and the agent sets max_amount to the transaction total. For recurring charges a seller reuses the SPT in each PaymentIntent, which works only when usage_limits.recurring_interval is set (as of 2026-11-14).",
       "sources": [
         "src-acp-stripe-spt-docs"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "objects"
     },
     {
@@ -1854,12 +1874,12 @@
     },
     {
       "id": "clm-openai-acp-183",
-      "text": "External checkout, where users finish on the merchant's own site, is the recommended and generally available checkout path for ChatGPT apps.",
+      "text": "External checkout, where users finish on the merchant's own site, is the recommended and generally available checkout path for ChatGPT plugins (formerly the Apps SDK).",
       "sources": [
         "src-openai-apps-monetization"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "ecosystem"
     },
     {
@@ -1869,7 +1889,7 @@
         "src-openai-apps-monetization"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "ecosystem"
     },
     {
@@ -1889,7 +1909,7 @@
         "src-openai-apps-monetization"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "ecosystem"
     },
     {
@@ -1899,7 +1919,7 @@
         "src-openai-apps-monetization"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "compliance"
     },
     {
@@ -1956,13 +1976,12 @@
     },
     {
       "id": "clm-openai-acp-193",
-      "text": "OpenAI has not published a fee rate for ChatGPT checkout.",
+      "text": "OpenAI's merchant page says shoppers go to the merchant's site or app by default with no fees for purchases made there (as of 2026-11-14; the same sentence is in a 2026-04-04 capture).",
       "sources": [
-        "src-openai-buy-it",
-        "src-openai-product-discovery"
+        "src-chatgpt-merchants"
       ],
-      "confidence": "unverified",
-      "asOf": "2026-10-11",
+      "confidence": "verified",
+      "asOf": "2026-11-14",
       "topic": "metrics"
     },
     {
@@ -1990,10 +2009,12 @@
       "text": "ACP itself charges no protocol fee; merchants pay their own PSP's processing fees because they charge the payment.",
       "sources": [
         "src-openai-acp-license",
-        "src-openai-commerce-docs"
+        "src-openai-acp-governance",
+        "src-openai-commerce-accept-payments",
+        "src-chatgpt-merchants"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "metrics"
     },
     {
@@ -2031,12 +2052,12 @@
     },
     {
       "id": "clm-openai-acp-200",
-      "text": "The ACP GitHub repository had 1,570 stars and 253 forks on 2026-10-11.",
+      "text": "The ACP GitHub repository had 1,602 stars, 260 forks and 148 open issues and pull requests (91 issues, 57 pull requests) on 2026-11-14 (1,583 stars and 256 forks on 2026-10-20).",
       "sources": [
         "src-openai-acp-gh-repo"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "metrics"
     },
     {
@@ -2084,10 +2105,11 @@
       "text": "ACP and UCP have no bridge or mapping specification.",
       "sources": [
         "src-openai-acp-rfcs-dir",
-        "src-ucp-checkout-schema"
+        "src-ucp-checkout-schema",
+        "src-openai-acp-gh-commits"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "relations"
     },
     {
@@ -2136,13 +2158,13 @@
     },
     {
       "id": "clm-openai-acp-210",
-      "text": "Stripe's MPP integration accepts cards through Shared Payment Tokens, the same token family used as the first ACP Delegated Payment implementation.",
+      "text": "Stripe's MPP integration accepts cards through Shared Payment Tokens, the token the ACP website names when it calls Stripe the first compatible PSP.",
       "sources": [
         "src-stripe-mpp-docs",
-        "src-openai-commerce-docs"
+        "src-openai-acp-site"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "relations"
     },
     {
@@ -2233,7 +2255,7 @@
     },
     {
       "id": "clm-openai-acp-219",
-      "text": "OpenAI's docs say idempotency_conflict returns HTTP 409, while the ACP spec uses 422 for that code.",
+      "text": "As read on 2026-10-11, OpenAI's ACP docs said idempotency_conflict returns HTTP 409, while the ACP spec uses 422 for that code; the 2026-11-13 rewrite removed those docs.",
       "sources": [
         "src-openai-commerce-docs",
         "src-openai-acp-rfc-checkout"
@@ -2244,7 +2266,7 @@
     },
     {
       "id": "clm-openai-acp-220",
-      "text": "OpenAI's production checklist expects 201 Created on order completion, while the ACP OpenAPI lists 200.",
+      "text": "As read on 2026-10-11, OpenAI's production checklist expected 201 Created on order completion, while the ACP OpenAPI lists 200; the checklist was removed in the 2026-11-13 rewrite.",
       "sources": [
         "src-openai-commerce-docs",
         "src-openai-acp-openapi-checkout-20260417"
@@ -2297,12 +2319,14 @@
     },
     {
       "id": "clm-openai-acp-225",
-      "text": "OpenAI's developer docs still describe supporting Instant Checkout in ChatGPT as requiring three flows: product feed, checkout and payments.",
+      "text": "Until the 2026-11-13 rewrite, OpenAI's commerce docs described supporting Instant Checkout in ChatGPT as three flows: product feed, checkout and payments. The rewritten docs no longer describe Instant Checkout, while OpenAI's plugin guidelines still list it as a beta for select marketplace partners (as of 2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs"
+        "src-openai-commerce-docs",
+        "src-openai-commerce-playbook",
+        "src-openai-acp-plugin-guidelines"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "criticism"
     },
     {
@@ -2392,6 +2416,348 @@
       "confidence": "verified",
       "asOf": "2025-09-29",
       "topic": "flow"
+    },
+    {
+      "id": "clm-openai-acp-260",
+      "text": "On 2026-11-13 OpenAI announced ChatGPT Wallet, built in partnership with American Express, Mastercard and Visa. It rolls out first in dots for ChatGPT Pro subscribers in the US aged 18 and older with eligible US-issued cards.",
+      "sources": [
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-261",
+      "text": "In ChatGPT Wallet the user adds a card once, reviews the items, total and card before each purchase and approves with a security check such as Face ID. The payment network then provides a payment token with a card number, security code and expiry, so neither the business nor the agent sees the actual card details.",
+      "sources": [
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-openai-acp-262",
+      "text": "OpenAI's ChatGPT Wallet post never mentions the Agentic Commerce Protocol, Instant Checkout, Delegate Payment or Shared Payment Tokens, and OpenAI's rewritten commerce docs do not mention ACP either (search 2026-11-14).",
+      "sources": [
+        "src-openai-chatgpt-wallet",
+        "src-openai-commerce-playbook"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-openai-acp-263",
+      "text": "OpenAI's RSS summary of the Wallet post and the post's own page description name agents in ChatGPT Work, Codex and dots, while the post's text names only dots as the first surface (as of 2026-11-14).",
+      "sources": [
+        "src-openai-news-rss-20261114",
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-264",
+      "text": "OpenAI says it works on ChatGPT Wallet with fraud prevention partners including Forter, Riskified, Sardine and Signifyd and with payment service providers including Adyen, Checkout.com and Stripe; neither list is presented as complete.",
+      "sources": [
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-265",
+      "text": "OpenAI's Accept payments guide says ChatGPT Wallet works with a merchant's existing checkout pages and payment forms with no Wallet-specific integration; the merchant receives a network token instead of the card number and can use the Payment Account Reference (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-accept-payments"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-openai-acp-266",
+      "text": "OpenAI's Accept payments guide says a Wallet customer consents only to the specific transaction, so the merchant must not reuse or save the credential for another purchase; subscriptions need the customer's consent and follow the processor's practice for merchant-initiated transactions (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-accept-payments"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-openai-acp-267",
+      "text": "For Wallet purchases OpenAI says the business handles the order, fulfillment, customer support and fraud decisions, and its agent access FAQ says customers bear final responsibility for the actions they take; that is OpenAI's position, not a liability rule (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-accept-payments",
+        "src-openai-commerce-agent-access"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-openai-acp-268",
+      "text": "OpenAI is rolling out user signals in the Forwarded HTTP header for its cloud browser, with the parameters asn, for, ip-country, ip-prefix, locale, tz and user-agent. IANA's registry lists only by, for, host and proto, so six of the seven are unregistered extensions, and RFC 7239 warns that any node on the path can alter the header (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-accept-payments",
+        "src-openai-acp-iana-forwarded",
+        "src-openai-acp-rfc7239"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "security"
+    },
+    {
+      "id": "clm-openai-acp-269",
+      "text": "OpenAI's agent access guide says ChatGPT uses Web Bot Auth to identify certain cloud browser requests: Signature and Signature-Input headers plus a Signature-Agent of https://chatgpt.com, with keys in chatgpt.com's well-known HTTP message signatures directory, verified automatically by Akamai, Cloudflare, HUMAN and Vercel. This is ChatGPT's own mechanism; the ACP specification does not use Web Bot Auth (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-agent-access",
+        "src-openai-acp-rfcs-dir"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "security"
+    },
+    {
+      "id": "clm-openai-acp-270",
+      "text": "OpenAI's agent access FAQ says it requires human review before any consequential action across all users, and that site owners cannot yet control which actions users take (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-agent-access"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-openai-acp-271",
+      "text": "Between 2026-11-12T03:49Z and 2026-11-13T17:12Z OpenAI replaced its ACP developer docs at developers.openai.com/commerce with the Commerce in ChatGPT Partner Playbook, which covers agent access, accepting payments, building a plugin, claiming a business, Sign in with ChatGPT, product feeds and a feed schema; the old ACP pages redirect to it or answer 404.",
+      "sources": [
+        "src-openai-commerce-playbook",
+        "src-openai-commerce-docs"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "dates"
+    },
+    {
+      "id": "clm-openai-acp-272",
+      "text": "OpenAI's merchant page says ChatGPT shopping is built on ACP, calls ACP the open infrastructure for AI-native commerce in ChatGPT, and says it supports product discovery today and will expand to the full shopping journey (as of 2026-11-14; the same text is in a 2026-04-04 capture).",
+      "sources": [
+        "src-chatgpt-merchants"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-273",
+      "text": "OpenAI introduced Businesses in ChatGPT on 2026-11-10. Its product feeds guide sends businesses to Business Hub, where a business claims its profile, verifies its identity before uploading products and delivers full catalog snapshots by manual upload, a hosted URL or SFTP; the feed does not update a cart or confirm a purchase (as of 2026-11-14).",
+      "sources": [
+        "src-openai-news-rss-20261114",
+        "src-openai-commerce-product-feeds"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-274",
+      "text": "OpenAI's Ads API has a Delta Feeds API, PATCH /feeds/{feed_id}/products, that updates the title, price or availability of existing variants and answers 200 with the feed id and accepted true; it is enabled per ad account. Its path pattern and its id and accepted response match ACP 2026-04-17's feed upsert (PATCH /feeds/{id}/products), and OpenAI does not name ACP (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-ads-delta-feeds",
+        "src-openai-acp-openapi-feed-20260417"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-openai-acp-275",
+      "text": "OpenAI's product feed schema has a Stable view in OpenAI's own flat format, with prices in major units such as 79.99 USD, and a Draft view, published for planning and feedback only, that follows ACP 2026-04-17's Product and Variant feed model with integer minor units; neither view names ACP (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-feed-spec",
+        "src-openai-acp-feed-schema-draft",
+        "src-openai-acp-schema-feed-20260417"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-openai-acp-276",
+      "text": "OpenAI's product checkout conversion spec for plugins now says its nested checkout session uses the data shape of a legacy checkout specification, which it links to ACP's 2025-09-29 checkout OpenAPI; until at least 2026-11-06 it pointed to OpenAI's own commerce checkout docs (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-conversion-spec"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-openai-acp-277",
+      "text": "OpenAI's commerce plugin guide recommends a headless MCP plugin, says iframe-based MCP UI is not supported in dots, and has a plugin return a continue_url browser handoff when it cannot finish checkout; OpenAI says it is still working out how third-party plugins interact with ChatGPT Wallet (as of 2026-11-14).",
+      "sources": [
+        "src-openai-commerce-build-plugin"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-openai-acp-278",
+      "text": "OpenAI's 2026-11-13 commerce plugin guide shows a reference checkout whose field names and enums match UCP's checkout schema (an item with id, title and price; totals with only type and amount; message severity requires_buyer_input with a path), not ACP 2026-04-17's (an item with id, name and unit_amount; totals with display_text; severity from info to critical with a separate resolution). The guide credits an unnamed cart and checkout proposal and names neither protocol; its cart and product lookup shapes are OpenAI's own.",
+      "sources": [
+        "src-openai-commerce-build-plugin",
+        "src-openai-acp-ucp-message-error",
+        "src-openai-acp-schema-checkout-20260417"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "specVersion": "2026-04-17",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-openai-acp-279",
+      "text": "Meta, which holds ACP TSC seat 3, launched its shopping agent Muse on 2026-09-08 paying through Link by Stripe, and its Connect post of 2026-09-24 lists Shop Pay and PayPal for payments; Stripe says Link gives Muse single-use virtual cards where Link is not accepted. No Meta or Stripe post on Muse mentions ACP (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-meta-muse",
+        "src-openai-acp-meta-connect-2026",
+        "src-openai-acp-stripe-muse-link",
+        "src-openai-acp-maintainers"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-280",
+      "text": "Sierra announced the Personal Agent Protocol on 2026-10-06 as an open standard it develops with Meta, with partners including Shopify, Stripe and Walmart, and listed OpenAI and PayPal among its design partners on 2026-10-09. Its PAP 1.0 post (2026-11-13) leaves product search, carts and checkout to UCP, linked through a commerce extension that Shopify co-authored, and none of the three posts mentions ACP; a design partner is not an implementer.",
+      "sources": [
+        "src-openai-acp-sierra-pap",
+        "src-openai-acp-sierra-pap-draft",
+        "src-openai-acp-sierra-pap-10"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-openai-acp-281",
+      "text": "Mastercard's CEO said on the 2026-10-29 earnings call that Mastercard had signed a broad strategic partnership with OpenAI that includes the use of Agent Pay (a third-party transcript; Mastercard's written results do not mention it). No source names the network program behind ChatGPT Wallet tokens (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-ma-q3-2026-call",
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "reported",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-282",
+      "text": "Visa announced a strategic collaboration with OpenAI on 2026-06-10 as part of Visa Intelligent Commerce. No source ties ChatGPT Wallet to Visa's Trusted Agent Protocol or to Visa Intelligent Commerce tokens, and ChatGPT's cloud browser identifies itself with plain Web Bot Auth (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-visa-openai-22496",
+        "src-openai-chatgpt-wallet",
+        "src-openai-commerce-agent-access"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-openai-acp-283",
+      "text": "OpenAI's Wallet post quotes American Express calling ChatGPT Wallet its first Agentic Commerce Experiences integration (2026-11-13).",
+      "sources": [
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "reported",
+      "asOf": "2026-11-13",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-284",
+      "text": "Stripe's Link Agent Wallet returns a payment credential for each spend request the customer approves: a virtual card (one-time or recurring), a Shared Payment Token for APIs that accept SPTs directly or for MPP with method stripe, or a Link Pay Token for Stripe-enabled checkouts. Stripe says Link powers payments for more than 200 personal agents (company figure, 2026-10-21); its Link pages do not mention ACP (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-link-agent-wallet",
+        "src-openai-acp-link-pay-online",
+        "src-openai-acp-stripe-claude-duet"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-285",
+      "text": "PSPs still document ACP for ChatGPT as of 2026-11-14: Checkout.com announced ACP support on 2025-11-25 and documents a delegated payment token for ChatGPT plugins, Worldpay documents POST /sessions/agentic_commerce/delegate_payment as an approved Instant Checkout partner, and PayPal's Agent Ready lists ACP for ChatGPT through Braintree delegated tokens.",
+      "sources": [
+        "src-openai-acp-checkout-com-acp",
+        "src-openai-acp-checkout-com-docs",
+        "src-openai-acp-worldpay-acp",
+        "src-openai-acp-paypal-agent-ready"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-286",
+      "text": "Shopify's Help Center calls its ChatGPT channel a discovery-focused referrer: purchases complete in the store's own checkout, with no fees for selling in ChatGPT beyond standard payment processing. Shopify's Fall '26 developer post (2026-10-28) offers the same catalog and checkout to any agent through Shop.dev and names neither ACP nor UCP (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-shopify-help-chatgpt",
+        "src-openai-acp-shopify-fall26-dev"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-287",
+      "text": "OpenAI's Wallet post gives 1.2B weekly ChatGPT users (OpenAI's figure, 2026-11-13).",
+      "sources": [
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "metrics"
+    },
+    {
+      "id": "clm-openai-acp-288",
+      "text": "The ACP README still lists OpenAI's documentation as a production-ready reference implementation, but the link now opens the Commerce in ChatGPT Partner Playbook, which documents no ACP implementation (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-readme",
+        "src-openai-commerce-playbook"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-openai-acp-289",
+      "text": "CNBC reports that OpenAI is not taking a cut of ChatGPT Wallet transactions to start; OpenAI's Wallet post states no fee (as of 2026-11-14).",
+      "sources": [
+        "src-openai-acp-cnbc-wallet",
+        "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "reported",
+      "asOf": "2026-11-14",
+      "topic": "metrics"
+    },
+    {
+      "id": "clm-openai-acp-290",
+      "text": "ACP-era wording survives on other OpenAI pages as of 2026-11-14: the site-wide developer index still lists the commerce docs as the Agentic Commerce Protocol, the plugin Checkout API reference keeps the ACP Delegate Payment endpoint for PCI DSS Level 1 merchants, and the plugin guidelines still name Instant Checkout.",
+      "sources": [
+        "src-openai-commerce-playbook",
+        "src-openai-apps-monetization",
+        "src-openai-acp-plugin-guidelines"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
     }
   ]
 }

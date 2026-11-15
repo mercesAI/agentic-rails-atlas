@@ -21,7 +21,7 @@ relations:
     note: Agent Pay agents sign requests with RFC 9421; no RFC 9530 use was found.
   - to: stripe-mpp
     type: complements
-    note: The MPP core specification uses an RFC 9530 content digest to bind a challenge to the request body. RFC 9421 appears only indirectly; the card method lets a client add TAP signature headers, and the mppx SDK offers optional Web Bot Auth and TAP attestation.
+    note: The MPP core specification uses an RFC 9530 content digest to bind a challenge to the request body. RFC 9421 appears only indirectly; the card method lets a client add TAP signature headers, and since 0.16.0 (2026-10-28) the mppx SDK offers Web Bot Auth and TAP among its per-route identity verifiers.
   - to: x402
     type: compatible-with
     note: x402's http-message-signatures extension uses RFC 9421 to identify the paying agent and to sign server responses, and the cloudflare:402 binding relies on it. The exact lnbtc binding borrows RFC 9421 component rules for its request hash.
@@ -38,12 +38,14 @@ sources:
   - src-stripe-mpp-core-01
   - src-stripe-mpp-card-charge
   - src-stripe-mpp-blog-identity
+  - src-orbit-mppx-changelog
   - src-x402-scheme-batch-cf
   - src-x402-ext-http-sig
   - src-x402-scheme-exact-lnbtc
   - src-openai-acp-rfcs-dir
+  - src-openai-commerce-agent-access
   - src-wba-draft
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
 ## What they are
@@ -60,7 +62,7 @@ Both are Proposed Standards from the IETF HTTP working group, and both info page
 
 RFC 9421 is the shared base of the agent-recognition layer. [Visa TAP](/p/visa-tap/) signs requests with `Signature-Input` and `Signature` over `@authority` and `@path`, with `created`, `expires`, `keyid`, `alg`, `nonce` and `tag`, and does not use RFC 9530. <Cite ids="src-visa-tap-spec" /> [Mastercard Agent Pay](/p/mastercard-agent-pay/) signs with RFC 9421, with Ed25519 in its examples. <Cite ids="src-mcap-rfc9421 src-mcap-dev-level1" /> [UCP](/p/ucp/) uses both RFCs: RFC 9421 for requests, responses and webhooks, and a `sha-256` `Content-Digest` over the raw body bytes. <Cite ids="src-ucp-signatures" />
 
-[MPP](/p/stripe-mpp/) uses RFC 9530 in its core specification, where a content digest binds the payment challenge to the request body for POST, PUT and PATCH. <Cite ids="src-stripe-mpp-core-01" /> RFC 9421 appears only indirectly: MPP's card method, written by Visa, lets a client add Visa TAP signature headers, which are RFC 9421 signatures, and the `mppx` SDK offers optional Web Bot Auth and TAP attestation. <Cite ids="src-stripe-mpp-card-charge src-visa-tap-spec src-stripe-mpp-blog-identity" /> In [x402](/p/x402/), RFC 9421 signatures come from the `http-message-signatures` extension, which identifies the paying agent and lets a server sign its x402 response headers; Cloudflare's `cloudflare:402` binding relies on it. <Cite ids="src-x402-ext-http-sig src-x402-scheme-batch-cf" /> The `exact` scheme's Lightning binding also borrows RFC 9421 component rules to hash the paid request. <Cite ids="src-x402-scheme-exact-lnbtc" /> The [ACP](/p/openai-acp/) specification does not use RFC 9421. <Cite ids="src-openai-acp-rfcs-dir" /> No use was found in AP2 or ERC-8004.
+[MPP](/p/stripe-mpp/) uses RFC 9530 in its core specification, where a content digest binds the payment challenge to the request body for POST, PUT and PATCH. <Cite ids="src-stripe-mpp-core-01" /> RFC 9421 appears only indirectly: MPP's card method, written by Visa, lets a client add Visa TAP signature headers, which are RFC 9421 signatures. <Cite ids="src-stripe-mpp-card-charge src-visa-tap-spec" /> The `mppx` SDK first offered optional Web Bot Auth and TAP request attestation, and since 0.16.0 (2026-10-28) it offers both among its per-route identity verifiers and provers, outside the core specification. <Cite ids="src-stripe-mpp-blog-identity src-orbit-mppx-changelog" /> In [x402](/p/x402/), RFC 9421 signatures come from the `http-message-signatures` extension, which identifies the paying agent and lets a server sign its x402 response headers; Cloudflare's `cloudflare:402` binding relies on it. <Cite ids="src-x402-ext-http-sig src-x402-scheme-batch-cf" /> The `exact` scheme's Lightning binding also borrows RFC 9421 component rules to hash the paid request. <Cite ids="src-x402-scheme-exact-lnbtc" /> The [ACP](/p/openai-acp/) specification does not use RFC 9421, although OpenAI's own cloud browser signs certain requests with RFC 9421 through Web Bot Auth (as of 2026-11-14). <Cite ids="src-openai-acp-rfcs-dir src-openai-commerce-agent-access" /> No use was found in AP2 or ERC-8004.
 
 ## Status history
 

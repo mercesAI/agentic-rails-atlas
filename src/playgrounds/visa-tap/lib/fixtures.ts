@@ -6,7 +6,7 @@ import type { ComponentId, HttpRequest } from '@/lib/playground/http-sig';
 
 export const SPEC_READ_DATE = '2026-10-11';
 export const ILLUSTRATIVE_LABEL = `Illustrative example, Visa TAP specification (undated, read ${SPEC_READ_DATE})`;
-export const WBA_DRAFT = 'draft-ietf-webbotauth-httpsig-protocol-00';
+export const WBA_DRAFT = 'draft-ietf-webbotauth-httpsig-protocol-01';
 export const WBA_LABEL = `Illustrative example, ${WBA_DRAFT}`;
 
 /** The TAP examples use the label sig2; the Web Bot Auth examples use sig1. */
@@ -130,13 +130,13 @@ export interface ComparisonRow {
 
 export const COMPARISON: ComparisonRow[] = [
   { aspect: 'tag', tap: 'agent-browser-auth or agent-payer-auth', wba: 'MUST be web-bot-auth' },
-  { aspect: 'Key discovery header', tap: 'None required', wba: 'Signature-Agent REQUIRED and covered by the signature' },
+  { aspect: 'Key discovery header', tap: 'None required', wba: 'Signature-Agent REQUIRED in its Dictionary form and covered by the signature' },
   { aspect: 'Covered components', tap: '@authority and @path required', wba: '@authority or @target-uri; more SHOULD be added' },
   { aspect: 'nonce', tap: 'Required; shared with body objects', wba: 'Not required by the draft' },
   { aspect: 'keyid', tap: 'Key identifier, no fixed format', wba: 'MUST be the base64url JWK SHA-256 thumbprint' },
   { aspect: 'alg', tap: 'Required', wba: 'Not in the required list' },
   { aspect: 'Window', tap: 'expires - created at most 8 minutes', wba: 'Expiry RECOMMENDED within 24 hours' },
-  { aspect: 'Key directory', tap: "Payment scheme's key store (Visa's URL not named in the spec since October 2026)", wba: `Signature-Agent URL: ${WBA_DIRECTORY_PATH} by default; jwks_uri or cimd also allowed` },
+  { aspect: 'Key directory', tap: "Payment scheme's key store (Visa's URL not named in the spec since October 2026)", wba: `Each Signature-Agent URL is fetched directly as a JWK Set; ${WBA_DIRECTORY_PATH} is one such URL (since -01, which dropped the -00 default directory, jwks_uri and cimd types)` },
 ];
 
 /** Spec quirks shown in the UI (ATLAS_ERRATA R16 and R17, research dossier). */

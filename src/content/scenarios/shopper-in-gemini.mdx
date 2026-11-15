@@ -14,14 +14,14 @@ personas:
   - psp
   - wallet-cp
   - controls-builder
-lastVerified: "2026-10-20"
+lastVerified: "2026-11-14"
 ---
 
 ## The situation
 
 A shopper asks Gemini for a pair of trail running shoes in size 10 under a set price, picks one, and pays with the card saved in Google Pay. The shopper is present for the whole purchase. The merchant, not Google, is the merchant of record and keeps the financial liability and the order.<Cite ids="clm-ucp-006" />
 
-Two layers are involved, and they are not equally live. UCP-powered checkout began rolling out to US shoppers in AI Mode in Search and the Gemini app on 2026-02-11, starting with Etsy and Wayfair items.<Cite ids="clm-ucp-174" /> The AP2 mandate layer is specified inside UCP as an optional extension.<Cite ids="clm-ucp-193" /> Google said on 2026-05-19 that it would begin bringing AP2 to its products in the coming months, starting with Gemini Spark.<Cite ids="clm-ap2-169" /> Production use of AP2 mandates is unverified anywhere, including inside UCP, as of 2026-10-20.<Cite ids="clm-ap2-139 clm-ucp-197" /> Read the AP2 steps below as "per spec; live use unverified".
+Two layers are involved, and they are not equally live. UCP-powered checkout began rolling out to US shoppers in AI Mode in Search and the Gemini app on 2026-02-11, starting with Etsy and Wayfair items.<Cite ids="clm-ucp-174" /> It began rolling out to Canadian shoppers on 2026-11-04.<Cite ids="clm-ucp-257" /> The AP2 mandate layer is specified inside UCP as an optional extension.<Cite ids="clm-ucp-193" /> Google said on 2026-05-19 that it would begin bringing AP2 to its products in the coming months, starting with Gemini Spark.<Cite ids="clm-ap2-169" /> Production use of AP2 mandates is unverified anywhere, including inside UCP, as of 2026-10-20.<Cite ids="clm-ap2-139 clm-ucp-197" /> Read the AP2 steps below as "per spec; live use unverified".
 
 ## Actors
 
@@ -36,7 +36,7 @@ Two layers are involved, and they are not equally live. UCP-powered checkout beg
 
 1. **Ask (no protocol).** The shopper describes what they want.
 2. **Discover (UCP).** Gemini reads the merchant profile; it requires a `ucp` object with `version`, `services` and `payment_handlers`, and signing keys sit in a top-level `keys` array.<Cite ids="clm-ucp-055 clm-ucp-058" /> A merchant that accepts AP2 lists `dev.ucp.common.payment.ap2_mandate` there.<Cite ids="clm-ap2-106" />
-3. **Create checkout (UCP).** Gemini calls `POST /checkout-sessions` with its profile URI in `UCP-Agent`.<Cite ids="clm-ucp-122 clm-ucp-088" /> Google says requests from its surfaces carry `UCP-Agent` and a User-Agent beginning with `Google/UCP`.<Cite ids="clm-ucp-157" /> If AP2 is in the capability intersection, the session is locked and neither side may fall back to an unprotected checkout.<Cite ids="clm-ucp-109" />
+3. **Create checkout (UCP).** Gemini calls `POST /checkout-sessions` with its profile URI in `UCP-Agent`.<Cite ids="clm-ucp-122 clm-ucp-088" /> Google says its checkout requests carry `UCP-Agent` and, by default, the User-Agent `Google-Shopping-Merchant-Integration`, with `Google/UCP*` when origin user-agent propagation is enabled. It also says the merchant can verify them by ES256 RFC 9421 signatures against the keys at `ucp.goog`, by mutual TLS or by source ASN, not by the headers alone.<Cite ids="clm-ucp-157 clm-ucp-247" /> If AP2 is in the capability intersection, the session is locked and neither side may fall back to an unprotected checkout.<Cite ids="clm-ucp-109" />
 4. **Signed checkout (UCP AP2 extension).** The merchant must include `ap2.merchant_authorization` in every checkout response, a JWS with detached content over the checkout without the `ap2` field.<Cite ids="clm-ucp-110 clm-ucp-083" />
 5. **Verify and hand off (AP2).** Gemini must verify the merchant signature before showing the checkout.<Cite ids="clm-ucp-111" />
 6. **Approve (AP2).** In the human-present flow the user approves the closed Checkout and Payment Mandates on a Trusted Surface.<Cite ids="clm-ap2-087" />

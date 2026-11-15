@@ -26,7 +26,7 @@ Generated 2026-10-11 by the part-c research agent. Output file: `research/public
 - Visa agentic payments report (2026-07): identified as "Agentic Payments from the Ground Up: What the Onchain Data Tells Us", Visa with Artemis. The summary page says "Last updated on July 14, 2026"; trade press dated the release 2026-07-16. Data as of 2026-04-21.
 - Waller, "Payments in the Age of AI Agents": the Board speech feed dates it 2026-09-29 (Sibos 2026, Miami), while the page slug is `waller20260928a`. Use 2026-09-29.
 - GLEIF working paper: cover says September 2026; the PDF file name and creation date say 2026-08-13.
-- IETF drafts: Web Bot Auth WG draft `draft-ietf-webbotauth-httpsig-protocol-00` (2026-09-01, T. Meunier, S. Major); expired `draft-oauth-ai-agents-on-behalf-of-user-02` (2025-08-26, expired 2026-02-27, T. S. Senarath, A. Dissanayaka); MPP's `draft-httpauth-payment-01` (2026-09-09, B. Ryan, J. Moxey, T. Meagher of Tempo Labs, J. Weinstein, S. Kaliski of Stripe). Author names are given as initials, as in the draft headers.
+- IETF drafts: Web Bot Auth WG draft `draft-ietf-webbotauth-httpsig-protocol-00` (2026-09-01, T. Meunier, S. Major; revision `-01` followed on 2026-10-29, see the 2026-11-14 refresh below); expired `draft-oauth-ai-agents-on-behalf-of-user-02` (2025-08-26, expired 2026-02-27, T. S. Senarath, A. Dissanayaka); MPP's `draft-httpauth-payment-01` (2026-09-09, B. Ryan, J. Moxey, T. Meagher of Tempo Labs, J. Weinstein, S. Kaliski of Stripe). Author names are given as initials, as in the draft headers.
 
 ## Unverified seed entry
 
@@ -74,3 +74,8 @@ Logged in `research/blocked.md`: imf.org (403, DOI used), mckinsey.com (timeouts
 - Years follow the published version where a venue is confirmed (FP-Inconsistent 2025, PayWord 1997) and the arXiv submission year otherwise.
 - BibTeX: inproceedings for conference papers, article for journals, incollection for the BIS chapter, techreport for working papers and issue papers, misc for preprints, drafts, speeches, blogs and industry reports.
 - Validated against the `Publication` Zod schema with a scratch script run through `pnpm tsx`; no em dashes in any field.
+
+## Refresh 2026-11-14
+
+- `pub-xue-2026-zkmldebloat` (arXiv 2609.10149): a Crossref title search (2026-11-15T03:58Z UTC) found the peer-reviewed version in the Proceedings of the 2026 ACM SIGSAC Conference on Computer and Communications Security (CCS 2026), DOI 10.1145/3830454.3846774, published 2026-11-14, same title and six authors. The record now has `peerReviewed: true`, the venue, the DOI, an inproceedings BibTeX entry, `verifiedVia: crossref` and `verifiedAt: 2026-11-14`.
+- `pub-meunier-2026-webbotauth`: the Web Bot Auth working group draft moved to revision `-01` on 2026-10-29 (Datatracker, expires 2027-05-02; same title and authors). Venue, summary, BibTeX and the verification log now name `-01`; since `-01` each `Signature-Agent` value is an HTTPS URL fetched directly as a JWK Set.

@@ -2,12 +2,24 @@
   "protocol": "mastercard-agent-pay",
   "items": [
     {
-      "question": "Does any live Agent Pay authorization check a Verifiable Intent chain today?",
-      "context": "Mastercard says it is embedding VI into the payment flow and that AP4M agents can be recognized with it, but no public record shows a VI chain checked in production.",
+      "question": "Who checks the Verifiable Intent chain in a live Agent Pay authorization, and how?",
+      "context": "Partly answered on 2026-11-12: Travelport, Booked AI, Basis Theory and Mastercard announced a live flight purchase in which, they say, VI linked the customer's approval to the transaction and a mismatch would have stopped the payment. The release names no VI layers or mode and does not say whether the network, the merchant or another party checked the chain; Mastercard says it is embedding VI into the payment flow, but its VI API specifications are not public (as of 2026-11-14).",
       "sources": [
+        "src-mcap-travelport-2026-11",
         "src-mcap-latam-2026",
         "src-mcap-ap4m-2026",
-        "src-mcap-vi-gh-repo"
+        "src-mcap-vi-gh-repo",
+        "src-mcap-dev-llms"
+      ]
+    },
+    {
+      "question": "Is the ChatGPT Wallet token a Mastercard Agentic Token issued under Agent Pay, and does Mastercard require agent registration or Web Bot Auth for it?",
+      "context": "OpenAI says Wallet was built with American Express, Mastercard and Visa and that the payment network provides a payment token, but names no program (2026-11-13). Mastercard's CEO said on 2026-10-29 that a strategic OpenAI partnership includes the use of Agent Pay (reported). ChatGPT's cloud browser signs certain requests with Web Bot Auth as https://chatgpt.com, and OpenAI does not document the tag.",
+      "sources": [
+        "src-openai-chatgpt-wallet",
+        "src-mcap-q3-2026-transcript",
+        "src-openai-commerce-agent-access",
+        "src-mcap-dev-level1"
       ]
     },
     {
@@ -53,9 +65,10 @@
     },
     {
       "question": "How will Mastercard's tag and directory align with the IETF Web Bot Auth draft?",
-      "context": "Mastercard uses its own tag, while the working group draft requires web-bot-auth; no alignment plan is published.",
+      "context": "Mastercard uses its own tag, while the working group draft requires web-bot-auth. Since revision -01 (2026-10-29) the draft also makes each Signature-Agent value the URL of a JWK Set and requires the dictionary form of the header, while Mastercard's example sends a quoted directory origin. No alignment plan is published.",
       "sources": [
-        "src-mcap-dev-level1"
+        "src-mcap-dev-level1",
+        "src-wba-draft"
       ]
     },
     {

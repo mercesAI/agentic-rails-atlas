@@ -6,7 +6,7 @@
     "The x402 contracts (Permit2 proxies, batch settlement) share one CREATE2 address on each EVM chain where they are deployed, which makes those paths easy to index. The proxies' own events carry no fields, so amounts come from the token's Transfer log.",
     "Facilitator capabilities (GET /supported) and the Bazaar resource catalog are public HTTP endpoints, and x402scan publishes an explorer and API.",
     "The richest per-request data (which client paid for which resource, signed payloads, vouchers, screening decisions) stays in headers and facilitator logs. Only the offers of listed resources are public in the Bazaar, and credit-backed cloudflare:402 commitments never reach a chain.",
-    "Public volume counters exist but are contested: x402.org has shown the same Last 30 days values since at least 2025-12-14, far above x402scan's 3.02M transactions in the 30 days to 2026-10-19."
+    "Public volume figures are contested and come from third parties: x402.org removed its Last 30 days counter, unchanged since at least 2025-12-14, by 2026-11-14, and the trackers that remain disagree by method (x402scan about 4.93M transactions and $1.89M in the 30 days to 2026-11-14; agenteconomy.to about 200.2M cumulative transactions on that date)."
   ],
   "public": [
     {
@@ -76,15 +76,17 @@
       ]
     },
     {
-      "what": "Project counters and advisories",
-      "where": "x402.org, GitHub Security Advisories, the repository",
-      "how": "A Last 30 days counter unchanged since at least 2025-12-14 (contested), GHSA advisories, Cantina audit reports, changelogs.",
+      "what": "Project advisories and security records",
+      "where": "GitHub Security Advisories (repository and global database), the CVE record, the repository",
+      "how": "Two maintainer GHSA advisories, the third-party CVE-2026-113603 (mirrored as an unreviewed GHSA with no package mapping, so package-based queries miss it), Cantina audit reports and changelogs. Several SDK security fixes shipped without any advisory, so read changelogs and issues too. The x402.org home page no longer shows a usage counter (removed by 2026-11-14).",
       "sources": [
-        "src-x402-site",
-        "src-x402-site-wb-20251214",
         "src-x402-ghsa-2025",
         "src-x402-ghsa-2026",
-        "src-x402-repo"
+        "src-x402-cve-2026-113603",
+        "src-x402-ghsa-vxw2",
+        "src-x402-v12-25-vulns",
+        "src-x402-repo",
+        "src-x402-site"
       ]
     }
   ],
@@ -99,7 +101,7 @@
     },
     {
       "what": "Batch-settlement vouchers before a claim",
-      "why": "Cumulative vouchers live in server storage until the server claims them on chain."
+      "why": "Cumulative vouchers stay off chain until they are claimed: in server storage by default, or with the facilitator in the facilitator-managed mode the EVM batch-settlement spec added on 2026-10-26."
     },
     {
       "what": "cloudflare:402 credit commitments and billing identity",

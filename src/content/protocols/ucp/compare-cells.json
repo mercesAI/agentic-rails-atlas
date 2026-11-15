@@ -71,17 +71,19 @@
    "value": "v2026-08-25 (2026-08-25)",
    "sources": [
     "src-ucp-gh-releases",
-    "src-ucp-js-sdk-readme"
+    "src-ucp-js-sdk-readme",
+    "src-ucp-pr-1024"
    ],
    "confidence": "verified",
-   "detail": "main carries drafts; SDKs 0.5.x match it."
+   "detail": "As of 2026-11-14. The release branch gained the Ask capability by backport on 2026-11-02 (served as 2026-08-25, not in the git tag); main carries drafts; SDKs 0.5.x match it."
   },
   {
    "protocol": "ucp",
    "dimension": "maturity",
-   "value": "Live on Google AI Mode and Gemini (US) since 2026-02-11",
+   "value": "Live on Google AI Mode and Gemini in the US since 2026-02-11 and in Canada since 2026-11-04",
    "sources": [
     "src-ucp-google-feb2026",
+    "src-ucp-google-canada",
     "src-ucp-gh-releases"
    ],
    "confidence": "verified",
@@ -272,15 +274,18 @@
   {
    "protocol": "ucp",
    "dimension": "fees-and-who-pays-them",
-   "value": "No protocol fee; Shopify and Microsoft say no fees beyond payment processing on their channels; Google publishes no fee schedule and says it plans no cut (reported)",
+   "value": "No protocol fee; Shopify says no fees beyond payment processing on its Google, Copilot, Meta and ChatGPT channels; Google publishes no fee schedule and says it plans no cut (reported); Microsoft makes no current fee statement",
    "sources": [
     "src-ucp-shopify-help-google",
+    "src-ucp-shopify-help-microsoft",
+    "src-ucp-shopify-help-meta",
+    "src-ucp-shopify-help-chatgpt",
     "src-ucp-microsoft-page",
     "src-ucp-register",
     "src-ucp-google-faq"
    ],
    "confidence": "reported",
-   "detail": "Shopify's help (2026-10-20): standard payment processing fees only for Google direct checkout; Microsoft: no commission today; Shopify's terms (2026-10-06) allow a channel fee, rate unstated."
+   "detail": "Shopify's help (2026-11-14): standard payment processing fees only on its channels; Shopify's terms (2026-10-06) allow a channel fee, rate unstated. Microsoft's page said on 2026-10-20 that it took no commission today; the answer was removed by about 2026-11-06, which is not evidence of a fee."
   },
   {
    "protocol": "ucp",
@@ -288,12 +293,13 @@
    "value": "Merchant pays PSP only",
    "sources": [
     "src-ucp-shopify-help-google",
+    "src-ucp-shopify-help-microsoft",
     "src-ucp-microsoft-page",
     "src-ucp-google-faq",
     "src-ucp-register"
    ],
    "confidence": "reported",
-   "detail": "Verified for Shopify merchants on Google and for Copilot Checkout (as of 2026-10-20); Google's own policy is a reported statement of intent."
+   "detail": "Verified for Shopify merchants on Google and Copilot from Shopify's help center (2026-11-14). Microsoft's own no-commission answer, read on 2026-10-20, is gone; Google's own policy is a reported statement of intent."
   },
   {
    "protocol": "ucp",
@@ -332,21 +338,24 @@
   {
    "protocol": "ucp",
    "dimension": "adoption-evidence",
-   "value": "Live Google checkout in the US (Etsy and Wayfair since 2026-02-11; Target, Walmart, Nike, Sephora, Ulta Beauty and Shopify merchants named by Google on 2026-10-15); 21 co-developers, 51 endorsers; no exact merchant count",
+   "value": "Live Google checkout in the US (Etsy and Wayfair since 2026-02-11; Target, Walmart, Nike, Sephora, Ulta Beauty and Shopify merchants named by Google on 2026-10-15) and in Canada since 2026-11-04 (lululemon, select Shopify merchants, Shoppers Drug Mart, Simons); Shopify says Ask is live across its storefronts, which serve 2026-08-25 profiles over MCP; 21 co-developers, 51 endorsers; no exact merchant count",
    "sources": [
     "src-ucp-google-feb2026",
     "src-ucp-google-universal-cart-launch",
+    "src-ucp-google-canada",
     "src-ucp-target-fact-sheet",
     "src-ucp-shopify-help-google",
+    "src-ucp-stc-minutes-20261106",
+    "src-ucp-allbirds-profile",
     "src-ucp-site"
    ],
    "confidence": "verified",
-   "detail": "As of 2026-10-20. Google's own figure: hundreds of thousands of brands and retailers (2026-09-16, undefined); no volume published; AP2 inside UCP unverified."
+   "detail": "As of 2026-11-14 (co-developer and endorser counts as of 2026-10-20). Google's own figure: hundreds of thousands of brands and retailers (2026-09-16, undefined); no volume published; AP2 inside UCP unverified."
   },
   {
    "protocol": "ucp",
    "dimension": "published-security-research",
-   "value": "Two arXiv papers name UCP (2602.06345, 2606.05043); no GitHub advisory and no NVD record found (2026-10-20)",
+   "value": "Two arXiv security and protocol-modeling papers name UCP (2602.06345, 2606.05043); no GitHub advisory and no NVD record found (2026-10-20 and 2026-11-14)",
    "sources": [
     "src-ucp-arxiv-260206345",
     "src-ucp-arxiv-260605043",
@@ -413,10 +422,12 @@
    "protocol": "ucp",
    "axis": "adoption-evidence",
    "value": 3,
-   "justification": "Live US checkout on Google surfaces, named national retailers and many endorsers, but only an order-of-magnitude merchant figure from Google and no volume figures.",
+   "justification": "Live checkout on Google surfaces in the US and, since 2026-11-04, Canada, named national retailers, Shopify storefronts serving UCP profiles and many endorsers, but only an order-of-magnitude merchant figure from Google and no volume figures.",
    "sources": [
     "src-ucp-google-feb2026",
     "src-ucp-google-universal-cart-launch",
+    "src-ucp-google-canada",
+    "src-ucp-stc-minutes-20261106",
     "src-ucp-site"
    ]
   },
@@ -445,10 +456,11 @@
    "protocol": "ucp",
    "control": "agent-identity-verification",
    "support": "native",
-   "note": "Platform profile URL in UCP-Agent with RFC 9421 signatures against its keys, or API key, OAuth or mTLS bound to that profile.",
+   "note": "Platform profile URL in UCP-Agent with RFC 9421 signatures against its keys, or API key, OAuth or mTLS bound to that profile. Google, the main deployed platform, signs with ES256 keys published at ucp.goog and also offers mTLS (FAQ, 2026-11-03).",
    "sources": [
     "src-ucp-overview",
-    "src-ucp-signatures"
+    "src-ucp-signatures",
+    "src-ucp-google-faq"
    ]
   },
   {

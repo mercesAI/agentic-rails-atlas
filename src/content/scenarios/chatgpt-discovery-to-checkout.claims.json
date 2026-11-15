@@ -1,0 +1,310 @@
+{
+  "protocol": "openai-acp",
+  "generatedAt": "2026-11-14",
+  "claims": [
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-001",
+      "text": "OpenAI introduced ChatGPT Wallet on 2026-11-13, built in partnership with American Express, Mastercard and Visa. It began rolling out that day in dots, initially for ChatGPT Pro subscribers in the US aged 18 and older with eligible US-issued cards.",
+      "sources": ["src-openai-chatgpt-wallet", "src-openai-news-rss-20261114"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-002",
+      "text": "In ChatGPT Wallet the user adds a card once. Before each purchase the user reviews the items, the total and the selected card and approves with a security check such as Face ID or a fingerprint scan, and each approval creates a record of the purchase the user authorized the agent to make.",
+      "sources": ["src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-003",
+      "text": "After the user approves a ChatGPT Wallet purchase, the payment network provides a payment token, a substitute for the card details with its own card number, security code and expiration date, and the selected card is charged without Wallet sharing the actual card details with the business or the agent.",
+      "sources": ["src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-004",
+      "text": "OpenAI's Accept payments guide says ChatGPT Wallet works with existing checkout pages and payment forms and needs no Wallet-specific integration: the customer approves the purchase in ChatGPT, the merchant's checkout processes the payment, and the business handles the order, fulfillment, customer support and fraud decisions.",
+      "sources": ["src-openai-commerce-accept-payments"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-005",
+      "text": "The Accept payments guide says a merchant paid with ChatGPT Wallet receives a network token instead of the full card number and can use the Payment Account Reference (PAR) to associate it with the underlying account. The customer consents only to the specific transaction, so the credential must not be reused or saved for another purchase; recurring billing needs the customer's consent and the processor's merchant-initiated transaction practice, and Wallet sits beside any existing card-on-file flow.",
+      "sources": ["src-openai-commerce-accept-payments"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-006",
+      "text": "OpenAI says risk systems tuned to detect bots can make purchases by ChatGPT's cloud browser fail, and that it is rolling out user signals in the Forwarded HTTP header with the parameters asn, for (the IP address observed for the user), ip-country, ip-prefix, locale, tz and user-agent; the signals a site receives may vary during the rollout.",
+      "sources": ["src-openai-commerce-accept-payments"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "security"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-007",
+      "text": "IANA's HTTP Forwarded Parameters registry lists only by, for, host and proto, so six of the seven Forwarded parameters OpenAI documents are unregistered extensions, which RFC 7239 says should be registered. RFC 7239 also warns that any node on the path, including the client, can modify the header, and OpenAI does not say whether its request signatures cover it.",
+      "sources": ["src-scn-chatgpt-iana-forwarded", "src-scn-chatgpt-rfc7239", "src-openai-commerce-accept-payments", "src-openai-commerce-agent-access"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "security"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-008",
+      "text": "OpenAI's agent access guide says ChatGPT uses Web Bot Auth to identify certain automated browser requests, and that its guidance covers signed cloud browser requests, not web crawlers: a signed request carries a Signature header, a Signature-Input header and a Signature-Agent header set to \"https://chatgpt.com\", and verifiers check it under RFC 9421 with the public keys at https://chatgpt.com/.well-known/http-message-signatures-directory.",
+      "sources": ["src-openai-commerce-agent-access"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-009",
+      "text": "The agent access guide says Akamai, Cloudflare, HUMAN and Vercel verify ChatGPT request signatures automatically, with Cloudflare listing the traffic as dots, OpenAI under Personal Agents, where a site can set it to Allow. The cloud browser needs no allowlist entry; security settings may block it by accident, and a site that adds an exception for it should verify the signatures first while keeping its other controls.",
+      "sources": ["src-openai-commerce-agent-access", "src-openai-commerce-browser-access"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-010",
+      "text": "When read on 2026-11-14, ChatGPT's key directory served one Ed25519 public key valid from 2025-01-01 with an expiry seven days after the read, declared signature_agent https://chatgpt.com and purpose ai, and carried an RFC 9421 signature on its own response.",
+      "sources": ["src-scn-chatgpt-key-directory"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-011",
+      "text": "OpenAI says cloud browser access is independent of product feeds and plugins: a merchant needs neither for verified ChatGPT users to use its site with the cloud browser, and the Wallet post says browser access does not require a plugin or product feed.",
+      "sources": ["src-openai-commerce-agent-access", "src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-012",
+      "text": "OpenAI's agent access FAQ says site owners cannot yet control which actions users take on their sites, that OpenAI requires human review before any consequential action across all users, and that customers are ultimately responsible for the actions they take, so support should be handled as if the customer had acted.",
+      "sources": ["src-openai-commerce-agent-access"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-013",
+      "text": "The Wallet post says OpenAI is working with fraud prevention partners including Forter, Riskified, Sardine and Signifyd and with payment service providers including Adyen, Checkout.com and Stripe; neither list is presented as complete.",
+      "sources": ["src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-014",
+      "text": "Forter says that for each ChatGPT Wallet transaction it identifies ChatGPT agent traffic and uses those signals as an input to its fraud decisions (2026-11-13), and Signifyd says it works with OpenAI so that legitimate agent orders are not declined because they are new to risk systems (2026-11-14).",
+      "sources": ["src-scn-chatgpt-forter-wallet", "src-scn-chatgpt-signifyd-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-015",
+      "text": "OpenAI announced Businesses in ChatGPT on 2026-11-10. Its Submit product feeds guide says businesses start in Business Hub, must verify their identity before they can upload products, choose the countries and currencies where they sell, and deliver full feed snapshots by manual upload, a hosted URL or SFTP; a feed does not update a cart or confirm a purchase.",
+      "sources": ["src-openai-news-rss-20261114", "src-openai-commerce-product-feeds", "src-openai-commerce-business-profile"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-016",
+      "text": "OpenAI's product feed schema requires nine fields (item_id, title, description, url, brand, seller_name, image_url, availability, and price in major currency units such as 79.99 USD) plus target_countries and store_country; the standard upload currently targets the US, and checkout eligibility needs a separately enabled integration.",
+      "sources": ["src-openai-commerce-feed-spec"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "objects"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-017",
+      "text": "OpenAI's merchant page, read 2026-11-14, says ChatGPT shopping is built on the Agentic Commerce Protocol, which supports product discovery today and will expand to the full shopping journey, and says purchases are completed on merchant-owned websites or apps.",
+      "sources": ["src-chatgpt-merchants"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-018",
+      "text": "Between 2026-11-12 and 2026-11-13 OpenAI replaced its Agentic Commerce developer docs with the Commerce in ChatGPT partner playbook, which covers product feeds, cloud browser access, Wallet payments, plugins, Sign in with ChatGPT and business profiles and no longer describes ACP, Instant Checkout or delegated payment.",
+      "sources": ["src-openai-commerce-playbook", "src-openai-commerce-docs", "src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-019",
+      "text": "OpenAI's Build a plugin guide recommends a headless plugin whose MCP tools cover product lookup, carts and, where supported, checkout and order history. It says iframe-based MCP UI is not supported in dots, asks for product lookup and carts to work in guest mode without sign-in, and notes that OpenAI supports mutual TLS for MCP servers.",
+      "sources": ["src-openai-commerce-build-plugin"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-020",
+      "text": "The Build a plugin guide says a plugin that cannot complete a required checkout step should return a continue_url, ideally a short-lived one-time authenticated link that opens the same cart, so checkout continues on the merchant's website. For direct plugin checkout it expects customers to sign in or enter their details as guests, and it says OpenAI is still working on the interaction patterns between third-party plugins and ChatGPT Wallet.",
+      "sources": ["src-openai-commerce-build-plugin"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-021",
+      "text": "OpenAI's plugin guidelines, read 2026-11-14, say plugins should use external checkout on the developer's own domain and that Instant Checkout, in beta, is available only to select marketplace partners.",
+      "sources": ["src-scn-chatgpt-plugin-guidelines"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-022",
+      "text": "OpenAI's plugin guidelines let plugins sell only physical goods and prohibit goods such as adult content, gambling, illegal or regulated drugs, drug paraphernalia, prescription and age-restricted medications, illicit goods, malware and surveillance tools, tobacco and nicotine, and weapons; alcohol is not on that list.",
+      "sources": ["src-scn-chatgpt-plugin-guidelines"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "compliance"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-023",
+      "text": "OpenAI's plugin authentication guide says ChatGPT presents an OpenAI-managed client certificate, with the SAN mtls.prod.connectors.openai.com, that an MCP server can verify with mutual TLS, or the server can allowlist ChatGPT's published egress IP ranges; end users sign in through OAuth 2.1 under the MCP authorization specification.",
+      "sources": ["src-scn-chatgpt-plugin-auth"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-024",
+      "text": "OpenAI strongly recommends Sign in with ChatGPT for commerce integrations; it is available to select commercial partners, and OpenAI's guide says a ChatGPT identity is not purchase approval.",
+      "sources": ["src-openai-commerce-siwc"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "identity"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-025",
+      "text": "OpenAI introduced dots on 2026-09-29. A dot is an always-on agent that lives in the cloud with its own computer and browser; access is rolling out gradually to eligible Pro users aged 18 and older outside the European Economic Area, the United Kingdom and Switzerland and to Business Premium accounts, and dots are available in eligible Enterprise, Edu and Healthcare workspaces.",
+      "sources": ["src-scn-chatgpt-dots-docs", "src-openai-news-rss-20261114"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "actors"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-026",
+      "text": "OpenAI's RSS summary of the Wallet post and the post's own page description describe Wallet as a way for agents in ChatGPT Work, Codex and dots to complete purchases, while the post's text names dots as the initial surface.",
+      "sources": ["src-openai-news-rss-20261114", "src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "dates"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-027",
+      "text": "CNBC reported on 2026-11-13 that OpenAI said it is not taking a cut of ChatGPT Wallet transactions to start, and that the payment token is specific to a given transaction.",
+      "sources": ["src-scn-chatgpt-cnbc-wallet"],
+      "confidence": "reported",
+      "asOf": "2026-11-13",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-028",
+      "text": "Neither OpenAI's Wallet post nor its Commerce in ChatGPT partner playbook states a fee for purchases made with ChatGPT Wallet (read 2026-11-14).",
+      "sources": ["src-openai-chatgpt-wallet", "src-openai-commerce-playbook"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-029",
+      "text": "TechCrunch reported that, according to OpenAI, the merchant receives what it needs to fulfill a Wallet order from the dot, such as the shipping address and contact information.",
+      "sources": ["src-scn-chatgpt-techcrunch-wallet"],
+      "confidence": "reported",
+      "asOf": "2026-11-13",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-030",
+      "text": "OpenAI says it expects users, over time, to delegate purchases entirely to their agent within parameters such as spending limits, purchase categories or time periods and to pre-approve them with safeguards that include biometric checks and records of authorization; the post gives no date.",
+      "sources": ["src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-031",
+      "text": "The Wallet post says users keep their card's rewards and protections for eligible disputes, banks and networks evaluate the transactions, and businesses keep their customer relationships and control over pricing, fulfillment, returns and customer service.",
+      "sources": ["src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-032",
+      "text": "Apart from an American Express quote that calls Wallet its first Agentic Commerce Experiences integration, the Wallet post names no card network program, such as Mastercard Agent Pay or Visa Intelligent Commerce, and it never mentions ACP, Instant Checkout, Delegate Payment or Shared Payment Tokens.",
+      "sources": ["src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-033",
+      "text": "OpenAI's Wallet post quotes American Express's Luke Gebb calling ChatGPT Wallet the first American Express Agentic Commerce Experiences (ACE) integration; American Express had published nothing on Wallet in its own newsroom as of 2026-11-14.",
+      "sources": ["src-openai-chatgpt-wallet", "src-scn-chatgpt-amex-newsroom"],
+      "confidence": "reported",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-034",
+      "text": "OpenAI documents the ChatGPT payment sheet as opened by a plugin's UI widget through window.openai.requestCheckout, a call its plugin UI reference lists as Instant Checkout; that reference says plugin UI components run inside an iframe in ChatGPT, and OpenAI's commerce plugin guide says iframe-based MCP UI is not supported in dots.",
+      "sources": ["src-openai-apps-monetization", "src-scn-chatgpt-plugin-ui", "src-openai-commerce-build-plugin"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-035",
+      "text": "Shopify's Help Center, read 2026-11-14, calls the ChatGPT channel a discovery-focused referrer platform: eligible stores reach ChatGPT through Shopify Catalog without a separate feed, buyers complete the purchase on the store's own checkout in ChatGPT's in-app browser or a new tab, and selling in ChatGPT carries no fees beyond standard payment processing.",
+      "sources": ["src-scn-chatgpt-shopify-chatgpt-channel"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-036",
+      "text": "OpenAI's partner playbook says ChatGPT looks for options in the public web, private API integrations and, for retail, merchant product feeds, and that a business profile helps customers learn about a business when ChatGPT mentions it.",
+      "sources": ["src-openai-commerce-playbook", "src-openai-commerce-business-profile"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "flow"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-037",
+      "text": "OpenAI's commerce docs, read 2026-11-14, document ChatGPT's agent requests as plain Web Bot Auth with the Signature-Agent value \"https://chatgpt.com\" and do not mention Visa's Trusted Agent Protocol or Mastercard Agent Pay.",
+      "sources": ["src-openai-commerce-agent-access", "src-openai-commerce-playbook"],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-scn-chatgpt-discovery-to-checkout-038",
+      "text": "The Wallet post gives no transaction count, volume or merchant count for ChatGPT Wallet; its only usage figure is that 1.2 billion people use ChatGPT each week.",
+      "sources": ["src-openai-chatgpt-wallet"],
+      "confidence": "verified",
+      "asOf": "2026-11-13",
+      "topic": "metrics"
+    }
+  ]
+}

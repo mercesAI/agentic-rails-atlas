@@ -5,18 +5,25 @@ category: machine-payments
 starred: false
 oneLiner: "Open Payments is an Interledger Foundation REST API standard, with GNAP authorization, for requesting and sending payments between accounts on Open Payments-enabled wallets; Web Monetization is a browser-side draft that streams payments from a visitor's wallet to a page's wallet address."
 steward: "Interledger Foundation; Web Monetization is incubated in the W3C Web Platform Incubator Community Group (WICG)"
-status: "Live; Web Monetization is a CG draft; no agent program found"
+status: "Live; Web Monetization is a CG draft; no agent program found (a 2026-10-22 Foundation post positions it for AI agents)"
 latestVersion:
   label: "@interledger/open-payments 7.4.0"
   date: "2026-03-11"
-relations: []
+relations:
+  - to: x402
+    type: complements
+    note: "The Interledger Foundation's view (2026-10-22): Web Monetization signals that a site accepts payments, while x402 charges a set price, so the two serve different purposes. No integration is documented."
+  - to: stripe-mpp
+    type: complements
+    note: "The Interledger Foundation's view (2026-10-22): Web Monetization serves a different purpose from MPP's priced charges. No integration is documented."
 sources:
   - src-orbit-interledger-op-repo
   - src-orbit-interledger-op-npm
   - src-orbit-interledger-wm-spec
+  - src-orbit-interledger-wm-agentic-age
   - src-orbit-interledger-blog
   - src-orbit-interledger-community-x402
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
-Open Payments has a public specification and SDK repository and a reference implementation, Rafiki; the npm package `@interledger/open-payments` reached 7.4.0 on 2026-03-11. <Cite ids="src-orbit-interledger-op-repo src-orbit-interledger-op-npm" /> Web Monetization is a Draft Community Group Report, republished on 2026-09-15 by Interledger Foundation editors, and not a W3C standard. <Cite ids="src-orbit-interledger-wm-spec" /> No official AI-agent program was found on the Interledger Foundation blog or openpayments.dev on 2026-10-11, and none of the eight reference Open Payments; a community post that explores it as an [x402](/p/x402/) settlement rail is one researcher's work (reported). <Cite ids="src-orbit-interledger-blog src-orbit-interledger-community-x402" />
+Open Payments has a public specification and SDK repository and a reference implementation, Rafiki; the npm package `@interledger/open-payments` reached 7.4.0 on 2026-03-11 and was still the latest release on 2026-11-14. <Cite ids="src-orbit-interledger-op-repo src-orbit-interledger-op-npm" /> Web Monetization is a Draft Community Group Report, republished on 2026-09-15 by Interledger Foundation editors, and not a W3C standard. <Cite ids="src-orbit-interledger-wm-spec" /> On 2026-10-22 the Foundation's chief technology officer set out its view of Web Monetization for AI agents: a monetization link tag gives an agent a machine-readable signal that a site accepts payments, so an agent with a budget can stream small payments to the site's Open Payments wallet address, while [x402](/p/x402/) and [MPP](/p/stripe-mpp/) charge a set price before content is served. The post says Web Monetization is not a competitor to those two but serves a different purpose; it is a position post, not an agent program, product or specification change. <Cite ids="src-orbit-interledger-wm-agentic-age" /> As of 2026-11-14 no Foundation agent program was found, none of the eight reference Open Payments, and a community post that explores it as an x402 settlement rail is one researcher's work (reported). <Cite ids="src-orbit-interledger-blog src-orbit-interledger-community-x402" />

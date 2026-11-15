@@ -47,7 +47,7 @@
   {
    "what": "Release channels",
    "where": "https://ucp.dev/versions.json",
-   "how": "Lists draft and dated versions; latest aliased to 2026-08-25 on 2026-10-20.",
+   "how": "Lists draft and dated versions; latest aliased to 2026-08-25 on 2026-10-20 and 2026-11-14. The served 2026-08-25 docs include the Ask backport of 2026-11-02, which the git tag does not.",
    "sources": [
     "src-ucp-site-versions"
    ]
@@ -65,9 +65,19 @@
   {
    "what": "Google traffic markers",
    "where": "HTTP headers at the business",
-   "how": "UCP-Agent plus User-Agent beginning Google/UCP; health checks with Google-UCP-Prober/1.0; Google's FAQ (updated 2026-10-16) also offers mutual TLS against Google's UCP root certificate authorities.",
+   "how": "Checkout, cart and order calls carry UCP-Agent (for example profile=\"https://ucp.goog/profiles/2026-04-08/ucp.json\") and the User-Agent Google-Shopping-Merchant-Integration by default, Google/UCP* when origin user-agent propagation is enabled, and Google-UCP-Prober/1.0 for health checks; discovery and token requests carry no UCP-Agent. Google says headers alone must not authenticate (FAQ, last updated 2026-11-03).",
    "sources": [
-    "src-ucp-google-faq"
+    "src-ucp-google-faq",
+    "src-ucp-google-network-waf"
+   ]
+  },
+  {
+   "what": "Google's platform profile and signing keys",
+   "where": "https://ucp.goog/.well-known/ucp.json",
+   "how": "Public profile with Google's ES256 signing keys; Google's FAQ (2026-11-03) says to verify RFC 9421 signatures against these keys, cache them no longer than 24 hours and refetch on an unknown key id, beside mutual TLS and source-ASN rules (AS15169; AS396982 for Account Linking).",
+   "sources": [
+    "src-ucp-google-faq",
+    "src-ucp-google-network-waf"
    ]
   }
  ],

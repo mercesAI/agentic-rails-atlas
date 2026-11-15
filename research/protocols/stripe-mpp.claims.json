@@ -60,7 +60,7 @@
       ],
       "confidence": "verified",
       "topic": "governance",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-stripe-mpp-007",
@@ -112,12 +112,14 @@
     },
     {
       "id": "clm-stripe-mpp-012",
-      "text": "Payment rails can add MPP payment methods without approval, and mppx supports custom payment methods.",
+      "text": "mpp.dev's governance page says payment rails and third parties need no explicit approval to implement an MPP payment method, and mppx supports custom payment methods. Listing a method in the official mpp-specs repository is up to its maintainers: on 2026-10-25 a Tempo maintainer closed six external method pull requests unmerged, saying each network was too small for the official spec and could keep its own SDK and spec.",
       "sources": [
-        "src-stripe-mpp-governance"
+        "src-stripe-mpp-governance",
+        "src-stripe-mpp-gh-pr-377"
       ],
       "confidence": "verified",
-      "topic": "governance"
+      "topic": "governance",
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-stripe-mpp-013",
@@ -440,13 +442,13 @@
     },
     {
       "id": "clm-stripe-mpp-046",
-      "text": "The latest mppx release is 0.13.4, published 2026-10-08.",
+      "text": "On 2026-10-21 the latest mppx release was 0.14.1, published that day.",
       "sources": [
         "src-stripe-mpp-npm-mppx"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-10-11"
+      "asOf": "2026-10-21"
     },
     {
       "id": "clm-stripe-mpp-047",
@@ -892,13 +894,13 @@
     },
     {
       "id": "clm-stripe-mpp-090",
-      "text": "As of 2026-10-11 IANA lists neither the Payment authentication scheme nor the Accept-Payment, Payment-Authorization or Payment-Receipt fields.",
+      "text": "As of 2026-11-14 IANA lists neither the Payment authentication scheme nor the Accept-Payment, Payment-Authorization or Payment-Receipt fields.",
       "sources": [
         "src-stripe-mpp-iana"
       ],
       "confidence": "verified",
       "topic": "governance",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-stripe-mpp-091",
@@ -922,9 +924,10 @@
     },
     {
       "id": "clm-stripe-mpp-093",
-      "text": "A 403 response means the payment was valid but policy denies access, and it carries no new challenge.",
+      "text": "In draft-httpauth-payment-01 as posted to the IETF on 2026-09-09, a 403 response means the payment was valid but policy denies access, and it carries no new challenge.",
       "sources": [
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-ietf-01-text"
       ],
       "confidence": "verified",
       "topic": "flow",
@@ -932,9 +935,10 @@
     },
     {
       "id": "clm-stripe-mpp-094",
-      "text": "When a resource needs both authentication and payment, servers SHOULD check authentication first and return 401 before issuing a 402 Payment challenge.",
+      "text": "When a resource needs both authentication and payment, servers SHOULD check authentication first and return 401 before issuing a 402 Payment challenge; the posted -01 and the repository text of 2026-11-11 both say so.",
       "sources": [
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-core-01-7bb99c8"
       ],
       "confidence": "verified",
       "topic": "flow",
@@ -1331,14 +1335,16 @@
     },
     {
       "id": "clm-stripe-mpp-134",
-      "text": "MPP has no native agent identity; mppx adds optional RFC 9421 request attestation for Web Bot Auth and Visa TAP.",
+      "text": "The MPP core defines no native agent identity and no user mandate: its terminology covers only the payment challenge, credential, method, intent, request and payload, and its repository text of 2026-11-11 leaves any other authentication to separate mechanisms. Identity comes from the mppx SDK instead: optional RFC 9421 request attestation for Web Bot Auth and Visa TAP from 0.8.17 (2026-08-10), replaced in 0.16.0 (2026-10-28) by per-route identity verifiers.",
       "sources": [
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-blog-identity"
+        "src-stripe-mpp-core-01-7bb99c8",
+        "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-mppx-changelog"
       ],
       "confidence": "verified",
       "topic": "controls",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-stripe-mpp-135",
@@ -2021,6 +2027,263 @@
       ],
       "confidence": "verified",
       "topic": "other"
+    },
+    {
+      "id": "clm-stripe-mpp-262",
+      "text": "On 2026-11-11 mpp-specs PR #404 (merge commit 7bb99c8) edited draft-httpauth-payment-01 in place, without a revision bump, so nothing new reached the IETF Datatracker. The edit defines how Payment composes with other authentication, such as a Bearer token, an RFC 9421 HTTP Message Signature or an attestation header, which the Payment scheme itself does not define or register.",
+      "sources": [
+        "src-stripe-mpp-gh-pr-404",
+        "src-stripe-mpp-core-01-7bb99c8",
+        "src-stripe-mpp-ietf-current"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-14",
+      "specVersion": "draft-httpauth-payment-01 (repository text of 2026-11-11)"
+    },
+    {
+      "id": "clm-stripe-mpp-263",
+      "text": "In the repository text of 2026-11-11, a server that requires other authentication as well as payment must verify it before it verifies, consumes or settles a Payment credential. When it denies access on that basis, with 401, 403 or a mechanism-defined error, it must not settle the payment, consume the challenge or credential, or send a Payment-Receipt.",
+      "sources": [
+        "src-stripe-mpp-core-01-7bb99c8"
+      ],
+      "confidence": "verified",
+      "topic": "flow",
+      "asOf": "2026-11-14",
+      "specVersion": "draft-httpauth-payment-01 (repository text of 2026-11-11)"
+    },
+    {
+      "id": "clm-stripe-mpp-264",
+      "text": "In the repository text of 2026-11-11, a 403 after a paid request means either that the payment succeeded but policy denies access or that other authentication denied access and no payment settled, and servers SHOULD say which in the Problem Details body. Clients should not resend a credential after a 403 unless the response says nothing settled, but may resend the same credential after a 401, which never follows settlement.",
+      "sources": [
+        "src-stripe-mpp-core-01-7bb99c8"
+      ],
+      "confidence": "verified",
+      "topic": "flow",
+      "asOf": "2026-11-14",
+      "specVersion": "draft-httpauth-payment-01 (repository text of 2026-11-11)"
+    },
+    {
+      "id": "clm-stripe-mpp-265",
+      "text": "In the repository text of 2026-11-11, a server SHOULD include header=\"Payment-Authorization\" in its challenge whenever the other authentication uses the Authorization header; the -01 posted on 2026-09-09 says MAY.",
+      "sources": [
+        "src-stripe-mpp-core-01-7bb99c8",
+        "src-stripe-mpp-ietf-01-text"
+      ],
+      "confidence": "verified",
+      "topic": "objects",
+      "asOf": "2026-11-14",
+      "specVersion": "draft-httpauth-payment-01 (repository text of 2026-11-11)"
+    },
+    {
+      "id": "clm-stripe-mpp-266",
+      "text": "Two different texts now carry the name draft-httpauth-payment-01: paymentauth.org serves the repository text of 2026-11-11, dated 2026-11-11 with an expiry of 2027-05-15 on its face, while the IETF archive copy is dated 2026-09-09, expires 2027-03-13 and keeps the earlier text. The Datatracker still lists revision 01 of 2026-09-09, and an open pull request (PR #406, 2026-11-13) would make in-place edits the rule.",
+      "sources": [
+        "src-stripe-mpp-paymentauth-01-txt",
+        "src-stripe-mpp-ietf-01-text",
+        "src-stripe-mpp-ietf-current",
+        "src-stripe-mpp-gh-pr-406"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-267",
+      "text": "The latest mppx release is 0.19.0, published on npm on 2026-11-14. After 0.14.1 it shipped 0.15.0 (2026-10-21), 0.16.0 (2026-10-28), 0.17.0 (2026-10-29), 0.17.1 to 0.17.6 (2026-11-04 to 2026-11-09, with no 0.17.2 on npm), 0.18.0 (2026-11-09) and 0.18.1 (2026-11-12).",
+      "sources": [
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-268",
+      "text": "Four mppx releases after 0.14.1 carry breaking changes: 0.16.0 replaced request attestation with per-route identity; 0.17.0 changed identity nonces, challenge hooks and provers; 0.18.0 made a missing identity proof answer 401 instead of 403 and replaced payment-stage verifiers with an experimental payment check; and 0.19.0 made the Web Bot Auth and TAP provers and Attestation.sign take a key pair or remote signer instead of a private key.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-269",
+      "text": "Since mppx 0.18.0 (2026-11-09), tempo(), tempo.charge(), tempo.session() and tempo.subscription() throw at construction when no store is passed and NODE_ENV is production, a multi-instance platform such as Vercel or AWS Lambda is detected, or the code runs on Cloudflare Workers, instead of silently keeping replay protection in per-instance memory. Store.memory() keeps instance-local state on purpose, and charges served through a relay need no store.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-mppx-repo"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-270",
+      "text": "On 2026-11-14 the latest releases of the other official MPP SDKs were pympp 0.22.0 (2026-11-09), the Rust crate mpp 0.20.0 (2026-11-09), mpp-go v0.9.0 (2026-11-09) and mpp-rb 0.1.10 (2026-10-26).",
+      "sources": [
+        "src-stripe-mpp-sdk-registries"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-271",
+      "text": "A re-check on 2026-11-14 found no new security advisory for any MPP SDK since 2026-10-21: the repositories still list nine, five for mppx, two for the Rust crate mpp and two for pympp, and none for mpp-go or mpp-rb.",
+      "sources": [
+        "src-stripe-mpp-ghsa-other",
+        "src-stripe-mpp-ghsa-mpp-rs",
+        "src-stripe-mpp-ghsa-pympp"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-272",
+      "text": "mppx 0.16.0 (2026-10-28) replaced request attestation with per-route identity: the mppx/attestation module became mppx/identity, Mppx.create no longer accepts an attestation option, routes take an identity list of verifiers, and the TAP and Web Bot Auth profiles moved to mppx/extensions/identity/tap and mppx/extensions/identity/web-bot-auth.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-273",
+      "text": "Between mppx 0.17.6 (2026-11-09) and 0.19.0 (2026-11-14) the SDK added identity verifiers for Email OTP attestations, Link agent identity, Persona KYC, World ID and Tempo ID, plus Identity.from for an operator's own checks, and mpp.dev announced the set on 2026-11-11. mppx runs a route's verifiers before it issues a challenge.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-blog-identity-expanded",
+        "src-stripe-mpp-docs-identity"
+      ],
+      "confidence": "verified",
+      "topic": "controls",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-274",
+      "text": "Since mppx 0.18.0 (2026-11-09) an identity verifier returns one of five fixed statuses: valid, missing (401), invalid (401), forbidden (403) or unavailable (503). A caller rejected before the challenge never sees payment terms.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-docs-identity"
+      ],
+      "confidence": "verified",
+      "topic": "controls",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-275",
+      "text": "The identity header fields mppx uses (Identity-Attestation, Identity-Attestation-Required, Identity-Presentation and Identity-Required) are defined by the SDK; no draft in mpp-specs mentions them as of 2026-11-14.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-docs-identity",
+        "src-stripe-mpp-core-01-7bb99c8"
+      ],
+      "confidence": "verified",
+      "topic": "objects",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-276",
+      "text": "mpp-specs PR #310, merged on 2026-10-25 UTC (commit 61f9c31), added draft-solana-subscription-00 by two Solana Foundation authors, so the solana method now specifies charge, session and subscription. Like the Tempo subscription method, it allows only day or week periods.",
+      "sources": [
+        "src-stripe-mpp-solana-subscription"
+      ],
+      "confidence": "verified",
+      "topic": "objects",
+      "asOf": "2026-11-14",
+      "specVersion": "draft-solana-subscription-00"
+    },
+    {
+      "id": "clm-stripe-mpp-277",
+      "text": "Since mppx 0.17.4 (2026-11-07) a Tempo charge can be paid from a Tempo Zone balance: the server lists the Zones it accepts in methodDetails.zones, the client withdraws to the recipient with a challenge-bound memo and sends a zone credential, and mppx answers a replayed senderTag with 403. The zone credential and the zones field are defined by mppx and mpp.dev, not by draft-tempo-charge-00.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-docs-private-payments"
+      ],
+      "confidence": "verified",
+      "topic": "flow",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-278",
+      "text": "In a Zone payment the payer's address, balance and history are visible only to the payer and the Zone operator, while the withdrawal senderTag, recipient, token, amount, timing and memo stay public on Tempo. Zone payments work only with the charge intent, in push mode and without splits.",
+      "sources": [
+        "src-stripe-mpp-docs-private-payments"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-279",
+      "text": "Tempo's T13 network upgrade, which needs node release tempo/v1.17.0 (2026-10-26), activated on the testnet on 2026-10-29 and on mainnet on 2026-11-03. It ships the Zones prover, which verifies an AWS Nitro attestation of each Zone batch before settlement, with a temporary fallback to sequencer signatures, and lets fees fall back to OUSD when the fee payer has too little pathUSD.",
+      "sources": [
+        "src-stripe-mpp-tempo-t13",
+        "src-stripe-mpp-tempo-releases"
+      ],
+      "confidence": "verified",
+      "topic": "dates",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-280",
+      "text": "MPPscan's stats read on 2026-11-14 showed 4,693,132 transactions, 445,223 USD, 225,341 senders and 6,223 recipients all time; 536,607 transactions and 8,722 USD for the last 30 days; and 62,011 transactions and 1,797 USD for the homepage's 7 days. The newest transaction among its top 20 servers dated from 2026-11-11T17:14:56Z and the 1-day window read zero, so its indexer appears to have stopped about then and the rolling windows hold fewer indexed days than their names say.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-281",
+      "text": "The mpp.dev payments directory listed 139 services on 2026-11-14, of which 136 accept tempo, 10 stripe and 1 evm; 19 carry the supportsMACH flag.",
+      "sources": [
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-282",
+      "text": "mpp-specs CONTRIBUTING (2026-10-26) says the mppx, mpp-rs, pympp and mpp-go SDKs do not accept pull requests from external contributors. The shared AGENTS.md (2026-11-02) calls mppx the reference SDK and says the drafts are the protocol's source of truth while mppx settles what they leave open, and CODEOWNERS (2026-11-09) assigns every spec file to one Tempo maintainer, with rail authors only on their own method files.",
+      "sources": [
+        "src-stripe-mpp-specs-contributing-2026",
+        "src-stripe-mpp-specs-agents-md"
+      ],
+      "confidence": "verified",
+      "topic": "governance",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-stripe-mpp-283",
+      "text": "draft-payment-transport-mcp-00 is written against MCP revision 2025-11-25: servers advertise payment support in InitializeResult and clients in InitializeRequest. MCP's current revision, 2026-07-28, removed the initialize handshake, and the transport draft was unchanged at mpp-specs commit 7bb99c8 (2026-11-11).",
+      "sources": [
+        "src-stripe-mpp-mcp-transport",
+        "src-stripe-mpp-mcp-changelog-2026-07-28"
+      ],
+      "confidence": "verified",
+      "topic": "transports",
+      "asOf": "2026-11-14",
+      "specVersion": "draft-payment-transport-mcp-00"
+    },
+    {
+      "id": "clm-stripe-mpp-284",
+      "text": "A second pull request for a generic session intent, mpp-specs PR #387, closed unmerged on 2026-11-07, and its successor, PR #394 (opened 2026-11-06), was still open on 2026-11-14, so session remains defined per method.",
+      "sources": [
+        "src-stripe-mpp-gh-pr-394",
+        "src-stripe-mpp-core-01-7bb99c8"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-14"
     }
   ]
 }

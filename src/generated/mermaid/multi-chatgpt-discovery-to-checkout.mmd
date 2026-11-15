@@ -1,56 +1,88 @@
 sequenceDiagram
-  accTitle: From ChatGPT discovery to merchant checkout: an ACP product feed, a ChatGPT plugin, then external checkout or the payment sheet beta
-  accDescr: Sequence diagram: From ChatGPT discovery to merchant checkout: an ACP product feed, a ChatGPT plugin, then external checkout or the payment sheet beta. 5 participants: Shopper, ChatGPT (agent surface), Merchant's ChatGPT plugin (MCP server and widget), Merchant (site, catalog and vault), and Merchant PSP and card rails. 13 steps, 10 crossing a trust boundary, 7 failure branches. Based on several protocols ACP 2026-04-17 OpenAI plugin checkout reference, formerly the Apps SDK monetization guide (read 2026-10-20) (2026-04-17). Step 1: Merchant (site, catalog and vault) to ChatGPT (agent surface): Push the product feed (ACP Feed API). This step crosses a trust boundary. If A feed file replaces the whole set with a partial file: Products missing from the file drop out the ACP file mode replaces the full product set. Step 2: Shopper to ChatGPT (agent surface): Ask for a product. Step 3: ChatGPT (agent surface) to Shopper: Show matching products from feeds. Step 4: ChatGPT (agent surface) to Merchant's ChatGPT plugin (MCP server and widget): Open the merchant's ChatGPT plugin (MCP tool call). This step crosses a trust boundary. Step 5: Merchant's ChatGPT plugin (MCP server and widget) to Shopper: Path A (generally available): link to the merchant's own checkout. This step crosses a trust boundary. Step 6: Shopper to Merchant (site, catalog and vault): Path A: pay on the merchant's site. This step crosses a trust boundary. Step 7: Merchant (site, catalog and vault) to Merchant PSP and card rails: Path A: authorize through the merchant's PSP. This step crosses a trust boundary. If The issuer declines: An ordinary decline on the merchant's site. Step 8: Merchant's ChatGPT plugin (MCP server and widget) to ChatGPT (agent surface): Path B (private beta): widget calls window.openai.requestCheckout. This step crosses a trust boundary. Step 9: Shopper to ChatGPT (agent surface): Path B: choose a payment method and buy. If The shopper closes the sheet: No token is sent and nothing is charged. Step 10: ChatGPT (agent surface) to Merchant (site, catalog and vault): Path B, PCI DSS Level 1 merchants only: POST /agentic_commerce/delegate_payment. This step crosses a trust boundary. If Card data fails validation: Delegate Payment error invalid_card. If The same Idempotency-Key with a different body: idempotency_conflict. Step 11: Merchant (site, catalog and vault) to ChatGPT (agent surface): Path B, PCI DSS Level 1: 201 with a vault token id. This step crosses a trust boundary. Step 12: ChatGPT (agent surface) to Merchant's ChatGPT plugin (MCP server and widget): Path B: complete_checkout tool call with a payment-method token. This step crosses a trust boundary. Step 13: Merchant's ChatGPT plugin (MCP server and widget) to Merchant PSP and card rails: Path B: charge the token through a supported PSP. This step crosses a trust boundary. If A delegated token is used outside its allowance: Should fail, but ACP defines no error code for it the error is PSP specific. If The issuer declines: An ordinary decline the app tells the shopper.
+  accTitle: From ChatGPT discovery to merchant checkout: feeds and business profiles, then a dot paying with ChatGPT Wallet on the merchant's site, a headless plugin handoff, or the marketplace payment sheet
+  accDescr: Sequence diagram: From ChatGPT discovery to merchant checkout: feeds and business profiles, then a dot paying with ChatGPT Wallet on the merchant's site, a headless plugin handoff, or the marketplace payment sheet. 8 participants: Shopper, ChatGPT (search, Wallet approval, payment sheet), Card network token service (American Express, Mastercard or Visa), The shopper's dot: cloud browser, Merchant CDN or firewall, Merchant (website checkout, feed, profile, Level 1 vault), Merchant plugin (MCP server widget in path C), and Merchant PSP, risk provider and card rails. 19 steps, 15 crossing a trust boundary, 12 failure branches. Based on several protocols OpenAI Commerce in ChatGPT partner playbook (published 2026-11-13, read 2026-11-14) OpenAI plugin checkout reference and plugin guidelines (read 2026-11-14) ACP 2026-04-17 for Delegate Payment (2026-11-13). Step 1: Merchant (website checkout, feed, profile, Level 1 vault) to ChatGPT (search, Wallet approval, payment sheet): Claim the business, verify identity and upload a product feed (Business Hub). This step crosses a trust boundary. If A row omits availability or uses an unrecognized value: The row is rejected availability is required and takes one of five listed values. Step 2: Shopper to ChatGPT (search, Wallet approval, payment sheet): Ask for trail running shoes (in a chat or to a dot). Step 3: ChatGPT (search, Wallet approval, payment sheet) to Shopper: Show options from feeds, business profiles and the web. Step 4: The shopper's dot: cloud browser to Merchant CDN or firewall: Path A (limited rollout): GET the product and checkout pages, signed with Web Bot Auth. This step crosses a trust boundary. If The site's bot defenses block the visit: The dot cannot reach checkout. OpenAI asks sites to allow verified ChatGPT browser visits while keeping their other security controls. Step 5: Merchant CDN or firewall to Merchant (website checkout, feed, profile, Level 1 vault): Path A: verify against chatgpt.com's key directory, then forward. This step crosses a trust boundary. If Signature-Agent is missing or differs from https://chatgpt.com, or the signature fails: Not verified ChatGPT traffic: no exception applies and the site's normal bot rules decide. Step 6: The shopper's dot: cloud browser to Merchant (website checkout, feed, profile, Level 1 vault): Path A: fill the existing checkout with the shipping and contact details. This step crosses a trust boundary. Step 7: Shopper to ChatGPT (search, Wallet approval, payment sheet): Path A: approve items, total and card with a security check (ChatGPT Wallet). If The shopper does not approve: No payment token is issued and nothing is charged. Step 8: Card network token service (American Express, Mastercard or Visa) to ChatGPT (search, Wallet approval, payment sheet): Path A: payment token for the approved purchase (card number, security code, expiry). This step crosses a trust boundary. Step 9: The shopper's dot: cloud browser to Merchant (website checkout, feed, profile, Level 1 vault): Path A: enter the token in the existing payment form and place the order. This step crosses a trust boundary. Step 10: Merchant (website checkout, feed, profile, Level 1 vault) to Merchant PSP, risk provider and card rails: Path A: authorize the network token risk systems score the order. This step crosses a trust boundary. If A risk system tuned against bots flags the order: A decline or cancellation. OpenAI asks merchants to work with their risk providers and read the Forwarded signals. If The issuer declines: An ordinary decline on the merchant's site. Step 11: ChatGPT (search, Wallet approval, payment sheet) to Merchant plugin (MCP server widget in path C): Path B: call the plugin's headless MCP tools (lookup, cart, create_checkout). This step crosses a trust boundary. Step 12: Merchant plugin (MCP server widget in path C) to ChatGPT (search, Wallet approval, payment sheet): Path B: return the checkout state with a continue_url handoff. This step crosses a trust boundary. If The plugin cannot complete a required cart or checkout step: Checkout continues in a browser at the continue_url instead of starting again. Step 13: Shopper to Merchant (website checkout, feed, profile, Level 1 vault): Path B: continue at the continue_url and pay on the website. This step crosses a trust boundary. Step 14: Merchant plugin (MCP server widget in path C) to ChatGPT (search, Wallet approval, payment sheet): Path C (beta, select marketplaces): widget calls window.openai.requestCheckout. This step crosses a trust boundary. Step 15: Shopper to ChatGPT (search, Wallet approval, payment sheet): Path C: choose a payment method in the sheet and buy. If The shopper closes the sheet: No token is sent and nothing is charged. Step 16: ChatGPT (search, Wallet approval, payment sheet) to Merchant (website checkout, feed, profile, Level 1 vault): Path C, PCI DSS Level 1 merchants only: POST /agentic_commerce/delegate_payment. This step crosses a trust boundary. If Card data fails validation: Delegate Payment error invalid_card. If The same Idempotency-Key with a different body: idempotency_conflict. Step 17: Merchant (website checkout, feed, profile, Level 1 vault) to ChatGPT (search, Wallet approval, payment sheet): Path C, PCI DSS Level 1: 201 with a vault token id. This step crosses a trust boundary. Step 18: ChatGPT (search, Wallet approval, payment sheet) to Merchant plugin (MCP server widget in path C): Path C: complete_checkout tool call with a payment-method token. This step crosses a trust boundary. Step 19: Merchant plugin (MCP server widget in path C) to Merchant PSP, risk provider and card rails: Path C: charge the token through a supported PSP. This step crosses a trust boundary. If A delegated token is used outside its allowance: Should fail, but ACP defines no error code for it the error is PSP specific. If The issuer declines: An ordinary decline the plugin tells the shopper.
   autonumber
   participant p_user as Shopper
-  participant p_chatgpt as ChatGPT (agent surface)
-  participant p_app as Merchant#39;s ChatGPT plugin (MCP server and widget)
-  participant p_merchant as Merchant (site, catalog and vault)
-  participant p_psp as Merchant PSP and card rails
+  participant p_chatgpt as ChatGPT (search, Wallet approval, payment sheet)
+  participant p_network as Card network token service (American Express, Mastercard or Visa)
+  participant p_browser as The shopper#39;s dot: cloud browser
+  participant p_edge as Merchant CDN or firewall
+  participant p_merchant as Merchant (website checkout, feed, profile, Level 1 vault)
+  participant p_plugin as Merchant plugin (MCP server#59; widget in path C)
+  participant p_psp as Merchant PSP, risk provider and card rails
   alt Expected path
-    p_merchant->>p_chatgpt: Push the product feed (ACP Feed API)
+    p_merchant->>p_chatgpt: Claim the business, verify identity and<br/>upload a product feed (Business Hub)
     Note over p_merchant,p_chatgpt: Crosses a trust boundary
-  else A feed file replaces the whole set with a partial file
-    Note over p_merchant,p_chatgpt: Products missing from the file drop out#59; the<br/>ACP file mode replaces the full product set.
+  else A row omits availability or uses an unrecognized value
+    Note over p_merchant,p_chatgpt: The row is rejected#59; availability is required<br/>and takes one of five listed values.
   end
-  p_user->>p_chatgpt: Ask for a product
-  p_chatgpt-->>p_user: Show matching products from feeds
-  p_chatgpt->>p_app: Open the merchant#39;s ChatGPT plugin (MCP tool call)
-  Note over p_chatgpt,p_app: Crosses a trust boundary
-  p_app->>p_user: Path A (generally available): link<br/>to the merchant#39;s own checkout
-  Note over p_app,p_user: Crosses a trust boundary
-  p_user->>p_merchant: Path A: pay on the merchant#39;s site
-  Note over p_user,p_merchant: Crosses a trust boundary
+  p_user->>p_chatgpt: Ask for trail running shoes (in a chat or to a dot)
+  p_chatgpt-->>p_user: Show options from feeds,<br/>business profiles and the web
   alt Expected path
-    p_merchant->>p_psp: Path A: authorize through the merchant#39;s PSP
+    p_browser->>p_edge: Path A (limited rollout): GET the product<br/>and checkout pages, signed with Web Bot Auth
+    Note over p_browser,p_edge: Crosses a trust boundary
+  else The site#39;s bot defenses block the visit
+    Note over p_browser,p_edge: The dot cannot reach checkout. OpenAI asks<br/>sites to allow verified ChatGPT browser visits<br/>while keeping their other security controls.
+  end
+  alt Expected path
+    p_edge->>p_merchant: Path A: verify against chatgpt.com#39;s<br/>key directory, then forward
+    Note over p_edge,p_merchant: Crosses a trust boundary
+  else Signature-Agent is missing or differs from #quot;https://chatgpt.com#quot;, or the signature fails
+    Note over p_edge,p_merchant: Not verified ChatGPT traffic: no exception<br/>applies and the site#39;s normal bot rules decide.
+  end
+  p_browser->>p_merchant: Path A: fill the existing checkout<br/>with the shipping and contact details
+  Note over p_browser,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_user->>p_chatgpt: Path A: approve items, total and card<br/>with a security check (ChatGPT Wallet)
+  else The shopper does not approve
+    Note over p_user,p_chatgpt: No payment token is issued and nothing is charged.
+  end
+  p_network->>p_chatgpt: Path A: payment token for the approved<br/>purchase (card number, security code, expiry)
+  Note over p_network,p_chatgpt: Crosses a trust boundary
+  p_browser->>p_merchant: Path A: enter the token in the existing<br/>payment form and place the order
+  Note over p_browser,p_merchant: Crosses a trust boundary
+  alt Expected path
+    p_merchant->>p_psp: Path A: authorize the network<br/>token#59; risk systems score the order
     Note over p_merchant,p_psp: Crosses a trust boundary
+  else A risk system tuned against bots flags the order
+    Note over p_merchant,p_psp: A decline or cancellation. OpenAI asks merchants to work<br/>with their risk providers and read the Forwarded signals.
   else The issuer declines
     Note over p_merchant,p_psp: An ordinary decline on the merchant#39;s site.
   end
-  p_app->>p_chatgpt: Path B (private beta): widget calls<br/>window.openai.requestCheckout
-  Note over p_app,p_chatgpt: Crosses a trust boundary
+  p_chatgpt->>p_plugin: Path B: call the plugin#39;s headless MCP<br/>tools (lookup, cart, create_checkout)
+  Note over p_chatgpt,p_plugin: Crosses a trust boundary
   alt Expected path
-    p_user->>p_chatgpt: Path B: choose a payment method and buy
+    p_plugin-->>p_chatgpt: Path B: return the checkout state<br/>with a continue_url handoff
+    Note over p_plugin,p_chatgpt: Crosses a trust boundary
+  else The plugin cannot complete a required cart or checkout step
+    Note over p_plugin,p_chatgpt: Checkout continues in a browser at the<br/>continue_url instead of starting again.
+  end
+  p_user->>p_merchant: Path B: continue at the<br/>continue_url and pay on the website
+  Note over p_user,p_merchant: Crosses a trust boundary
+  p_plugin->>p_chatgpt: Path C (beta, select marketplaces): widget<br/>calls window.openai.requestCheckout
+  Note over p_plugin,p_chatgpt: Crosses a trust boundary
+  alt Expected path
+    p_user->>p_chatgpt: Path C: choose a payment method in the sheet and buy
   else The shopper closes the sheet
     Note over p_user,p_chatgpt: No token is sent and nothing is charged.
   end
   alt Expected path
-    p_chatgpt->>p_merchant: Path B, PCI DSS Level 1 merchants only#58;<br/>POST /agentic_commerce/delegate_payment
+    p_chatgpt->>p_merchant: Path C, PCI DSS Level 1 merchants only#58;<br/>POST /agentic_commerce/delegate_payment
     Note over p_chatgpt,p_merchant: Crosses a trust boundary
   else Card data fails validation
     Note over p_chatgpt,p_merchant: Delegate Payment error invalid_card.
   else The same Idempotency-Key with a different body
     Note over p_chatgpt,p_merchant: idempotency_conflict.
   end
-  p_merchant-->>p_chatgpt: Path B, PCI DSS Level 1: 201 with a vault token id
+  p_merchant-->>p_chatgpt: Path C, PCI DSS Level 1: 201 with a vault token id
   Note over p_merchant,p_chatgpt: Crosses a trust boundary
-  p_chatgpt->>p_app: Path B: complete_checkout tool<br/>call with a payment-method token
-  Note over p_chatgpt,p_app: Crosses a trust boundary
+  p_chatgpt->>p_plugin: Path C: complete_checkout tool<br/>call with a payment-method token
+  Note over p_chatgpt,p_plugin: Crosses a trust boundary
   alt Expected path
-    p_app->>p_psp: Path B: charge the token through a supported PSP
-    Note over p_app,p_psp: Crosses a trust boundary
+    p_plugin->>p_psp: Path C: charge the token through a supported PSP
+    Note over p_plugin,p_psp: Crosses a trust boundary
   else A delegated token is used outside its allowance
-    Note over p_app,p_psp: Should fail, but ACP defines no error<br/>code for it#59; the error is PSP specific.
+    Note over p_plugin,p_psp: Should fail, but ACP defines no error<br/>code for it#59; the error is PSP specific.
   else The issuer declines
-    Note over p_app,p_psp: An ordinary decline#59; the app tells the shopper.
+    Note over p_plugin,p_psp: An ordinary decline#59; the plugin tells the shopper.
   end

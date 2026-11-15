@@ -239,11 +239,12 @@
       "date": "2026-08-18",
       "lane": "x402",
       "title": "Client spend controls",
-      "detail": "@x402/core 2.23.0: spendControls with a $1 default per payment.",
+      "detail": "@x402/core 2.23.0: spendControls with a $1 default per payment. With the SIWX origin check and a Solana TransferChecked guard in the 2.23.0 releases, it closed three critical findings V12 reported on 2026-08-12 and disclosed on 2026-10-22; no advisory was published.",
       "kind": "release",
       "sources": [
         "src-x402-core-changelog",
-        "src-x402-npm-core"
+        "src-x402-npm-core",
+        "src-x402-v12-25-vulns"
       ],
       "confidence": "verified"
     },
@@ -286,7 +287,7 @@
       "date": "2026-10-13",
       "lane": "x402",
       "title": "HEAD payment bypass fixed on main",
-      "detail": "PR #3796 makes HEAD requests to GET-only paid routes require payment in TypeScript, legacy x402, Go and Python. Not in a published release on 2026-10-19.",
+      "detail": "PR #3796 makes HEAD requests to GET-only paid routes require payment in TypeScript, legacy x402, Go and Python. Not in a published release on 2026-10-19; shipped on 2026-10-28 in @x402/core 2.29.0, PyPI x402 2.26.0 and Go v2.29.0, but in no legacy V1 release.",
       "kind": "security",
       "sources": [
         "src-x402-gh-pr-3796",
@@ -327,6 +328,84 @@
       "kind": "pilot",
       "sources": [
         "src-x402-mc-ap4m-early-access"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-19",
+      "lane": "x402",
+      "title": "Paywall bypass reported in the V1 middleware",
+      "detail": "Issue #3850: the deprecated V1 middleware (npm x402 1.2.0, used by x402-express and x402-hono) decodes paths before matching, so encoded route parameters skip payment. Open, with no V1 release, on 2026-11-14; V2 is not affected.",
+      "kind": "security",
+      "sources": [
+        "src-x402-gh-issue-3850",
+        "src-x402-gh-issue-4038",
+        "src-x402-npm-legacy"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-20",
+      "lane": "x402",
+      "title": "Third-party CVE for an x402 SDK: CVE-2026-113603",
+      "detail": "The third-party CNA VulnCheck published a medium-severity SIWX payment bypass (public since 2026-10-17); GitHub mirrors it as the unreviewed GHSA-vxw2-vmfp-vrg3. The fix (PR #3840) was unmerged on 2026-11-14.",
+      "kind": "security",
+      "sources": [
+        "src-x402-cve-2026-113603",
+        "src-x402-ghsa-vxw2",
+        "src-x402-gh-pr-3840"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-22",
+      "lane": "x402",
+      "title": "V12 discloses 25 findings, three critical",
+      "detail": "Industry review: a Solana approval accepted as payment, cross-site SIWX login signatures and no default spending limit, all fixed in the 2.23.0 releases of August 2026 without an advisory.",
+      "kind": "security",
+      "sources": [
+        "src-x402-v12-25-vulns",
+        "src-x402-gh-pr-3132",
+        "src-x402-gh-pr-3133"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-27",
+      "lane": "x402",
+      "title": "x402.org home page edited; its counter is gone by 2026-11-14",
+      "detail": "The home page, last edited on 2026-10-27, no longer showed on 2026-11-14 the Last 30 Days counter that had displayed the same 75.41M transactions and $24.24M since at least 2025-12-14 (last archived on 2026-10-24). Not announced.",
+      "kind": "market",
+      "sources": [
+        "src-x402-site",
+        "src-x402-site-wb-20261024"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-10-28",
+      "lane": "x402",
+      "title": "@x402 2.29.0 ships the HEAD fix",
+      "detail": "@x402/core 2.29.0, PyPI x402 2.26.0 and Go v2.29.0 require payment for HEAD requests to GET routes; @x402/svm 2.29.0 fails SVM batch-settlement verification closed when a store call fails. Go now requires Go 1.26.10.",
+      "kind": "release",
+      "sources": [
+        "src-x402-core-changelog-main",
+        "src-x402-npm-core",
+        "src-x402-pypi",
+        "src-x402-goproxy"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-11-12",
+      "lane": "x402",
+      "title": "Brave Search API sells searches over x402",
+      "detail": "$0.005 per request over x402 V2 exact, USDC on Base, through a facilitator Brave runs, with no account or API key. Other networks and stablecoins are announced only.",
+      "kind": "launch",
+      "sources": [
+        "src-x402-brave-blog",
+        "src-x402-brave-llms",
+        "src-x402-brave-402-probe"
       ],
       "confidence": "verified"
     }

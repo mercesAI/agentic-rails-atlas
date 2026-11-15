@@ -1,0 +1,189 @@
+[
+  {
+    "id": "src-scn-chatgpt-plugin-guidelines",
+    "url": "https://developers.openai.com/plugins/plugin-guidelines",
+    "title": "Plugin guidelines (ChatGPT plugins): commerce, prohibited goods and checkout",
+    "publisher": "OpenAI",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md variant at 2026-11-15T02:59Z UTC (2026-11-14 local). Commerce section: plugins may conduct commerce only for physical goods. Checkout section: plugins should use external checkout on the developer's own domain; Instant Checkout, in beta, is available only to select marketplace partners and may expand; until then external checkout is required and no other third-party checkout may be embedded in plugin UI; the section links OpenAI's agentic commerce docs at /commerce, which no longer describe Instant Checkout. The prohibited goods list covers adult content and sexual services, gambling, illegal or regulated drugs, drug paraphernalia, prescription and age-restricted medications, illicit goods, malware and surveillance, tobacco and nicotine, and weapons and harmful materials; it does not list alcohol."
+  },
+  {
+    "id": "src-scn-chatgpt-plugin-ui",
+    "url": "https://developers.openai.com/plugins/build/chatgpt-ui",
+    "title": "Add UI to your MCP server (ChatGPT plugins): components, extensions and checkout in the plugin UI",
+    "publisher": "OpenAI",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md variant at 2026-11-15T03:00Z UTC (2026-11-14 local) by the refresh's verifier. Plugin UI components run inside an iframe in ChatGPT and talk to the host through the MCP Apps bridge. The ChatGPT extensions list includes Instant Checkout with window.openai.requestCheckout. The section on the ChatGPT payment sheet says embedded checkout with the sheet is in private beta for select marketplaces; the component calls requestCheckout after the user chooses to pay, and ChatGPT sends the selected payment token to the MCP server's complete_checkout tool."
+  },
+  {
+    "id": "src-scn-chatgpt-plugin-auth",
+    "url": "https://developers.openai.com/plugins/build/auth",
+    "title": "Authentication (ChatGPT plugins): OAuth 2.1 under the MCP authorization spec, client identification and mutual TLS",
+    "publisher": "OpenAI",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md variant at 2026-11-15T02:47Z UTC. Authenticated MCP servers implement OAuth 2.1 conforming to the MCP authorization specification, linked at revision 2025-11-25; the authorization response validation rules are linked at revision 2026-07-28. ChatGPT prefers Client ID Metadata Documents (CIMD), also supports dynamic client registration and predefined clients, uses PKCE with S256 and RFC 9207 issuer identification. ChatGPT presents an OpenAI-managed client certificate for mutual TLS (leaf SAN dnsName mtls.prod.connectors.openai.com, chaining to the OpenAI Connectors mTLS intermediate CA); servers can also allowlist ChatGPT's published egress IP ranges. ChatGPT does not support machine-to-machine OAuth grants or customer-provided client certificates."
+  },
+  {
+    "id": "src-scn-chatgpt-siwc-quickstart",
+    "url": "https://developers.openai.com/siwc/quickstart",
+    "title": "Sign in with ChatGPT quickstart",
+    "publisher": "OpenAI",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md variant at 2026-11-15T02:47Z UTC. OpenID Connect sign-in with PKCE; available to selected commercial partners through a limited trial; identity-only clients request the scopes openid, profile and email. The OIDC discovery document at https://auth.openai.com/.well-known/openid-configuration, read the same minute, gives the issuer https://auth.openai.com."
+  },
+  {
+    "id": "src-scn-chatgpt-dots-docs",
+    "url": "https://learn.chatgpt.com/docs/dots",
+    "title": "Meet dots (ChatGPT documentation)",
+    "publisher": "OpenAI",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md variant at 2026-11-15T01:36Z UTC. A dot is an always-on agent that lives in the cloud with its own computer and browser. Access is rolling out to eligible Pro 100, Pro 200 and Pro 500 users aged 18 and older outside the European Economic Area, the United Kingdom and Switzerland, and to Business Premium in supported regions; dots are generally available in eligible Enterprise, Edu and Healthcare workspaces, where access is on by default from 2026-11-18 unless the workspace opts out. OpenAI's news RSS dates the post Introducing dots to 2026-09-29."
+  },
+  {
+    "id": "src-scn-chatgpt-key-directory",
+    "url": "https://chatgpt.com/.well-known/http-message-signatures-directory",
+    "title": "ChatGPT HTTP message signatures key directory",
+    "publisher": "OpenAI",
+    "type": "other",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T02:49Z UTC: HTTP 200, content type application/http-message-signatures-directory+json, cache-control no-store. One Ed25519 key (kty OKP) with nbf 2025-01-01T00:00:00Z and an exp seven days after the read, plus the members signature_agent (https://chatgpt.com) and purpose (ai). The response itself carries an RFC 9421 signature with the tag http-message-signatures-directory. Keys carry a rolling expiry, so the key id is not reproduced as a stable value."
+  },
+  {
+    "id": "src-scn-chatgpt-iana-forwarded",
+    "url": "https://www.iana.org/assignments/http-parameters/http-parameters.xml",
+    "title": "Hypertext Transfer Protocol (HTTP) Parameters: HTTP Forwarded Parameters registry",
+    "publisher": "IANA",
+    "type": "standard",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T02:56Z UTC. The HTTP Forwarded Parameters registry (registry id forwarded) lists by, for, host and proto, all from RFC 7239. The parameters asn, ip-country, ip-prefix, locale, tz and user-agent that OpenAI documents are not registered."
+  },
+  {
+    "id": "src-scn-chatgpt-rfc7239",
+    "url": "https://www.rfc-editor.org/rfc/rfc7239",
+    "title": "RFC 7239: Forwarded HTTP Extension",
+    "publisher": "IETF (RFC Editor)",
+    "type": "standard",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read as text at 2026-11-15T02:56Z UTC. Section 5.5: extension parameters SHOULD be registered in the HTTP Forwarded Parameter registry. Section 8.1: the Forwarded header cannot be relied upon to be correct, because any node on the way to the server, including the client, may modify it."
+  },
+  {
+    "id": "src-scn-chatgpt-cnbc-wallet",
+    "url": "https://www.cnbc.com/2026/11/13/openai-chatgpt-wallet-dot-purchases.html",
+    "title": "OpenAI launches ChatGPT Wallet, allowing its 'dots' AI agents to make purchases for users",
+    "publisher": "CNBC",
+    "type": "news",
+    "primary": false,
+    "published": "2026-11-13",
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T02:22Z UTC. Reports that OpenAI said it is not taking a cut of transactions to start, and that the payment token holds a scoped card number, security code and expiration date specific to a given transaction. Quotes OpenAI's Chaya Nayak and American Express's Luke Gebb, who calls the limited rollout intentional."
+  },
+  {
+    "id": "src-scn-chatgpt-techcrunch-wallet",
+    "url": "https://techcrunch.com/2026/11/13/chatgpts-new-wallet-lets-ai-agents-shop-and-check-out-for-you/",
+    "title": "ChatGPT's new Wallet lets AI agents shop and check out for you",
+    "publisher": "TechCrunch",
+    "type": "news",
+    "primary": false,
+    "published": "2026-11-13",
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T02:22Z UTC. Reports a limited rollout to US ChatGPT Pro subscribers aged 18 and up with a US-issued Visa, Mastercard or American Express card, and that, per OpenAI, the merchant receives what it needs to fulfill the order from the dot, such as the shipping address and contact information."
+  },
+  {
+    "id": "src-scn-chatgpt-forter-wallet",
+    "url": "https://www.forter.com/blog/openai-trusted-agent-checkout/",
+    "title": "Working with OpenAI on Trusted Agent Checkout",
+    "publisher": "Forter",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-11-13",
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T02:29Z UTC. Forter says OpenAI named it a trust partner at the ChatGPT Wallet launch and that, for each Wallet transaction, it identifies ChatGPT agent traffic and uses those signals as an input to its fraud decisions."
+  },
+  {
+    "id": "src-scn-chatgpt-signifyd-wallet",
+    "url": "https://www.signifyd.com/blog/signifyd-collaborates-with-openai-to-help-protect-chatgpt-wallet-transactions/",
+    "title": "Signifyd collaborates with OpenAI to help protect ChatGPT Wallet transactions",
+    "publisher": "Signifyd",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-11-14",
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T02:29Z UTC; datePublished 2026-11-14T02:34Z. Signifyd says it is collaborating with OpenAI so that legitimate AI agent orders made with ChatGPT Wallet are not declined because they are new to merchants' risk systems."
+  },
+  {
+    "id": "src-scn-chatgpt-amex-intent-release",
+    "url": "https://www.americanexpress.com/en-us/newsroom/technology-innovation/intent-intelligence-framework-agentic-commerce/",
+    "title": "American Express Publishes Intent Intelligence Framework for Trusted Agentic Commerce",
+    "publisher": "American Express",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-10-13",
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T04:45Z UTC (HTTP 200). The Create Intent API captures the customer's purchase instructions and constraints, such as merchant and maximum budget; the customer authenticates and signs off on the intent; an Intent ID and a Proof of Intent Token are created; the token can be used to obtain a payment credential, scoped to the authorized intent, that the agent uses at checkout instead of the card number. The framework is available through the ACE Developer Kit. American Express says it is engaging with EMVCo and supporting the x402 Foundation's work."
+  },
+  {
+    "id": "src-scn-chatgpt-amexio-intent",
+    "url": "https://americanexpress.io/intent-intelligence-building-trust-in-agentic-commerce/",
+    "title": "Intent Intelligence: Building Trust in Agentic Commerce",
+    "publisher": "American Express Technology (americanexpress.io)",
+    "type": "docs",
+    "primary": true,
+    "published": "2026-10-13",
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T04:45Z UTC. By Inderpreet Hundal and Gianna Rotondo. Intent sign-off by passkey, or delegated by the issuer to a third party such as the agent or a wallet provider. The Proof of Intent Token is a JSON Web Token that expires on the date the user confirmed and can be single-use or multi-use. Data elements: Purchase Summary, Max Amount, Intent Expiry, Merchant Data, Item-Level Conditions, Maximum Number of Transactions, Order Context (Intent or Cart) and Purchase Criteria."
+  },
+  {
+    "id": "src-scn-chatgpt-amex-agentic-page",
+    "url": "https://www.americanexpress.com/en-us/company/agentic-commerce/",
+    "title": "American Express agentic commerce page: ACE developer kit and Agent Purchase Protection",
+    "publisher": "American Express",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read directly at 2026-11-15T04:39Z UTC (HTTP 200), replacing an earlier read through search summaries (src-orbit-amex-agentic-page). The Account Enablement, Intent Intelligence and Payment Credentials specifications are available as of 2026-04-14; the Agent Registration and Cart Context specifications are still under development. Agent Purchase Protection is described as a future protection for purchases by registered agents that send American Express the Card Member-authenticated purchase intent, with a list of registered agents coming soon. The page does not mention ChatGPT Wallet."
+  },
+  {
+    "id": "src-scn-chatgpt-amex-newsroom",
+    "url": "https://www.americanexpress.com/en-us/newsroom/all-news/",
+    "title": "American Express newsroom: all news",
+    "publisher": "American Express",
+    "type": "other",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read at 2026-11-15T04:39Z UTC. The newest item is dated 2026-11-13; the list includes the 2026-10-13 Intent Intelligence release and the 2026-10-06 agentic commerce playbook for businesses. No item mentions ChatGPT Wallet."
+  },
+  {
+    "id": "src-scn-chatgpt-shopify-chatgpt-channel",
+    "url": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/chatgpt",
+    "title": "Selling on ChatGPT (Shopify Help Center, agentic storefronts)",
+    "publisher": "Shopify",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read directly at 2026-11-15T04:43Z UTC (HTTP 200) by the refresh's second-pass verifier. The ChatGPT channel is a discovery-focused referrer platform, active by default for eligible stores that sell to US customers; buyers complete the purchase on the store's online checkout in a ChatGPT in-app browser, or in a new tab on ChatGPT web; products reach ChatGPT through Shopify Catalog with no separate feed; there are no fees for selling in ChatGPT beyond standard payment processing fees."
+  },
+  {
+    "id": "src-scn-chatgpt-devday-2026",
+    "url": "https://learn.chatgpt.com/docs/whats-new/devday-2026",
+    "title": "What's new: DevDay 2026 (ChatGPT documentation)",
+    "publisher": "OpenAI",
+    "type": "docs",
+    "primary": true,
+    "published": "2026-09-29",
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md variant at 2026-11-15T02:30Z UTC. Plugin Extensions add sidebar apps, conversation panels, file viewers and editors, and forms packaged with a plugin's tools and skills; MCP Events let ChatGPT monitor updates from an MCP server, with webhook delivery from the draft MCP Events specification."
+  }
+]

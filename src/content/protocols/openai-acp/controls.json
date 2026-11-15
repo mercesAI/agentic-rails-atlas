@@ -6,20 +6,22 @@
       "protocol": "openai-acp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme.",
+      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme. Outside the spec, ChatGPT's cloud browser signs certain requests with Web Bot Auth (2026-11-14).",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-acp-openapi-delegate-payment-20260417",
-        "src-openai-acp-openapi-webhook-20260417"
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-commerce-agent-access"
       ]
     },
     {
       "protocol": "openai-acp",
       "control": "agent-registration-kya",
       "support": "external",
-      "note": "No registry in ACP. Each platform runs its own merchant and partner onboarding, such as ChatGPT's approved-partner application.",
+      "note": "No registry in ACP. Each platform runs its own merchant onboarding: for ChatGPT feeds, OpenAI's docs (rewritten 2026-11-13) have a business claim its profile and verify its identity in Business Hub, while OpenAI's merchant page keeps an application form and a waitlist (2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs",
+        "src-openai-commerce-product-feeds",
+        "src-chatgpt-merchants",
         "src-openai-acp-site"
       ]
     },
@@ -27,10 +29,12 @@
       "protocol": "openai-acp",
       "control": "user-consent-capture",
       "support": "external",
-      "note": "The buyer confirms in the agent interface (a product feature). The spec captures marketing consents and 3DS results but no signed purchase consent.",
+      "note": "The buyer confirms in the agent interface (a product feature). The spec captures marketing consents and 3DS results but no signed purchase consent. Outside ACP, ChatGPT Wallet asks for a security check such as Face ID before each purchase, and OpenAI says it requires human review before any consequential action (2026-11-14).",
       "sources": [
         "src-openai-buy-it",
-        "src-openai-acp-schema-checkout-20260417"
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-chatgpt-wallet",
+        "src-openai-commerce-agent-access"
       ]
     },
     {
@@ -179,7 +183,7 @@
     },
     {
       "title": "Allowance enforcement ends where the credential leaves the PSP",
-      "description": "Stripe's SPT Resolve API (read 2026-10-20) lets a seller resolve a granted token once into fpan, network token, agentic token or dpan credentials for a third-party processor. The docs describe no usage_limits enforcement by that processor.",
+      "description": "Stripe's SPT Resolve API lets a seller resolve a granted token once into an fpan, agentic_token or dpan credential for a third-party processor (2026-11-14; the 2026-10-20 read also listed network_token). The docs describe no usage_limits enforcement by that processor.",
       "sources": [
         "src-fee-stripe-spt-docs"
       ]
@@ -192,7 +196,7 @@
       "how": "Policy on the agent platform that sets max_amount to the confirmed total and blocks categories or merchants.",
       "sources": [
         "src-openai-acp-schema-delegate-payment-20260417",
-        "src-openai-commerce-docs"
+        "src-openai-apps-monetization"
       ]
     },
     {
@@ -207,10 +211,11 @@
     {
       "point": "at-edge",
       "what": "Accept or reject the agent at the merchant API",
-      "how": "Bearer token checks, detached signature and timestamp checks, egress IP allowlisting, idempotency enforcement.",
+      "how": "Bearer token checks, detached signature and timestamp checks and idempotency enforcement; published egress IP ranges only as a coarse network signal. For ChatGPT's cloud browser, which does not use the ACP API, the edge check is Web Bot Auth signature verification (a ChatGPT mechanism outside the spec).",
       "sources": [
         "src-openai-acp-rfc-checkout",
-        "src-openai-commerce-docs"
+        "src-openai-acp-ip-egress",
+        "src-openai-commerce-agent-access"
       ]
     },
     {
@@ -272,10 +277,19 @@
     },
     {
       "item": "Never log full card numbers or CVC.",
-      "why": "Delegate Payment carries cardholder data in PCI DSS scope.",
+      "why": "Delegate Payment carries cardholder data in PCI DSS scope; OpenAI offers raw card data through it only to PCI DSS Level 1 merchants.",
       "sources": [
         "src-openai-acp-rfc-delegate-payment",
-        "src-openai-commerce-docs"
+        "src-openai-apps-monetization"
+      ]
+    },
+    {
+      "item": "If your site also takes ChatGPT Wallet payments, treat the network token as good for that one purchase only, and verify Web Bot Auth signatures before trusting any Forwarded risk signals.",
+      "why": "These are ChatGPT mechanisms outside the ACP spec: OpenAI says the customer consents only to the specific transaction, and the Forwarded parameters are unregistered and not stated to be signed.",
+      "sources": [
+        "src-openai-commerce-accept-payments",
+        "src-openai-commerce-agent-access",
+        "src-openai-acp-iana-forwarded"
       ]
     },
     {

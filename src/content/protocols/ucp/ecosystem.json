@@ -27,21 +27,23 @@
   },
   {
    "name": "Domain Tech Councils (Shopping, Food, Lodging, Payments)",
-   "role": "16-seat councils (some seats permanent), members elected every 6 months; the Payments council includes Adyen, Ant International, Coinbase, Global Payments, PayPal and Stripe (roster as of 2026-10-20).",
+   "role": "16-seat councils (some seats permanent), members elected every 6 months; the Payments council includes Adyen, Ant International, Coinbase, Global Payments, PayPal and Stripe (roster as of 2026-10-20). The Food council announced its first draft capability, Food Checkout, on 2026-11-13.",
    "sources": [
     "src-ucp-governance",
     "src-ucp-announcements",
-    "src-ucp-maintainers"
+    "src-ucp-maintainers",
+    "src-ucp-discussion-1077"
    ]
   }
  ],
  "implementers": [
   {
    "name": "Google AI Mode in Search and Gemini",
-   "role": "Platform; UCP checkout for US shoppers, starting with Etsy and Wayfair on 2026-02-11. Google said on 2026-09-16 that UCP enables direct checkout for hundreds of thousands of brands and retailers (a marketing figure). Google's own implementation guides cover UCP 2026-04-08 and 2026-01-23; no 2026-08-25 guide existed on 2026-10-20.",
+   "role": "Platform; UCP checkout for US shoppers, starting with Etsy and Wayfair on 2026-02-11, and for Canadian shoppers since 2026-11-04. Google said on 2026-09-16 that UCP enables direct checkout for hundreds of thousands of brands and retailers (a marketing figure). Its UCP requests are signed with ES256 RFC 9421 keys published at ucp.goog, per its FAQ (2026-11-03). Google's own implementation guides cover UCP 2026-04-08 and 2026-01-23; no 2026-08-25 guide existed on 2026-11-14.",
    "status": "live",
    "sources": [
     "src-ucp-google-feb2026",
+    "src-ucp-google-canada",
     "src-ucp-google-faq",
     "src-ucp-google-holiday-2026",
     "src-ucp-google-guide-versions"
@@ -56,8 +58,16 @@
    ]
   },
   {
+   "name": "lululemon, Shoppers Drug Mart and Simons",
+   "role": "Businesses Google names, with select Shopify merchants, for UCP direct checkout for Canadian shoppers in AI Mode and the Gemini app from 2026-11-04 (Google's statement).",
+   "status": "live",
+   "sources": [
+    "src-ucp-google-canada"
+   ]
+  },
+  {
    "name": "Shopify, Target and Walmart",
-   "role": "Businesses; Google said on 2026-02-11 that their UCP checkout was coming soon. Target's fact sheet (updated 2026-06-18) says shoppers buy directly from Target in Google Search, AI Mode and Gemini. Shopify's help center says direct checkout is on by default for eligible US stores. Walmart's live status rests only on Google's 2026-10-15 Universal Cart post, which names all three among its merchants without stating native checkout or cart transfer per merchant.",
+   "role": "Businesses; Google said on 2026-02-11 that their UCP checkout was coming soon. Target's fact sheet (updated 2026-06-18) says shoppers buy directly from Target in Google Search, AI Mode and Gemini. Shopify's help center says direct checkout is on by default for eligible stores, which as of 2026-11-14 sell to customers in the US, Canada or Australia. Walmart's live status rests only on Google's 2026-10-15 Universal Cart post, which names all three among its merchants without stating native checkout or cart transfer per merchant.",
    "status": "live",
    "sources": [
     "src-ucp-google-feb2026",
@@ -68,11 +78,22 @@
   },
   {
    "name": "Shopify merchants (native checkout on Google)",
-   "role": "Shopify's help center says direct checkout in Google AI Mode and Gemini is on by default for eligible stores (US-based, US customers, Merchant Center account), with an opt-out; still rolling out. The enrollment date of about 2026-09-22 is reported (ppc.land).",
+   "role": "Shopify's help center (2026-11-14) says direct checkout in Google AI Mode and Gemini is on by default for eligible stores, with an opt-out, and is rolling out gradually. Eligible stores may be based in any country, sell to customers in the US, Canada or Australia and need a Merchant Center account; on 2026-10-20 the page required US-based stores selling to US customers. Australia is Shopify's statement; Google announced Canada (2026-11-04). The first, US enrollment date of about 2026-09-22 is reported (ppc.land).",
    "status": "live",
    "sources": [
     "src-ucp-shopify-help-google",
+    "src-ucp-google-canada",
     "src-ucp-ppcland-shopify"
+   ]
+  },
+  {
+   "name": "Shopify storefronts (UCP over MCP)",
+   "role": "Shopify said on 2026-11-06 that Ask is live across its storefronts under the 2026-08-25 profile, and its developer changelog places UCP over MCP at /api/ucp/mcp on each store's domain and retires an older Storefront MCP tool in favor of Ask by 2027-01-15. Storefront profiles at /.well-known/ucp, such as allbirds.com's (read 2026-11-14), declare 2026-08-25 with the shopping and common services over MCP, an embedded binding and dev.ucp.common.ask. The allbirds.com profile is one example, not a count.",
+   "status": "live",
+   "sources": [
+    "src-ucp-stc-minutes-20261106",
+    "src-ucp-allbirds-profile",
+    "src-ucp-shopify-dev-ask-deprecation"
    ]
   },
   {
@@ -86,7 +107,7 @@
   },
   {
    "name": "Microsoft Copilot Checkout and Merchant Center",
-   "role": "Copilot Checkout requires a UCP-compliant feed; Microsoft says MMC will support UCP (future tense).",
+   "role": "Copilot Checkout requires a UCP-compliant feed; Microsoft says MMC will support UCP (future tense on 2026-10-20 and 2026-11-14).",
    "status": "announced",
    "sources": [
     "src-ucp-microsoft-page"
@@ -205,8 +226,9 @@
    "metric": "Protocol releases",
    "value": 4,
    "unit": "releases",
-   "asOf": "2026-10-20",
+   "asOf": "2026-11-14",
    "definition": "Dated tags v2026-01-11 to v2026-08-25.",
+   "caveat": "Released branches receive backports: the v2026-08-25 and v2026-04-08 tags were moved on 2026-10-22 or 2026-10-23, and the 2026-08-25 branch gained Ask on 2026-11-02.",
    "sources": [
     "src-ucp-gh-releases"
    ]
@@ -288,7 +310,7 @@
    "item": "Payment processing",
    "value": "The merchant's normal PSP fees; the PSP must be able to process Google's tokens",
    "whoPays": "Merchant pays its PSP",
-   "asOf": "2026-10-20",
+   "asOf": "2026-11-14",
    "confidence": "reported",
    "caveat": "Stated by Shopify for its merchants (standard payment processing fees only); for other merchants an inference from the merchant-of-record and PSP roles, since Google's FAQ does not mention fees.",
    "sources": [
@@ -300,7 +322,7 @@
    "item": "Shopify merchants on Google AI Mode and Gemini direct checkout",
    "value": "No fees beyond standard payment processing fees (Shopify's statement about its channel)",
    "whoPays": "Merchant pays its PSP only",
-   "asOf": "2026-10-20",
+   "asOf": "2026-11-14",
    "confidence": "verified",
    "caveat": "Shopify's help center, not a Google fee schedule. Shopify's Agentic Storefronts terms (updated 2026-10-06) let Shopify assess a fee for certain participating channels; the terms print no rate and name no channel.",
    "sources": [
@@ -310,13 +332,14 @@
   },
   {
    "item": "Microsoft Copilot Checkout commission",
-   "value": "None today; Microsoft says it takes no commission or affiliate fee",
-   "whoPays": "Merchant pays its PSP only",
-   "asOf": "2026-10-20",
+   "value": "No current Microsoft statement. The page read on 2026-10-20 said Microsoft took no commission or affiliate fee today; that answer was removed by about 2026-11-06.",
+   "whoPays": "Merchant pays its PSP; Microsoft states no fee either way as of 2026-11-14",
+   "asOf": "2026-11-14",
    "confidence": "verified",
-   "caveat": "Microsoft's own page, worded 'today'; a policy statement, not a fee schedule. Secondary coverage of 2026-01-21 reported no additional fees for Google and Microsoft checkouts for now.",
+   "caveat": "A removed answer is not evidence that Microsoft now charges. Shopify's Copilot channel page says its merchants pay no fees beyond standard payment processing (2026-11-14). Secondary coverage of 2026-01-21 reported no additional fees for Google and Microsoft checkouts for now.",
    "sources": [
     "src-ucp-microsoft-page",
+    "src-ucp-shopify-help-microsoft",
     "src-ucp-pymnts-fees"
    ]
   },
@@ -324,7 +347,7 @@
    "item": "Google Pay on Google AI surfaces",
    "value": "PAN_ONLY for allowed_auth_methods",
    "whoPays": "Card economics unchanged",
-   "asOf": "2026-10-20",
+   "asOf": "2026-11-14",
    "confidence": "verified",
    "caveat": "Affects which credentials reach the PSP, not a fee.",
    "sources": [

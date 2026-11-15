@@ -84,6 +84,15 @@
       ]
     },
     {
+      "name": "Circle Facilitator Service",
+      "role": "Circle's hosted x402 facilitator for sellers, launched 2026-09-16: settles USDC on Arc, Base and Polygon PoS with exact, and with upto since 2026-10-13; Circle pays settlement gas and screens both parties. Settling needs a Circle API key (a keyless trial exists); no price was published on 2026-11-14.",
+      "status": "live",
+      "sources": [
+        "src-x402-circle-facilitator-service",
+        "src-x402-circle-release-notes"
+      ]
+    },
+    {
       "name": "Stripe machine payments preview",
       "role": "Charges agents in USDC on Base through x402 and records each settled payment as a PaymentIntent; open to US businesses outside New York, other countries on request (2026-10-19).",
       "status": "beta",
@@ -94,11 +103,31 @@
     },
     {
       "name": "Coinbase Agentic Wallets",
-      "role": "Coinbase-managed agent wallet that holds USDC and pays for x402 services within limits the owner sets, through the awal CLI or an MCP server; available since 2026-02-11.",
-      "status": "live",
+      "role": "Coinbase-managed agent wallet that, as its docs described it on 2026-10-19, holds USDC and pays for x402 services within limits the owner sets, through the awal CLI or an MCP server; made available on 2026-02-11 per the CDP changelog as read on 2026-10-19. By 2026-11-14 its docs answered 404 and the changelog entry was gone; no retirement announcement was found.",
+      "status": "unknown",
       "sources": [
         "src-x402-cdp-agentic-wallet",
-        "src-x402-cdp-changelog"
+        "src-x402-cdp-changelog",
+        "src-x402-cdp-agentic-accounts"
+      ]
+    },
+    {
+      "name": "Coinbase Wallet MCP and Coinbase for Agents",
+      "role": "The agent payment options in CDP's agentic accounts docs on 2026-11-14: Wallet MCP pays x402 services in USDC on Base or Base Sepolia with exact, upto and auth-capture, with the user's approval and a wallet signature for each paid request; Coinbase for Agents connects an agent to a Coinbase account through a remote MCP server or a local CLI.",
+      "status": "live",
+      "sources": [
+        "src-x402-cdp-agentic-accounts"
+      ]
+    },
+    {
+      "name": "Brave Search API x402 proxy",
+      "role": "Seller: since 2026-11-12 Brave sells Brave Search API requests (LLM Context, web, news, images, videos, local) at $0.005 each over x402 V2 exact, USDC on Base (eip155:8453), through a facilitator Brave runs, with no account or API key. Other networks and stablecoins are announced only.",
+      "status": "live",
+      "sources": [
+        "src-x402-brave-blog",
+        "src-x402-brave-guide",
+        "src-x402-brave-llms",
+        "src-x402-brave-402-probe"
       ]
     },
     {
@@ -123,75 +152,75 @@
     {
       "registry": "npm",
       "name": "@x402/core",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/core",
-      "note": "V2 core types, client and resource server. Versions in this list as of 2026-10-19; no SDK implemented the Lightning (lnbtc) binding on that date."
+      "note": "V2 core types, client and resource server. Versions in this list as of 2026-11-14 (2.31.0 published 2026-11-12); 2.29.0 (2026-10-28) shipped the HEAD-request fix. No SDK implemented the Lightning (lnbtc) binding on that date."
     },
     {
       "registry": "npm",
       "name": "@x402/evm",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/evm"
     },
     {
       "registry": "npm",
       "name": "@x402/svm",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/svm"
     },
     {
       "registry": "npm",
       "name": "@x402/fetch",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/fetch"
     },
     {
       "registry": "npm",
       "name": "@x402/axios",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/axios"
     },
     {
       "registry": "npm",
       "name": "@x402/express",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/express"
     },
     {
       "registry": "npm",
       "name": "@x402/hono",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/hono"
     },
     {
       "registry": "npm",
       "name": "@x402/next",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/next"
     },
     {
       "registry": "npm",
       "name": "@x402/fastify",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/fastify"
     },
     {
       "registry": "npm",
       "name": "@x402/paywall",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/paywall",
-      "note": "Browser paywall for humans."
+      "note": "Browser paywall for humans. A reflected script-injection flaw was fixed in 2.29.0 (2026-10-28) without an advisory."
     },
     {
       "registry": "npm",
       "name": "@x402/extensions",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/extensions"
     },
     {
       "registry": "npm",
       "name": "@x402/mcp",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://www.npmjs.com/package/@x402/mcp"
     },
     {
@@ -199,21 +228,21 @@
       "name": "x402",
       "version": "1.2.0",
       "url": "https://www.npmjs.com/package/x402",
-      "note": "Legacy V1 package (unscoped); x402-axios, x402-express, x402-fetch, x402-hono and x402-next are V1 too."
+      "note": "Legacy V1 package (unscoped); x402-axios, x402-express, x402-fetch, x402-hono and x402-next are V1 too. Deprecated: the READMEs promise security patches only, but x402, x402-express and x402-hono have had no release since 2026-04-16 (x402-axios last released 1.2.1 on 2026-05-29), and the HEAD fix, the paywall script-injection fix and a fix for the open parameterized-route bypass (issue #3850) were all unreleased for V1 on 2026-11-14."
     },
     {
       "registry": "pypi",
       "name": "x402",
-      "version": "2.25.0",
+      "version": "2.28.0",
       "url": "https://pypi.org/project/x402/",
-      "note": "V2 Python SDK, not legacy. Extras include httpx, requests, fastapi, flask, evm, svm, tvm, mcp and extensions."
+      "note": "V2 Python SDK, not legacy (2.28.0 published 2026-11-12). Extras include httpx, requests, fastapi, flask, evm, svm, tvm, cardano, mcp and extensions."
     },
     {
       "registry": "go",
       "name": "github.com/x402-foundation/x402/go/v2",
-      "version": "2.28.0",
+      "version": "2.31.0",
       "url": "https://github.com/x402-foundation/x402/tree/main/go",
-      "note": "Go 1.24; covers evm and svm."
+      "note": "Requires Go 1.26.10 since v2.29.0 (v2.28.0 needed Go 1.24); covers evm, svm and casper."
     },
     {
       "registry": "other",
@@ -227,10 +256,10 @@
     {
       "id": "x402-gh-stars",
       "metric": "GitHub stars, x402-foundation/x402",
-      "value": 6735,
+      "value": 6808,
       "unit": "stars",
-      "asOf": "2026-10-19",
-      "definition": "Stars on the canonical repository (GitHub API, read 2026-10-19).",
+      "asOf": "2026-11-14",
+      "definition": "Stars on the canonical repository (GitHub API, read 2026-11-14; 6,735 on 2026-10-19).",
       "sources": [
         "src-x402-gh-repo"
       ],
@@ -239,51 +268,55 @@
     {
       "id": "x402-npm-core",
       "metric": "npm downloads of @x402/core, last 30 days",
-      "value": 1437614,
+      "value": 2142399,
       "unit": "downloads",
-      "asOf": "2026-10-19",
-      "definition": "npm registry downloads of the V2 core package in the 30 days from 2026-09-17 to 2026-10-16 (last-month endpoint, read 2026-10-19).",
+      "asOf": "2026-11-14",
+      "definition": "npm registry downloads of the V2 core package in the 30 days from 2026-10-15 to 2026-11-13 (last-month endpoint, read 2026-11-14). The window from 2026-09-17 to 2026-10-16 had 1,437,614.",
       "sources": [
         "src-x402-npm-downloads",
         "src-x402-npm-downloads-legacy"
       ],
-      "caveat": "Includes CI installs; the legacy V1 package x402 had 1,910,242 in the same window."
+      "caveat": "Includes CI installs; the deprecated legacy V1 package x402 had 2,629,833 in the same window (1,910,242 in the previous one)."
     },
     {
       "id": "x402-site-30d-tx",
-      "metric": "x402.org \"Last 30 days\" transactions counter",
+      "metric": "x402.org \"Last 30 days\" transactions counter (removed; history)",
       "value": "75.41M",
       "unit": "transactions",
-      "asOf": "2025-12-14",
-      "definition": "Self-reported counter on the x402.org home page, with no date or method on the page. First archived with this value on 2025-12-14 (Wayback Machine) and still shown on 2026-10-19.",
+      "asOf": "2026-10-24",
+      "definition": "Self-reported counter formerly on the x402.org home page, with no date or method on the page. Archived with this same value from 2025-12-14 to 2026-10-24 (Wayback Machine); the home page no longer showed it on 2026-11-14.",
       "sources": [
         "src-x402-site",
         "src-x402-site-wb-20251214",
-        "src-x402-site-wb-20261012"
+        "src-x402-site-wb-20261012",
+        "src-x402-site-wb-20261024"
       ],
-      "caveat": "Unchanged on 2026-10-19; not a live 30-day figure. x402scan reported 3.02M transactions in the 30 days to 2026-10-19, and a Base study measured about 145,500 settlements a day from January to June 2026.",
+      "caveat": "History only: it never changed, so it was never a live 30-day figure, and it was removed without an announcement. For the 30 days to 2026-11-14 x402scan showed about 4.93M transactions; agenteconomy.to counted about 5.09M for October 2026. A Base study measured about 145,500 settlements a day from January to June 2026.",
       "disputed": true,
       "disputeSources": [
-        "src-x402scan-stats-20261019",
+        "src-x402scan-stats-20261114",
+        "src-x402-agenteconomy-stats",
         "src-x402-arxiv-2607-12575"
       ]
     },
     {
       "id": "x402-site-30d-vol",
-      "metric": "x402.org \"Last 30 days\" volume counter",
+      "metric": "x402.org \"Last 30 days\" volume counter (removed; history)",
       "value": "$24.24M",
       "unit": "USD",
-      "asOf": "2025-12-14",
-      "definition": "Self-reported counter on the x402.org home page, with no date or method on the page. First archived with this value on 2025-12-14 (Wayback Machine) and still shown on 2026-10-19.",
+      "asOf": "2026-10-24",
+      "definition": "Self-reported counter formerly on the x402.org home page, with no date or method on the page. Archived with this same value from 2025-12-14 to 2026-10-24 (Wayback Machine); the home page no longer showed it on 2026-11-14.",
       "sources": [
         "src-x402-site",
         "src-x402-site-wb-20251214",
-        "src-x402-site-wb-20261012"
+        "src-x402-site-wb-20261012",
+        "src-x402-site-wb-20261024"
       ],
-      "caveat": "Unchanged on 2026-10-19; not a live 30-day figure. x402scan reported $1.23M in the 30 days to 2026-10-19; in March 2026 a16z put the same 30 days at about $3M on chain and $1.6M after removing wash trades.",
+      "caveat": "History only: it never changed, so it was never a live 30-day figure. For the 30 days to 2026-11-14 x402scan showed about $1.89M; agenteconomy.to counted about $274,000 for October 2026. In March 2026 a16z put a 30-day window at about $3M on chain and $1.6M after removing wash trades.",
       "disputed": true,
       "disputeSources": [
-        "src-x402scan-stats-20261019",
+        "src-x402scan-stats-20261114",
+        "src-x402-agenteconomy-stats",
         "src-x402-a16z-honest-number"
       ]
     },
@@ -363,14 +396,31 @@
     {
       "id": "x402scan-30d-tx",
       "metric": "x402scan transactions, past 30 days",
-      "value": "3.02M",
+      "value": "4.93M",
       "unit": "transactions",
-      "asOf": "2026-10-19",
-      "definition": "Past 30 Days view of x402scan's overall stats, read 2026-10-19; the same view showed $1.23M in volume.",
+      "asOf": "2026-11-14",
+      "definition": "Past 30 Days view of x402scan's overall stats, read 2026-11-14 (window from 2026-10-15); the same view showed about $1.89M in volume, 31.6K buyers and 14.4K sellers. On 2026-10-19 it showed 3.02M transactions and $1.23M.",
       "sources": [
+        "src-x402scan-stats-20261114",
         "src-x402scan-stats-20261019"
       ],
-      "caveat": "x402scan's own indexing of facilitator settlements; trackers count differently."
+      "caveat": "x402scan's own indexing of facilitator settlements; trackers count differently. agenteconomy.to's monthly series gives about 5.09M transactions but only about $274,000 for October 2026."
+    },
+    {
+      "id": "x402-agenteconomy-cumulative",
+      "metric": "Cumulative x402 transactions settled on chain (agenteconomy.to)",
+      "value": "200.2M transactions and $43.0M",
+      "unit": "transactions and USD",
+      "asOf": "2026-11-14",
+      "definition": "200,193,219 transactions and $42,967,916 of stablecoin volume across 12 chains and 18 tracked facilitators, measured from public on-chain settlement data (read 2026-11-14).",
+      "sources": [
+        "src-x402-agenteconomy-stats"
+      ],
+      "caveat": "Counts settlements from the facilitators it tracks, not proven commerce. Its October 2026 value (about $274,000) is far below x402scan's 30-day volume (about $1.89M to 2026-11-14); the methods differ.",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402scan-stats-20261114"
+      ]
     },
     {
       "id": "x402-cumulative-press",
@@ -382,20 +432,21 @@
       "sources": [
         "src-x402-cryptobriefing"
       ],
-      "caveat": "Trackers count differently: x402scan showed 234.69M all-time transactions on 2026-10-19, and Chainalysis reported more than 138 million x402 transactions on Base by the end of its 2026 report period (2026-10-14).",
+      "caveat": "Trackers count differently: x402scan showed 234.69M all-time transactions on 2026-10-19, Chainalysis reported more than 138 million x402 transactions on Base by the end of its 2026 report period (2026-10-14), and agenteconomy.to counted about 200.2M cumulative transactions as of 2026-11-14.",
       "disputed": true,
       "disputeSources": [
         "src-x402scan-stats-20261019",
-        "src-x402-chainalysis-na-2026"
+        "src-x402-chainalysis-na-2026",
+        "src-x402-agenteconomy-stats"
       ]
     },
     {
       "id": "x402-foundation-members",
       "metric": "x402 Foundation members",
-      "value": 57,
+      "value": 58,
       "unit": "organizations",
-      "asOf": "2026-10-19",
-      "definition": "Organizations listed on x402.org/members: 19 Premier, 26 General and 12 Associate.",
+      "asOf": "2026-11-14",
+      "definition": "Organizations listed on x402.org/members: 19 Premier, 26 General and 13 Associate (57 on 2026-10-19).",
       "sources": [
         "src-x402-site-members",
         "src-x402-lf-july",
@@ -494,10 +545,10 @@
     {
       "item": "Circle Nanopayments",
       "value": "Payments from $0.000001 USDC; Circle says batched settlement means neither party pays per-transaction fees",
-      "whoPays": "Neither party per payment (Circle). The buyer makes a one-time on-chain deposit; withdrawals pay a gas fee per burn (for example $0.01 from Base) and crosschain transfers 0.005 percent",
-      "asOf": "2026-10-19",
+      "whoPays": "Neither party per payment (Circle). The buyer makes a one-time on-chain deposit; moving funds out of Gateway pays a gas fee per burn that varies by source chain, and crosschain transfers add a percentage transfer fee, except to or from Arc",
+      "asOf": "2026-11-14",
       "confidence": "verified",
-      "caveat": "Who pays the gas for batch settlement is not stated.",
+      "caveat": "Circle loads current Gateway fees from its fee API; the $0.01 gas fee and 0.005 percent transfer fee on its fees page are illustrative inputs to a worked example, not a price list. Who pays the gas for batch settlement is not stated.",
       "sources": [
         "src-x402-fee-circle",
         "src-x402-fee-circle-gateway"

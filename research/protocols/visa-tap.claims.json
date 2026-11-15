@@ -244,12 +244,12 @@
     },
     {
       "id": "clm-visa-tap-026",
-      "text": "As of 2026-10-11, no pull request to the TAP reference repository has been merged since 2025-10-28; twelve later pull requests are open or were closed unmerged.",
+      "text": "As of 2026-11-14, no pull request to the TAP reference repository has been merged since 2025-10-28; thirteen later pull requests are open (nine) or were closed unmerged (four).",
       "sources": [
         "src-visa-tap-gh-meta"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "versions"
     },
     {
@@ -274,12 +274,12 @@
     },
     {
       "id": "clm-visa-tap-029",
-      "text": "As of 2026-10-11 the TAP reference repository had 212 stars and 45 forks on GitHub.",
+      "text": "On 2026-11-14 the TAP reference repository had 222 stars and 48 forks on GitHub.",
       "sources": [
         "src-visa-tap-gh-meta"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "metrics"
     },
     {
@@ -624,13 +624,14 @@
     },
     {
       "id": "clm-visa-tap-064",
-      "text": "TAP publishes no JSON Schema, OpenAPI file or test vectors for its objects.",
+      "text": "TAP publishes no JSON Schema, OpenAPI file or test vectors for its signature and body objects. The OpenAPI description in Visa's TAP API reference (seen 2026-11-14) covers merchant and key registration in the Visa Merchant Registry Service, not those objects.",
       "sources": [
         "src-visa-tap-spec",
-        "src-visa-tap-gh-meta"
+        "src-visa-tap-gh-meta",
+        "src-visa-vmrs-apiref"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
       "topic": "objects"
     },
@@ -726,13 +727,13 @@
     },
     {
       "id": "clm-visa-tap-074",
-      "text": "Visa has not published how production TAP agent keys are distributed beyond the well-known JWKS.",
+      "text": "Visa has not published how production TAP agent keys reach verifiers: as read on 2026-10-19, the specification names no key URL and gives its GET /keys operation no host, and Visa's API reference lists a Visa Agent Registry Services entry open only to authorized users, still restricted (bundle TRAP.101) on 2026-11-14.",
       "sources": [
         "src-visa-tap-spec",
-        "src-visa-tap-jwks"
+        "src-visa-tap-apiref"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
       "topic": "observability"
     },
@@ -1026,12 +1027,12 @@
     },
     {
       "id": "clm-visa-tap-104",
-      "text": "The IETF Web Bot Auth working group draft draft-ietf-webbotauth-httpsig-protocol-00 was posted on 2026-09-01 and is still the current revision on 2026-10-11.",
+      "text": "The IETF Web Bot Auth working group draft draft-ietf-webbotauth-httpsig-protocol-00 was posted on 2026-09-01 and was the current revision until draft -01 replaced it on 2026-10-29; -01 expires on 2027-05-02.",
       "sources": [
         "src-wba-draft"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "topic": "dates"
     },
     {
@@ -1109,14 +1110,15 @@
     },
     {
       "id": "clm-visa-tap-112",
-      "text": "The Web Bot Auth working group draft serves keys at /.well-known/http-message-signatures-directory, while Visa serves TAP keys at https://mcp.visa.com/.well-known/jwks.",
+      "text": "Since draft -01 (2026-10-29) the Web Bot Auth working group draft treats each Signature-Agent value as an HTTPS URL that the verifier fetches directly as a JWK Set; the well-known /.well-known/http-message-signatures-directory URL is one such URL, which also names a domain. Draft -00 had defaulted to a directory at that path on the Signature-Agent origin and also allowed a JWK Set URI or a client metadata document. TAP looks keys up by keyid in the payment scheme's key store, at a well-known URL that its specification named until at least 2026-10-10 and no longer names.",
       "sources": [
         "src-visa-tap-spec",
         "src-wba-draft"
       ],
       "confidence": "verified",
-      "specVersion": "TAP merchant specification (unversioned; read 2026-10-11)",
-      "topic": "relations"
+      "specVersion": "TAP merchant specification (unversioned; read 2026-10-11); Web Bot Auth draft -01",
+      "topic": "relations",
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-visa-tap-113",
@@ -1610,12 +1612,13 @@
     },
     {
       "id": "clm-visa-tap-162",
-      "text": "The mppx SDK includes a TAP attestation profile with tags agent-browser-auth and agent-payer-auth and a default and maximum lifetime of 480 seconds.",
+      "text": "The mppx SDK includes a TAP signature profile, in mppx/extensions/identity/tap since 0.16.0 (mppx/attestation/tap before), with the label tap, the tags agent-browser-auth and agent-payer-auth, required components @authority and @path, and a default and maximum lifetime of 480 seconds.",
       "sources": [
-        "src-mppx-tap"
+        "src-mppx-tap",
+        "src-visa-tap-mppx-changelog"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-09",
+      "asOf": "2026-11-14",
       "topic": "ecosystem"
     },
     {
@@ -2106,6 +2109,103 @@
       ],
       "confidence": "verified",
       "topic": "other"
+    },
+    {
+      "id": "clm-visa-tap-246",
+      "text": "As seen on 2026-11-14, Visa's Trusted Agent Protocol API reference (labeled v1) also publishes the Visa Merchant Registry Service (VMRS, bundle TRAP.102, public): nine sandbox operations that register, read and update a merchant under /vmrs/v1/merchants and create, list, read, update, activate and delete its encryption keys, described by 15 schemas. On 2026-10-19 the reference described only GET /v1/trustedAgentProtocol, and Visa's developer release notes (latest entry August 2026) do not mention VMRS.",
+      "sources": [
+        "src-visa-vmrs-apiref",
+        "src-visa-tap-apiref",
+        "src-visa-dev-release-notes"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "versions"
+    },
+    {
+      "id": "clm-visa-tap-247",
+      "text": "A VMRS merchant key names a key wrapping algorithm (RSA-OAEP, RSA-OAEP-256, RSA-OAEP-384 or RSA-OAEP-512), a content encryption algorithm (A256GCM, A128GCM, C20P, A256CBC_HS512, A128CBC_HS256, A256CCM or A128CCM) and a Base64-encoded public key in DER, PEM, JWK or OpenSSH format, with an optional expiration date. A new key is created deactivated and must be activated before use.",
+      "sources": [
+        "src-visa-vmrs-apiref"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "crypto"
+    },
+    {
+      "id": "clm-visa-tap-248",
+      "text": "A VMRS merchant record requires indicator (TAP, ACG or BOTH), merchantName and merchantUrl. It can also set paymentPayloadType (UNENCRYPTED by default, or ENCRYPTED), cryptogramType (DAVV by default, or TAVV), a Visa Merchant ID, API and web integration URLs, acceptanceRelationships such as visa and mastercard, and protocolInteractions entries whose protocol is ucp, acp or x402. Those entries hold only a URL, a documentation URL and free-form metadata, so they record where a merchant offers each protocol and define no binding between TAP and it.",
+      "sources": [
+        "src-visa-vmrs-apiref"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-visa-tap-249",
+      "text": "On 2026-10-20 Visa, BILL and Billtrust announced a live pilot in which BILL's Payment Agent, registered using TAP and the Agentic Directory, pays buyer-approved supplier invoices with tokenized credentials, and Billtrust uses TAP to recognize, authenticate and admit the agent to its supplier portals. Visa calls it the first live pilot in which trusted AI agents complete approved buyer invoice payments end to end through supplier portals.",
+      "sources": [
+        "src-visa-bill-billtrust",
+        "src-visa-commercial-2026-10-21"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-20",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-visa-tap-250",
+      "text": "Visa says the BILL and Billtrust pilot is live and processing end-to-end transactions with participating BILL buyers and Billtrust suppliers. The agent only pays invoices the buyer has already approved, no supplier-portal logins are shared, and the agent authentication can stand in for CAPTCHA and other bot blocking without an extra agent login. Neither release gives transaction counts or volumes.",
+      "sources": [
+        "src-visa-bill-billtrust",
+        "src-visa-commercial-2026-10-21"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-10-21",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-visa-tap-251",
+      "text": "Visa's VIC developer docs, public without sign-in on 2026-11-14, say production access requires onboarding to VIC and to TAP, Visa Token Service and Visa Payment Passkeys, plus registration in the Visa Agent Registry Service (VARS) so that Visa can validate agent signatures and merchant encryption keys when credentials are retrieved. They name a VIC and TAP Client Implementation Guide without linking it.",
+      "sources": [
+        "src-visa-vic-docs"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-visa-tap-252",
+      "text": "mppx 0.16.0 (npm 2026-10-28) replaced request attestation with per-route identity: TAP moved from mppx/attestation/tap to mppx/extensions/identity/tap, Client.signer became Client.prover, and a server route now lists its verifiers in identity, as in mppx.charge({ amount, identity: [tap] }), while passing attestation to Mppx.create throws.",
+      "sources": [
+        "src-visa-tap-mppx-changelog",
+        "src-visa-tap-npm-mppx"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-visa-tap-253",
+      "text": "mppx runs a route's identity verifiers, such as its TAP verifier, before it issues a payment Challenge, so a caller that the verifier rejects never sees payment terms; a route without identity skips identity checks but not payment checks.",
+      "sources": [
+        "src-visa-tap-mpp-identity-ext"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-visa-tap-254",
+      "text": "Since mppx 0.19.0 (npm 2026-11-14) the TAP client prover takes a key pair or a remote signer instead of a private key alone, and still takes a keyId. The MPP identity page at commit d062df6 (2026-11-14) still shows the earlier private-key form.",
+      "sources": [
+        "src-visa-tap-mppx-changelog",
+        "src-visa-tap-npm-mppx",
+        "src-visa-tap-mpp-identity-ext"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-14",
+      "topic": "ecosystem"
     }
   ]
 }

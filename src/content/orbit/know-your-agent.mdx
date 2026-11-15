@@ -3,12 +3,12 @@ slug: know-your-agent
 name: Know Your Agent (KYA) cluster
 category: agent-identity
 starred: true
-oneLiner: Know Your Agent names efforts to tie an AI agent to a verified person or organization before it pays; this cluster covers Skyfire KYAPay, Mastercard's agent registration and the GLEIF vLEI agent mandate proposal.
-steward: Several stewards; Skyfire Systems (KYAPay), Mastercard (Agent Pay registration), GLEIF (vLEI and the agent mandate working paper)
-status: Mixed; KYAPay individual IETF draft, Mastercard registration live in Agent Pay, GLEIF proposal at discussion stage
+oneLiner: Know Your Agent names efforts to tie an AI agent to a verified person or organization before it pays; this cluster covers Skyfire KYAPay, Mastercard's agent registration, the GLEIF vLEI agent mandate proposal and DIF's KYA-OS framework.
+steward: Several stewards; Skyfire Systems (KYAPay), Mastercard (Agent Pay registration), GLEIF (vLEI and the agent mandate working paper), Decentralized Identity Foundation (KYA-OS)
+status: Mixed; KYAPay individual IETF draft, Mastercard registration live in Agent Pay, GLEIF proposal at discussion stage, KYA-OS a specification under development in a DIF working group task force
 latestVersion:
-  label: draft-skyfire-oauth-kyapay-token-02
-  date: "2026-10-02"
+  label: draft-skyfire-oauth-kyapay-token-03
+  date: "2026-11-02"
 relations:
   - to: mastercard-agent-pay
     type: complements
@@ -33,16 +33,18 @@ sources:
   - src-orbit-kya-gleif-blog-agentic
   - src-orbit-kya-gleif-vlei-page
   - src-mcap-emvco-news
-lastVerified: "2026-10-11"
+  - src-orbit-kya-dif-kya-os
+  - src-orbit-kya-os-mcp-repo
+lastVerified: "2026-11-14"
 ---
 
 ## What it is
 
-Know Your Customer checks a person; Know Your Agent tries to answer who stands behind an AI agent and what it may do before a merchant or network accepts its payment. No single KYA standard exists. Three efforts carry the label in different ways, and EMVCo lists KYA only as possible future work for its card framework. <Cite ids="src-mcap-emvco-news" />
+Know Your Customer checks a person; Know Your Agent tries to answer who stands behind an AI agent and what it may do before a merchant or network accepts its payment. No single KYA standard exists. Several efforts carry the label in different ways, and this page covers four of them; EMVCo lists KYA only as possible future work for its card framework. <Cite ids="src-mcap-emvco-news" />
 
 ## Skyfire KYAPay
 
-KYAPay is an open protocol in which an agent carries signed JWTs: a `kya` token for the agent and its human principal, a `pay` token for a payment commitment, or a combined `kya-pay` token, with the `typ` values `kya+jwt`, `pay+jwt` and `kya-pay+jwt`. <Cite ids="src-orbit-kya-skyfire-kyapay-repo src-orbit-kya-skyfire-token-draft" /> The `skyfire-xyz/kyapay` repository, created 2025-06-25 under the Community Specification License, says a full v1.0 specification is still to come and has no releases. <Cite ids="src-orbit-kya-skyfire-kyapay-repo" /> The text is also an individual IETF draft. It started as `draft-skyfire-kyapayprofile` on 2026-03-02, was renamed, and its current revision is `draft-skyfire-oauth-kyapay-token-02` of 2026-10-02, with authors from Skyfire and Self-Issued Consulting and no working group adoption. <Cite ids="src-orbit-kya-skyfire-profile-draft src-orbit-kya-skyfire-token-draft" /> Identity claims include `hid`, `apd` and `aid`; payment claims include `amt`, `cur` and a settlement type `stp` of `coin` or `card`. For cards, the settlement information names `visa_vic` or `mastercard_scof`, and PANs and static security codes are prohibited. <Cite ids="src-orbit-kya-skyfire-token-draft" />
+KYAPay is an open protocol in which an agent carries signed JWTs: a `kya` token for the agent and its human principal, a `pay` token for a payment commitment, or a combined `kya-pay` token, with the `typ` values `kya+jwt`, `pay+jwt` and `kya-pay+jwt`. <Cite ids="src-orbit-kya-skyfire-kyapay-repo src-orbit-kya-skyfire-token-draft" /> The `skyfire-xyz/kyapay` repository, created 2025-06-25 under the Community Specification License, says a full v1.0 specification is still to come and has no releases. <Cite ids="src-orbit-kya-skyfire-kyapay-repo" /> The text is also an individual IETF draft. It started as `draft-skyfire-kyapayprofile` on 2026-03-02, was renamed, and its current revision is `draft-skyfire-oauth-kyapay-token-03` of 2026-11-02, with authors from Skyfire and Self-Issued Consulting and no working group adoption (as of 2026-11-14). <Cite ids="src-orbit-kya-skyfire-profile-draft src-orbit-kya-skyfire-token-draft" /> Identity claims include `hid`, `apd` and `aid`; payment claims include `amt`, `cur` and a settlement type `stp` of `coin` or `card`. For cards, the settlement information names `visa_vic` or `mastercard_scof`, and PANs and static security codes are prohibited. <Cite ids="src-orbit-kya-skyfire-token-draft" /> Revision `-03` makes `apd` required in KYA and KYAPay tokens and `id` required inside `aid`, makes `sub` pairwise (a different value at each target service), and adds optional `ivm`, `amr` and `aml` sub-claims for the identity verification, authentication and anti-money-laundering methods used. A verified claim may now only be true, which the draft itself calls a compatibility change. <Cite ids="src-orbit-kya-skyfire-token-draft" />
 
 ## Mastercard
 
@@ -52,11 +54,17 @@ Mastercard's developer guidance for [Agent Pay](/p/mastercard-agent-pay/) says o
 
 The vLEI is GLEIF's verifiable form of the Legal Entity Identifier, standardized as ISO 17442-3 in 2024. <Cite ids="src-orbit-kya-gleif-vlei-page" /> GLEIF's working paper "Agentic AI in Payments: Establishing Interoperable Trust and Control" (cover dated September 2026, announced on the GLEIF blog on 2026-09-01) proposes Agent Mandate Credentials anchored in the vLEI. In the paper's example, an officer with an organizational role credential issues a mandate credential to a payment agent, built on KERI and ACDC credentials, and a runtime policy engine enforces limits and counterparty rules. <Cite ids="src-orbit-kya-gleif-amc-paper src-orbit-kya-gleif-blog-agentic" /> GLEIF positions this as an organizational trust layer above agent identity. The paper discusses [x402](/p/x402/), [AP2](/p/ap2/), Visa TAP and Agent Pay, and sketches a pilot that pairs vLEI-checked discovery with an x402-compatible micropayment. No credential schema has been published. <Cite ids="src-orbit-kya-gleif-amc-paper" />
 
+## DIF KYA-OS
+
+The Decentralized Identity Foundation (DIF) announced on 2026-04-22 that the agent identity framework Vouched donated in March 2026, formerly known as MCP-I, continues as Know Your Agent Operating System (KYA-OS). A task force in DIF's Trusted AI Agents Working Group develops it as an identity and delegation standard meant for agent protocols beyond the Model Context Protocol (MCP). KYA-OS gives agents identities built on decentralized identifiers and Verifiable Credentials, represents delegation as credentials with an explicit scope, and defines three conformance levels. The announcement names none of the eight payment protocols. <Cite ids="src-orbit-kya-dif-kya-os" /> Its MCP reference implementation, `decentralized-identity/kya-os-mcp`, released v1.21.1 to v1.21.3 between 2026-10-22 and 2026-11-10. <Cite ids="src-orbit-kya-os-mcp-repo" />
+
 ## Status history
 
 - 2025-06-25: Skyfire's `kyapay` repository created. <Cite ids="src-orbit-kya-skyfire-kyapay-repo" />
 - 2026-03-02: first KYAPay IETF draft, `draft-skyfire-kyapayprofile-00`. <Cite ids="src-orbit-kya-skyfire-profile-draft" />
+- 2026-04-22: DIF renames the framework donated by Vouched to KYA-OS. <Cite ids="src-orbit-kya-dif-kya-os" />
 - 2026-06-10: Skyfire listed among Agent Pay for Machines participants. <Cite ids="src-mcap-ap4m-2026" />
 - 2026-09-01: GLEIF announces its agentic payments working paper. <Cite ids="src-orbit-kya-gleif-blog-agentic" />
 - 2026-09-30: Mastercard names Skyfire as a KYA provider for Agent Pay. <Cite ids="src-mcap-trust-2026" />
 - 2026-10-02: `draft-skyfire-oauth-kyapay-token-02` posted. <Cite ids="src-orbit-kya-skyfire-token-draft" />
+- 2026-11-02: `draft-skyfire-oauth-kyapay-token-03` posted. <Cite ids="src-orbit-kya-skyfire-token-draft" />

@@ -1,6 +1,6 @@
 # Orbit research, part b: machine payments, card and commerce programs, legal and policy, ERC-3643 and ERC-8226
 
-Generated 2026-10-11. All "accessed" dates are 2026-10-11 unless a source record says otherwise. This file covers the Section 6 groups "Machine payments and money", "Card, wallet and commerce programs" and "Legal and policy events", plus two agent-identity items: ERC-3643 with ONCHAINID (starred, from ATLAS_FOLLOWUP.md Section 3.4 and Appendix C) and ERC-8226. Facts already verified in `research/protocols/*.md` were reused with their source ids; their source records are copied into `orbit.b.sources.json`. GitHub metadata comes from the authenticated `gh api` CLI on 2026-10-11. Items marked with a star get a mini page.
+Generated 2026-10-11; refreshed 2026-11-14 (see "Refresh 2026-11-14" before the item index, which overrides the per-item text below where they differ). All "accessed" dates are 2026-10-11 unless a source record says otherwise. This file covers the Section 6 groups "Machine payments and money", "Card, wallet and commerce programs" and "Legal and policy events", plus two agent-identity items: ERC-3643 with ONCHAINID (starred, from ATLAS_FOLLOWUP.md Section 3.4 and Appendix C) and ERC-8226. Facts already verified in `research/protocols/*.md` were reused with their source ids; their source records are copied into `orbit.b.sources.json`. GitHub metadata comes from the authenticated `gh api` CLI on 2026-10-11. Items marked with a star get a mini page.
 
 Relation types used: embeds, uses-as-rail, complements, compatible-with, competes-with, same-steward, lineage. The relation is stated from the orbit item toward the protocol; the note says who uses whom. Only relations that a source supports are listed; where none exists the item says so.
 
@@ -572,7 +572,7 @@ Visa also extends VIC beyond its own protocol: it authored the card payment meth
 - **Category:** card-wallet-commerce
 - **What it is:** An open product-feed specification and API from Klarna that gives AI agents structured, live product, price and availability data.
 - **Steward:** Klarna (company).
-- **Status (as of 2026-10-11):** Live per the 2025-12-15 announcement (specification and API access "available today"). Klarna claims more than 100 million products and 400 million prices across 12 markets (company figures, as of 2025-12-15). Klarna is a listed UCP endorser.
+- **Status (as of 2026-10-11):** Live per the 2025-12-15 announcement (specification and API access "available today"). Klarna claims more than 100 million products and 400 million prices across 13 markets (company figures, as of 2025-12-15; corrected 2026-11-14 from Klarna's own copy of the release, src-orbit-klarna-app-newsroom, after the 12 taken from search summaries). Klarna is a listed UCP endorser.
 - **Latest version:** launch (2025-12-15).
 - **Primary links:**
   - https://www.businesswire.com/news/home/20251215227830/en/Klarna-Launches-Agentic-Product-Protocol-The-Open-Standard-That-Makes-100M-Products-Instantly-Discoverable-by-AI-Agents (announcement)
@@ -647,6 +647,7 @@ Visa also extends VIC beyond its own protocol: it authored the card payment meth
 
 **Status history.**
 - 2026-05-19: Universal Cart announced; UCP checkout expansion to Canada and Australia, then the UK, announced in the same post.
+- 2026-11-04: UCP direct checkout, not Universal Cart, launched in Canada on AI Mode in Google Search and the Gemini app, with lululemon, select Shopify merchants, Shoppers Drug Mart and Simons (Google Canada post, src-ucp-google-canada). Universal Cart's own posts still say US only, and no Google post announces Australia or the UK (as of 2026-11-14).
 
 **Relations to the eight.**
 - ucp: uses-as-rail. Checkout runs on UCP. Disambiguation: Universal Cart is a product, UCP is the protocol (Appendix D).
@@ -661,10 +662,10 @@ Visa also extends VIC beyond its own protocol: it authored the card payment meth
 
 - **id:** `shopify-agentic-storefronts`
 - **Category:** card-wallet-commerce
-- **What it is:** A Shopify admin channel that syndicates a merchant's Shopify Catalog data to AI assistants (ChatGPT, Microsoft Copilot, Google AI Mode and Gemini) and, where enabled, lets buyers check out inside the AI channel; an Agentic plan opens the catalog to brands that do not run a Shopify store.
+- **What it is:** A Shopify admin channel that syndicates a merchant's Shopify Catalog data to AI assistants (ChatGPT, Microsoft Copilot, Google AI Mode and Gemini, and since 2026-09-08 Meta, on Meta surfaces including Muse when available) and, where enabled, lets buyers check out inside the AI channel; an Agentic plan opens the catalog to brands that do not run a Shopify store.
 - **Steward:** Shopify (company); Shopify co-develops UCP with Google.
-- **Status (as of 2026-10-11):** Mixed. Announced 2026-01-11 with UCP. Shopify Help Center: checkout is active by default for eligible US stores; Microsoft Copilot, Google AI Mode and Gemini storefronts are in early access and not yet available to all stores. Agentic Storefronts got its own admin page on 2026-05-11 (changelog). Secondary reports say eligible US merchants were auto-enrolled in Google AI Mode checkout around 2026-09-18 to 2026-09-22 with opt-out (reported). A per-channel fee is reported but its rate is not public (unverified).
-- **Latest version:** admin page update (2026-05-11).
+- **Status (as of 2026-10-11):** Mixed. Announced 2026-01-11 with UCP. Shopify Help Center: checkout is active by default for eligible US stores; Microsoft Copilot, Google AI Mode and Gemini storefronts are in early access and not yet available to all stores. Agentic Storefronts got its own admin page on 2026-05-11 (changelog). Secondary reports say eligible US merchants were auto-enrolled in Google AI Mode checkout around 2026-09-18 to 2026-09-22 with opt-out (reported). A per-channel fee is reported but its rate is not public (unverified). Update 2026-11-14 (Help Center read directly, HTTP 200): four AI channels, ChatGPT, Google AI Mode and Gemini, Microsoft Copilot and Meta (Meta surfaces including Muse when available), each active by default for eligible stores. Direct checkout is on by default in Google AI Mode and Gemini (customers in the US, Canada or Australia, stores based in any country; Australia is Shopify's statement, since Google announced only Canada), Copilot (US customers) and Meta (eleven countries); ChatGPT is discovery only. Each channel page says there are no fees beyond standard payment processing, and the Agentic Storefronts terms (2026-10-06) print no rate. The old /requirements and /customer-experience URLs answer 307 to the main page (src-orbit-shopify-help-requirements and src-orbit-shopify-help-cx now point there; current detail in the ucp records src-ucp-shopify-help-*).
+- **Latest version:** admin page update (2026-05-11). Update 2026-11-14: the orbit page now gives the knowledge base page in Sales channels > Agentic, built into the admin on 2026-10-26 (src-ucp-shopify-changelog-knowledge-base).
 - **Primary links:**
   - https://www.shopify.com/news/ai-commerce-at-scale (announcement)
   - https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/requirements (requirements)
@@ -753,7 +754,37 @@ Compared with the eight protocols, UPI agentic payments are closest in spirit to
 
 ---
 
+## Refresh 2026-11-14
+
+What changed for the items in this file between the 2026-10-11 to 2026-10-21 reads and 2026-11-14, with the source records behind each change. Pages owned by other writers this round are marked; their orbit pages carry the details.
+
+- **Cloudflare (cloudflare-agent-payments).** Monetization Gateway still a closed beta for US buyers and sellers (docs updated 2026-11-01); variable pricing uses x402 upto, with the origin reporting the amount in PAYMENT-SETTLEMENT (page dated 2026-09-30, missed earlier); Wallets still handle reservation only; no NET Dollar launch found (press page, releases to 2026-11-05, and Q3 2026 results of 2026-11-05). Identity news (per-agent personal agent policies of 2026-11-04, Trusted Agent Delegation) is on the orbit.a and orbit.c pages. Sources: src-orbit-cloudflare-mg-docs, src-orbit-cloudflare-mg-payment-validation, src-orbit-cloudflare-wallets-docs, src-orbit-cloudflare-q3-2026, src-cf-verified-bots.
+- **PayPal (paypal-agentic).** Agent Ready docs list ACP for ChatGPT with Braintree delegated tokens and UCP for Google AI Mode and Gemini through the Google Pay handler (Braintree or Orders v2); WebMCP support for Store Sync merchants announced (2026-09-16; optional, early enablement through account managers); Meta said it was adding PayPal for Muse payments (2026-09-24); Microsoft's Copilot Checkout page no longer names PayPal (2026-11-14). Sources: src-openai-acp-paypal-agent-ready, src-orbit-paypal-webmcp-blog, src-openai-acp-meta-connect-2026, src-ucp-microsoft-page.
+- **Adyen (adyen-agentic).** Docs add ACP agent-platform guides beside the UCP ones, with Adyen as the delegated-payment vault returning ACP tokens; OpenAI names Adyen among ChatGPT Wallet PSPs (2026-11-13); Adyen partnered with Sierra and Meta on the Personal Agent Protocol (Q3 2026 update, 2026-10-28); status unchanged. Sources: src-orbit-adyen-docs, src-orbit-adyen-acp-delegated, src-orbit-adyen-q3-2026, src-openai-chatgpt-wallet.
+- **Crossmint (crossmint).** Earlier misses: universal vault for agent cards (2026-09-17), Agent Checkouts (2026-09-25) and the Agent Commerce Toolkit (2026-10-08, live and self-serve), using Visa Intelligent Commerce and Mastercard Agent Pay credentials where a card is eligible and UCP or Shop Pay for checkout (Crossmint's claims); pricing 1,000 free checkouts a month, then $0.05. Sources: src-orbit-crossmint-vault, src-orbit-crossmint-agent-checkouts, src-orbit-crossmint-toolkit, src-orbit-crossmint-pricing.
+- **Interledger (interledger).** The Foundation's 2026-10-22 post positions Web Monetization as a machine-readable accepts-payments signal for AI agents, not a competitor to x402 and MPP; a position post, not a program. Source: src-orbit-interledger-wm-agentic-age.
+- **Klarna (klarna-app).** 13 markets, not 12 (Klarna's own release). Source: src-orbit-klarna-app-newsroom.
+- **Amazon v. Perplexity (amazon-v-perplexity).** Rehearing en banc denied (2026-09-10), mandate (2026-09-18), amended complaint adding a contract claim on the Agent Terms (2026-09-21; the terms date from 2025-05-30), motion to dismiss (2026-10-13; hearing 2026-11-20), trial set for 2027-09-27, no certiorari petition on 2026-11-14. Sources: src-orbit-amazon-perplexity-dockets, src-orbit-amazon-perplexity-fac, src-orbit-amazon-perplexity-mtd, src-orbit-amazon-conditions-of-use. Timeline events added in orbit.b.timeline.json and policy.json.
+- **Coinbase (coinbase-agent-products, page owned by the x402 writer).** The Agentic Wallet MCP and CLI docs answer 404 and the 2026-02-11 changelog entry is gone; CDP now routes agent wallets to Wallet MCP and Coinbase for Agents. Records marked: src-orbit-coinbase-agentic-wallet-mcp-docs, src-orbit-coinbase-awal-docs, src-orbit-coinbase-agentic-wallets.
+- **Circle (circle, page owned by the x402 writer).** Facilitator Service (Circle's hosted x402 facilitator, 2026-09-16; upto since 2026-10-13) and the Agent Marketplace; Gateway fee values on the docs are illustrative; Circle's Q3 2026 release reports a $182 million ARC presale, which overtakes the src-orbit-circle-arc-theblock note.
+- **Shopify, Google Universal Cart, Microsoft Copilot Checkout and Amex ACE (pages owned by the UCP and OpenAI writers).** See the Shopify update above, the 2026-11-04 Canada line under Universal Cart, and the protocol and orbit pages: Microsoft's page dropped its no-commission answer and PayPal between 2026-11-04 and about 2026-11-06; OpenAI's Wallet post quotes Amex calling Wallet its first ACE integration (2026-11-13), and Amex published its Intent Intelligence framework on 2026-10-13 (src-scn-chatgpt-amex-intent-release).
+- **No change needed (checked 2026-11-14):** the pages perplexity-instant-buy, kite-ai, x402r-a402, nevermined, npci-upi-agentic, erc-3643 and erc-8226 from this file, and account-abstraction-friends, agntcy-oasf, catena-ack, eas-ens and erc-7715-7710, state nothing that this round's findings make wrong; they were left untouched and keep lastVerified 2026-10-11. Optional additions noted for a later round: Nevermined's MPP payment sessions (2026-11-03) and Visa-based card delegations, NPCI's AiNxt and AtOM platforms (reported), and A402 v2 (2026-03-19).
+
 ## Item index (for `OrbitMeta`, lastVerified 2026-10-11)
+
+Rows for the seven pages refreshed by this file's owner on 2026-11-14 (lastVerified 2026-11-14) are listed first; the other rows are as of 2026-10-11, and pages owned by other writers carry their own current values.
+
+| slug | category | starred | status label | latest version (date) |
+|---|---|---|---|---|
+| `cloudflare-agent-payments` | machine-payments | no | Mixed (closed beta, announced, unverified launch) | Monetization Gateway closed beta (2026-09-30) |
+| `crossmint` | machine-payments | no | Live | Agent Commerce Toolkit (2026-10-08) |
+| `interledger` | machine-payments | no | Live; Web Monetization is a CG draft; no agent program found (a 2026-10-22 Foundation post positions it for AI agents) | open-payments 7.4.0 (2026-03-11) |
+| `paypal-agentic` | card-wallet-commerce | no | Live | WebMCP support for Store Sync merchants (announced) (2026-09-16) |
+| `adyen-agentic` | card-wallet-commerce | no | Limited availability (US) | announcement (2026-06-16) |
+| `klarna-app` | card-wallet-commerce | no | Live | launch (2025-12-15) |
+| `amazon-v-perplexity` | legal-policy | no | Injunction vacated (mandate 2026-09-18); amended complaint pending, with a motion to dismiss set for hearing on 2026-11-20 | Motion to dismiss the amended complaint (2026-10-13) |
+
+Rows as of 2026-10-11:
 
 | slug | category | starred | status label | latest version (date) |
 |---|---|---|---|---|

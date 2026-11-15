@@ -81,7 +81,7 @@
       "from": "merchant",
       "to": "agent",
       "label": "422 idempotency_conflict",
-      "detail": "The spec uses 422; OpenAI documentation says 409 for this code, so handle both.",
+      "detail": "The spec uses 422. OpenAI's ACP docs said 409 for this code until OpenAI replaced them in its 2026-11-13 docs rewrite, so a client built against them may still handle both.",
       "payload": {
         "format": "json",
         "content": "// Illustrative example, spec version 2026-04-17.\n{\n  \"type\": \"invalid_request\",\n  \"code\": \"idempotency_conflict\",\n  \"message\": \"Idempotency-Key has already been used with a different request body\"\n}",

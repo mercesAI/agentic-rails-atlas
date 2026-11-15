@@ -38,12 +38,13 @@
     "from": "stripe-mpp",
     "to": "visa-tap",
     "type": "embeds",
-    "note": "The Visa-authored card method lets a client add TAP signature headers (in the spec since 2026-03-18); Visa says the card spec and SDK are built on VIC and TAP; mppx adds TAP request attestation.",
+    "note": "The Visa-authored card method lets a client add TAP signature headers (in the spec since 2026-03-18); Visa says the card spec and SDK are built on VIC and TAP; mppx checks TAP signatures outside the spec, as request attestation until 0.16.0 (2026-10-28) and as a per-route identity verifier and prover since.",
     "sources": [
       "src-stripe-mpp-card-charge",
       "src-stripe-mpp-card-history",
       "src-stripe-mpp-visa-card",
-      "src-stripe-mpp-blog-identity"
+      "src-stripe-mpp-blog-identity",
+      "src-stripe-mpp-mppx-changelog"
     ]
   },
   {

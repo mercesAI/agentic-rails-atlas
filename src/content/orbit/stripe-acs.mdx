@@ -12,7 +12,7 @@ latestVersion:
 relations:
   - to: openai-acp
     type: same-steward
-    note: "Stripe co-develops ACP with OpenAI; SPT is the first Delegated Payment implementation."
+    note: "Stripe co-develops ACP with OpenAI; the ACP site calls Stripe the first compatible PSP, with its Shared Payment Token."
   - to: stripe-mpp
     type: same-steward
     note: "Stripe co-authors MPP; MPP card payments on Stripe use SPTs."
@@ -25,13 +25,20 @@ relations:
 sources:
   - src-stripe-acs-launch
   - src-stripe-spt
+  - src-stripe-mpp-spt-seller-docs
   - src-stripe-acp-launch
+  - src-openai-acp-site
+  - src-openai-acp-schema-delegate-payment-20260417
   - src-openai-commerce-docs
   - src-stripe-mpp-docs
   - src-x402-stripe-docs
   - src-x402-stripe-coverage
   - src-ucp-site
-lastVerified: "2026-10-11"
+  - src-stripe-mpp-link-muse
+  - src-stripe-mpp-meta-muse
+lastVerified: "2026-11-14"
 ---
 
-Stripe launched Shared Payment Tokens with [ACP](/p/openai-acp/) on 2025-09-29 and the Agentic Commerce Suite on 2025-12-11. <Cite ids="src-stripe-acp-launch src-stripe-acs-launch" /> An SPT carries `usage_limits` (`currency`, `max_amount`, `expires_at`) and `seller_details`, and the seller confirms a PaymentIntent with it; OpenAI describes SPT as the first implementation compatible with the ACP Delegated Payment spec, but SPT itself is not part of the ACP spec. <Cite ids="src-stripe-spt src-openai-commerce-docs" /> Stripe's [MPP](/p/stripe-mpp/) integration accepts cards through SPTs. <Cite ids="src-stripe-mpp-docs" /> Stripe's machine payments docs also accept [x402](/p/x402/) payments in USDC on Base, labeled Frontier on 2026-10-21; the preview launch was reported on 2026-02-10. <Cite ids="src-x402-stripe-docs src-x402-stripe-coverage" /> Stripe is a listed [UCP](/p/ucp/) co-developer. <Cite ids="src-ucp-site" />
+Stripe launched Shared Payment Tokens with [ACP](/p/openai-acp/) on 2025-09-29 and the Agentic Commerce Suite on 2025-12-11. <Cite ids="src-stripe-acp-launch src-stripe-acs-launch" /> An SPT carries `usage_limits` (`currency`, `max_amount`, `expires_at`) and `seller_details`, and the seller confirms a PaymentIntent with it. For recurring charges the seller reuses one SPT whose `usage_limits` also set `recurring_interval` (Stripe's docs, as of 2026-11-14). <Cite ids="src-stripe-spt src-stripe-mpp-spt-seller-docs" /> The ACP site calls Stripe the first compatible PSP, with its Shared Payment Token, but SPT itself is not part of the ACP spec. Until OpenAI rewrote its commerce docs between 2026-11-12 and 2026-11-13, they also described SPT as the first implementation compatible with the ACP Delegated Payment spec. <Cite ids="src-openai-acp-site src-openai-acp-schema-delegate-payment-20260417 src-openai-commerce-docs" /> Stripe's [MPP](/p/stripe-mpp/) integration accepts cards through SPTs. <Cite ids="src-stripe-mpp-docs" /> Stripe's machine payments docs also accept [x402](/p/x402/) payments in USDC on Base, labeled Frontier on 2026-10-21; the preview launch was reported on 2026-02-10. <Cite ids="src-x402-stripe-docs src-x402-stripe-coverage" /> Stripe is a listed [UCP](/p/ucp/) co-developer. <Cite ids="src-ucp-site" />
+
+On the agent side, Stripe offers Link's wallet for agents. Meta built it into its Muse agent at launch on 2026-09-08: where a business accepts Link, Muse checks out with the shopper's saved Link payment method, and elsewhere Link issues Muse a single-use virtual card for the approved purchase. <Cite ids="src-stripe-mpp-link-muse src-stripe-mpp-meta-muse" /> Stripe's Muse release names neither ACP nor SPTs, and Meta's Muse posts of 2026-09-08 and 2026-09-24 name no ACP; they list Link, Shop Pay and PayPal as ways to pay. <Cite ids="src-stripe-mpp-link-muse src-stripe-mpp-meta-muse" />

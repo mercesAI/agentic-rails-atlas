@@ -37,7 +37,7 @@
     "type": "spec",
     "primary": true,
     "published": "2026-09-09",
-    "notes": "Challenge parameters, credential, Payment-Receipt, Accept-Payment, Payment-Authorization, problem types, HMAC binding, IANA registrations. Repository file last changed 2026-09-21 (PR #362, HMAC header slot vectors), after the -01 datatracker upload.",
+    "notes": "Challenge parameters, credential, Payment-Receipt, Accept-Payment, Payment-Authorization, problem types, HMAC binding, IANA registrations. Repository file last changed 2026-09-21 (PR #362, HMAC header slot vectors), after the -01 datatracker upload, as of this pin. It changed again on 2026-11-11 (PR #404, other authentication; see src-stripe-mpp-core-01-7bb99c8); the fields used in the site's field tables are the same at both commits.",
     "accessed": "2026-10-11"
   },
   {
@@ -109,8 +109,8 @@
     "type": "standard",
     "primary": true,
     "published": "2026-06-19",
-    "notes": "API history: -00 posted 2026-06-19T18:09Z, -01 posted 2026-09-09T16:08Z; expires 2027-03-13; state Active; group none (Individual Submissions); no stream; 36 pages; no 'replaces' relation recorded.",
-    "accessed": "2026-10-11"
+    "notes": "API history: -00 posted 2026-06-19T18:09Z, -01 posted 2026-09-09T16:08Z; expires 2027-03-13; state Active; group none (Individual Submissions); no stream; 36 pages; no 'replaces' relation recorded. Re-read 2026-10-21 by the freshness verifier: -01 still current, no -02, still an individual submission with no group or stream. Re-read through the Datatracker API on 2026-11-14: still revision 01 of 2026-09-09, no stream, no intended status; the in-place repository edit of 2026-11-11 (mpp-specs PR #404) was not submitted. Intent, method and extension drafts such as draft-payment-intent-charge, draft-tempo-charge and draft-solana-subscription still return 404 on the Datatracker.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-gh-specs-commits",
@@ -119,18 +119,18 @@
     "publisher": "GitHub",
     "type": "repo",
     "primary": true,
-    "notes": "Repository created 2026-01-05T22:26Z; initial commit authored 2026-01-05 and committed 2026-03-18; per-path first-merge dates used in Versions.",
-    "accessed": "2026-10-11"
+    "notes": "Repository created 2026-01-05T22:26Z; initial commit authored 2026-01-05 and committed 2026-03-18; per-path first-merge dates used in Versions. On 2026-11-14 origin/main was at 7bb99c8 (2026-11-11), 11 commits after 50309c8, and the repository had 97 GitHub stars (95 on 2026-10-11).",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-mppx-changelog",
-    "url": "https://github.com/wevm/mppx/blob/d8d800f101ba1568f0d737e12574c0ae8f6b6e93/CHANGELOG.md",
+    "url": "https://github.com/wevm/mppx/blob/b56505c4a7e6fd63b8bbac7f839dcf95c68b8d52/CHANGELOG.md",
     "title": "mppx CHANGELOG.md",
     "publisher": "wevm",
     "type": "repo",
     "primary": true,
-    "notes": "Read at commit d8d800f101ba1568f0d737e12574c0ae8f6b6e93 (2026-10-09); package version 0.13.4.",
-    "accessed": "2026-10-11"
+    "notes": "Read on 2026-11-14 at commit b56505c4a7e6fd63b8bbac7f839dcf95c68b8d52 (tag mppx@0.19.0, package version 0.19.0; the file is the same at origin/main 9405660); earlier reads at 21cc115 (2026-10-21, 0.14.1) and d8d800f (2026-10-11, 0.13.4). Entries used: 0.8.2 (non-canonical fee-payer calldata and client access lists rejected), 0.8.7 (session voucher replay checks for settled vouchers and mismatched credential sources), 0.13.2 (tempo/charge replay-marker fix; redirects disabled on credential-bearing retries), 0.13.5 (CredentialReplayedError: final 403 without a challenge for replayed Tempo charge credentials), 0.14.0 (session charge idempotency keys; breaking settle() change), 0.16.0 (793aa2b: request attestation replaced with per-route identity; mppx/attestation became mppx/identity; Mppx.create({ attestation }) throws; TAP and Web Bot Auth moved to mppx/extensions/identity/tap and /web-bot-auth; Client.signer became Client.prover), 0.17.0 (25c8468: breaking identity nonce, challenge hook and prover changes), 0.17.4 (a89d5f5: Zone payments for the tempo charge method, zones option, zone credential), 0.17.6 (970ac7b Identity.from; 0a01b79 email OTP attestations in Identity-Attestation, requested with Identity-Attestation-Required), 0.18.0 (de802b9: fixed identity statuses valid, missing 401, invalid 401, forbidden 403, unavailable 503, missing changed from 403 to 401, experimental payment check listed in a new Identity-Required header on every 402, routes with a payment check do not offer x402; 802a27a: Tempo server methods throw at construction without a store when NODE_ENV is production, a multi-instance platform variable is set or the runtime is Cloudflare Workers; 454b9e0: attestation module), 0.18.1 (066a75b Link agent identity verifiers and provers; dd571b3 Persona KYC), 0.19.0 (f2c69d5: breaking, Web Bot Auth and TAP provers and Attestation.sign take a key pair or remote signer instead of a private key; f253219 Tempo ID; 7645703 World ID).",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-ghsa-34209",
@@ -183,8 +183,8 @@
     "publisher": "GitHub (wevm/mppx)",
     "type": "other",
     "primary": true,
-    "notes": "Five published advisories: GHSA-8x4m-qw58-3pcx (critical, < 0.4.8, 2026-03-26, no CVE), GHSA-mv9j-8jvg-j8mr, GHSA-8mhj-rffc-rcvw, GHSA-727h-3vm5-qwq6 (CVE-2026-63627, medium, gas draining with padding, 2026-07-01), GHSA-vc9j-9wph-qghj (CVE-2026-63628, medium, gas draining with access list, 2026-07-01).",
-    "accessed": "2026-10-11"
+    "notes": "Five published advisories, unchanged on 2026-10-21 (repository publication dates): GHSA-8x4m-qw58-3pcx (critical, < 0.4.8, patched 0.4.8, 2026-03-26, no CVE), GHSA-mv9j-8jvg-j8mr (CVE-2026-34209, high, patched 0.4.11, 2026-03-26), GHSA-8mhj-rffc-rcvw (CVE-2026-34210, medium, patched 0.4.11, 2026-03-26), GHSA-727h-3vm5-qwq6 (CVE-2026-63627, medium, gas draining with padding, patched 0.8.2, 2026-07-01), GHSA-vc9j-9wph-qghj (CVE-2026-63628, medium, gas draining with access list, patched 0.8.2, 2026-07-01). The global GitHub Advisory Database lists all five (the first three on 2026-03-29, the last two on 2026-09-22). All credit outside finders or reporters; none reports exploitation. Re-checked through the GitHub API and OSV on 2026-11-14: still the same five, none new.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-tempo-charge",
@@ -313,8 +313,8 @@
     "publisher": "Tempo Labs",
     "type": "spec",
     "primary": true,
-    "notes": "Error -32042 Payment Required, -32043 verification failed; _meta keys org.paymentauth/credential and org.paymentauth/receipt; experimental.payment capability.",
-    "accessed": "2026-10-11"
+    "notes": "Error -32042 Payment Required, -32043 verification failed; _meta keys org.paymentauth/credential and org.paymentauth/receipt; experimental.payment capability. Written against MCP revision 2025-11-25: its normative MCP references point at modelcontextprotocol.io/specification/2025-11-25, servers advertise payment support in InitializeResult and clients in InitializeRequest (examples use protocolVersion 2025-11-25). Re-read on 2026-11-14 at mpp-specs origin/main 7bb99c8: the file is unchanged since 50309c8.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-gh-pr-280",
@@ -388,13 +388,13 @@
   },
   {
     "id": "src-stripe-mpp-mppx-repo",
-    "url": "https://github.com/wevm/mppx/tree/d8d800f101ba1568f0d737e12574c0ae8f6b6e93",
+    "url": "https://github.com/wevm/mppx/tree/b56505c4a7e6fd63b8bbac7f839dcf95c68b8d52",
     "title": "wevm/mppx repository (README, src, SECURITY.md)",
     "publisher": "wevm",
     "type": "repo",
     "primary": true,
-    "notes": "Repository created 2026-01-21; license MIT; read at commit d8d800f (2026-10-09).",
-    "accessed": "2026-10-11"
+    "notes": "Repository created 2026-01-21; license MIT. First read at commit d8d800f (2026-10-09); re-read on 2026-11-14 at b56505c (tag mppx@0.19.0, same README as origin/main 9405660). The README quick start (server and client), payments proxy and CLI sections used in the code samples are unchanged from d8d800f except the client's import order; 0.19.0 adds an mppx stripe address CLI section. src/internal/env.ts and src/tempo/server/internal/fallback-store.ts at 0.19.0 hold the production store check. GitHub stars: 186 on 2026-10-11, 192 on 2026-11-14 (gh api).",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-npm-mppx",
@@ -403,8 +403,8 @@
     "publisher": "npm",
     "type": "dataset",
     "primary": true,
-    "notes": "Created 2026-02-12; 0.1.0 on 2026-02-13; 0.4.11 on 2026-03-26; 0.6.29 on 2026-06-02; 0.8.17 on 2026-08-10; 0.9.0 on 2026-08-27; 0.9.2 on 2026-09-02; latest 0.13.4 on 2026-10-08. 0.8.16 and 0.13.0 have changelog entries but no npm publish.",
-    "accessed": "2026-10-11"
+    "notes": "Created 2026-02-12; 0.1.0 on 2026-02-13; 0.4.8 on 2026-03-20; 0.4.11 on 2026-03-26; 0.6.29 on 2026-06-02; 0.8.2 on 2026-07-01; 0.8.7 on 2026-07-13; 0.8.17 on 2026-08-10; 0.9.0 on 2026-08-27; 0.9.2 on 2026-09-02; 0.13.2 and 0.13.4 on 2026-10-08; 0.13.5 on 2026-10-15; 0.13.6 on 2026-10-20; 0.14.0 and 0.14.1 on 2026-10-21 (dist-tag latest 0.14.1, published 03:34 UTC). 0.8.16 and 0.13.0 have changelog entries but no npm publish. Queried 2026-10-21. Re-queried 2026-11-14: 0.15.0 (2026-10-21T20:50Z), 0.16.0 (2026-10-28T18:23Z), 0.17.0 (2026-10-29), 0.17.1 (2026-11-04), 0.17.3 (2026-11-06), 0.17.4 (2026-11-07T05:32Z), 0.17.5 (2026-11-08), 0.17.6 (2026-11-09T02:26Z), 0.18.0 (2026-11-09T19:22Z), 0.18.1 (2026-11-12) and 0.19.0 (2026-11-14T15:59:49Z, dist-tag latest); 0.17.2 has a changelog entry but no npm publish. Published exports: 0.14.1 and 0.15.0 export ./attestation, ./attestation/tap and ./attestation/web-bot-auth; 0.16.0 and later export ./identity and ./extensions/identity/tap and /web-bot-auth, and 0.19.0 also exports ./extensions/identity/attestation, /email-otp, /link, /persona, /tempo and /world. 0.19.0 declares optional peer dependencies including @modelcontextprotocol/sdk >=1.25.0 and @stripe/agent-identity >=0.3.0.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-sdk-registries",
@@ -413,8 +413,8 @@
     "publisher": "npm, PyPI, crates.io, RubyGems, Go module proxy",
     "type": "dataset",
     "primary": true,
-    "notes": "mpp-card 0.1.8 (created 2026-03-12, maintainer jbrans-visa); @solana/mpp 0.7.0; @stellar/mpp 0.7.1; @monad-crypto/mpp 0.0.3; pympp 0.11.0 (first upload 2026-02-12, MIT OR Apache-2.0); crate mpp 0.15.0 (created 2026-02-12, repo tempoxyz/mpp-rs); gem mpp-rb 0.1.6 (repo stripe/mpp-rb); github.com/tempoxyz/mpp-go v0.2.0 (2026-07-01). Queried 2026-10-11.",
-    "accessed": "2026-10-11"
+    "notes": "Queried 2026-10-21: pympp 0.14.0 (uploaded 2026-10-13; first upload 2026-02-12; MIT OR Apache-2.0); crate mpp 0.16.0 (2026-10-19; created 2026-02-12; repo tempoxyz/mpp-rs); gem mpp-rb 0.1.9 (2026-10-19; repo stripe/mpp-rb); github.com/tempoxyz/mpp-go v0.2.0 (2026-07-01); mpp-card 0.1.8 (created 2026-03-12, maintainer jbrans-visa); @solana/mpp 0.7.0; @stellar/mpp 0.7.1; @monad-crypto/mpp 0.0.3. On 2026-10-11 the same registries showed pympp 0.11.0, crate mpp 0.15.0 and mpp-rb 0.1.6. Re-queried 2026-11-14: pympp 0.22.0 (2026-11-09T21:57Z, after 0.15.0 to 0.21.0 from 2026-10-25); crate mpp 0.20.0 (2026-11-09T17:52Z); github.com/tempoxyz/mpp-go v0.9.0 (2026-11-09T15:21Z, after v0.4.0 to v0.7.0 from 2026-10-25); gem mpp-rb 0.1.10 (2026-10-26T16:19Z); mpp-card 0.1.8, @solana/mpp 0.7.0, @stellar/mpp 0.7.1, @buildonspark/lightning-mpp-sdk 0.1.4 and @monad-crypto/mpp 0.0.3 unchanged.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-docs-repo",
@@ -433,8 +433,8 @@
     "publisher": "Tempo Labs and Stripe (mpp.dev)",
     "type": "docs",
     "primary": true,
-    "notes": "Source https://github.com/tempoxyz/mpp/blob/6c5a0c6beee6690dd601c506ffd4ac32a405f96a/src/pages/governance.mdx. Core spec at IETF; methods maintained by their rails; permissionless extension.",
-    "accessed": "2026-10-11"
+    "notes": "Source https://github.com/tempoxyz/mpp/blob/6c5a0c6beee6690dd601c506ffd4ac32a405f96a/src/pages/governance.mdx. Core spec at IETF; methods maintained by their rails; permissionless extension. Re-read on 2026-11-14 at tempoxyz/mpp origin/main d062df6: the file is unchanged, and its 'Permissionless extension' section still says rails and third parties need no explicit approval to add a payment method implementation.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-vs-x402",
@@ -465,8 +465,8 @@
     "type": "announcement",
     "primary": true,
     "published": "2026-08-12",
-    "notes": "Source https://github.com/tempoxyz/mpp/blob/6c5a0c6beee6690dd601c506ffd4ac32a405f96a/src/pages/blog/mppx-identity-support.mdx; Web Bot Auth and TAP request-attestation profiles, RFC 9421.",
-    "accessed": "2026-10-11"
+    "notes": "Source https://github.com/tempoxyz/mpp/blob/6c5a0c6beee6690dd601c506ffd4ac32a405f96a/src/pages/blog/mppx-identity-support.mdx; Web Bot Auth and TAP request-attestation profiles, RFC 9421. The post keeps its 2026-08-12 date but was edited after publication (tempoxyz/mpp commits 9c000c4 to d83f197, 2026-10-28 to 2026-11-09): at origin/main d062df6, read 2026-11-14, it says request identity proof instead of request attestation and its examples use mppx/extensions/identity with identity provers.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-blog-index",
@@ -505,8 +505,8 @@
     "publisher": "Tempo Labs (mpp.dev)",
     "type": "dataset",
     "primary": true,
-    "notes": "Fetched 2026-10-11: 129 services; methods declared: tempo 126, stripe 10, evm 1.",
-    "accessed": "2026-10-11"
+    "notes": "Fetched 2026-10-21: 138 services; methods declared: tempo 135, stripe 10, evm 1; 19 services carry supportsMACH (flag added 2026-10-20, tempoxyz/mpp commit 4ba9da4); none carries supportsCredits. On 2026-10-11: 129 services (tempo 126, stripe 10, evm 1). Fetched again 2026-11-14 (UTC 2026-11-15T02:27Z): 139 services; tempo 136, stripe 10, evm 1; 19 carry supportsMACH.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-sdk-index",
@@ -670,8 +670,8 @@
     "publisher": "Merit Systems",
     "type": "dataset",
     "primary": true,
-    "notes": "Homepage default window 7 days (126,902 transactions, 1,484.38 USD volume, 3,711 senders, 167 recipients). tRPC stats.protocolStats on 2026-10-11: all time 4,072,426 transactions, 435,476.36 USD, 224,244 senders, 6,101 recipients; 30 days 998,771 transactions, 8,774.27 USD; 1 day 20,014 transactions, 169.54 USD.",
-    "accessed": "2026-10-11"
+    "notes": "tRPC stats.protocolStats read once on 2026-10-21 at 13:52 UTC: all time 4,250,945 transactions, 437,664.77 USD, 224,823 senders, 6,138 recipients; 30 days 785,833 transactions, 8,620.26 USD, 12,334 senders, 330 recipients; 7 days 120,727 transactions, 1,560.24 USD, 4,041 senders, 161 recipients (the homepage default window, which labels senders Agents and recipients Servers); 1 day 16,505 transactions, 236.15 USD. On 2026-10-11: all time 4,072,426 transactions and 435,476.36 USD; 30 days 998,771 transactions and 8,774.27 USD; 7 days 126,902 transactions and 1,484.38 USD. Read again on 2026-11-14 (UTC 2026-11-15T01:43Z and 02:26Z, unchanged between the two reads): all time 4,693,132 transactions, 445,223.30 USD, 225,341 senders, 6,223 recipients; 30 days 536,607 transactions and 8,721.86 USD (11,241 senders, 272 recipients); 15 days 256,773 and 5,061.42 USD; 7 days 62,011 transactions, 1,797.04 USD, 3,259 senders, 125 recipients; 1 day 0. The newest latestTx among the homepage's 20 top servers was 2026-11-11T17:14:56Z while Tempo mainnet kept producing blocks, so the indexer appears to have stopped about then: the 7-day window held about 3.6 indexed days and the 30-day window about 26.6.",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-merit-glossary",
@@ -764,8 +764,8 @@
     "publisher": "IANA",
     "type": "standard",
     "primary": true,
-    "notes": "Checked 2026-10-11 (text versions of http-authschemes and http-fields): no 'Payment' scheme and no Accept-Payment, Payment-Authorization or Payment-Receipt field registered. Field registry: https://www.iana.org/assignments/http-fields/http-fields.xhtml",
-    "accessed": "2026-10-11"
+    "notes": "Checked 2026-10-11, 2026-10-21 and again 2026-11-14 (http-authschemes registry updated 2025-02-18; http-fields registry updated 2026-11-02): no 'Payment' scheme and no Accept-Payment, Payment-Authorization or Payment-Receipt field registered. Field registry: https://www.iana.org/assignments/http-fields/http-fields.xhtml",
+    "accessed": "2026-11-14"
   },
   {
     "id": "src-stripe-mpp-mpp-card-pkg",
@@ -816,5 +816,377 @@
     "primary": true,
     "notes": "Lists Coinbase, Cloudflare and Stripe (Steve Kaliski); Steve Kaliski is also an MPP core author. Shared with the x402 dossier (src-x402-tsc).",
     "accessed": "2026-10-11"
+  },
+  {
+    "id": "src-stripe-mpp-ghsa-mpp-rs",
+    "url": "https://github.com/tempoxyz/mpp-rs/security/advisories",
+    "title": "tempoxyz/mpp-rs repository security advisories",
+    "publisher": "GitHub (tempoxyz/mpp-rs)",
+    "type": "other",
+    "primary": true,
+    "notes": "Two published advisories (gh api, 2026-10-21; repository publication dates): GHSA-fxc9-7j2w-vx54 (critical, crate mpp <= 0.7.0, patched 0.8.0, 2026-03-26, no CVE) and GHSA-8xhq-x7vw-8rcw (medium, CVSS 3.1 6.3, <= 0.11.0, patched 0.12.0, 2026-08-27, no CVE: a Payment-Receipt could be attached to failed responses and body-layer failures returned a bare 402). The global GitHub Advisory Database lists the first (from 2026-03-29) but not the second. Both credit outside finders or reporters; neither reports exploitation. Re-checked 2026-11-14: no new advisory.",
+    "accessed": "2026-11-14"
+  },
+  {
+    "id": "src-stripe-mpp-ghsa-pympp",
+    "url": "https://github.com/tempoxyz/pympp/security/advisories",
+    "title": "tempoxyz/pympp repository security advisories",
+    "publisher": "GitHub (tempoxyz/pympp)",
+    "type": "other",
+    "primary": true,
+    "notes": "Two published advisories (gh api, 2026-10-21; repository publication dates): GHSA-v858-xh7w-8jr5 / CVE-2026-63634 (low, gas draining with padding, < 0.9.1, patched 0.9.1, 2026-07-01) and GHSA-5r9p-36vq-j23h (medium, CVSS 3.1 6.8, PaymentTransport could pay attacker-controlled challenges after cross-origin redirects, <= 0.10.0, patched 0.10.1, 2026-08-25, no CVE). Neither is in the global GitHub Advisory Database on 2026-10-21. Both credit outside reporters; neither reports exploitation. Re-checked 2026-11-14: no new advisory, and the global database and OSV still list none for pympp.",
+    "accessed": "2026-11-14"
+  },
+  {
+    "id": "src-stripe-mpp-ietf-01-text",
+    "url": "https://www.ietf.org/archive/id/draft-httpauth-payment-01.txt",
+    "title": "draft-httpauth-payment-01 as posted to the IETF (text)",
+    "publisher": "IETF (B. Ryan, J. Moxey, T. Meagher, J. Weinstein, S. Kaliski)",
+    "type": "spec",
+    "primary": true,
+    "published": "2026-09-09",
+    "notes": "Posted 2026-09-09; read 2026-10-21. The recommended HMAC-SHA256 binding uses seven base slots (realm, method, intent, request, expires, digest, opaque) and appends header as an eighth slot when present; the posted text has no test vectors. The repository text at 50309c8 (mpp-specs PR #362, merged 2026-09-21) puts header before opaque and adds three test vectors, and mppx implements the repository order. The two layouts agree when header is absent. Re-read 2026-11-14 (74,222 bytes): still dated 2026-09-09 with an expiry of 2027-03-13 on its face, and it keeps the earlier text on other authentication, in which the server MAY include the header parameter and 403 means only that the payment succeeded but policy denies access. The repository text edited in place on 2026-11-11 (src-stripe-mpp-core-01-7bb99c8) and paymentauth.org's copy (src-stripe-mpp-paymentauth-01-txt) now differ from it on these points.",
+    "accessed": "2026-11-14"
+  },
+  {
+    "id": "src-stripe-mpp-fr-genius-search",
+    "url": "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=GENIUS&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2025-07-18",
+    "title": "Federal Register API search: rules matching GENIUS published since 2025-07-18",
+    "publisher": "Federal Register (Office of the Federal Register)",
+    "type": "dataset",
+    "primary": true,
+    "notes": "Run 2026-10-21. Three results, of which the only GENIUS Act rule is Treasury's interim final rule 2026-19966 on forms and procedures for review of state certifications (published and effective 2026-09-30); the other two are an SEC and CFTC crypto asset rule and an IRS rule on tips. No final rule from the OCC, FDIC, Federal Reserve or NCUA. The same search with type PRORULE returned 23 proposals, among them the OCC's (2026-04089, published 2026-03-02) and proposals from the FDIC, the Federal Reserve, the NCUA and Treasury. Re-run 2026-11-14 for rules matching GENIUS published since 2026-10-01: two results, the OCC final rule 2026-21706 (published 2026-10-23, effective 2027-01-18) and an unrelated FDA rule. Term searches for GENIUS, payment stablecoin and stablecoin over all document types since 2026-10-01 found no final rule from the FDIC, the Federal Reserve or the NCUA; the OCC's other documents in them were information-collection notices (2026-21704, 2026-21705 and the correction 2026-22036).",
+    "accessed": "2026-11-14"
+  },
+  {
+    "id": "src-stripe-mpp-core-01-7bb99c8",
+    "url": "https://github.com/tempoxyz/mpp-specs/blob/7bb99c8542252b7aa4230c184e48f16c0ea1427a/specs/core/draft-httpauth-payment-01.md",
+    "title": "The \"Payment\" HTTP Authentication Scheme (draft-httpauth-payment-01, repository text of 2026-11-11)",
+    "publisher": "Tempo Labs and Stripe (B. Ryan, J. Moxey, T. Meagher, J. Weinstein, S. Kaliski)",
+    "type": "spec",
+    "primary": true,
+    "published": "2026-11-11",
+    "accessed": "2026-11-14",
+    "notes": "Read in research/vendor/mpp-specs with git show origin/main at merge commit 7bb99c8542252b7aa4230c184e48f16c0ea1427a (PR #404, merged 2026-11-11T18:24:35Z). Edited in place under the -01 name, with no revision bump and no Datatracker submission. The rewritten section on other authentication schemes calls a Bearer token, HTTP Message Signatures (RFC 9421) or an attestation in an application-defined header field 'other authentication', which the Payment scheme does not define, register or constrain. Servers SHOULD verify it first and answer 401 (or the mechanism's own error) or 403 before any 402; when a request carries a Payment credential, servers MUST verify the other authentication before verifying, consuming or settling the credential, and on a denial on that basis MUST NOT settle, consume the challenge or credential, or issue a Payment-Receipt. The header parameter moves from MAY to SHOULD when the other authentication uses Authorization. Clients MUST resend their other authentication on the paid retry and MAY resend the same credential after a 401, or after a 403 whose Problem Details say other authentication denied access and nothing settled. Other mechanisms MAY bind their proofs to the challenge id; the draft defines no such binding. 403 now has two meanings, and servers SHOULD say which in the Problem Details body. A new security section scopes other authentication credentials to their origin and forbids sending them on a cross-origin redirect. The status codes table and the fields in the site's field tables are otherwise unchanged since 50309c8, apart from example fixes of 2026-10-26. At the same commit specs/intents still holds only the charge and subscription intents and specs/methods the same 11 method folders, and a git grep of specs/ finds none of the SDK header names Identity-Attestation, Identity-Attestation-Required, Identity-Presentation or Identity-Required."
+  },
+  {
+    "id": "src-stripe-mpp-gh-pr-404",
+    "url": "https://github.com/tempoxyz/mpp-specs/pull/404",
+    "title": "mpp-specs PR #404: feat(core): define how Payment composes with other authentication",
+    "publisher": "GitHub (tempoxyz/mpp-specs)",
+    "type": "repo",
+    "primary": true,
+    "published": "2026-11-11",
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14: opened 2026-11-11T04:55:34Z by brendanjryan, merged 2026-11-11T18:24:35Z, merge commit 7bb99c8542252b7aa4230c184e48f16c0ea1427a; it changes only specs/core/draft-httpauth-payment-01.md. The description says it edits -01 in place with no revision bump, so merging submits nothing to the IETF Datatracker, and that existing clients and servers stay conformant except that Payment-Authorization moves from MAY to SHOULD when Authorization is taken."
+  },
+  {
+    "id": "src-stripe-mpp-gh-pr-406",
+    "url": "https://github.com/tempoxyz/mpp-specs/pull/406",
+    "title": "mpp-specs PR #406: docs: edit drafts in place instead of bumping revisions",
+    "publisher": "GitHub (tempoxyz/mpp-specs)",
+    "type": "repo",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14: opened 2026-11-13T16:33:43Z by brendanjryan, open and unmerged. The repository's AGENTS.md at 7bb99c8 still says a modified draft bumps its revision."
+  },
+  {
+    "id": "src-stripe-mpp-paymentauth-01-txt",
+    "url": "https://paymentauth.org/draft-httpauth-payment-01.txt",
+    "title": "draft-httpauth-payment-01 as rendered on paymentauth.org (text)",
+    "publisher": "Tempo Labs and Stripe (paymentauth.org)",
+    "type": "spec",
+    "primary": true,
+    "published": "2026-11-11",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, 73,585 bytes, read 2026-11-14 (UTC 2026-11-15T02:17Z). Deployed from mpp-specs main by the spec-artifacts release for commit 7bb99c8 at 2026-11-11T18:27:05Z. Dated 2026-11-11 with an expiry of 2027-05-15 on its face and carries the other-authentication text of PR #404, while the IETF archive copy of the same name (src-stripe-mpp-ietf-01-text) is dated 2026-09-09 and keeps the earlier text. The two copies already differed in the position of the header slot in the recommended HMAC binding (noted 2026-10-21)."
+  },
+  {
+    "id": "src-stripe-mpp-solana-subscription",
+    "url": "https://github.com/tempoxyz/mpp-specs/blob/61f9c310d365ca04ccf5b53f0af10fa5d171e9d7/specs/methods/solana/draft-solana-subscription-00.md",
+    "title": "Solana Subscription Intent for HTTP Payment Authentication (draft-solana-subscription-00)",
+    "publisher": "Solana Foundation (L. Galabru, Jo D.)",
+    "type": "spec",
+    "primary": true,
+    "published": "2026-10-25",
+    "accessed": "2026-11-14",
+    "notes": "Added by mpp-specs PR #310 (lgalabru; opened 2026-07-31, merged 2026-10-25T01:58:18Z UTC, the evening of 2026-10-24 in US time; merge commit 61f9c310d365ca04ccf5b53f0af10fa5d171e9d7), unchanged at origin/main 7bb99c8. Request fields amount, currency (an SPL Token or Token-2022 mint), periodUnit (day or week only), periodCount, recipient and optional subscriptionExpires, description and externalId; payload type transaction; the receipt adds subscriptionId, subscriptionDelegation, periodIndex, periodStart and periodEnd. It is the Solana profile of the shared subscription intent, which the tempo and stripe methods also implement. Not on the IETF Datatracker (404 on 2026-11-14)."
+  },
+  {
+    "id": "src-stripe-mpp-gh-pr-377",
+    "url": "https://github.com/tempoxyz/mpp-specs/pull/377",
+    "title": "mpp-specs PR #377 (Nano payment method) and the other external method proposals closed on 2026-10-25",
+    "publisher": "GitHub (tempoxyz/mpp-specs)",
+    "type": "repo",
+    "primary": true,
+    "published": "2026-10-25",
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14: on 2026-10-25, between about 23:12 and 23:14 UTC, Tempo maintainer brendanjryan closed six external method pull requests unmerged (Nano #377, Gloam #376, picocash #342, Tenzro #252 and #253, Initia #222) with the same comment: the network is too small to add to the official spec, and its backers can maintain their own SDK and spec and upstream later. PR #383, a workflow that would have closed pull requests after 14 days of inactivity, was closed unmerged the same day, so the closures were manual."
+  },
+  {
+    "id": "src-stripe-mpp-specs-contributing-2026",
+    "url": "https://github.com/tempoxyz/mpp-specs/blob/7bb99c8542252b7aa4230c184e48f16c0ea1427a/CONTRIBUTING.md",
+    "title": "mpp-specs CONTRIBUTING.md (where to contribute, from 2026-10-26)",
+    "publisher": "Tempo Labs and Stripe",
+    "type": "repo",
+    "primary": true,
+    "published": "2026-10-26",
+    "accessed": "2026-11-14",
+    "notes": "Section added by commit a0e0510 (PR #382, 2026-10-26), read at origin/main 7bb99c8: specification changes go to this repository by pull request; SDK bugs, feature requests and inconsistencies go to issues in mppx, mpp-rs, pympp or mpp-go, and those SDKs do not accept pull requests from external contributors (the list omits mpp-rb); security reports go privately through the repository's advisories."
+  },
+  {
+    "id": "src-stripe-mpp-specs-agents-md",
+    "url": "https://github.com/tempoxyz/mpp-specs/blob/7bb99c8542252b7aa4230c184e48f16c0ea1427a/AGENTS.md",
+    "title": "mpp-specs AGENTS.md and CODEOWNERS",
+    "publisher": "Tempo Labs and Stripe",
+    "type": "repo",
+    "primary": true,
+    "published": "2026-11-02",
+    "accessed": "2026-11-14",
+    "notes": "AGENTS.md added by commit cd75e27 (PR #391, 2026-11-02); its shared section, synced from tempoxyz/mpp-tools, tells MPP SDKs to match mppx, the reference SDK, and says the IETF drafts in mpp-specs are the source of truth for the protocol while mppx settles what they leave open. .github/CODEOWNERS (commit 1fdc30e, PR #396, 2026-11-09; https://github.com/tempoxyz/mpp-specs/blob/7bb99c8542252b7aa4230c184e48f16c0ea1427a/.github/CODEOWNERS) names @brendanjryan for /specs/ and every spec file, with rail authors added only on their own method files. Read at origin/main 7bb99c8."
+  },
+  {
+    "id": "src-stripe-mpp-gh-pr-394",
+    "url": "https://github.com/tempoxyz/mpp-specs/pull/394",
+    "title": "mpp-specs PR #394: feat(intents): add the session intent and cite it from session methods",
+    "publisher": "GitHub (tempoxyz/mpp-specs)",
+    "type": "repo",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14: opened 2026-11-06T00:31:28Z by brendanjryan and still open; it adds specs/intents/draft-payment-intent-session-00.md, drafted in PR #280, and points the session methods at it. It supersedes PR #387 (opened 2026-10-25), which closed unmerged on 2026-11-07T01:59:27Z. The description says six methods now implement session, more than the two that CONTRIBUTING requires, and that the intent drafts were never submitted to the Datatracker."
+  },
+  {
+    "id": "src-stripe-mpp-gh-pr-389",
+    "url": "https://github.com/tempoxyz/mpp-specs/pull/389",
+    "title": "mpp-specs PR #389: feat(extensions): attestation extension; charge intent requires attestations before settlement",
+    "publisher": "GitHub (tempoxyz/mpp-specs)",
+    "type": "repo",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14: opened 2026-10-30T17:02:14Z by lgalabru (Solana Foundation), open and unmerged. Proposes draft-payment-attestation-00, in which a server requires issuer attestations about the payer in request.attestations, queried with DCQL from OpenID4VP in the formats dc+sd-jwt, mso_mdoc and ledger, and a charge intent -01 that verifies them before the payment settles. It proves facts about the payer, not what the payer authorized an agent to buy."
+  },
+  {
+    "id": "src-stripe-mpp-gh-pr-399",
+    "url": "https://github.com/tempoxyz/mpp-specs/pull/399",
+    "title": "mpp-specs PR #399: fix(tempo-session): close spec gaps found by formal verification",
+    "publisher": "GitHub (tempoxyz/mpp-specs)",
+    "type": "repo",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14: opened 2026-11-09T17:33:41Z by brendanjryan, open. It fixes 11 gaps that a Lean model found in draft-tempo-session-00, for example making withdraw revert unless a close was requested and the grace period passed, making open revert on a reused channelId, and noting that a v2 close is not specified. Companion open PRs: #400 (2026-11-09, the Lean model of draft-tempo-session-00) and #402 (2026-11-10, Lean models of the charge intent and the Tempo charge)."
+  },
+  {
+    "id": "src-stripe-mpp-blog-identity-expanded",
+    "url": "https://mpp.dev/blog/expanded-identity-primitives",
+    "title": "Expanded identity primitives (MPP blog)",
+    "publisher": "Tempo Labs (mpp.dev)",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-11-11",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200 on 2026-11-14. Source https://github.com/tempoxyz/mpp/blob/d062df6/src/pages/blog/expanded-identity-primitives.mdx (publishedAt 2026-11-11, added by commit 339519a): mppx lets a paid route check who is calling before it shows a price, with a verified email, the operator's own API keys, a World ID-verified human or a custom protocol; callers who fail get a standard unauthenticated response and never see payment terms; payments work the same with or without identity."
+  },
+  {
+    "id": "src-stripe-mpp-docs-identity",
+    "url": "https://mpp.dev/extensions/identity",
+    "title": "Identity (mpp.dev extensions documentation)",
+    "publisher": "Tempo Labs (mpp.dev)",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200 on 2026-11-14; https://mpp.dev/advanced/identity now answers 308 to this page. Source https://github.com/tempoxyz/mpp/blob/d062df6/src/pages/extensions/identity/index.mdx. Options: Link, Email OTP, agent signatures (Web Bot Auth and TAP), your own identity provider, Persona KYC and payer identity. mppx runs each verifier at most once per request, before it issues a challenge, so rejected callers never see payment terms; statuses valid, missing (401), invalid (401), forbidden (403) and unavailable (503). A verifier that reads Authorization needs requiresAuth on the server, which moves Payment credentials to Payment-Authorization. The page's client examples predate the 0.19.0 change to key-pair provers."
+  },
+  {
+    "id": "src-stripe-mpp-docs-private-payments",
+    "url": "https://mpp.dev/guides/private-payments",
+    "title": "Private payments on Tempo (mpp.dev guide)",
+    "publisher": "Tempo Labs (mpp.dev)",
+    "type": "docs",
+    "primary": true,
+    "published": "2026-11-07",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200 on 2026-11-14. Source https://github.com/tempoxyz/mpp/blob/d062df6/src/pages/guides/private-payments.mdx (first commit e8b7dc5, 2026-11-07). A Tempo charge paid from a Zone: the server lists accepted Zone ids in methodDetails.zones, the client withdraws to the recipient with a challenge-bound memo and sends a credential of type zone with zoneId, senderTag and hash. The payer's address, balance and history are visible only to the payer and the Zone operator; the senderTag, recipient, token, amount, timing and memo are public on Tempo. Charge intent only, push mode, no splits; a failed verification gets 402 with a fresh challenge and a replayed senderTag gets 403. The zone payload is not in draft-tempo-charge-00 (mpp-specs origin/main 7bb99c8)."
+  },
+  {
+    "id": "src-stripe-mpp-tempo-t13",
+    "url": "https://tempo.xyz/developers/docs/protocol/upgrades/t13",
+    "title": "T13 Network Upgrade (Tempo docs)",
+    "publisher": "Tempo Labs",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md twin on 2026-11-14 (HTTP 200). T13 is active on testnet (2026-10-29) and mainnet (2026-11-03); its required release is tempo/v1.17.0. It ships the prover for Tempo Zones, which replays each Zone batch in an AWS Nitro enclave so Tempo verifies an attestation before settlement, with a temporary NoProof fallback that settles on sequencer signatures; multi-block Tempo imports for Zones; explicit block system calls; and a fallback that pays fees in OUSD when the fee payer has too little pathUSD."
+  },
+  {
+    "id": "src-stripe-mpp-tempo-releases",
+    "url": "https://github.com/tempoxyz/tempo/releases",
+    "title": "tempoxyz/tempo releases (tempo/v1.17.0 to tempo/v1.18.3)",
+    "publisher": "Tempo Labs (GitHub)",
+    "type": "repo",
+    "primary": true,
+    "published": "2026-11-12",
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14 (UTC 2026-11-15T04:51Z): v1.16.1 (2026-10-14); tempo/v1.17.0 (2026-10-26), required for T13 (Moderato testnet 2026-10-29 and mainnet 2026-11-03, 16:00 CET), which also changed the release tag format from v1.17.0 to tempo/v1.17.0; zones/v0.4.0 and prover/v0.4.0 (2026-10-28), the first Zones releases from the tempoxyz/tempo monorepo; tempo/v1.18.2 (2026-11-06, security and reliability fixes, among them RUSTSEC-2026-0386 in tokio); tempo/v1.18.3 (2026-11-12, maintenance, no network upgrade), the latest. Plain tags v1.17.0 and v1.18.2 also exist on the same commits; v1.18.3 has only tempo/v1.18.3. Cargo.toml license MIT OR Apache-2.0."
+  },
+  {
+    "id": "src-stripe-mpp-tempo-privacy",
+    "url": "https://tempo.xyz/blog/privacy-is-live-on-tempo/",
+    "title": "Privacy is live on Tempo",
+    "publisher": "Tempo",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-10-14",
+    "accessed": "2026-11-14",
+    "notes": "Dated by Tempo's RSS feed (pubDate Wed, 14 Oct 2026 13:00:00 GMT, read 2026-11-14), whose description says Tempo Zones let enterprises keep customer stablecoin balances and payments private, with built-in compliance controls. Tempo's documentation index (https://tempo.xyz/developers/llms.txt, read 2026-11-14) says Zones is live on Mainnet."
+  },
+  {
+    "id": "src-stripe-mpp-tempo-ousd",
+    "url": "https://tempo.xyz/developers/docs/guide/ousd",
+    "title": "OUSD on Tempo (Tempo docs)",
+    "publisher": "Tempo Labs",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md twin on 2026-11-14 (HTTP 200). Open USD (OUSD) is a USD stablecoin operated by Open Standard, an independent company whose founding partners include Coinbase, Mastercard, Shopify, Stripe and Visa; it is issued natively on Tempo as a TIP-20 token at 0x20c0000000000000000000006a37da5c996874be (6 decimals, quote token pathUSD), and Tempo calls it the recommended stablecoin for holding balances, accepting payments and settling on Tempo."
+  },
+  {
+    "id": "src-stripe-mpp-aperture-v060",
+    "url": "https://github.com/lightninglabs/aperture/releases/tag/v0.6.0",
+    "title": "Aperture v0.6.0 release notes",
+    "publisher": "Lightning Labs (GitHub)",
+    "type": "repo",
+    "primary": true,
+    "published": "2026-11-05",
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14 (UTC 2026-11-15T04:54Z): published 2026-11-05T00:49:22Z, the first release since v0.5.0. Adds metered pricing through a price-server interface (reference meterd; Lightning Labs' lightmeter sells LLM inference by the token), Wavelength-backed invoices so a seller can run Aperture without an lnd node, and brings its MPP (Payment HTTP Authentication Scheme) implementation up to the spec: a service with auth l402+mpp answers an unpaid request with one 402 that carries both an L402 and a Payment challenge and accepts either. MPP charges and sessions are opt-in (enablempp, enablesessions) and need SQL storage. The README says Aperture speaks two payment protocols. The MPP repositories (mpp, mpp-specs and mppx at origin/main) do not mention Aperture, so its MPP support is Lightning Labs' claim."
+  },
+  {
+    "id": "src-stripe-mpp-aperture-v050",
+    "url": "https://github.com/lightninglabs/aperture/releases/tag/v0.5.0",
+    "title": "Aperture v0.5.0 release notes",
+    "publisher": "Lightning Labs (GitHub)",
+    "type": "repo",
+    "primary": true,
+    "published": "2026-03-25",
+    "accessed": "2026-11-14",
+    "notes": "gh api 2026-11-14: published 2026-03-25T20:08:06Z. Says Aperture now implements the Payment HTTP Authentication Scheme alongside L402, so clients can choose either, with a Lightning charge intent (one BOLT11 payment, stateless HMAC-bound challenges) and a session intent (deposit, bearer token, top-up and close with refund). Its MultiAuthenticator composes L402 and MPP and merges their WWW-Authenticate headers, so a single 402 can advertise LSAT, L402 and Payment challenges at once."
+  },
+  {
+    "id": "src-stripe-mpp-link-muse",
+    "url": "https://stripe.com/newsroom/news/stripe-helps-meta-muse-shop-with-link",
+    "title": "Stripe helps Muse, Meta's new personal AI agent, shop across the internet with Link",
+    "publisher": "Stripe",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-09-08",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200 (served from the /en-ca/ path), read 2026-11-14. Meta integrated Link's wallet for agents with Muse: at more than 1 million businesses that accept Link, Muse checks out with the consumer's saved method, and elsewhere Link issues Muse a single-use virtual card scoped to the approved purchase; consumers approve each total in the chat. The release mentions neither ACP nor Shared Payment Tokens."
+  },
+  {
+    "id": "src-stripe-mpp-link-claude-duet",
+    "url": "https://stripe.com/newsroom/news/anthropic-and-stripe",
+    "title": "Stripe and Anthropic help entrepreneurs run their business inside Claude Duet",
+    "publisher": "Stripe",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-10-21",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200 (served from the /en-ca/ path), read 2026-11-14. Anthropic integrated Link's wallet for agents and Stripe MCP into Claude Duet, launching in research preview; owners approve each purchase before Claude completes it with a virtual card. Stripe says Link powers payments for more than 200 personal agents, including Muse from Meta, Grok Bot from SpaceXAI and Instinct (a company figure). The release mentions neither ACP nor Shared Payment Tokens."
+  },
+  {
+    "id": "src-stripe-mpp-meta-muse",
+    "url": "https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/",
+    "title": "Introducing Muse: The World's First Personal AI Agent Built for Everyone",
+    "publisher": "Meta",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-09-08",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, read 2026-11-14 (page dated 2026-09-08, modified 2026-11-10). When it is time to pay, Muse can check out with Link built by Stripe, whose wallet for agents generates a one-time-use card; Shop Pay was coming soon. Meta's Connect 2026 roundup (https://about.fb.com/news/2026/09/the-biggest-news-from-connect-2026/, 2026-09-24, read 2026-11-14) adds Shop Pay and PayPal for payments. Neither post names ACP."
+  },
+  {
+    "id": "src-stripe-mpp-link-agent-wallet",
+    "url": "https://docs.stripe.com/agentic-commerce/agents/link-agent-wallet/use-link-wallet-pay-online.md",
+    "title": "Link Agent Wallet: Enable agents to spend (Stripe Docs, Markdown)",
+    "publisher": "Stripe",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, read 2026-11-14 (UTC 2026-11-15T03:16Z). After the customer approves a spend request, Link returns a one-time-use payment credential: a Link Pay Token for a Stripe checkout with Link enabled, a Shared Payment Token for an API that accepts SPTs directly or uses MPP with method=\"stripe\", or a virtual card (one-time or recurring) for a card form. The Link Agent Wallet overview (https://docs.stripe.com/agentic-commerce/agents/link-agent-wallet.md, read 2026-11-14) lists agent payments for US and Canadian customers."
+  },
+  {
+    "id": "src-stripe-mpp-spt-seller-docs",
+    "url": "https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens.md?agent-seller=seller",
+    "title": "Shared payment tokens, seller view (Stripe Docs, Markdown)",
+    "publisher": "Stripe",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, read 2026-11-14 (UTC 2026-11-15T03:05Z). Examples use Stripe-Version 2026-09-30.preview. usage_limits carries currency, max_amount and expires_at; for recurring charges the seller reuses the SPT in each PaymentIntent, and the SPT must have usage_limits.recurring_interval set (sample value month); Stripe rejects setup_future_usage with an SPT."
+  },
+  {
+    "id": "src-stripe-mpp-fr-occ-genius-final",
+    "url": "https://www.federalregister.gov/documents/2026/10/23/2026-21706/implementing-the-guiding-and-establishing-national-innovation-for-us-stablecoins-act-for-the",
+    "title": "Implementing the Guiding and Establishing National Innovation for U.S. Stablecoins Act for the Issuance of Stablecoins by Entities Subject to the Jurisdiction of the Office of the Comptroller of the Currency (final rule, FR Doc. 2026-21706)",
+    "publisher": "Office of the Comptroller of the Currency, Treasury (Federal Register)",
+    "type": "standard",
+    "primary": true,
+    "published": "2026-10-23",
+    "accessed": "2026-11-14",
+    "notes": "Read through the Federal Register API and full text on 2026-11-14: 91 FR 67000 to 67194 (195 pages), Vol. 91 No. 204; Docket OCC-2025-0372, RIN 1557-AF41; amends 12 CFR parts 3, 6, 8, 15 and 19; action Final rule; effective 2027-01-18. The preamble calls it the first final rule issued by a primary Federal payment stablecoin regulator implementing the Act and says that, because 120 days after it would fall later, 2027-01-18 will be the effective date of the Act and of the rule. It declines technology-specific requirements, for example for super intelligence, and the text never uses the terms artificial intelligence or agentic. Companion information-collection notices 2026-21704 and 2026-21705 (2026-10-23) and a correction 2026-22036 (2026-10-29)."
+  },
+  {
+    "id": "src-stripe-mpp-occ-nr-2026-92",
+    "url": "https://www.occ.gov/news-issuances/news-releases/2026/nr-occ-2026-92.html",
+    "title": "OCC Advances U.S. Digital Asset Leadership with Final Rule to Implement GENIUS Act (News Release 2026-92)",
+    "publisher": "Office of the Comptroller of the Currency",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-10-21",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, read 2026-11-14. Announced the final rule on 2026-10-21. It sets requirements for permitted and foreign payment stablecoin issuers under OCC jurisdiction and for certain custody activities, and covers every regulation the OCC must issue under the Act except those on the Bank Secrecy Act, anti-money laundering and OFAC sanctions, which a separate rulemaking with Treasury will address. The final rule and the GENIUS Act take effect on 2027-01-18."
+  },
+  {
+    "id": "src-stripe-mpp-mcp-changelog-2026-07-28",
+    "url": "https://modelcontextprotocol.io/specification/2026-07-28/changelog",
+    "title": "Key Changes, MCP specification 2026-07-28",
+    "publisher": "Model Context Protocol",
+    "type": "spec",
+    "primary": true,
+    "published": "2026-07-28",
+    "accessed": "2026-11-14",
+    "notes": "Read through the .md twin on 2026-11-14 (HTTP 200). MCP 2026-07-28 makes the protocol stateless: it removes the initialize and notifications/initialized handshake, so each request carries its protocol version and client capabilities in _meta, and servers MUST implement server/discover to advertise versions and capabilities; it also removes protocol sessions and the Mcp-Session-Id header (SEP-2567, SEP-2575). MCP's versioning page, read the same day, names 2026-07-28 the current protocol version. The same URL is recorded as src-orbit-mcp-changelog-2026-07-28 in research/orbit.c.sources.json."
+  },
+  {
+    "id": "src-stripe-mpp-council-psr-position",
+    "url": "https://data.consilium.europa.eu/doc/document/ST-8543-2026-REV-1/en/pdf",
+    "title": "Position of the Council at first reading on the Payment Services Regulation (ST 8543/1/26 REV 1, interinstitutional file 2023/0210(COD))",
+    "publisher": "Council of the European Union",
+    "type": "standard",
+    "primary": true,
+    "published": "2026-11-04",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, read 2026-11-14 (UTC 2026-11-15T03:26Z). Dated Brussels, 2026-11-04 and headed adopted by the Council on 2026-10-29 (389 pages). Recital 158: strong customer authentication should apply at the set-up of the initial merchant-initiated mandate, without SCA for subsequent merchant-initiated payment transactions. The text has no provision on AI agents (no occurrence of agentic or AI agent)."
+  },
+  {
+    "id": "src-stripe-mpp-council-psd3-position",
+    "url": "https://data.consilium.europa.eu/doc/document/ST-8535-2026-REV-1/en/pdf",
+    "title": "Position of the Council at first reading on the Payment Services Directive (PSD3) (ST 8535/1/26 REV 1, interinstitutional file 2023/0209(COD))",
+    "publisher": "Council of the European Union",
+    "type": "standard",
+    "primary": true,
+    "published": "2026-11-04",
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, read 2026-11-14 (UTC 2026-11-15T03:26Z). Dated Brussels, 2026-11-04; first-reading position adopted by the Council on 2026-10-29 (184 pages). Article 48 repeals PSD2 and the second E-Money Directive."
+  },
+  {
+    "id": "src-stripe-mpp-oeil-psr",
+    "url": "https://oeil.secure.europarl.europa.eu/oeil/en/procedure-file?reference=2023/0210(COD)",
+    "title": "Legislative Observatory procedure file 2023/0210(COD), Payment Services Regulation",
+    "publisher": "European Parliament (Legislative Observatory)",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "HTTP 200, read 2026-11-14 (UTC 2026-11-15T03:26Z). Stage: awaiting Parliament's second reading; Council position published 2026-11-05, committee referral for the second reading announced 2026-11-12, forecast indicative plenary sitting for the second reading 2026-12-14. The PSD3 file 2023/0209(COD) shows the same stage and the same forecast date. Neither act is in the Official Journal."
   }
 ]

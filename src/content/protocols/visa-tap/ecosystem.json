@@ -73,11 +73,30 @@
     },
     {
       "name": "mppx (Tempo, wevm)",
-      "role": "MPP SDK with a TAP attestation signer and verifier.",
+      "role": "MPP SDK with a TAP identity prover and verifier (mppx/extensions/identity/tap since 0.16.0, 2026-10-28; request attestation before).",
       "status": "live",
       "sources": [
         "src-mppx-tap",
+        "src-visa-tap-mppx-changelog",
         "src-mpp-identity"
+      ]
+    },
+    {
+      "name": "BILL",
+      "role": "Agent provider: the BILL Payment Agent, registered using TAP and the Agentic Directory, pays buyer-approved invoices on supplier portals with tokenized credentials (live pilot announced 2026-10-20, no counts published).",
+      "status": "pilot",
+      "sources": [
+        "src-visa-bill-billtrust",
+        "src-visa-commercial-2026-10-21"
+      ]
+    },
+    {
+      "name": "Billtrust",
+      "role": "Supplier-portal platform that uses TAP to recognize, authenticate and admit the BILL Payment Agent (live pilot announced 2026-10-20).",
+      "status": "pilot",
+      "sources": [
+        "src-visa-bill-billtrust",
+        "src-visa-commercial-2026-10-21"
       ]
     }
   ],
@@ -85,16 +104,16 @@
     {
       "registry": "npm",
       "name": "mppx",
-      "version": "0.14.1",
+      "version": "0.19.0",
       "url": "https://www.npmjs.com/package/mppx",
-      "note": "MIT; mppx/attestation/tap signs and verifies TAP attestations. Not a Visa package. Version as of 2026-10-21 (published 2026-10-21)."
+      "note": "MIT; mppx/extensions/identity/tap provides a TAP prover and verifier since 0.16.0 (2026-10-28), replacing mppx/attestation/tap; since 0.19.0 the prover takes a key pair. Not a Visa package. Version as of 2026-11-14 (published 2026-11-14)."
     },
     {
       "registry": "npm",
       "name": "@visa/cli",
-      "version": "5.0.0-rc.414",
+      "version": "5.0.0-rc.463",
       "url": "https://www.npmjs.com/package/@visa/cli",
-      "note": "Visa Crypto Labs CLI under Visa's own license. Release candidates from 5.0.0-rc.335 (2026-09-18) sign TAP requests; the latest release, 4.0.1, does not. Version as of 2026-10-19."
+      "note": "Visa Crypto Labs CLI under Visa's own license. Release candidates from 5.0.0-rc.335 (2026-09-18) sign TAP requests; the latest release, 4.0.1, does not. Release candidate as of 2026-11-14 (rc.463, published 2026-11-15 01:17 UTC); latest still 4.0.1."
     },
     {
       "registry": "npm",
@@ -120,14 +139,14 @@
     {
       "id": "visa-tap-gh-stars",
       "metric": "GitHub stars, visa/trusted-agent-protocol",
-      "value": 213,
+      "value": 222,
       "unit": "stars",
-      "asOf": "2026-10-19",
+      "asOf": "2026-11-14",
       "definition": "Stars on the sample repository.",
       "sources": [
         "src-visa-tap-gh-meta"
       ],
-      "caveat": "Interest, not usage; 46 forks."
+      "caveat": "Interest, not usage; 48 forks."
     },
     {
       "id": "visa-tap-named-merchants",
@@ -220,9 +239,10 @@
       "whoPays": "Not stated (production fees on request)",
       "asOf": "2026-10-11",
       "confidence": "verified",
-      "caveat": "No public production price. Read live on 2026-10-11; since October 2026 Visa's VIC developer pages require sign-in, so the cited copy is the archive of 2026-10-03.",
+      "caveat": "No public production price. Read live on 2026-10-11 and cited from the archive of 2026-10-03; Visa's VIC developer docs, public again on 2026-11-14, state no fees.",
       "sources": [
         "src-visa-vic-dev",
+        "src-visa-vic-docs",
         "src-nevermined-vic"
       ]
     },
@@ -230,9 +250,9 @@
       "item": "Agent-specific interchange or token fee",
       "value": "Not published",
       "whoPays": "No agent-specific fee published; ordinary acquiring fees apply as far as published",
-      "asOf": "2026-10-19",
+      "asOf": "2026-11-14",
       "confidence": "reported",
-      "caveat": "Evidence of absence from Visa's pages and two secondary reviews. Visa's public rules (since 2025-10-18) set no agent-specific fee, and its April 2026 US interchange schedule has no agentic category; treat agent purchases as ordinary tokenized card-not-present payments until Visa publishes otherwise.",
+      "caveat": "Evidence of absence from Visa's pages and two secondary reviews. Visa's public rules (since 2025-10-18, current edition 2026-10-24) set no agent-specific fee, and its US interchange schedule (2026-10-24 edition, like the April 2026 one) has no agentic category; treat agent purchases as ordinary tokenized card-not-present payments until Visa publishes otherwise.",
       "sources": [
         "src-visa-rules-public",
         "src-visa-us-irf-2026-04",

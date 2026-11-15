@@ -58,18 +58,18 @@
       "publisher": "Stripe",
       "type": "docs",
       "primary": true,
-      "notes": "Read 2026-10-11, 2026-10-20 and 2026-10-21: labeled Public preview, preview terms (API version 2026-09-30.preview), no price on the docs pages. The price, 0.15 USD per SPT issued, is on Stripe's US pricing page (src-openai-acp-stripe-pricing), listed since at least 2026-04-23; its Learn more link opens the agent variant of this page. On 2026-10-20 the seller variant adds the SPT Resolve API (a granted token resolved once into fpan, network_token, agentic_token or dpan credentials for a third-party processor, encrypted unless the seller has given Stripe a PCI Attestation of Compliance), lists consumed, resolved, expired or revoked as deactivation reasons, and names American Express ACE Kit beside Mastercard Agent Pay and Visa Intelligent Commerce; the agent variant still names Mastercard and Visa only and says consumed, expired or revoked. Same URL as src-stripe-spt in the openai-acp dossier (visa-tap uses that id for a Stripe blog post, so a new id is used here).",
-      "accessed": "2026-10-21"
+      "accessed": "2026-11-14",
+      "notes": "Re-read 2026-11-14 (seller variant .md, 2026-11-15T03:05Z UTC): still Public preview with Stripe-Version 2026-09-30.preview in the examples; the Resolve API now returns one of three credential types in payment_method_details.card.credentials.type (fpan, agentic_token or dpan; network_token appears nowhere on the seller or agent page), and recurring charges reuse the SPT in each PaymentIntent only when usage_limits.recurring_interval is set (setup_future_usage is rejected). The seller page still names Mastercard Agent Pay, Visa Intelligent Commerce and American Express ACE Kit. The recurring_interval rule is in the Wayback capture 20261029051322 and absent from 20260916004709; network_token is also absent from the 2026-10-29 capture, but no capture between 2026-10-04 and 2026-10-29 shows when it went, after the 2026-10-20 read listed it. Read 2026-10-11, 2026-10-20 and 2026-10-21: labeled Public preview, preview terms (API version 2026-09-30.preview), no price on the docs pages. The price, 0.15 USD per SPT issued, is on Stripe's US pricing page (src-openai-acp-stripe-pricing), listed since at least 2026-04-23; its Learn more link opens the agent variant of this page. On 2026-10-20 the seller variant adds the SPT Resolve API (a granted token resolved once into fpan, network_token, agentic_token or dpan credentials for a third-party processor, encrypted unless the seller has given Stripe a PCI Attestation of Compliance), lists consumed, resolved, expired or revoked as deactivation reasons, and names American Express ACE Kit beside Mastercard Agent Pay and Visa Intelligent Commerce; the agent variant still names Mastercard and Visa only and says consumed, expired or revoked. The Wayback capture of the seller variant's .md on 2026-09-21 (timestamp 20260921161216) has neither 'resolved' nor 'American Express', so both additions date to between 2026-09-21 and 2026-10-20. Same URL as src-stripe-spt in the openai-acp dossier (visa-tap uses that id for a Stripe blog post, so a new id is used here)."
     },
     {
       "id": "src-x402-fee-cdp",
-      "url": "https://docs.cdp.coinbase.com/x402/core-concepts/facilitator",
+      "url": "https://docs.cdp.coinbase.com/x402/seller/facilitator",
       "title": "CDP x402 facilitator: pricing and supported networks",
       "publisher": "Coinbase Developer Platform",
       "type": "docs",
       "primary": true,
-      "accessed": "2026-10-11",
-      "notes": "Read 2026-10-11: first 1,000 on-chain facilitator transactions each month free, then $0.001 per on-chain transaction; verification always free; Solana upto uses two on-chain transactions."
+      "accessed": "2026-11-14",
+      "notes": "Read 2026-10-19 at https://docs.cdp.coinbase.com/x402/core-concepts/facilitator: first 1,000 on-chain facilitator transactions each month free, then $0.001 per on-chain transaction; verification always free; exact and EVM upto settle in one on-chain transaction per payment, Solana upto uses two (escrow deposit and settlement), batch-settlement claims many vouchers in one transaction. Networks: Base, Base Sepolia, Polygon, Arbitrum, Monad (eip155:143), World and World Sepolia for exact, upto and batch-settlement; Solana and Solana Devnet for exact and upto. OFAC and KYT screening. On 2026-11-14 the old URL redirected in one hop to /x402/seller/facilitator (the page of src-x402-cdp-facilitator), which showed the same pricing, settlement counts, screening and networks."
     },
     {
       "id": "src-x402-fee-wavect",
@@ -194,8 +194,8 @@
       "publisher": "Google",
       "type": "docs",
       "primary": true,
-      "accessed": "2026-10-11",
-      "notes": "MoR, PSP must process Google tokens, PAN_ONLY, Google/UCP user agent, Google-UCP-Prober/1.0."
+      "accessed": "2026-11-14",
+      "notes": "Read 2026-10-20 (page last updated 2026-10-16) and again 2026-11-14 through the .md twin (last updated 2026-11-03 UTC; the 2026-10-30 version differed only by an MCP question). Still says: merchant is MoR, PSP must process Google tokens, PAN_ONLY, Google-UCP-Prober/1.0 health checks, order data retained until the user requests deletion. Changed between 2026-10-20 and 2026-10-30: checkout requests carry UCP-Agent and a User-Agent of Google-Shopping-Merchant-Integration, Google/UCP* or Google-UCP-Prober/1.0; discovery and OAuth client_credentials requests carry no UCP-Agent; Account Linking uses OpenAuth or Google-AccountLinking-Fetcher/1.0; headers alone must not authenticate. Verification methods are now mutual TLS against Google's UCP Root CAs, ES256 RFC 9421 signatures checked against the keys at https://ucp.goog/.well-known/ucp.json (24-hour cache, refetch on an unknown kid) and source-ASN rules (AS15169; AS396982 for Account Linking). The earlier wording (the User-Agent begins with Google/UCP; verify by reverse DNS or published IP range files) has been replaced."
     },
     {
       "id": "src-nevermined-vic",
@@ -278,20 +278,31 @@
       "publisher": "Shopify",
       "type": "standard",
       "primary": true,
-      "accessed": "2026-10-20",
+      "accessed": "2026-11-14",
       "published": "2026-10-06",
-      "notes": "Last updated 2026-10-06 (read 2026-10-20). Section 6.1 (Fees): for certain Participating Channels Shopify may, at its discretion, assess a fee on transactions that result from Agentic Storefronts participation; the merchant pays the fees for each Participating Channel set out in Shopify Admin, in addition to subscription, transaction and additional fees, collected by the payment processor under the Shopify Payments terms. The terms print no rate and do not say which channels carry a fee."
+      "notes": "Last updated 2026-10-06 (read 2026-10-20, and again 2026-11-14, unchanged). Section 6.1 (Fees): for certain Participating Channels Shopify may, at its discretion, assess a fee on transactions that result from Agentic Storefronts participation; the merchant pays the fees for each Participating Channel set out in Shopify Admin, in addition to subscription, transaction and additional fees, collected by the payment processor under the Shopify Payments terms; a promotional period may discount or waive them, and the fee share of a canceled or refunded transaction is refunded. The terms print no rate and do not say which channels carry a fee. Section 3 lists the Participating Channel Terms: an Addendum to the Google Merchant Center Terms of Service for Shopify Merchants, the Microsoft Copilot Shopify Checkout Terms and an Addendum to the Meta Seller Agreement; none for OpenAI or ChatGPT."
+    },
+    {
+      "id": "src-fee-cdp-facilitator-20261114",
+      "url": "https://docs.cdp.coinbase.com/x402/seller/facilitator",
+      "title": "CDP Facilitator pricing (Coinbase Developer Platform docs, read 2026-11-14)",
+      "publisher": "Coinbase Developer Platform",
+      "type": "docs",
+      "primary": true,
+      "accessed": "2026-11-14",
+      "notes": "Read 2026-11-14 through the .md twin (HTTP 200, 2026-11-15T05:04Z UTC). The earlier URL https://docs.cdp.coinbase.com/x402/core-concepts/facilitator now redirects here, and the x402 records src-x402-fee-cdp and src-x402-cdp-facilitator point to this URL as well. Pricing is unchanged: the first 1,000 on-chain facilitator transactions each month are free, then $0.001 per on-chain transaction. The page also says the CDP Facilitator has processed more than 100 million transactions and $28 million in payment volume across Base and Solana (Coinbase's own figure, method not given)."
     }
   ],
   "rows": [
     {
       "protocol": "x402",
       "fact": "Coinbase CDP facilitator: the first 1,000 on-chain facilitator transactions each month are free, then $0.001 per on-chain transaction; verification is free. exact and EVM upto use one on-chain transaction per payment, Solana upto uses two, batch-settlement claims many vouchers in one transaction.",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "confidence": "verified",
-      "caveat": "Fees count on-chain transactions, not payment requests; gas is separate and depends on who pays it.",
+      "caveat": "Fees count on-chain transactions, not payment requests; gas is separate and depends on who pays it. The pricing page moved to docs.cdp.coinbase.com/x402/seller/facilitator (the old URL redirects), and the price, the per-scheme settlement counts and the screening were unchanged on 2026-11-14.",
       "sources": [
-        "src-x402-fee-cdp"
+        "src-x402-fee-cdp",
+        "src-fee-cdp-facilitator-20261114"
       ]
     },
     {
@@ -339,14 +350,15 @@
     },
     {
       "protocol": "x402",
-      "fact": "Circle Gateway Nanopayments: payments from $0.000001 USDC, off-chain authorizations at zero gas and bulk settlement; Circle says neither party pays per-transaction fees. Gateway charges a gas fee per withdrawal burn (for example $0.01 from Base) and 0.005 percent on crosschain transfers.",
-      "asOf": "2026-10-19",
+      "fact": "Circle Gateway Nanopayments: payments from $0.000001 USDC, off-chain authorizations at zero gas and bulk settlement; Circle says neither party pays per-transaction fees. For moving balances, Gateway's fees page now loads the current fees from Circle's fee API; transfers to or from Arc and same-chain withdrawals carry no transfer fee, and the $0.01 gas fee and 0.005 percent transfer fee shown on the page are illustrative inputs to a worked example. Circle's hosted x402 facilitator (Facilitator Service) publishes no price.",
+      "asOf": "2026-11-14",
       "confidence": "verified",
-      "caveat": "Who pays the gas for batch settlement is not stated; the buyer makes a one-time on-chain deposit.",
+      "caveat": "Who pays the gas for batch settlement is not stated; the buyer makes a one-time on-chain deposit. Nanopayments terms as read on 2026-10-19; Gateway fees page and Facilitator Service read 2026-11-14. Live Gateway fees come from Circle's /v1/estimate endpoint and were not sampled. Corrects the 2026-10-19 reading of the example values as Circle's fee schedule.",
       "sources": [
         "src-x402-fee-circle",
         "src-x402-fee-circle-gateway",
-        "src-x402-circle-nanopayments"
+        "src-x402-circle-nanopayments",
+        "src-x402-circle-facilitator-service"
       ]
     },
     {
@@ -354,9 +366,10 @@
       "fact": "Tempo network fees: no native gas token; fees paid in USD TIP-20 stablecoins through a Fee AMM; a 50,000-gas transfer costs at most about $0.0006, with a quiet-period floor near $0.00003.",
       "asOf": "2026-10-11",
       "confidence": "verified",
-      "caveat": "Fees go to the proposing validator; values depend on Tempo's base fee parameters.",
+      "caveat": "Fees go to the proposing validator; values depend on Tempo's base fee parameters. Since the T13 upgrade (mainnet 2026-11-03) fees fall back to OUSD when the fee payer has too little pathUSD (Tempo docs read 2026-11-14); the fee levels are as recorded in the fees source.",
       "sources": [
-        "src-stripe-mpp-tempo-fees"
+        "src-stripe-mpp-tempo-fees",
+        "src-stripe-mpp-tempo-t13"
       ]
     },
     {
@@ -395,32 +408,67 @@
     },
     {
       "protocol": "openai-acp",
-      "fact": "OpenAI: merchants pay a small fee on completed purchases through Instant Checkout; no rate published.",
+      "fact": "History (2025-09-29): OpenAI said merchants pay a small fee on completed purchases through Instant Checkout; no rate was published.",
       "asOf": "2025-09-29",
       "confidence": "verified",
-      "caveat": "OpenAI has not published the percentage.",
+      "caveat": "Historical. OpenAI never published the percentage. Its merchant page has said since at least 2026-04-04 that purchases starting in ChatGPT carry no fees, and neither its rewritten commerce docs nor its ChatGPT Wallet post of 2026-11-13 states a fee (see the current OpenAI rows).",
       "sources": [
         "src-openai-buy-it"
       ]
     },
     {
       "protocol": "openai-acp",
-      "fact": "Shopify merchants pay 4 percent on ChatGPT checkout sales, on top of Shopify fees (The Information, via a Shopify spokesperson).",
+      "fact": "History (reported 2026-01-21): Shopify merchants were to pay 4 percent on sales through checkout inside ChatGPT (Instant Checkout), on top of Shopify fees (The Information, via a Shopify spokesperson).",
       "asOf": "2026-01-21",
       "confidence": "reported",
-      "caveat": "Secondary report; not published by OpenAI or in Shopify terms read here.",
+      "caveat": "Historical secondary report about Instant Checkout; never published by OpenAI or in Shopify terms read here. On 2026-11-14 Shopify's ChatGPT channel is discovery-only, buyers pay in the store's own checkout, and Shopify says there are no fees beyond standard payment processing (see the current Shopify row).",
       "sources": [
         "src-pymnts-4pct"
       ]
     },
     {
       "protocol": "openai-acp",
-      "fact": "Shopify Agentic Storefronts: a per-channel fee set in Shopify Admin on top of payment processing (US Shopify Payments from 2.9 percent plus 30 cents); rate not public.",
-      "asOf": "2026-07-29",
-      "confidence": "reported",
-      "caveat": "Secondary article; verify against Shopify terms.",
+      "fact": "Shopify Agentic Storefronts terms (last updated 2026-10-06, section 6.1): for certain participating channels Shopify may assess a fee on transactions that result from Agentic Storefronts, set out in Shopify Admin and charged on top of subscription, transaction and other fees; the terms print no rate and name no channel. Shopify's channel pages for Google AI Mode and Gemini, Microsoft Copilot and Meta say there are no fees beyond standard payment processing fees.",
+      "asOf": "2026-11-14",
+      "confidence": "verified",
+      "caveat": "The terms allow a fee without naming one; the channel pages state none as of 2026-11-14. Their participating-channel terms cover Google Merchant Center, Microsoft Copilot and Meta, with none for OpenAI. Replaces a 2026-07-29 secondary article (src-fee-shopify-agentic-ecp) as the source of this row.",
       "sources": [
-        "src-fee-shopify-agentic-ecp"
+        "src-fee-shopify-agentic-terms",
+        "src-ucp-shopify-help-google",
+        "src-ucp-shopify-help-microsoft",
+        "src-ucp-shopify-help-meta"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "fact": "Shopify: no fees for selling in ChatGPT beyond standard payment processing fees. The ChatGPT channel is a discovery-focused referrer for stores selling to US customers; buyers complete the purchase in the store's own checkout, so there is no ChatGPT direct checkout setting.",
+      "asOf": "2026-11-14",
+      "confidence": "verified",
+      "caveat": "Shopify Help Center, read directly on 2026-11-14 after earlier 403 answers. Replaces the 4 percent Instant Checkout report as Shopify's current position.",
+      "sources": [
+        "src-openai-acp-shopify-help-chatgpt"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "fact": "OpenAI's merchant page says there are no fees on purchases that start in ChatGPT; by default shoppers complete purchases on the merchant's own site or app.",
+      "asOf": "2026-11-14",
+      "confidence": "verified",
+      "caveat": "On the page since at least 2026-04-04 (archive capture, dating only); the 2026-03-04 capture was the older Instant Checkout page with a small fee per purchase.",
+      "sources": [
+        "src-chatgpt-merchants"
+      ]
+    },
+    {
+      "protocol": "openai-acp",
+      "fact": "ChatGPT Wallet (rolling out from 2026-11-13 in dots for US ChatGPT Pro subscribers): neither OpenAI's post nor its commerce docs states a fee for merchants or users; CNBC reports that OpenAI is not taking a cut of transactions to start.",
+      "asOf": "2026-11-14",
+      "confidence": "reported",
+      "caveat": "The absence of a fee statement is verified in OpenAI's Wallet post and its Commerce in ChatGPT docs (2026-11-14); the no-cut statement is CNBC's report. OpenAI does not present Wallet as part of ACP.",
+      "sources": [
+        "src-openai-chatgpt-wallet",
+        "src-openai-commerce-accept-payments",
+        "src-openai-acp-cnbc-wallet"
       ]
     },
     {
@@ -436,25 +484,38 @@
     },
     {
       "protocol": "ucp",
-      "fact": "Shopify says its merchants pay no fees beyond standard payment processing for Google AI Mode and Gemini direct checkout; Microsoft says it takes no commission or affiliate fee on Copilot Checkout today.",
-      "asOf": "2026-10-20",
+      "fact": "Shopify says its merchants pay no fees beyond standard payment processing for Google AI Mode and Gemini direct checkout, which on 2026-11-14 serves customers in the US, Canada and Australia from stores based in any country.",
+      "asOf": "2026-11-14",
       "confidence": "verified",
-      "caveat": "Shopify's and Microsoft's statements about their own channels; Google publishes no fee schedule. Shopify's Agentic Storefronts terms (2026-10-06) let Shopify assess a fee for certain participating channels, rate and channels unstated. Secondary coverage of 2026-01-21 reported no additional fees for now.",
+      "caveat": "Shopify's statement about its own channel; Google publishes no fee schedule. Shopify's Agentic Storefronts terms (2026-10-06) let Shopify assess a fee for certain participating channels, rate and channels unstated. Secondary coverage of 2026-01-21 reported no additional fees for now. Until 2026-11-14 this row also carried Microsoft's no-commission statement, now a separate history row.",
       "sources": [
         "src-ucp-shopify-help-google",
-        "src-ucp-microsoft-page",
         "src-fee-shopify-agentic-terms",
         "src-pymnts-4pct"
       ]
     },
     {
+      "protocol": "ucp",
+      "fact": "History (2026-10-20): Microsoft's Copilot Checkout page said that Microsoft did not, at that time, take a commission or affiliate fee on Copilot Checkout transactions. The answer was removed between 2026-11-04 and about 2026-11-06, and on 2026-11-14 the page makes no fee statement either way.",
+      "asOf": "2026-11-14",
+      "confidence": "verified",
+      "caveat": "A removed answer is not evidence that Microsoft now charges a fee; Microsoft has published nothing on the change. The removal date rests on archive captures used only for dating. Shopify's terms list Microsoft Copilot Shopify Checkout Terms among the participating-channel terms, and Shopify's Copilot channel page says there are no fees beyond standard payment processing (2026-11-14).",
+      "sources": [
+        "src-ucp-microsoft-page",
+        "src-ucp-shopify-help-microsoft"
+      ]
+    },
+    {
       "protocol": "visa-tap",
-      "fact": "Visa Intelligent Commerce and TAP: sandbox free; production pricing by contacting Visa; no published interchange, token fee, 3DS rule or liability allocation specific to agents.",
+      "fact": "Visa Intelligent Commerce and TAP: sandbox free; production pricing by contacting Visa; no published interchange or token fee specific to agents.",
       "asOf": "2026-08-19",
       "confidence": "reported",
-      "caveat": "Secondary review; evidence of absence. Treat agent card payments as standard tokenized card-not-present economics until Visa publishes otherwise.",
+      "caveat": "Secondary review; evidence of absence. Treat agent card payments as standard tokenized card-not-present economics until Visa publishes otherwise. On 2026-11-14 Visa's own VIC developer docs (public again, without sign-in) stated no fees or pricing, so the sandbox-free and contact-for-pricing wording rests on the review and on Visa's earlier overview page, which now redirects to those docs; Visa's US interchange schedule dated 2026-10-24 has no agentic category. The review also said Visa published no agent-specific 3-D Secure rule or liability allocation, which is out of date: Visa's public rules make the cardholder responsible for an Agentic Payment Provider's actions within Visa's system without calling it a liability shift, and the VIC docs read 2026-11-14 say US merchants that support 3-D Secure get a Program Not Supported response for agentic transactions.",
       "sources": [
-        "src-nevermined-vic"
+        "src-nevermined-vic",
+        "src-visa-vic-docs",
+        "src-visa-us-irf-2026-04",
+        "src-visa-rules-public"
       ]
     },
     {
@@ -465,6 +526,17 @@
       "caveat": "Secondary review by a firm that participates in Agent Pay for Machines (conflict of interest).",
       "sources": [
         "src-mcap-nevermined-review"
+      ]
+    },
+    {
+      "protocol": "market",
+      "fact": "Crossmint (vendor of agent card and checkout APIs): Agent Checkout is free for 1,000 checkouts a month, then $0.05 per checkout on every path; Agent Cards are free for 1,000 cards, then volume pricing, with Visa Intelligent Commerce and Mastercard Agent Pay credentials listed as included; Agent Wallets are free for 5,000 monthly active wallets, then $0.01 each.",
+      "asOf": "2026-11-14",
+      "confidence": "verified",
+      "caveat": "A vendor's own price list; the card networks' own fees, if any, are not shown. Crossmint's 2026-09-25 Agent Checkouts post gave $0.05 per execution without the free tier.",
+      "sources": [
+        "src-orbit-crossmint-pricing",
+        "src-orbit-crossmint-agent-checkouts"
       ]
     },
     {

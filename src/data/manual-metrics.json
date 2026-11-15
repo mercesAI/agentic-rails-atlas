@@ -4,15 +4,18 @@
     {
       "id": "erc8004-8004scan-agents",
       "metric": "8004scan registered agents",
-      "value": 561614,
+      "value": 2062896,
       "unit": "agents",
-      "asOf": "2026-10-11",
-      "definition": "Registered agent identities across the networks 8004scan indexes, observed 2026-10-11 (+1,012 in the prior 24 hours).",
+      "asOf": "2026-11-14",
+      "definition": "total_agents in 8004scan's statistics API (mainnet view), read 2026-11-14 at 02:45Z UTC on 2026-11-15; the home page showed 2,062,883 at the same time. It was 561,614 on 2026-10-11 and 699,098 on 2026-10-18.",
       "sources": [
-        "src-market-8004scan-20261011",
-        "src-8004scan"
+        "src-8004scan-stats-api",
+        "src-8004scan",
+        "src-erc-8004-centralcity",
+        "src-erc-8004-chain-probe-2026-11-14",
+        "src-market-8004scan-20261011"
       ],
-      "caveat": "Registrations, not working agents: census work in the erc-8004 dossier finds a small minority expose a working endpoint. Explorer method not published.",
+      "caveat": "Registrations, not working agents: census work in the erc-8004 dossier finds a small minority expose a working endpoint. The tripling since 2026-10-18 came mostly in two batch waves, on Base (2026-10-20 to 2026-10-23) and on Arc Mainnet (2026-11-01 to 2026-11-06), whose sampled registrations all point to Central City; Central City itself claims about 1.48 million agents (vendor claim). 8004scan does not index 0G, a mainnet in the contracts README, whose registry had issued ids up to 3,941,206 on 2026-11-14 (sampled ids point to EvoEvo), so on-chain registrations across chains exceed 6 million by highest id. Explorer method not published.",
       "disputed": true,
       "disputeSources": [
         "src-8004scan"
@@ -22,14 +25,15 @@
     {
       "id": "erc8004-8004scan-feedback",
       "metric": "8004scan feedback submitted",
-      "value": 682172,
+      "value": 885869,
       "unit": "feedback entries",
-      "asOf": "2026-10-11",
-      "definition": "Feedback entries indexed by 8004scan, observed 2026-10-11 (+519 in 24 hours).",
+      "asOf": "2026-11-14",
+      "definition": "total_feedbacks in 8004scan's statistics API (mainnet view), read 2026-11-14; it was 682,172 on 2026-10-11 and 720,771 on 2026-10-18.",
       "sources": [
+        "src-8004scan-stats-api",
         "src-market-8004scan-20261011"
       ],
-      "caveat": "Includes Sybil feedback; counts are not reputation quality.",
+      "caveat": "Includes Sybil feedback; counts are not reputation quality. Feedback grew far more slowly than registrations over the same weeks.",
       "disputed": true,
       "disputeSources": [
         "src-8004scan"
@@ -39,27 +43,30 @@
     {
       "id": "erc8004-8004scan-networks",
       "metric": "8004scan networks indexed",
-      "value": 30,
+      "value": 29,
       "unit": "networks",
-      "asOf": "2026-10-11",
-      "definition": "Networks listed by 8004scan, observed 2026-10-11.",
+      "asOf": "2026-11-14",
+      "definition": "Networks shown on the 8004scan home page, read 2026-11-14 (29 on 2026-10-18; 30 on 2026-10-11).",
       "sources": [
+        "src-8004scan",
+        "src-8004scan-stats-api",
         "src-market-8004scan-20261011"
       ],
-      "caveat": "More than the 25 mainnets in the official contracts README; may include community deployments or testnets.",
+      "caveat": "Not the same list as the 25 mainnets in the official contracts README: the statistics API lists 30 mainnet chains, including some the README omits such as Arc, leaves out 0G, a README mainnet, and no longer lists Abstract.",
       "protocol": "erc-8004"
     },
     {
       "id": "erc8004-8004scan-wallets",
       "metric": "8004scan unique wallets",
-      "value": 496840,
+      "value": 3341787,
       "unit": "wallets",
-      "asOf": "2026-10-11",
-      "definition": "Distinct wallet addresses seen by 8004scan, observed 2026-10-11.",
+      "asOf": "2026-11-14",
+      "definition": "total_users in 8004scan's statistics API, shown as Unique Wallets on its home page, read 2026-11-14; it was 496,840 on 2026-10-11 and 755,027 on 2026-10-18.",
       "sources": [
+        "src-8004scan-stats-api",
         "src-market-8004scan-20261011"
       ],
-      "caveat": "Wallets are not people or operators.",
+      "caveat": "Wallets are not people or operators. On 2026-11-14 the count was about 1.6 times the agent count, and the newest 100 ids on Base and on Arc, all Central City registrations, each had a different owner address.",
       "protocol": "erc-8004"
     },
     {
@@ -187,52 +194,57 @@
     {
       "id": "mpp-mppscan-agents-7d",
       "metric": "mppscan agents (default window, apparently 7 days)",
-      "value": 3.7,
+      "value": 3.26,
       "unit": "thousand agents",
-      "asOf": "2026-10-11",
-      "definition": "Distinct paying agents shown on mppscan, observed 2026-10-11.",
+      "asOf": "2026-11-14",
+      "definition": "Distinct senders, which the home page labels Agents, in the 7-day window of MPPscan's protocol statistics, read 2026-11-14 (3,259); 3.7 thousand were shown on 2026-10-11.",
       "sources": [
+        "src-stripe-mpp-mppscan",
         "src-market-mppscan-20261011"
       ],
-      "caveat": "Agents are payer addresses as the explorer defines them.",
+      "caveat": "Agents are payer addresses as the explorer defines them. Indexed data ends about 2026-11-11, so the window holds about 3.6 indexed days.",
       "protocol": "stripe-mpp"
     },
     {
       "id": "mpp-mppscan-servers-7d",
       "metric": "mppscan servers (default window, apparently 7 days)",
-      "value": 167,
+      "value": 125,
       "unit": "servers",
-      "asOf": "2026-10-11",
-      "definition": "Distinct paid servers shown on mppscan, observed 2026-10-11.",
+      "asOf": "2026-11-14",
+      "definition": "Distinct recipients, which the home page labels Servers, in the 7-day window of MPPscan's protocol statistics, read 2026-11-14; 167 were shown on 2026-10-11.",
       "sources": [
+        "src-stripe-mpp-mppscan",
         "src-market-mppscan-20261011"
       ],
+      "caveat": "Indexed data ends about 2026-11-11, so the window holds about 3.6 indexed days.",
       "protocol": "stripe-mpp"
     },
     {
       "id": "mpp-mppscan-transactions-7d",
       "metric": "mppscan transactions (default window, apparently 7 days)",
-      "value": 127.4,
+      "value": 62,
       "unit": "thousand transactions",
-      "asOf": "2026-10-11",
-      "definition": "Transactions shown on the mppscan home page, observed 2026-10-11; the page query used a 7-day window.",
+      "asOf": "2026-11-14",
+      "definition": "Transactions in the 7-day window of MPPscan's protocol statistics, the home page default, read 2026-11-14 (62,011); 127.4 thousand were shown on 2026-10-11.",
       "sources": [
+        "src-stripe-mpp-mppscan",
         "src-market-mppscan-20261011"
       ],
-      "caveat": "Third-party explorer; window inferred from page data; method not published.",
+      "caveat": "Third-party explorer; method not published. MPPscan's indexer appears to have stopped about 2026-11-11T17:15Z (newest indexed transaction among its top servers, while Tempo kept producing blocks), so this window holds only about 3.6 indexed days: do not read the lower figure as a fall in activity. Per indexed day this window's count matches the 2026-10-21 reading (about 17,200 a day in both) while value per day more than doubled; the 30-day window, normalized the same way, shows about a quarter fewer transactions a day than on 2026-10-21.",
       "protocol": "stripe-mpp"
     },
     {
       "id": "mpp-mppscan-volume-7d",
       "metric": "mppscan volume (default window, apparently 7 days)",
-      "value": 1.49,
+      "value": 1.8,
       "unit": "USD thousand",
-      "asOf": "2026-10-11",
-      "definition": "Payment value shown on the mppscan home page, observed 2026-10-11.",
+      "asOf": "2026-11-14",
+      "definition": "Payment value in the 7-day window of MPPscan's protocol statistics, read 2026-11-14 (1,797.04 USD); 1.49 thousand USD were shown on 2026-10-11.",
       "sources": [
+        "src-stripe-mpp-mppscan",
         "src-market-mppscan-20261011"
       ],
-      "caveat": "Third-party explorer; covers MPP payments it can see on chain, not Stripe card charges through Shared Payment Tokens.",
+      "caveat": "Third-party explorer; covers MPP payments it can see on chain, not Stripe card charges through Shared Payment Tokens. Indexed data ends about 2026-11-11, so the window holds about 3.6 indexed days.",
       "protocol": "stripe-mpp"
     },
     {
@@ -267,16 +279,18 @@
     },
     {
       "id": "x402-org-30d-buyers",
-      "metric": "x402.org 'Last 30 Days' buyers counter",
+      "metric": "x402.org 'Last 30 Days' buyers counter (removed; history)",
       "value": 94.06,
       "unit": "thousand buyers",
-      "asOf": "2025-12-14",
-      "definition": "Distinct buyers shown on the x402.org counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
+      "asOf": "2026-10-24",
+      "definition": "History: distinct buyers shown on the x402.org counter, first archived on 2025-12-14 and last seen on 2026-10-24; the counter was gone from the page by 2026-11-14.",
       "sources": [
         "src-market-x402-counter-20261011",
-        "src-x402-site-wb-20251214"
+        "src-x402-site-wb-20251214",
+        "src-x402-site-wb-20261024",
+        "src-x402-site"
       ],
-      "caveat": "Addresses, not people; same stale-counter caveat.",
+      "caveat": "Addresses, not people; a static displayed value, removed between 2026-10-24 and 2026-11-14.",
       "disputed": true,
       "disputeSources": [
         "src-x402-visa-coverage"
@@ -285,30 +299,34 @@
     },
     {
       "id": "x402-org-30d-sellers",
-      "metric": "x402.org 'Last 30 Days' sellers counter",
+      "metric": "x402.org 'Last 30 Days' sellers counter (removed; history)",
       "value": 22,
       "unit": "thousand sellers",
-      "asOf": "2025-12-14",
-      "definition": "Distinct sellers shown on the x402.org counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
+      "asOf": "2026-10-24",
+      "definition": "History: distinct sellers shown on the x402.org counter, first archived on 2025-12-14 and last seen on 2026-10-24; the counter was gone from the page by 2026-11-14.",
       "sources": [
         "src-market-x402-counter-20261011",
-        "src-x402-site-wb-20251214"
+        "src-x402-site-wb-20251214",
+        "src-x402-site-wb-20261024",
+        "src-x402-site"
       ],
-      "caveat": "Same stale-counter caveat.",
+      "caveat": "A static displayed value, removed between 2026-10-24 and 2026-11-14.",
       "protocol": "x402"
     },
     {
       "id": "x402-org-30d-transactions",
-      "metric": "x402.org 'Last 30 Days' transactions counter",
+      "metric": "x402.org 'Last 30 Days' transactions counter (removed; history)",
       "value": 75.41,
       "unit": "million transactions",
-      "asOf": "2025-12-14",
-      "definition": "Value shown on the x402.org home page counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
+      "asOf": "2026-10-24",
+      "definition": "History: the value shown on the x402.org home page counter, first archived on 2025-12-14 and last seen on 2026-10-24; the counter was gone from the page by 2026-11-14.",
       "sources": [
         "src-market-x402-counter-20261011",
-        "src-x402-site-wb-20251214"
+        "src-x402-site-wb-20251214",
+        "src-x402-site-wb-20261024",
+        "src-x402-site"
       ],
-      "caveat": "Displayed value, not a live 30-day measurement: the page shows the same four values in every archived copy from 2025-12-14 and on 2026-10-19, with no date. Do not present as current activity.",
+      "caveat": "Displayed value, never a live 30-day measurement: the page showed the same four values, with no date, in every archived copy from 2025-12-14 to 2026-10-24. x402.org removed the counter without an announcement between 2026-10-24 and 2026-11-14 (home page edited 2026-10-27). Show only as history, never as current activity.",
       "disputed": true,
       "disputeSources": [
         "src-x402scan-stats-20261019",
@@ -318,16 +336,18 @@
     },
     {
       "id": "x402-org-30d-volume",
-      "metric": "x402.org 'Last 30 Days' volume counter",
+      "metric": "x402.org 'Last 30 Days' volume counter (removed; history)",
       "value": 24.24,
       "unit": "USD million",
-      "asOf": "2025-12-14",
-      "definition": "Value shown on the x402.org home page counter; first archived with this value on 2025-12-14 and still shown on 2026-10-19.",
+      "asOf": "2026-10-24",
+      "definition": "History: the value shown on the x402.org home page counter, first archived on 2025-12-14 and last seen on 2026-10-24; the counter was gone from the page by 2026-11-14.",
       "sources": [
         "src-market-x402-counter-20261011",
-        "src-x402-site-wb-20251214"
+        "src-x402-site-wb-20251214",
+        "src-x402-site-wb-20261024",
+        "src-x402-site"
       ],
-      "caveat": "Same stale-counter caveat; raw volume includes activity that Artemis adjusts away.",
+      "caveat": "Same caveat as the transactions counter: a static displayed value, removed between 2026-10-24 and 2026-11-14; raw volume includes activity that Artemis adjusts away.",
       "disputed": true,
       "disputeSources": [
         "src-x402scan-stats-20261019",

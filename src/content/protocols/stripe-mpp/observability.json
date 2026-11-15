@@ -12,17 +12,18 @@
     {
       "what": "Tempo charge and session settlements",
       "where": "Tempo mainnet (chain 4217) and its explorer",
-      "how": "TIP-20 transfers and escrow calls (open, settle, topUp, close, requestClose, withdraw); receipt reference is the transaction hash or channelId.",
+      "how": "TIP-20 transfers and escrow calls (open, settle, topUp, close, requestClose, withdraw); receipt reference is the transaction hash or channelId. A charge paid from a Zone (mppx 0.17.4 and later) appears as the Zone portal's payment with a senderTag in place of the payer's address.",
       "sources": [
         "src-stripe-mpp-tempo-connection",
         "src-stripe-mpp-tempo-session",
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-docs-private-payments"
       ]
     },
     {
       "what": "MPP activity statistics",
       "where": "https://www.mppscan.com, tRPC endpoint /api/trpc/stats.protocolStats",
-      "how": "timeframeDays 0 (all time), 1, 7, 15 or 30; the homepage shows 7 days by default.",
+      "how": "timeframeDays 0 (all time), 1, 7, 15 or 30; the homepage shows 7 days by default. On 2026-11-14 the newest indexed transaction dated from 2026-11-11 and the 1-day window read 0, so check freshness before reading a trend.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ]
@@ -30,7 +31,7 @@
     {
       "what": "Services directory",
       "where": "https://mpp.dev/api/services",
-      "how": "Public JSON listing 138 services and their methods on 2026-10-21 (tempo 135, stripe 10, evm 1).",
+      "how": "Public JSON listing 139 services and their methods on 2026-11-14 (tempo 136, stripe 10, evm 1).",
       "sources": [
         "src-stripe-mpp-directory-api"
       ]

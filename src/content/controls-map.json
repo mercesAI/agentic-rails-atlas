@@ -380,10 +380,12 @@
       "protocol": "visa-tap",
       "control": "agent-registration-kya",
       "support": "external",
-      "note": "Agents are onboarded to Visa Intelligent Commerce and approved by the scheme; the process is not public. The Agentic Directory (2026-06-10) lists agents Visa has verified.",
+      "note": "Agents are onboarded to Visa Intelligent Commerce and approved by the scheme. Visa's VIC docs (2026-11-14) outline the production path, TAP onboarding and registration in the Visa Agent Registry Service (VARS), but the VARS API reference is open only to authorized users, so the steps are not public. The Agentic Directory (2026-06-10) lists agents Visa has verified.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-vic-dev",
+        "src-visa-vic-docs",
+        "src-visa-tap-apiref",
         "src-visa-jun10"
       ]
     },
@@ -506,20 +508,22 @@
       "protocol": "openai-acp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme.",
+      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme. Outside the spec, ChatGPT's cloud browser signs certain requests with Web Bot Auth (2026-11-14).",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-acp-openapi-delegate-payment-20260417",
-        "src-openai-acp-openapi-webhook-20260417"
+        "src-openai-acp-openapi-webhook-20260417",
+        "src-openai-commerce-agent-access"
       ]
     },
     {
       "protocol": "openai-acp",
       "control": "agent-registration-kya",
       "support": "external",
-      "note": "No registry in ACP. Each platform runs its own merchant and partner onboarding, such as ChatGPT's approved-partner application.",
+      "note": "No registry in ACP. Each platform runs its own merchant onboarding: for ChatGPT feeds, OpenAI's docs (rewritten 2026-11-13) have a business claim its profile and verify its identity in Business Hub, while OpenAI's merchant page keeps an application form and a waitlist (2026-11-14).",
       "sources": [
-        "src-openai-commerce-docs",
+        "src-openai-commerce-product-feeds",
+        "src-chatgpt-merchants",
         "src-openai-acp-site"
       ]
     },
@@ -527,10 +531,11 @@
       "protocol": "openai-acp",
       "control": "user-consent-capture",
       "support": "external",
-      "note": "The buyer confirms in the agent interface (a product feature). The spec captures marketing consents and 3DS results but no signed purchase consent.",
+      "note": "The buyer confirms in the agent interface (a product feature). The spec captures marketing consents and 3DS results but no signed purchase consent. Outside ACP, ChatGPT Wallet asks for a security check such as Face ID before each purchase (2026-11-13).",
       "sources": [
         "src-openai-buy-it",
-        "src-openai-acp-schema-checkout-20260417"
+        "src-openai-acp-schema-checkout-20260417",
+        "src-openai-chatgpt-wallet"
       ]
     },
     {
@@ -647,10 +652,11 @@
       "protocol": "ucp",
       "control": "agent-identity-verification",
       "support": "native",
-      "note": "Platform profile URL in UCP-Agent with RFC 9421 signatures against its keys, or API key, OAuth or mTLS bound to that profile.",
+      "note": "Platform profile URL in UCP-Agent with RFC 9421 signatures against its keys, or API key, OAuth or mTLS bound to that profile. Google, the main deployed platform, signs with ES256 keys published at ucp.goog and also offers mTLS (FAQ, 2026-11-03).",
       "sources": [
         "src-ucp-overview",
-        "src-ucp-signatures"
+        "src-ucp-signatures",
+        "src-ucp-google-faq"
       ]
     },
     {
@@ -784,10 +790,12 @@
       "protocol": "stripe-mpp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The core payment is pseudonymous with an optional DID source; mppx adds RFC 9421 request attestation for Web Bot Auth and Visa TAP, and the card method allows optional TAP headers.",
+      "note": "The core payment is pseudonymous with an optional DID source, and since 2026-11-11 its repository text says how other authentication composes with Payment without defining any. mppx adds per-route identity verifiers outside the spec (Web Bot Auth, TAP, Email OTP, Link, Persona, World ID, Tempo ID or custom; request attestation before 0.16.0), and the card method allows optional TAP headers.",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-mppx-changelog",
         "src-stripe-mpp-card-charge"
       ]
     },

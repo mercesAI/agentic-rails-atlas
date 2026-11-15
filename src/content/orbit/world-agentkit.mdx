@@ -3,22 +3,27 @@ slug: world-agentkit
 name: World AgentKit
 category: agent-identity
 starred: false
-oneLiner: A beta toolkit from World that lets a person verified with World ID delegate proof of being a unique human to an AI agent, so x402 sites can tell human-backed agents from bots.
+oneLiner: A toolkit from World that let a person verified with World ID delegate proof of being a unique human to an AI agent, so x402 sites could tell human-backed agents from bots; World marked it deprecated and archived its repository on 2026-10-20.
 steward: World (docs at docs.world.org; code in the worldcoin GitHub organization)
-status: Beta
+status: Deprecated (repository archived 2026-10-20; was beta)
 latestVersion:
   label: "@worldcoin/agentkit 0.2.1"
   date: "2026-08-24"
 relations:
   - to: x402
     type: complements
-    note: Listed in the x402 docs as a third-party extension that verifies human-backed agents; the package depends on @x402/core and challenges agents with a CAIP-122 message.
+    note: Listed in the x402 docs as a third-party extension that verifies human-backed agents; the package depends on @x402/core and challenges agents with a CAIP-122 message. Deprecated since 2026-10-20.
 sources:
   - src-orbit-kya-world-agentkit-blog
   - src-orbit-kya-world-agentkit-docs
   - src-orbit-kya-world-agentkit-repo
+  - src-orbit-world-agentkit-pr-44
+  - src-orbit-world-docs-llms
+  - src-orbit-world-blog-tad
+  - src-orbit-tad-site
+  - src-orbit-mppx-changelog
   - src-x402-docs-devtools
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
-World announced the AgentKit beta on 2026-03-17, and the docs still label it beta. <Cite ids="src-orbit-kya-world-agentkit-blog src-orbit-kya-world-agentkit-docs" /> A person registers an agent's wallet in AgentBook with a World ID proof. An [x402](/p/x402/) site then asks the agent to sign a CAIP-122 message, looks up the human behind the wallet in AgentBook and applies its own access policy; the client sends an `agentkit` header and tries this check before paying. The npm package `@worldcoin/agentkit` reached 0.2.1 on 2026-08-24 and depends on `@x402/core`. <Cite ids="src-orbit-kya-world-agentkit-repo" /> The x402 docs list it as a third-party extension for verifying human-backed agents. <Cite ids="src-x402-docs-devtools" />
+World announced the AgentKit beta on 2026-03-17. <Cite ids="src-orbit-kya-world-agentkit-blog" /> A person registered an agent's wallet in AgentBook with a World ID proof. An [x402](/p/x402/) site then asked the agent to sign a CAIP-122 message, looked up the human behind the wallet in AgentBook and applied its own access policy; the client sent an `agentkit` header and tried this check before paying. The npm package `@worldcoin/agentkit` reached 0.2.1 on 2026-08-24 and depends on `@x402/core`. <Cite ids="src-orbit-kya-world-agentkit-repo" /> The x402 docs list it as a third-party extension for verifying human-backed agents. <Cite ids="src-x402-docs-devtools" /> On 2026-10-20 World marked the repository deprecated, without naming a replacement, and archived it. <Cite ids="src-orbit-world-agentkit-pr-44 src-orbit-kya-world-agentkit-repo" /> By 2026-11-14 the AgentKit docs overview answered 404 and its integration page redirected to the quickstart for World's Agent Pass, whose pages in World's docs index cover a World ID issuer with OpenID Connect sign-in, MCP authorization, step-up authentication and Cross App Access; the index lists no AgentKit or AgentBook pages. The redirect shows a hand-off in the docs, not a written statement that Agent Pass replaces AgentKit. <Cite ids="src-orbit-kya-world-agentkit-docs src-orbit-world-docs-llms" /> The npm package was still at 0.2.1 with no deprecation flag. <Cite ids="src-orbit-kya-world-agentkit-repo" /> World's agent work also points to Trusted Agent Delegation, a coalition that World's post of 2026-11-12 says World and Cloudflare introduced; it had no published specification as of 2026-11-14. <Cite ids="src-orbit-world-blog-tad src-orbit-tad-site" /> Separately, the `mppx` SDK for [MPP](/p/stripe-mpp/) added a World ID verifier in 0.19.0 (2026-11-14). <Cite ids="src-orbit-mppx-changelog" />

@@ -52,12 +52,12 @@
       "n": 1,
       "from": "user",
       "to": "agent",
-      "label": "Delegate the purchase: sign Verifiable Intent L2 (specified; live use not shown publicly)",
+      "label": "Delegate the purchase: sign Verifiable Intent L2 (specified; live Autonomous use not shown publicly)",
       "protocol": "mastercard-agent-pay",
       "detail": "The consumer holds an L1 credential signed by the issuer, a bank or Mastercard on its behalf. To let the agent finish the purchase, the consumer signs an L2 Autonomous mandate pair (typ kb-sd-jwt+kb) that binds the agent's key in cnf.jwk and carries constraints such as allowed merchants and an amount range. This layer is specified in Verifiable Intent 0.1; live use is not shown publicly.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Specified; live use not shown publicly.\n{\n  \"vct\": \"mandate.payment.open.1\",\n  \"cnf\": { \"jwk\": { \"kty\": \"EC\", \"crv\": \"P-256\", \"x\": \"<agent-key-x>\", \"y\": \"<agent-key-y>\", \"kid\": \"agent-key-1\" } },\n  \"payment_instrument\": { \"type\": \"mastercard.srcDigitalCard\", \"id\": \"<token-uuid>\" },\n  \"constraints\": [\n    { \"type\": \"mandate.payment.amount_range\", \"currency\": \"USD\", \"max\": 20000 },\n    { \"type\": \"mandate.payment.reference\", \"conditional_transaction_id\": \"<B64U(SHA-256(checkout_disclosure))>\" }\n  ]\n}",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Specified; live Autonomous use not shown publicly.\n{\n  \"vct\": \"mandate.payment.open.1\",\n  \"cnf\": { \"jwk\": { \"kty\": \"EC\", \"crv\": \"P-256\", \"x\": \"<agent-key-x>\", \"y\": \"<agent-key-y>\", \"kid\": \"agent-key-1\" } },\n  \"payment_instrument\": { \"type\": \"mastercard.srcDigitalCard\", \"id\": \"<token-uuid>\" },\n  \"constraints\": [\n    { \"type\": \"mandate.payment.amount_range\", \"currency\": \"USD\", \"max\": 20000 },\n    { \"type\": \"mandate.payment.reference\", \"conditional_transaction_id\": \"<B64U(SHA-256(checkout_disclosure))>\" }\n  ]\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": true,
@@ -183,12 +183,12 @@
       "n": 8,
       "from": "agent",
       "to": "agent",
-      "label": "Sign L3a and L3b linked by checkout_hash (specified; live use not shown publicly)",
+      "label": "Sign L3a and L3b linked by checkout_hash (specified; live Autonomous use not shown publicly)",
       "protocol": "mastercard-agent-pay",
       "detail": "The agent signs two terminal layers with the key bound in L2. L3b holds mandate.checkout.1 with checkout_jwt and checkout_hash for the merchant; L3a holds mandate.payment.1 for the network. checkout_hash is the base64url SHA-256 of the checkout_jwt string, and L3a transaction_id must equal L3b checkout_hash. Recommended lifetime 5 minutes, at most one hour.",
       "payload": {
         "format": "json",
-        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Specified; live use not shown publicly.\n// L3b disclosed mandate (aud: the merchant)\n{ \"vct\": \"mandate.checkout.1\", \"checkout_jwt\": \"<merchant checkout_jwt>\", \"checkout_hash\": \"<B64U(SHA-256(checkout_jwt))>\" }\n// L3a disclosed mandate (aud: the payment network)\n{\n  \"vct\": \"mandate.payment.1\",\n  \"payment_instrument\": { \"type\": \"mastercard.srcDigitalCard\", \"id\": \"<token-uuid>\" },\n  \"payment_amount\": { \"currency\": \"USD\", \"amount\": 12999 },\n  \"payee\": { \"name\": \"Example Shop\", \"website\": \"https://shop.example.com\" },\n  \"transaction_id\": \"<same value as checkout_hash>\"\n}",
+        "content": "// Illustrative example, Verifiable Intent 0.1 on main (356c296). Specified; live Autonomous use not shown publicly.\n// L3b disclosed mandate (aud: the merchant)\n{ \"vct\": \"mandate.checkout.1\", \"checkout_jwt\": \"<merchant checkout_jwt>\", \"checkout_hash\": \"<B64U(SHA-256(checkout_jwt))>\" }\n// L3a disclosed mandate (aud: the payment network)\n{\n  \"vct\": \"mandate.payment.1\",\n  \"payment_instrument\": { \"type\": \"mastercard.srcDigitalCard\", \"id\": \"<token-uuid>\" },\n  \"payment_amount\": { \"currency\": \"USD\", \"amount\": 12999 },\n  \"payee\": { \"name\": \"Example Shop\", \"website\": \"https://shop.example.com\" },\n  \"transaction_id\": \"<same value as checkout_hash>\"\n}",
         "illustrative": true
       },
       "crossesTrustBoundary": false,

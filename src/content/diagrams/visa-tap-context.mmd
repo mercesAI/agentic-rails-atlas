@@ -4,8 +4,9 @@ flowchart LR
     AK["Agent private key"]
   end
   subgraph VZ["Visa zone"]
-    ON["VIC onboarding (not public)"]
+    ON["VIC onboarding and VARS registration (details not public)"]
     KS["Key store at a well-known URL (not named in the spec since October 2026)"]
+    MR["Merchant key registry (VMRS)"]
     IDT["ID Token signer"]
     VIC["VIC tokens, passkeys, instructions"]
   end
@@ -30,4 +31,5 @@ flowchart LR
   IDT -. "ID Token in agenticConsumer" .-> AG
   VIC -. "payment credentials" .-> AG
   MK -. "decrypt payload" .-> M
+  M -. "registers encryption key" .-> MR
   M -- "4 authorize" --> ACQ

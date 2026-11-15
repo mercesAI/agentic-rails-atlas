@@ -5,8 +5,9 @@
     "All checkout, Delegate Payment, webhook and feed traffic is bilateral HTTPS between agent, merchant and PSP; nothing is written to a public ledger.",
     "The only standard public artifact per seller is the optional /.well-known/acp.json discovery document, which lists versions, transports and services but no volume.",
     "There is no public registry or explorer of ACP merchants or agents, and the ACP site says discovery mechanisms were still being developed.",
-    "The project is transparent about the spec: the GitHub repository shows commits, SEPs, the CLA list and governance, though no maintainer commented, merged or committed between 2026-07-18 and 2026-10-20.",
-    "No official transaction volume, GMV or merchant count has been published (checked 2026-10-20)."
+    "The project is transparent about the spec: the GitHub repository shows commits, SEPs, the CLA list and governance, though no maintainer commented, merged or committed between 2026-07-18 and 2026-11-14.",
+    "No official transaction volume, GMV or merchant count has been published (checked 2026-11-14, including OpenAI's ChatGPT Wallet post).",
+    "ChatGPT's own purchase traffic is more visible at the edge than ACP traffic: its cloud browser signs certain requests with Web Bot Auth and publishes keys at a well-known directory, but that is a ChatGPT mechanism outside the ACP spec (2026-11-14)."
   ],
   "public": [
     {
@@ -21,7 +22,7 @@
     {
       "what": "Specification activity and governance",
       "where": "github.com/agentic-commerce-protocol/agentic-commerce-protocol",
-      "how": "Commits, pull requests, SEPs, changelog files, MAINTAINERS.md and legal/cla/SIGNATORIES.md; the comments API shows community activity without maintainer replies since 2026-07-18.",
+      "how": "Commits, pull requests, SEPs, changelog files, MAINTAINERS.md and legal/cla/SIGNATORIES.md; the comments API shows community activity (67 comments since 2026-07-18) without maintainer replies through 2026-11-14.",
       "sources": [
         "src-openai-acp-gh-repo",
         "src-openai-acp-gh-commits",
@@ -43,7 +44,7 @@
     {
       "what": "Security advisories",
       "where": "GitHub security advisories for the repository; NVD keyword search",
-      "how": "None published as of 2026-10-20 (advisories API 0, NVD keyword search 0).",
+      "how": "None published: the repository and global GitHub advisory APIs returned 0 on 2026-11-14, and an NVD keyword search returned 0 on 2026-10-20.",
       "sources": [
         "src-openai-acp-gh-advisories",
         "src-nvd-acp-search"
@@ -65,7 +66,7 @@
     },
     {
       "what": "Product feeds pushed to /feeds",
-      "why": "Sent from merchant to agent; OpenAI uses its own /product_feeds paths."
+      "why": "Sent from merchant to agent. OpenAI's commerce docs now take only full snapshot uploads, while its Ads Delta Feeds API updates variants on an ACP-shaped PATCH /feeds/{feed_id}/products path, enabled per ad account (2026-11-14)."
     },
     {
       "what": "Stripe SPT events",
@@ -125,6 +126,20 @@
       ],
       "sources": [
         "src-fee-stripe-spt-docs"
+      ]
+    },
+    {
+      "signal": "Signed ChatGPT cloud browser visits and Wallet checkouts on one site (ChatGPT mechanisms, not ACP)",
+      "from": "The merchant's CDN or edge logs, verifying Web Bot Auth against chatgpt.com's key directory",
+      "identifiers": [
+        "Signature-Agent \"https://chatgpt.com\"",
+        "Signature-Input",
+        "Forwarded parameters asn, ip-country, locale, tz",
+        "network token with Payment Account Reference"
+      ],
+      "sources": [
+        "src-openai-commerce-agent-access",
+        "src-openai-commerce-accept-payments"
       ]
     }
   ]

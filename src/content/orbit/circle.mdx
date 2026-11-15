@@ -1,9 +1,9 @@
 ---
 slug: circle
-name: "Circle: Nanopayments, Agent Stack and Arc"
+name: "Circle: Nanopayments, Facilitator Service, Agent Stack and Arc"
 category: machine-payments
 starred: false
-oneLiner: "The USDC issuer, whose agent-facing products are Nanopayments through Circle Gateway (sub-cent USDC payments inside the x402 flow), the Circle Agent Stack and the Arc Layer 1 chain that charges fees in USDC."
+oneLiner: "The USDC issuer, whose agent-facing products are Nanopayments through Circle Gateway (sub-cent USDC payments inside the x402 flow), a hosted x402 facilitator (Facilitator Service), the Circle Agent Stack and the Arc Layer 1 chain that charges fees in USDC."
 steward: "Circle Internet Group (company)"
 status: "Live"
 latestVersion:
@@ -12,16 +12,29 @@ latestVersion:
 relations:
   - to: x402
     type: complements
-    note: "Nanopayments run inside the x402 flow with EIP-3009 authorizations. Circle's Arc release (2026-09-16) says the overwhelming majority of agent-to-agent x402 payments since the Agent Stack launch in May 2026 settled in USDC (vendor claim, no method)."
+    note: "Nanopayments run inside the x402 flow with EIP-3009 authorizations, and Facilitator Service (since 2026-09-16) verifies and settles x402 payments for sellers. Circle's Arc release (2026-09-16) says the overwhelming majority of agent-to-agent x402 payments since the Agent Stack launch in May 2026 settled in USDC (vendor claim, no method)."
+  - to: erc-8004
+    type: compatible-with
+    note: "Circle's Arc documentation lists ERC-8004 Identity, Reputation and Validation registry addresses on Arc. The ERC-8004 maintainers list no Validation Registry deployment, and Arc Mainnet is not in their README (as of 2026-11-14)."
 sources:
   - src-x402-circle-nanopayments
   - src-x402-fee-circle
   - src-x402-fee-circle-gateway
+  - src-x402-circle-facilitator-service
+  - src-x402-circle-release-notes
+  - src-erc-8004-arc-contract-addresses
+  - src-erc-8004-contracts-pr-100
   - src-orbit-circle-arc-mainnet
   - src-orbit-circle-dune-x402-token
   - src-orbit-circle-arc-validators
   - src-orbit-circle-arc-theblock
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
-Nanopayments, live on mainnet since 2026-04-29, let a buyer sign EIP-3009 authorizations off-chain at zero gas for amounts from $0.000001 USDC, which Gateway batches and settles in bulk inside the [x402](/p/x402/) flow. <Cite ids="src-x402-circle-nanopayments src-x402-fee-circle" /> Circle says bulk settlement means neither party pays per-transaction fees. Moving funds out of Gateway costs a gas fee per burn, for example $0.01 from Base, and crosschain transfers add 0.005 percent (as of 2026-10-19). <Cite ids="src-x402-fee-circle src-x402-fee-circle-gateway" /> Circle says it launched the Agent Stack (policy-controlled Agent Wallets plus Nanopayments) in May 2026 and opened Arc's public mainnet on 2026-09-16 with a permissioned founding validator cohort that includes BlackRock, DTCC, Mastercard and Visa. <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-arc-validators src-orbit-circle-arc-theblock" /> The Arc release says Arc has not been reviewed or approved by the New York State Department of Financial Services or any other regulator. <Cite ids="src-orbit-circle-arc-mainnet" /> It also claims that USDC accounts for 98.8% of agent-driven transaction volume, linking a public Dune query of x402 volume by token. The release gives no method or date range (as of 2026-09-16). <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-dune-x402-token" />
+Nanopayments, live on mainnet since 2026-04-29, let a buyer sign EIP-3009 authorizations off-chain at zero gas for amounts from $0.000001 USDC, which Gateway batches and settles in bulk inside the [x402](/p/x402/) flow. <Cite ids="src-x402-circle-nanopayments src-x402-fee-circle" /> Circle says bulk settlement means neither party pays per-transaction fees. Moving funds out of Gateway costs a gas fee per burn that depends on the source chain, and crosschain transfers add a percentage transfer fee, which Circle waives when Arc is the source or the destination. Circle loads the current fees from its fee API; the $0.01 gas fee and 0.005 percent transfer fee on its fees page are inputs to a worked example, not a price list (as of 2026-11-14). <Cite ids="src-x402-fee-circle-gateway" />
+
+Circle also runs a facilitator of its own. Facilitator Service, launched on 2026-09-16, verifies buyer-signed x402 payments for sellers and settles USDC on Arc, Base and Polygon PoS with the exact scheme, and since 2026-10-13 with upto. Circle broadcasts every transfer, pays the settlement gas and screens both parties; settling needs a Circle API key, and a keyless trial lets a seller start without an account. <Cite ids="src-x402-circle-facilitator-service src-x402-circle-release-notes" /> Circle says the service does not hold, control or transmit user funds, and that settlements on Base and Polygon PoS carry reorganization risk while Arc settlements are final. The page publishes no price (as of 2026-11-14). <Cite ids="src-x402-circle-facilitator-service" /> On the buyer side, Circle's Agent Marketplace (2026-07-31) is a curated catalog of x402 services that accept USDC. <Cite ids="src-x402-circle-release-notes" />
+
+Circle says it launched the Agent Stack (policy-controlled Agent Wallets plus Nanopayments) in May 2026 and opened Arc's public mainnet on 2026-09-16 with a permissioned founding validator cohort that includes BlackRock, DTCC, Mastercard and Visa. <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-arc-validators src-orbit-circle-arc-theblock" /> The Arc release says Arc has not been reviewed or approved by the New York State Department of Financial Services or any other regulator. <Cite ids="src-orbit-circle-arc-mainnet" /> It also claims that USDC accounts for 98.8% of agent-driven transaction volume, linking a public Dune query of x402 volume by token. The release gives no method or date range (as of 2026-09-16). <Cite ids="src-orbit-circle-arc-mainnet src-orbit-circle-dune-x402-token" />
+
+Arc's contract address page lists the [ERC-8004](/p/erc-8004/) Identity, Reputation and Validation registries on Arc Mainnet and Arc Testnet, and a reference contract for ERC-8183 job escrow on Arc Testnet. That is a chain operator documenting addresses on its own chain: the ERC-8004 maintainers list no Validation Registry deployment, and their README did not list Arc Mainnet on 2026-11-14. <Cite ids="src-erc-8004-arc-contract-addresses src-erc-8004-contracts-pr-100" />

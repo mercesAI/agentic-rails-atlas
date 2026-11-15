@@ -56,3 +56,55 @@
 - 2026-10-20, sso.agc.gov.sg: answers inconsistently (403 to curl on 2026-10-11, 200 on 2026-10-20, 202 with a browser user agent); the PDPA text was read on 2026-10-20.
 
 - 2026-10-21 mastercard.com: still returns HTTP 403 to curl, but headed Chrome through Playwright (channel chrome, headless false) reads its HTML pages, and PDFs fetched in the browser context after loading the parent page return 200 (Rules PDF, Trust white paper). theblock.co reads the same way.
+
+- 2026-11-14, openai.com: posts, the business page and the index pages answered 403 to automated reads; no agent worked around them, the ChatGPT Wallet post was read only from the lead's Internet Archive capture of 2026-11-13T16:04:07Z, as the lead's notes direct, and the openai.com news RSS feed supplied the post descriptions.
+- 2026-11-14, help.openai.com: help articles answered 403 (20001654 on Wallet issuers and debit cards, 11845367 and 20001280 on the cloud browser); not read, and their details stay off the site as unverifiable.
+- 2026-11-14 and 2026-11-15, help.shopify.com: the agentic storefronts pages answered 403 ('Verifying your connection') to the first verifiers and later to the W8 critic's plain reads, but HTTP 200 to discovery and to the second-pass verifier (2026-11-15T04:42Z to 04:59Z UTC); the writers relied on that verifier's saved copies (D10).
+- 2026-11-14, www.mastercard.com: press, news, stories and product pages, its RSS feeds, the Rules PDF, the trust white paper and its copy of the Travelport release answered 403 to curl and WebFetch; not worked around, and the Travelport release was read on travelport.com and worded as the companies' statement (D21).
+- 2026-11-14, investor.mastercard.com: the HTML pages answered 403 to curl; discovery read its JSON news feeds through WebFetch, and the W6 critic removed that reliance on 2026-11-15 (one claim and two source notes now rest on sources read directly); the Q3 2026 call is cited from The Motley Fool's transcript and the results from Mastercard's investor CDN copies.
+- 2026-11-14, mastercard.us: the Mastercard Rules page answered 403; not worked around.
+- 2026-11-14, developer.mastercard.com: sitemap.xml answered 401, and the Agent Pay pages are JavaScript shells; not worked around.
+- 2026-11-14, www.sec.gov: 403 to curl and to a generic client; the Visa 10-K text was not read, the Mastercard discovery read one page through WebFetch, and no source record updated this round points at sec.gov.
+- 2026-11-14, drcf.org.uk: the joint statement of 2026-10-30 answered 403; the Policy event rests on the CMA's GOV.UK pages, and the statement's own text stays unread.
+- 2026-11-14, papers.ssrn.com: 403 (Cloudflare) to the full texts of the SSRN papers; Crossref metadata used, and the new entries were deferred (PUB-02).
+- 2026-11-14, worldscientific.com: 403 (Cloudflare) to the Laturnus paper; Crossref metadata used, and the entry was deferred (PUB-02).
+- 2026-11-14, www.w3.org: TR pages, api.w3.org, the news feed and the e-commerce agents workshop slides answered 403 (Cloudflare challenge); the Digital Credentials API Working Draft date (2026-11-05) was read from W3C's publication record in its GitHub Actions log.
+- 2026-11-14, labs.w3.org: the Echidna status API answered 403 (Cloudflare challenge); not retried, and the same GitHub Actions record was used.
+- 2026-11-14, radar.cloudflare.com: the AI insights pages answered 403, and the Radar API needs authentication; the BotBase change was read from Cloudflare's developer changelog feed (HTTP 200).
+- 2026-11-14, mailarchive.ietf.org: the search answered 403; not worked around, and draft states were read from the IETF Datatracker.
+- 2026-11-14, www.consumerfinance.gov: the CFPB newsroom feed answered 403; Federal Register searches cover the CFPB instead (no rule or proposal on AI agents, 2026-11-14).
+- 2026-11-14, www.ftc.gov: the press feed and press pages answered 404; Federal Register coverage used instead.
+- 2026-11-14, leg.colorado.gov: 406; not worked around.
+- 2026-11-14, www.dfs.ny.gov: 403; New York rules were not checked.
+- 2026-11-14, eur-lex.europa.eu: HTTP 202 with an empty body (bot check); the Council's own texts and the Parliament's Legislative Observatory were used for PSD3 and the PSR.
+- 2026-11-14, www.riskified.com: the press page answered 403; not worked around, and Riskified appears only as a fraud partner that OpenAI names.
+- 2026-11-14, www.businesswire.com: 403 to the Visa, BILL and Billtrust release and to Klarna's release; Visa's own releases and Klarna's newsroom copy were used.
+- 2026-11-14, www.geekwire.com: the Muse story answered 403; Meta's own posts were used.
+- 2026-11-14, www.finextra.com: article 48759 answered 403; its RSS description was used.
+- 2026-11-14, labs.cloudsecurityalliance.org: 403 to curl; one research note read through WebFetch was dropped as a source (D9), and the site cites V12, the CVE record and GitHub instead.
+- 2026-11-14, web.archive.org: HTTP 429 and an abusive-bot-traffic block for some agents; used only to date pages that are readable directly, and not retried.
+- 2026-11-14, stripe.com: /us/pricing redirected to the Canadian page (CA$0.20 per SPT); the US SPT price was not re-read live.
+- 2026-11-14 and 2026-11-15, services.nvd.nist.gov: the CVE API answered 503 to several reads (twice in the UCP discovery, on a Visa TAP verifier rerun, and to the keyword searches of the first x402 verifier and the W2 critic) and 200 to others (the UCP verifier's keyword search, totalResults 0, 2026-11-15T03:11Z UTC); the x402 pages dropped the 'first CVE' wording because no CVE-wide search could be completed.
+- 2026-11-14, docs.link.com: the Markdown twin answered 403; the HTML page was used.
+- 2026-11-14, export.arxiv.org: HTTP 429 once; the earlier all:x402 search of 2026-11-15T03:12Z UTC was reused.
+- 2026-11-14, www.npmjs.com: the package HTML pages answered 403; the npm registry API was used instead.
+- 2026-11-14, www.npci.org.in: 403 (Akamai Access Denied); the NPCI agent framework stays press-reported.
+- 2026-11-14, www.bain.com: the 2030 forecast Snap Chart answered 403; the market rows keep their dated reading.
+- 2026-11-14, www.mckinsey.com: the agentic commerce report page failed (curl exit 92, an HTTP/2 stream error, and a timeout in discovery); the market rows keep their dated reading.
+- 2026-11-15, www.fca.org.uk: HTTP 503 to the W8 critic's status check, a transient error; the verifiers had read both FCA pages with HTTP 200, so the records stand.
+- 2026-11-14, www.coinbase.com: the Agentic Wallets launch page answered 403; not worked around, and the record stays dated to its 2026-10-11 reading.
+- 2026-11-14, www.etsy.com: the newsroom answered 403; not worked around.
+- 2026-11-14, investors.affirm.com: the RSS feed answered 403; not worked around.
+- 2026-11-14, investor.visa.com: 403, and Visa's investor RSS feed returned a Cloudflare challenge; Visa's own earnings release was read, and the Q4 call figures are labeled reported.
+- 2026-11-14, agenticdirectory.visa.com and sbx.agenticdirectory.visa.com: the root answered 403 (behind Cloudflare) and the well-known paths 404; not worked around, and the site still says no public list or endpoint of the Agentic Directory was found.
+- 2026-11-14, investor.bill.com: 403; Visa's releases on the BILL pilot were used.
+- 2026-11-14, www.akamai.com: the newsroom, the 2025-12-17 Akamai and Visa release and two blog posts answered 403 to curl; not worked around, and the site's record of that release keeps its 2026-10-11 reading.
+- 2026-11-14, abc.xyz: the investor page answered 403; Alphabet's remarks on AP2 are taken from PYMNTS and labeled reported.
+- 2026-11-14, www.digitalcommerce360.com: the WordPress API answered 403; not worked around.
+- 2026-11-14, www.biometricupdate.com: the WordPress API answered 401; not worked around.
+- 2026-11-14, searchengineland.com: the feed answered 403; not worked around.
+- 2026-11-14, tech.yahoo.com: 403; not worked around.
+- 2026-11-14, base.blockscout.com: the logs API answered 403; the registry's view functions were read over RPC instead.
+- 2026-11-14, oasis.net: the ERC-8004 blog post (a resources row) answered 403; not re-read.
+- 2026-11-14, polygon-rpc.com: 401; 1rpc.io/matic was used instead.
+- 2026-11-14, www.techrepublic.com: refused the read; not worked around.

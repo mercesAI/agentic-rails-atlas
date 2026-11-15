@@ -6,10 +6,12 @@
       "protocol": "stripe-mpp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The core payment is pseudonymous with an optional DID source; mppx adds RFC 9421 request attestation for Web Bot Auth and Visa TAP, and the card method allows optional TAP headers.",
+      "note": "The core payment is pseudonymous with an optional DID source, and since 2026-11-11 its repository text says how other authentication composes with Payment without defining any. mppx adds per-route identity verifiers outside the spec (Web Bot Auth, TAP, Email OTP, Link, Persona, World ID, Tempo ID or custom; request attestation before 0.16.0), and the card method allows optional TAP headers.",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-mppx-changelog",
         "src-stripe-mpp-card-charge"
       ]
     },
@@ -172,10 +174,12 @@
     },
     {
       "title": "No native agent identity",
-      "description": "The core carries only an optional payer identifier. Request attestation is an mppx feature, not part of the core draft, and the card method lets a client add TAP signature headers.",
+      "description": "The core carries only an optional payer identifier; its repository text of 2026-11-11 sets ordering rules for other authentication but defines none. Identity verification is an mppx feature (per-route identity since 0.16.0, which replaced request attestation), not part of the core draft, and the card method lets a client add TAP signature headers.",
       "sources": [
         "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-mppx-changelog",
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-card-charge"
       ]
     },
@@ -219,10 +223,12 @@
     {
       "point": "at-edge",
       "what": "Recognize and rate-limit agents.",
-      "how": "Web Bot Auth or TAP attestation through mppx; Retry-After; 403 for policy denials after valid payment.",
+      "how": "mppx identity verifiers (Web Bot Auth, TAP and others) checked before the 402; Retry-After; 403 for policy denials after valid payment, and in the repository text of 2026-11-11 also for other-authentication denials with nothing settled.",
       "sources": [
         "src-stripe-mpp-blog-identity",
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-docs-identity",
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-core-01-7bb99c8"
       ]
     },
     {
@@ -276,8 +282,8 @@
       ]
     },
     {
-      "item": "Run the latest mppx (0.14.1 on 2026-10-21); 0.8.2 fixed the last published mppx advisory. Run Rust mpp 0.12.0 or later and pympp 0.10.1 or later.",
-      "why": "Earlier versions have published advisories, including payment bypasses, and mppx fixed further replay bugs without an advisory in 0.8.7 and 0.13.2.",
+      "item": "Run the latest mppx (0.19.0 on 2026-11-14) with a shared store in production; 0.8.2 fixed the last published mppx advisory. Run Rust mpp 0.12.0 or later and pympp 0.10.1 or later.",
+      "why": "Earlier versions have published advisories, including payment bypasses, and mppx fixed further replay bugs without an advisory in 0.8.7 and 0.13.2. Since 0.18.0 the Tempo server methods refuse to start in production without a store, because per-instance memory lets a credential accepted by one instance be accepted again by another.",
       "sources": [
         "src-stripe-mpp-ghsa-other",
         "src-stripe-mpp-ghsa-rs",
@@ -307,6 +313,13 @@
       "why": "Ties the payment to the exact request.",
       "sources": [
         "src-stripe-mpp-core-01"
+      ]
+    },
+    {
+      "item": "When a route also needs a bearer token, signature or attestation, verify it before you verify or settle the Payment credential, and settle nothing on a 401 or an other-authentication 403.",
+      "why": "The core repository text of 2026-11-11 makes this order a MUST, so a client whose token expired can resend the same credential without paying twice.",
+      "sources": [
+        "src-stripe-mpp-core-01-7bb99c8"
       ]
     }
   ]

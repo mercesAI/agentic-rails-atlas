@@ -73,3 +73,12 @@ None blocked. The USENIX per-cycle accepted-paper subpages (`cycle-1-accepted-pa
 - Re-check 2511.03434 (TrustAgent workshop) and 2605.00071 (demo track) for a confirmed venue.
 - 2607.23207 promises a revised version with post-launch measurements after Q3 2026.
 - Confirm the first author's name on 2609.02208 against the PDF.
+
+## Refresh 2026-11-14
+
+A Crossref title search of the site's non-peer-reviewed 2025 and 2026 entries (records created since 2026-10-11, title similarity above 0.8, authors compared; Crossref works API read 2026-11-15T03:58Z UTC) found published versions of two entries in this part. Both now carry `peerReviewed: true`, the venue, the DOI, `verifiedVia: crossref` and `verifiedAt: 2026-11-14`, under the rule above that only a publisher or DOI record confirms a venue.
+
+- `pub-gong-2026-ais` (arXiv 2608.30519): published in the MDPI journal Systems, vol. 14, no. 10 (DOI 10.3390/systems14101329, 2026-10-20) as "Authority-Inference Separation in Agentic Finance: Intent-Bound Control, EVM Enforcement, and Replayable Assurance". Following corrections 1 and 2 above, the record now uses the published title and names the arXiv title in the summary; the summary figures still come from the arXiv abstract.
+- `pub-ranjan-2025-loka` (arXiv 2504.10915): published in the proceedings of the 2025 IEEE Baja California Conference (BCC), DOI 10.1109/BCC63751.2025.11725761 (Crossref record created 2026-10-19). Title and year unchanged.
+- Counts after this refresh: peer reviewed (confirmed venue) 11 of the 65 entries now in this part, up from 9.
+- Not changed: pub-surapani-2026-authorization has only an SSRN copy. New papers found in the same round (PCM 2610.39109, Anduin 2611.05586, the merchant readiness benchmark 2610.17378, AgentValve 2610.12948, and the Crossref-only Laturnus and Shaukat items) are additions and were deferred to a later pass.

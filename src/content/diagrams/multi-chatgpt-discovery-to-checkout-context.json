@@ -2,9 +2,20 @@
   "id": "multi-chatgpt-discovery-to-checkout-context",
   "protocol": "multi",
   "type": "composition",
-  "title": "From ChatGPT discovery to merchant checkout: actors and protocol boundaries",
-  "caption": "ACP carries the product feed from the merchant to ChatGPT. The ChatGPT app runs on ChatGPT plugins (formerly the Apps SDK), which is not ACP. Path A, solid lines, is the generally available external checkout on the merchant's own site. Path B, dashed lines, is the payment sheet, a private beta for select marketplace partners; only PCI DSS Level 1 merchants that want raw card data implement ACP Delegate Payment, whose request carries an allowance. No source says the payment sheet token is allowance-scoped in general.",
-  "alt": "Flowchart. The merchant's catalog pushes a product feed to ChatGPT through the ACP Feed API. The shopper asks ChatGPT and picks a product, and ChatGPT opens the merchant's ChatGPT app, an MCP server and widget, through ChatGPT plugins (formerly the Apps SDK). In path A the app sends the shopper an external checkout link; the shopper pays on the merchant's website, which authorizes through the merchant's PSP. In path B, drawn dashed and marked private beta, the app calls requestCheckout in ChatGPT; for PCI DSS Level 1 merchants only, ChatGPT calls the merchant's Delegate Payment vault with an allowance; ChatGPT then sends a complete_checkout tool call with a payment-method token to the app, and the app charges the token through the PSP.",
-  "sourceOfTruth": { "url": "https://developers.openai.com/plugins/build/monetization", "label": "ChatGPT plugins (formerly the Apps SDK) monetization guide (read 2026-10-20), with ACP 2026-04-17" },
-  "sources": ["src-openai-apps-monetization", "src-openai-product-discovery", "src-openai-acp-openapi-feed-20260417", "src-openai-acp-rfc-delegate-payment"]
+  "title": "From ChatGPT discovery to merchant checkout: actors, paths and protocol boundaries (as of 2026-11-14)",
+  "caption": "All three paths share discovery: the merchant's product feed and business profile reach ChatGPT through Business Hub. Path A, solid lines, live in a limited rollout since 2026-11-13: the shopper's dot uses its cloud browser, which signs certain requests with Web Bot Auth that the merchant's edge verifies against chatgpt.com's key directory; after the shopper approves, the card network provides a ChatGPT Wallet payment token that goes into the existing payment form, and the merchant's PSP authorizes it. Path B, thick lines: a headless plugin returns a continue_url so checkout continues on the merchant's site. Path C, dashed lines, a beta for select marketplace partners: the ChatGPT payment sheet, which OpenAI's plugin guidelines call Instant Checkout; only PCI DSS Level 1 merchants that want raw card data implement ACP Delegate Payment. OpenAI does not present Wallet as ACP.",
+  "alt": "Flowchart. The merchant's catalog and business profile send a product feed and profile to ChatGPT through Business Hub, and the shopper asks ChatGPT and approves each purchase. Path A: the shopper's dot, a cloud browser inside OpenAI, sends requests signed with Web Bot Auth, with Forwarded signals, to the merchant's CDN or firewall, which looks up the key in the key directory at chatgpt.com and passes the verified visit and form posts to the existing website checkout. A card network token service for American Express, Mastercard or Visa sends a payment token to ChatGPT after the shopper's approval, ChatGPT passes the token to the dot for the payment form, and the website checkout authorizes it through the merchant's PSP, risk provider and card rails. Path B, drawn thick: ChatGPT calls the merchant's headless MCP plugin, which returns a continue_url so checkout continues on the website. Path C, drawn dashed: the plugin widget calls requestCheckout to open the ChatGPT payment sheet, a separate node inside OpenAI labeled as Instant Checkout in the plugin guidelines and a beta for select marketplaces; for PCI DSS Level 1 merchants only, the sheet's flow calls the merchant's Delegate Payment vault, which is ACP; the sheet's flow then sends a complete_checkout tool call with a payment-method token to the plugin, and the plugin charges it through the PSP.",
+  "sourceOfTruth": { "url": "https://developers.openai.com/commerce/guides/overview", "label": "OpenAI Commerce in ChatGPT partner playbook (read 2026-11-14), with the plugin checkout reference and ACP 2026-04-17" },
+  "sources": [
+    "src-openai-commerce-playbook",
+    "src-openai-commerce-product-feeds",
+    "src-openai-commerce-agent-access",
+    "src-scn-chatgpt-key-directory",
+    "src-openai-commerce-accept-payments",
+    "src-openai-chatgpt-wallet",
+    "src-openai-commerce-build-plugin",
+    "src-scn-chatgpt-plugin-guidelines",
+    "src-openai-apps-monetization",
+    "src-openai-acp-rfc-delegate-payment"
+  ]
 }

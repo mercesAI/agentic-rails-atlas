@@ -820,13 +820,13 @@
     },
     {
       "id": "clm-erc-8004-083",
-      "text": "The Validation Registry is not officially deployed: the contracts README lists no Validation Registry address on any chain.",
+      "text": "The Validation Registry is not officially deployed: the ERC-8004 contracts README lists no Validation Registry address on any chain, and the maintainers have announced none.",
       "sources": [
         "src-erc-8004-contracts-readme"
       ],
       "confidence": "verified",
       "topic": "identity",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-erc-8004-084",
@@ -849,14 +849,15 @@
     },
     {
       "id": "clm-erc-8004-086",
-      "text": "A contract at the scripted Validation address 0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58 answered with version 2.0.0 on Ethereum and Base on 2026-10-11, but it is not listed or announced as deployed.",
+      "text": "A contract at the scripted Validation address 0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58 answered with version 2.0.0 on Ethereum and Base on 2026-10-11. The ERC-8004 maintainers have not listed or announced it, but Circle's Arc documentation lists the same address as Arc Mainnet's ValidationRegistry (seen in a 2026-10-12 capture, read 2026-11-14).",
       "sources": [
         "src-erc-8004-addresses-ts",
-        "src-erc-8004-onchain-probe"
+        "src-erc-8004-onchain-probe",
+        "src-erc-8004-arc-contract-addresses"
       ],
       "confidence": "verified",
       "topic": "observability",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-erc-8004-087",
@@ -1343,13 +1344,13 @@
     },
     {
       "id": "clm-erc-8004-136",
-      "text": "ERC-8217 \"Agent NFT Identity Bindings\" is Draft, created 2026-04-05, and binds an ERC-8004 agent to an external NFT through a metadata key.",
+      "text": "ERC-8217 \"Agent NFT Identity Bindings\" is Draft, created 2026-04-05. Since its rewrite of 2026-10-29 it requires ERC-7930 and ERC-8004 and binds an ERC-8004 agent to an external token, account or contract (an NFT is the common case) through a metadata key, and bindingHashOf returns a 32-byte Universal Binding Identifier (UBID) for each binding.",
       "sources": [
         "src-erc-8217"
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-erc-8004-137",
@@ -1433,23 +1434,25 @@
     },
     {
       "id": "clm-erc-8004-145",
-      "text": "8004scan reported 561,576 or more registered agents on 2026-10-11.",
+      "text": "8004scan's statistics API (mainnet view) reported 2,062,896 registered agents on 2026-11-14, about three times the 699,098 it reported on 2026-10-18; its home page had shown 561,576 or more on 2026-10-11. Its daily series counts 804,249 new agents from 2026-10-20 to 2026-10-23 (422,718 on 2026-10-23 alone) and 434,556 from 2026-11-01 to 2026-11-06.",
       "sources": [
+        "src-8004scan-stats-api",
         "src-8004scan"
       ],
       "confidence": "reported",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-erc-8004-146",
-      "text": "8004scan reported 682,170 or more feedback entries and 496,805 or more unique wallets on 2026-10-11.",
+      "text": "8004scan's statistics API (mainnet view) reported 885,869 feedback entries and 3,341,787 users, which its home page labels unique wallets, on 2026-11-14, so wallets outnumbered agents about 1.6 to 1. On 2026-10-18 it had reported 720,771 and 755,027, and on 2026-10-11 its home page had shown 682,170 or more and 496,805 or more.",
       "sources": [
+        "src-8004scan-stats-api",
         "src-8004scan"
       ],
       "confidence": "reported",
       "topic": "metrics",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-14"
     },
     {
       "id": "clm-erc-8004-147",
@@ -1858,6 +1861,49 @@
       ],
       "confidence": "verified",
       "topic": "criticism"
+    },
+    {
+      "id": "clm-erc-8004-234",
+      "text": "Read-only calls on 2026-11-14 show two batch waves: the highest Base agentId rose from 243,865 (2026-10-19) to 1,122,121 (2026-10-24), and the highest Arc agentId from 2,913 (2026-11-01) to 404,662 (2026-11-07). Random samples from both ranges and the newest 100 ids on each of the two chains all point their agentURI to centralcity.ai, and those newest 100 ids each have a different owner address; the first Central City id found on Base is 99,508, registered on 2026-10-11.",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-11-14"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-erc-8004-235",
+      "text": "Central City, an agent registration platform, claims 1,478,269 ERC-8004 agents on Base, Arc and Optimism on its home page (vendor claim, read 2026-11-14).",
+      "sources": [
+        "src-erc-8004-centralcity"
+      ],
+      "confidence": "reported",
+      "topic": "ecosystem",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-erc-8004-236",
+      "text": "8004scan does not index 0G, a mainnet in the contracts README, where the Identity Registry's highest agentId was 3,941,206 on 2026-11-14, up from 251,776 on 2026-07-01; a random sample of 30 ids points to one platform's metadata host (metadata.evoevo.ai). Added to 8004scan's count, that makes more than 6 million registrations.",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-11-14",
+        "src-8004scan-stats-api",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-erc-8004-237",
+      "text": "On 2026-11-14 8004scan counted 1,091,461 agents on Base, 417,063 on Arc Mainnet, 386,606 on BSC and 36,730 on Ethereum. Arc Mainnet is not in the contracts README, where a pull request to add its addresses (#100, opened 2026-09-22) was still open.",
+      "sources": [
+        "src-8004scan-stats-api",
+        "src-erc-8004-contracts-pr-100"
+      ],
+      "confidence": "reported",
+      "topic": "metrics",
+      "asOf": "2026-11-14"
     }
   ]
 }

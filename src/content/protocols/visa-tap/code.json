@@ -2,31 +2,33 @@
   "protocol": "visa-tap",
   "snippets": [
     {
-      "title": "Sign requests with a TAP attestation (agent)",
-      "sdk": "mppx (mppx/attestation/tap)",
-      "version": "0.14.1",
+      "title": "Sign requests with a TAP identity prover (agent)",
+      "sdk": "mppx (mppx/extensions/identity/tap)",
+      "version": "0.19.0",
       "language": "typescript",
       "side": "client",
-      "code": "import * as Tap from 'mppx/attestation/tap'\nimport { Mppx, tempo } from 'mppx/client'\nimport type { Account } from 'viem'\n\ndeclare const account: Account\ndeclare const agentPrivateKey: CryptoKey\n\nconst client = Mppx.create({\n  attestation: {\n    tap: Tap.Client.signer({\n      intent: 'payment',\n      key: agentPrivateKey,\n      keyId: 'agent-provider-key-1',\n    }),\n  },\n  methods: [tempo({ account })],\n  polyfill: false,\n})\n\nconst response = await client.fetch('https://merchant.example/checkout')",
-      "docsUrl": "https://mpp.dev/advanced/identity",
-      "note": "From the MPP identity docs (MIT). Intent payment maps to the tag agent-payer-auth and browse to agent-browser-auth; the signer uses an 8-minute lifetime by default. Visa publishes no TAP SDK of its own; the visa/trusted-agent-protocol sample is under Visa's Product Terms and is not reproduced here.",
+      "code": "import { Mppx, tempo } from 'mppx/client'\nimport * as Tap from 'mppx/extensions/identity/tap'\nimport type { Account } from 'viem'\n\ndeclare const account: Account\ndeclare const agentKeys: CryptoKeyPair\n\nconst client = Mppx.create({\n  identity: [\n    Tap.Client.prover({\n      intent: 'payment',\n      key: agentKeys,\n      keyId: 'agent-provider-key-1',\n      scope: ['https://merchant.example'],\n    }),\n  ],\n  methods: [tempo({ account })],\n  polyfill: false,\n})\n\nconst response = await client.fetch('https://merchant.example/checkout')",
+      "docsUrl": "https://mpp.dev/extensions/identity",
+      "note": "Follows the mppx source and CHANGELOG at 9405660 (0.19.0, MIT). Since 0.19.0 the prover takes a key pair (or a remote Signer) and rejects a private key alone; the mpp.dev page, read 2026-11-14, still shows the earlier private-key form. Intent payment maps to the tag agent-payer-auth and browse to agent-browser-auth; the prover signs only requests to the origins in scope and uses an 8-minute lifetime by default. Before 0.16.0 this was Mppx.create({ attestation: { tap: Tap.Client.signer(...) } }) from mppx/attestation/tap. Visa publishes no TAP SDK of its own; the visa/trusted-agent-protocol sample is under Visa's Product Terms and is not reproduced here.",
       "sources": [
-        "src-mpp-identity",
-        "src-mppx-tap"
+        "src-mppx-tap",
+        "src-visa-tap-mppx-changelog",
+        "src-visa-tap-mpp-identity-ext"
       ]
     },
     {
-      "title": "Verify TAP attestations on a server",
-      "sdk": "mppx (mppx/attestation/tap)",
-      "version": "0.14.1",
+      "title": "Require a TAP signature on a paid route (server)",
+      "sdk": "mppx (mppx/extensions/identity/tap)",
+      "version": "0.19.0",
       "language": "typescript",
       "side": "server",
-      "code": "import * as Tap from 'mppx/attestation/tap'\nimport { Mppx, Store, tempo } from 'mppx/server'\n\ndeclare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>\n\nconst payment = Mppx.create({\n  attestation: {\n    tap: Tap.Server.verifier({\n      keyResolver({ keyId }) {\n        return trustedAgentKeys.get(keyId)\n      },\n      nonceStore: Store.memory(),\n    }),\n  },\n  methods: [tempo.charge()],\n})\n\nexport const handler = payment.charge({ amount: '12.50' })",
-      "docsUrl": "https://mpp.dev/advanced/identity",
-      "note": "From the MPP identity docs. The verifier checks signature, authority and path, lifetime, tag and nonce. Resolve keyId only from agent providers you trust; Store.memory() fits a single process only.",
+      "code": "import * as Tap from 'mppx/extensions/identity/tap'\nimport { Mppx, Store, tempo } from 'mppx/server'\n\ndeclare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>\n\nconst tap = Tap.Server.verifier({\n  keyResolver({ keyId }) {\n    return trustedAgentKeys.get(keyId)\n  },\n  nonceStore: Store.memory(),\n})\n\nconst payment = Mppx.create({ methods: [tempo.charge({ testnet: true })] })\nconst charge = payment.charge({ amount: '12.50', identity: [tap] })\n\nexport async function handler(request: Request) {\n  const result = await charge(request)\n  if (result.status === 402) return result.challenge\n\n  console.log(result.identity?.get(tap)?.intent)\n  return result.withReceipt(new Response('Accepted'))\n}",
+      "docsUrl": "https://mpp.dev/extensions/identity",
+      "note": "From the MPP identity docs at d062df6, unchanged for the server in 0.19.0. The verifier runs before any payment Challenge and checks signature, authority and path, lifetime, tag and nonce; since 0.18.0 a missing or invalid signature gets 401 and an untrusted or unresolvable key 403. Resolve keyId only from agent providers you trust. Store.memory() fits a single process only: use a shared atomic store across instances, and since 0.18.0 tempo.charge() throws at construction in production on multi-instance platforms or Cloudflare Workers unless you pass a store.",
       "sources": [
-        "src-mpp-identity",
-        "src-mppx-tap"
+        "src-visa-tap-mpp-identity-ext",
+        "src-mppx-tap",
+        "src-visa-tap-mppx-changelog"
       ]
     }
   ],

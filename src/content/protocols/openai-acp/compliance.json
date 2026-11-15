@@ -1,14 +1,15 @@
 {
   "protocol": "openai-acp",
   "notLegalAdvice": true,
-  "summary": "ACP keeps the regulated roles where they already are: the merchant is merchant of record and system of record for orders, payments, taxes and compliance, and the PSP handles card data. That makes card rules, PCI DSS, strong customer authentication and consumer-protection law apply much as they do to any card-not-present sale. The open questions are about the agent. Does a buyer confirmation in an AI interface count as consent for liability rules, how do AI transparency rules apply to the surface, and how much buyer data does the agent pass on? Rows are dated; check each source before you rely on it.",
+  "summary": "ACP keeps the regulated roles where they already are: the merchant is merchant of record and system of record for orders, payments, taxes and compliance, and the PSP handles card data. That makes card rules, PCI DSS, strong customer authentication and consumer-protection law apply much as they do to any card-not-present sale. The open questions are about the agent. Does a buyer confirmation in an AI interface count as consent for liability rules, how do AI transparency rules apply to the surface, and how much buyer data does the agent pass on? ChatGPT Wallet and ChatGPT's cloud browser add rules of their own outside the ACP spec, and the rows that describe them say so. Rows are dated; check each source before you rely on it.",
   "rows": [
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "The merchant is merchant of record and handles refunds and chargebacks. For card purchases, Regulation Z limits unauthorized use to use without actual, implied or apparent authority, capped at the lesser of $50 or the amount before notice. Whether an agent acting outside the buyer's intent has apparent authority is untested.",
+      "text": "The merchant is merchant of record and handles refunds and chargebacks, as OpenAI's ACP docs said until 2026-11-13; for ChatGPT Wallet purchases OpenAI says the business handles the order, support and fraud decisions (2026-11-14). For card purchases, Regulation Z limits unauthorized use to use without actual, implied or apparent authority, capped at the lesser of $50 or the amount before notice. Whether an agent acting outside the buyer's intent has apparent authority is untested.",
       "sources": [
         "src-openai-commerce-docs",
+        "src-openai-commerce-accept-payments",
         "src-policy-regz-1026-12"
       ],
       "confidence": "verified"
@@ -25,9 +26,11 @@
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "In Amazon v. Perplexity (Ninth Circuit, 2026-08-04) the court vacated an injunction against an agentic browser, reasoning on its record that the user, not the agent vendor, accesses the site. The holding is limited to that record.",
+      "text": "In Amazon v. Perplexity (Ninth Circuit, 2026-08-04) the court vacated an injunction against an agentic browser, reasoning on its record that the user, not the agent vendor, accesses the site. The holding is limited to that record. Rehearing en banc was denied on 2026-09-10 and the mandate issued on 2026-09-18. Amazon's amended complaint (2026-09-21) adds a claim of tortious interference with contract based on its Agent Terms, and Perplexity's motion to dismiss is set for hearing on 2026-11-20 (docket read 2026-11-14).",
       "sources": [
-        "src-policy-ca9-opinion"
+        "src-policy-ca9-opinion",
+        "src-openai-acp-ca9-docket",
+        "src-openai-acp-ndcal-docket"
       ],
       "confidence": "verified"
     },
@@ -55,9 +58,10 @@
     {
       "jurisdiction": "US",
       "topic": "ai-rules",
-      "text": "As of 2026-10-20 a Federal Register search of CFPB documents since 2025-01-01 for 'artificial intelligence' and agent returned no rule or proposal specific to AI shopping agents. The search covers CFPB documents only, and a full-text search can miss other wording.",
+      "text": "As of 2026-10-20 a Federal Register search of CFPB documents since 2025-01-01 for 'artificial intelligence' and agent returned no rule or proposal specific to AI shopping agents. The search covers CFPB documents only, and a full-text search can miss other wording. On 2026-11-04 the OCC issued an examiner framework on banks' use of super intelligence, the term federal agencies use for AI under Executive Order 14434, that puts a fully autonomous, customer-facing payment agent in Tier 1 (critical); it says it sets no supervisory expectations for banks.",
       "sources": [
-        "src-policy-fr-cfpb-ai-search"
+        "src-policy-fr-cfpb-ai-search",
+        "src-openai-acp-occ-si-framework"
       ],
       "confidence": "verified"
     },
@@ -105,13 +109,14 @@
     {
       "jurisdiction": "EU",
       "topic": "liability",
-      "text": "PSD3 and the Payment Services Regulation reached provisional agreement on 2025-11-27; as of 2026-10-19 the Legislative Observatory listed both files as awaiting the Council's first-reading position, with no Official Journal publication. Readiness guides report no agent-specific provisions.",
+      "text": "PSD3 and the Payment Services Regulation reached provisional agreement on 2025-11-27, and the Council adopted its first-reading positions on both on 2026-10-29. As of 2026-11-14 they await the European Parliament's second reading (indicative plenary 2026-12-14) and are not in the Official Journal. The Council texts contain no AI-agent provision. The PSR text's recitals have a pass-through wallet operator that verifies strong customer authentication work under an outsourcing agreement with the payer's PSP, which keeps full liability for the operator's failures to apply it (recital 170), and make technical service providers and payment scheme operators liable, up to the transaction amount, for failing to support strong customer authentication (recitals 16 and 171).",
       "sources": [
-        "src-reg-ep-psr-train",
+        "src-openai-acp-council-psr",
+        "src-openai-acp-council-psd3",
         "src-policy-oeil-psr",
-        "src-policy-obt-psd3"
+        "src-reg-ep-psr-train"
       ],
-      "confidence": "reported"
+      "confidence": "verified"
     },
     {
       "jurisdiction": "UK",
@@ -202,10 +207,11 @@
     {
       "jurisdiction": "card-networks",
       "topic": "liability",
-      "text": "Visa calls none of its agent rules a liability shift and adds no agent-specific dispute condition or fee; its April 2026 US interchange schedule has no agentic category. It does require issuers to pay for Agentic Transactions made under a cardholder's payment instructions and not to block them wholesale. From 2026-10-24 it also accepts an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Worldpay said on 2026-07-30 that no liability shift exists yet. ACP card payments otherwise follow existing card rules.",
+      "text": "Visa calls none of its agent rules a liability shift and adds no agent-specific dispute condition or fee; its US interchange schedule dated 2026-10-24, like the April 2026 one, has no agentic category. It does require issuers to pay for Agentic Transactions made under a cardholder's payment instructions and not to block them wholesale. From 2026-10-24 it also accepts an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Worldpay said on 2026-07-30 that no liability shift exists yet. ACP card payments otherwise follow existing card rules.",
       "sources": [
         "src-visa-rules-public",
         "src-visa-us-irf-2026-04",
+        "src-openai-acp-visa-irf-202610",
         "src-worldpay-liability",
         "src-nevermined-vic"
       ],
@@ -224,9 +230,20 @@
     {
       "jurisdiction": "card-networks",
       "topic": "sca",
-      "text": "PCI DSS: OpenAI reserves direct Delegate Payment integration for PSPs and PCI DSS Level 1 merchants and may require an attestation of compliance; feed and checkout specs carry no cardholder data.",
+      "text": "PCI DSS: OpenAI's plugin Checkout API reference lets PCI DSS Level 1 merchants receive raw card data through the ACP Delegate Payment endpoint (2026-11-14). Until the 2026-11-13 rewrite, OpenAI's ACP docs also reserved direct integration for PSPs and Level 1 merchants, said OpenAI may require an attestation of compliance, and said the feed and checkout specs carry no cardholder data.",
       "sources": [
+        "src-openai-apps-monetization",
         "src-openai-commerce-docs"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "card-networks",
+      "topic": "sca",
+      "text": "ChatGPT Wallet, outside the ACP spec: the user approves each purchase with a security check such as Face ID, the customer consents only to that transaction, and the merchant must not reuse or save the network token for another purchase. Recurring charges need the customer's consent and follow the processor's practice for merchant-initiated transactions (2026-11-14).",
+      "sources": [
+        "src-openai-chatgpt-wallet",
+        "src-openai-commerce-accept-payments"
       ],
       "confidence": "verified"
     },
@@ -243,10 +260,41 @@
     {
       "jurisdiction": "US",
       "topic": "ai-rules",
-      "text": "OpenAI's commerce policy excludes products such as adult content, alcohol, nicotine, gambling, weapons and prescription-only medicines from ChatGPT shopping; ACP itself has age_verification_required and region_restricted message codes.",
+      "text": "OpenAI's plugin guidelines bar plugins from selling goods such as adult content, gambling, illegal or regulated drugs, prescription and age-restricted medications, tobacco and nicotine, and weapons; the list covers plugins and does not name alcohol (2026-11-14). OpenAI's ACP docs, as read on 2026-10-11, also listed alcohol among products excluded from ChatGPT shopping. ACP itself has age_verification_required and region_restricted message codes.",
       "sources": [
+        "src-openai-acp-plugin-guidelines",
         "src-openai-commerce-docs",
         "src-openai-acp-schema-checkout-20260417"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "liability",
+      "text": "ChatGPT Wallet, outside the ACP spec: OpenAI says users keep their card's protections for eligible disputes, that the business handles the order, fulfillment, customer support and fraud decisions, and that customers bear final responsibility for the actions they take. The last statement is OpenAI's position in its merchant FAQ, not a liability rule (2026-11-14).",
+      "sources": [
+        "src-openai-chatgpt-wallet",
+        "src-openai-commerce-accept-payments",
+        "src-openai-commerce-agent-access"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "data-protection",
+      "text": "ChatGPT's cloud browser, outside the ACP spec, is rolling out user signals in the Forwarded header for the sites it visits: an IP address or masked prefix, network number, country, locale, time zone and browser name. Merchants that ingest them process the user's personal data, and six of the seven parameters are not registered with IANA (2026-11-14).",
+      "sources": [
+        "src-openai-commerce-accept-payments",
+        "src-openai-acp-iana-forwarded"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "UK",
+      "topic": "ai-rules",
+      "text": "On 2026-10-30 the members of the Digital Regulation Cooperation Forum (CMA, FCA, ICO and Ofcom) published a joint statement on protecting people and businesses in an agentic economy. The CMA's guidance on using AI agents, updated that day, says a business is responsible for what its AI agent does, as for an employee, even when someone else built or provides the agent, under the DMCC Act 2024 and consumer contract law. It is guidance, not a new rule.",
+      "sources": [
+        "src-openai-acp-cma-ai-agents"
       ],
       "confidence": "verified"
     }

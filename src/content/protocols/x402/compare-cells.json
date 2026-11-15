@@ -73,8 +73,8 @@
     {
       "protocol": "x402",
       "dimension": "latest-version-and-date",
-      "value": "Spec v2.0 (2025-12-09); @x402/core 2.28.0 (2026-09-29)",
-      "detail": "V2 launched 2025-12-11.",
+      "value": "Spec v2.0 (2025-12-09); @x402/core 2.31.0 (2026-11-12)",
+      "detail": "V2 launched 2025-12-11; the specification version has not changed since, while the SDKs release about weekly (as of 2026-11-14).",
       "sources": [
         "src-x402-spec-v2",
         "src-x402-npm-core",
@@ -367,14 +367,16 @@
     {
       "protocol": "x402",
       "dimension": "reference-implementations-and-sdks",
-      "value": "@x402 TypeScript 2.28.0, PyPI x402 2.25.0, Go module v2 (versions on 2026-10-19)",
-      "detail": "Java is in the repository but unpublished. The legacy V1 npm package x402 still had 1.91M downloads in the 30 days to 2026-10-16.",
+      "value": "@x402 TypeScript 2.31.0, PyPI x402 2.28.0, Go module v2.31.0 (versions on 2026-11-14)",
+      "detail": "Java is in the repository but unpublished. The deprecated legacy V1 npm package x402 (1.2.0, no release since 2026-04-16) still had 2.63M downloads in the 30 days to 2026-11-13, and its middleware had an open paywall bypass.",
       "sources": [
         "src-x402-npm-core",
         "src-x402-pypi",
-        "src-x402-go-changelog",
+        "src-x402-goproxy",
         "src-x402-java",
-        "src-x402-npm-downloads-legacy"
+        "src-x402-npm-downloads-legacy",
+        "src-x402-npm-legacy",
+        "src-x402-gh-issue-3850"
       ],
       "confidence": "verified"
     },
@@ -382,11 +384,13 @@
       "protocol": "x402",
       "dimension": "adoption-evidence",
       "value": "Real but contested",
-      "detail": "x402.org has shown the same Last 30 days figures (75.41M transactions, $24.24M) since at least 2025-12-14, with no update date; x402scan counted $1.23M in the 30 days to 2026-10-19. Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21).",
+      "detail": "Trackers disagree, each by its own method: x402scan counted about $1.89M and 4.93M transactions in the 30 days to 2026-11-14, while agenteconomy.to counted about 200.2M cumulative transactions and $43.0M (2026-11-14). Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21). The x402.org counter, unchanged at 75.41M transactions and $24.24M from 2025-12-14 to 2026-10-24, was removed by 2026-11-14.",
       "sources": [
+        "src-x402scan-stats-20261114",
+        "src-x402-agenteconomy-stats",
         "src-x402-site",
         "src-x402-site-wb-20251214",
-        "src-x402scan-stats-20261019",
+        "src-x402-site-wb-20261024",
         "src-x402-visa-artemis-report",
         "src-x402-arxiv-2607-12575"
       ],
@@ -395,8 +399,8 @@
     {
       "protocol": "x402",
       "dimension": "published-security-research",
-      "value": "Yes: six 2026 papers and two high-severity advisories (no CVE ids on 2026-10-19)",
-      "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis; GHSA-3j63-5h8p-gf7c and GHSA-qr2g-p6q7-w82m.",
+      "value": "Yes: six 2026 papers, a 25-finding industry review (V12, 2026-10-22), two high-severity maintainer advisories and one CVE (CVE-2026-113603, medium, 2026-10-20)",
+      "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis; GHSA-3j63-5h8p-gf7c and GHSA-qr2g-p6q7-w82m have no CVE id, while CVE-2026-113603 came from a third-party CNA for a sign-in-with-x bypass whose fix was unmerged on 2026-11-14.",
       "sources": [
         "src-x402-arxiv-2605-11781",
         "src-x402-arxiv-2605-30998",
@@ -405,7 +409,10 @@
         "src-x402-arxiv-2604-11430",
         "src-x402-arxiv-2609-00060",
         "src-x402-ghsa-2025",
-        "src-x402-ghsa-2026"
+        "src-x402-ghsa-2026",
+        "src-x402-v12-25-vulns",
+        "src-x402-cve-2026-113603",
+        "src-x402-gh-pr-3840"
       ],
       "confidence": "verified"
     },

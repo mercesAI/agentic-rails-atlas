@@ -48,7 +48,7 @@
       "to": "merchant",
       "label": "POST /checkout-sessions with UCP-Agent",
       "protocol": "ucp",
-      "detail": "Gemini creates a checkout with line_items and its own profile URI in the UCP-Agent header; Google says its requests also carry a User-Agent beginning with Google/UCP. Idempotency-Key is required on state-changing calls. If the capability intersection includes the AP2 extension, the session is locked: neither side may fall back to an unprotected checkout.",
+      "detail": "Gemini creates a checkout with line_items and its own profile URI in the UCP-Agent header; Google says its checkout requests carry the User-Agent Google-Shopping-Merchant-Integration by default (Google/UCP* when origin user-agent propagation is enabled) and are signed with ES256 RFC 9421 keys published at ucp.goog. Idempotency-Key is required on state-changing calls. If the capability intersection includes the AP2 extension, the session is locked: neither side may fall back to an unprotected checkout.",
       "payload": {
         "format": "http",
         "content": "# Illustrative example, spec version 2026-08-25.\nPOST /ucp/checkout-sessions HTTP/1.1\nHost: shoes.example\nUCP-Agent: profile=\"https://platform.example/ucp-profile\"\nIdempotency-Key: 550e8400-e29b-41d4-a716-446655440000\nRequest-Id: 7f1c...\nContent-Type: application/json\n\n{ \"line_items\": [ { \"item\": { \"id\": \"trail_runner_m10\" }, \"quantity\": 1 } ] }",
@@ -57,7 +57,7 @@
       "crossesTrustBoundary": true,
       "specRef": { "url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/cd78fb38e819de77d9b527d110476eccb876f1bd/docs/specification/shopping/checkout/rest.md", "section": "Create Checkout" },
       "controlPoint": "At the edge: the merchant verifies the platform's identity (signature, API key, OAuth or mTLS) and that it may act for the profile named in UCP-Agent; rate limits and SSRF guards on profile fetches.",
-      "observable": "Private to the two parties; the merchant can recognize Google traffic by UCP-Agent and the Google/UCP User-Agent."
+      "observable": "Private to the two parties; the merchant can recognize Google traffic by UCP-Agent and the Google-Shopping-Merchant-Integration User-Agent, and authenticate it by Google's RFC 9421 signature, mutual TLS or source ASN rather than by those headers."
     },
     {
       "n": 4,
@@ -229,6 +229,7 @@
     "src-ucp-signatures",
     "src-ucp-pr-659",
     "src-ucp-google-faq",
+    "src-ucp-google-network-waf",
     "src-ap2-spec-v02",
     "src-ap2-flows",
     "src-ap2-checkout-mandate-doc",

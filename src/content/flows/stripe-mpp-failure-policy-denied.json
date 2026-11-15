@@ -2,7 +2,7 @@
   "id": "stripe-mpp-failure-policy-denied",
   "protocol": "stripe-mpp",
   "title": "MPP alternative path: paid, but policy denies access (403)",
-  "summary": "The payment is valid but the server will not serve the request, for example because the account is blocked. The server returns 403 with no new challenge, which tells the client that paying again will not help.",
+  "summary": "The payment is valid but the server will not serve the request, for example because the account is blocked. The server returns 403 with no new challenge, which tells the client that paying again will not help. This is the only 403 case in the -01 posted on 2026-09-09; the repository text of 2026-11-11 adds a second one, other authentication denied with nothing settled, and asks servers to say which case applies in the Problem Details body.",
   "specVersion": "draft-httpauth-payment-01",
   "specVersionDate": "2026-09-09",
   "actors": [
@@ -46,7 +46,7 @@
       "from": "server",
       "to": "client",
       "label": "403 Forbidden, no challenge",
-      "detail": "In the core draft, status 403 means the payment was valid but access is denied. Unlike 402 it carries no challenge, so a client must not retry with a new payment. Whether the money is returned is method and merchant policy, not core protocol.",
+      "detail": "In the core draft, status 403 here means the payment was valid but access is denied. Unlike 402 it carries no challenge, so a client must not retry with a new payment. Whether the money is returned is method and merchant policy, not core protocol. Since 2026-11-11 the repository text also uses 403 when other authentication denies access before anything settles, so servers should state in the Problem Details body which case applies, and a client should resend its credential only when the body says nothing settled.",
       "payload": {
         "format": "http",
         "content": "HTTP/1.1 403 Forbidden\nCache-Control: no-store\n\n# Illustrative example, spec version draft-httpauth-payment-01",
@@ -66,6 +66,8 @@
     }
   ],
   "sources": [
-    "src-stripe-mpp-core-01"
+    "src-stripe-mpp-core-01",
+    "src-stripe-mpp-ietf-01-text",
+    "src-stripe-mpp-core-01-7bb99c8"
   ]
 }

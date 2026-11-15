@@ -1,7 +1,7 @@
 ---
 protocol: visa-tap
 title: Visa Trusted Agent Protocol in Simplified Technical English
-lastVerified: "2026-10-19"
+lastVerified: "2026-11-14"
 ---
 
 <SteDescription>
@@ -40,17 +40,19 @@ KEEP A RECORD OF THE NONCES OF THE LAST 8 MINUTES. IF YOU DO NOT KEEP THIS RECOR
 
 <SteProcedure title="Accept a TAP checkout (merchant)">
 
-1. Verify the header signature. Make sure that the tag is `agent-payer-auth`.
-2. Read the `agenticConsumer` object and the `agenticPaymentContainer` object from the request body.
-3. Make sure that each object has the minimum fields.
-4. Make sure that the nonce in each object is the same as the nonce in the header.
-5. Get the public key for the `kid` value of each object.
-6. Verify the signature of each object.
-7. If the payment container is not valid, do not use it for the payment.
-8. If the agent types the card data, make a hash of that data and compare the two hashes.
-9. If the hashes are different, decline the transaction.
-10. If the payment comes through an API, decrypt the payload with your private key.
-11. Send the payment to your acquirer.
+1. If you get payments through an API, register your public encryption key with Visa in VMRS.
+2. Activate the key in VMRS before the first payment.
+3. Verify the header signature. Make sure that the tag is `agent-payer-auth`.
+4. Read the `agenticConsumer` object and the `agenticPaymentContainer` object from the request body.
+5. Make sure that each object has the minimum fields.
+6. Make sure that the nonce in each object is the same as the nonce in the header.
+7. Get the public key for the `kid` value of each object.
+8. Verify the signature of each object.
+9. If the payment container is not valid, do not use it for the payment.
+10. If the agent types the card data, make a hash of that data and compare the two hashes.
+11. If the hashes are different, decline the transaction.
+12. If the payment comes through an API, decrypt the payload with your private key.
+13. Send the payment to your acquirer.
 
 </SteProcedure>
 
@@ -99,6 +101,7 @@ TAP does not give a liability rule for agent payments. Since 2025-10-18, the Vis
 - **signature base**: The exact text that the agent signs and that the verifier makes again.
 - **consumer recognition object**: The signed body object that helps the merchant to identify a known customer.
 - **payment container**: The signed body object that contains the payment data.
+- **VMRS**: The Visa API where a merchant registers its public encryption keys (`Visa Merchant Registry Service`).
 - **browsing IOU**: A signed promise to pay that the agent sends after the merchant sends status 402.
 - **Site Protection Provider**: A CDN or proxy in front of the merchant site. It can verify signatures for the merchant.
 - **verify (TV)**: To make sure that a signature is correct with the public key.

@@ -4,8 +4,11 @@ name: A2A (Agent2Agent)
 category: agent-communication
 starred: true
 oneLiner: An open protocol for agents to find each other through Agent Cards and hand off tasks over JSON-RPC, gRPC or HTTP bindings.
-steward: A2A Project at the Linux Foundation
-status: Live
+steward: Agentic AI Foundation (AAIF), a Linux Foundation directed fund; A2A is a hosted project there since 2026-08-17, after starting at Google (2025-04-09) and moving to the Linux Foundation (2025-06-23)
+status: Live (latest release v1.0.1; v1.1.0-rc tagged 2026-10-29, not released)
+latestVersion:
+  label: v1.0.1
+  date: "2026-05-28"
 relations:
   - to: ap2
     type: complements
@@ -21,6 +24,15 @@ relations:
     note: ERC-8004 registration files can point to an A2A agent card, and feedback can reference A2A skills, contextId and taskId.
 sources:
   - src-gloss-a2a-spec
+  - src-orbit-a2a-aaif-blog
+  - src-orbit-a2a-growth-stage-post
+  - src-orbit-aaif-projects
+  - src-orbit-a2a-governance
+  - src-orbit-a2a-releases
+  - src-orbit-a2a-v1-1-rc
+  - src-orbit-a2a-google-announce
+  - src-orbit-a2a-lf-press
+  - src-gloss-aaif-lf
   - src-stripe-mpp-discovery
   - src-stripe-mpp-specs-repo
   - src-ibm-acp-a2a
@@ -32,7 +44,7 @@ sources:
   - src-x402-transport-a2a-v2
   - src-ucp-a2a
   - src-erc-8004-spec
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
 ## What it is
@@ -43,7 +55,9 @@ A2A is often compared with MCP: MCP connects one application to the tools and da
 
 ## Status
 
-A2A is live and published as a Linux Foundation project. <Cite ids="src-gloss-a2a-spec" /> On 2025-08-29 the LF AI and Data Foundation announced that IBM's Agent Communication Protocol (not OpenAI's ACP) was joining forces with A2A. <Cite ids="src-ibm-acp-a2a" />
+A2A is live. Google announced it on 2025-04-09, and the Linux Foundation launched it as a project on 2025-06-23. <Cite ids="src-orbit-a2a-google-announce src-orbit-a2a-lf-press" /> On 2025-08-29 the LF AI and Data Foundation announced that IBM's Agent Communication Protocol (not OpenAI's ACP) was joining forces with A2A. <Cite ids="src-ibm-acp-a2a" /> On 2026-08-17 A2A joined the Agentic AI Foundation (AAIF), the Linux Foundation directed fund that also hosts MCP, as a hosted project, and the A2A project's own post calls it a Growth Stage project there. <Cite ids="src-orbit-a2a-aaif-blog src-orbit-a2a-growth-stage-post src-gloss-aaif-lf" /> AAIF listed ten projects on 2026-11-14, none of them one of the eight payment protocols. <Cite ids="src-orbit-aaif-projects" /> On 2026-11-14 A2A's technical steering committee had nine seats; Bloomberg was added to it on 2026-10-20. <Cite ids="src-orbit-a2a-governance" />
+
+The latest release is still v1.0.1 (2026-05-28), and the published specification page still names 1.0.0 as the latest released version. <Cite ids="src-orbit-a2a-releases src-gloss-a2a-spec" /> A `v1.1.0-rc` tag of 2026-10-29 on the version 1.1 development branch has no GitHub release. Its text adds a live, bidirectional message channel (`SendLiveMessage`) and a task timeline whose generation counter lets a client send a follow-up only if the task has not changed (`ifGenerationMatch`). These are release candidate features, not part of a released version (as of 2026-11-14). <Cite ids="src-orbit-a2a-v1-1-rc" />
 
 ## How it relates to the eight
 
@@ -55,3 +69,14 @@ In the payments orbit A2A is a transport and a container for extensions.
 - [ERC-8004](/p/erc-8004/) registration files can list an `A2A` service that points to an agent card, and feedback entries can reference A2A skills, `contextId` and `taskId`. <Cite ids="src-erc-8004-spec" />
 
 No direct A2A binding was found in the cloned specs of ACP, Visa TAP or Mastercard Agent Pay. [MPP](/p/stripe-mpp/)'s specifications have none either as of 2026-10-21: its payment discovery draft names A2A agent cards only as prior art and uses an OpenAPI document for discovery instead. <Cite ids="src-stripe-mpp-discovery src-stripe-mpp-specs-repo" />
+
+## Status history
+
+- 2025-04-09: Google announces A2A. <Cite ids="src-orbit-a2a-google-announce" />
+- 2025-06-23: the Linux Foundation launches the A2A project. <Cite ids="src-orbit-a2a-lf-press" />
+- 2025-08-29: IBM's Agent Communication Protocol joins forces with A2A. <Cite ids="src-ibm-acp-a2a" />
+- 2026-03-12: v1.0.0, a breaking release. <Cite ids="src-orbit-a2a-releases" />
+- 2026-05-28: v1.0.1. <Cite ids="src-orbit-a2a-releases" />
+- 2026-08-17: A2A becomes a hosted project of the Agentic AI Foundation. <Cite ids="src-orbit-a2a-aaif-blog" />
+- 2026-10-20: Bloomberg joins the technical steering committee. <Cite ids="src-orbit-a2a-governance" />
+- 2026-10-29: `v1.1.0-rc` tagged, with no release. <Cite ids="src-orbit-a2a-v1-1-rc" />

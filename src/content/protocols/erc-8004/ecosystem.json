@@ -38,12 +38,13 @@
     },
     {
       "name": "Validation Registry",
-      "role": "Specified, not officially deployed: the contracts README lists no address, and an unannounced proxy at the scripted address 0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58 answers with version 2.0.0 on 24 of the 25 listed mainnets and with the 1.0.0 placeholder on Soneium (read-only probe, 2026-10-18).",
+      "role": "Specified, not officially deployed by the ERC-8004 maintainers: the contracts README lists no address and they have announced none. A proxy at the scripted address 0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58 answers with version 2.0.0 on 24 of the 25 listed mainnets and with the 1.0.0 placeholder on Soneium (read-only probe, 2026-10-18), and Circle's Arc documentation lists that address as Arc Mainnet's ValidationRegistry (read 2026-11-14).",
       "status": "unknown",
       "sources": [
         "src-erc-8004-contracts-readme",
         "src-erc-8004-onchain-probe",
-        "src-erc-8004-chain-probe-2026-10-18"
+        "src-erc-8004-chain-probe-2026-10-18",
+        "src-erc-8004-arc-contract-addresses"
       ]
     },
     {
@@ -141,34 +142,36 @@
     {
       "id": "erc-8004-8004scan-agents",
       "metric": "Registered agents (8004scan)",
-      "value": 699098,
+      "value": 2062896,
       "unit": "agent ids",
-      "asOf": "2026-10-18",
-      "definition": "total_agents in 8004scan's statistics API (mainnet view): agent ids across the chains the explorer indexes, including a separate Solana registry; method not published.",
+      "asOf": "2026-11-14",
+      "definition": "total_agents in 8004scan's statistics API (mainnet view): agent ids across the chains the explorer indexes, including a separate Solana registry and excluding 0G; method not published. It was 699,098 on 2026-10-18 and 561,576 on 2026-10-11.",
       "sources": [
         "src-8004scan-stats-api",
         "src-8004scan",
-        "src-erc-8004-base-registrations-sample"
+        "src-erc-8004-chain-probe-2026-11-14",
+        "src-erc-8004-centralcity"
       ],
-      "caveat": "Count is not quality: ids cost only gas to mint and include placeholders. The count was 561,576 on 2026-10-11. On Base the highest agentId rose from about 99,891 on 2026-10-11 to 255,750 on 2026-10-19 (UTC); in a one-hour block sample that ended 2026-10-19 05:08 UTC, 2,117 of 2,123 new Base registrations pointed their agentURI to the domain centralcity.ai, from 2,119 different owner addresses. Compare with the census and arXiv:2606.26028 below.",
+      "caveat": "Count is not quality: ids cost only gas to mint and include placeholders. Almost all of the tripling since 2026-10-18 came from Central City batch registrations on Base (2026-10-20 to 2026-10-23) and the unlisted Arc Mainnet (2026-11-01 to 2026-11-06); every sampled id in both waves points to centralcity.ai, the newest 100 ids on Base and on Arc each have a different owner, and Central City claims about 1.48 million agents (vendor claim). 0G, which 8004scan does not index, holds about 3.94 million more ids, mostly from one platform by sample, so on-chain registrations exceed 6 million. Compare with the census and arXiv:2606.26028 below.",
       "disputed": true,
       "disputeSources": [
         "src-csoai-census",
-        "src-pub-2606-26028"
+        "src-pub-2606-26028",
+        "src-erc-8004-chain-probe-2026-11-14"
       ]
     },
     {
       "id": "erc-8004-8004scan-feedback",
       "metric": "Feedback entries (8004scan)",
-      "value": 720771,
+      "value": 885869,
       "unit": "entries",
-      "asOf": "2026-10-18",
+      "asOf": "2026-11-14",
       "definition": "total_feedbacks in 8004scan's statistics API (mainnet view): feedback submissions the explorer counts.",
       "sources": [
         "src-8004scan-stats-api",
         "src-8004scan"
       ],
-      "caveat": "Includes Sybil feedback; arXiv:2606.26028 found 59.2% to 90.6% of reviewers coordinated on three chains (data to 2026-05-13). The count was 682,170 on 2026-10-11.",
+      "caveat": "Includes Sybil feedback; arXiv:2606.26028 found 59.2% to 90.6% of reviewers coordinated on three chains (data to 2026-05-13). The count was 720,771 on 2026-10-18 and 682,170 on 2026-10-11, so feedback grew far more slowly than registrations.",
       "disputed": true,
       "disputeSources": [
         "src-pub-2606-26028"
@@ -177,35 +180,50 @@
     {
       "id": "erc-8004-8004scan-wallets",
       "metric": "Unique wallets (8004scan)",
-      "value": 755027,
+      "value": 3341787,
       "unit": "wallets",
-      "asOf": "2026-10-18",
+      "asOf": "2026-11-14",
       "definition": "total_users in 8004scan's statistics API, shown as Unique Wallets on its home page: distinct addresses the explorer counts; method not published.",
       "sources": [
         "src-8004scan-stats-api",
         "src-8004scan",
-        "src-erc-8004-base-registrations-sample"
+        "src-erc-8004-base-registrations-sample",
+        "src-erc-8004-chain-probe-2026-11-14"
       ],
-      "caveat": "Wallets are not people or operators. The count rose from 496,805 on 2026-10-11, about 52% in a week, and now exceeds the agent count; in the Base sample above almost every new registration came from a different owner address."
+      "caveat": "Wallets are not people or operators. The count was 496,805 on 2026-10-11 and 755,027 on 2026-10-18, and on 2026-11-14 it was about 1.6 times the agent count; the newest 100 registrations on Base and on Arc each came from a different owner address."
     },
     {
       "id": "erc-8004-networks",
       "metric": "Networks (8004scan) versus listed mainnets (README)",
       "value": "29 versus 25",
       "unit": "networks",
-      "asOf": "2026-10-18",
+      "asOf": "2026-11-14",
       "definition": "Networks on the 8004scan home page against mainnets in the official contracts README.",
       "sources": [
         "src-8004scan",
         "src-8004scan-stats-api",
         "src-erc-8004-contracts-readme",
-        "src-erc-8004-chain-probe-2026-10-18"
+        "src-erc-8004-chain-probe-2026-10-18",
+        "src-erc-8004-chain-probe-2026-11-14"
       ],
-      "caveat": "8004scan's statistics API listed 31 mainnet chains (30 with a registry; Plasma has none), including six that the README does not list (Solana, LUKSO, Shape, Gate Layer, Tempo and Arc), and it left out 0G, which the README lists. On Arc, Shape, Tempo, LUKSO and Gate Layer the same 2.0.0 registries answer under the same owner account as on Ethereum (read-only probe, 2026-10-18). The home page showed 30 networks on 2026-10-11.",
+      "caveat": "8004scan's statistics API listed 31 mainnet chains on 2026-10-18 (30 with a registry; Plasma has none), including six that the README does not list (Solana, LUKSO, Shape, Gate Layer, Tempo and Arc), and it left out 0G, which the README lists; on 2026-11-14 the home page still showed 29 networks and the API still left out 0G, whose registry held about 3.94 million ids. On Arc, Shape, Tempo, LUKSO and Gate Layer the same 2.0.0 registries answer under the same owner account as on Ethereum (read-only probe, 2026-10-18). The home page showed 30 networks on 2026-10-11.",
       "disputed": true,
       "disputeSources": [
         "src-erc-8004-contracts-readme"
       ]
+    },
+    {
+      "id": "erc-8004-0g-ids",
+      "metric": "Agent ids on 0G (on-chain read)",
+      "value": 3941206,
+      "unit": "highest agentId",
+      "asOf": "2026-11-14",
+      "definition": "Highest agentId in the Identity Registry on 0G (chain 16661, a README mainnet since 2026-06-11), found with read-only ownerOf calls on 2026-11-14; the registry has no burn, so ids up to it exist. It was 251,776 on 2026-07-01 and 3,853,858 on 2026-10-11.",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-11-14",
+        "src-erc-8004-contracts-readme"
+      ],
+      "caveat": "Not in 8004scan's count. A random sample of 30 ids points to one platform's metadata host (metadata.evoevo.ai), so this is mostly one platform's batch, not independent agents."
     },
     {
       "id": "erc-8004-census-ids",

@@ -28,7 +28,7 @@
       "Agent2Agent protocol",
       "A2A protocol"
     ],
-    "plain": "The Agent2Agent protocol, an open standard hosted at the Linux Foundation that lets independent AI agents discover each other and exchange messages and tasks. IBM's Agent Communication Protocol merged into it in August 2025. UCP and x402 define A2A bindings; AP2 v0.1 published an A2A extension, and the AP2 v0.2 samples still run over A2A. A2A is about agent messaging, while AP2 is about payment mandates.",
+    "plain": "The Agent2Agent protocol, an open standard that lets independent AI agents discover each other and exchange messages and tasks. Google created it and moved it to the Linux Foundation in 2025, and since 2026-08-17 it is a hosted project of the Agentic AI Foundation, a Linux Foundation directed fund. IBM's Agent Communication Protocol merged into it in August 2025. UCP and x402 define A2A bindings; AP2 v0.1 published an A2A extension, and the AP2 v0.2 samples still run over A2A. A2A is about agent messaging, while AP2 is about payment mandates.",
     "ste": "A2A is an open protocol for messages and tasks between AI agents. UCP, x402 and the AP2 samples can send their data over A2A.",
     "protocols": [
       "x402",
@@ -37,6 +37,7 @@
     ],
     "sources": [
       "src-gloss-a2a-spec",
+      "src-orbit-a2a-aaif-blog",
       "src-ibm-acp-a2a",
       "src-ucp-a2a",
       "src-x402-transport-a2a-v2",
@@ -50,11 +51,13 @@
     "aliases": [
       "Agentic AI Foundation"
     ],
-    "plain": "The Agentic AI Foundation, formed under the Linux Foundation on 2025-12-09 with founding contributions from Anthropic, Block and OpenAI. Its first projects were the Model Context Protocol, goose and AGENTS.md. None of the eight payment protocols in this atlas is an AAIF project.",
+    "plain": "The Agentic AI Foundation, formed under the Linux Foundation on 2025-12-09 with founding contributions from Anthropic, Block and OpenAI. Its first projects were the Model Context Protocol, goose and AGENTS.md; it listed ten projects on 2026-11-14, among them A2A, a hosted project since 2026-08-17. None of the eight payment protocols in this atlas is an AAIF project.",
     "ste": "The Agentic AI Foundation (AAIF) is a Linux Foundation group for open agent standards. MCP is one of its projects.",
     "protocols": [],
     "sources": [
-      "src-gloss-aaif-lf"
+      "src-gloss-aaif-lf",
+      "src-orbit-aaif-projects",
+      "src-orbit-a2a-aaif-blog"
     ]
   },
   {
@@ -675,7 +678,7 @@
     "aliases": [
       "card dispute"
     ],
-    "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant, not OpenAI or the payment provider, handles refunds and chargebacks as merchant of record. AP2 mandates are meant as evidence in such disputes. Visa's rules bar a merchant from making a cardholder waive the right to dispute an agent transaction. From 2026-10-24 they accept an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Neither Visa nor Mastercard had published agent-specific chargeback reason codes as of 2026-10-21; Mastercard's rules refer to Agent Pay Program Standards that are not public.",
+    "plain": "The card-network process by which a cardholder's bank reverses a payment the cardholder disputes and takes the funds back from the merchant. In ACP the merchant handles refunds and chargebacks as merchant of record; OpenAI's ACP docs, before OpenAI rewrote them between 2026-11-12 and 2026-11-13, said that neither OpenAI nor the payment provider takes that role. AP2 mandates are meant as evidence in such disputes. Visa's rules bar a merchant from making a cardholder waive the right to dispute an agent transaction. From 2026-10-24 they accept an Agentic Payment Provider's login ID among the evidence that can defeat a card-absent fraud dispute. Neither Visa nor Mastercard had published agent-specific chargeback reason codes as of 2026-10-21; Mastercard's rules refer to Agent Pay Program Standards that are not public.",
     "ste": "A chargeback is the reversal of a card payment after the cardholder disputes it. The merchant of record handles chargebacks.",
     "protocols": [
       "openai-acp",
@@ -688,6 +691,36 @@
       "src-visa-rules-public",
       "src-mcap-dev-level1",
       "src-mastercard-rules-2026-06"
+    ]
+  },
+  {
+    "id": "chatgpt-dots",
+    "term": "dots",
+    "aliases": [],
+    "plain": "OpenAI's assistants in ChatGPT that keep working on a task and can use a cloud browser on the user's behalf; ChatGPT Wallet rolled out first in dots on 2026-11-13.",
+    "ste": "OpenAI assistants in ChatGPT. They can use a browser for the user. ChatGPT Wallet started in dots.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "commonWord": true,
+    "sources": [
+      "src-openai-news-rss-20261114",
+      "src-openai-commerce-agent-access",
+      "src-openai-chatgpt-wallet"
+    ]
+  },
+  {
+    "id": "chatgpt-wallet",
+    "term": "ChatGPT Wallet",
+    "aliases": [],
+    "plain": "OpenAI's wallet, launched 2026-11-13 in dots for US ChatGPT Pro subscribers. After the user approves each purchase, the card network issues a payment token that the merchant's existing checkout charges; OpenAI does not present it as ACP.",
+    "ste": "An OpenAI wallet. It pays with a card network token at the checkout of the merchant. It is not part of ACP.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-chatgpt-wallet",
+      "src-openai-commerce-accept-payments"
     ]
   },
   {
@@ -1056,12 +1089,13 @@
     "aliases": [
       "dSD-JWT"
     ],
-    "plain": "An individual IETF draft for chaining SD-JWTs through key binding, which AP2 uses to chain open and closed mandates.",
+    "plain": "An IETF draft for chaining SD-JWTs through key binding, which AP2 uses to chain open and closed mandates. Posted as an individual draft on 2026-04-22, it became an OAuth working group draft (draft-ietf-oauth-delegate-sd-jwt) on 2026-10-30.",
     "ste": "A draft standard that links one signed token to the next.",
     "protocols": [
       "ap2"
     ],
     "sources": [
+      "src-ap2-delegate-sd-jwt-wg",
       "src-ap2-delegate-sd-jwt"
     ]
   },
@@ -1073,13 +1107,15 @@
       "delegate_payment",
       "Delegated Payment Spec"
     ],
-    "plain": "The part of ACP in which the agent sends the buyer's card to a payment provider or vault and gets back a token that only the merchant can use, within set limits. The call is `POST /agentic_commerce/delegate_payment` with the card and an `allowance`, and the answer is a vault token. Stripe's Shared Payment Token is the first implementation OpenAI names.",
+    "plain": "The part of ACP in which the agent sends the buyer's card to a payment provider or vault and gets back a token that only the merchant can use, within set limits. The call is `POST /agentic_commerce/delegate_payment` with the card and an `allowance`, and the answer is a vault token. The ACP website names Stripe, with its Shared Payment Token, as the first compatible payment service provider. OpenAI's commerce docs no longer describe delegated payment since OpenAI rewrote them between 2026-11-12 and 2026-11-13, though its plugin monetization page still points merchants with a PCI DSS Level 1 certificate to the ACP Delegate Payment endpoint (as of 2026-11-14).",
     "ste": "Delegated payment lets an agent give a limited payment token to a merchant. The token does not show the card number to the merchant.",
     "protocols": [
       "openai-acp"
     ],
     "sources": [
       "src-openai-acp-rfc-delegate-payment",
+      "src-openai-acp-site",
+      "src-openai-apps-monetization",
       "src-openai-commerce-docs"
     ]
   },
@@ -1112,13 +1148,14 @@
       "DC API",
       "navigator.credentials.get digital"
     ],
-    "plain": "A W3C browser API, still a Working Draft on 2026-09-04, that lets a website request a credential from a wallet on the user's device through the browser or operating system. AP2 v0.2 recommends it as the way to run its OpenID4VP delegation flow. It keeps the wallet exchange inside a trusted platform channel rather than a custom redirect.",
+    "plain": "A W3C browser API, still a Working Draft (the current one dated 2026-11-05, as of 2026-11-14), that lets a website request a credential from a wallet on the user's device through the browser or operating system. AP2 v0.2 recommends it as the way to run its OpenID4VP delegation flow. It keeps the wallet exchange inside a trusted platform channel rather than a custom redirect.",
     "ste": "The Digital Credentials API is a W3C browser API for a credential request to a wallet. AP2 recommends this API for the delegation of mandates.",
     "protocols": [
       "ap2"
     ],
     "sources": [
       "src-gloss-dc-api",
+      "src-orbit-dc-api-wd-20261105",
       "src-ap2-agent-authorization"
     ]
   },
@@ -1508,11 +1545,12 @@
       "Public Law 119-27",
       "S. 1582"
     ],
-    "plain": "The first US federal law for payment stablecoins, signed on 2025-07-18 as Public Law 119-27. It takes effect on the earlier of 2027-01-18 or 120 days after the primary federal payment stablecoin regulators issue final implementing regulations; a Federal Register search on 2026-10-18 found none, though Treasury's procedural interim final rule on state certifications took effect on 2026-09-30. The Act does not address AI agents as payers.",
-    "ste": "The GENIUS Act is the US law for payment stablecoins. The law does not refer to AI agents.",
+    "plain": "The first US federal law for payment stablecoins, signed on 2025-07-18 as Public Law 119-27. It takes effect on the earlier of 2027-01-18 or 120 days after the primary federal payment stablecoin regulators issue final implementing regulations. The OCC announced the first such final rule on 2026-10-21 and published it on 2026-10-23 (91 FR 67000); the rule takes effect on 2027-01-18, the date the OCC gives for the Act itself. Treasury's procedural interim final rule on state certifications took effect on 2026-09-30. Neither the Act nor the OCC rule addresses AI agents as payers.",
+    "ste": "The GENIUS Act is the US law for payment stablecoins. The law applies from 2027-01-18. The law does not refer to AI agents.",
     "protocols": [],
     "sources": [
       "src-policy-genius-act",
+      "src-gloss-occ-genius-final-rule",
       "src-policy-occ-genius-proposal",
       "src-policy-fr-genius-ifr"
     ]
@@ -1661,14 +1699,15 @@
     "aliases": [
       "ChatGPT Instant Checkout"
     ],
-    "plain": "ChatGPT's 2025 in-chat purchase feature that launched ACP; OpenAI scaled it back in March 2026 in favor of merchant checkout.",
+    "plain": "ChatGPT's 2025 in-chat purchase feature that launched ACP; OpenAI scaled it back in March 2026 in favor of merchant checkout, and its plugin guidelines still list it as a beta for select marketplace partners (2026-11-14).",
     "ste": "The 2025 ChatGPT function that let a buyer pay in the chat. OpenAI made it smaller in 2026.",
     "protocols": [
       "openai-acp"
     ],
     "sources": [
       "src-openai-buy-it",
-      "src-openai-product-discovery"
+      "src-openai-product-discovery",
+      "src-openai-acp-plugin-guidelines"
     ]
   },
   {
@@ -1975,7 +2014,7 @@
     "aliases": [
       "Model Context Protocol"
     ],
-    "plain": "The Model Context Protocol, an open protocol that connects AI applications to tools and data through JSON-RPC 2.0 messages between hosts, clients and servers. Several payment protocols ride on it: x402 and MPP define MCP transports, ACP and UCP publish OpenRPC bindings, and Visa and Mastercard ship MCP servers. Since December 2025 it is a project of the Agentic AI Foundation.",
+    "plain": "The Model Context Protocol, an open protocol that connects AI applications to tools and data through JSON-RPC 2.0 messages between hosts, clients and servers. Its current revision, 2026-07-28, is stateless: it drops the `initialize` handshake and the `Mcp-Session-Id` session header. Several payment protocols ride on it: x402 and MPP define MCP transports, ACP and UCP publish OpenRPC bindings, and Visa and Mastercard ship MCP servers. Since December 2025 it is a project of the Agentic AI Foundation.",
     "ste": "MCP is an open protocol that connects AI applications to tools and data. x402, MPP, ACP and UCP have MCP bindings.",
     "protocols": [
       "x402",
@@ -1984,7 +2023,9 @@
       "stripe-mpp"
     ],
     "sources": [
-      "src-gloss-mcp-spec",
+      "src-orbit-mcp-spec-2026-07-28",
+      "src-orbit-mcp-versioning",
+      "src-orbit-mcp-changelog-2026-07-28",
       "src-x402-transport-mcp-v2",
       "src-stripe-mpp-mcp-transport",
       "src-openai-acp-mcp-binding",
@@ -2034,7 +2075,7 @@
       "MoR",
       "merchant of record agreement"
     ],
-    "plain": "The business that is legally the seller in a transaction: its name appears on the card statement and it carries refunds, chargebacks, taxes and compliance. In ACP and UCP the merchant stays merchant of record, and OpenAI's docs say neither OpenAI nor the payment providers take that role. In the `cloudflare:402` x402 variant, the network itself acts as merchant of record.",
+    "plain": "The business that is legally the seller in a transaction: its name appears on the card statement and it carries refunds, chargebacks, taxes and compliance. In ACP and UCP the merchant stays merchant of record; OpenAI's ACP docs, before OpenAI rewrote them between 2026-11-12 and 2026-11-13, said neither OpenAI nor the payment providers take that role. In the `cloudflare:402` x402 variant, the network itself acts as merchant of record.",
     "ste": "The merchant of record is the business that sells the product by law. This business is responsible for refunds, chargebacks and taxes.",
     "protocols": [
       "x402",
@@ -2601,13 +2642,14 @@
     "aliases": [
       "payment sheet"
     ],
-    "plain": "A ChatGPT plugin (formerly Apps SDK) checkout surface, in private beta for select marketplace partners, that sends a payment token to the merchant's MCP server.",
+    "plain": "A ChatGPT plugin (formerly Apps SDK) checkout surface, in private beta for select marketplace partners, that sends a payment token to the merchant's MCP server; OpenAI's plugin pages also call it Instant Checkout (2026-11-14).",
     "ste": "A payment window in ChatGPT. Only some partners can use it.",
     "protocols": [
       "openai-acp"
     ],
     "sources": [
-      "src-openai-apps-monetization"
+      "src-openai-apps-monetization",
+      "src-openai-acp-plugin-guidelines"
     ]
   },
   {
@@ -2733,10 +2775,12 @@
     "aliases": [
       "Third Payment Services Directive"
     ],
-    "plain": "The proposed third EU Payment Services Directive, which would replace PSD2 for the licensing and supervision of payment institutions. The Parliament and Council reached a provisional agreement on 2025-11-27, but no Official Journal publication was found by 2026-10-11. The texts contain no provisions specific to AI agents.",
-    "ste": "PSD3 is the proposed EU directive for payment services. It will replace PSD2, but the EU did not publish the final text before 2026-10-11.",
+    "plain": "The third EU Payment Services Directive, not yet law on 2026-11-14, which would replace PSD2 and the second Electronic Money Directive for the licensing and supervision of payment institutions. After the provisional agreement of 2025-11-27, the Council adopted its first-reading position on 2026-10-29; the text then awaited the European Parliament's second reading (indicative plenary 2026-12-14) and was not in the Official Journal on 2026-11-14. Member States would have to apply it 21 months after it enters into force. The texts contain no provisions specific to AI agents.",
+    "ste": "PSD3 is the EU directive for payment services that will replace PSD2. The Council adopted its position on 2026-10-29. The European Parliament must approve the text before it becomes law.",
     "protocols": [],
     "sources": [
+      "src-gloss-council-psd3-position",
+      "src-gloss-oeil-psd3",
       "src-policy-arthurcox-psd3",
       "src-policy-obt-psd3",
       "src-policy-eu-psd2"
@@ -2749,10 +2793,12 @@
       "Payment Services Regulation",
       "EU Payment Services Regulation"
     ],
-    "plain": "The proposed EU Payment Services Regulation, agreed together with PSD3, which would put conduct rules such as strong customer authentication, fraud liability and payer protection into a directly applicable regulation. It was not in the Official Journal on 2026-10-11 and is expected to apply some time after publication. In the UK, the similar abbreviation PSRs refers to the Payment Services Regulations 2017, a separate law.",
-    "ste": "The PSR is the proposed EU regulation for the rules of payment services. The PSR and PSD3 are parts of the same EU package.",
+    "plain": "The EU Payment Services Regulation, not yet law on 2026-11-14, agreed together with PSD3; it would put conduct rules such as strong customer authentication, fraud liability and payer protection into a directly applicable regulation. The Council adopted its first-reading position on 2026-10-29, and the text then awaited the European Parliament's second reading (indicative plenary 2026-12-14); it was not in the Official Journal on 2026-11-14. It would apply 21 months after it enters into force, and two of its articles after 27 months. It contains no provisions specific to AI agents. In the UK, the similar abbreviation PSRs refers to the Payment Services Regulations 2017, a separate law.",
+    "ste": "The PSR is the EU regulation for the rules of payment services. The PSR and PSD3 are parts of the same EU package. The Council adopted its position on 2026-10-29.",
     "protocols": [],
     "sources": [
+      "src-gloss-council-psr-position",
+      "src-policy-oeil-psr",
       "src-policy-arthurcox-psd3",
       "src-policy-obt-psd3",
       "src-policy-uk-psrs-77"
@@ -3035,7 +3081,7 @@
       "spt_",
       "shared_payment_granted_token"
     ],
-    "plain": "A Stripe payment primitive that lets an agent share a buyer's saved payment method with one seller without exposing card details to a seller that charges through Stripe. The agent issues an SPT with `usage_limits` (`currency`, `max_amount`, `expires_at`), and the seller confirms a PaymentIntent with it. By 2026-10-20 (absent from the 2026-09-21 capture of the seller page) a seller on another processor can instead resolve a granted SPT once into card or network-token credentials, encrypted unless it has filed a PCI Attestation of Compliance. It is Stripe's implementation of ACP delegated payment and also the credential of the `stripe` method in MPP, but it is not part of either spec.",
+    "plain": "A Stripe payment primitive that lets an agent share a buyer's saved payment method with one seller without exposing card details to a seller that charges through Stripe. The agent issues an SPT with `usage_limits` (`currency`, `max_amount`, `expires_at`, plus `recurring_interval` for recurring charges, which reuse the same SPT in each PaymentIntent), and the seller confirms a PaymentIntent with it. By 2026-10-20 (absent from the 2026-09-21 capture of the seller page) a seller on another processor can instead resolve a granted SPT once into card credentials of one of three types, `fpan`, `agentic_token` or `dpan` (as of 2026-11-14), encrypted unless it has filed a PCI Attestation of Compliance. It is Stripe's implementation of ACP delegated payment and also the credential of the `stripe` method in MPP, but it is not part of either spec.",
     "ste": "A Shared Payment Token (SPT) is a Stripe token that gives one seller limited use of a payment method. A seller that charges through Stripe does not see the card details.",
     "protocols": [
       "openai-acp",
@@ -3064,6 +3110,19 @@
     ]
   },
   {
+    "id": "sign-in-with-chatgpt",
+    "term": "Sign in with ChatGPT",
+    "aliases": [],
+    "plain": "OpenAI's OpenID Connect sign-in with the issuer https://auth.openai.com, open to select commercial partners and recommended in OpenAI's commerce docs; a ChatGPT identity is not purchase approval (2026-11-14).",
+    "ste": "A way for a customer to log in to the site of a merchant with ChatGPT. It does not approve a purchase.",
+    "protocols": [
+      "openai-acp"
+    ],
+    "sources": [
+      "src-openai-commerce-siwc"
+    ]
+  },
+  {
     "id": "sign-in-with-x",
     "term": "Sign-In-With-X",
     "aliases": [
@@ -3089,8 +3148,8 @@
       "Signature-Agent header",
       "signature-agent"
     ],
-    "plain": "An HTTP request header that points to the signer's key directory, so a verifier can fetch the public key. The Web Bot Auth draft requires it and requires the signature to cover it, and the `cloudflare:402` x402 variant does the same. Visa TAP does not require it, and Mastercard shows it in an example request.",
-    "ste": "The Signature-Agent header gives the address of the key directory of the signer. The verifier gets the public key from this directory.",
+    "plain": "An HTTP request header that tells a verifier where to find the signer's public keys. In the Web Bot Auth draft (revision `-01`, 2026-10-29) it is a dictionary whose member for each signature is an HTTPS URL that the verifier fetches directly as a JWK Set, and the signature must cover that member; the `cloudflare:402` x402 variant also requires the header. Deployed signers and verifiers, such as ChatGPT's cloud browser and Cloudflare, still use the earlier form: a quoted origin string such as `\"https://chatgpt.com\"`, whose `/.well-known/http-message-signatures-directory` the verifier fetches (as of 2026-11-14). Visa TAP does not require the header, and Mastercard shows it in an example request.",
+    "ste": "The Signature-Agent header tells the verifier where to find the public keys of the signer. In the current draft, the header gives the HTTPS address of a JWK Set. Some signers still send only a site address. The verifier then gets the keys from the key directory of that site.",
     "protocols": [
       "x402",
       "visa-tap",
@@ -3099,7 +3158,9 @@
     "sources": [
       "src-wba-draft",
       "src-x402-scheme-batch-cf",
-      "src-mcap-dev-level1"
+      "src-mcap-dev-level1",
+      "src-openai-commerce-agent-access",
+      "src-orbit-cf-wba-reference"
     ]
   },
   {
@@ -3431,6 +3492,22 @@
     ]
   },
   {
+    "id": "trusted-agent-provider-visa",
+    "term": "Trusted Agent Provider (Visa Intelligent Commerce)",
+    "aliases": [],
+    "plain": "In Visa Intelligent Commerce (VIC), a category of agent: a request from a Trusted Agent Provider, or from a token requestor that is a Wallet Provider, must carry an `agentSignature` field in its JSON body, while an Open Source Agent sends none (Visa's VIC docs, read 2026-11-14). It is not TAP, which on this site means Visa's Trusted Agent Protocol for signed web requests, and it differs from the AP2 delegation model also called Trusted Agent Provider, in which the agent provider signs mandates.",
+    "ste": "In Visa Intelligent Commerce, a Trusted Agent Provider is a type of agent that must sign its requests. This term is not the Trusted Agent Protocol (TAP).",
+    "protocols": [
+      "visa-tap",
+      "ap2"
+    ],
+    "sources": [
+      "src-gloss-visa-vic-concepts",
+      "src-visa-tap-spec",
+      "src-ap2-agent-authorization"
+    ]
+  },
+  {
     "id": "trusted-reviewer-list",
     "term": "Trusted reviewer list",
     "aliases": [
@@ -3706,6 +3783,21 @@
     ]
   },
   {
+    "id": "visa-merchant-registry-service",
+    "term": "Visa Merchant Registry Service",
+    "aliases": [
+      "VMRS"
+    ],
+    "plain": "Visa's sandbox API, seen in its TAP API reference on 2026-11-14, where a merchant registers its site and the public key to which TAP payment payloads are encrypted. A new key stays deactivated until the merchant activates it.",
+    "ste": "A Visa API where a merchant registers its site and its public encryption key.",
+    "protocols": [
+      "visa-tap"
+    ],
+    "sources": [
+      "src-visa-vmrs-apiref"
+    ]
+  },
+  {
     "id": "visa-token-service",
     "term": "Visa Token Service",
     "aliases": [
@@ -3747,15 +3839,17 @@
       "webbotauth",
       "draft-ietf-webbotauth-httpsig-protocol"
     ],
-    "plain": "An IETF working group and its draft (`draft-ietf-webbotauth-httpsig-protocol-00`, posted 2026-09-01) for automated clients that sign their requests with RFC 9421 and publish keys in a directory. It requires the `web-bot-auth` tag and a covered `Signature-Agent` header. Visa TAP predates the draft and does not conform to it, though Cloudflare describes both card networks' schemes as built on Web Bot Auth.",
-    "ste": "Web Bot Auth is an IETF draft for bots that sign HTTP requests with RFC 9421. The bot publishes its public keys in a directory.",
+    "plain": "An IETF working group and its draft (`draft-ietf-webbotauth-httpsig-protocol`, revision `-01` of 2026-10-29) for automated clients that sign their requests with RFC 9421. It requires the `web-bot-auth` tag and a covered `Signature-Agent` header whose value is an HTTPS URL of the signer's JWK Set. Deployed signers and verifiers, such as ChatGPT and Cloudflare, still use the older form: a quoted origin string whose well-known key directory the verifier fetches (as of 2026-11-14). Visa TAP predates the draft and does not conform to it, though Cloudflare describes both card networks' schemes as built on Web Bot Auth.",
+    "ste": "Web Bot Auth is an IETF draft for bots that sign HTTP requests with RFC 9421. The bot publishes its public keys as a JWK Set at an HTTPS address.",
     "protocols": [
       "visa-tap",
       "mastercard-agent-pay"
     ],
     "sources": [
       "src-wba-draft",
-      "src-visa-tap-cf-blog"
+      "src-visa-tap-cf-blog",
+      "src-openai-commerce-agent-access",
+      "src-orbit-cf-wba-reference"
     ]
   },
   {

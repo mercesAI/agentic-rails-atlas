@@ -1,6 +1,6 @@
 {
   "protocol": "stripe-mpp",
-  "summary": "MPP binds the challenge id to every defined challenge parameter except the human-readable description, makes ids and proofs single use, forbids side effects before payment and requires TLS, so tampering and replay are covered at protocol level. What it leaves to clients is deciding whether a challenge is honest, because a malicious server can bind a bad price as easily as a good one. Credentials are bearer tokens. Loss limits, refunds and disputes come from the rail. As of 2026-10-21 the MPP SDK repositories had published nine security advisories, all for SDK bugs and all fixed: five for mppx, two for the Rust crate mpp and two for pympp. Outside finders reported them, and none reports exploitation. A formal analysis posted on 2026-08-30 counts 12 previously undocumented formal-consistency cases for MPP, which its authors say are not demonstrated vulnerabilities in production deployments. Advisory dates below are the dates each repository published the advisory.",
+  "summary": "MPP binds the challenge id to every defined challenge parameter except the human-readable description, makes ids and proofs single use, forbids side effects before payment and requires TLS, so tampering and replay are covered at protocol level. What it leaves to clients is deciding whether a challenge is honest, because a malicious server can bind a bad price as easily as a good one. Credentials are bearer tokens. Loss limits, refunds and disputes come from the rail. As of 2026-10-21 the MPP SDK repositories had published nine security advisories, all for SDK bugs and all fixed: five for mppx, two for the Rust crate mpp and two for pympp. Outside finders reported them, and none reports exploitation. A re-check on 2026-11-14 found no new advisory. A formal analysis posted on 2026-08-30 counts 12 previously undocumented formal-consistency cases for MPP, which its authors say are not demonstrated vulnerabilities in production deployments. Advisory dates below are the dates each repository published the advisory.",
   "threats": [
     {
       "id": "stripe-mpp-t1",
@@ -183,11 +183,13 @@
       ],
       "impact": "Spending patterns and counterparties are visible.",
       "mitigatedBySpec": "no",
-      "implementerNotes": "Use fresh addresses or card and Stripe methods where privacy matters; the core only asks methods to support pseudonymous options.",
+      "implementerNotes": "Use fresh addresses or card and Stripe methods where privacy matters; the core only asks methods to support pseudonymous options. Since mppx 0.17.4 (2026-11-07) a Tempo charge can be paid from a Zone balance, which keeps the payer's address and history off the public chain, but the recipient, amount, timing and memo stay public and the Zone operator sees the private ledger. This is an SDK and Tempo feature, not part of the method spec.",
       "sources": [
         "src-stripe-mpp-tempo-connection",
         "src-stripe-mpp-mppscan",
-        "src-stripe-mpp-core-01"
+        "src-stripe-mpp-core-01",
+        "src-stripe-mpp-docs-private-payments",
+        "src-stripe-mpp-mppx-changelog"
       ]
     },
     {

@@ -12,10 +12,10 @@ latestVersion:
 relations:
   - to: ucp
     type: uses-as-rail
-    note: "Adyen documents an Agentic Payments integration with UCP."
+    note: "Adyen documents agent-platform and Agentic Payments integrations with UCP."
   - to: openai-acp
     type: uses-as-rail
-    note: "CLA signatory and a named provider in the ACP spec."
+    note: "CLA signatory and a named provider in the ACP spec; Adyen's docs describe it as a delegated-payment vault that returns merchant-scoped ACP tokens to agent platforms (as of 2026-11-14)."
   - to: ap2
     type: compatible-with
     note: "Named in the Adyen Agentic release; AP2 launch collaborator."
@@ -27,12 +27,16 @@ relations:
     note: "Premier member of the x402 Foundation."
 sources:
   - src-orbit-adyen-agentic
+  - src-orbit-adyen-docs
   - src-ucp-adyen-docs
+  - src-orbit-adyen-acp-delegated
   - src-openai-acp-cla-signatories
   - src-openai-acp-changelog-20260116
+  - src-openai-chatgpt-wallet
+  - src-orbit-adyen-q3-2026
   - src-ap2-gcloud-launch
   - src-x402-lf-july
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
-Adyen Agentic, announced on 2026-06-16, is in limited availability for US enterprise merchants with global expansion planned; the release calls Adyen an early endorser of UCP, names AP2 and ACP, and quotes Mastercard on Agent Pay. <Cite ids="src-orbit-adyen-agentic" /> Adyen publishes integration docs for Agentic Payments with [UCP](/p/ucp/). <Cite ids="src-ucp-adyen-docs" /> Adyen signed the [ACP](/p/openai-acp/) CLA, and ACP added `adyen` to its payment and authentication provider enums in the 2026-01-16 release. <Cite ids="src-openai-acp-cla-signatories src-openai-acp-changelog-20260116" /> Adyen was also an [AP2](/p/ap2/) launch collaborator and a Premier member at the x402 Foundation's operational launch on 2026-07-14. <Cite ids="src-ap2-gcloud-launch src-x402-lf-july" />
+Adyen Agentic, announced on 2026-06-16, is in limited availability for US enterprise merchants with global expansion planned; the release calls Adyen an early endorser of UCP, names AP2 and ACP, and quotes Mastercard on Agent Pay. <Cite ids="src-orbit-adyen-agentic" /> Adyen's agentic commerce docs (read 2026-11-14) publish agent-platform guides for both [UCP](/p/ucp/) and [ACP](/p/openai-acp/), plus merchant guides for the Agentic Feed and Agentic Cart APIs; when each guide first appeared is not known. <Cite ids="src-orbit-adyen-docs src-ucp-adyen-docs" /> In the ACP guide Adyen acts as the delegated-payment vault for an agent platform: it stores the card number or network token and returns a merchant-scoped ACP token, which the merchant then charges through Adyen. <Cite ids="src-orbit-adyen-acp-delegated" /> Adyen signed the ACP CLA, and ACP added `adyen` to its payment and authentication provider enums in the 2026-01-16 release. <Cite ids="src-openai-acp-cla-signatories src-openai-acp-changelog-20260116" /> OpenAI's [ChatGPT Wallet](/orbit/chatgpt-wallet/) post of 2026-11-13 says OpenAI works with payment service providers including Adyen, Checkout.com and Stripe. <Cite ids="src-openai-chatgpt-wallet" /> In its third-quarter 2026 business update (2026-10-28), Adyen said it had partnered with Sierra and Meta on the [Personal Agent Protocol](/orbit/personal-agent-protocol/); the update says nothing new about Adyen Agentic's availability. <Cite ids="src-orbit-adyen-q3-2026" /> Adyen was also an [AP2](/p/ap2/) launch collaborator and a Premier member at the x402 Foundation's operational launch on 2026-07-14. <Cite ids="src-ap2-gcloud-launch src-x402-lf-july" />

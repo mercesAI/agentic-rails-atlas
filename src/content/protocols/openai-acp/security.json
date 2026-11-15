@@ -1,6 +1,6 @@
 {
   "protocol": "openai-acp",
-  "summary": "ACP's one strong control is the allowance: a delegated token works for one merchant, one session, one use, up to a maximum amount and until an expiry, enforced by the PSP. Everything else is bilateral trust. The merchant authenticates the agent with a bearer token agreed out of band, and the agent verifies webhooks with a shared HMAC secret. Request signatures are only recommended on checkout and contradictory on Delegate Payment, request freshness is a SHOULD, and nothing records that the buyer approved the purchase. Order webhooks are well specified with HMAC and a 300-second window. As of 2026-10-20 no CVE or GitHub advisory exists (advisories API and NVD keyword search), and the published research models ACP formally but reports findings only in aggregate. The practical risks sit in implementations: key handling, card data at PSPs, content injection into the agent and drift between snapshots. At a PCI-attested seller a Stripe SPT can also be resolved once into card credentials, which brings card data back into the seller's scope.",
+  "summary": "ACP's one strong control is the allowance: a delegated token works for one merchant, one session, one use, up to a maximum amount and until an expiry, enforced by the PSP. Everything else is bilateral trust. The merchant authenticates the agent with a bearer token agreed out of band, and the agent verifies webhooks with a shared HMAC secret. Request signatures are only recommended on checkout and contradictory on Delegate Payment, request freshness is a SHOULD, and nothing records that the buyer approved the purchase. Order webhooks are well specified with HMAC and a 300-second window. As of 2026-11-14 no GitHub advisory exists for the repository (advisory APIs; an NVD keyword search found no CVE on 2026-10-20), and the published research models ACP formally but reports findings only in aggregate. The practical risks sit in implementations: key handling, card data at PSPs, content injection into the agent and drift between snapshots. At a PCI-attested seller a Stripe SPT can also be resolved once into card credentials, which brings card data back into the seller's scope. ChatGPT's own deployment adds mechanisms that the ACP spec does not define: its cloud browser signs certain requests with Web Bot Auth, ChatGPT Wallet asks for a security check before each purchase and hands the merchant a network token for that one transaction, and OpenAI is rolling out user signals in a Forwarded header with unregistered parameters (threats t12 and t13).",
   "threats": [
     {
       "id": "openai-acp-t1",
@@ -13,11 +13,11 @@
       ],
       "impact": "Fraudulent orders charged to tokens the attacker obtained elsewhere, or reconnaissance of prices and stock.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Require the detached Signature and Timestamp on every request even though they are only recommended, rotate keys, and allowlist the agent platform's egress IP ranges.",
+      "implementerNotes": "Require the detached Signature and Timestamp on every request even though they are only recommended, and rotate keys. OpenAI publishes egress IP ranges for ChatGPT integrations but says an IP allowlist identifies its network, not a caller, and does not replace authentication (2026-11-14).",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-acp-openapi-webhook-20260417",
-        "src-openai-commerce-docs"
+        "src-openai-acp-ip-egress"
       ]
     },
     {
@@ -93,17 +93,19 @@
       "id": "openai-acp-t6",
       "stride": "I",
       "title": "Card data exposure through direct Delegate Payment",
-      "description": "PCI DSS Level 1 merchants and PSPs that host Delegate Payment receive raw card numbers and CVC. By 2026-10-20 (absent from the 2026-09-21 capture of the seller page) a seller on another processor can also resolve a granted Stripe SPT once into fpan, network_token, agentic_token or dpan credentials; Stripe encrypts them unless the seller has filed a PCI Attestation of Compliance.",
+      "description": "PCI DSS Level 1 merchants and PSPs that host Delegate Payment receive raw card numbers and CVC; OpenAI's plugin Checkout API reference still offers this path to Level 1 merchants (2026-11-14). A seller on another processor can also resolve a granted Stripe SPT once into an fpan, agentic_token or dpan credential (2026-11-14); Stripe encrypts it unless the seller has filed a PCI Attestation of Compliance.",
       "preconditions": [
         "Logging of request bodies",
         "Weak vault controls"
       ],
       "impact": "Card data breach and PCI DSS findings.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Never log full card numbers or CVC; OpenAI may ask for an attestation of compliance before enabling production access. Treat resolved SPT credentials as cardholder data.",
+      "implementerNotes": "Never log full card numbers or CVC, and treat resolved SPT credentials as cardholder data. Until 2026-11-13 OpenAI's ACP docs said OpenAI may ask for an attestation of compliance before enabling production access; its rewritten docs do not mention PCI.",
       "sources": [
         "src-openai-acp-rfc-delegate-payment",
+        "src-openai-apps-monetization",
         "src-openai-commerce-docs",
+        "src-openai-commerce-playbook",
         "src-fee-stripe-spt-docs"
       ]
     },
@@ -183,11 +185,49 @@
       ],
       "impact": "Wrong quantities or failed orders; inconsistent behavior across merchants.",
       "mitigatedBySpec": "no",
-      "implementerNotes": "Pin a commit, validate against the JSON Schema, and test the docs-versus-spec differences explicitly.",
+      "implementerNotes": "Pin a commit and validate against the JSON Schema. OpenAI's own shapes now differ in other ways: its Draft feed schema follows ACP's feed model, while its plugin reference checkout follows UCP's field names (2026-11-14), so test each integration against the shape it actually uses.",
       "sources": [
         "src-openai-acp-gh-commits",
         "src-openai-acp-schema-checkout-20260417",
-        "src-openai-acp-rfc-checkout"
+        "src-openai-acp-rfc-checkout",
+        "src-openai-acp-feed-schema-draft",
+        "src-openai-commerce-build-plugin"
+      ]
+    },
+    {
+      "id": "openai-acp-t12",
+      "stride": "T",
+      "title": "Forged or stripped Forwarded risk signals (ChatGPT deployment, outside the ACP spec)",
+      "description": "OpenAI is rolling out user signals in the Forwarded header of its cloud browser traffic: asn, for, ip-country, ip-prefix, locale, tz and user-agent. Six of the seven parameters are unregistered, RFC 7239 warns that any node on the path, including the client, can change the header, and OpenAI does not say whether its Web Bot Auth signatures cover it (2026-11-14).",
+      "preconditions": [
+        "A merchant risk system trusts Forwarded values",
+        "A proxy or client on the path can add or rewrite the header"
+      ],
+      "impact": "Risk decisions based on a forged country or network; the header also passes the user's IP address or prefix, network, locale and time zone to the sites the cloud browser visits, as OpenAI extends support site by site.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Use Forwarded values only on requests whose Web Bot Auth signature verifies, ask OpenAI or your CDN whether the header is a covered component, and handle the values as personal data. OpenAI says the signals may vary while support rolls out.",
+      "sources": [
+        "src-openai-commerce-accept-payments",
+        "src-openai-acp-iana-forwarded",
+        "src-openai-acp-rfc7239",
+        "src-openai-commerce-agent-access"
+      ]
+    },
+    {
+      "id": "openai-acp-t13",
+      "stride": "E",
+      "title": "ChatGPT Wallet network token reused beyond the approved purchase (outside the ACP spec)",
+      "description": "With ChatGPT Wallet the merchant's existing checkout receives a network token after the user approves one purchase. OpenAI says the customer consents only to that transaction and that the credential must not be reused or saved for another purchase; recurring billing needs separate consent (2026-11-14).",
+      "preconditions": [
+        "The checkout stores every card it sees for later use",
+        "No separate consent is collected for recurring charges"
+      ],
+      "impact": "Charges the user never approved, followed by disputes against the merchant, which handles the order, support and fraud decisions.",
+      "mitigatedBySpec": "no",
+      "implementerNotes": "Do not save a Wallet credential as card on file; for subscriptions collect the customer's consent and follow your processor's practice for merchant-initiated transactions. Use the Payment Account Reference to link the token to an account instead of storing the credential. OpenAI also warns that risk systems may decline legitimate agent purchases.",
+      "sources": [
+        "src-openai-commerce-accept-payments",
+        "src-openai-chatgpt-wallet"
       ]
     }
   ],
@@ -226,7 +266,7 @@
       "impact": "Fraud losses on the merchant, which is merchant of record.",
       "sources": [
         "src-openai-acp-rfc-checkout",
-        "src-openai-commerce-docs"
+        "src-openai-acp-ip-egress"
       ]
     },
     {

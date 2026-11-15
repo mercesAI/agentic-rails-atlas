@@ -79,10 +79,11 @@
       "value": "Live at named merchants",
       "sources": [
         "src-visa-eu-live",
-        "src-visa-tap-overview"
+        "src-visa-tap-overview",
+        "src-visa-bill-billtrust"
       ],
       "confidence": "verified",
-      "detail": "Live European purchases 2026-07-02. Visa's TAP overview said development and deployment, not in all markets, until Visa retired it in October 2026 (archived 2026-10-12)."
+      "detail": "Live European purchases 2026-07-02 and a live business-to-business pilot with BILL and Billtrust (announced 2026-10-20). Visa's TAP overview said development and deployment, not in all markets, until Visa retired it in October 2026 (archived 2026-10-12)."
     },
     {
       "protocol": "visa-tap",
@@ -112,10 +113,11 @@
       "sources": [
         "src-visa-tap-spec",
         "src-visa-tap-jwks",
-        "src-visa-ai-token-manager"
+        "src-visa-ai-token-manager",
+        "src-visa-vic-docs"
       ],
       "confidence": "verified",
-      "detail": "The specification named mcp.visa.com/.well-known/jwks until at least 2026-10-10 and names no key URL now; Visa's own code uses that JWKS to encrypt MCP tokens. Onboarding not public."
+      "detail": "The specification named mcp.visa.com/.well-known/jwks until at least 2026-10-10 and names no key URL now; Visa's own code uses that JWKS to encrypt MCP tokens. Onboarding is outlined in Visa's VIC docs (TAP onboarding and Visa Agent Registry Service registration for production, 2026-11-14); the details are not public."
     },
     {
       "protocol": "visa-tap",
@@ -272,11 +274,12 @@
       "sources": [
         "src-visa-tap-terms",
         "src-visa-vic-dev",
+        "src-visa-vic-docs",
         "src-nevermined-vic",
         "src-mcc-2026"
       ],
       "confidence": "reported",
-      "detail": "Evidence of absence from Visa pages and secondary reviews (2026); the VIC fee line is from Visa's developer page as archived on 2026-10-03."
+      "detail": "Evidence of absence from Visa pages and secondary reviews (2026); the VIC fee line is from Visa's developer page as archived on 2026-10-03, and the live VIC docs state no fees (2026-11-14)."
     },
     {
       "protocol": "visa-tap",
@@ -287,7 +290,7 @@
         "src-visa-rules-public"
       ],
       "confidence": "reported",
-      "detail": "Visa's April 2026 US interchange schedule has no agentic category, so ordinary card-not-present fees apply as far as published."
+      "detail": "Visa's US interchange schedule (2026-10-24 edition, like the April 2026 one) has no agentic category, so ordinary card-not-present fees apply as far as published."
     },
     {
       "protocol": "visa-tap",
@@ -307,34 +310,37 @@
         "src-visa-tap-pr",
         "src-visa-tap-spec",
         "src-visa-icc",
-        "src-ap2-repo"
+        "src-ap2-repo",
+        "src-visa-vmrs-apiref"
       ],
       "confidence": "verified",
-      "detail": "No documented link to AP2 or ERC-8004."
+      "detail": "No documented link to AP2 or ERC-8004. Visa's merchant registry (VMRS) can list a merchant's ucp, acp or x402 endpoints as metadata, which is not a binding."
     },
     {
       "protocol": "visa-tap",
       "dimension": "reference-implementations-and-sdks",
-      "value": "visa/trusted-agent-protocol sample (unpackaged); mppx TAP attestation; @visa/cli release candidates",
+      "value": "visa/trusted-agent-protocol sample (unpackaged); mppx TAP identity prover and verifier; @visa/cli release candidates",
       "sources": [
         "src-visa-tap-gh-meta",
         "src-mppx-tap",
+        "src-visa-tap-mppx-changelog",
         "src-visa-cli-npm",
         "src-visa-tap-npm-search"
       ],
       "confidence": "verified",
-      "detail": "No standalone Visa TAP library on npm or PyPI (2026-10-19); @visa/cli 5.0.0 release candidates sign TAP requests from 2026-09-18, the 4.0.1 release does not."
+      "detail": "No standalone Visa TAP library on npm or PyPI (2026-10-19); mppx moved its TAP support to mppx/extensions/identity/tap in 0.16.0 (2026-10-28); @visa/cli 5.0.0 release candidates sign TAP requests from 2026-09-18, the 4.0.1 release does not."
     },
     {
       "protocol": "visa-tap",
       "dimension": "adoption-evidence",
-      "value": "Four merchants named live (2026-07-02); Cloudflare and Akamai at the edge",
+      "value": "Four merchants named live (2026-07-02); a live business-to-business invoice pilot with BILL and Billtrust (2026-10-20); Cloudflare and Akamai at the edge",
       "sources": [
         "src-visa-eu-live",
+        "src-visa-bill-billtrust",
         "src-akamai-pr"
       ],
       "confidence": "verified",
-      "detail": "No count of verifying merchants published (Visa newsroom and developer pages, 2026-10-19)."
+      "detail": "No count of verifying merchants or of pilot transactions published (Visa newsroom and developer pages, 2026-11-14)."
     },
     {
       "protocol": "visa-tap",
@@ -407,9 +413,10 @@
       "protocol": "visa-tap",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Named live merchants and CDNs, no counts of verifying merchants.",
+      "justification": "Named live merchants, CDNs and a named live business-to-business pilot (2026-10-20); no counts of verifying merchants or transactions.",
       "sources": [
         "src-visa-eu-live",
+        "src-visa-bill-billtrust",
         "src-akamai-pr"
       ]
     },
@@ -448,10 +455,12 @@
       "protocol": "visa-tap",
       "control": "agent-registration-kya",
       "support": "external",
-      "note": "Agents are onboarded to Visa Intelligent Commerce and approved by the scheme; the process is not public. The Agentic Directory (2026-06-10) lists agents Visa has verified.",
+      "note": "Agents are onboarded to Visa Intelligent Commerce and approved by the scheme. Visa's VIC docs (2026-11-14) outline the production path, TAP onboarding and registration in the Visa Agent Registry Service (VARS), but the VARS API reference is open only to authorized users, so the steps are not public. The Agentic Directory (2026-06-10) lists agents Visa has verified.",
       "sources": [
         "src-visa-tap-spec",
         "src-visa-vic-dev",
+        "src-visa-vic-docs",
+        "src-visa-tap-apiref",
         "src-visa-jun10"
       ]
     },

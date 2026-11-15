@@ -170,17 +170,6 @@
     "confidence": "verified"
   },
   {
-    "date": "2023-04-20",
-    "lane": "Standards",
-    "title": "LSAT renamed L402 in the Lightning Labs specification",
-    "detail": "Documentation rewrite replaces LSAT with L402; both scheme names remain accepted.",
-    "kind": "release",
-    "sources": [
-      "src-orbit-l402-repo-history"
-    ],
-    "confidence": "verified"
-  },
-  {
     "date": "2023-06-06",
     "lane": "Standards",
     "title": "bLIP-0026 L402 drafted",
@@ -208,10 +197,11 @@
     "date": "2025-07-18",
     "lane": "Policy",
     "title": "GENIUS Act signed (Public Law 119-27)",
-    "detail": "First US federal framework for payment stablecoins. It takes effect on the earlier of 2027-01-18 or 120 days after final implementing rules. It does not address AI agents as payers.",
+    "detail": "First US federal framework for payment stablecoins. It takes effect on the earlier of 2027-01-18 or 120 days after final implementing rules; the OCC's final rule of 2026-10-23 names 2027-01-18 as the effective date. It does not address AI agents as payers.",
     "kind": "policy",
     "sources": [
-      "src-policy-genius-act"
+      "src-policy-genius-act",
+      "src-policy-fr-occ-genius-final"
     ],
     "confidence": "verified"
   },
@@ -276,11 +266,12 @@
     "date": "2025-10-30",
     "lane": "Market",
     "title": "Mastercard reports its first agentic transaction on the network",
-    "detail": "Said on the Q3 2025 earnings call; card-network agent payments remained limited pilots afterwards.",
+    "detail": "Said on the Q3 2025 earnings call. A year later Mastercard still published no agent volume, while its CEO described the early stages of consumer adoption (see 2026-10-29).",
     "kind": "market",
     "sources": [
       "src-mcap-q3-transcript",
-      "src-mcap-pymnts-q3"
+      "src-mcap-pymnts-q3",
+      "src-mcap-q3-2026-transcript"
     ],
     "confidence": "reported"
   },
@@ -300,11 +291,13 @@
     "date": "2025-11-27",
     "lane": "Policy",
     "title": "EU reaches provisional agreement on PSD3 and the Payment Services Regulation",
-    "detail": "Political deal between Parliament and Council. As of 2026-10-11 no Official Journal publication was found. The texts have no agent-specific provisions.",
+    "detail": "Political deal between Parliament and Council. The Council adopted its first-reading positions on 2026-10-29 (see that event); as of 2026-11-14 neither act was in the Official Journal. The Council texts have no agent-specific provisions.",
     "kind": "policy",
     "sources": [
       "src-policy-arthurcox-psd3",
-      "src-policy-obt-psd3"
+      "src-policy-obt-psd3",
+      "src-policy-consilium-psr-position",
+      "src-policy-oeil-psr"
     ],
     "confidence": "reported"
   },
@@ -326,6 +319,7 @@
     "detail": "Open product-feed specification and API for AI agents; scale figures are Klarna's own.",
     "kind": "release",
     "sources": [
+      "src-orbit-klarna-app-newsroom",
       "src-orbit-klarna-app"
     ],
     "confidence": "verified"
@@ -401,26 +395,16 @@
   {
     "date": "2026-03-09",
     "lane": "Policy",
-    "title": "Court enjoins Perplexity's Comet agent from Amazon accounts",
-    "detail": "Preliminary injunction with a seven-day administrative stay; the Ninth Circuit later stayed it pending appeal.",
-    "kind": "policy",
-    "sources": [
-      "src-orbit-amazon-perplexity-geekwire",
-      "src-orbit-amazon-perplexity-decrypt",
-      "src-orbit-amazon-perplexity-ca9"
-    ],
-    "confidence": "reported"
-  },
-  {
-    "date": "2026-03-09",
-    "lane": "Policy",
     "title": "US district court enjoins Perplexity's agent from Amazon accounts",
-    "detail": "Judge Chesney grants Amazon a preliminary injunction. The Ninth Circuit stays it on 2026-03-16 pending appeal. Exact dates come from press reports; the appellate opinion says March 2026.",
+    "detail": "Judge Chesney grants Amazon a preliminary injunction with a seven-day administrative stay. The Ninth Circuit stays it on 2026-03-16 pending appeal. Exact dates come from press reports; the appellate opinion says March 2026.",
     "kind": "policy",
     "sources": [
       "src-policy-paymentexpert-injunction",
       "src-policy-dc360-stay",
-      "src-policy-ca9-opinion"
+      "src-policy-ca9-opinion",
+      "src-orbit-amazon-perplexity-geekwire",
+      "src-orbit-amazon-perplexity-decrypt",
+      "src-orbit-amazon-perplexity-ca9"
     ],
     "confidence": "reported"
   },
@@ -451,12 +435,13 @@
     "date": "2026-03-26",
     "lane": "Policy",
     "title": "Canada's Stablecoin Act receives Royal Assent in Bill C-15",
-    "detail": "Part of the Budget 2025 Implementation Act, No. 1 (S.C. 2026, c. 3). The Act was not in force on 2026-10-19; orders of the Governor in Council will set its commencement. Once in force, the Bank of Canada will supervise issuers, and the framework is expected in 2027.",
+    "detail": "Part of the Budget 2025 Implementation Act, No. 1 (S.C. 2026, c. 3). The Act was not in force on 2026-10-19 and no commencement order had appeared by 2026-11-14; orders of the Governor in Council will set its commencement. Once in force, the Bank of Canada will supervise issuers. The proposed Stablecoin Regulations of 2026-10-24 say the government intends the framework to take effect in fall 2027.",
     "kind": "policy",
     "sources": [
       "src-policy-ca-c15",
       "src-policy-ca-stablecoin-act",
-      "src-policy-dlapiper-c15"
+      "src-policy-dlapiper-c15",
+      "src-policy-ca-gazette-stablecoin-regs"
     ],
     "confidence": "verified"
   },
@@ -588,6 +573,18 @@
     "confidence": "verified"
   },
   {
+    "date": "2026-07-28",
+    "lane": "Standards",
+    "title": "MCP specification revision 2026-07-28 released",
+    "detail": "The protocol becomes stateless: no initialize handshake or Mcp-Session-Id header, and servers must implement server/discover. The release candidate came out on 2026-05-29.",
+    "kind": "release",
+    "sources": [
+      "src-orbit-mcp-releases",
+      "src-orbit-mcp-changelog-2026-07-28"
+    ],
+    "confidence": "verified"
+  },
+  {
     "date": "2026-07-30",
     "lane": "Policy",
     "title": "Worldpay: no liability shift yet for agent card payments",
@@ -622,6 +619,18 @@
     "confidence": "verified"
   },
   {
+    "date": "2026-08-17",
+    "lane": "Standards",
+    "title": "A2A becomes a hosted project of the Agentic AI Foundation",
+    "detail": "The Linux Foundation directed fund that also hosts MCP; A2A's own post calls it a Growth Stage project.",
+    "kind": "governance",
+    "sources": [
+      "src-orbit-a2a-aaif-blog",
+      "src-orbit-a2a-growth-stage-post"
+    ],
+    "confidence": "verified"
+  },
+  {
     "date": "2026-09-01",
     "lane": "Policy",
     "title": "EMVCo publishes a draft framework for card-based agentic payments",
@@ -646,6 +655,17 @@
     "confidence": "reported"
   },
   {
+    "date": "2026-09-10",
+    "lane": "Policy",
+    "title": "Ninth Circuit denies Amazon's petition for rehearing en banc in Amazon v. Perplexity",
+    "detail": "No judge asked for a vote. The mandate issued on 2026-09-18, so the 2026-08-04 judgment vacating the injunction took effect and the case continued in the district court.",
+    "kind": "policy",
+    "sources": [
+      "src-orbit-amazon-perplexity-dockets"
+    ],
+    "confidence": "verified"
+  },
+  {
     "date": "2026-09-12",
     "lane": "Policy",
     "title": "NPCI AI-agent registry for UPI reported",
@@ -664,6 +684,42 @@
     "kind": "release",
     "sources": [
       "src-orbit-interledger-wm-spec"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-09-21",
+    "lane": "Policy",
+    "title": "Amazon amends its complaint against Perplexity with a claim based on its Agent Terms",
+    "detail": "The First Amended Complaint keeps the CFAA and CDAFA counts and adds tortious interference with contractual relations, resting on the Agent Terms that Amazon added to its Conditions of Use on 2025-05-30. Those terms require an agent to identify itself, including in its user agent string, a self-declared label rather than a signed identity.",
+    "kind": "policy",
+    "sources": [
+      "src-orbit-amazon-perplexity-dockets",
+      "src-orbit-amazon-perplexity-fac",
+      "src-orbit-amazon-conditions-of-use"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-09-29",
+    "lane": "Market",
+    "title": "OpenAI introduces dots, always-on ChatGPT agents with their own cloud computer and browser",
+    "detail": "As documented on 2026-11-14, dots are rolling out gradually to eligible Pro and Business Premium accounts and are available in eligible Enterprise, Edu and Healthcare workspaces; they became the first surface for ChatGPT Wallet on 2026-11-13.",
+    "kind": "launch",
+    "sources": [
+      "src-openai-news-rss-20261114",
+      "src-scn-chatgpt-dots-docs"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-06",
+    "lane": "Standards",
+    "title": "Sierra announces Personal Agent Protocol with Meta",
+    "detail": "An open standard for how a personal agent finds a company, starts a session and signs its user in; first industry partners Genesys, Instinct, Rocket, Shopify, Stripe and Walmart.",
+    "kind": "announce",
+    "sources": [
+      "src-orbit-pap-sierra-intro"
     ],
     "confidence": "verified"
   },
@@ -694,11 +750,12 @@
     "date": "2026-10-11",
     "lane": "Market",
     "title": "Observed: x402.org counter unchanged, 8004scan passes 561,000 registrations",
-    "detail": "x402.org still shows 75.41M transactions and $24.24M for the last 30 days, values unchanged since at least 2025-12-14 (Wayback Machine). 8004scan shows 561,614 agents across 30 networks (the ERC-8004 contracts README lists 25 mainnets). MPPscan's home page shows 127.4K transactions for its default 7-day window.",
+    "detail": "x402.org still showed 75.41M transactions and $24.24M under its Last 30 Days counter, values unchanged since at least 2025-12-14 (Wayback Machine); the counter was gone by 2026-11-14. 8004scan showed 561,614 agents across 30 networks (the ERC-8004 contracts README lists 25 mainnets). MPPscan's home page showed 127.4K transactions for its default 7-day window.",
     "kind": "market",
     "sources": [
       "src-market-x402-counter-20261011",
       "src-x402-site-wb-20251214",
+      "src-x402-site",
       "src-market-8004scan-20261011",
       "src-market-mppscan-20261011",
       "src-erc-8004-contracts-readme"
@@ -706,14 +763,246 @@
     "confidence": "verified"
   },
   {
+    "date": "2026-10-13",
+    "lane": "Policy",
+    "title": "Perplexity moves to dismiss Amazon's amended complaint",
+    "detail": "The motion to dismiss and stay discovery is set for hearing on 2026-11-20 before Judge Chesney; trial is set for 2027-09-27. No ruling as of 2026-11-14.",
+    "kind": "policy",
+    "sources": [
+      "src-orbit-amazon-perplexity-dockets",
+      "src-orbit-amazon-perplexity-mtd"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-13",
+    "lane": "Standards",
+    "title": "American Express publishes its Intent Intelligence framework",
+    "detail": "A Create Intent API, an Intent ID and a Proof of Intent Token (a JSON Web Token) that can scope the agent's payment credential to the authenticated intent; part of the ACE Developer Kit, whose program page lists the Intent Intelligence specification as available since 2026-04-14.",
+    "kind": "release",
+    "sources": [
+      "src-scn-chatgpt-amex-intent-release",
+      "src-scn-chatgpt-amexio-intent",
+      "src-scn-chatgpt-amex-agentic-page"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-14",
+    "lane": "Policy",
+    "title": "EBA classifies USDC as the first significant e-money token under MiCA",
+    "detail": "USDC, issued in the EU by Circle Internet Financial Europe SAS, is under the dual supervision MiCA sets for significant e-money tokens from 2026-11-12: the EBA directly supervises own funds, the reserve of assets, liquidity and recovery and redemption plans, and the French ACPR keeps governance and the other areas.",
+    "kind": "policy",
+    "sources": [
+      "src-policy-eba-usdc-significant"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-19",
+    "lane": "Policy",
+    "title": "FCA says it will develop a trusted framework for agentic finance",
+    "detail": "In a speech, the FCA's chief data, information and intelligence officer said the FCA will work with industry, other regulators and frontier labs on agent identity, delegated authority, accountability and execution. A companion page of AI good-practice examples says it creates no new requirements. No rule or consultation had followed by 2026-11-14.",
+    "kind": "policy",
+    "sources": [
+      "src-policy-fca-speech-agentic",
+      "src-policy-fca-ai-good-practice"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-20",
+    "lane": "Standards",
+    "title": "World deprecates and archives AgentKit",
+    "detail": "Repository marked deprecated (pull request 44) and archived, with no replacement named; by 2026-11-14 the docs overview answered 404 and the integration page redirected to Agent Pass.",
+    "kind": "governance",
+    "sources": [
+      "src-orbit-world-agentkit-pr-44",
+      "src-orbit-kya-world-agentkit-repo",
+      "src-orbit-kya-world-agentkit-docs"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-23",
+    "lane": "Policy",
+    "title": "OCC publishes the first primary-regulator final rule under the GENIUS Act",
+    "detail": "Announced on 2026-10-21 and published as FR Doc. 2026-21706 (91 FR 67000), the rule covers payment stablecoin issuers under the OCC's jurisdiction and takes effect on 2027-01-18, together with the Act. The OCC calls it the first final rule from a primary federal payment stablecoin regulator; Treasury's procedural interim final rule on state certifications came earlier, on 2026-09-30. Bank Secrecy Act, AML and sanctions rules follow in a separate rulemaking. It has no provision on AI agents. No FDIC, Federal Reserve, NCUA or Treasury final rule implementing the Act had followed by 2026-11-14.",
+    "kind": "policy",
+    "sources": [
+      "src-policy-fr-occ-genius-final",
+      "src-policy-occ-nr-2026-92",
+      "src-policy-fr-genius-ifr"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-24",
+    "lane": "Policy",
+    "title": "Canada prepublishes proposed Stablecoin Regulations",
+    "detail": "Proposed, not final: issuer rules under the Stablecoin Act, and payment service providers that perform payment functions with stablecoins from listed issuers would come under the Retail Payment Activities Act. The government intends the rules to take effect in fall 2027, with the Act; comments were invited for 60 days.",
+    "kind": "policy",
+    "sources": [
+      "src-policy-ca-gazette-stablecoin-regs"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-29",
+    "lane": "Market",
+    "title": "Mastercard CEO describes early consumer use of agentic payments, with no volume given",
+    "detail": "On the Q3 2026 earnings call (third-party transcript) Michael Miebach said consumers are in the early stages of adopting agentic commerce but the numbers are not yet significant, that Shopify's Shop Pay is using Agent Pay and Mastercard network tokens, and that a broad partnership signed with OpenAI that quarter includes the use of Agent Pay. Mastercard's written results give no agent figures. Shopify itself says only that Shop Pay agent purchases from merchants off Shopify use Mastercard, Visa and Discover tokens (2026-10-28), without naming Agent Pay.",
+    "kind": "market",
+    "sources": [
+      "src-mcap-q3-2026-transcript",
+      "src-mcap-pymnts-openai-tencent",
+      "src-mcap-q3-2026-results",
+      "src-mcap-shopify-fall26"
+    ],
+    "confidence": "reported"
+  },
+  {
+    "date": "2026-10-29",
+    "lane": "Policy",
+    "title": "Council adopts its first-reading positions on PSD3 and the Payment Services Regulation",
+    "detail": "Both files await the European Parliament's second reading (indicative plenary 2026-12-14) and are not yet in the Official Journal. Most PSR rules would apply 21 months after entry into force, when PSD3 must also apply. Neither text has an AI-agent provision; a PSR recital says strong customer authentication applies when a merchant-initiated mandate is set up, not to each later merchant-initiated payment.",
+    "kind": "policy",
+    "sources": [
+      "src-policy-consilium-psr-position",
+      "src-policy-consilium-psd3-position",
+      "src-policy-oeil-psr",
+      "src-policy-oeil-psd3"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-29",
+    "lane": "Standards",
+    "title": "Web Bot Auth working group draft -01 posted",
+    "detail": "Every Signature-Agent value becomes an HTTPS URL that the verifier fetches directly as a JWK Set; the directory, jwks_uri and cimd types are removed. Deployed signers and verifiers still use the earlier string form.",
+    "kind": "release",
+    "sources": [
+      "src-wba-draft",
+      "src-orbit-wba-wg-drafts-api",
+      "src-orbit-cf-wba-reference",
+      "src-openai-commerce-agent-access"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-10-30",
+    "lane": "Policy",
+    "title": "UK regulators publish a joint statement on protecting people in an agentic economy",
+    "detail": "The members of the Digital Regulation Cooperation Forum (CMA, FCA, ICO and Ofcom) set out their work on agentic AI and how existing law applies to agents, as described on the CMA's GOV.UK pages (the statement itself was not readable). The CMA's guidance says a business answers for what its AI agent does as it would for an employee. A statement, not a rule.",
+    "kind": "policy",
+    "sources": [
+      "src-policy-cma-ai-agents-guidance",
+      "src-policy-cma-agentic-ai-consumers"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-11-04",
+    "lane": "Policy",
+    "title": "OCC examiner framework puts an autonomous customer-facing payment agent in its highest risk tier",
+    "detail": "OCC Bulletin 2026-54 gives examiners a framework for banks' use of super intelligence, the federal term for AI since Executive Order 14434 (published 2026-10-02). A fully autonomous, customer-facing payment agent sits in Tier 1 (critical), and agentic-commerce systems outside the bank's control are treated as a channel risk. The framework says it sets no supervisory expectations for banks: it is guidance, not a rule.",
+    "kind": "policy",
+    "sources": [
+      "src-policy-occ-bulletin-2026-54",
+      "src-policy-occ-si-framework",
+      "src-policy-fr-eo-14434"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-11-04",
+    "lane": "Standards",
+    "title": "Cloudflare adds per-agent controls for personal agents",
+    "detail": "AI bot policies renamed AI Crawler and Agent access policies, with Allow, Block on pages with ads or Block for each supported personal agent and a Personal Assistants traffic category.",
+    "kind": "launch",
+    "sources": [
+      "src-orbit-cf-personal-agents-changelog",
+      "src-orbit-cf-blog-personal-agents"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-11-05",
+    "lane": "Standards",
+    "title": "Cloudflare announces the Trusted Agent Delegation coalition",
+    "detail": "Meant to examine existing protocols and bring well-defined problems to the IETF; World's post of 2026-11-12 presents it as a Cloudflare and World coalition. A whitepaper, no specification or member list (as of 2026-11-14).",
+    "kind": "announce",
+    "sources": [
+      "src-orbit-cf-blog-tad",
+      "src-orbit-world-blog-tad",
+      "src-orbit-tad-site"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-11-11",
+    "lane": "Standards",
+    "title": "MCP moves to a six-month release cycle",
+    "detail": "Releases generally on the last Tuesday of March and September; the next revision is targeted for 2027-03-30, a plan rather than a release.",
+    "kind": "governance",
+    "sources": [
+      "src-orbit-mcp-release-cycle"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-11-13",
+    "lane": "Market",
+    "title": "ChatGPT Wallet launches in dots for US ChatGPT Pro subscribers",
+    "detail": "Built with American Express, Mastercard and Visa: the user approves each purchase with a security check, and the card network supplies a payment token that the dot enters in the merchant's existing checkout. OpenAI does not present Wallet as ACP; its post quotes American Express calling Wallet its first ACE integration.",
+    "kind": "launch",
+    "sources": [
+      "src-openai-chatgpt-wallet",
+      "src-openai-news-rss-20261114",
+      "src-openai-commerce-accept-payments"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-11-13",
+    "lane": "Standards",
+    "title": "Personal Agent Protocol 1.0 released",
+    "detail": "Sierra announces version 1.0 with more than 100 design partners and a UCP extension that Shopify co-authored; the project's changelog dates the frozen 1.0 text 2026-11-14. The core specification does not cover payments yet; through the UCP extension, payment runs in UCP checkout.",
+    "kind": "release",
+    "sources": [
+      "src-orbit-pap-sierra-1-0",
+      "src-orbit-pap-changelog",
+      "src-orbit-pap-path-to-1",
+      "src-orbit-pap-ucp-extension"
+    ],
+    "confidence": "verified"
+  },
+  {
+    "date": "2026-11-14",
+    "lane": "Market",
+    "title": "Observed: x402.org counter gone, 8004scan passes 2 million registrations, MPPscan indexer appears stalled",
+    "detail": "x402.org no longer shows its Last 30 Days counter, which a capture of 2026-10-24 still had. 8004scan's statistics API counts 2,062,896 agents, about three times the 699,098 of 2026-10-18, mostly from two batch waves on Base and Arc Mainnet whose sampled registrations all point to Central City; it does not index 0G, whose registry had issued ids up to 3,941,206, so on-chain registrations across chains exceed 6 million by highest id. MPPscan's newest indexed transaction dates from 2026-11-11T17:14:56Z while Tempo kept producing blocks, so its indexer appears to have stopped and its rolling windows cover fewer days than their labels say.",
+    "kind": "market",
+    "sources": [
+      "src-x402-site",
+      "src-x402-site-wb-20261024",
+      "src-8004scan-stats-api",
+      "src-erc-8004-chain-probe-2026-11-14",
+      "src-erc-8004-centralcity",
+      "src-stripe-mpp-mppscan"
+    ],
+    "confidence": "verified"
+  },
+  {
     "date": "2027-01-18",
     "lane": "Policy",
-    "title": "GENIUS Act latest effective date (scheduled)",
-    "detail": "Eighteen months after enactment. Final rules issued after about 2026-09-20 cannot bring the date earlier, because 120 days would fall after 2027-01-18.",
+    "title": "GENIUS Act and the OCC's implementing rule take effect (scheduled)",
+    "detail": "Eighteen months after enactment. The OCC's final rule (published 2026-10-23) takes effect the same day and names it as the Act's effective date; final rules issued after about 2026-09-20 could not bring the date earlier, because 120 days would fall after 2027-01-18.",
     "kind": "policy",
     "sources": [
       "src-policy-genius-act",
-      "src-policy-pymnts-occ-november"
+      "src-policy-fr-occ-genius-final",
+      "src-policy-occ-nr-2026-92"
     ],
     "confidence": "verified"
   }

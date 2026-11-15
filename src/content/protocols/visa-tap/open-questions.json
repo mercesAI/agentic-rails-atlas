@@ -3,17 +3,18 @@
   "items": [
     {
       "question": "How do production agent keys reach merchants and CDNs?",
-      "context": "The specification named a JWKS at mcp.visa.com until October 2026 and names no key URL today. That JWKS holds one RSA sandbox key, which Visa's own code uses to encrypt MCP tokens, while the examples use Ed25519. Visa's API reference lists a Visa Agent Registry Services entry open only to authorized users (2026-10-19).",
+      "context": "The specification named a JWKS at mcp.visa.com until October 2026 and names no key URL today. That JWKS holds one RSA sandbox key, which Visa's own code uses to encrypt MCP tokens, while the examples use Ed25519. Visa's API reference lists a Visa Agent Registry Services entry open only to authorized users (2026-10-19). Visa's VIC docs (2026-11-14) say production agents register there so that Visa can validate their signatures, but name no way for merchants or CDNs to fetch those keys.",
       "sources": [
         "src-visa-tap-jwks",
         "src-visa-tap-spec",
         "src-visa-ai-token-manager",
-        "src-visa-tap-apiref"
+        "src-visa-tap-apiref",
+        "src-visa-vic-docs"
       ]
     },
     {
       "question": "Will TAP converge on the Web Bot Auth working group draft?",
-      "context": "Visa says it will align with the IETF, and the draft -00 appeared on 2026-09-01, but tags, key discovery and nonce rules differ today.",
+      "context": "Visa says it will align with the IETF, and the working group posted draft -00 on 2026-09-01 and -01 on 2026-10-29, but tags, key discovery and nonce rules differ today. Since -01 the draft fetches each Signature-Agent URL directly as a JWK Set, while TAP still looks keys up by keyid in Visa's key store.",
       "sources": [
         "src-visa-tap-pr",
         "src-wba-draft"
@@ -47,9 +48,10 @@
     },
     {
       "question": "How many merchants verify TAP, and how much traffic is signed?",
-      "context": "No count is published; only four merchants were named live on 2026-07-02.",
+      "context": "No count is published. Visa named four live merchants on 2026-07-02 and, on 2026-10-20, a live business-to-business pilot in which Billtrust supplier portals verify BILL's payment agent, without transaction counts (checked 2026-11-14).",
       "sources": [
-        "src-visa-eu-live"
+        "src-visa-eu-live",
+        "src-visa-bill-billtrust"
       ]
     },
     {

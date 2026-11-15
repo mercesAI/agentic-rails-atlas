@@ -27,7 +27,7 @@
       ],
       "questions": [
         "Which API-Version does this merchant support?",
-        "Should we accept both order_create and order_created?",
+        "Do we need ACP checkout at all, or is a network token on the merchant's own checkout enough, as ChatGPT Wallet does outside ACP?",
         "How do we show a requires_escalation session?"
       ],
       "firstSteps": [
@@ -58,13 +58,14 @@
         "Avoid PCI DSS scope changes"
       ],
       "pains": [
-        "Approval for ChatGPT feeds is limited to approved partners",
+        "ChatGPT feed onboarding moved to Business Hub with identity verification in OpenAI's docs (rewritten 2026-11-13), while OpenAI's merchant page still shows a waitlist",
         "OpenAI says no fees for purchases on your own site or app and none on purchases that start in ChatGPT; it is moving away from standalone Instant Checkout",
         "Unclear which platform covers which protocol"
       ],
       "implements": [
         "A product feed through a provider such as Shopify Catalog, Salesforce or Stripe",
-        "External checkout on the merchant site"
+        "External checkout on the merchant site",
+        "Nothing Wallet-specific: ChatGPT Wallet, which is not ACP, pays on the existing checkout page"
       ],
       "mustTrust": [
         "The platform or PSP to implement ACP correctly",
@@ -78,7 +79,7 @@
       "firstSteps": [
         "Ask your commerce platform whether it sends your catalog to ChatGPT",
         "Check that your product data has ids, variants, prices and availability",
-        "Read OpenAI's prohibited products list"
+        "Claim your business in Business Hub and verify your identity before you upload products"
       ],
       "metrics": [
         "Orders from AI surfaces",
@@ -88,7 +89,8 @@
       "story": "Tomas runs a small outdoor gear shop on a hosted platform. In 2025 he read that ChatGPT would let buyers check out in chat and waited for his platform to switch it on. In March 2026 the plan changed: OpenAI now pulls product data through feeds, and buyers finish on his own store. His platform already sends the catalog, so he fixes missing variant titles and stale prices, since a feed product needs ids and variants. Orders still arrive through his normal checkout and PSP. When a buyer disputes a tent, Tomas answers the chargeback himself, because he remains merchant of record.",
       "sources": [
         "src-openai-product-discovery",
-        "src-openai-commerce-docs",
+        "src-openai-commerce-product-feeds",
+        "src-openai-commerce-accept-payments",
         "src-openai-acp-schema-feed-20260417",
         "src-openai-buy-it",
         "src-chatgpt-merchants"
@@ -104,8 +106,9 @@
       ],
       "pains": [
         "Released spec folders change after release",
-        "OpenAI docs and the spec disagree on status codes and names",
-        "UCP asks for a similar but different integration"
+        "OpenAI's ACP docs disagreed with the spec on status codes and names until the 2026-11-13 docs rewrite, and its new plugin reference checkout follows UCP's field names",
+        "UCP asks for a similar but different integration",
+        "Few surfaces call an ACP server: even Meta's own agent Muse documents no ACP use (2026-11-14)"
       ],
       "implements": [
         "/checkout_sessions endpoints with idempotency storage for 24 hours or more",
@@ -126,7 +129,7 @@
       "firstSteps": [
         "Pin a commit of spec/2026-04-17 and validate your examples against it",
         "Implement idempotency exactly as RFC section 6 says",
-        "Add the docs-versus-spec differences to your test suite"
+        "Test against the spec, and treat OpenAI's pre-2026-11-13 docs as history"
       ],
       "metrics": [
         "Conversion by agent surface",
@@ -134,13 +137,15 @@
         "Chargebacks on agent orders",
         "Latency of create and complete"
       ],
-      "story": "Lena's team at a home goods retailer built an ACP server in a sprint. The hard part was not the endpoints but the drift: the RFC examples sent items with a quantity that their schema validator rejected, so they followed the JSON Schema and the repository's examples file. They store every idempotency key for 48 hours and return 422 on a changed body, while their client library also tolerates 409 because OpenAI's checklist says so. A month later they publish acp.json and start a UCP adapter, reusing the same order service but a separate checkout layer.",
+      "story": "Lena's team at a home goods retailer built an ACP server in a sprint. The hard part was not the endpoints but the drift: the RFC examples sent items with a quantity that their schema validator rejected, so they followed the JSON Schema and the repository's examples file. They store every idempotency key for 48 hours and return 422 on a changed body, while their client library also tolerates 409 because OpenAI's checklist said so until the 2026-11-13 docs rewrite replaced it. A month later they publish acp.json and start a UCP adapter, reusing the same order service but a separate checkout layer.",
       "sources": [
         "src-openai-acp-schema-checkout-20260417",
         "src-openai-acp-rfc-checkout",
         "src-openai-acp-examples-20260417",
         "src-openai-commerce-docs",
-        "src-openai-acp-rfc-discovery"
+        "src-openai-acp-rfc-discovery",
+        "src-openai-commerce-build-plugin",
+        "src-openai-acp-meta-muse"
       ]
     },
     {
@@ -225,6 +230,7 @@
       "story": "Sam asks an assistant for running shoes in size ten. The assistant shows three options from different stores, each with a price from the store itself. Sam picks one and confirms the total, including tax and shipping. The assistant says the purchase is with the store, and the card statement later shows the store's name, not the assistant's. When the shoes are too small, Sam opens the order link and starts a return on the store's site. The refund appears as an adjustment in the order updates the assistant receives. Nothing in the protocol records Sam's confirmation except the assistant's own interface.",
       "sources": [
         "src-openai-commerce-docs",
+        "src-openai-commerce-accept-payments",
         "src-openai-buy-it",
         "src-openai-acp-schema-checkout-20260417"
       ]

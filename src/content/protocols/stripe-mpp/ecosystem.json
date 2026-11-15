@@ -126,6 +126,15 @@
       ]
     },
     {
+      "name": "Lightning Labs Aperture",
+      "role": "L402 reverse proxy that, by Lightning Labs' account, has also served MPP's Payment scheme with Lightning charge and session intents since v0.5.0 (2026-03-25), with one 402 that can carry both an L402 and a Payment challenge; v0.6.0 (2026-11-05) brought that implementation up to the spec. MPP support is opt-in and needs SQL storage, and the MPP repositories do not list Aperture.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-aperture-v050",
+        "src-stripe-mpp-aperture-v060"
+      ]
+    },
+    {
       "name": "Tempo Wallet MPP Credits (legacy)",
       "role": "Card-funded credits for MPP services, announced 2026-06-17. On 2026-10-21 Tempo Wallet calls them legacy and keeps them separate from MACH; buying MACH does not convert them.",
       "status": "unknown",
@@ -139,142 +148,142 @@
     {
       "registry": "npm",
       "name": "mppx",
-      "version": "0.14.1",
+      "version": "0.19.0",
       "url": "https://www.npmjs.com/package/mppx",
-      "note": "TypeScript SDK by wevm, MIT; server, client, CLI, proxy; serves x402 exact offers since 0.6.29 (2026-06-02) and has dual MPP and x402 framework wrappers since 0.9.0 (2026-08-27). Version 0.14.1 of 2026-10-21, latest as of that date."
+      "note": "TypeScript SDK by wevm, MIT, and the reference SDK named in the shared AGENTS.md of mpp-specs; server, client, CLI, proxy; serves x402 exact offers since 0.6.29 (2026-06-02) and has dual MPP and x402 framework wrappers since 0.9.0 (2026-08-27). Since 0.16.0 (2026-10-28) it carries the per-route identity framework, and since 0.18.0 its Tempo server methods refuse to start in production without an explicitly configured store. Version 0.19.0 of 2026-11-14, latest as of that date."
     },
     {
       "registry": "pypi",
       "name": "pympp",
-      "version": "0.14.0",
+      "version": "0.22.0",
       "url": "https://pypi.org/project/pympp/",
-      "note": "Python SDK by tempoxyz. Version 0.14.0 of 2026-10-13, latest as of 2026-10-21."
+      "note": "Python SDK by tempoxyz. Version 0.22.0 of 2026-11-09, latest as of 2026-11-14 (0.14.0 on 2026-10-21)."
     },
     {
       "registry": "crates",
       "name": "mpp",
-      "version": "0.16.0",
+      "version": "0.20.0",
       "url": "https://crates.io/crates/mpp",
-      "note": "Rust SDK (tempoxyz/mpp-rs). Version 0.16.0 of 2026-10-19, latest as of 2026-10-21."
+      "note": "Rust SDK (tempoxyz/mpp-rs). Version 0.20.0 of 2026-11-09, latest as of 2026-11-14 (0.16.0 on 2026-10-21)."
     },
     {
       "registry": "go",
       "name": "github.com/tempoxyz/mpp-go",
-      "version": "v0.2.0",
+      "version": "v0.9.0",
       "url": "https://pkg.go.dev/github.com/tempoxyz/mpp-go",
-      "note": "Go SDK. Version v0.2.0 of 2026-07-01, latest as of 2026-10-21."
+      "note": "Go SDK. Version v0.9.0 of 2026-11-09, latest as of 2026-11-14 (v0.2.0 on 2026-10-21)."
     },
     {
       "registry": "rubygems",
       "name": "mpp-rb",
-      "version": "0.1.9",
+      "version": "0.1.10",
       "url": "https://rubygems.org/gems/mpp-rb",
-      "note": "Ruby SDK in stripe/mpp-rb. Version 0.1.9 of 2026-10-19, latest as of 2026-10-21."
+      "note": "Ruby SDK in stripe/mpp-rb. Version 0.1.10 of 2026-10-26, latest as of 2026-11-14."
     },
     {
       "registry": "npm",
       "name": "mpp-card",
       "version": "0.1.8",
       "url": "https://www.npmjs.com/package/mpp-card",
-      "note": "Visa card method SDK; proprietary license; no TAP signing code. Version as of 2026-10-21."
+      "note": "Visa card method SDK; proprietary license; no TAP signing code. Version as of 2026-11-14, unchanged since 2026-03-18."
     },
     {
       "registry": "npm",
       "name": "@solana/mpp",
       "version": "0.7.0",
       "url": "https://www.npmjs.com/package/@solana/mpp",
-      "note": "Solana method. Version as of 2026-10-21."
+      "note": "Solana method. Version as of 2026-11-14, unchanged since 2026-07-13."
     },
     {
       "registry": "npm",
       "name": "@stellar/mpp",
       "version": "0.7.1",
       "url": "https://www.npmjs.com/package/@stellar/mpp",
-      "note": "Stellar method. Version as of 2026-10-21."
+      "note": "Stellar method. Version as of 2026-11-14, unchanged since 2026-07-02."
     },
     {
       "registry": "npm",
       "name": "@buildonspark/lightning-mpp-sdk",
       "version": "0.1.4",
       "url": "https://www.npmjs.com/package/@buildonspark/lightning-mpp-sdk",
-      "note": "Lightning method SDK that extends mppx, in the Spark organization's repository (MIT), with Lightspark addresses among its npm maintainers; mpp.dev lists session support as coming soon. Version 0.1.4 of 2026-03-18, latest as of 2026-10-21."
+      "note": "Lightning method SDK that extends mppx, in the Spark organization's repository (MIT), with Lightspark addresses among its npm maintainers; mpp.dev's lightning page lists session support as coming soon. Version 0.1.4 of 2026-03-18, latest as of 2026-11-14."
     }
   ],
   "metrics": [
     {
       "id": "stripe-mpp-mppscan-tx-all",
       "metric": "MPPscan transactions, all time",
-      "value": 4250945,
+      "value": 4693132,
       "unit": "transactions",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-14",
       "definition": "MPPscan's count of MPP payments.",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-visa-groundup",
         "src-stripe-mpp-merit-glossary"
       ],
-      "caveat": "The indexer's own definition: MPPscan publishes no counting method and does not say whether test or wash payments are excluded, while Visa and Artemis exclude identified wash and test activity from their adjusted totals. A Merit Systems page dated 2026-06-24 shows the same live figures, so they are not June values.",
+      "caveat": "The indexer's own definition: MPPscan publishes no counting method and does not say whether test or wash payments are excluded, while Visa and Artemis exclude identified wash and test activity from their adjusted totals. A Merit Systems page dated 2026-06-24 shows the same live figures, so they are not June values. Read on 2026-11-14, the newest indexed transaction dated from 2026-11-11T17:14:56Z and the 1-day window read 0, so the indexer appears to have stopped then. The count was 4,250,945 on 2026-10-21.",
       "disputed": false
     },
     {
       "id": "stripe-mpp-mppscan-vol-all",
       "metric": "MPPscan volume, all time",
-      "value": 437665,
+      "value": 445223,
       "unit": "USD",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-14",
       "definition": "Sum of indexed payment values.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "About 0.10 USD per transaction on average."
+      "caveat": "About 0.09 USD per transaction on average; indexed data ends on 2026-11-11. The total was 437,665 USD on 2026-10-21."
     },
     {
       "id": "stripe-mpp-mppscan-senders",
       "metric": "MPPscan unique senders and recipients, all time",
-      "value": "224,823 / 6,138",
+      "value": "225,341 / 6,223",
       "unit": "addresses",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-14",
       "definition": "Distinct sending and receiving addresses.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "Addresses, not agents or businesses."
+      "caveat": "Addresses, not agents or businesses; indexed data ends on 2026-11-11. The figures were 224,823 / 6,138 on 2026-10-21."
     },
     {
       "id": "stripe-mpp-mppscan-30d",
       "metric": "MPPscan last 30 days",
-      "value": "785,833 transactions; 8,620 USD",
+      "value": "536,607 transactions; 8,722 USD",
       "unit": "transactions and USD",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-14",
       "definition": "Rolling 30-day window.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "About one cent (1.1 cents) per transaction on average."
+      "caveat": "Not comparable with the earlier reading: indexed data ends on 2026-11-11, so the window holds about 26.6 indexed days. Per indexed day that is about 20,100 transactions and 327 USD, about 1.6 cents each. On 2026-10-21 the full window read 785,833 transactions and 8,620 USD, about 26,200 and 287 USD a day at about 1.1 cents each."
     },
     {
       "id": "stripe-mpp-mppscan-7d",
       "metric": "MPPscan last 7 days (homepage default)",
-      "value": "120,727 transactions; 1,560 USD",
+      "value": "62,011 transactions; 1,797 USD",
       "unit": "transactions and USD",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-14",
       "definition": "Rolling 7-day window shown by default on the homepage.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "Do not read the homepage numbers as all-time totals."
+      "caveat": "Holds only about 3.6 indexed days because indexed data ends on 2026-11-11, so do not read a decline into it. On 2026-10-21 the window read 120,727 transactions and 1,560 USD. Do not read the homepage numbers as all-time totals."
     },
     {
       "id": "stripe-mpp-directory",
       "metric": "mpp.dev directory services",
-      "value": 138,
+      "value": 139,
       "unit": "services",
-      "asOf": "2026-10-21",
-      "definition": "Listings in mpp.dev/api/services; 135 accept tempo, 10 stripe, 1 evm; 19 carry the supportsMACH flag.",
+      "asOf": "2026-11-14",
+      "definition": "Listings in mpp.dev/api/services; 136 accept tempo, 10 stripe, 1 evm; 19 carry the supportsMACH flag.",
       "sources": [
         "src-stripe-mpp-directory-api"
       ],
-      "caveat": "A listing, not usage."
+      "caveat": "A listing, not usage. The directory had 138 listings on 2026-10-21."
     },
     {
       "id": "stripe-mpp-directory-launch",
@@ -305,9 +314,9 @@
     {
       "id": "stripe-mpp-gh-stars",
       "metric": "GitHub stars",
-      "value": "mpp-specs 95; mppx 186",
+      "value": "mpp-specs 97; mppx 192",
       "unit": "stars",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-14",
       "definition": "Stars on the two main repositories.",
       "sources": [
         "src-stripe-mpp-gh-specs-commits",

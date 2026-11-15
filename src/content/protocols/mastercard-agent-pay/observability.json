@@ -38,13 +38,14 @@
     },
     {
       "what": "Key directory location",
-      "where": "/.well-known/http-message-signatures-directory on the Signature-Agent host",
-      "how": "The Web Bot Auth drafts define /.well-known/http-message-signatures-directory; Mastercard's guide shows that path only in a ChatGPT example and gives no Agent Pay path. The only Mastercard host in the docs, agentpay-key-directory.mastercard.com, did not resolve on 2026-10-21, so the live location is unknown.",
+      "where": "Unknown for Agent Pay. Under Web Bot Auth draft -01 (2026-10-29) the Signature-Agent value is itself the URL of a JWK Set; earlier drafts read the key directory at /.well-known/http-message-signatures-directory on the Signature-Agent host",
+      "how": "Draft -01 keeps /.well-known/http-message-signatures-directory only as one special case of a JWK Set URL. Mastercard's guide shows that path only in a ChatGPT example, and OpenAI documents its own directory at https://chatgpt.com/.well-known/http-message-signatures-directory; the guide gives no Agent Pay path. The only Mastercard host in the docs, agentpay-key-directory.mastercard.com, did not resolve on 2026-10-21 or on 2026-11-14, so the live location is unknown.",
       "sources": [
         "src-wba-draft",
         "src-mcap-dev-level1",
         "src-mcap-dns-directory",
-        "src-mcap-cloudflare-blog"
+        "src-mcap-cloudflare-blog",
+        "src-openai-commerce-agent-access"
       ]
     },
     {

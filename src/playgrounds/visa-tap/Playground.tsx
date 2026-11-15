@@ -681,7 +681,8 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
         ['tag', 'agent-browser-auth'],
       ];
       const tap = await signRequest(tapReq, { label: TAP_LABEL, components: [{ name: '@authority' }, { name: '@path' }], params: tapParams, alg: agentKey.alg, privateKey: agentKey.privateKey });
-      const wbaReq: HttpRequest = { ...tapReq, headers: { ...tapReq.headers, 'signature-agent': `${WBA_SIG_LABEL}="${AGENT_DIRECTORY_ORIGIN}"` } };
+      // Draft -01: the Signature-Agent member is the JWK Set URL itself (here the well-known directory URL of the fixture agent).
+      const wbaReq: HttpRequest = { ...tapReq, headers: { ...tapReq.headers, 'signature-agent': `${WBA_SIG_LABEL}="${AGENT_DIRECTORY_ORIGIN}${WBA_DIRECTORY_PATH}"` } };
       const wbaParams: SigParams = [
         ['created', now],
         ['expires', now + 300],
@@ -752,8 +753,8 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
         {col('Web Bot Auth draft', sides.wba, 'TAP')}
       </div>
       <p className="vt-src">
-        Web Bot Auth keyid is the JWK thumbprint <code>{thumb}</code>; its keys are found through the Signature-Agent URL, by default at <code>{WBA_DIRECTORY_PATH}</code> on that host, served as{' '}
-        <code>{WBA_DIRECTORY_MEDIA_TYPE}</code>. Neither directory is contacted here.
+        Web Bot Auth keyid is the JWK thumbprint <code>{thumb}</code>. Since draft -01 the verifier fetches the Signature-Agent URL itself as a JWK Set; this example sends the
+        well-known URL <code>{WBA_DIRECTORY_PATH}</code> of the agent host, where the set is served as <code>{WBA_DIRECTORY_MEDIA_TYPE}</code>. Neither directory is contacted here.
       </p>
       <ScrollRegion label="Visa TAP and Web Bot Auth comparison table">
         <table className="vt-table">
@@ -761,7 +762,7 @@ function Compare({ agentKey, thumb, directory, onAnnounce }: { agentKey: AgentKe
             <tr>
               <th scope="col">Aspect</th>
               <th scope="col">Visa TAP</th>
-              <th scope="col">Web Bot Auth draft -00</th>
+              <th scope="col">Web Bot Auth draft -01</th>
             </tr>
           </thead>
           <tbody>

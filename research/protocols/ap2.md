@@ -338,7 +338,7 @@ The `a2a-x402` extension does define a payment state machine through the metadat
 | --- | --- | --- | --- |
 | SD-JWT (RFC 9901, published 2025-11) | Format of every mandate; selective disclosure of constraints; salted digests; decoy digests allowed (Section 4.2.5) | Normative reference | [src-ap2-agent-authorization] [src-ap2-security] [src-ap2-rfc9901] |
 | SD-JWT VC | Mandates are SD-JWT VCs identified by `vct` | Spec text | [src-ap2-agent-authorization] |
-| Delegate SD-JWT (individual draft by G. Oliver) | Chains open and closed mandates; the closed mandate is a key-binding JWT (`typ` `kb+sd-jwt` in examples) carrying `sd_hash` over the parent | Normative reference to a GitHub draft; posted to the IETF as `draft-gco-oauth-delegate-sd-jwt-00` on 2026-04-22 | [src-ap2-agent-authorization] [src-ap2-delegate-sd-jwt] |
+| Delegate SD-JWT (IETF OAuth working group draft, G. Oliver and C. Bormann; posted as an individual draft by G. Oliver) | Chains open and closed mandates; the closed mandate is a key-binding JWT (`typ` `kb+sd-jwt` in examples, unchanged in the working group draft) carrying `sd_hash` over the parent | Normative reference to a GitHub draft; posted to the IETF as `draft-gco-oauth-delegate-sd-jwt-00` on 2026-04-22; adopted by the OAuth working group as `draft-ietf-oauth-delegate-sd-jwt-00` on 2026-10-30 (refresh 2026-11-14) | [src-ap2-agent-authorization] [src-ap2-delegate-sd-jwt] [src-ap2-delegate-sd-jwt-wg] |
 | RFC 7800 `cnf` | Agent public key in open mandates (proof of possession) | Normative | [src-ap2-agent-authorization] |
 | OpenID4VP 1.0 | `transaction_data` of type `delegate`; DCQL | Normative | [src-ap2-agent-authorization] |
 | W3C Digital Credentials API | Recommended channel for OpenID4VP delegation | RECOMMENDED | [src-ap2-agent-authorization] |
@@ -485,7 +485,7 @@ Since 2026-04-29 outside contributors have filed issues against the Python SDK a
 11. **Runtime replay.** Consume-once semantics are not specified; arXiv:2602.06345 proposes runtime nonces; issue #346 reports that the samples never consume an accepted Payment Mandate [src-ap2-pub-2602-06345] [src-ap2-gh-issues-since].
 12. **Governance in transition.** Normative work moved to FIDO, but no FIDO draft is public; the GitHub repo receives issues and PRs that nobody merges [src-ap2-fido-pr] [src-ap2-gh-issues-since].
 13. **Reference dating error.** AP2 cites SD-JWT (RFC 9901) as "February 2025"; the RFC Editor dates RFC 9901 to November 2025 [src-ap2-agent-authorization] [src-ap2-rfc9901].
-14. **Normative dependence on an individual draft.** Mandate chaining relies on Delegate SD-JWT, an individual draft with no working-group adoption found [src-ap2-delegate-sd-jwt].
+14. **Normative dependence on a draft cited before adoption.** Mandate chaining relies on Delegate SD-JWT. AP2 v0.2 cites the individual draft; the IETF OAuth working group adopted it as `draft-ietf-oauth-delegate-sd-jwt-00` on 2026-10-30, which renamed the KB-SD-JWT+KB `typ` to `kb-sd-jwt+kb` while the AP2 SDK still writes `kb+sd-jwt+kb` for open-mandate hops (refresh 2026-11-14) [src-ap2-delegate-sd-jwt] [src-ap2-delegate-sd-jwt-wg] [src-ap2-sdk-kb-sd-jwt].
 
 ## Resources (20 or more)
 
@@ -507,7 +507,7 @@ URLs re-checked with `curl -sSIL` on 2026-10-11; status shown in the note when n
 | UCP AP2 Mandates Extension | https://ucp.dev/latest/specification/payment/extensions/ap2-mandates/ | Universal Commerce Protocol | 2026-08-25 | spec | partner | How UCP carries AP2 mandates | no |
 | a2a-x402 | https://github.com/google-agentic-commerce/a2a-x402 | Google Agentic Commerce | 2025-09-16 | repo | official | AP2's crypto path (Appendix A); embeds v0.1 mandates | no |
 | Verifiable Intent specification | https://github.com/agent-intent/verifiable-intent/blob/main/spec/README.md | Mastercard and Google | 2026-02-19 (0.1.0) | spec | partner | Same `vct` values, `mandate.`-prefixed constraint keys | no |
-| Delegate SD-JWT (individual draft) | https://github.com/GarethCOliver/gco-delegate-sd-jwt | Gareth Oliver | 2026-03-04 created | spec | community | Chaining mechanism AP2 depends on; IETF `draft-gco-oauth-delegate-sd-jwt-00` | no |
+| Delegate SD-JWT (IETF OAuth working group draft) | https://datatracker.ietf.org/doc/draft-ietf-oauth-delegate-sd-jwt/ | IETF OAuth working group (G. Oliver, C. Bormann) | 2026-10-30 adopted | spec | official | Chaining mechanism AP2 depends on; replaces the individual draft `draft-gco-oauth-delegate-sd-jwt-00`; the GitHub source https://github.com/GarethCOliver/gco-delegate-sd-jwt (created 2026-03-04) now redirects to https://github.com/oauth-wg/oauth-delegate-sd-jwt (refresh 2026-11-14) | no |
 | RFC 9901 Selective Disclosure for JSON Web Tokens | https://www.rfc-editor.org/rfc/rfc9901 | IETF | 2025-11 | standard | official | SD-JWT base format | no |
 | OpenID for Verifiable Presentations 1.0 | https://openid.net/specs/openid-4-verifiable-presentations-1_0.html | OpenID Foundation | 2025 | standard | official | `transaction_data` used for delegation (AP2 links an older URL that now returns 404) | no |
 | Digital Credentials API | https://www.w3.org/TR/digital-credentials/ | W3C | ongoing | standard | official | Recommended delegation channel | no |
@@ -574,7 +574,7 @@ Checked against `https://export.arxiv.org/api/query` and `https://doi.org` conte
 | Open mandates add `constraints` and `cnf` | confirmed | src-ap2-schema-open-checkout, src-ap2-schema-open-payment | Both required; open checkout must contain `checkout.line_items`, open payment must contain `payment.reference` |
 | Ten constraint keys | confirmed | src-ap2-schema-open-checkout, src-ap2-schema-open-payment | Exact strings as listed |
 | Unrecognized constraint must cause failure | confirmed | src-ap2-agent-authorization | |
-| SD-JWT VCs chained with Delegate SD-JWT draft; ES256 in examples | confirmed | src-ap2-agent-authorization, src-ap2-delegate-sd-jwt | Draft posted to IETF 2026-04-22 |
+| SD-JWT VCs chained with Delegate SD-JWT draft; ES256 in examples | confirmed | src-ap2-agent-authorization, src-ap2-delegate-sd-jwt, src-ap2-delegate-sd-jwt-wg | Draft posted to IETF 2026-04-22; OAuth working group draft since 2026-10-30 |
 | Two delegation models (OpenID4VP `delegate`, DC API, EMVCo DPC example; or Trusted Agent Provider key the agent cannot reach) | confirmed | src-ap2-agent-authorization | |
 | Human-present flow steps | confirmed | src-ap2-flows | |
 | Human-not-present flow; `sd_hash`; no new mandate without a rejection receipt | confirmed | src-ap2-flows, src-ap2-spec-v02 | |
@@ -628,3 +628,13 @@ Also appended to `research/conflicts.md`:
 1. Whether FIDO's 2026 "Payments Technical Working Group" is the same body as the 2025 "Payments Working Group" under a new name (both co-chaired by Visa and Mastercard; no source states it).
 2. That no FIDO deliverable on AP2 exists: FIDO working drafts are member-only, so absence is based on public pages only.
 3. That no production deployment of AP2 mandates exists: the only evidence is absence in primary sources, a 2026-08 paper's statement, and one unverified self-report (issue #345).
+
+## Refresh 2026-11-14
+
+What changed since the 2026-10-21 check, as applied to the site on 2026-11-14 (reads from 2026-11-15T02:30Z to 05:30Z UTC, accessed 2026-11-14 local). AP2 `main` is still e1ea56d.
+
+- **Delegate SD-JWT is an IETF OAuth working group draft.** draft-ietf-oauth-delegate-sd-jwt-00 (G. Oliver, Google; C. Bormann, SPRIND; intended status Standards Track) was uploaded on 2026-10-26, approved as a working group -00 on 2026-10-30 and replaces draft-gco-oauth-delegate-sd-jwt, which expired on 2026-10-23. Still rev 00 on 2026-11-15T05:30Z [src-ap2-delegate-sd-jwt-wg] [src-ap2-delegate-sd-jwt]. The GitHub source AP2 links now redirects to github.com/oauth-wg/oauth-delegate-sd-jwt. The working group text renames the KB-SD-JWT+KB `typ` from `kb+sd-jwt+kb` to `kb-sd-jwt+kb` and keeps the KB-SD-JWT `typ` `kb+sd-jwt`; in a KB-SD-JWT, `sd_hash` stays OPTIONAL. The AP2 v0.2 SDK still writes `kb+sd-jwt+kb` for open-mandate hops and accepts both spellings [src-ap2-sdk-readme] [src-ap2-sdk-kb-sd-jwt]. Claims clm-ap2-108 (reworded), -109 (dated), -216, -217; resources, glossary, compare cells, facts and timeline updated.
+- **PSD3 and the PSR.** The Council adopted its first-reading positions on both on 2026-10-29 (documents dated 2026-11-04, published 2026-11-05); both await the Parliament's second reading, indicatively on 2026-12-14; neither Council text has provisions on AI agents; PSR recital 158 says strong customer authentication should apply at the set-up of a merchant-initiated mandate [src-ap2-council-psr-2026] [src-ap2-council-psd3-2026] [src-ap2-council-psr-2026-reasons] [src-ap2-oeil-psd3]. The Council's draft statement of reasons on the PSR position (dated 2026-10-21) dates the final political trilogue to 2025-11-26; the compliance row now says the texts were agreed provisionally in November 2025. Claim -218; compliance row 7 moved from reported to verified.
+- **Visa interchange edition.** The card-network compliance row now names Visa's US interchange schedule dated 2026-10-24 (no agentic category, as in the April 2026 edition) [src-visa-us-irf-2026-04].
+- **Checked, no change:** production use of AP2 mandates is still unverified; the 2026-11-12 Travelport, Booked AI, Basis Theory and Mastercard release puts Verifiable Intent in an Agent Pay purchase, not in an AP2 flow.
+- **Not applied this round (deferred):** FIDO's 2026-10-20 recap that an agentic payments working draft is coming soon, Gemini purchase tasks (Google does not name AP2), the open a2a-x402 fix in PR #206, the AP2 samples' mcp==1.26.0 pin, the OCC, FCA and DRCF statements, new arXiv papers, Visa's use of the phrase Trusted Agent Provider, and UCP's draft food checkout extension of the AP2 mandate (not yet in a UCP release).

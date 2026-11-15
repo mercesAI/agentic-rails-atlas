@@ -7,6 +7,11 @@ flowchart TB
   subgraph M26["2026 model: discovery first"]
     B0["Merchant pushes product feeds<br/>through ACP (direct or via providers)"] --> B1["Buyer discovers in ChatGPT"]
     B1 --> B2["External checkout on merchant site<br/>(generally available)"]
-    B1 -.-> B3["Payment sheet in apps<br/>(private beta, select partners)"]
+    B1 -.-> B3["Payment sheet in plugins<br/>(private beta, select partners)"]
+  end
+  subgraph M27["From 2026-11-13: ChatGPT Wallet in dots, not ACP"]
+    C1["User approves each purchase<br/>with a security check"] --> C2["Card network issues<br/>a payment token"]
+    C2 --> C3["Dot pays on the merchant's<br/>existing checkout page"]
   end
   M25 == "scaled back 2026-03-24" ==> M26
+  M26 -. "added beside discovery 2026-11-13" .-> M27

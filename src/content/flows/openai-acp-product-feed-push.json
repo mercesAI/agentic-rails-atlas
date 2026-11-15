@@ -2,7 +2,7 @@
   "id": "openai-acp-product-feed-push",
   "protocol": "openai-acp",
   "title": "ACP product feed push (Feed API, 2026-04-17)",
-  "summary": "The agent hosts the Feed API and the merchant pushes products to it. OpenAI runs the same idea under /product_feeds paths.",
+  "summary": "The agent hosts the Feed API and the merchant pushes products to it. OpenAI's commerce docs now take only full feed snapshots, while its Ads Delta Feeds API updates existing variants with the same PATCH upsert shape (2026-11-14).",
   "specVersion": "2026-04-17",
   "specVersionDate": "2026-04-17",
   "actors": [
@@ -74,7 +74,7 @@
       "from": "merchant",
       "to": "agent",
       "label": "Full file replacement (alternative)",
-      "detail": "Send metadata.json plus products.jsonl to replace the whole set; OpenAI recommends a daily full file plus API updates during the day.",
+      "detail": "Send metadata.json plus products.jsonl to replace the whole set. OpenAI's commerce docs now describe only full snapshots by manual upload, hosted URL or SFTP, in OpenAI's own flat format (2026-11-14).",
       "specRef": {
         "url": "https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/7fdd78df677a94dce04c770644b0fbbb1401272b/spec/2026-04-17/openapi/openapi.feed.yaml",
         "section": "File format"
@@ -85,6 +85,8 @@
     "src-openai-acp-openapi-feed-20260417",
     "src-openai-acp-changelog-20260417",
     "src-openai-acp-schema-feed-20260417",
-    "src-openai-commerce-docs"
+    "src-openai-commerce-product-feeds",
+    "src-openai-acp-ads-delta-feeds",
+    "src-openai-commerce-feed-spec"
   ]
 }

@@ -19,10 +19,11 @@
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-discovery",
         "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-mppx-changelog",
         "src-stripe-mpp-intent-charge"
       ],
       "confidence": "verified",
-      "detail": "No identity, mandate or checkout layer in the specs (identity is limited to an optional payer source in the credential; mppx adds optional request attestation); disputes depend on the rail."
+      "detail": "No identity, mandate or checkout layer in the specs (identity is limited to an optional payer source in the credential; mppx adds per-route identity verifiers outside the specs); disputes depend on the rail."
     },
     {
       "protocol": "stripe-mpp",
@@ -42,10 +43,12 @@
       "sources": [
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-governance",
-        "src-stripe-mpp-specs-repo"
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-gh-pr-377",
+        "src-stripe-mpp-specs-agents-md"
       ],
       "confidence": "verified",
-      "detail": "No working group, charter or steering committee in the IETF record or the MPP repositories (2026-10-21)."
+      "detail": "No working group, charter or steering committee in the IETF record or the MPP repositories (2026-11-14). Tempo maintainers decide which methods enter the official spec repository, and one of them owns review of every spec file."
     },
     {
       "protocol": "stripe-mpp",
@@ -73,14 +76,15 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "latest-version-and-date",
-      "value": "draft-httpauth-payment-01 (2026-09-09); mppx 0.14.1 (2026-10-21)",
+      "value": "draft-httpauth-payment-01 (posted 2026-09-09; repository text edited in place 2026-11-11); mppx 0.19.0 (2026-11-14)",
       "sources": [
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-ietf-ryan",
+        "src-stripe-mpp-paymentauth-01-txt",
         "src-stripe-mpp-npm-mppx"
       ],
       "confidence": "verified",
-      "detail": "Latest as of 2026-10-21. Old name draft-ryan-httpauth-payment expired 2026-09-18."
+      "detail": "Latest as of 2026-11-14. paymentauth.org serves the 2026-11-11 text under the same name, so it differs from the IETF copy. Old name draft-ryan-httpauth-payment expired 2026-09-18."
     },
     {
       "protocol": "stripe-mpp",
@@ -93,7 +97,7 @@
         "src-stripe-mpp-iana"
       ],
       "confidence": "verified",
-      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier and no IANA registrations (as of 2026-10-21)."
+      "detail": "Tempo mainnet and Stripe since 2026-03-18; Stripe docs labeled Frontier (as of 2026-10-21) and no IANA registrations (as of 2026-11-14)."
     },
     {
       "protocol": "stripe-mpp",
@@ -121,14 +125,16 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "agent-identity-model",
-      "value": "None in the core; optional request attestation in mppx",
+      "value": "None in the core; per-route identity verifiers in the mppx SDK",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-mppx-changelog",
         "src-stripe-mpp-card-charge"
       ],
       "confidence": "verified",
-      "detail": "Optional DID source; Web Bot Auth and TAP profiles; TAP headers optional in the card method."
+      "detail": "Optional DID source. Since 2026-11-11 the core's repository text sets rules for combining Payment with other authentication but defines none. mppx verifiers (since 0.16.0, replacing request attestation) cover Web Bot Auth, TAP, Email OTP, Link, Persona, World ID and Tempo ID; TAP headers are optional in the card method."
     },
     {
       "protocol": "stripe-mpp",
@@ -244,10 +250,11 @@
       "sources": [
         "src-stripe-mpp-tempo-connection",
         "src-stripe-mpp-core-01",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-docs-private-payments"
       ],
       "confidence": "verified",
-      "detail": "Card credentials may carry billing address and name; core forbids requiring accounts."
+      "detail": "Card credentials may carry billing address and name; core forbids requiring accounts. Since mppx 0.17.4 (2026-11-07) a Tempo charge paid from a Zone hides the payer's address, but recipient, amount, timing and memo stay public."
     },
     {
       "protocol": "stripe-mpp",
@@ -267,10 +274,11 @@
       "value": "Permissionless for chain methods; accounts for the stripe method",
       "sources": [
         "src-stripe-mpp-governance",
-        "src-stripe-mpp-stripe-charge"
+        "src-stripe-mpp-stripe-charge",
+        "src-stripe-mpp-gh-pr-377"
       ],
       "confidence": "verified",
-      "detail": "Rails add methods without approval."
+      "detail": "Anyone can implement a method without approval; the official spec repository lists methods at its maintainers' discretion (six proposals closed on 2026-10-25)."
     },
     {
       "protocol": "stripe-mpp",
@@ -278,11 +286,12 @@
       "value": "Open spec, concentrated authorship",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-specs-agents-md",
         "src-stripe-mpp-tempo-consensus",
         "src-stripe-mpp-directory-api"
       ],
       "confidence": "verified",
-      "detail": "Five core authors from two companies; Tempo validators are permissioned; 135 of 138 directory listings accept Tempo (2026-10-21)."
+      "detail": "Five core authors from two companies; one Tempo maintainer owns review of every spec file; Tempo validators are permissioned; 136 of 139 directory listings accept Tempo (2026-11-14)."
     },
     {
       "protocol": "stripe-mpp",
@@ -354,14 +363,16 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "reference-implementations-and-sdks",
-      "value": "mppx 0.14.1 (TypeScript, 2026-10-21), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
+      "value": "mppx 0.19.0 (TypeScript, 2026-11-14), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
       "sources": [
         "src-stripe-mpp-npm-mppx",
         "src-stripe-mpp-sdk-registries",
-        "src-stripe-mpp-sdk-index"
+        "src-stripe-mpp-sdk-index",
+        "src-stripe-mpp-specs-agents-md",
+        "src-stripe-mpp-specs-contributing-2026"
       ],
       "confidence": "verified",
-      "detail": "Community SDKs in Elixir, Go and Swift."
+      "detail": "mppx is the reference SDK that settles what the drafts leave open, and the mppx, mpp-rs, pympp and mpp-go SDKs take no outside pull requests (2026-11-14). Community SDKs in Elixir, Go and Swift."
     },
     {
       "protocol": "stripe-mpp",
@@ -372,12 +383,12 @@
         "src-stripe-mpp-directory-api"
       ],
       "confidence": "reported",
-      "detail": "MPPscan: 4,250,945 transactions and 437,665 USD all time, 8,620 USD in the 30 days to 2026-10-21; 138 directory services, 135 of them accepting Tempo (2026-10-21)."
+      "detail": "MPPscan on 2026-10-21: 4,250,945 transactions and 437,665 USD all time, 8,620 USD in the previous 30 days. MPPscan on 2026-11-14: 4,693,132 transactions and 445,223 USD all time, with no transaction indexed after 2026-11-11, so its recent windows lag. Directory: 139 services, 136 accepting Tempo (2026-11-14)."
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "published-security-research",
-      "value": "Yes: one formal analysis, one SoK that includes MPP, and nine SDK advisories (2026-10-21)",
+      "value": "Yes: one formal analysis, one SoK that includes MPP, and nine SDK advisories (unchanged on 2026-11-14)",
       "sources": [
         "src-stripe-mpp-arxiv-2609-00060",
         "src-stripe-mpp-arxiv-2604-15367",
@@ -416,10 +427,12 @@
       "protocol": "stripe-mpp",
       "axis": "openness",
       "value": 4,
-      "justification": "CC0 specs, permissionless methods and open SDKs, but no neutral governance body.",
+      "justification": "CC0 specs, methods anyone can implement without approval and open-source SDKs, but no neutral governance body; the maintainers curate the official method list, and four official SDKs take no outside pull requests.",
       "sources": [
         "src-stripe-mpp-specs-license",
-        "src-stripe-mpp-governance"
+        "src-stripe-mpp-governance",
+        "src-stripe-mpp-gh-pr-377",
+        "src-stripe-mpp-specs-contributing-2026"
       ]
     },
     {
@@ -449,7 +462,7 @@
       "protocol": "stripe-mpp",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Millions of indexed transactions averaging about one cent each in the 30 days to 2026-10-21, and few non-Tempo listings.",
+      "justification": "Millions of indexed transactions averaging one to two cents each (about 1.1 cents in the 30 days to 2026-10-21; MPPscan's index stops at 2026-11-11 in the 2026-11-14 reading), and few non-Tempo listings.",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api"
@@ -481,10 +494,12 @@
       "protocol": "stripe-mpp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The core payment is pseudonymous with an optional DID source; mppx adds RFC 9421 request attestation for Web Bot Auth and Visa TAP, and the card method allows optional TAP headers.",
+      "note": "The core payment is pseudonymous with an optional DID source, and since 2026-11-11 its repository text says how other authentication composes with Payment without defining any. mppx adds per-route identity verifiers outside the spec (Web Bot Auth, TAP, Email OTP, Link, Persona, World ID, Tempo ID or custom; request attestation before 0.16.0), and the card method allows optional TAP headers.",
       "sources": [
         "src-stripe-mpp-core-01",
+        "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-blog-identity",
+        "src-stripe-mpp-mppx-changelog",
         "src-stripe-mpp-card-charge"
       ]
     },

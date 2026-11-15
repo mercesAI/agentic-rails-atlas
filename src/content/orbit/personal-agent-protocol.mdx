@@ -1,0 +1,70 @@
+---
+slug: personal-agent-protocol
+name: Personal Agent Protocol (Poppy)
+category: agent-identity
+starred: true
+oneLiner: An open protocol from Sierra and Meta, at version 1.0 since 2026-11-13, for how a personal AI agent finds a company, identifies itself and its user, signs the user in with OAuth and then works through the company's APIs, website or own agent; shopping runs through a UCP extension.
+steward: Sierra and Meta, with more than 100 listed design partners; specification and repository under the Apache License 2.0 (personalagentprotocol.org)
+status: Version 1.0 published; early live use reported by Sierra (Muse, Shopify stores, several named companies); the core specification does not cover payments yet
+latestVersion:
+  label: Personal Agent Protocol 1.0 (announced 2026-11-13; the changelog dates the frozen 1.0 text 2026-11-14)
+  date: "2026-11-13"
+relations:
+  - to: ucp
+    type: complements
+    note: PAP's ucp extension, which Sierra says Shopify co-authored, lets PAP find the company, identify the agent and a pseudonymous user and sign the user in, while the shopping itself (catalog, cart, checkout, orders and Ask) runs over UCP.
+  - to: openai-acp
+    type: same-steward
+    note: No documented technical relation, and PAP never names ACP. The overlap is organizational. Stripe, an ACP founding maintainer, was among PAP's first partners; Meta co-develops PAP and holds an ACP steering committee seat; OpenAI is a listed PAP design partner.
+sources:
+  - src-orbit-pap-spec-1-0
+  - src-orbit-pap-ucp-extension
+  - src-orbit-pap-changelog
+  - src-orbit-pap-path-to-1
+  - src-orbit-pap-llms
+  - src-orbit-pap-repo
+  - src-orbit-pap-sierra-intro
+  - src-orbit-pap-sierra-draft
+  - src-orbit-pap-sierra-1-0
+  - src-wba-draft
+  - src-openai-acp-readme
+  - src-openai-acp-governance
+lastVerified: "2026-11-14"
+---
+
+## What it is
+
+Personal Agent Protocol (PAP), Poppy for short, defines how a personal agent acting for one user works with a company on that user's behalf. It covers discovery, identity, account access, and interaction through the company's APIs, its website or its own agent. <Cite ids="src-orbit-pap-spec-1-0" /> A company publishes a `poppy.json` document at `/.well-known/poppy.json`, which tells agents how to start sessions, how users sign in, and which APIs and company agent it offers. <Cite ids="src-orbit-pap-spec-1-0" />
+
+The agent then sends a `Poppy-Session` header on every request to the company's APIs and protocol endpoints. The header holds a JSON Web Token (JWT) that the agent signs for that one request. It names the session and a user ID that differs at each company, so companies cannot match one user across sites. The agent signs it with a short-lived delegated key, which a key from the agent's published `jwks_uri` vouches for. <Cite ids="src-orbit-pap-spec-1-0" /> Account access is separate and uses OAuth: the user approves access on the company's own page (Direct Sign-In) or on any device with a link and a code (Device Sign-In), and signed-out use needs no OAuth server at all. <Cite ids="src-orbit-pap-spec-1-0" /> Sierra describes the protocol as built on OAuth, JWTs, HTTPS, OpenAPI and the Model Context Protocol (MCP). <Cite ids="src-orbit-pap-sierra-draft" />
+
+Operator identity reuses [Web Bot Auth](/orbit/web-bot-auth/). A personal agent should also sign each request that carries the session header with an RFC 9421 HTTP Message Signature, so that bot defenses can recognize the operator before the request reaches the company's application. That signature must cover `poppy-session` and, when present, `authorization`. The specification treats it as compatibility support: a missing operator signature does not make a session invalid. <Cite ids="src-orbit-pap-spec-1-0 src-wba-draft" />
+
+Version 1.0 lists six extensions: Browser Control, Disclosures, Links, Mediated Sign-In, Operations and UCP. <Cite ids="src-orbit-pap-llms" /> The core specification does not cover payments yet: the project's Path to 1.0 page names payments, push notifications and attachments among the areas it does not cover (as of 2026-11-14). <Cite ids="src-orbit-pap-path-to-1" /> A company that uses the UCP extension takes payment through UCP checkout instead. <Cite ids="src-orbit-pap-ucp-extension" />
+
+## Status
+
+Sierra announced the protocol on 2026-10-06 as an open standard it is developing with Meta, with Genesys, Instinct, Rocket, Shopify, Stripe and Walmart as industry partners. <Cite ids="src-orbit-pap-sierra-intro" /> On 2026-10-09 it published draft 0.1 under the short name Poppy and named 35 more design partners, among them Adyen, Cloudflare, Mastercard, OpenAI, PayPal and Visa. <Cite ids="src-orbit-pap-sierra-draft src-orbit-pap-changelog" /> Drafts 0.2 (2026-10-24), 0.3 (2026-11-04) and 0.4 (2026-11-10, the release candidate) followed, each frozen at its own URL. <Cite ids="src-orbit-pap-changelog src-orbit-pap-llms" />
+
+Sierra announced version 1.0 on 2026-11-13. The project's changelog gives 2026-11-14 as the publication date of the frozen 1.0 text and describes it as 0.4 with the fixes that implementers needed. <Cite ids="src-orbit-pap-sierra-1-0 src-orbit-pap-changelog" /> In its 1.0 post Sierra says that Shopify has turned Poppy on for every merchant, so every Shopify store publishes a Poppy file, and that Meta's Muse agent now looks for Poppy first on every site it visits. It names Mercury, Synchrony and Turkish Airlines among the design partners going live, and it added 60 design partners, for more than 100 in total, including Affirm, Checkout.com, Global Payments and Salesforce. <Cite ids="src-orbit-pap-sierra-1-0" /> These are Sierra's statements about its partners' products.
+
+The project's Path to 1.0 page (updated 2026-11-14) lists 103 design partners that agreed to be listed: four personal agents (Instinct, Manus, Meta and OpenAI) and 99 companies. <Cite ids="src-orbit-pap-path-to-1" /> A design partner takes part in shaping the specification; the list does not show that a partner has implemented it. The GitHub repository was created on 2026-10-14 under the Apache License 2.0 and had no tags or releases on 2026-11-14. <Cite ids="src-orbit-pap-repo" />
+
+## How it relates to the eight
+
+[UCP](/p/ucp/) is the one protocol of the eight that PAP builds on. PAP's `ucp` extension divides the work: PAP finds the company, identifies the personal agent and a pseudonymous user, and signs the user in, while UCP is the business protocol for the shopping once the agent is there. UCP's business, platform and buyer are PAP's company, personal agent and user. The agent reads the UCP profile at `/.well-known/ucp` next to `poppy.json` and sends the session header on its UCP requests, and one RFC 9421 signature can serve both protocols when it covers the components that each one requires. The extension also lets a company list UCP's Ask capability as a way to talk to its agent. <Cite ids="src-orbit-pap-ucp-extension" /> Sierra says Shopify co-authored this commerce extension. <Cite ids="src-orbit-pap-sierra-1-0" />
+
+No relation to [ACP](/p/openai-acp/) is documented. The 1.0 specification, its UCP extension, its changelog and Sierra's three posts never mention the Agentic Commerce Protocol (searched 2026-11-14). <Cite ids="src-orbit-pap-spec-1-0 src-orbit-pap-ucp-extension src-orbit-pap-changelog src-orbit-pap-sierra-intro src-orbit-pap-sierra-draft src-orbit-pap-sierra-1-0" /> The overlap is organizational. Stripe, one of ACP's two founding maintainers, was among PAP's first industry partners; Meta, which co-develops PAP, holds a seat on ACP's technical steering committee; and OpenAI is one of the four listed personal-agent design partners. <Cite ids="src-orbit-pap-sierra-intro src-openai-acp-readme src-openai-acp-governance src-orbit-pap-path-to-1" />
+
+Visa and Mastercard are design partners as well, but the 1.0 specification names none of [Visa TAP](/p/visa-tap/), [Mastercard Agent Pay](/p/mastercard-agent-pay/), [MPP](/p/stripe-mpp/), [x402](/p/x402/), [AP2](/p/ap2/) or [ERC-8004](/p/erc-8004/) (searched 2026-11-14). The core specification leaves payment out for now; through the UCP extension, payment runs in UCP checkout. <Cite ids="src-orbit-pap-sierra-draft src-orbit-pap-spec-1-0 src-orbit-pap-path-to-1 src-orbit-pap-ucp-extension" />
+
+## Status history
+
+- 2026-10-06: Sierra announces Personal Agent Protocol, developed with Meta. <Cite ids="src-orbit-pap-sierra-intro" />
+- 2026-10-09: draft 0.1 published under the name Poppy; 35 more design partners. <Cite ids="src-orbit-pap-sierra-draft src-orbit-pap-changelog" />
+- 2026-10-14: GitHub repository created. <Cite ids="src-orbit-pap-repo" />
+- 2026-10-24: draft 0.2. <Cite ids="src-orbit-pap-changelog" />
+- 2026-11-04: draft 0.3. <Cite ids="src-orbit-pap-changelog" />
+- 2026-11-10: draft 0.4, the 1.0 release candidate. <Cite ids="src-orbit-pap-changelog" />
+- 2026-11-13: Sierra announces version 1.0 with more than 100 design partners. <Cite ids="src-orbit-pap-sierra-1-0" />
+- 2026-11-14: publication date that the changelog gives for the frozen 1.0 text. <Cite ids="src-orbit-pap-changelog" />

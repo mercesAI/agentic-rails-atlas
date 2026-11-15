@@ -1,0 +1,93 @@
+---
+slug: chatgpt-wallet
+name: ChatGPT Wallet
+category: card-wallet-commerce
+starred: true
+oneLiner: OpenAI's wallet for agents in ChatGPT, launched on 2026-11-13 with American Express, Mastercard and Visa. The user approves every purchase with a security check, the card network supplies a payment token, and the agent pays on the merchant's existing checkout without the business or the agent seeing the card.
+steward: OpenAI (company); built with American Express, Mastercard and Visa
+status: Live in a limited rollout since 2026-11-13 (dots, ChatGPT Pro, US)
+latestVersion:
+  label: Launch in dots
+  date: "2026-11-13"
+relations:
+  - to: openai-acp
+    type: same-steward
+    note: OpenAI maintains ACP with Stripe, but neither its Wallet post nor its commerce docs name ACP, and the Wallet network token is not an ACP delegated payment or a Shared Payment Token. OpenAI's merchant page still says ChatGPT shopping is built on ACP (read 2026-11-14).
+sources:
+  - src-openai-chatgpt-wallet
+  - src-openai-news-rss-20261114
+  - src-openai-commerce-playbook
+  - src-openai-commerce-accept-payments
+  - src-openai-commerce-agent-access
+  - src-openai-commerce-browser-access
+  - src-openai-commerce-build-plugin
+  - src-openai-commerce-product-feeds
+  - src-scn-chatgpt-key-directory
+  - src-scn-chatgpt-dots-docs
+  - src-scn-chatgpt-iana-forwarded
+  - src-scn-chatgpt-rfc7239
+  - src-scn-chatgpt-plugin-guidelines
+  - src-scn-chatgpt-plugin-ui
+  - src-openai-apps-monetization
+  - src-chatgpt-merchants
+  - src-scn-chatgpt-amex-newsroom
+  - src-openai-acp-ma-q3-2026-call
+  - src-openai-acp-visa-openai-22496
+  - src-scn-chatgpt-forter-wallet
+  - src-scn-chatgpt-signifyd-wallet
+  - src-scn-chatgpt-cnbc-wallet
+  - src-scn-chatgpt-techcrunch-wallet
+  - src-rfc9421
+  - src-visa-tap-spec
+  - src-mcap-dev-level1
+lastVerified: "2026-11-14"
+---
+
+## What it is
+
+ChatGPT Wallet is OpenAI's way for an agent in ChatGPT to pay on a user's behalf. OpenAI introduced it on 2026-11-13, built in partnership with American Express, Mastercard and Visa, and says it lets agents pay without access to the user's actual card details while requiring a security check for every purchase. <Cite ids="src-openai-chatgpt-wallet" /> It launched in dots, the always-on agents OpenAI introduced on 2026-09-29, which live in the cloud with their own computer and browser. <Cite ids="src-scn-chatgpt-dots-docs src-openai-news-rss-20261114" /> Wallet is not a new checkout protocol: the dot uses the merchant's existing website checkout, and OpenAI's merchant guide says no Wallet-specific integration is required. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-accept-payments" />
+
+## How a purchase works
+
+1. The user adds a card once. <Cite ids="src-openai-chatgpt-wallet" />
+2. The dot finds the item and works through the merchant's own checkout with its cloud browser. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-browser-access" /> TechCrunch reported that, according to OpenAI, the merchant receives what it needs to fulfill the order, such as the shipping address and contact details, from the dot (reported). <Cite ids="src-scn-chatgpt-techcrunch-wallet" />
+3. Before paying, ChatGPT shows the items, the total and the selected card, and the user approves with a security check such as Face ID or a fingerprint scan. Each approval creates a record of the purchase the user authorized. <Cite ids="src-openai-chatgpt-wallet" />
+4. The payment network then provides a payment token, a stand-in for the card with its own card number, security code and expiration date. The card is charged without Wallet sharing the actual card details with the business or the agent. <Cite ids="src-openai-chatgpt-wallet" /> CNBC reported that the token is specific to the transaction (reported). <Cite ids="src-scn-chatgpt-cnbc-wallet" />
+5. The merchant's checkout processes the payment like any card payment, and the business handles the order, fulfillment, customer support and fraud decisions. <Cite ids="src-openai-commerce-accept-payments" />
+
+Users keep their card's rewards and protections for eligible disputes, banks and networks evaluate the transactions, and businesses keep control of pricing, fulfillment, returns and customer service. <Cite ids="src-openai-chatgpt-wallet" /> OpenAI says it expects, over time, to let users delegate purchases to their agent within spending limits, categories or time periods and pre-approve them with biometric checks and records of authorization. It gives no date, and on 2026-11-14 every purchase still needs the user's security check. <Cite ids="src-openai-chatgpt-wallet" /> The scenario [From ChatGPT discovery to merchant checkout](/scenarios/chatgpt-discovery-to-checkout/) walks through the whole sequence, next to the plugin and payment sheet paths.
+
+## What merchants need
+
+OpenAI published its Commerce in ChatGPT partner playbook alongside Wallet; it explains what a merchant can check, and browser access needs neither a plugin nor a product feed. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-playbook src-openai-commerce-agent-access" />
+
+- **Let the cloud browser in.** ChatGPT signs certain cloud browser requests with Web Bot Auth (OpenAI's guidance covers these requests, not its web crawlers): a `Signature` header, a `Signature-Input` header and `Signature-Agent: "https://chatgpt.com"`, verified under RFC 9421 with keys from `https://chatgpt.com/.well-known/http-message-signatures-directory`. <Cite ids="src-openai-commerce-agent-access src-rfc9421" /> Akamai, Cloudflare, HUMAN and Vercel verify these signatures automatically, and Cloudflare lists the traffic as `dots, OpenAI` under Personal Agents. <Cite ids="src-openai-commerce-agent-access" /> The cloud browser needs no allowlist entry, but security settings can block it by accident; OpenAI asks a site that adds an exception to verify the signature first and to keep its other controls. <Cite ids="src-openai-commerce-agent-access src-openai-commerce-browser-access" /> On 2026-11-14 the key directory held one Ed25519 key with an expiry a week ahead, so a verifier should fetch keys from it rather than hard-code them. <Cite ids="src-scn-chatgpt-key-directory" /> The [Web Bot Auth](/orbit/web-bot-auth/) page covers the Internet Engineering Task Force (IETF) working group behind the mechanism.
+- **Accept the token in the existing checkout.** The merchant receives a network token instead of the card number and can use the Payment Account Reference (PAR) to link it to the underlying account. <Cite ids="src-openai-commerce-accept-payments" /> The customer consents to that one transaction, so the merchant must not reuse or save the credential for another purchase. Subscriptions need the customer's consent for recurring charges and the processor's merchant-initiated transaction practice, and Wallet sits beside any existing card-on-file flow. <Cite ids="src-openai-commerce-accept-payments" />
+- **Tune risk systems.** Risk systems built to catch bots can flag legitimate agent purchases and decline or cancel them. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-accept-payments" /> OpenAI is rolling out user signals in the `Forwarded` header: `asn`, `for` (the IP address observed for the user), `ip-country`, `ip-prefix`, `locale`, `tz` and `user-agent`. <Cite ids="src-openai-commerce-accept-payments" /> Of these seven, only `for` is in the Internet Assigned Numbers Authority (IANA) registry of Forwarded parameters, RFC 7239 warns that any node on the path can change the header, and OpenAI does not say whether its signatures cover it. <Cite ids="src-scn-chatgpt-iana-forwarded src-scn-chatgpt-rfc7239 src-openai-commerce-agent-access" /> The header also passes the shopper's IP address, network, country, locale and time zone to the sites that receive it. <Cite ids="src-openai-commerce-accept-payments" />
+
+OpenAI's agent access FAQ adds that site owners cannot yet control which actions users take, that OpenAI requires human review before any consequential action, and that customers are ultimately responsible for the actions they take. The last point is OpenAI's position, not a card network rule. <Cite ids="src-openai-commerce-agent-access" /> For plugins, OpenAI says it is still working on how third-party plugins and Wallet interact. <Cite ids="src-openai-commerce-build-plugin" />
+
+## Partners and availability
+
+- **Card networks.** Wallet is built with American Express, Mastercard and Visa. <Cite ids="src-openai-chatgpt-wallet" /> OpenAI's post quotes American Express's Luke Gebb calling Wallet the first American Express Agentic Commerce Experiences (ACE) integration, but American Express itself had published nothing on Wallet as of 2026-11-14, so that status rests on OpenAI's post (reported). <Cite ids="src-openai-chatgpt-wallet src-scn-chatgpt-amex-newsroom" /> Apart from that quote the post names no card network program. <Cite ids="src-openai-chatgpt-wallet" /> Mastercard's CEO said on 2026-10-29 that a broad partnership with OpenAI includes the use of [Mastercard Agent Pay](/p/mastercard-agent-pay/) (reported), and Visa announced an OpenAI collaboration under [Visa Intelligent Commerce](/orbit/visa-intelligent-commerce/) on 2026-06-10, but no source says which program issues Wallet tokens. <Cite ids="clm-openai-acp-281 clm-openai-acp-282" />
+- **Fraud and payment partners.** OpenAI names Forter, Riskified, Sardine and Signifyd among its fraud prevention partners and Adyen, Checkout.com and Stripe among its payment service providers, as examples rather than complete lists. <Cite ids="src-openai-chatgpt-wallet" /> Forter says it identifies ChatGPT agent traffic for each Wallet transaction and feeds that into its fraud decisions, and Signifyd says it works with OpenAI so that legitimate agent orders are not declined. <Cite ids="src-scn-chatgpt-forter-wallet src-scn-chatgpt-signifyd-wallet" />
+- **Who can use it.** Wallet began rolling out on 2026-11-13 in dots, initially for ChatGPT Pro subscribers in the US aged 18 and older with eligible US-issued cards. <Cite ids="src-openai-chatgpt-wallet" /> TechCrunch reported the eligible cards as US-issued Visa, Mastercard or American Express cards (reported). <Cite ids="src-scn-chatgpt-techcrunch-wallet" /> OpenAI's RSS summary and the post's own page description name agents in ChatGPT Work, Codex and dots, while the post's text names dots as the first surface; whether Work and Codex are live or planned is an open question. <Cite ids="src-openai-news-rss-20261114 src-openai-chatgpt-wallet" />
+- **Fees.** Neither the post nor the partner playbook states a fee for Wallet purchases, and CNBC reported that OpenAI is not taking a cut of transactions to start (reported). <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-playbook src-scn-chatgpt-cnbc-wallet" />
+
+## What it is not
+
+- **Not the Agentic Commerce Protocol (ACP).** OpenAI's Wallet post and its partner playbook do not name ACP, and the post never mentions Instant Checkout, Delegate Payment or Shared Payment Tokens. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-playbook" /> The token comes from the card network, not from an ACP Delegate Payment vault or a Stripe Shared Payment Token. <Cite ids="src-openai-chatgpt-wallet" /> OpenAI's merchant page still says ChatGPT shopping is built on ACP, which supports product discovery today. <Cite ids="src-chatgpt-merchants" />
+- **Not Instant Checkout.** OpenAI's plugin guidelines use that name for the ChatGPT payment sheet, a beta for select marketplace partners that a plugin opens from its own interface. <Cite ids="src-scn-chatgpt-plugin-guidelines src-openai-apps-monetization src-scn-chatgpt-plugin-ui" />
+- **Not Visa's Trusted Agent Protocol (TAP) or Mastercard's agent signature.** ChatGPT identifies itself with plain Web Bot Auth and the `Signature-Agent` value `"https://chatgpt.com"`, and OpenAI's docs do not mention TAP's `agent-browser-auth` and `agent-payer-auth` tags or Mastercard's `Agent-pay-auth` tag. <Cite ids="src-openai-commerce-agent-access src-visa-tap-spec src-mcap-dev-level1" />
+- **Not a merchant integration project.** OpenAI says no Wallet-specific integration is required. <Cite ids="src-openai-commerce-accept-payments" />
+- **Not autonomous yet.** Every purchase needs the user's approval; delegated purchases are a plan without a date. <Cite ids="src-openai-chatgpt-wallet" />
+
+## How it relates to the eight
+
+[ACP](/p/openai-acp/) shares a steward with Wallet, since OpenAI and Stripe are its founding maintainers, but OpenAI documents no role for ACP in Wallet. <Cite ids="clm-openai-acp-012 src-openai-chatgpt-wallet src-openai-commerce-playbook" /> Wallet is built with Mastercard and Visa, yet no source ties it to [Mastercard Agent Pay](/p/mastercard-agent-pay/) or [Visa TAP](/p/visa-tap/), and ChatGPT's request signatures do not use either network's tags. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-agent-access src-visa-tap-spec src-mcap-dev-level1" /> No relation to [x402](/p/x402/), the [Machine Payments Protocol](/p/stripe-mpp/), the [Universal Commerce Protocol](/p/ucp/), the [Agent Payments Protocol](/p/ap2/) or [ERC-8004](/p/erc-8004/) is documented in OpenAI's post or commerce docs. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-playbook" />
+
+## Status history
+
+- 2026-09-29: OpenAI introduces dots, always-on agents with their own computer and browser in the cloud. <Cite ids="src-openai-news-rss-20261114 src-scn-chatgpt-dots-docs" />
+- 2026-11-10: OpenAI announces Businesses in ChatGPT; its partner playbook of 2026-11-13 sends merchants to Business Hub to claim a profile and upload product feeds. <Cite ids="src-openai-news-rss-20261114 src-openai-commerce-product-feeds" />
+- 2026-11-13: ChatGPT Wallet introduced; it begins rolling out in dots for US ChatGPT Pro subscribers, and OpenAI publishes the Commerce in ChatGPT partner playbook. <Cite ids="src-openai-chatgpt-wallet src-openai-commerce-playbook" />

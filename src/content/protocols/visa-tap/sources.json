@@ -28,8 +28,8 @@
     "publisher": "GitHub",
     "type": "repo",
     "primary": true,
-    "accessed": "2026-10-19",
-    "notes": "gh api: created 2025-10-10T02:05:59Z, pushed 2025-10-28T22:43:43Z, 6 commits, 0 tags, 0 releases, license NOASSERTION, 212 stars and 45 forks on 2026-10-11; 213 stars and 46 forks on 2026-10-19 (head still 16d59bd); PRs #1 to #21, issues #2 to #26."
+    "accessed": "2026-11-14",
+    "notes": "gh api: created 2025-10-10T02:05:59Z, pushed 2025-10-28T22:43:43Z, 6 commits, 0 tags, 0 releases, license NOASSERTION, 212 stars and 45 forks on 2026-10-11; 213 stars and 46 forks on 2026-10-19; 222 stars and 48 forks on 2026-11-14 (head still 16d59bd, no commit, tag, release or advisory since 2025-10-28). As of 2026-11-14: PRs #1 to #28 and issues #2 to #27; thirteen pull requests opened after 2025-10-28, nine open (#4, #6, #7, #9, #11, #19, #20, #21, #28) and four closed unmerged (#5, #12, #17, #18); issue #27 (2026-10-31, open) reports that the sample agent writes keyId and the sample CDN proxy rejects the RFC 9421 spelling keyid; issue #13 was closed by its author on 2026-11-14."
   },
   {
     "id": "src-visa-tap-cdn-proxy",
@@ -159,13 +159,13 @@
   {
     "id": "src-wba-draft",
     "url": "https://datatracker.ietf.org/doc/draft-ietf-webbotauth-httpsig-protocol/",
-    "title": "draft-ietf-webbotauth-httpsig-protocol-00: HTTP Message Signatures for automated traffic",
+    "title": "draft-ietf-webbotauth-httpsig-protocol-01: HTTP Message Signatures for automated traffic",
     "publisher": "IETF Web Bot Auth working group",
     "type": "standard",
     "primary": true,
-    "published": "2026-09-01",
-    "accessed": "2026-10-11",
-    "notes": "Datatracker API: rev 00, time 2026-09-01T13:13:08Z, expires 2027-03-05; authors T. Meunier (Cloudflare), S. Major (Google). Text read from https://www.ietf.org/archive/id/draft-ietf-webbotauth-httpsig-protocol-00.txt."
+    "published": "2026-10-29",
+    "accessed": "2026-11-14",
+    "notes": "Datatracker API, read 2026-11-14: rev 01, time 2026-10-29T10:32:27Z, expires 2027-05-02; rev 00 was posted 2026-09-01T13:13:08Z (expiry then 2027-03-05) and was read on 2026-10-11. Authors T. Meunier (Cloudflare), S. Major (Google). Texts read from https://www.ietf.org/archive/id/draft-ietf-webbotauth-httpsig-protocol-01.txt and -00.txt. The -01 changelog makes every Signature-Agent value a direct JWK Set URI and removes the directory, jwks_uri and cimd types; signers must send the Dictionary form (the bare String form is legacy that verifiers may accept); a verifier fetches the member URL directly as a JWK Set (HTTP 200 only, no redirects); the media type application/http-message-signatures-directory+json is required only for a directory at the well-known URI. Unchanged from -00: tag web-bot-auth, covered @authority or @target-uri plus the Signature-Agent member, keyid as a JWK SHA-256 thumbprint, expires recommended within 24 hours, no extra nonce rule, and the test vector with keyid poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U."
   },
   {
     "id": "src-visa-ai-repo",
@@ -224,8 +224,8 @@
     "publisher": "Cloudflare",
     "type": "docs",
     "primary": true,
-    "accessed": "2026-10-11",
-    "notes": "Last updated 2026-10-08; 'Signed agents are now Verified' as of 2026-07-01."
+    "accessed": "2026-11-14",
+    "notes": "Read 2026-10-11 (Last updated 2026-10-08) and again 2026-11-14 (Last updated 2026-11-12). Both versions say signed agents are Verified as of 2026-07-01, told apart by Direct or Intermediary access in BotBase. Changes since 2026-10-08: a renamed link (2026-11-02), a rule that Cloudflare may revoke Verified status for every bot of an organization that repeatedly violates policy (2026-11-02), and dashboard rejection reasons (2026-11-12). The Forwarded (RFC 7239) end-user experiment and the BotBase submission form were already on the 2026-10-08 version."
   },
   {
     "id": "src-edreams-pymnts",
@@ -305,13 +305,13 @@
   },
   {
     "id": "src-mppx-tap",
-    "url": "https://github.com/wevm/mppx/blob/d8d800f101ba1568f0d737e12574c0ae8f6b6e93/src/tap/Constants.ts",
-    "title": "mppx TAP attestation constants (src/tap/Constants.ts)",
+    "url": "https://github.com/wevm/mppx/blob/94056603518bf2af7fb3e5e5fd81426cfbee0fec/src/extensions/identity/tap/Constants.ts",
+    "title": "mppx TAP identity constants (src/extensions/identity/tap/Constants.ts)",
     "publisher": "mppx",
     "type": "repo",
     "primary": true,
-    "accessed": "2026-10-21",
-    "notes": "Read at commit d8d800f (2026-10-09); npm mppx latest 0.13.4 on 2026-10-11 and 0.14.1 on 2026-10-21. The file is unchanged at the mppx@0.14.1 tag, and 0.14.1 still exports mppx/attestation/tap. Remote taken from research/vendor/mppx."
+    "accessed": "2026-11-14",
+    "notes": "Read with git show at origin/main 9405660 (2026-11-14, package version 0.19.0) in research/vendor/mppx: protocol and default label tap, default and maximum signature lifetime 480 seconds, tags agent-browser-auth (intent browse) and agent-payer-auth (intent payment), required components @authority and @path. The same folder holds the client prover (client/index.ts: intent, key, keyId, scope, optional expiresIn and label) and the server verifier (server/index.ts: keyResolver and nonceStore). Before mppx 0.16.0 (2026-10-28) these values lived in src/tap/Constants.ts, read at d8d800f on 2026-10-09 and unchanged at the 0.14.1 tag, and npm exported them as mppx/attestation/tap."
   },
   {
     "id": "src-nevermined-vic",
@@ -457,8 +457,8 @@
     "publisher": "Visa",
     "type": "docs",
     "primary": true,
-    "accessed": "2026-10-19",
-    "notes": "Read live on 2026-10-11 at https://developer.visa.com/capabilities/visa-intelligent-commerce/overview: 'Free to use in Sandbox. Contact Visa for fees in Production.' Since Visa's October 2026 portal move that URL redirects to https://developer.visa.com/docs/visa-intelligent-commerce, which requires sign-in (checked 2026-10-19); the archived copy holds the cited text."
+    "accessed": "2026-11-14",
+    "notes": "Read live on 2026-10-11 at https://developer.visa.com/capabilities/visa-intelligent-commerce/overview: 'Free to use in Sandbox. Contact Visa for fees in Production.' Since Visa's October 2026 portal move that URL redirects to https://developer.visa.com/docs/visa-intelligent-commerce. That page asked for sign-in on 2026-10-19 and was public again on 2026-11-14, when it stated no fees or pricing (see src-visa-vic-docs); the archived copy is the only source of the fee text."
   },
   {
     "id": "src-worldpay-liability",
@@ -769,7 +769,7 @@
     "type": "docs",
     "primary": true,
     "accessed": "2026-10-13",
-    "notes": "Read at commit 6c5a0c6 (2026-10-07). Line 23: an attestation does not authorize a payment or prove the end user's identity. Line 158: the verifier checks the signature, request authority and path, lifetime, intent tag and nonce."
+    "notes": "Read at commit 6c5a0c6 (2026-10-07). Line 23: an attestation does not authorize a payment or prove the end user's identity. Line 158: the verifier checks the signature, request authority and path, lifetime, intent tag and nonce. The file was removed on 2026-11-09 (commit 2bc4cbd, which renamed Advanced Features to Extensions and rewrote the identity docs); https://mpp.dev/advanced/identity now redirects to https://mpp.dev/extensions/identity (checked 2026-11-14). See src-visa-tap-mpp-identity-ext for the current page."
   },
   {
     "id": "src-visa-tap-nvd",
@@ -784,14 +784,14 @@
   {
     "id": "src-visa-rules-public",
     "url": "https://usa.visa.com/dam/VCOM/download/about-visa/visa-rules-public.pdf",
-    "title": "Visa Core Rules and Visa Product and Service Rules (2026-04-18 edition)",
+    "title": "Visa Core Rules and Visa Product and Service Rules (2026-10-24 edition)",
     "publisher": "Visa",
     "type": "standard",
     "primary": true,
-    "published": "2026-04-18",
-    "accessed": "2026-10-18",
+    "published": "2026-10-24",
+    "accessed": "2026-11-14",
     "archiveUrl": "https://web.archive.org/web/20251124113415/https://usa.visa.com/dam/VCOM/download/about-visa/visa-rules-public.pdf",
-    "notes": "Text read 2026-10-18 and rechecked 2026-10-19. One public document holds both rulebooks; the agent rules sit mainly in the Visa Product and Service Rules, section 4.1.24, Agentic Platform Requirements (ID# 0031167 to 0031177, pages 254 to 260). 1.1.1.5 (ID# 0007428): the rules govern the relationship between Visa and its Members and their agents and confer no rights on third parties. 1.1.1.3 (ID# 0000385): where the rules conflict with applicable laws or regulations, the laws govern. 4.1.24.2 (ID# 0031168): an Agentic Payment Provider must enroll in and comply with the Visa Intelligent Commerce program and register with Visa, directly or via an Agentic Payment Enabler; obtain a Token from Visa or an Agentic Payment Enabler when it uses a Stored Credential; and not undertake an Agentic Transaction in a Card-Present Environment or aggregate several Agentic Transactions into one. 4.1.24.10 (ID# 0031176): a Cardholder is responsible for any actions an Agentic Payment Provider takes as part of an Agentic Transaction as if the Cardholder initiated the Transaction. Glossary, Cardholder (ID# 0024372): an Agentic Payment Provider is considered the Cardholder for an Agentic Transaction. Glossary, Agentic Payment Provider (ID# 0031164): the provider of an application a Cardholder uses for tasks on the Cardholder's behalf, which can search, discover and purchase on a payment instruction and Cardholder verification, can undertake an Agentic Transaction, can be used at more than one Merchant, stores and transmits a Token (an EMV payment token, ID# 0029108), completes a Transaction by passing the Token to the Merchant, and takes no part in authorization, clearing or settlement. 1.7.6.1 (ID# 0006558): an Issuer must pay the Acquirer for an Agentic Transaction processed in accordance with a Cardholder's payment instructions. 1.7.4.1 (ID# 0029326): an Issuer must not block or decline transactions, including those of Agentic Payment Providers, in a systematic or wholesale manner, with listed exceptions (an immediate fraud threat, law, the rules; a footnote excludes Chile). 5.4.2.5 (ID# 0008771): a Merchant must not require a Cardholder to waive the right to dispute a Transaction, including an Agentic Transaction. 1.5.5.2 (ID# 0006948): a Merchant, Agentic Payment Enabler or Agentic Payment Provider must not surcharge, with regional exceptions. Dispute Condition 10.4, invalid disputes (ID# 0030254): for disputes processed on or after 2026-10-24, the matching data from earlier undisputed transactions includes login IDs for an Agentic Payment Provider. The archived copy (captured 2025-11-24) is the 2025-10-18 edition, which lists these rules under 'Global Agentic Payments/Visa Intelligent Commerce (VIC) Program Launched', effective 2025-10-18 (2025-11-04 in Chile). Every mention of 'Agentic' in the April 2026 edition was read: Visa calls none of these rules a liability shift, none adds an agent-specific dispute condition, interchange rate or fee, and the text does not mention TAP, 8004, ERC-, x402, ACP, UCP or AP2. Visa omits proprietary and security details from the public edition."
+    "notes": "Text of the 2026-10-24 edition read 2026-11-14 (PDF Last-Modified 2026-10-29, 936 pages); the 2026-04-18 edition was read on 2026-10-18 and rechecked on 2026-10-19. The October edition renumbers the agent section from 4.1.24 (pages 254 to 260 in April) to 4.1.23, Agentic Platform Requirements (pages 263 to 269), with the same rule IDs (ID# 0031167 to 0031177, each marked Last Updated Apr 2026); its summary of changes since the April edition lists no agentic change. One public document holds both rulebooks; the agent rules sit mainly in the Visa Product and Service Rules. 1.1.1.5 (ID# 0007428): the rules govern the relationship between Visa and its Members and their agents and confer no rights on third parties. 1.1.1.3 (ID# 0000385): where the rules conflict with applicable laws or regulations, the laws govern. 4.1.23.2 (ID# 0031168; 4.1.24.2 in April): an Agentic Payment Provider must enroll in and comply with the Visa Intelligent Commerce program and register with Visa, directly or via an Agentic Payment Enabler; obtain a Token from Visa or an Agentic Payment Enabler when it uses a Stored Credential; and not undertake an Agentic Transaction in a Card-Present Environment or aggregate several Agentic Transactions into one. 4.1.23.10 (ID# 0031176; 4.1.24.10 in April): a Cardholder is responsible for any actions an Agentic Payment Provider takes as part of an Agentic Transaction as if the Cardholder initiated the Transaction. Glossary, Cardholder (ID# 0024372): an Agentic Payment Provider is considered the Cardholder for an Agentic Transaction. Glossary, Agentic Payment Provider (ID# 0031164): the provider of an application a Cardholder uses for tasks on the Cardholder's behalf, which can search, discover and purchase on a payment instruction and Cardholder verification, can undertake an Agentic Transaction, can be used at more than one Merchant, stores and transmits a Token (an EMV payment token, ID# 0029108), completes a Transaction by passing the Token to the Merchant, and takes no part in authorization, clearing or settlement. 1.7.6.1 (ID# 0006558): an Issuer must pay the Acquirer for an Agentic Transaction processed in accordance with a Cardholder's payment instructions. 1.7.4.1 (ID# 0029326): an Issuer must not block or decline transactions, including those of Agentic Payment Providers, in a systematic or wholesale manner, with listed exceptions (an immediate fraud threat, law, the rules; a footnote excludes Chile). 5.4.2.5 (ID# 0008771): a Merchant must not require a Cardholder to waive the right to dispute a Transaction, including an Agentic Transaction. 1.5.5.2 (ID# 0006948): a Merchant, Agentic Payment Enabler or Agentic Payment Provider must not surcharge, with regional exceptions. Dispute Condition 10.4, invalid disputes (ID# 0030254): for disputes processed on or after 2026-10-24, the matching data from earlier undisputed transactions includes login IDs for an Agentic Payment Provider. The archived copy (captured 2025-11-24) is the 2025-10-18 edition, which lists these rules under 'Global Agentic Payments/Visa Intelligent Commerce (VIC) Program Launched', effective 2025-10-18 (2025-11-04 in Chile). Every mention of 'Agentic' in the April 2026 edition was read: Visa calls none of these rules a liability shift, none adds an agent-specific dispute condition, interchange rate or fee, and the text does not mention TAP, 8004, ERC-, x402, ACP, UCP or AP2. In the October 2026 edition 'Trusted Agent' has no hits, 'liability shift' appears only in EMV contexts, and the dispute-evidence rule (Dispute Condition 10.4, in force for disputes processed from 2026-10-24) is unchanged in substance. Visa omits proprietary and security details from the public edition."
   },
   {
     "id": "src-visa-tap-docs",
@@ -821,8 +821,8 @@
     "publisher": "Visa",
     "type": "docs",
     "primary": true,
-    "accessed": "2026-10-19",
-    "notes": "Seen 2026-10-19. Labeled v1; its OpenAPI export describes one sandbox endpoint, GET /v1/trustedAgentProtocol, with no schemas. The navigation also lists 'Visa Agent Registry Services', whose page is open only to authorized users."
+    "accessed": "2026-11-14",
+    "notes": "Seen 2026-10-19: labeled v1; its OpenAPI export described one sandbox endpoint, GET /v1/trustedAgentProtocol, with no schemas, and the navigation listed 'Visa Agent Registry Services', whose page is open only to authorized users. Read again 2026-11-14 (OpenAPI 3.1.0 document embedded in the page, info.version 1, server https://sandbox.api.visa.com): GET /v1/trustedAgentProtocol is still schema-less, and nine operations under the tag Visa Merchant Registry Service follow (see src-visa-vmrs-apiref). The navigation lists bundles TRAP.100 Trusted Agent Protocol (public), TRAP.101 Visa Agent Registry Services (restricted; agent registration by TRID and agent key add, activate, update and deactivate endpoints) and TRAP.102 Visa Merchant Registry Service (public)."
   },
   {
     "id": "src-visa-cli-npm",
@@ -831,8 +831,8 @@
     "publisher": "npm (author Visa Crypto Labs)",
     "type": "dataset",
     "primary": true,
-    "accessed": "2026-10-19",
-    "notes": "Registry read 2026-10-19 (https://registry.npmjs.org/@visa/cli). Latest 4.0.1 (2026-07-16) has no TAP code. Release candidates under the rc tag, from 5.0.0-rc.335 (2026-09-18) to rc.414 (2026-10-15), contain TAP request signing."
+    "accessed": "2026-11-14",
+    "notes": "Registry read 2026-10-19 (https://registry.npmjs.org/@visa/cli). Latest 4.0.1 (2026-07-16) has no TAP code. Release candidates under the rc tag, from 5.0.0-rc.335 (2026-09-18) to rc.414 (2026-10-15), contain TAP request signing. Read again 2026-11-14: latest still 4.0.1; rc tag 5.0.0-rc.463 (published 2026-11-15T01:17:10Z UTC), the 50th release candidate counting from rc.414."
   },
   {
     "id": "src-mpp-specs-pr-169",
@@ -890,12 +890,12 @@
   {
     "id": "src-visa-vic-docs",
     "url": "https://developer.visa.com/docs/visa-intelligent-commerce",
-    "title": "Visa Intelligent Commerce developer documentation (overview, concepts and workflows pages)",
+    "title": "Visa Intelligent Commerce developer documentation (overview, concepts, workflows and production readiness pages)",
     "publisher": "Visa",
     "type": "docs",
     "primary": true,
-    "accessed": "2026-10-19",
-    "notes": "Replaced the public VIC overview in October 2026. The rendered overview asks visitors to sign in; its text, and the concepts (/docs/visa-intelligent-commerce/concepts) and workflows (/docs/visa-intelligent-commerce/workflows) pages, were read from the page source on 2026-10-19. Card enrollment journey: token provisioned through VTS first, then issuer step-up where required and, if applicable, Visa Payment Passkey setup with device binding; credential retrieval only after that unless the use case is approved to skip the passkey. Workflows: the consumer authenticates the instruction through a Visa Payment Passkey or other issuer-approved methods; the agent submits the credential to the merchant checkout or a PSP-enabled flow; Visa retains post-purchase confirmation data for disputes. No fees stated."
+    "accessed": "2026-11-14",
+    "notes": "Replaced the public VIC overview in October 2026. On 2026-10-19 the rendered overview asked visitors to sign in, and its text and the concepts (/docs/visa-intelligent-commerce/concepts) and workflows (/docs/visa-intelligent-commerce/workflows) pages were read from the page source. On 2026-11-14 the overview, concepts, workflows and production-readiness pages and their .md twins answered HTTP 200 with no sign-in prompt. The overview then said production access requires onboarding to VIC and to the Trusted Agent Protocol, Visa Token Service and Visa Payment Passkeys, plus registration through the Visa Agent Registry Service (VARS) so that Visa can validate agent signatures and merchant encryption keys at credential retrieval. The concepts page said agentSignature is required when the agent is a Trusted Agent Provider or the token requestor is a Wallet Provider and is not sent for an Open Source Agent; instructions default to a 30-day intent expiration in the US; at most 15 cryptograms per token in a rolling 24 hours; the restricted MCC list sits in a VIC and TAP Client Implementation Guide, named without a link; and US merchants that support 3-D Secure receive a Program Not Supported response for agentic transactions in the US only, while other regions keep 3DS with region-specific treatment and SCA in Europe uses Visa Payment Passkeys. The production-readiness page said Visa's CE3.0 program covers agentic transactions. Card enrollment journey (read 2026-10-19): token provisioned through VTS first, then issuer step-up where required and, if applicable, Visa Payment Passkey setup with device binding; credential retrieval only after that unless the use case is approved to skip the passkey. Workflows (read 2026-10-19; the authentication step reads the same on 2026-11-14): the consumer authenticates the instruction through a Visa Payment Passkey or other issuer-approved methods; the agent submits the credential to the merchant checkout or a PSP-enabled flow; Visa retains post-purchase confirmation data for disputes. No fees or pricing were stated on either date."
   },
   {
     "id": "src-visa-ai-instruction-payload",
@@ -907,5 +907,139 @@
     "published": "2026-09-30",
     "accessed": "2026-10-19",
     "notes": "Read at commit 1c544e5 (2026-09-30). buildInitiatePurchaseInstructionPayload puts assuranceData (the consumer verification result, with a verificationTimestamp) and mandates in the body of the instruction-creation request. apps/vic-api-examples/.env.example sets VISA_API_BASE_URL=https://sandbox.api.visa.com for the /vacp/v1 REST calls."
+  },
+  {
+    "id": "src-visa-vmrs-apiref",
+    "url": "https://developer.visa.com/api-reference/trusted-agent-protocol/post-vmrs-v1-merchants.md",
+    "title": "Visa Merchant Registry Service (VMRS) in the Trusted Agent Protocol API reference",
+    "publisher": "Visa",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read 2026-11-14 (HTTP 200) from this .md twin and from the OpenAPI 3.1.0 document embedded in https://developer.visa.com/api-reference/trusted-agent-protocol/get-v1-trustedagentprotocol (info.title Trusted Agent Protocol, version 1, server https://sandbox.api.visa.com). Tag Visa Merchant Registry Service, described as a micro service that manages merchant identities and distributes encryption keys for payment request encryption in the TAP ecosystem; navigation bundle TRAP.102, public. Nine operations: POST /vmrs/v1/merchants (201; 409 when the merchantUrl already exists; 422); GET and PUT /vmrs/v1/merchants/{merchantId}; GET and POST /vmrs/v1/merchants/{merchantId}/keys (new keys are created deactivated); GET, PUT and DELETE /vmrs/v1/merchants/{merchantId}/keys/{keyId}; POST /vmrs/v1/merchants/{merchantId}/keys/{keyId}/activate. 15 schemas. MerchantCreate requires indicator (TAP, ACG or BOTH; described only as the transaction processing type), merchantName and merchantUrl; optional vmid, encryptionKey (KeyCreate), cryptogramType (TAVV or DAVV, default DAVV), apiIntegrations and webIntegrations (url, integrationSpec, metadata), paymentPayloadType (UNENCRYPTED or ENCRYPTED, default UNENCRYPTED), protocolInteractions (protocol ucp, acp or x402, with url, documentationUrl and metadata) and acceptanceRelationships (example visa, mastercard). KeyCreate requires keyName, algorithm (RSA-OAEP, RSA-OAEP-256, RSA-OAEP-384 or RSA-OAEP-512, a key wrapping algorithm), encryptionKey (a Base64-encoded asymmetric public key in DER, PEM, JWK or OpenSSH format) and encryptionType (A256GCM, A128GCM, C20P, A256CBC_HS512, A128CBC_HS256, A256CCM or A128CCM, a content encryption algorithm); expirationDate is optional and must be in the future. A CredentialsResponse schema (vmid, merchantId, merchantName, merchantUrl, encryptionKey, cryptogramType, paymentPayloadType) is referenced by no path. No security scheme is declared. Not in the reference on 2026-10-19 (see src-visa-tap-apiref)."
+  },
+  {
+    "id": "src-visa-dev-release-notes",
+    "url": "https://developer.visa.com/docs/release-notes",
+    "title": "Visa Developer release notes",
+    "publisher": "Visa",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read 2026-11-14 (HTTP 200): monthly entries from January to August 2026, the latest month listed; no entry names VMRS or the Visa Merchant Registry Service."
+  },
+  {
+    "id": "src-visa-bill-billtrust",
+    "url": "https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22856.html",
+    "title": "Visa, BILL and Billtrust Launch First Live Pilot for Trusted AI Agent Payments Between Buyer and Supplier Platforms",
+    "publisher": "Visa",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-10-20",
+    "accessed": "2026-11-14",
+    "notes": "Business Wire release, Las Vegas, 2026-10-20; read on Visa's newsroom 2026-11-14 (HTTP 200). BILL's and Billtrust's own copies answered 403. The authorized BILL Payment Agent is registered using Visa's Trusted Agent Protocol and Agentic Directory and pays approved supplier invoices with tokenized credentials and controls tied to the buyer's approved payment instructions. Billtrust uses TAP to recognize, authenticate and admit the agent, which Visa says can stand in for CAPTCHA and other bot blocking without an extra agent login. Visa calls it the first live pilot in which trusted AI agents start and complete approved buyer invoice payments end to end through supplier portals (it does not call this the Agentic Directory's first use), and says it is live with participating BILL buyers and Billtrust suppliers. FAQ: no shared supplier-portal logins; the agent only executes eligible payments the buyer already approved. No transaction counts or volumes are given."
+  },
+  {
+    "id": "src-visa-commercial-2026-10-21",
+    "url": "https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22866.html",
+    "title": "Visa Announces Enhanced Capabilities That Can Bring Trust and Control to the Future of Business Payments",
+    "publisher": "Visa",
+    "type": "announcement",
+    "primary": true,
+    "published": "2026-10-21",
+    "accessed": "2026-11-14",
+    "notes": "Business Wire release, San Francisco, 2026-10-21; read 2026-11-14 (HTTP 200). Lists the live BILL and Billtrust pilot next to SESA 2.0 and Visa Commercial Fraud Solutions. The pilot draws on Visa Intelligent Commerce and the Trusted Agent Protocol to establish the agent's identity and authority, uses tokenized credentials instead of shared supplier-portal logins, and is live with participating BILL customers and Billtrust suppliers. No transaction counts."
+  },
+  {
+    "id": "src-visa-q4-fy2026-call",
+    "url": "https://www.fool.com/earnings/call-transcripts/2026/10/28/visa-v-q4-2026-earnings-call-transcript/",
+    "title": "Visa (V) Q4 2026 earnings call transcript",
+    "publisher": "The Motley Fool",
+    "type": "news",
+    "primary": false,
+    "accessed": "2026-11-14",
+    "notes": "Third-party transcript of Visa's fiscal fourth quarter 2026 call, held 2026-10-27; read 2026-11-14 (HTTP 200). Visa's own earnings release (releaseId 22876) has no agentic text and its investor pages answered 403, so these statements are reported. In prepared remarks CEO Ryan McInerney said Visa had nearly 50 AI partners live and in production, including Shopify's Shop Pay, expected to double in the coming months; that Ramp's agentic bill pay use case on Visa Intelligent Commerce was generally available; that Airwallex was testing VIC-enabled credentials in its wallet Airi; that BILL's payment agent was piloting VIC to pay invoices, with Billtrust's supplier portal identifying the agent; and that TAP and the Agent Directory give VIC its trust for the agent. He called the number of agentic transactions limited."
+  },
+  {
+    "id": "src-visa-vic-v2-apiref",
+    "url": "https://developer.visa.com/api-reference/visa-intelligent-commerce/post-vacp-v2-credentials-for-instruction.md",
+    "title": "Visa Intelligent Commerce V2 Bundle APIs: Credentials for instruction (API reference)",
+    "publisher": "Visa",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read 2026-11-14 (HTTP 200, .md twin). POST /vacp/v2/credentials-for-instruction under Visa Intelligent Commerce V2 Bundle APIs, described as an enhanced version of the v1 endpoint with inline enrollment to VIC: it records the consumer's approval as assuranceData, can set mandates and returns a payment credential. purchaseType is required, with values PURCHASE_HITL, PURCHASE_AUTONOMOUS and PURCHASE_RECURRING. client.agent carries agentId and an agentSignature whose signatureInput names alg (Ed25519, RS256 or ES256), tag (credential-request or confirmation-request), keyId, nonce, created and expires; Visa does not call it a TAP signature. When the V2 bundle first appeared is not known."
+  },
+  {
+    "id": "src-visa-tap-mppx-changelog",
+    "url": "https://github.com/wevm/mppx/blob/94056603518bf2af7fb3e5e5fd81426cfbee0fec/CHANGELOG.md",
+    "title": "mppx CHANGELOG.md (entries 0.15.0 to 0.19.0)",
+    "publisher": "wevm",
+    "type": "repo",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read with git show at origin/main 9405660 (2026-11-14, package version 0.19.0) in research/vendor/mppx. 0.16.0 (793aa2b): request attestation replaced with per-route identity; mppx/attestation became mppx/identity; Mppx.create({ attestation }) removed, and passing it throws; routes take identity: [verifier, ...], for example mppx.charge({ amount, identity: [tap] }); Identity.anyOf added; TAP and Web Bot Auth moved to mppx/extensions/identity/tap and mppx/extensions/identity/web-bot-auth; Client.signer became Client.prover. 0.17.0: payment-stage identity simplified. 0.18.0 (de802b9, 454b9e0): fixed statuses valid, missing (401), invalid (401), forbidden (403) and unavailable (503), with missing now 401 instead of 403; an untrusted or unresolvable signature key is forbidden (403). 0.18.0 (802a27a): tempo.charge(), tempo.session(), tempo.subscription() and tempo() throw at construction when no store is passed and NODE_ENV is production on a multi-instance platform or Cloudflare Workers. 0.19.0 (f2c69d5): the Web Bot Auth and TAP client provers take a key pair (CryptoKeyPair) or a remote Signer instead of a private key alone; Tap.Client.prover keeps keyId. The CHANGELOG gives no dates; npm publish times are in src-visa-tap-npm-mppx."
+  },
+  {
+    "id": "src-visa-tap-npm-mppx",
+    "url": "https://registry.npmjs.org/mppx",
+    "title": "mppx package metadata (npm registry JSON)",
+    "publisher": "npm",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Registry JSON read 2026-11-14: dist-tag latest 0.19.0, license MIT. Publish times (UTC): 0.15.0 2026-10-21T20:50:44Z, 0.16.0 2026-10-28T18:23:14Z, 0.18.0 2026-11-09T19:22:57Z, 0.19.0 2026-11-14T15:59:49Z. Package exports include ./attestation/tap from 0.8.17 through 0.15.0, and ./identity and ./extensions/identity/tap from 0.16.0."
+  },
+  {
+    "id": "src-visa-tap-mpp-identity-ext",
+    "url": "https://github.com/tempoxyz/mpp/blob/d062df60d166ad1c67d3366e159f6216ff7105b1/src/pages/extensions/identity/index.mdx",
+    "title": "MPP identity documentation (extensions/identity, source of mpp.dev/extensions/identity)",
+    "publisher": "Tempo (mpp.dev)",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read with git show at origin/main d062df6 (2026-11-14) in research/vendor/mpp; the file last changed in 91a3996 (2026-11-12). Live at https://mpp.dev/extensions/identity (HTTP 200, 2026-11-14), where https://mpp.dev/advanced/identity now redirects. mppx runs each route verifier at most once per request, before it issues a Challenge, so rejected callers never see payment terms; routes without identity skip identity checks, not payment checks. For agent signatures, an unsigned request or a signature that does not verify gets 401 and a key the resolver does not trust gets 403. The TAP verifier checks the signature, request authority and path, lifetime, intent tag and nonce. The page's TAP client example still passes a private CryptoKey with keyId, the form used before mppx 0.19.0. The earlier sentence that an attestation does not authorize a payment or prove the end user's identity (src-visa-tap-mpp-identity-doc) is not on this page."
+  },
+  {
+    "id": "src-visa-tap-eu-council-psr",
+    "url": "https://data.consilium.europa.eu/doc/document/ST-8543-2026-REV-1/en/pdf",
+    "title": "Position of the Council at first reading on the Payment Services Regulation (8543/1/26 REV 1)",
+    "publisher": "Council of the European Union",
+    "type": "standard",
+    "primary": true,
+    "published": "2026-11-04",
+    "accessed": "2026-11-14",
+    "notes": "Dated Brussels, 2026-11-04; interinstitutional file 2023/0210(COD); headed as adopted by the Council on 2026-10-29. Read 2026-11-14 (HTTP 200): the words agentic, AI agent and autonomous do not appear, so the text has no provision on AI agents or agentic payments. For the procedure stage see the Legislative Observatory file (src-policy-oeil-psr)."
+  },
+  {
+    "id": "src-visa-tap-eu-council-psd3",
+    "url": "https://data.consilium.europa.eu/doc/document/ST-8535-2026-REV-1/en/pdf",
+    "title": "Position of the Council at first reading on the payment services directive, PSD3 (8535/1/26 REV 1)",
+    "publisher": "Council of the European Union",
+    "type": "standard",
+    "primary": true,
+    "published": "2026-11-04",
+    "accessed": "2026-11-14",
+    "notes": "Dated Brussels, 2026-11-04; interinstitutional file 2023/0209(COD); headed as adopted by the Council on 2026-10-29. Read 2026-11-14 (HTTP 200): the words agentic, AI agent and autonomous do not appear, so the text has no provision on AI agents or agentic payments."
+  },
+  {
+    "id": "src-visa-tap-eu-oeil-psd3",
+    "url": "https://oeil.secure.europarl.europa.eu/oeil/en/procedure-file?reference=2023/0209(COD)",
+    "title": "Legislative Observatory procedure file 2023/0209(COD): payment services directive (PSD3)",
+    "publisher": "European Parliament (Legislative Observatory)",
+    "type": "dataset",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read 2026-11-14 (HTTP 200): stage Awaiting Parliament 2nd reading; forecast indicative plenary sitting date for the second reading 2026-12-14. The PSR file 2023/0210(COD) (src-policy-oeil-psr) showed the same stage and forecast date on 2026-11-14. No final act is listed."
+  },
+  {
+    "id": "src-visa-vic-v1-cards-apiref",
+    "url": "https://developer.visa.com/api-reference/visa-intelligent-commerce/post-vacp-v1-cards.md",
+    "title": "Visa Intelligent Commerce Agent APIs: Consumer - Enroll Card (POST /vacp/v1/cards, API reference)",
+    "publisher": "Visa",
+    "type": "docs",
+    "primary": true,
+    "accessed": "2026-11-14",
+    "notes": "Read 2026-11-14 (2026-11-15T07:13:02Z UTC; HTTP 200, .md twin, no sign-in). Listed under the bundle Visa Intelligent Commerce Agent APIs (VACP.100), which the API reference navigation marks public. Documents the request body schema, starting with the client and consumer objects, and the 200 and 202 responses; enrollment records the consumer's permission as assuranceData. Sandbox server https://sandbox.api.visa.com."
   }
 ]

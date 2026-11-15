@@ -1,22 +1,32 @@
 ---
 slug: crossmint
-name: "Crossmint Agentic Cards API"
+name: "Crossmint Agentic Cards API and Agent Commerce Toolkit"
 category: machine-payments
 starred: false
-oneLiner: "A Crossmint API, public since 2026-06-02, that lets developers connect eligible US-issued Visa credit and debit cards to AI agents as tokenized credentials through Visa Intelligent Commerce and Basis Theory, with spend limits."
+oneLiner: "Crossmint APIs that let AI agents pay with their users' cards and complete checkout at online stores: the Agentic Cards API on Visa Intelligent Commerce (public since 2026-06-02), a card vault, Agent Checkouts and the Agent Commerce Toolkit (live since 2026-10-08)."
 steward: "Crossmint (company)"
 status: "Live"
 latestVersion:
-  label: "public launch"
-  date: "2026-06-02"
+  label: "Agent Commerce Toolkit"
+  date: "2026-10-08"
 relations:
   - to: visa-tap
     type: compatible-with
-    note: "The product runs on Visa Intelligent Commerce tokens; TAP use is not stated in the launch post."
+    note: "The products use Visa Intelligent Commerce tokens where a card is eligible; TAP use is not stated in Crossmint's posts."
+  - to: mastercard-agent-pay
+    type: uses-as-rail
+    note: "Crossmint says Agent Checkouts and the Agent Commerce Toolkit use Mastercard Agent Pay tokenized credentials where a card supports them (Crossmint's claim)."
+  - to: ucp
+    type: uses-as-rail
+    note: "Crossmint says the Agent Commerce Toolkit can complete checkout through UCP where a merchant supports it."
 sources:
   - src-orbit-crossmint-launch
+  - src-orbit-crossmint-vault
+  - src-orbit-crossmint-agent-checkouts
+  - src-orbit-crossmint-toolkit
+  - src-orbit-crossmint-pricing
   - src-orbit-crossmint-sdk
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-14"
 ---
 
-Crossmint launched the Agentic Cards API publicly on 2026-06-02, built on Visa Intelligent Commerce and Basis Theory: developers connect eligible US-issued Visa cards to AI agents as tokenized credentials with spend limits, and issuer approval and controls still apply. <Cite ids="src-orbit-crossmint-launch" /> The SDK `Crossmint/crossmint-sdk` is Apache-2.0. <Cite ids="src-orbit-crossmint-sdk" /> The launch post does not say whether [Visa TAP](/p/visa-tap/) is used, so the link to TAP runs through Visa Intelligent Commerce tokens.
+Crossmint launched the Agentic Cards API publicly on 2026-06-02, built on Visa Intelligent Commerce and Basis Theory: developers connect eligible US-issued Visa cards to AI agents as tokenized credentials with spend limits, and issuer approval and controls still apply. <Cite ids="src-orbit-crossmint-launch" /> On 2026-09-17 it added a universal vault for agent cards, an SDK that stores any card a user provides in a PCI-compliant vault for the agent to spend from. <Cite ids="src-orbit-crossmint-vault" /> Agent Checkouts (2026-09-25) is one headless API that completes an order at an online store through an embedded option such as Shop Pay, an agentic commerce protocol or browser automation, and uses Visa Intelligent Commerce or Mastercard Agent Pay where the card is enrolled. <Cite ids="src-orbit-crossmint-agent-checkouts" /> The Agent Commerce Toolkit (2026-10-08), which Crossmint calls live and self-serve, combines card storage, network credentials and checkout in one integration: where a card supports it, it uses Visa Intelligent Commerce and [Mastercard Agent Pay](/p/mastercard-agent-pay/) tokenized credentials as scoped virtual cards with expiry dates and spend limits, and it checks out through Shop Pay, [UCP](/p/ucp/) or browser automation. These network and protocol uses are Crossmint's own statements. <Cite ids="src-orbit-crossmint-toolkit" /> As of 2026-11-14 Crossmint's price list gives Agent Checkout 1,000 free checkouts a month, then $0.05 per checkout, and Agent Cards 1,000 free cards a month, then volume pricing. <Cite ids="src-orbit-crossmint-pricing" /> The SDK `Crossmint/crossmint-sdk` is Apache-2.0. <Cite ids="src-orbit-crossmint-sdk" /> None of the posts says whether [Visa TAP](/p/visa-tap/) is used, so the link to TAP runs through Visa Intelligent Commerce tokens. <Cite ids="src-orbit-crossmint-launch src-orbit-crossmint-toolkit" />
