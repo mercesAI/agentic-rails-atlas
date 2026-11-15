@@ -101,7 +101,7 @@ export default function PlaygroundFrame({ slug, specVersion, title, children }: 
       </div>
       <p className="pg__foot">
         Keys are generated in this browser for this session only, on test chain identifiers or fixture data. No wallet
-        connects and nothing is sent to a network.
+        connects, and the simulation sends nothing to a network.
       </p>
     </div>
   );

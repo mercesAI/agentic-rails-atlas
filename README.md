@@ -53,6 +53,10 @@ pnpm gates              # the fast set in one command
 
 The site is a static build in `dist/`, so any static host works. It runs on Cloudflare Workers with static assets: `wrangler.toml` points at `dist/`, and `public/_headers` sets the Content Security Policy (with hashes for inline scripts written at build time), `Referrer-Policy` and `Permissions-Policy`. Cloudflare's Git integration builds every push to `main` with `pnpm build` and deploys with `npx wrangler deploy`; no token is stored in the repository. Set `PUBLIC_SITE_URL` (default `https://atlas.merces.ai`) as a build variable if the address changes. The GitHub Actions workflow in `.github/workflows/gates.yml` runs the quality gates on every push without secrets.
 
+## Visitor statistics
+
+People are counted by Cloudflare Web Analytics (no cookies; Cloudflare adds the beacon at its edge), bots and AI bots by Cloudflare's edge records. `pnpm stats` prints one table for 24 hours, 7 days and 30 days from a read-only API token kept in `private/stats/.env`, which git ignores. Setup, the meaning of each number and the plan differences are in `docs/ANALYTICS.md`.
+
 ## Optional data
 
 - `pnpm data` refreshes GitHub, npm, PyPI and x402 Bazaar snapshots. It never fails the build.

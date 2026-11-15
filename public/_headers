@@ -1,8 +1,14 @@
 # Cloudflare Pages headers. The hash token in script-src is replaced at build time by
 # src/lib/build/csp-hashes.ts with sha256 hashes of every inline script.
+# static.cloudflareinsights.com is the Web Analytics beacon that Cloudflare inserts at
+# the edge. A host, not a path: the edge loads /beacon.min.js/<version> and a manual
+# snippet would load /beacon.min.js; a host source covers both.
+# The beacon posts to /cdn-cgi/rum on this origin, so connect-src stays 'self'.
+# same-origin keeps the referrer on this site only; other sites still get none
+# (docs/ANALYTICS.md explains both choices).
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' {{INLINE_SCRIPT_HASHES}}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
-  Referrer-Policy: no-referrer
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com {{INLINE_SCRIPT_HASHES}}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Referrer-Policy: same-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
   X-Content-Type-Options: nosniff
   Cross-Origin-Opener-Policy: same-origin

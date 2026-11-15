@@ -25,6 +25,7 @@ See private/ATLAS_PROMPT.md 12.2. Content lives in `src/content/`; schemas in `s
 - `pnpm verify:coverage`, `pnpm verify:links`, `pnpm verify:citations`, `pnpm verify:sources`
 - `pnpm lint:ste`, `pnpm lint:style`
 - `pnpm diagrams` (flow-to-mermaid + render), `pnpm diagrams:check` (browser-free staleness check of the generated Mermaid sources and SVGs; also part of `pnpm check`), `pnpm data` (snapshot fetchers, never fail the build)
+- `pnpm stats` (read-only Cloudflare traffic: people, bots and AI bots for 24h/7d/30d; `--json` for agents, `--check` for setup; token in `private/stats/.env`; see `docs/ANALYTICS.md` and the `site-brief` skill)
 
 ## Working rules for agents
 - Research agents write to `research/`; writer agents write to `src/content/`; verifier agents write to `verification/` and never edit content.

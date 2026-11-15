@@ -181,7 +181,7 @@ export default function NotesPanel({ scope, name, sections }: Props) {
           </ul>
         </div>
       )}
-      <p className="notes-panel__privacy">Notes stay in this browser. Nothing is sent anywhere.</p>
+      <p className="notes-panel__privacy">Notes stay in this browser and are never sent anywhere.</p>
     </div>
   );
 }

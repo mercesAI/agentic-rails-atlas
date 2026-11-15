@@ -9,6 +9,7 @@ import Page from '../../layouts/Page.astro';
 import { breadcrumbLd } from '../../lib/seo';
 import { SITE_NAME } from '../../lib/constants';
 import FreshnessBadge from '../../components/ui/FreshnessBadge.astro';
+import ExternalLink from '../../components/ui/ExternalLink.astro';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import rehypeTableWrap from '../../lib/rehype-table-wrap';
 import { getGlossary, getPublications, getSourcesMap } from '../../lib/content';
@@ -59,6 +60,8 @@ const countItems = (path: string) => (RAW[path]?.match(/^- /gm) ?? []).length;
 const protocols = await loadProtocolInfos();
 const claimsBy = await loadClaimsByProtocol();
 const sources = await getSourcesMap();
+// From the source registry, so the link checker covers it (research/site.sources.json).
+const rumBeacon = sources.get('src-site-cf-rum-beacon')?.url ?? 'https://developers.cloudflare.com/speed/observatory/rum-beacon/';
 const publications = await getPublications();
 const glossary = await getGlossary();
 const fullTerms = glossary.filter(isFullTerm);
@@ -242,5 +245,8 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
   <h2 id="errata">Errata</h2>
   <p>Corrections to the seed facts the research started from (the initial and follow-up research briefs), and where the corrected statement now lives.</p>
   {errataHtml ? <div class="cc-md cc-scroll" set:html={errataHtml} /> : <p>No errata are logged.</p>}
+
+  <h2 id="statistics">Visitor statistics</h2>
+  <p>The site counts page views with Cloudflare Web Analytics. Cloudflare adds a small script to each page at its edge. The script <ExternalLink href={`${rumBeacon}#privacy-information`}>sets no cookies and stores nothing in your browser</ExternalLink>, and Cloudflare <ExternalLink href={`${rumBeacon}#data-processing`}>discards the IP address at the nearest data center</ExternalLink>. It reports page views, visits, referring sites, countries, browsers and load times, not individual readers. Crawler and AI assistant counts come from Cloudflare's records of requests at its edge and add nothing to the page. Your notes and settings stay in this browser.</p>
 
 </Page>

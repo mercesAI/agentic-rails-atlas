@@ -203,7 +203,7 @@ All components take typed props from `src/lib/schemas.ts`. Astro components for 
 - WCAG 2.2 AA: visible focus (tokens `--focus`), skip link, landmarks, every island keyboard operable, every diagram with a text alternative, color never the only channel (ring styles, labels, dots with text).
 - Home JavaScript under 200 KB gz before the universe hydrates: D3 is imported from submodules (`d3-force`, `d3-scale`, `d3-selection`, `d3-transition`, `d3-zoom`) inside the island only.
 - Respect `prefers-reduced-motion` everywhere (tokens set durations to 0).
-- `public/_headers`: CSP without `unsafe-eval` (`script-src 'self' 'wasm-unsafe-eval'` for Pagefind; `style-src 'self' 'unsafe-inline'` because Astro scopes styles inline; `img-src 'self' data:`; `connect-src 'self'`), `Referrer-Policy: no-referrer`, `Permissions-Policy` denying camera, microphone, geolocation.
+- `public/_headers`: CSP without `unsafe-eval` (`script-src 'self' 'wasm-unsafe-eval'` for Pagefind, plus `https://static.cloudflareinsights.com` for the Web Analytics beacon that Cloudflare inserts at the edge, plus the build-time hashes of inline scripts; `style-src 'self' 'unsafe-inline'` because Astro scopes styles inline; `img-src 'self' data:`; `connect-src 'self'`, since the beacon reports to `/cdn-cgi/rum` on this origin), `Referrer-Policy: same-origin` (the same value as the `<meta name="referrer">` tag in `src/layouts/Base.astro`; other sites get no referrer), `Permissions-Policy` denying camera, microphone, geolocation. `tests/unit/lib/build/headers.test.ts` pins these choices; `docs/ANALYTICS.md` explains them.
 
 ## 12. Writing rules for everything under src/content
 
