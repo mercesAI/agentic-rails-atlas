@@ -6,9 +6,12 @@
  * HEAD first, then GET when HEAD is refused or fails; 3 retries with backoff
  * for network errors, 5xx and 429; at most 2 requests in flight per host with
  * 400 ms between requests to the same host.
+ *   a documented answer (bot-blocking-hosts.json: 404 or 410 for a URL in
+ *   expectedMissing, or the status that expectedStatus gives the URL) -> ok
  *   404 or 410                      -> failure
- *   403 or 429 from a host in scripts/verify/bot-blocking-hosts.json, or a
- *   Cloudflare challenge            -> warning
+ *   a bot challenge (challengeHeaders: Cloudflare, Vercel or AWS WAF) on any
+ *   other answer, even a 2xx, since the real page was not seen -> warning
+ *   403, 405 or 429 from a host in scripts/verify/bot-blocking-hosts.json -> warning
  *   other 4xx                       -> failure
  *   host not found (ENOTFOUND after the retries) -> failure
  *   5xx, timeouts, other network errors -> warning
@@ -48,7 +51,36 @@ interface BotConfig {
   hosts: string[];
   /** URLs cited on purpose as evidence that something does not exist (a 404 there is the expected result). */
   expectedMissing?: string[];
-  challengeHeaders?: Record<string, string>;
+  /** URLs whose documented answer is another status, for example an x402 endpoint that answers 402. */
+  expectedStatus?: Record<string, number>;
+  /** Response header name to the value (or values) that mark a bot challenge instead of the page. */
+  challengeHeaders?: Record<string, string | string[]>;
+}
+
+const CHALLENGE_LABELS: Record<string, string> = {
+  'cf-mitigated': 'Cloudflare challenge',
+  'x-vercel-mitigated': 'Vercel challenge',
+  'x-amzn-waf-action': 'AWS WAF challenge',
+};
+
+/** A label for the bot challenge that `headers` show, if any. */
+export function challengeLabel(headers: Headers, bot: BotConfig): string | undefined {
+  for (const [name, values] of Object.entries(bot.challengeHeaders ?? {})) {
+    const got = headers.get(name)?.toLowerCase();
+    if (got && (Array.isArray(values) ? values : [values]).some((v) => v.toLowerCase() === got)) {
+      return CHALLENGE_LABELS[name] ?? `challenge header ${name}`;
+    }
+  }
+  return undefined;
+}
+
+/** The ok result when `status` is the answer that bot-blocking-hosts.json documents for `url`. */
+export function expectedOutcome(url: string, status: number, bot: BotConfig): { outcome: 'ok'; reason: string } | undefined {
+  if ((status === 404 || status === 410) && (bot.expectedMissing ?? []).includes(url)) {
+    return { outcome: 'ok', reason: `HTTP ${status} (expected: cited as evidence of absence)` };
+  }
+  if (bot.expectedStatus?.[url] === status) return { outcome: 'ok', reason: `HTTP ${status} (expected: documented answer)` };
+  return undefined;
 }
 
 export function collectLinks(root: string): LinkTarget[] {
@@ -106,11 +138,11 @@ class HostGate {
 
 /** `code` is the system error code behind status 0 (ENOTFOUND, ECONNRESET, ...), when known. */
 export function classify(status: number, host: string, headers: Headers, bot: BotConfig, code?: string): { outcome: LinkResult['outcome']; reason?: string } {
-  if (status >= 200 && status < 400) return { outcome: 'ok' };
-  const challenge = Object.entries(bot.challengeHeaders ?? {}).some(([k, v]) => headers.get(k)?.toLowerCase() === v.toLowerCase());
+  const challenge = status === 0 ? undefined : challengeLabel(headers, bot);
+  if (status >= 200 && status < 400) return challenge ? { outcome: 'warn', reason: `HTTP ${status} (${challenge})` } : { outcome: 'ok' };
   if (status === 404 || status === 410) return { outcome: 'fail', reason: `HTTP ${status}` };
-  if (status === 403 || status === 429) {
-    if (challenge) return { outcome: 'warn', reason: `HTTP ${status} (Cloudflare challenge)` };
+  if (challenge) return { outcome: 'warn', reason: `HTTP ${status} (${challenge})` };
+  if (status === 403 || status === 405 || status === 429) {
     if (isBotBlockingHost(host, bot.hosts)) return { outcome: 'warn', reason: `HTTP ${status} from a known bot-blocking host` };
     return { outcome: 'fail', reason: `HTTP ${status}` };
   }
@@ -147,10 +179,7 @@ async function checkOne(t: LinkTarget, gate: HostGate, bot: BotConfig): Promise<
     const retryable = get.status === 0 || get.status === 429 || get.status >= 500;
     if (!retryable) break;
   }
-  const c =
-    (last.status === 404 || last.status === 410) && (bot.expectedMissing ?? []).includes(t.url)
-      ? { outcome: 'ok' as const, reason: `HTTP ${last.status} (expected: cited as evidence of absence)` }
-      : classify(last.status, host, last.headers, bot, last.code);
+  const c = expectedOutcome(t.url, last.status, bot) ?? classify(last.status, host, last.headers, bot, last.code);
   return {
     url: t.url,
     host,

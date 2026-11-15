@@ -1,5 +1,5 @@
 {
-  "notes": "Hosts that commonly answer automated requests with 403 or 429 (bot protection, login walls, paywalls). check-links.ts treats a 403 or 429 from these hosts, or from any page that returns a Cloudflare challenge (cf-mitigated: challenge), as a warning instead of a failure. A host matches itself and its subdomains.",
+  "notes": "Hosts that commonly answer automated requests with 403, 405 or 429 (bot protection, login walls, paywalls). check-links.ts treats a 403, 405 or 429 from these hosts as a warning instead of a failure, and so is any answer other than 404 or 410 that carries a bot challenge header (challengeHeaders: Cloudflare's cf-mitigated, Vercel's x-vercel-mitigated, AWS WAF's x-amzn-waf-action), because the real page was not seen. A host matches itself and its subdomains. expectedMissing lists URLs cited as evidence that a page is gone (a 404 or 410 there is the expected answer). expectedStatus maps URLs to another documented answer, such as an x402 endpoint that answers 402 or a site whose hosting answers 402 and whose source record says so.",
   "hosts": [
     "openai.com",
     "x.com",
@@ -23,13 +23,29 @@
     "venturebeat.com",
     "dlapiper.com",
     "npmjs.com",
-    "retailtouchpoints.com"
+    "retailtouchpoints.com",
+    "senate.gov",
+    "chatgpt.com",
+    "courtlistener.com"
   ],
   "challengeHeaders": {
-    "cf-mitigated": "challenge"
+    "cf-mitigated": "challenge",
+    "x-vercel-mitigated": "challenge",
+    "x-amzn-waf-action": [
+      "challenge",
+      "captcha"
+    ]
   },
   "expectedMissing": [
     "https://pypi.org/pypi/verifiable-intent/json",
-    "https://registry.npmjs.org/@agentic-commerce-protocol%2fspecification"
-  ]
+    "https://registry.npmjs.org/@agentic-commerce-protocol%2fspecification",
+    "https://docs.world.org/agents/agent-kit",
+    "https://docs.cdp.coinbase.com/agentic-wallet/cli/quickstart",
+    "https://docs.cdp.coinbase.com/agentic-wallet/mcp/welcome",
+    "https://docs.cdp.coinbase.com/x402/agentic-accounts/agentic-wallet"
+  ],
+  "expectedStatus": {
+    "https://search.agent.s.brave.app/res/v1/web/search?q=x402": 402,
+    "https://www.buildbear.io/blog/x402-middleware": 402
+  }
 }
