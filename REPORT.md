@@ -45,7 +45,7 @@ Sources were re-read on 2026-11-14 (some reads ran past midnight UTC). Thirteen 
 
 ### Also in this round
 
-Visitor statistics: Cloudflare Web Analytics counts people and the GraphQL Analytics API counts bots and AI crawlers, read by `pnpm stats` (`docs/ANALYTICS.md`); it goes live after the owner finishes the Cloudflare steps. The link checker now treats Vercel and AWS WAF challenges as warnings and accepts documented non-404 answers (`scripts/verify/bot-blocking-hosts.json`). The v1.2 tag waits for the deploy.
+Visitor statistics: Cloudflare Web Analytics counts people and the GraphQL Analytics API counts bots and AI crawlers, read by `pnpm stats` (`docs/ANALYTICS.md`); it goes live after the owner finishes the Cloudflare steps. The link checker now treats Vercel and AWS WAF challenges as warnings and accepts documented non-404 answers (`scripts/verify/bot-blocking-hosts.json`). The v1.2 tag marks the deploy of this round.
 
 ## What was built
 
