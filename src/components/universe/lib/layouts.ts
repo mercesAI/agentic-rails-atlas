@@ -4,7 +4,8 @@
  * server-rendered HTML matches the hydrated island. Coordinates live in a
  * fixed frame (FRAME_W by the mode height) that the island scales to fit.
  */
-import { FAMILIES, LAYER_LABELS, LAYERS, type Family, type Layer } from '../../../lib/schemas';
+import { FAMILIES, LAYER_LABELS, LAYERS } from '../../../lib/taxonomy';
+import type { Family, Layer } from '../../../lib/schemas';
 import { FAMILY_SHORT } from './labels';
 import { bubbleRadius, layerIndex, railScore } from './encoding';
 import { relax, round } from './relax';

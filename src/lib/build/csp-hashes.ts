@@ -4,6 +4,9 @@
  * pre-paint) and writes them into the CSP of dist/_headers in place of the
  * {{INLINE_SCRIPT_HASHES}} token. This keeps `script-src` free of
  * 'unsafe-inline' and 'unsafe-eval' (ARCHITECTURE.md Section 11).
+ * It also fails the build when a page has an inline module script: after a client-side
+ * navigation into such a page, ClientRouter appends a data: module script to wait for it,
+ * which script-src blocks. astro.config.mjs keeps processed scripts in files for that reason.
  */
 import { createHash } from 'node:crypto';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
@@ -26,6 +29,16 @@ export function inlineScriptHashes(html: string): string[] {
     out.push(`'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`);
   }
   return out;
+}
+
+/** Inline module scripts (type="module" without src) in one HTML document. */
+export function inlineModuleScripts(html: string): number {
+  let count = 0;
+  for (const m of html.matchAll(SCRIPT_RE)) {
+    const attrs = m[1] ?? '';
+    if (/\btype\s*=\s*["']?module\b/i.test(attrs) && !/\bsrc\s*=/.test(attrs) && (m[2] ?? '').trim()) count++;
+  }
+  return count;
 }
 
 async function htmlFiles(dir: string): Promise<string[]> {
@@ -55,8 +68,17 @@ export default function cspHashes(): AstroIntegration {
           return;
         }
         const hashes = new Set<string>();
+        const withInlineModules: string[] = [];
         for (const file of await htmlFiles(root)) {
-          for (const h of inlineScriptHashes(await readFile(file, 'utf8'))) hashes.add(h);
+          const html = await readFile(file, 'utf8');
+          for (const h of inlineScriptHashes(html)) hashes.add(h);
+          if (inlineModuleScripts(html) > 0) withInlineModules.push(file.slice(root.length));
+        }
+        if (withInlineModules.length) {
+          throw new Error(
+            `inline module scripts in ${withInlineModules.slice(0, 5).join(', ')}: after a client-side navigation into such a page, ` +
+              'ClientRouter appends a data: module script that script-src blocks (keep scripts in files, astro.config.mjs assetsInlineLimit)',
+          );
         }
         const list = [...hashes].sort().join(' ');
         await writeFile(headersPath, headers.split(HASH_TOKEN).join(list));

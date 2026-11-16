@@ -8,7 +8,10 @@ import { ROOT } from '../../../../scripts/lib/io';
  * the choices docs/ANALYTICS.md explains: the Web Analytics beacon host is allowed as a bare
  * host (the edge loads /beacon.min.js/<version> and a manual snippet would load
  * /beacon.min.js; a host source covers both), the beacon reports to this origin so connect-src
- * stays 'self', and the referrer policy in the header and in the page's meta tag agree.
+ * stays 'self', and the referrer policy in the header and in the page's meta tag agree. They
+ * also pin what keeps the console free of policy errors: fonts and scripts come from files
+ * (astro.config.mjs), nothing needs eval (client islands import no Zod) and Pagefind's wasm
+ * compiles under 'wasm-unsafe-eval'.
  */
 const headers = readFileSync(join(ROOT, 'public', '_headers'), 'utf8');
 const base = readFileSync(join(ROOT, 'src', 'layouts', 'Base.astro'), 'utf8');
@@ -40,6 +43,20 @@ describe('public/_headers', () => {
 
   it('keeps connect-src to this origin only', () => {
     expect(directive(csp, 'connect-src')).toEqual(["'self'"]);
+  });
+
+  it('keeps fonts and scripts to files: no data:, no unsafe-inline, no unsafe-eval', () => {
+    expect(directive(csp, 'font-src')).toEqual(["'self'"]);
+    const script = directive(csp, 'script-src');
+    expect(script).not.toContain('data:');
+    expect(script).not.toContain("'unsafe-inline'");
+    expect(script).not.toContain("'unsafe-eval'");
+    expect(headerValue('Permissions-Policy')).toBe('camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+  });
+
+  it("lets Pagefind compile its wasm and start its worker, without 'unsafe-eval'", () => {
+    expect(directive(csp, 'script-src')).toContain("'wasm-unsafe-eval'");
+    expect(directive(csp, 'worker-src')).toEqual(["'self'"]);
   });
 
   it('uses the same referrer policy in the header and in the meta tag of Base.astro', () => {

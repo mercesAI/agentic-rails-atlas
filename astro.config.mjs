@@ -21,7 +21,15 @@ export default defineConfig({
   trailingSlash: 'always',
   build: { format: 'directory' },
   integrations: [react(), mdx({ rehypePlugins: [rehypeGlossary, rehypeTableWrap] }), pagefind(), pruneCitations(), cspHashes()],
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    // Fonts and scripts stay files. Under 4 KB, Vite would turn a font subset into a data: URL,
+    // which the Content Security Policy blocks (font-src 'self'), and Astro would inline a
+    // processed <script> as an inline module; after a client-side navigation into a page whose
+    // last new module script is inline, the ClientRouter appends a data: module script to wait
+    // for it, which script-src blocks. Other small assets (CSS, images) keep the default.
+    build: { assetsInlineLimit: (filePath) => (/\.(woff2?|ttf|otf|eot|m?js)$/i.test(filePath) ? false : undefined) },
+  },
   markdown: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]],

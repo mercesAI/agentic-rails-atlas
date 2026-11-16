@@ -7,7 +7,8 @@
  */
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { select, zoom, zoomIdentity, type ZoomBehavior } from 'd3';
-import { FAMILIES, FAMILY_LABELS, LAYER_LABELS, type RelationType, type Status } from '../../lib/schemas';
+import { FAMILIES, FAMILY_LABELS, LAYER_LABELS } from '../../lib/taxonomy';
+import type { RelationType, Status } from '../../lib/schemas';
 import {
   RAIL_LABELS,
   RELATION_DASH,

@@ -9,6 +9,10 @@
  * Astro content collections and by the scripts under scripts/.
  */
 import { z } from 'zod';
+import { FAMILIES, FAMILY_LABELS, LAYERS, LAYER_LABELS } from './taxonomy';
+
+// The layer and family lists and their labels live in ./taxonomy so that client islands can import them without Zod.
+export { FAMILIES, FAMILY_LABELS, LAYERS, LAYER_LABELS };
 
 // ---------------------------------------------------------------------------
 // Primitives and enums
@@ -33,20 +37,9 @@ export const PROTOCOL_SLUGS = [
 export const ProtocolSlug = z.enum(PROTOCOL_SLUGS);
 export type ProtocolSlug = z.infer<typeof ProtocolSlug>;
 
-export const LAYERS = [
-  'discovery',
-  'identity-trust',
-  'intent-authorization',
-  'checkout-orders',
-  'payment-credential',
-  'settlement-rails',
-  'post-purchase-disputes',
-  'reputation-feedback',
-] as const;
 export const Layer = z.enum(LAYERS);
 export type Layer = z.infer<typeof Layer>;
 
-export const FAMILIES = ['identity-trust', 'authorization-intent', 'checkout-orders', 'payment-execution'] as const;
 export const Family = z.enum(FAMILIES);
 export type Family = z.infer<typeof Family>;
 
@@ -917,24 +910,6 @@ export const CoverageWaiversFile = z.object({ waivers: z.array(CoverageWaiver) }
 // ---------------------------------------------------------------------------
 // Convenience maps
 // ---------------------------------------------------------------------------
-
-export const FAMILY_LABELS: Record<Family, string> = {
-  'identity-trust': 'Identity and trust',
-  'authorization-intent': 'Authorization and intent',
-  'checkout-orders': 'Checkout and orders',
-  'payment-execution': 'Payment execution and credentials',
-};
-
-export const LAYER_LABELS: Record<Layer, string> = {
-  discovery: 'Discovery',
-  'identity-trust': 'Identity and trust',
-  'intent-authorization': 'Intent and authorization',
-  'checkout-orders': 'Checkout and orders',
-  'payment-credential': 'Payment credential',
-  'settlement-rails': 'Settlement rails',
-  'post-purchase-disputes': 'Post-purchase and disputes',
-  'reputation-feedback': 'Reputation and feedback',
-};
 
 export const CONTROL_LABELS: Record<ControlId, string> = {
   'agent-identity-verification': 'Agent identity verification',

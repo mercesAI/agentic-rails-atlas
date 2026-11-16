@@ -2,7 +2,8 @@
  * Visual encoding rules for the bubble universe (ATLAS_PROMPT.md 4.3 and 13).
  * Fill hue = family, ring style = rails, size = equal base plus a small boost per layer covered.
  */
-import { LAYERS, type Layer, type Rail, type RelationType } from '../../../lib/schemas';
+import { LAYERS } from '../../../lib/taxonomy';
+import type { Layer, Rail, RelationType } from '../../../lib/schemas';
 import type { PersonaMap, Relevance, UniverseRelation } from './types';
 
 export { ORBIT_CATEGORY_LABELS, ORBIT_CATEGORY_SHORT_LABELS, RAIL_LABELS, RELATION_LABELS, STATUS_LABELS } from '../../../lib/labels';
