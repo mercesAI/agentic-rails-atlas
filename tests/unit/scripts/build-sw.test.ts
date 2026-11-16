@@ -70,6 +70,8 @@ beforeAll(() => {
 afterAll(() => rmSync(dist, { recursive: true, force: true }));
 
 type Handler = (event: Record<string, unknown>) => void;
+/** What the worker passed to fetch: a request it built (its init fields) or the event's request. */
+type SentRequest = Record<string, unknown> | undefined;
 interface Harness {
   handlers: Record<string, Handler>;
   puts: { key: unknown; res: Response }[];
@@ -81,7 +83,7 @@ interface Harness {
  */
 function loadWorker(
   text: string,
-  fetchImpl: (url: string) => Promise<Response>,
+  fetchImpl: (url: string, request: SentRequest) => Promise<Response>,
   cached: (pathname: string) => Response | undefined = () => undefined,
 ): Harness {
   const handlers: Record<string, Handler> = {};
@@ -114,7 +116,7 @@ function loadWorker(
     // caches.open answers in a later task, as in a browser, so that work scheduled after it
     // runs once the page has started reading a response handed to respondWith.
     caches: { open: () => new Promise<typeof cache>((resolve) => setTimeout(() => resolve(cache), 0)), keys: async () => [], delete: async () => true },
-    fetch: (req: string | { url: string }) => fetchImpl(typeof req === 'string' ? req : req.url),
+    fetch: (req: string | { url: string }) => fetchImpl(typeof req === 'string' ? req : req.url, typeof req === 'string' ? undefined : (req as SentRequest)),
     Request: FakeRequest,
     Response,
     Headers,
@@ -272,6 +274,21 @@ describe('build-sw', () => {
       expect((await install(h)).ok).toBe(false);
     });
 
+    it('precaches pages with a browser Accept header, so the copies carry the edge beacon tag, and other files without one', async () => {
+      const sent = new Map<string, SentRequest>();
+      const h = loadWorker(workerFor(), async (url, request) => {
+        sent.set(url, request);
+        return ok();
+      });
+      expect(await install(h)).toEqual({ ok: true });
+      expect([...sent.keys()].sort()).toEqual(PRECACHED);
+      for (const [url, request] of sent) {
+        expect(request?.cache, url).toBe('reload');
+        const accept = (request?.headers as Record<string, string> | undefined)?.Accept ?? '';
+        expect(accept.includes('text/html'), url).toBe(url.endsWith('/') || url.endsWith('.html'));
+      }
+    });
+
     it('stores a redirected response as a fresh one', async () => {
       const h = loadWorker(workerFor(), async (url) => (url === '/404.html' ? redirected('not found page') : ok()));
       expect(await install(h)).toEqual({ ok: true });
@@ -330,6 +347,68 @@ describe('build-sw', () => {
       expect(h.puts).toHaveLength(1);
       expect(h.puts[0]?.key).toBe('/compare');
       expect(h.puts[0]?.res.redirected).toBe(false);
+    });
+
+    it('fetches a navigation with cache reload and its own headers, so a stale HTTP cache copy without the beacon tag never returns by 304', async () => {
+      let sent: SentRequest;
+      const h = loadWorker(
+        workerFor([]),
+        async (_url, request) => {
+          sent = request;
+          return ok('<h1>Compare</h1>');
+        },
+        (path) => (path === '/compare/' ? new Response('<h1>Cached compare</h1>') : undefined),
+      );
+      const headers = new Headers({ Accept: 'text/html,application/xhtml+xml' });
+      const res = await dispatch(h, '/compare/', {
+        mode: 'navigate',
+        credentials: 'include',
+        redirect: 'manual',
+        referrer: 'https://atlas.test/',
+        referrerPolicy: 'same-origin',
+        headers,
+      });
+      expect(await res.text()).toBe('<h1>Compare</h1>');
+      // A navigation refreshes the cached copy (the edge sends it with the beacon tag).
+      expect(h.puts.map((p) => p.key)).toEqual(['/compare/']);
+      // The fake Request keeps init as given. A browser also keeps this same-origin referrer,
+      // but replaces a referrer from another site with the worker's URL (Fetch, Request constructor).
+      expect(sent).toMatchObject({
+        url: 'https://atlas.test/compare/',
+        method: 'GET',
+        mode: 'same-origin',
+        cache: 'reload',
+        redirect: 'manual',
+        credentials: 'include',
+        referrer: 'https://atlas.test/',
+        referrerPolicy: 'same-origin',
+      });
+      expect((sent?.headers as Headers).get('accept')).toContain('text/html');
+    });
+
+    it('passes the router page fetches to the network as they are', async () => {
+      let sent: SentRequest;
+      const h = loadWorker(workerFor([]), async (_url, request) => {
+        sent = request;
+        return ok('<h1>Compare</h1>');
+      });
+      const res = await dispatch(h, '/compare/', { headers: new Headers({ Accept: '*/*' }) });
+      expect(await res.text()).toBe('<h1>Compare</h1>');
+      expect(sent).toMatchObject({ url: 'https://atlas.test/compare/', mode: 'cors', cache: 'default' });
+      expect((sent?.headers as Headers).get('accept')).toBe('*/*');
+      // No copy was cached, so the answer is kept for offline use.
+      expect(h.puts.map((p) => p.key)).toEqual(['/compare/']);
+    });
+
+    it('never replaces a cached page with a router answer, which comes without the beacon tag', async () => {
+      const h = loadWorker(
+        workerFor([]),
+        async () => ok('<h1>Compare without the tag</h1>'),
+        (path) => (path === '/compare/' ? new Response('<h1>Compare with the tag</h1>') : undefined),
+      );
+      const res = await dispatch(h, '/compare/', { headers: new Headers({ Accept: '*/*' }) });
+      expect(await res.text()).toBe('<h1>Compare without the tag</h1>');
+      expect(h.puts).toHaveLength(0);
     });
 
     it('serves a pagefind index chunk or fragment cache-first: a cached copy without a network request, else the network response, stored', async () => {

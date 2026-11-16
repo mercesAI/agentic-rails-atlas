@@ -1,6 +1,6 @@
 # Visitor statistics for atlas.merces.ai
 
-How the site counts people, bots and AI bots on Cloudflare's Free plan, how to set it up, and how Claude Code turns the numbers into a daily brief. Facts below were checked against Cloudflare's documentation on 2026-11-14 (sources at the end); plan-dependent facts are marked.
+How the site counts people, bots and AI bots on Cloudflare's Free plan, how to set it up, and how Claude Code turns the numbers into a daily brief. Facts below were checked against Cloudflare's documentation on 2026-11-14 (sources at the end), except those marked as measured or read in code; plan-dependent facts are marked.
 
 ## What is counted, and where
 
@@ -70,13 +70,17 @@ When you say "deploy", Claude pushes `main` and Cloudflare's Workers Builds depl
 - The methodology page gets a "Visitor statistics" section, with its Cloudflare source in the source registry; the Notes panel and playground footer wording now promise only what they control.
 - `public/robots.txt`: the named AI crawlers now get the `/notes/` rule too (a crawler follows only the most specific group that names it, RFC 9309), with Disallow before Allow for parsers that take the first match. Bingbot keeps access to `/notes/` so it can read that page's `noindex`.
 
+These changes went live on 2026-11-15 with v1.2.
+
 ## Step 6. Check after the deploy (10 minutes)
 
 Use a normal browser profile without an ad blocker.
 
-1. Open atlas.merces.ai in a private window. The console shows no Content Security Policy error for static.cloudflareinsights.com, `beacon.min.js` loads, and a POST to `/cdn-cgi/rum` answers 204. (A GET to `/cdn-cgi/rum` proves nothing: Cloudflare documents a 405 for it, and on 2026-11-14 it answered 404 even on Cloudflare's own sites.)
+1. Open atlas.merces.ai in a private window. The console shows no Content Security Policy error, `beacon.min.js` loads, and a POST to `/cdn-cgi/rum` answers 204. (`tests/e2e/csp.spec.ts` checks the site's own pages under the same policy locally, with a same-origin stand-in for the beacon, so only this check shows that the policy lets the real beacon load and report.) (A GET to `/cdn-cgi/rum` proves nothing: Cloudflare documents a 405 for it, and on 2026-11-14 it answered 404 even on Cloudflare's own sites.)
 2. Within a few minutes, Web Analytics lists atlas.merces.ai under Host.
-3. Returning reader: reload once so the service worker installs, close the tab, then open a page from the address bar. `beacon.min.js` should load again. If it does not, the service worker served a cached copy of the page without the tag; tell Claude (see "Known issue" below).
+3. Returning reader, in a normal window (a private window drops its service worker and caches when its last tab closes, so the retry below would start from nothing): open a page and wait until DevTools > Application > Service workers shows `sw.js` as activated (the install fetches about 28 MB of files, about 7 MB compressed). Click a link to another page, then open that page in a new tab from the address bar. `beacon.min.js` should load again, and a POST to `/cdn-cgi/rum` should answer 204. Right after the deploy that ships this fix, the v1.2 worker stays in charge until every tab of the site is closed, and this check can fail once (later deploys do not have this problem); close them all, wait until the new worker is activated and try again. `tests/e2e/analytics-beacon.spec.ts` runs a similar path (a click, then the page in a new tab) against a local stand-in for the edge on `pnpm e2e`; CI does not run it, and it does not replace this check.
+
+On 2026-11-15, after the v1.2 deploy, checks 1 and 3 were run in a headless Chrome against the live site. Check 1 passed for the beacon: `beacon.min.js` answered 200 and each POST to `/cdn-cgi/rum` answered 204. The same run found two older Content Security Policy errors, a data: font on every page and Zod's eval probe on the home page, and the review of the fix found a third, a data: script that the router adds after a click to the glossary; the same change fixes all three (`docs/ARCHITECTURE.md`, the `public/_headers` entry). Check 3 failed, which led to the service worker change described below. Run checks 1 and 3 again after the deploy that ships the fix.
 
 ## Daily brief with Claude Code
 
@@ -106,7 +110,8 @@ The token list lives in `scripts/stats/classify.ts`. A known token without a Clo
 
 Read the numbers with these limits:
 
-- People are a lower bound: ad and tracker blockers (uBlock Origin's default lists, Brave) stop the beacon, and the EU-excluding mode leaves those readers out.
+- People are a lower bound: ad and tracker blockers (uBlock Origin's default lists, Brave) stop the beacon, the EU-excluding option, if it is selected (step 1), leaves out readers who connect through data centers in the EEA, the UK and Switzerland, and a few returning readers are missed (see "Returning readers and the service worker").
+- Edge figures that read the Referer header see this site as Referer for a returning reader who arrives from another site through the service worker: the request logs lose that referral, and on Pro, Zone Analytics does not count that page view as a visit and the AI referral counts leave it out. Web Analytics and `pnpm stats` read `document.referrer` and are not affected.
 - AI agents that drive a real browser (ChatGPT's cloud browser in dots, Claude-Agent, Google-Agent) run the beacon and can be counted as people. ChatGPT's cloud browser documents no user agent token; it signs requests with Web Bot Auth, which only a Worker or Logpush can see.
 - Edge numbers are requests, not people. HTML page counts include the service worker fetching every page once per new reader and per deploy, so browser-like pages overstate people.
 - Your own visits count; the beacon keeps no state that could exclude you.
@@ -121,13 +126,31 @@ Read the numbers with these limits:
 | Business | $200 a month billed yearly, $250 monthly | Bot Analytics, 72 hours at a time, up to 30 days back |
 | Enterprise with Bot Management | contract | bot scores and Business Insights for 24 h, 7 d and 30 d |
 
-Free is enough for the basic split. Pro is worth it only if you want referral counts from AI apps or Cloudflare's own bot report.
+Free is enough for the basic split. Pro is worth it only if you want referral counts from AI apps (which miss some returning readers; see the limits above) or Cloudflare's own bot report.
 
-## Known issue: returning readers and the service worker
+## Returning readers and the service worker
 
-The service worker (`scripts/build-sw.ts`) precaches pages, and those copies may lack the beacon tag. If check 3 of step 6 fails, two fixes exist: make the service worker request `text/html` so cached copies carry the tag, or add the beacon to the page ourselves (then switch Manage site to the snippet option and allow `https://cloudflareinsights.com` in `connect-src`). Decide after the check.
+The check of 2026-11-15 found that a returning reader was not counted. Three facts combined:
 
-## Sources (read 2026-11-14)
+1. Measured with curl on 2026-11-15 (Cloudflare does not document this, so it can change): the edge adds the beacon tag only to HTML asked for with `text/html` in the Accept header, and that response has no ETag. HTML asked for otherwise has no tag and has an ETag, and the edge answers a matching `If-None-Match` with 304 whatever the Accept header says.
+2. The service worker (`scripts/build-sw.ts`) precached pages with a plain fetch, and the router (Astro's ClientRouter) fetches each page a reader reaches by a click without `text/html` as well (so does its hover prefetch in a browser without link prefetch, such as Safari, where Astro prefetches with a plain fetch). Both left a copy without the tag, with an ETag, in the browser's HTTP cache, and the worker also kept the router's copies in its own cache.
+3. A page opened later from the address bar, a bookmark or a new tab went through the worker, which revalidated the HTTP cache copy: the edge answered 304, and the page showed without the tag.
+
+The worker now precaches pages with a browser's Accept header, so its copies carry the tag; fetches every navigation with `cache: 'reload'`, so a copy in the HTTP cache is never revalidated; and stores a router answer only for a page it does not hold yet, so a copy with the tag is never replaced by one without it. Inside the site, the beacon follows clicks by itself (its SPA mode). Nothing is counted twice: the router does not run a script whose source already ran, and the beacon returns at once when it has already started (its load setting defaults to single; both read in code, see Sources). `tests/e2e/analytics-beacon.spec.ts` follows these paths against a stand-in for the edge (`tests/e2e/support/edge-server.ts`).
+
+This fix keeps the automatic beacon and whichever Manage site option is selected (step 1). The other fix considered, adding the beacon snippet to the pages ourselves, needs the snippet option in Manage site and `https://cloudflareinsights.com` in `connect-src`, and would also count readers in the EU, since the EU-excluding option only stops the automatic tag.
+
+Still missed:
+
+- readers on a first visit, a new private window included, who open a page directly before the worker has finished installing, if they reached that page before by a click (in Safari also by a hover);
+- returning readers still controlled by the v1.2 worker (the new worker does not skip waiting), until every tab of the site has closed once: pages they reached by a click (in Safari also by a hover) since the deploy, and most pages on a network slower than 4 seconds, because that worker's own copies lack the tag; later deploys do not have this gap;
+- a page that the worker first stored from a router answer (a page added by a later deploy while an older worker still controls the browser, or a page over the precache size cap; none today), when it is opened directly on a network slower than 4 seconds;
+- a reader who follows a link before `beacon.min.js` has run on the first page: the beacon then finds no settings on the page that replaced it;
+- readers who are offline: the beacon may load from the browser cache, but its report to `/cdn-cgi/rum` cannot be sent.
+
+The costs: a page asked for with `text/html` comes without an ETag, so every navigation through the worker downloads the whole page (the only 304 it could have had was for a copy without the tag), and so does a router fetch or prefetch when the copy in the HTTP cache came from the install or a navigation; under the v1.2 worker most of these were 304 answers. And the worker's request cannot carry a referrer from another site (the Fetch standard replaces it with the worker's own URL), so for a returning reader who follows a link from another site the edge sees this site as Referer, with `Sec-Fetch-Mode: same-origin` and `Sec-Fetch-Dest: empty` instead of `navigate` and `document`. Web Analytics is not affected, since the beacon reports `document.referrer`.
+
+## Sources (read 2026-11-14; measured and read in code 2026-11-15)
 
 - Web Analytics: overview https://developers.cloudflare.com/web-analytics/ , FAQ (CSP entries, one snippet per page, Referer, blockers, sampling) https://developers.cloudflare.com/web-analytics/faq/ , get started and Manage site https://developers.cloudflare.com/web-analytics/get-started/ , metrics https://developers.cloudflare.com/web-analytics/data-metrics/high-level-metrics/ , dimensions https://developers.cloudflare.com/web-analytics/data-metrics/dimensions/ , limits https://developers.cloudflare.com/web-analytics/limits/ , weekly email https://developers.cloudflare.com/web-analytics/get-started/notifications/
 - Beacon privacy: https://developers.cloudflare.com/speed/observatory/rum-beacon/ ; default on Free since 2025-10-15: https://blog.cloudflare.com/the-rum-diaries-enabling-web-analytics-by-default/
@@ -136,4 +159,7 @@ The service worker (`scripts/build-sw.ts`) precaches pages, and those copies may
 - AI Crawl Control: https://developers.cloudflare.com/ai-crawl-control/ , get started https://developers.cloudflare.com/ai-crawl-control/get-started/ , analyze traffic https://developers.cloudflare.com/ai-crawl-control/features/analyze-ai-traffic/ , categories https://developers.cloudflare.com/ai-crawl-control/reference/glossary/ , bot reference https://developers.cloudflare.com/ai-crawl-control/reference/bots/ , GraphQL https://developers.cloudflare.com/ai-crawl-control/reference/graphql-api/
 - Bots: Free plan https://developers.cloudflare.com/bots/plans/free/ , Bot Fight Mode https://developers.cloudflare.com/bots/get-started/bot-fight-mode/ , access policies https://developers.cloudflare.com/bots/additional-configurations/block-ai-bots/ , managed robots.txt https://developers.cloudflare.com/bots/additional-configurations/managed-robots-txt/ , verified bots https://developers.cloudflare.com/bots/concepts/bot/verified-bots/ , Web Bot Auth https://developers.cloudflare.com/bots/reference/bot-verification/web-bot-auth/
 - Plans and prices: https://www.cloudflare.com/plans/
+- Measured 2026-11-15 (curl and a headless Chrome): how atlas.merces.ai answers with and without `text/html` in Accept and with If-None-Match, and the beacon script that the edge adds (`beacon.min.js`, a module script).
+- Read 2026-11-15 in the beacon's own code: it finds its settings in the first `script[data-cf-beacon]` (a module script has no `document.currentScript`), sets `load` to single unless it is multi and then returns at once on a second start, follows client-side navigations through the History and Navigation APIs, and reports `document.referrer`.
+- Read 2026-11-15 in Astro's router (`node_modules/astro/dist/transitions/`): it does not run a swapped-in script whose source (or inline text) already ran, and it appends a data: module script after a navigation into a page whose last new module script is inline.
 - Crawler documentation by operator: OpenAI https://developers.openai.com/api/docs/bots , Anthropic https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler , Perplexity https://docs.perplexity.ai/docs/resources/perplexity-crawlers , Google https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers , Apple https://support.apple.com/en-us/119829 , Meta https://developers.facebook.com/documentation/sharing/webmasters/web-crawlers , Amazon https://developer.amazon.com/docs/amazonbot/amazonbot.html , DuckDuckGo https://duckduckgo.com/duckduckgo-help-pages/results/duckassistbot , Mistral https://docs.mistral.ai/robots

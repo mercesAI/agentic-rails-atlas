@@ -24,6 +24,13 @@
  * later Pagefind version adds is precached until it is listed there.
  * Runtime: network-first for HTML with a cache fallback, cache-first for hashed /_astro/
  * assets and the Pagefind chunks, stale-while-revalidate for everything else on the same origin.
+ * Cloudflare's Web Analytics beacon: the edge adds its tag only to HTML asked for with text/html
+ * in Accept, and drops the ETag of that response. So pages are precached with a browser's
+ * Accept header; a navigation is fetched with cache 'reload', because a revalidated HTTP cache
+ * copy from a fetch without that header (the router's page fetches, and prefetches in browsers
+ * whose prefetch asks without it) would come back by 304 without the tag; and only navigations
+ * refresh a cached page, so a router answer never replaces a copy that has the tag. A reader is
+ * otherwise not counted (docs/ANALYTICS.md).
  * Runtime copies are stored under the pathname, as lookups ignore the query string; Pagefind
  * requests pagefind-entry.json with a fresh ?ts= on every start, which would otherwise add one
  * cache entry per search.
@@ -175,9 +182,10 @@ const PRECACHE = ${JSON.stringify(urls)};
 const OPTIONAL = new Set(${JSON.stringify(optional)});
 const NETWORK_TIMEOUT_MS = 4000;
 const INSTALL_CONCURRENCY = ${INSTALL_CONCURRENCY};
-// Content-hashed, immutable files served cache-first: the /_astro/ bundles and the Pagefind
-// index chunks, fragments and filter chunks, which are not precached but cached the first
-// time a query loads them.
+// Content-hashed, immutable files served cache-first: the /_astro/ bundles, the Pagefind index
+// chunks, fragments and filter chunks, and the /data/ files. All are precached except the two
+// legacy fixed-name data files; a file left out (by that list or the size cap) is cached the
+// first time it is fetched.
 const CACHE_FIRST_PREFIXES = ${JSON.stringify(CACHE_FIRST_PREFIXES)};
 
 // A response that followed a redirect cannot be served to a navigation request from the
@@ -195,6 +203,16 @@ async function store(cache, key, res) {
   await cache.put(key, await clean(res));
 }
 
+// Cloudflare adds its Web Analytics beacon only to HTML that is asked for with text/html in
+// the Accept header, and such a response has no ETag; HTML asked for otherwise comes without
+// the tag and with an ETag. Pages are precached with a browser's Accept header, so the cached
+// copies carry the tag and no copy without it lands in the HTTP cache for a navigation to
+// revalidate (docs/ANALYTICS.md).
+const PAGE_ACCEPT = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+function isPageUrl(url) {
+  return url.endsWith('/') || url.endsWith('.html');
+}
+
 // Fetches the precache list INSTALL_CONCURRENCY files at a time. A failed page, asset or
 // font fails the install (the browser keeps the old worker and retries on the next update
 // check); a failed optional file is fetched at runtime instead.
@@ -204,7 +222,7 @@ async function precache(cache) {
   const run = async () => {
     for (let url = queue.shift(); url !== undefined; url = queue.shift()) {
       try {
-        const res = await fetch(new Request(url, { cache: 'reload' }));
+        const res = await fetch(new Request(url, isPageUrl(url) ? { cache: 'reload', headers: { Accept: PAGE_ACCEPT } } : { cache: 'reload' }));
         if (!res.ok) throw new Error('HTTP ' + res.status);
         await store(cache, url, res);
       } catch {
@@ -256,12 +274,43 @@ function timeout(ms) {
   return new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
 }
 
+// A navigation goes to the network with cache 'reload', so the browser never revalidates its
+// HTTP cache copy of the page. That copy may come from a fetch without text/html in Accept (the
+// router's page fetches, some browsers' prefetches, an older worker's precache): it lacks the
+// beacon tag but has an ETag, so the host would answer 304 and the page would show without the tag. Copies
+// with the tag have no ETag and are downloaded in full anyway. Any RequestInit turns a
+// navigation request into a same-origin one and resets its referrer (Fetch, Request
+// constructor), so the request is rebuilt from its URL with what matters: its headers (Accept
+// included), credentials, the navigation's manual redirect mode (a redirect still goes back to
+// the browser to follow), and its referrer and referrer policy. A referrer from another site
+// cannot be kept either way: the constructor replaces it with the worker's own URL, so the host
+// sees this site as Referer for such a reader. document.referrer, which the beacon reports,
+// keeps the original.
+function networkRequest(request) {
+  if (request.mode !== 'navigate') return request;
+  return new Request(request.url, {
+    method: 'GET',
+    headers: request.headers,
+    mode: 'same-origin',
+    credentials: request.credentials,
+    redirect: 'manual',
+    cache: 'reload',
+    referrer: request.referrer,
+    referrerPolicy: request.referrerPolicy,
+  });
+}
+
 async function networkFirst(event, request, url) {
   const cache = await caches.open(CACHE);
   const cached = await fromCache(request, url);
-  const network = fetch(request);
-  // The cache is refreshed whenever the network answers, even after the race below gave up on it.
-  const refresh = network.then((res) => store(cache, url.pathname, res.clone())).catch(() => undefined);
+  const network = fetch(networkRequest(request));
+  // A navigation refreshes the cached copy whenever the network answers, even after the race
+  // below gave up on it. The router's page fetches (and some browsers' prefetches) ask without
+  // text/html, so the edge answers without the beacon tag: such an answer is stored only when no
+  // copy is cached, and never replaces one (every page within the size cap is precached with the tag).
+  const refresh = network
+    .then((res) => (request.mode === 'navigate' || !cached ? store(cache, url.pathname, res.clone()) : undefined))
+    .catch(() => undefined);
   event.waitUntil(refresh);
   try {
     return cached ? await Promise.race([network, timeout(NETWORK_TIMEOUT_MS)]) : await network;
