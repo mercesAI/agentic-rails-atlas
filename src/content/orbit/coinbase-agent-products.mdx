@@ -3,12 +3,12 @@ slug: coinbase-agent-products
 name: "Coinbase: Wallet MCP, Coinbase for Agents and Agentic Wallets"
 category: machine-payments
 starred: false
-oneLiner: "Coinbase Developer Platform products that give AI agents wallets and payment tools built around x402. On 2026-11-14 CDP's agentic accounts docs offered Wallet MCP (formerly Base MCP) and Coinbase for Agents; the Agentic Wallet and Agentic Wallet MCP (formerly Payments MCP) docs answered 404."
+oneLiner: "Coinbase Developer Platform products that give AI agents wallets and payment tools built around x402. CDP's docs now offer Wallet MCP (formerly Base MCP) and Coinbase for Agents, and the awal CLI of 2026-11-20 says Agentic Wallet and Payments MCP are being retired in favor of Wallet MCP."
 steward: "Coinbase (Coinbase Developer Platform; Base)"
-status: "Live (Wallet MCP, Coinbase for Agents); Agentic Wallet docs removed by 2026-11-14"
+status: "Live (Wallet MCP, Coinbase for Agents); Agentic Wallet and Payments MCP being retired, per a notice in the awal CLI that was not active on 2026-11-21"
 latestVersion:
-  label: "Base MCP, now Wallet MCP (launch date reported)"
-  date: "2026-05-26"
+  label: "awal CLI 2.12.3 (retirement notice for Agentic Wallet)"
+  date: "2026-11-20"
 relations:
   - to: x402
     type: uses-as-rail
@@ -23,16 +23,21 @@ sources:
   - src-x402-cdp-agentic-wallet
   - src-x402-cdp-changelog
   - src-x402-cdp-agentic-accounts
+  - src-x402-awal-sunset
+  - src-x402-awal-sunset-endpoint
+  - src-x402-cdp-wallet-mcp
   - src-orbit-coinbase-base-mcp-fortune
   - src-orbit-coinbase-base-mcp-cointelegraph
   - src-orbit-base-mcp-moved
   - src-orbit-coinbase-wallet-mcp-docs
   - src-x402-lf-july
-lastVerified: "2026-11-14"
+lastVerified: "2026-11-21"
 ---
 
-Payments MCP, launched on 2025-10-23, is a local MCP server that lets an agent create a wallet, fund it through an onramp and pay x402 services; Coinbase tested it with Claude Desktop, Claude Code, Codex, Gemini and Cherry Studio. <Cite ids="src-orbit-coinbase-payments-mcp src-orbit-coinbase-payments-mcp-repo" /> On 2026-10-19 Coinbase documented it as Agentic Wallet MCP, still installed from the `@coinbase/payments-mcp` package. <Cite ids="src-orbit-coinbase-agentic-wallet-mcp-docs" /> Agentic Wallets, launched on 2026-02-11, were described as keeping keys in Trusted Execution Environments and applying session caps, per-transaction limits and KYT screening, with x402 as the payment protocol. <Cite ids="src-orbit-coinbase-agentic-wallets src-orbit-coinbase-awal-docs src-x402-agentic-wallets-coverage" /> By 2026-11-14 the Agentic Wallet pages, including the MCP and CLI guides, answered 404, and the CDP changelog no longer carried the 2026-02-11 launch entry; no retirement announcement was found, and the npm packages were not marked deprecated. <Cite ids="src-x402-cdp-agentic-wallet src-x402-cdp-changelog" />
+Payments MCP, launched on 2025-10-23, is a local MCP server that lets an agent create a wallet, fund it through an onramp and pay x402 services; Coinbase tested it with Claude Desktop, Claude Code, Codex, Gemini and Cherry Studio. <Cite ids="src-orbit-coinbase-payments-mcp src-orbit-coinbase-payments-mcp-repo" /> On 2026-10-19 Coinbase documented it as Agentic Wallet MCP, still installed from the `@coinbase/payments-mcp` package. <Cite ids="src-orbit-coinbase-agentic-wallet-mcp-docs" /> Agentic Wallets, launched on 2026-02-11, were described as keeping keys in Trusted Execution Environments and applying session caps, per-transaction limits and KYT screening, with x402 as the payment protocol. <Cite ids="src-orbit-coinbase-agentic-wallets src-orbit-coinbase-awal-docs src-x402-agentic-wallets-coverage" />
 
-Fortune reported the launch of Base MCP on 2026-05-26 and tied it to x402, which Coinbase released in May 2025. <Cite ids="src-orbit-coinbase-base-mcp-fortune" /> Cointelegraph reported the next day that users can ask Claude or ChatGPT to transfer funds or swap tokens, and that the user confirms or cancels each action in the wallet. The agent has no access to private keys (reported). <Cite ids="src-orbit-coinbase-base-mcp-cointelegraph" /> Base MCP is now called Wallet MCP. Coinbase's docs say every write action needs the user's approval, and on 2026-11-14 they say it pays x402 services in USDC on Base or Base Sepolia with the exact, upto and auth-capture schemes, with a wallet signature for each paid request. <Cite ids="src-orbit-base-mcp-moved src-orbit-coinbase-wallet-mcp-docs src-x402-cdp-agentic-accounts" />
+Coinbase's own code now says both are on the way out. <Cite ids="src-x402-awal-sunset" /> The awal CLI 2.12.3, published on 2026-11-20 and not marked deprecated, ships a notice that Payments MCP and Agentic Wallet are being retired in favor of Coinbase Wallet MCP, a different wallet, so funds do not move over by themselves. <Cite ids="src-x402-awal-sunset" /> In a later withdraw-only phase the CLI would refuse x402 payments and trades. <Cite ids="src-x402-awal-sunset" /> It reads the phase from a Coinbase endpoint that answered 404 on 2026-11-21, so the notice was off and nothing was blocked. <Cite ids="src-x402-awal-sunset src-x402-awal-sunset-endpoint" /> The former Agentic Wallet docs, which answered 404 on 2026-11-14, now redirect to the Wallet MCP page, and the CDP changelog carries no retirement entry. <Cite ids="src-x402-cdp-agentic-wallet src-x402-cdp-changelog" />
 
-CDP's agentic accounts overview of 2026-11-14 lists two ways for an agent to pay x402 services: Wallet MCP, and Coinbase for Agents, which connects an agent to a Coinbase account through a remote MCP server or a local CLI. <Cite ids="src-x402-cdp-agentic-accounts" /> Coinbase originated [x402](/p/x402/), whose governance now sits with the x402 Foundation at the Linux Foundation. <Cite ids="src-x402-lf-july" />
+Fortune reported the launch of Base MCP on 2026-05-26 and tied it to x402, which Coinbase released in May 2025. <Cite ids="src-orbit-coinbase-base-mcp-fortune" /> Cointelegraph reported the next day that users can ask Claude or ChatGPT to transfer funds or swap tokens, and that the user confirms or cancels each action in the wallet. The agent has no access to private keys (reported). <Cite ids="src-orbit-coinbase-base-mcp-cointelegraph" /> Base MCP is now called Wallet MCP. <Cite ids="src-orbit-base-mcp-moved" /> As read on 2026-11-21, Wallet MCP has two modes. <Cite ids="src-x402-cdp-wallet-mcp" /> In approval mode the user signs each prepared action through an approval link; in agent-wallet mode, for eligible connections, a dedicated wallet with an expiring signing grant acts within saved spending controls. <Cite ids="src-x402-cdp-wallet-mcp" /> The budget is in US dollars over a rolling 24-hour window with no starter allowance, and x402 payments count toward it. <Cite ids="src-x402-cdp-wallet-mcp" /> Wallet MCP pays x402 with exact and upto on Base, Polygon and Arbitrum, auth-capture on Base mainnet and batch-settlement on those three networks for eligible autonomous sessions. <Cite ids="src-x402-cdp-wallet-mcp" /> On Solana it pays in USDC or USDT in agent-wallet mode only. <Cite ids="src-x402-cdp-wallet-mcp" />
+
+CDP's agentic accounts overview lists two ways for an agent to pay x402 services: Wallet MCP, and Coinbase for Agents, which connects an agent to a Coinbase account through a remote MCP server or a local CLI. <Cite ids="src-x402-cdp-agentic-accounts" /> Coinbase originated [x402](/p/x402/), whose governance now sits with the x402 Foundation at the Linux Foundation. <Cite ids="src-x402-lf-july" />

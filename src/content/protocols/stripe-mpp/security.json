@@ -1,6 +1,6 @@
 {
   "protocol": "stripe-mpp",
-  "summary": "MPP binds the challenge id to every defined challenge parameter except the human-readable description, makes ids and proofs single use, forbids side effects before payment and requires TLS, so tampering and replay are covered at protocol level. What it leaves to clients is deciding whether a challenge is honest, because a malicious server can bind a bad price as easily as a good one. Credentials are bearer tokens. Loss limits, refunds and disputes come from the rail. As of 2026-10-21 the MPP SDK repositories had published nine security advisories, all for SDK bugs and all fixed: five for mppx, two for the Rust crate mpp and two for pympp. Outside finders reported them, and none reports exploitation. A re-check on 2026-11-14 found no new advisory. A formal analysis posted on 2026-08-30 counts 12 previously undocumented formal-consistency cases for MPP, which its authors say are not demonstrated vulnerabilities in production deployments. Advisory dates below are the dates each repository published the advisory.",
+  "summary": "MPP binds the challenge id to every defined challenge parameter except the human-readable description, makes ids and proofs single use, forbids side effects before payment and requires TLS, so tampering and replay are covered at protocol level. What it leaves to clients is deciding whether a challenge is honest, because a malicious server can bind a bad price as easily as a good one. Credentials are bearer tokens. Loss limits, refunds and disputes come from the rail. As of 2026-10-21 the MPP SDK repositories had published nine security advisories, all for SDK bugs and all fixed: five for mppx, two for the Rust crate mpp and two for pympp. Outside finders reported them, and none reports exploitation. Re-checks on 2026-11-14 and 2026-11-21 found no new advisory, although mppx 0.20.0 (2026-11-16) and 0.21.0 (2026-11-19) fixed further payment-boundary flaws, such as one payment authorizing a second response, without one. A formal analysis posted on 2026-08-30 counts 12 previously undocumented formal-consistency cases for MPP, which its authors say are not demonstrated vulnerabilities in production deployments. Advisory dates below are the dates each repository published the advisory.",
   "threats": [
     {
       "id": "stripe-mpp-t1",
@@ -13,11 +13,12 @@
       ],
       "impact": "The client pays the attacker; on-chain charges are final.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Binding only protects a challenge after the server issues it. Clients must check amount, recipient, currency and expires and ignore description, as the core requires; enforce an allowlist before signing. With redirect following turned on, pympp before 0.10.1 could pay a challenge reached through a cross-origin redirect (GHSA-5r9p-36vq-j23h).",
+      "implementerNotes": "Binding only protects a challenge after the server issues it. Clients must check amount, recipient, currency and expires and ignore description, as the core requires; enforce an allowlist before signing. With redirect following turned on, pympp before 0.10.1 could pay a challenge reached through a cross-origin redirect (GHSA-5r9p-36vq-j23h). Before mppx 0.21.0 (2026-11-19) a client also paid a challenge whose header parameter named a credential field other than Payment-Authorization, which the core does not allow.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-intent-charge",
-        "src-stripe-mpp-ghsa-pympp"
+        "src-stripe-mpp-ghsa-pympp",
+        "src-stripe-mpp-mppx-pr-1315"
       ]
     },
     {
@@ -47,12 +48,13 @@
       ],
       "impact": "Free service or double charge.",
       "mitigatedBySpec": "yes",
-      "implementerNotes": "Ids are single use and methods must give single-use proofs; concurrent duplicates must settle at most once. mppx and the Rust SDK had replay bugs fixed in 0.4.8, 0.4.11 and 0.8.0, and mppx shipped further replay fixes without an advisory in 0.8.7 and 0.13.2.",
+      "implementerNotes": "Ids are single use and methods must give single-use proofs; concurrent duplicates must settle at most once. mppx and the Rust SDK had replay bugs fixed in 0.4.8, 0.4.11 and 0.8.0, and mppx shipped further replay fixes without an advisory in 0.8.7 and 0.13.2. mppx 0.21.0 (2026-11-19) fixed, without an advisory, a replay-claim bug through which one payment could authorize a second response and a Zone settlement that could pay a challenge twice.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-ghsa-other",
         "src-stripe-mpp-ghsa-rs",
-        "src-stripe-mpp-mppx-changelog"
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-mppx-pr-1325"
       ]
     },
     {
@@ -362,11 +364,13 @@
     {
       "id": "GHSA-v858-xh7w-8jr5",
       "date": "2026-07-01",
-      "summary": "pympp before 0.9.1: fee payer gas draining by calldata padding, the same attack as CVE-2026-63627 in mppx. Fixed in 0.9.1. The advisory names CVE-2026-63634.",
-      "severity": "low",
+      "summary": "pympp before 0.9.1: fee payer gas draining by calldata padding, the same attack as CVE-2026-63627 in mppx. Fixed in 0.9.1. The advisory names CVE-2026-63634. The GitHub Advisory Database added it on 2026-11-17, reviewed and rated medium, and NVD published the CVE on 2026-11-09 with only that CNA score.",
+      "severity": "low in the repository, medium in the GitHub Advisory Database (CVSS 4.0 6.9)",
       "confidence": "verified",
       "sources": [
-        "src-stripe-mpp-ghsa-pympp"
+        "src-stripe-mpp-ghsa-pympp",
+        "src-stripe-mpp-ghsa-v858-global",
+        "src-stripe-mpp-nvd-63634"
       ]
     },
     {

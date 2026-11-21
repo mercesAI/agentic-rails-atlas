@@ -129,8 +129,8 @@
       "publisher": "Stripe",
       "type": "docs",
       "primary": true,
-      "notes": "Labeled Frontier; minimum 0.50 USD for SPT card payments and 0.01 USDC for stablecoins; networkId from Stripe profile; crypto deposit addresses with network=tempo; hostedFeePayer with mppx 0.9.2 or later, live mode, not with Connect; Stripe-Version 2026-07-29.preview.",
-      "accessed": "2026-10-11"
+      "notes": "Labeled Frontier; minimum 0.50 USD for SPT card payments and 0.01 USDC for stablecoins; networkId from Stripe profile; crypto deposit addresses with network=tempo; hostedFeePayer with mppx 0.9.2 or later, live mode, not with Connect; Stripe-Version 2026-07-29.preview. Unchanged on 2026-10-21. Re-read 2026-11-21 (HTTP 200): still labeled Frontier, with Stripe-Version 2026-07-29.preview in the examples, the same minimums, and hostedFeePayer with mppx 0.9.2 or later in live mode and not with Connect.",
+      "accessed": "2026-11-21"
     },
     {
       "id": "src-stripe-mpp-stripe-stablecoin",
@@ -194,8 +194,8 @@
       "publisher": "Google",
       "type": "docs",
       "primary": true,
-      "accessed": "2026-11-14",
-      "notes": "Read 2026-10-20 (page last updated 2026-10-16) and again 2026-11-14 through the .md twin (last updated 2026-11-03 UTC; the 2026-10-30 version differed only by an MCP question). Still says: merchant is MoR, PSP must process Google tokens, PAN_ONLY, Google-UCP-Prober/1.0 health checks, order data retained until the user requests deletion. Changed between 2026-10-20 and 2026-10-30: checkout requests carry UCP-Agent and a User-Agent of Google-Shopping-Merchant-Integration, Google/UCP* or Google-UCP-Prober/1.0; discovery and OAuth client_credentials requests carry no UCP-Agent; Account Linking uses OpenAuth or Google-AccountLinking-Fetcher/1.0; headers alone must not authenticate. Verification methods are now mutual TLS against Google's UCP Root CAs, ES256 RFC 9421 signatures checked against the keys at https://ucp.goog/.well-known/ucp.json (24-hour cache, refetch on an unknown kid) and source-ASN rules (AS15169; AS396982 for Account Linking). The earlier wording (the User-Agent begins with Google/UCP; verify by reverse DNS or published IP range files) has been replaced."
+      "accessed": "2026-11-21",
+      "notes": "Read 2026-10-20 (page last updated 2026-10-16) and again 2026-11-14 through the .md twin (last updated 2026-11-03 UTC; the 2026-10-30 version differed only by an MCP question). Still says: merchant is MoR, PSP must process Google tokens, PAN_ONLY, Google-UCP-Prober/1.0 health checks, order data retained until the user requests deletion. Changed between 2026-10-20 and 2026-10-30: checkout requests carry UCP-Agent and a User-Agent of Google-Shopping-Merchant-Integration, Google/UCP* or Google-UCP-Prober/1.0; discovery and OAuth client_credentials requests carry no UCP-Agent; Account Linking uses OpenAuth or Google-AccountLinking-Fetcher/1.0; headers alone must not authenticate. Verification methods are now mutual TLS against Google's UCP Root CAs, ES256 RFC 9421 signatures checked against the keys at https://ucp.goog/.well-known/ucp.json (24-hour cache, refetch on an unknown kid) and source-ASN rules (AS15169; AS396982 for Account Linking). The earlier wording (the User-Agent begins with Google/UCP; verify by reverse DNS or published IP range files) has been replaced. Read again through the .md twin on 2026-11-21 (still last updated 2026-11-03): unchanged on the points above; at launch a UCP integration powers AI Mode in Google Search and the Gemini web and mobile apps; AP2 can be used as a specialized payment layer within UCP; no fee text."
     },
     {
       "id": "src-nevermined-vic",
@@ -359,6 +359,30 @@
         "src-x402-fee-circle-gateway",
         "src-x402-circle-nanopayments",
         "src-x402-circle-facilitator-service"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "fact": "AWS Marketplace agentic payments (aws:base): The buyer pays the seller's quoted US dollar price on the AWS bill; the seller pays AWS Marketplace's 3 percent SaaS listing fee.",
+      "asOf": "2026-11-21",
+      "confidence": "verified",
+      "caveat": "No chain and no gas: AgentCore payments issues a payment token, and AWS Marketplace meters the charge, bills it and pays the seller through its disbursements. One AWS Billing payment must be above $0.00 and at most $10,000.00 (an AgentCore rule); refunds are billing adjustments on invoices.",
+      "sources": [
+        "src-x402-aws-marketplace-listing-fees",
+        "src-x402-aws-agentcore-process-payment",
+        "src-x402-aws-marketplace-seller-guide",
+        "src-x402-aws-marketplace-x402"
+      ]
+    },
+    {
+      "protocol": "x402",
+      "fact": "AWS WAF AI traffic monetization: No charge beyond standard AWS WAF pricing; AWS takes no fee on content revenue.",
+      "asOf": "2026-11-21",
+      "confidence": "verified",
+      "caveat": "Settlement runs through Coinbase Developer Platform's x402 facilitator, and AWS's posts do not say whether facilitator fees apply. Payouts go to the publisher's own wallet.",
+      "sources": [
+        "src-x402-aws-waf-monetization",
+        "src-x402-aws-waf-monetization-blog"
       ]
     },
     {
@@ -530,13 +554,14 @@
     },
     {
       "protocol": "market",
-      "fact": "Crossmint (vendor of agent card and checkout APIs): Agent Checkout is free for 1,000 checkouts a month, then $0.05 per checkout on every path; Agent Cards are free for 1,000 cards, then volume pricing, with Visa Intelligent Commerce and Mastercard Agent Pay credentials listed as included; Agent Wallets are free for 5,000 monthly active wallets, then $0.01 each.",
-      "asOf": "2026-11-14",
+      "fact": "Crossmint (vendor of agent card and checkout APIs): Agent Checkout is free for 1,000 checkouts a month, then $0.05 per checkout on every path; Agent Cards are free for 1,000 cards, then volume pricing, with Visa Intelligent Commerce and Mastercard Agent Pay credentials listed as included; Agent Wallets are free for 5,000 monthly active wallets, then from $0.01 each.",
+      "asOf": "2026-11-21",
       "confidence": "verified",
-      "caveat": "A vendor's own price list; the card networks' own fees, if any, are not shown. Crossmint's 2026-09-25 Agent Checkouts post gave $0.05 per execution without the free tier.",
+      "caveat": "A vendor's own price list; the card networks' own fees, if any, are not shown. Crossmint's 2026-09-25 Agent Checkouts post gave $0.05 per execution without the free tier. Re-read 2026-11-21: unchanged after the Menta plugin launch of 2026-11-18, whose post states no price.",
       "sources": [
         "src-orbit-crossmint-pricing",
-        "src-orbit-crossmint-agent-checkouts"
+        "src-orbit-crossmint-agent-checkouts",
+        "src-orbit-crossmint-menta"
       ]
     },
     {

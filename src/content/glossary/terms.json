@@ -300,13 +300,14 @@
       "Agent Directory",
       "Agentic Registry"
     ],
-    "plain": "Visa's directory, announced 2026-06-10, of agents and merchants it has verified as legitimate participants in agentic commerce. No public list or endpoint was found in Visa's newsroom or developer pages (searched 2026-10-19).",
+    "plain": "Visa's directory, announced 2026-06-10, of agents and merchants it has verified as legitimate participants in agentic commerce. Visa names registered agents in its releases, such as BILL's Payment Agent (2026-10-20), but no public list or endpoint was found in Visa's newsroom or developer pages (searched 2026-11-21).",
     "ste": "A Visa list of agents and merchants that Visa verified.",
     "protocols": [
       "visa-tap"
     ],
     "sources": [
-      "src-visa-jun10"
+      "src-visa-jun10",
+      "src-visa-bill-billtrust"
     ]
   },
   {
@@ -713,14 +714,15 @@
     "id": "chatgpt-wallet",
     "term": "ChatGPT Wallet",
     "aliases": [],
-    "plain": "OpenAI's wallet, launched 2026-11-13 in dots for US ChatGPT Pro subscribers. After the user approves each purchase, the card network issues a payment token that the merchant's existing checkout charges; OpenAI does not present it as ACP.",
-    "ste": "An OpenAI wallet. It pays with a card network token at the checkout of the merchant. It is not part of ACP.",
+    "plain": "OpenAI's wallet, launched 2026-11-13 in dots for US ChatGPT Pro subscribers; its help article says it works only in conversations with a dot. After the user approves each purchase with a biometric check, a payment token stands in for the card on the merchant's existing checkout. OpenAI does not present it as ACP.",
+    "ste": "An OpenAI wallet. It pays with a payment token at the checkout of the merchant. It is not part of ACP.",
     "protocols": [
       "openai-acp"
     ],
     "sources": [
       "src-openai-chatgpt-wallet",
-      "src-openai-commerce-accept-payments"
+      "src-openai-commerce-accept-payments",
+      "src-openai-wallet-help-purchases"
     ]
   },
   {
@@ -1148,13 +1150,14 @@
       "DC API",
       "navigator.credentials.get digital"
     ],
-    "plain": "A W3C browser API, still a Working Draft (the current one dated 2026-11-05, as of 2026-11-14), that lets a website request a credential from a wallet on the user's device through the browser or operating system. AP2 v0.2 recommends it as the way to run its OpenID4VP delegation flow. It keeps the wallet exchange inside a trusted platform channel rather than a custom redirect.",
+    "plain": "A W3C browser API, still a Working Draft (the current one dated 2026-11-19, as of 2026-11-21), that lets a website request a credential from a wallet on the user's device through the browser or operating system. AP2 v0.2 recommends it as the way to run its OpenID4VP delegation flow. It keeps the wallet exchange inside a trusted platform channel rather than a custom redirect.",
     "ste": "The Digital Credentials API is a W3C browser API for a credential request to a wallet. AP2 recommends this API for the delegation of mandates.",
     "protocols": [
       "ap2"
     ],
     "sources": [
       "src-gloss-dc-api",
+      "src-orbit-dc-api-wd-20261119",
       "src-orbit-dc-api-wd-20261105",
       "src-ap2-agent-authorization"
     ]
@@ -1563,7 +1566,7 @@
       "Payment Required",
       "402"
     ],
-    "plain": "The HTTP status code 402 Payment Required. RFC 9110 still lists it as reserved for future use, so each protocol that uses it defines its own meaning. x402 answers with 402 and a `PAYMENT-REQUIRED` header, and MPP answers with 402 and a `WWW-Authenticate: Payment` challenge.",
+    "plain": "The HTTP status code 402 Payment Required. RFC 9110 still lists it as reserved for future use, so each protocol that uses it defines its own meaning. x402 answers with 402 and a `PAYMENT-REQUIRED` header, and MPP answers with 402 and a `WWW-Authenticate: Payment` challenge. An individual IETF draft, `draft-nottingham-httpbis-402-00` (posted 2026-10-18), would give the code a generic meaning: payment is needed and none the server accepts has been made yet, with no new registries or headers. At IETF 127 on 2026-11-20 a show of hands in the HTTP working group on interest in adopting it gave 15 yes, 3 no and 18 no opinion; that is not an adoption, and the draft was still an individual draft on 2026-11-21.",
     "ste": "HTTP 402 is the status code for Payment Required. x402 and MPP use this code to tell a client that a resource needs a payment.",
     "protocols": [
       "x402",
@@ -1573,7 +1576,9 @@
     "sources": [
       "src-prehistory-rfc9110",
       "src-x402-transport-http-v2",
-      "src-stripe-mpp-core-01"
+      "src-stripe-mpp-core-01",
+      "src-orbit-httpbis-402-draft",
+      "src-orbit-httpbis-ietf127-402"
     ]
   },
   {
@@ -1714,14 +1719,14 @@
     "id": "intelligent-commerce-connect",
     "term": "Intelligent Commerce Connect",
     "aliases": [],
-    "plain": "A Visa on-ramp, announced on 2026-04-08 as a pilot (still described as a pilot on 2026-07-30), that lets merchants accept agent payments initiated through TAP, MPP, ACP and UCP.",
+    "plain": "A Visa on-ramp, announced on 2026-04-08 as a pilot, that lets merchants accept agent payments initiated through TAP, MPP, ACP and UCP. Visa and Lianlian DigiTech announced a live purchase through it on 2026-11-18; Visa has announced no general availability.",
     "ste": "A Visa service that lets merchants accept agent payments from different protocols.",
     "protocols": [
       "visa-tap"
     ],
     "sources": [
       "src-visa-icc",
-      "src-worldpay-liability"
+      "src-visa-tap-lianlian-icc-20261118"
     ]
   },
   {

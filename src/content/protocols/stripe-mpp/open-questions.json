@@ -3,19 +3,21 @@
   "items": [
     {
       "question": "Will the core reach an IETF working group?",
-      "context": "The draft is an individual submission. It moved to a new name (draft-httpauth-payment-00 on 2026-06-19, -01 on 2026-09-09) while the old name was still active, and the old name expired on 2026-09-18. mpp.dev's standards-track wording is stronger than the Datatracker record. On 2026-11-11 the maintainers edited -01 in place rather than posting -02, so the IETF copy now lags paymentauth.org, and an open pull request (2026-11-13) would make in-place edits the rule.",
+      "context": "The draft is an individual submission. It moved to a new name (draft-httpauth-payment-00 on 2026-06-19, -01 on 2026-09-09) while the old name was still active, and the old name expired on 2026-09-18. mpp.dev's standards-track wording is stronger than the Datatracker record. On 2026-11-11 the maintainers edited -01 in place rather than posting -02, so the IETF copy now lags paymentauth.org, and an open pull request (2026-11-13) would make in-place edits the rule. At IETF 127 on 2026-11-20 the HTTP working group heard draft-nottingham-httpbis-402-00, a separate individual draft that would define only the meaning of 402, with no registries or headers. Its slides list draft-httpauth-payment among current uses of the code, and a show of hands on interest in adopting it gave 15 yes, 3 no and 18 no opinion. The MPP draft itself had no new revision and no Datatracker event since 2026-09-09.",
       "sources": [
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-ietf-ryan",
         "src-stripe-mpp-governance",
         "src-stripe-mpp-gh-pr-404",
         "src-stripe-mpp-paymentauth-01-txt",
-        "src-stripe-mpp-gh-pr-406"
+        "src-stripe-mpp-gh-pr-406",
+        "src-orbit-httpbis-402-draft",
+        "src-orbit-httpbis-ietf127-402"
       ]
     },
     {
       "question": "Will session become a standardized intent?",
-      "context": "The contribution rules need two methods, and as of 2026-10-21 six methods define session, yet PR #280 closed unmerged on 2026-09-28. A second attempt, PR #387, closed unmerged on 2026-11-07; its successor, PR #394, was still open on 2026-11-14, so session stays per method until a merge.",
+      "context": "The contribution rules need two methods, and as of 2026-10-21 six methods define session, yet PR #280 closed unmerged on 2026-09-28. A second attempt, PR #387, closed unmerged on 2026-11-07; its successor, PR #394, was still open on 2026-11-21, so session stays per method until a merge.",
       "sources": [
         "src-stripe-mpp-gh-pr-280",
         "src-stripe-mpp-specs-contributing",
@@ -25,7 +27,7 @@
     },
     {
       "question": "How much MPP activity is real commerce?",
-      "context": "On 2026-10-21 MPPscan's last 30 days averaged about one cent (1.1 cents) per transaction (785,833 transactions, 8,620 USD). Read on 2026-11-14, its indexed data stopped at 2026-11-11; per indexed day it showed about 20,100 transactions and 327 USD (about 1.6 cents each), against about 26,200 and 287 USD on 2026-10-21. The missing days are an indexing gap, not evidence of a fall in use. On 2026-11-14, 136 of 139 directory listings accepted Tempo. MPPscan publishes no counting method, while Visa and Artemis exclude identified wash and test activity from their totals.",
+      "context": "On 2026-10-21 MPPscan's last 30 days averaged about one cent (1.1 cents) per transaction (785,833 transactions, 8,620 USD). Read on 2026-11-14, its indexed data stopped at 2026-11-11; per indexed day it showed about 20,100 transactions and 327 USD (about 1.6 cents each), against about 26,200 and 287 USD on 2026-10-21. The missing days are an indexing gap, not evidence of a fall in use. Read again on 2026-11-21, the all-time totals were unchanged and the 7-day window read zero, so the indexer was still stalled; the 30-day window then held only about 20 indexed days. On 2026-11-21, 139 of 142 directory listings accepted Tempo. MPPscan publishes no counting method, while Visa and Artemis exclude identified wash and test activity from their totals.",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api",
@@ -79,6 +81,18 @@
       "sources": [
         "src-stripe-mpp-arxiv-2609-00060",
         "src-stripe-mpp-mppx-changelog"
+      ]
+    },
+    {
+      "question": "Will MPP's MCP binding move off error codes that MCP reserves?",
+      "context": "draft-payment-transport-mcp-00 requires -32042 and -32043, but -32042 means URL elicitation required in MCP 2025-11-25, and MCP 2026-07-28 reserves -32020 to -32099 for its own codes. Issue #374 has been open since 2026-10-05. PR #392, which proposed a tool-result signal for tools/call and -31042 and -31043 for other requests, was closed unmerged by its author on 2026-11-17, and mppx and mpp-go still use -32042.",
+      "sources": [
+        "src-stripe-mpp-gh-issue-374",
+        "src-stripe-mpp-gh-pr-392",
+        "src-stripe-mpp-mcp-error-codes-2026-07-28",
+        "src-stripe-mpp-mcp-schema-2025-11-25",
+        "src-stripe-mpp-mppx-repo",
+        "src-stripe-mpp-mpp-go-repo"
       ]
     }
   ]

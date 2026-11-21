@@ -2,7 +2,7 @@
   "id": "multi-chatgpt-discovery-to-checkout",
   "protocol": "multi",
   "title": "From ChatGPT discovery to merchant checkout: feeds and business profiles, then a dot paying with ChatGPT Wallet on the merchant's site, a headless plugin handoff, or the marketplace payment sheet",
-  "summary": "A merchant claims its business in Business Hub and uploads a product feed, and a shopper finds the item in ChatGPT. Path A, live in a limited rollout since 2026-11-13: the shopper's dot uses its cloud browser, signed with Web Bot Auth, on the merchant's own checkout; after the shopper approves with a security check, the card network provides a ChatGPT Wallet payment token that goes into the existing payment form. Path B: a headless plugin prepares the cart and checkout through MCP tools and hands off with a continue_url. Path C, a beta for select marketplace partners: the plugin widget opens the ChatGPT payment sheet, which the plugin guidelines call Instant Checkout; only PCI DSS Level 1 merchants that want raw card data implement the ACP Delegate Payment endpoint.",
+  "summary": "A merchant claims its business in Business Hub and uploads a product feed, and a shopper finds the item in ChatGPT. Path A, live in a limited rollout since 2026-11-13: the shopper's dot uses its cloud browser, signed with Web Bot Auth, on the merchant's own checkout; after the shopper approves with a security check, a ChatGPT Wallet payment token, which OpenAI's post says the payment network provides, goes into the existing payment form. Path B: a headless plugin prepares the cart and checkout through MCP tools and hands off with a continue_url. Path C, a beta for select marketplace partners: the plugin widget opens the ChatGPT payment sheet, which the plugin guidelines call Instant Checkout; only PCI DSS Level 1 merchants that want raw card data implement the ACP Delegate Payment endpoint.",
   "specVersion": "OpenAI Commerce in ChatGPT partner playbook (published 2026-11-13, read 2026-11-14); OpenAI plugin checkout reference and plugin guidelines (read 2026-11-14); ACP 2026-04-17 for Delegate Payment",
   "specVersionDate": "2026-11-13",
   "actors": [
@@ -44,7 +44,7 @@
       "from": "user",
       "to": "chatgpt",
       "label": "Ask for trail running shoes (in a chat or to a dot)",
-      "detail": "The shopper asks ChatGPT, or their dot, for an item. A dot is an always-on agent that lives in the cloud with its own computer and browser. Path A needs a dot, ChatGPT Pro in the US and an eligible US-issued card. This is a human-present purchase: the shopper approves each payment."
+      "detail": "The shopper asks ChatGPT, or their dot, for an item. A dot is an always-on agent that lives in the cloud with its own computer and browser. Path A needs a dot, ChatGPT Pro in the US and an eligible US-issued card with a US billing address. This is a human-present purchase: the shopper approves each payment."
     },
     {
       "n": 3,
@@ -59,7 +59,7 @@
       "from": "browser",
       "to": "edge",
       "label": "Path A (limited rollout): GET the product and checkout pages, signed with Web Bot Auth",
-      "detail": "The dot's cloud browser visits the merchant's site on the shopper's behalf. Each signed request carries a Signature header, a Signature-Input header and Signature-Agent set to \"https://chatgpt.com\" (Web Bot Auth over RFC 9421 HTTP Message Signatures). OpenAI is rolling out user signals in a Forwarded header: asn, for, ip-country, ip-prefix, locale, tz and user-agent. The visit needs no plugin, no product feed and no allowlist entry.",
+      "detail": "The dot's cloud browser visits the merchant's site on the shopper's behalf. Each signed request carries a Signature header, a Signature-Input header and Signature-Agent set to \"https://chatgpt.com\" (Web Bot Auth over RFC 9421 HTTP Message Signatures). OpenAI is rolling out user signals in a Forwarded header: asn, for, ip-country, ip-prefix, locale, tz and user-agent. The visit needs no plugin and no product feed. OpenAI's agent access guide (read 2026-11-21) recommends adding ChatGPT's agent profile to the firewall allowlist, after verifying the signatures, as advice rather than a requirement.",
       "payload": {
         "format": "http",
         "content": "# Illustrative example, OpenAI agent access and Accept payments guides as read 2026-11-14.\n# OpenAI does not document the covered components or signature parameters: placeholders.\nGET /checkout HTTP/1.1\nHost: shop.example.com\nSignature-Agent: \"https://chatgpt.com\"\nSignature-Input: sig1=<covered components and parameters>\nSignature: sig1=:<signature>:\nForwarded: ip-country=US;locale=en-US;tz=\"America/Los_Angeles\"",
@@ -120,7 +120,7 @@
       "from": "network",
       "to": "chatgpt",
       "label": "Path A: payment token for the approved purchase (card number, security code, expiry)",
-      "detail": "After the approval the payment network provides a payment token, a substitute for the card details with its own card number, security code and expiration date. Neither the business nor the agent receives the actual card details. CNBC reported that the token is specific to the transaction (reported). Which network program issues the token is not published.",
+      "detail": "OpenAI's post says that after the approval the payment network provides a payment token, a substitute for the card details with its own card number, security code and expiration date, and the Wallet terms let OpenAI ask a payment service provider, card network or issuer for a tokenized, virtual or other credential linked to the card. Neither the business nor the agent receives the actual card details. CNBC reported that the token is specific to the transaction (reported). Which network program issues the token is not published.",
       "crossesTrustBoundary": true,
       "specRef": {
         "url": "https://openai.com/index/introducing-chatgpt-wallet/",
@@ -134,7 +134,7 @@
       "from": "browser",
       "to": "merchant",
       "label": "Path A: enter the token in the existing payment form and place the order",
-      "detail": "The dot types the token's card number, expiry and security code into the merchant's standard card fields. The merchant receives a network token instead of the full card number and can use the Payment Account Reference (PAR) to link it to the underlying account. The shopper consented to this one transaction, so the merchant must not reuse or save the credential for another purchase; a subscription needs the shopper's consent for recurring charges and merchant-initiated transaction practice.",
+      "detail": "The dot types the token's card number, expiry and security code into the merchant's standard card fields; OpenAI's help article calls it a virtual card number linked to the selected card, which may differ from the physical card. The merchant receives a network token instead of the full card number and can use the Payment Account Reference (PAR) to link it to the underlying account. The shopper consented to this one transaction, so the merchant must not reuse or save the credential for another purchase; a subscription needs the shopper's consent for recurring charges and merchant-initiated transaction practice.",
       "payload": {
         "format": "text",
         "content": "Illustrative example. Field names are the merchant's own; values are placeholders.\ncard number    <network token number from ChatGPT Wallet>\nexpiry         <token expiration date>\nsecurity code  <token security code>",

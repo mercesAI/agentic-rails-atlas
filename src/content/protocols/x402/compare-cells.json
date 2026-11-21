@@ -73,8 +73,8 @@
     {
       "protocol": "x402",
       "dimension": "latest-version-and-date",
-      "value": "Spec v2.0 (2025-12-09); @x402/core 2.31.0 (2026-11-12)",
-      "detail": "V2 launched 2025-12-11; the specification version has not changed since, while the SDKs release about weekly (as of 2026-11-14).",
+      "value": "Spec v2.0 (2025-12-09); @x402/core 2.32.0 (2026-11-20)",
+      "detail": "V2 launched 2025-12-11; the specification version has not changed since, while the SDKs release about weekly (as of 2026-11-21).",
       "sources": [
         "src-x402-spec-v2",
         "src-x402-npm-core",
@@ -110,13 +110,15 @@
     {
       "protocol": "x402",
       "dimension": "settlement-rails",
-      "value": "EVM chains, Solana, Lightning and other CAIP-2 networks; credit-backed cloudflare:402",
+      "value": "EVM chains, Solana, Lightning and other CAIP-2 networks; credit-backed cloudflare:402; outside the spec, AWS's own aws:base binding settles x402 purchases in US dollars on the AWS bill (since 2026-11-19)",
       "detail": "Fiat ids such as ach:us appear only as examples of the id format.",
       "sources": [
         "src-x402-spec-v2",
         "src-x402-docs-networks",
         "src-x402-scheme-batch-cf",
-        "src-x402-scheme-exact-lnbtc"
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-aws-agentcore-process-payment",
+        "src-x402-aws-fiat-extension"
       ],
       "confidence": "verified"
     },
@@ -236,13 +238,14 @@
       "protocol": "x402",
       "dimension": "refunds-and-disputes",
       "value": "No refunds in exact; no dispute process",
-      "detail": "auth-capture refunds captured funds; batch-settlement channels and Solana upto return unused escrow; third-party x402r adds refunds and arbitration.",
+      "detail": "auth-capture refunds captured funds; batch-settlement channels and Solana upto return unused escrow; third-party x402r adds refunds and arbitration. AWS Marketplace refunds aws:base sales as billing adjustments on invoices.",
       "sources": [
         "src-x402-scheme-exact",
         "src-x402-scheme-auth-capture",
         "src-x402-scheme-batch-evm",
         "src-x402-scheme-upto-svm",
-        "src-x402-docs-devtools"
+        "src-x402-docs-devtools",
+        "src-x402-aws-marketplace-seller-guide"
       ],
       "confidence": "verified"
     },
@@ -287,12 +290,15 @@
       "protocol": "x402",
       "dimension": "decentralization",
       "value": "Open and permissionless, concentrated in practice",
-      "detail": "In x402scan figures reported on 2026-07-21, Coinbase's facilitator carried about half of transactions and two thirds of volume. From 2025-09-17 to 2026-06-23 one facilitator held 63.54 percent of Base settlements and another 67.72 percent of Solana's.",
+      "detail": "In x402scan figures reported on 2026-07-21, Coinbase's facilitator carried about half of transactions and two thirds of volume. From 2025-09-17 to 2026-06-23 one facilitator held 63.54 percent of Base settlements and another 67.72 percent of Solana's. Cloudflare's gateway and AWS WAF's AI traffic monetization both settle through Coinbase's facilitator, while Tempo has run its own facilitator since 2026-11-19.",
       "sources": [
         "src-x402-docs-facilitator-concept",
         "src-x402-cdp-welcome",
         "src-x402-arxiv-2607-19545",
-        "src-x402-arxiv-2607-12575"
+        "src-x402-arxiv-2607-12575",
+        "src-x402-cf-mg-beta",
+        "src-x402-aws-waf-docs",
+        "src-stripe-mpp-tempo-x402-facilitator"
       ],
       "confidence": "reported"
     },
@@ -312,11 +318,12 @@
       "protocol": "x402",
       "dimension": "fees-and-who-pays-them",
       "value": "No protocol fee; facilitator fee plus gas",
-      "detail": "CDP: 1,000 free on-chain transactions a month, then $0.001 each; verification free (as of 2026-10-11). The facilitator pays gas on the EVM exact path and as Solana fee payer.",
+      "detail": "CDP: 1,000 free on-chain transactions a month, then $0.001 each; verification free (as of 2026-10-11). The facilitator pays gas on the EVM exact path and as Solana fee payer. AWS Marketplace takes its 3 percent SaaS listing fee on aws:base sales (as of 2026-11-21).",
       "sources": [
         "src-x402-fee-cdp",
         "src-x402-scheme-exact-evm",
-        "src-x402-scheme-exact-svm"
+        "src-x402-scheme-exact-svm",
+        "src-x402-aws-marketplace-listing-fees"
       ],
       "confidence": "verified"
     },
@@ -367,7 +374,7 @@
     {
       "protocol": "x402",
       "dimension": "reference-implementations-and-sdks",
-      "value": "@x402 TypeScript 2.31.0, PyPI x402 2.28.0, Go module v2.31.0 (versions on 2026-11-14)",
+      "value": "@x402 TypeScript 2.32.0, PyPI x402 2.29.0, Go module v2.32.0 (versions on 2026-11-21)",
       "detail": "Java is in the repository but unpublished. The deprecated legacy V1 npm package x402 (1.2.0, no release since 2026-04-16) still had 2.63M downloads in the 30 days to 2026-11-13, and its middleware had an open paywall bypass.",
       "sources": [
         "src-x402-npm-core",
@@ -384,7 +391,7 @@
       "protocol": "x402",
       "dimension": "adoption-evidence",
       "value": "Real but contested",
-      "detail": "Trackers disagree, each by its own method: x402scan counted about $1.89M and 4.93M transactions in the 30 days to 2026-11-14, while agenteconomy.to counted about 200.2M cumulative transactions and $43.0M (2026-11-14). Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21). The x402.org counter, unchanged at 75.41M transactions and $24.24M from 2025-12-14 to 2026-10-24, was removed by 2026-11-14.",
+      "detail": "Trackers disagree, each by its own method: x402scan counted about $1.89M and 4.93M transactions in the 30 days to 2026-11-14, while agenteconomy.to counted about 200.2M cumulative transactions and $43.0M (2026-11-14). Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21). The x402.org counter, unchanged at 75.41M transactions and $24.24M from 2025-12-14 to 2026-10-24, was removed by 2026-11-14. A Solana Foundation talk on 2026-11-17 was reported claiming more than 400 million payments and $100 million since launch (self-reported).",
       "sources": [
         "src-x402scan-stats-20261114",
         "src-x402-agenteconomy-stats",
@@ -392,15 +399,17 @@
         "src-x402-site-wb-20251214",
         "src-x402-site-wb-20261024",
         "src-x402-visa-artemis-report",
-        "src-x402-arxiv-2607-12575"
+        "src-x402-arxiv-2607-12575",
+        "src-x402-breakpoint-decrypt",
+        "src-x402-breakpoint-cryptobriefing"
       ],
       "confidence": "reported"
     },
     {
       "protocol": "x402",
       "dimension": "published-security-research",
-      "value": "Yes: six 2026 papers, a 25-finding industry review (V12, 2026-10-22), two high-severity maintainer advisories and one CVE (CVE-2026-113603, medium, 2026-10-20)",
-      "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis; GHSA-3j63-5h8p-gf7c and GHSA-qr2g-p6q7-w82m have no CVE id, while CVE-2026-113603 came from a third-party CNA for a sign-in-with-x bypass whose fix was unmerged on 2026-11-14.",
+      "value": "Yes: eight 2026 papers, a 25-finding industry review (V12, 2026-10-22), three maintainer advisories (two high, one medium) and one CVE (CVE-2026-113603, medium, 2026-10-20)",
+      "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis, the authority gap between mandates and wallet signatures, and wallet-side authority closure. GHSA-3j63-5h8p-gf7c, GHSA-qr2g-p6q7-w82m and GHSA-5cgh-j82v-jvrj (2026-11-18, batch-settlement vouchers) have no CVE id, while CVE-2026-113603 came from a third-party CNA for a sign-in-with-x bypass whose fix was unmerged on 2026-11-21.",
       "sources": [
         "src-x402-arxiv-2605-11781",
         "src-x402-arxiv-2605-30998",
@@ -412,7 +421,10 @@
         "src-x402-ghsa-2026",
         "src-x402-v12-25-vulns",
         "src-x402-cve-2026-113603",
-        "src-x402-gh-pr-3840"
+        "src-x402-gh-pr-3840",
+        "src-x402-arxiv-2611-25821",
+        "src-x402-arxiv-2611-24989",
+        "src-x402-ghsa-5cgh"
       ],
       "confidence": "verified"
     },

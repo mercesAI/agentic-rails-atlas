@@ -6,13 +6,14 @@
       "protocol": "stripe-mpp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The core payment is pseudonymous with an optional DID source, and since 2026-11-11 its repository text says how other authentication composes with Payment without defining any. mppx adds per-route identity verifiers outside the spec (Web Bot Auth, TAP, Email OTP, Link, Persona, World ID, Tempo ID or custom; request attestation before 0.16.0), and the card method allows optional TAP headers.",
+      "note": "The core payment is pseudonymous with an optional DID source, and since 2026-11-11 its repository text says how other authentication composes with Payment without defining any. mppx adds per-route identity verifiers outside the spec (Web Bot Auth, TAP, Email OTP, Link, Persona, World ID, Tempo ID, Poppy sessions since 0.19.1, ERC-8004 agents since 0.20.0, or custom; request attestation before 0.16.0), and the card method allows optional TAP headers.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-blog-identity",
         "src-stripe-mpp-mppx-changelog",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-mppx-pr-1304"
       ]
     },
     {
@@ -282,15 +283,25 @@
       ]
     },
     {
-      "item": "Run the latest mppx (0.19.0 on 2026-11-14) with a shared store in production; 0.8.2 fixed the last published mppx advisory. Run Rust mpp 0.12.0 or later and pympp 0.10.1 or later.",
-      "why": "Earlier versions have published advisories, including payment bypasses, and mppx fixed further replay bugs without an advisory in 0.8.7 and 0.13.2. Since 0.18.0 the Tempo server methods refuse to start in production without a store, because per-instance memory lets a credential accepted by one instance be accepted again by another.",
+      "item": "Run the latest mppx (0.21.1 as of 2026-11-21) with a shared store in production; 0.8.2 fixed the last published mppx advisory. Run Rust mpp 0.12.0 or later and pympp 0.10.1 or later.",
+      "why": "Earlier versions have published advisories, including payment bypasses, and mppx fixed further flaws without an advisory: replay bugs in 0.8.7 and 0.13.2, then session metering and payer binding in 0.20.0 and replay, payer, header and Zone flaws in 0.21.0. Both 0.20.0 and 0.21.0 need migration. Since 0.18.0 the Tempo server methods refuse to start in production without a store, because per-instance memory lets a credential accepted by one instance be accepted again by another.",
       "sources": [
         "src-stripe-mpp-ghsa-other",
         "src-stripe-mpp-ghsa-rs",
         "src-stripe-mpp-ghsa-mpp-rs",
         "src-stripe-mpp-ghsa-pympp",
         "src-stripe-mpp-mppx-changelog",
-        "src-stripe-mpp-npm-mppx"
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-mppx-pr-1300",
+        "src-stripe-mpp-mppx-pr-1325",
+        "src-stripe-mpp-mppx-pr-1315"
+      ]
+    },
+    {
+      "item": "Before Tempo's T14 upgrade (scheduled for mainnet on 2026-12-08), revoke admin access keys that agents no longer need, and close channels that need more funds before a payer moves to a configurable account.",
+      "why": "T14 stops new admin access keys, but admin keys granted earlier keep spending without limit until revoked; after an account upgrade, deposits made earlier still settle but cannot be topped up.",
+      "sources": [
+        "src-stripe-mpp-tempo-t14"
       ]
     },
     {

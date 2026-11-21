@@ -78,8 +78,8 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "maturity",
-      "value": "Mixed: regional pilots plus early live use through partners (as of 2026-11-14)",
-      "detail": "Network-level enablement in Europe (reported 2026-06-02); most transactions Mastercard names are controlled or pilots. Shopify says Shop Pay agent purchases from merchants off Shopify use Mastercard tokens (2026-10-28; Agent Pay per Mastercard's CEO, reported); a live flight purchase with Agent Pay and Verifiable Intent was announced on 2026-11-12; ChatGPT Wallet, built with Mastercard, began rolling out on 2026-11-13 with no Mastercard program named. AP4M in Early Access since 2026-10-20. No volume data.",
+      "value": "Mixed: regional pilots plus early live use through partners (as of 2026-11-21)",
+      "detail": "All European issuers enabled at network level (Mastercard, 2026-06-02); the CEO said on earnings calls that US issuers (2026-01-29) and nearly all Mastercards worldwide (2026-04-30) were enabled (reported). Most transactions Mastercard names are controlled or pilots. Shopify says Shop Pay agent purchases from merchants off Shopify use Mastercard tokens (2026-10-28; Agent Pay per Mastercard's CEO, reported); Mastercard and its partners announced two live purchases with Agent Pay and Verifiable Intent (2026-11-12 and 2026-11-19); ChatGPT Wallet, with Mastercard among its partners, began rolling out on 2026-11-13 with no Mastercard program named. AP4M in Early Access since 2026-10-20. No volume data.",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-santander-2026",
@@ -88,7 +88,10 @@
         "src-mcap-shopify-fall26",
         "src-mcap-q3-2026-transcript",
         "src-mcap-travelport-2026-11",
-        "src-openai-chatgpt-wallet"
+        "src-openai-chatgpt-wallet",
+        "src-mcap-antom-2026-11",
+        "src-mcap-q4-2025-transcript",
+        "src-mcap-q1-2026-transcript"
       ],
       "confidence": "verified"
     },
@@ -304,7 +307,7 @@
       "protocol": "mastercard-agent-pay",
       "dimension": "composes-with",
       "value": "x402 (AP4M builds on it, 2026-10-20); AP2 and UCP via VI (designed to work with AP2); ACP via Stripe SPT; network partner of ChatGPT Wallet (2026-11-13), which is not presented as ACP",
-      "detail": "MPP is not a composition: Tempo said in Mastercard's 2026-06-10 AP4M release that it is working with Mastercard on MPP compatibility, but Mastercard names no MPP link, and its 2026-10-20 brief opening AP4M Early Access builds AP4M on x402. OpenAI's ChatGPT Wallet names Mastercard as a partner but no Mastercard program, and does not mention ACP; Mastercard's CEO said on 2026-10-29 that a strategic OpenAI partnership includes the use of Agent Pay (reported).",
+      "detail": "MPP is not a composition: Tempo said in Mastercard's 2026-06-10 AP4M release that it is working with Mastercard on MPP compatibility, but Mastercard names no MPP link, and its 2026-10-20 brief opening AP4M Early Access builds AP4M on x402. OpenAI's ChatGPT Wallet names Mastercard as a partner but no Mastercard program, and does not mention ACP; Mastercard's CEO said on 2026-10-29 that a strategic OpenAI partnership includes the use of Agent Pay (reported). Google said on 2026-11-17 that Gemini uses AP2 for purchases and named Mastercard for digital tokens on supported cards, without naming Agent Pay or Verifiable Intent.",
       "sources": [
         "src-mcap-vi-landscape",
         "src-mcap-stripe-spt-2026",
@@ -312,7 +315,8 @@
         "src-mcap-x402-lf-july",
         "src-mcap-ap4m-early-access",
         "src-openai-chatgpt-wallet",
-        "src-mcap-q3-2026-transcript"
+        "src-mcap-q3-2026-transcript",
+        "src-ap2-google-gemini-tasks-20261117"
       ],
       "confidence": "verified"
     },
@@ -332,15 +336,19 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "adoption-evidence",
-      "value": "Named pilots, Mastercard tokens in Shop Pay agent purchases, one announced live flight purchase, and a ChatGPT Wallet network partnership (program not named); no volume data",
-      "detail": "Partner deployments as of 2026-11-14: Shopify (2026-10-28), Travelport, Booked AI and Basis Theory (2026-11-12) and OpenAI's ChatGPT Wallet (2026-11-13, no Mastercard program named). Mastercard's CEO called the numbers not yet significant on 2026-10-29 (reported).",
+      "value": "Named pilots, Mastercard tokens in Shop Pay agent purchases, two live purchases with Verifiable Intent announced by Mastercard and its partners, and a ChatGPT Wallet partnership (program not named); no volume data",
+      "detail": "Partner deployments as of 2026-11-21: Shopify (2026-10-28), Travelport, Booked AI and Basis Theory (2026-11-12), OpenAI's ChatGPT Wallet (2026-11-13, no Mastercard program named) and Antom (2026-11-19). Temu, Rakuten Mobile and Yeahka announced explorations in November 2026, not deployments. Mastercard's CEO called the numbers not yet significant on 2026-10-29 (reported).",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-trust-2026",
         "src-mcap-shopify-fall26",
         "src-mcap-travelport-2026-11",
         "src-openai-chatgpt-wallet",
-        "src-mcap-q3-2026-transcript"
+        "src-mcap-q3-2026-transcript",
+        "src-mcap-antom-2026-11",
+        "src-mcap-temu-2026-11",
+        "src-mcap-rakuten-mobile-2026-11",
+        "src-mcap-yeahka-agreement"
       ],
       "confidence": "verified"
     },
@@ -404,36 +412,41 @@
       "protocol": "mastercard-agent-pay",
       "axis": "maturity",
       "value": 2,
-      "justification": "Network enablement in several regions; most transactions Mastercard names are pilots, and live partner use of Mastercard tokens (Shop Pay in AI agents) and the ChatGPT Wallet partnership only appeared in late 2026; card-side developer docs are an early preview with no public specification.",
+      "justification": "All European issuers enabled at network level (2026-06-02) and, per the CEO on earnings calls, US issuers and then nearly all Mastercards worldwide (2026-01-29 and 2026-04-30, reported); most transactions Mastercard names are pilots, and live partner use of Mastercard tokens (Shop Pay in AI agents), two purchases with Verifiable Intent announced by Mastercard and its partners, and the ChatGPT Wallet partnership only appeared in late 2026; card-side developer docs are an early preview with no public specification, and no volume data is published.",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-dev-release-history",
         "src-mcap-shopify-fall26",
-        "src-openai-chatgpt-wallet"
+        "src-openai-chatgpt-wallet",
+        "src-mcap-q1-2026-transcript",
+        "src-mcap-antom-2026-11"
       ]
     },
     {
       "protocol": "mastercard-agent-pay",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Many named banks and partners, and the first named partner deployments in late 2026, but no volume data; the CEO called the numbers not yet significant (2026-10-29, reported).",
+      "justification": "Many named banks and partners, and the first named partner deployments in late 2026, among them two purchases with Verifiable Intent that Mastercard and its partners announced (2026-11-12 and 2026-11-19), but no volume data; the CEO called the numbers not yet significant (2026-10-29, reported).",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-latam-2026",
         "src-mcap-trust-2026",
         "src-mcap-shopify-fall26",
-        "src-mcap-q3-2026-transcript"
+        "src-mcap-q3-2026-transcript",
+        "src-mcap-travelport-2026-11",
+        "src-mcap-antom-2026-11"
       ]
     },
     {
       "protocol": "mastercard-agent-pay",
       "axis": "human-not-present",
       "value": 3,
-      "justification": "Tokens with limits and VI Autonomous mandates support delegation; the companies behind one live purchase (2026-11-12) say it used VI, but no public record shows Autonomous mandates in live use or names who checks the chain.",
+      "justification": "Tokens with limits and VI Autonomous mandates support delegation; Mastercard and its partners say two announced live purchases used VI (2026-11-12, and 2026-11-19 on what Mastercard calls the consumer's pre-captured intent), but no public record shows Autonomous mandates in live use or names who checks the chain.",
       "sources": [
         "src-mcap-dev-level1",
         "src-mcap-vi-format",
-        "src-mcap-travelport-2026-11"
+        "src-mcap-travelport-2026-11",
+        "src-mcap-antom-2026-11"
       ]
     },
     {

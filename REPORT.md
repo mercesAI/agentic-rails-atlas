@@ -2,6 +2,51 @@
 
 Build completed 2026-10-13. Sources were read between 2026-10-10 and 2026-10-13. This report follows `private/ATLAS_PROMPT.md` Section 15.1. The v1.1 follow-up work (`private/ATLAS_FOLLOWUP.md`) was folded into the same build; see `REPORT_v1.1.md`.
 
+## Refresh 2026-11-21
+
+Sources were re-read on 2026-11-20 and 2026-11-21 for the window 2026-11-14 to 2026-11-21. Nine discovery scouts covered the eight protocols and the orbit, standards, policy, market and publications pages (all 47 orbit pages assigned) and found 93 items; nine independent verifiers confirmed 49, corrected 43 and could not verify 1, and added 2 that the scouts missed (24 big, 62 medium and 7 minor after resizing). Nine writers with strict file ownership applied 123 items, the big ones in full and the medium ones as a dated event and a sentence or two, and deferred 34 optional or additive ones. Nine facts critics then re-checked every writer's changes against the sources (131 fixes in place), a consistency critic checked 22 cross-cutting topics on every page (15 fixes), and eight docs agents and three docs critics wrote and checked the reports. Method and counts: `verification/refresh-2026-11-21.md`; per protocol: `verification/<slug>-2026-11-21.md`.
+
+### What changed
+
+- **OpenAI.** OpenAI's ChatGPT Wallet post now names American Express, Chase, Mastercard and Visa as partners after an undated edit (Chase takes part as a card issuer), and its help article (updated 2026-11-19) limits Wallet to conversations with a dot. OpenAI's agent access guide recommends allowlisting ChatGPT's agent profile after verifying signatures, and its Commerce policies (updated 2026-09-29) bar alcohol over 0.5% ABV from shopping listings. The ACP specification is unchanged since 2026-07-18.
+- **Google, AP2 and UCP.** Google said on 2026-11-17 that Gemini now uses AP2 for its Google Pay purchases in Tasks (US). AP2's status moves from draft to mixed as Google's statement: Google has published no AP2 version, mandate types, signer or verifier, and AP2 inside UCP is still unverified. Google's grocery Connected Apps, built on UCP, began rolling out on 2026-11-20, and ucp-schema 2.0.0 shipped on 2026-11-17.
+- **x402.** A third maintainer advisory (GHSA-5cgh-j82v-jvrj, 2026-11-18, medium, no CVE id) was fixed in the 2026-11-20 releases (@x402 packages 2.32.0, PyPI 2.29.0, Go v2.32.0). AWS Marketplace bills x402 products on the AWS bill over its own aws:base network (2026-11-19), after Amazon Bedrock AgentCore payments (preview 2026-05-07, generally available 2026-08-18) and AWS WAF AI traffic monetization (2026-06-15). Tempo runs an x402 facilitator (2026-11-19), and Coinbase's awal 2.12.3 ships a notice retiring Agentic Wallet in favor of Wallet MCP that was not active on 2026-11-21.
+- **Stripe MPP and ERC-8004.** mppx reached 0.21.1 (2026-11-19): 0.20.0 adds an ERC-8004 identity provider (an SDK feature, so the two protocols now complement each other), and 0.20.0 and 0.21.0 fix payment-boundary flaws without an advisory. MPP's MCP error codes collide with MCP's own (issue #374, open). ERC-8226 now scopes mandates by target contract (2026-11-20), Kite dropped Kite Chain from Agent Passport (2026-11-17), and 8004scan counted 2,137,737 agents (reported). Tempo's T14 upgrade is scheduled for 2026-11-24 on the testnet and 2026-12-08 on mainnet.
+- **Visa TAP and Mastercard Agent Pay.** Visa opened Agentic Ready to merchants and payment providers (2026-11-17, more than 140 participants testing), and the sample verifier's RFC 9421 pull request was closed unmerged (2026-11-20). Mastercard and its partners announced a second live purchase that used Verifiable Intent (2026-11-19, a coffee through Antom), and the page now gives the CEO's enablement remarks of 2026-01-29 and 2026-04-30 as reported. Klarna became a payment option in Adyen Agentic (2026-11-20).
+- **Standards and policy.** IETF 127 produced discussion and shows of hands only: Web Bot Auth -01 is still current, and the MOLE BoF favored forming a working group (62 to 4). MAS and the Future of Finance Institute plan an Agentic Money Sandbox (2026-11-18), and MAS plans to facilitate a know-your-agent protocol (2026-11-19); the European Commission proposed the Digital Fairness Act, with rules for agents that conclude contracts (2026-11-11, a proposal); and the FDIC and FinCEN GENIUS Act final rules reached White House review (2026-11-18).
+
+### Corrections, conflicts and gaps
+
+- 22 errata rows, F123 to F144 in `ATLAS_ERRATA.md`, and notes on six earlier rows (F75, F80, F81, F102, F111, F119). Statements that were dated and later overtaken are described in the reports instead.
+- 48 new source conflicts and 18 updated ones in `research/conflicts.md`, and 51 refused or failing hosts in `research/blocked.md`.
+- Still unverified: whether Gemini creates or exchanges AP2 mandates and who signs them; when OpenAI added Chase to the Wallet post; who checks the Verifiable Intent chain in the two announced purchases; the Amazon v. Perplexity hearing of 2026-11-20 (not covered this round); Stripe's US SPT price (the pricing page redirected to the Canadian one, so the x402, OpenAI ACP, Stripe MPP and Mastercard Agent Pay pages keep lastVerified 2026-11-14). To re-check: Tempo T14 (2026-11-24 and 2026-12-08), the OpenID Foundation AAuth meeting (2026-11-30), UCP's 2026-12-08 milestone, the IETF 127 minutes and any Web Bot Auth -02, and the Parliament plenary on PSD3 and the PSR (indicative 2026-12-14).
+
+### Content now
+
+2,202 protocol claims (2,093 verified, 99 reported, 10 unverified: 95 percent verified), up from 2,060; 58 scenario claims; 1,666 source records; 181 publications; 229 glossary terms; 47 orbit pages; 115 global timeline events.
+
+### Gate results (2026-11-21)
+
+| Gate | Result |
+|---|---|
+| `pnpm merge` | 0 errors, 14 warnings (glossary definitions that differ between files) |
+| `pnpm diagrams` | 147 inputs, 0 stale; 3 re-rendered this round |
+| `pnpm check` | 0 errors (412 content files) |
+| `pnpm test` | 781 of 781 |
+| `pnpm lint:style` | 0 errors, 0 warnings |
+| `pnpm lint:ste` | pass for all 8 |
+| `pnpm verify:sources` | 0 errors (1,666 sources, 131 orphans) |
+| `pnpm verify:coverage` | 8 of 8 pass |
+| `pnpm verify:citations` | 180 of 181 matched; 1 publisher page (McKinsey) returns 403 |
+| `pnpm build` | 65 pages |
+| `pnpm e2e` (system Chrome) | 380 passed, 84 skipped; the first run caught What's new scrolling sideways at 360 and 375 px (fixed, see below) |
+| `pnpm verify:links` | 1,760 URLs: 1,698 ok, 62 warnings (bot challenges and bot-blocking hosts), 0 failures; the first run failed on a moved FinCEN PDF and on two URLs cited as evidence of absence (fixed, see below) |
+| `pnpm data` | GitHub, npm, PyPI and the x402 Bazaar refreshed; Agent0 kept at 2026-10-11 (no subgraph key) |
+
+### Also in this round
+
+The "What changed recently" callout now ends its window at the newest entry when a page keeps an older lastVerified, and the lead restored 41 dated entries that writers had dropped under a mistaken 90-day rule. Timeline cards on the hub pages now wrap long tokens such as contract addresses, which had pushed What's new sideways at phone width. The link checker treats two URLs cited as evidence of absence as expected 404s (the GitHub Advisory Database entry for GHSA-5cgh-j82v-jvrj and Coinbase's sunset flag endpoint), and FinCEN's 2019 virtual currency guidance has its new address.
+
 ## Refresh 2026-11-14
 
 Sources were re-read on 2026-11-14 (some reads ran past midnight UTC). Thirteen discovery areas each had a scout and an independent verifier, plus four top-up verifiers, and a consolidator ranked 126 items (40 big, 84 medium, 2 minor). Nine writers applied every OpenAI ACP item and, elsewhere, the big items and the medium items that left site text stale; 26 purely additive medium items were deferred. Ten independent critics then checked every writer's changes (199 problems, 188 fixed in place, the rest settled by the lead), and ten more agents drafted and checked the errata rows and reports. Reports: `verification/<slug>-2026-11-14.md` for each protocol and `verification/refresh-2026-11-14.md` for the method and the cross-site pages.

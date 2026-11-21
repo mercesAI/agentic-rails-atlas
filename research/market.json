@@ -193,8 +193,8 @@
       "publisher": "8004scan (powered by AltLayer)",
       "type": "dataset",
       "primary": false,
-      "notes": "Read 2026-10-11: Registered Agents 561,576+, Feedback Submitted 682,170+, Unique Wallets 496,805+, Networks 30. Read 2026-10-18: Networks 29. Read 2026-11-14 (2026-11-15T02:45Z UTC): Registered Agents 2,062,883, Feedback Submitted 885,867, Unique Wallets 3,341,759, Networks 29. Method not published. For the API counts see src-8004scan-stats-api.",
-      "accessed": "2026-11-14"
+      "notes": "Read 2026-10-11: Registered Agents 561,576+, Feedback Submitted 682,170+, Unique Wallets 496,805+, Networks 30. Read 2026-10-18: Networks 29. Read 2026-11-14 (2026-11-15T02:45Z UTC): Registered Agents 2,062,883, Feedback Submitted 885,867, Unique Wallets 3,341,759, Networks 29. Method not published. For the API counts see src-8004scan-stats-api. Read 2026-11-21T07:05:12Z UTC: Registered Agents 2,137,737 (+12,447 in 24 hours), Feedback Submitted 898,568, Unique Wallets 3,486,574, Networks 29.",
+      "accessed": "2026-11-21"
     },
     {
       "id": "src-mcap-q3-transcript",
@@ -228,6 +228,28 @@
       "published": "2026-07-14",
       "accessed": "2026-10-10",
       "notes": "Ling, Zhou, Wu, Wang."
+    },
+    {
+      "id": "src-market-adobe-holiday-2026-forecast",
+      "url": "https://news.adobe.com/news/2026/09/adobe-us-holiday-shopping-season-to-hit-record",
+      "title": "Adobe: U.S. Holiday Shopping Season to Hit Record $275.1 Billion Online, Rising 6.7% YoY",
+      "publisher": "Adobe",
+      "type": "announcement",
+      "primary": true,
+      "accessed": "2026-11-21",
+      "published": "2026-09-28",
+      "notes": "Read 2026-11-21 (curl GET, HTTP 200; dated Monday, September 28, 2026). Adobe Analytics forecast for 2026-11-01 to 2026-12-31: US online spending of $275.1 billion (up 6.7 percent); Cyber Week, which Adobe defines as the five days from Thanksgiving to Cyber Monday, $47.5 billion (up 7.4 percent); AI traffic to US retail sites, measured by shoppers clicking a link, expected to rise 130 percent year over year, with Thanksgiving up 159 percent, Black Friday up 95 percent and Cyber Monday up 88 percent. Digital Commerce 360 reported the forecast on 2026-09-29. A forecast, not an observation."
+    },
+    {
+      "id": "src-market-salesforce-cyber-week-2026",
+      "url": "https://www.salesforce.com/news/stories/cyber-week-ai-sales-2026/",
+      "title": "Salesforce Data: Record Cyber Week Expected to Deliver $75.8B in AI-Driven Sales",
+      "publisher": "Salesforce",
+      "type": "announcement",
+      "primary": true,
+      "accessed": "2026-11-21",
+      "published": "2026-11-19",
+      "notes": "Read 2026-11-21 (curl GET, HTTP 200; datePublished 2026-11-19T13:00:00Z). Forecast from Salesforce's Shopping Index (aggregated Agentforce, Commerce Cloud, Service Cloud and Marketing Cloud data on more than 1.5 billion shoppers, extrapolated with market assumptions). Cyber Week 2026, Tuesday 2026-11-24 to Monday 2026-11-30: global online sales of $357 billion (up 6 percent) and US online sales of $84 billion (up 6 percent); $75.8 billion, or 21 percent of global Cyber Week sales, influenced by AI and agents, up from $67 billion in 2025 (13 percent higher); AI-driven traffic to retailer sites up 104 percent year over year; 20 percent of holiday shopping traffic nonhuman. Salesforce's consumer survey: 31 percent have tried a personal agent (Salesforce names Meta's Muse and OpenAI's dots), 8 percent have had their agent make purchases for them, and 73 percent are not ready to hand a personal agent their credit card details. A separate claim, that shoppers who engage with a brand's shopper agent spend 8 percent more per order, is not the survey's 8 percent. Influence attribution, not purchases completed by agents."
     }
   ],
   "metrics": [
@@ -481,18 +503,19 @@
       "id": "erc8004-8004scan-agents",
       "protocol": "erc-8004",
       "metric": "8004scan registered agents",
-      "value": 2062896,
+      "value": 2137737,
       "unit": "agents",
-      "asOf": "2026-11-14",
-      "definition": "total_agents in 8004scan's statistics API (mainnet view), read 2026-11-14 at 02:45Z UTC on 2026-11-15; the home page showed 2,062,883 at the same time. It was 561,614 on 2026-10-11 and 699,098 on 2026-10-18.",
+      "asOf": "2026-11-21",
+      "definition": "total_agents in 8004scan's statistics API (mainnet view), read 2026-11-21T07:04:55Z UTC. It was 561,614 on 2026-10-11, 699,098 on 2026-10-18 and 2,062,896 on 2026-11-14.",
       "sources": [
         "src-8004scan-stats-api",
         "src-8004scan",
         "src-erc-8004-centralcity",
         "src-erc-8004-chain-probe-2026-11-14",
-        "src-market-8004scan-20261011"
+        "src-market-8004scan-20261011",
+        "src-erc-8004-chain-probe-2026-11-21"
       ],
-      "caveat": "Registrations, not working agents: census work in the erc-8004 dossier finds a small minority expose a working endpoint. The tripling since 2026-10-18 came mostly in two batch waves, on Base (2026-10-20 to 2026-10-23) and on Arc Mainnet (2026-11-01 to 2026-11-06), whose sampled registrations all point to Central City; Central City itself claims about 1.48 million agents (vendor claim). 8004scan does not index 0G, a mainnet in the contracts README, whose registry had issued ids up to 3,941,206 on 2026-11-14 (sampled ids point to EvoEvo), so on-chain registrations across chains exceed 6 million by highest id. Explorer method not published.",
+      "caveat": "Registrations, not working agents: census work in the erc-8004 dossier finds a small minority expose a working endpoint. Almost all of the growth since 2026-10-18 came from Central City batch registrations: two large waves on Base (2026-10-20 to 2026-10-23) and on Arc Mainnet (2026-11-01 to 2026-11-06), then a third, smaller one on Optimism (2026-11-14 and 2026-11-15, UTC). Sampled ids in these waves point to centralcity.ai, and Central City claims about 1.55 million agents (vendor claim, 2026-11-21). 8004scan does not index 0G, a mainnet in the contracts README, whose registry held about 3.94 million more ids on 2026-11-21 (mostly from one platform by sample), so on-chain registrations across chains exceed 6 million by highest id.",
       "disputed": true,
       "disputeSources": [
         "src-8004scan"
@@ -502,15 +525,15 @@
       "id": "erc8004-8004scan-feedback",
       "protocol": "erc-8004",
       "metric": "8004scan feedback submitted",
-      "value": 885869,
+      "value": 898568,
       "unit": "feedback entries",
-      "asOf": "2026-11-14",
-      "definition": "total_feedbacks in 8004scan's statistics API (mainnet view), read 2026-11-14; it was 682,172 on 2026-10-11 and 720,771 on 2026-10-18.",
+      "asOf": "2026-11-21",
+      "definition": "total_feedbacks in 8004scan's statistics API (mainnet view), read 2026-11-21T07:04:55Z UTC; it was 682,172 on 2026-10-11, 720,771 on 2026-10-18 and 885,869 on 2026-11-14.",
       "sources": [
         "src-8004scan-stats-api",
         "src-market-8004scan-20261011"
       ],
-      "caveat": "Includes Sybil feedback; counts are not reputation quality. Feedback grew far more slowly than registrations over the same weeks.",
+      "caveat": "Includes Sybil feedback; counts are not reputation quality. Feedback grew far more slowly than registrations: 1.4% against 3.6% for agents in the week to 2026-11-21.",
       "disputed": true,
       "disputeSources": [
         "src-8004scan"
@@ -520,15 +543,16 @@
       "id": "erc8004-8004scan-wallets",
       "protocol": "erc-8004",
       "metric": "8004scan unique wallets",
-      "value": 3341787,
+      "value": 3486574,
       "unit": "wallets",
-      "asOf": "2026-11-14",
-      "definition": "total_users in 8004scan's statistics API, shown as Unique Wallets on its home page, read 2026-11-14; it was 496,840 on 2026-10-11 and 755,027 on 2026-10-18.",
+      "asOf": "2026-11-21",
+      "definition": "total_users in 8004scan's statistics API, shown as Unique Wallets on its home page, read 2026-11-21T07:04:55Z UTC; it was 496,840 on 2026-10-11, 755,027 on 2026-10-18 and 3,341,787 on 2026-11-14.",
       "sources": [
         "src-8004scan-stats-api",
-        "src-market-8004scan-20261011"
+        "src-market-8004scan-20261011",
+        "src-erc-8004-chain-probe-2026-11-21"
       ],
-      "caveat": "Wallets are not people or operators. On 2026-11-14 the count was about 1.6 times the agent count, and the newest 100 ids on Base and on Arc, all Central City registrations, each had a different owner address."
+      "caveat": "Wallets are not people or operators. On 2026-11-21 the count was about 1.6 times the agent count, and sampled Central City registrations each come from a different owner address."
     },
     {
       "id": "erc8004-8004scan-networks",
@@ -536,14 +560,15 @@
       "metric": "8004scan networks indexed",
       "value": 29,
       "unit": "networks",
-      "asOf": "2026-11-14",
-      "definition": "Networks shown on the 8004scan home page, read 2026-11-14 (29 on 2026-10-18; 30 on 2026-10-11).",
+      "asOf": "2026-11-21",
+      "definition": "Networks shown on the 8004scan home page, read 2026-11-21 (29 on 2026-10-18 and 2026-11-14; 30 on 2026-10-11).",
       "sources": [
         "src-8004scan",
         "src-8004scan-stats-api",
-        "src-market-8004scan-20261011"
+        "src-market-8004scan-20261011",
+        "src-erc-8004-chain-probe-2026-11-21"
       ],
-      "caveat": "Not the same list as the 25 mainnets in the official contracts README: the statistics API lists 30 mainnet chains, including some the README omits such as Arc, leaves out 0G, a README mainnet, and no longer lists Abstract."
+      "caveat": "Not the same list as the 25 mainnets in the official contracts README: on 2026-11-21 the statistics API listed 30 mainnet chains (29 with a registry), including some the README omits such as Arc, and still left out 0G, a README mainnet. It indexes neither Flow EVM nor Neo X, where the same 2.0.0 registries answer."
     },
     {
       "id": "mpp-mppscan-transactions-7d",
@@ -613,6 +638,32 @@
         "src-x402-forkast-visa"
       ],
       "caveat": "Secondary report of the Visa and Artemis study; about five weeks after MPP's public launch."
+    },
+    {
+      "id": "market-adobe-ai-traffic-holiday-2026-forecast",
+      "protocol": "market",
+      "metric": "Adobe forecast: growth in AI traffic to US retail sites, holiday 2026",
+      "value": 130,
+      "unit": "percent year over year",
+      "asOf": "2026-09-28",
+      "definition": "Visits to US retail sites from shoppers clicking a link in an AI service, 2026-11-01 to 2026-12-31, compared with the same period of 2025 (Adobe Analytics forecast).",
+      "sources": [
+        "src-market-adobe-holiday-2026-forecast"
+      ],
+      "caveat": "Forecast of traffic, not purchases or agent-executed payments. It grows from the 2025 season, which Adobe measured at 693.4 percent above 2024, so the two rates do not share a base; compare it only with Adobe's own actuals for 2026."
+    },
+    {
+      "id": "market-salesforce-ai-influenced-cyber-week-2026-forecast",
+      "protocol": "market",
+      "metric": "Salesforce forecast: Cyber Week 2026 online sales influenced by AI and agents",
+      "value": 75.8,
+      "unit": "USD billion",
+      "asOf": "2026-11-19",
+      "definition": "Global online sales from 2026-11-24 to 2026-11-30 that Salesforce expects AI and agents to influence: 21 percent of a forecast $357 billion (Salesforce Shopping Index).",
+      "sources": [
+        "src-market-salesforce-cyber-week-2026"
+      ],
+      "caveat": "A vendor's forecast of influence attribution, not purchases completed by agents; global, not US-only, and seven days, not Adobe's five-day Cyber Week. Replace with Salesforce's actuals after Cyber Week, and never put it on an axis with observed volumes."
     }
   ],
   "events": [
@@ -709,6 +760,17 @@
       "confidence": "verified"
     },
     {
+      "date": "2026-09-28",
+      "lane": "Market",
+      "title": "Adobe forecasts AI traffic to US retail sites up 130 percent for holiday 2026",
+      "detail": "Forecast for 2026-11-01 to 2026-12-31, with US online spending put at $275.1 billion. The AI figure counts shoppers clicking links in AI services, not purchases made by agents.",
+      "kind": "market",
+      "sources": [
+        "src-market-adobe-holiday-2026-forecast"
+      ],
+      "confidence": "verified"
+    },
+    {
       "date": "2026-10-11",
       "lane": "Market",
       "title": "Observed: x402.org counter unchanged, 8004scan passes 561,000 registrations",
@@ -751,6 +813,17 @@
         "src-erc-8004-chain-probe-2026-11-14",
         "src-erc-8004-centralcity",
         "src-stripe-mpp-mppscan"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-11-19",
+      "lane": "Market",
+      "title": "Salesforce forecasts $75.8 billion of Cyber Week 2026 sales influenced by AI and agents",
+      "detail": "A global forecast for 2026-11-24 to 2026-11-30: 21 percent of $357 billion, up from $67 billion in 2025. In Salesforce's consumer survey 8 percent say their agent has made purchases for them and 73 percent are not ready to give an agent their card details. Influence attribution, not checkouts completed by agents.",
+      "kind": "market",
+      "sources": [
+        "src-market-salesforce-cyber-week-2026"
       ],
       "confidence": "verified"
     }

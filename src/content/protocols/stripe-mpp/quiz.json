@@ -116,7 +116,7 @@
     },
     {
       "id": "stripe-mpp-q8",
-      "question": "Which JSON-RPC error code signals payment required over MCP?",
+      "question": "Which JSON-RPC error code does the MPP transport draft use to signal payment required over MCP?",
       "options": [
         "-32602",
         "-32042",
@@ -124,10 +124,11 @@
         "-32700"
       ],
       "answer": 1,
-      "explanation": "The MCP transport uses -32042 with challenges in error.data, and -32043 for failed verification.",
+      "explanation": "draft-payment-transport-mcp-00 uses -32042 with challenges in error.data, and -32043 for failed verification. The code collides with MCP itself: MCP 2025-11-25 uses -32042 for URL elicitation, and MCP 2026-07-28 tells implementations not to emit it.",
       "claimIds": [
         "clm-stripe-mpp-110",
-        "clm-stripe-mpp-112"
+        "clm-stripe-mpp-112",
+        "clm-stripe-mpp-311"
       ]
     },
     {

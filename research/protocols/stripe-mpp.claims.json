@@ -60,7 +60,7 @@
       ],
       "confidence": "verified",
       "topic": "governance",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-stripe-mpp-007",
@@ -894,13 +894,13 @@
     },
     {
       "id": "clm-stripe-mpp-090",
-      "text": "As of 2026-11-14 IANA lists neither the Payment authentication scheme nor the Accept-Payment, Payment-Authorization or Payment-Receipt fields.",
+      "text": "As of 2026-11-21 IANA lists neither the Payment authentication scheme nor the Accept-Payment, Payment-Authorization or Payment-Receipt fields.",
       "sources": [
         "src-stripe-mpp-iana"
       ],
       "confidence": "verified",
       "topic": "governance",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-stripe-mpp-091",
@@ -1544,7 +1544,7 @@
       ],
       "confidence": "verified",
       "topic": "ecosystem",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-stripe-mpp-155",
@@ -2090,24 +2090,26 @@
     },
     {
       "id": "clm-stripe-mpp-267",
-      "text": "The latest mppx release is 0.19.0, published on npm on 2026-11-14. After 0.14.1 it shipped 0.15.0 (2026-10-21), 0.16.0 (2026-10-28), 0.17.0 (2026-10-29), 0.17.1 to 0.17.6 (2026-11-04 to 2026-11-09, with no 0.17.2 on npm), 0.18.0 (2026-11-09) and 0.18.1 (2026-11-12).",
+      "text": "The latest mppx release is 0.21.1, published on npm on 2026-11-19 and still the dist-tag latest on 2026-11-21. After 0.14.1 it shipped 0.15.0 (2026-10-21), 0.16.0 (2026-10-28), 0.17.0 (2026-10-29), 0.17.1 to 0.17.6 (2026-11-04 to 2026-11-09, with no 0.17.2 on npm), 0.18.0 (2026-11-09), 0.18.1 (2026-11-12), 0.19.0 (2026-11-14), 0.19.1, 0.20.0 and 0.20.1 (all 2026-11-16), and 0.21.0 and 0.21.1 (both 2026-11-19).",
       "sources": [
         "src-stripe-mpp-npm-mppx",
         "src-stripe-mpp-mppx-changelog"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-stripe-mpp-268",
-      "text": "Four mppx releases after 0.14.1 carry breaking changes: 0.16.0 replaced request attestation with per-route identity; 0.17.0 changed identity nonces, challenge hooks and provers; 0.18.0 made a missing identity proof answer 401 instead of 403 and replaced payment-stage verifiers with an experimental payment check; and 0.19.0 made the Web Bot Auth and TAP provers and Attestation.sign take a key pair or remote signer instead of a private key.",
+      "text": "Six mppx releases after 0.14.1 carry breaking changes: 0.16.0 replaced request attestation with per-route identity; 0.17.0 changed identity nonces, challenge hooks and provers; 0.18.0 made a missing identity proof answer 401 instead of 403 and replaced payment-stage verifiers with an experimental payment check; 0.19.0 made the Web Bot Auth and TAP provers and Attestation.sign take a key pair or remote signer instead of a private key; 0.20.0 made billable per-item session streams call stream.charge() before any work and billable SSE proxy session routes use unitType request; and 0.21.0 made proxy replay require a stable, explicitly configured replay.authority, failing at startup without one.",
       "sources": [
-        "src-stripe-mpp-mppx-changelog"
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-mppx-pr-1300",
+        "src-stripe-mpp-mppx-pr-1184"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-stripe-mpp-269",
@@ -2132,15 +2134,16 @@
     },
     {
       "id": "clm-stripe-mpp-271",
-      "text": "A re-check on 2026-11-14 found no new security advisory for any MPP SDK since 2026-10-21: the repositories still list nine, five for mppx, two for the Rust crate mpp and two for pympp, and none for mpp-go or mpp-rb.",
+      "text": "Re-checks on 2026-11-14 and 2026-11-21 found no new security advisory in any MPP SDK repository since 2026-10-21: the repositories still list nine, five for mppx, two for the Rust crate mpp and two for pympp, and none for mpp-go or mpp-rb. None of the fixes in mppx 0.20.0 and 0.21.0 has a GHSA or CVE id.",
       "sources": [
         "src-stripe-mpp-ghsa-other",
         "src-stripe-mpp-ghsa-mpp-rs",
-        "src-stripe-mpp-ghsa-pympp"
+        "src-stripe-mpp-ghsa-pympp",
+        "src-stripe-mpp-mppx-changelog"
       ],
       "confidence": "verified",
       "topic": "security",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-stripe-mpp-272",
@@ -2178,15 +2181,17 @@
     },
     {
       "id": "clm-stripe-mpp-275",
-      "text": "The identity header fields mppx uses (Identity-Attestation, Identity-Attestation-Required, Identity-Presentation and Identity-Required) are defined by the SDK; no draft in mpp-specs mentions them as of 2026-11-14.",
+      "text": "The identity header fields mppx uses (Identity-Attestation, Identity-Attestation-Required, Identity-Presentation and Identity-Required, plus Poppy-Session since 0.19.1 and Agent-Id and Agent-Signature since 0.20.0) are defined by the SDK; no draft in mpp-specs mentions them as of 2026-11-21.",
       "sources": [
         "src-stripe-mpp-mppx-changelog",
         "src-stripe-mpp-docs-identity",
-        "src-stripe-mpp-core-01-7bb99c8"
+        "src-stripe-mpp-core-01-7bb99c8",
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-stripe-mpp-discovery"
       ],
       "confidence": "verified",
       "topic": "objects",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-stripe-mpp-276",
@@ -2264,26 +2269,393 @@
     },
     {
       "id": "clm-stripe-mpp-283",
-      "text": "draft-payment-transport-mcp-00 is written against MCP revision 2025-11-25: servers advertise payment support in InitializeResult and clients in InitializeRequest. MCP's current revision, 2026-07-28, removed the initialize handshake, and the transport draft was unchanged at mpp-specs commit 7bb99c8 (2026-11-11).",
+      "text": "draft-payment-transport-mcp-00 is written against MCP revision 2025-11-25: servers advertise payment support in InitializeResult and clients in InitializeRequest. MCP's current revision, 2026-07-28, removed the initialize handshake, and the transport draft was unchanged at mpp-specs commit 7bb99c8 (2026-11-11), still the repository's newest commit on 2026-11-21.",
       "sources": [
         "src-stripe-mpp-mcp-transport",
         "src-stripe-mpp-mcp-changelog-2026-07-28"
       ],
       "confidence": "verified",
       "topic": "transports",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "specVersion": "draft-payment-transport-mcp-00"
     },
     {
       "id": "clm-stripe-mpp-284",
-      "text": "A second pull request for a generic session intent, mpp-specs PR #387, closed unmerged on 2026-11-07, and its successor, PR #394 (opened 2026-11-06), was still open on 2026-11-14, so session remains defined per method.",
+      "text": "A second pull request for a generic session intent, mpp-specs PR #387, closed unmerged on 2026-11-07, and its successor, PR #394 (opened 2026-11-06), was still open on 2026-11-21, so session remains defined per method.",
       "sources": [
         "src-stripe-mpp-gh-pr-394",
         "src-stripe-mpp-core-01-7bb99c8"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-285",
+      "text": "mppx 0.20.0 (2026-11-16) fixed session flaws that its pull request describes and no advisory covers: retries through the session proxy could bypass stream metering, automatic generators could start billable work before charging, and a session open could attribute the payment to a different source account. Session retries now re-run payment verification, and an opening credential's source must be the signed transaction's payer.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1300",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-ghsa-other"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-286",
+      "text": "mppx 0.21.0 (2026-11-19) fixed two more flaws without an advisory. A failed request could delete a newer request's replay claim after its own claim expired, so one payment could authorize a second response, and a delegated signer could present itself as the payer while spending another account's session channel, so policy meant for the funding account did not apply.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1325",
+        "src-stripe-mpp-mppx-pr-1326",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-ghsa-other"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-287",
+      "text": "mppx 0.21.0 (2026-11-19) also closed payment-boundary gaps without an advisory: its Express adapter now holds JSON, raw and streamed output until payment verifies, custom subscription clients must declare a chain that matches the challenge, proxy replay records are bound to an explicitly configured authority, the CLI refuses to sign after a non-loopback cleartext hop or with TLS verification off, and the adapters validate the URL authority used to build the payment request.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1184",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-ghsa-other"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-288",
+      "text": "mppx 0.21.0 (2026-11-19) fixed three Zone payment bugs: a Zone withdrawal's settlement could pay a challenge twice, once through its zone credential and once as a hash credential; a retry under a new challenge could start a second withdrawal for the same request; and the client's maxAmount and maxAtomicAmount caps left out the Zone withdrawal fee.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-289",
+      "text": "Before mppx 0.21.0 (2026-11-19) an mppx client paid a challenge whose header parameter named any credential field, such as X-Payment, and sent the credential there, although the core draft allows only Payment-Authorization. Since 0.21.0 clients skip such a challenge, and a server configured with a header other than Authorization or Payment-Authorization throws when it builds one.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1315",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-core-01"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-290",
+      "text": "The global GitHub Advisory Database added the pympp advisory GHSA-v858-xh7w-8jr5 (CVE-2026-63634, fixed in 0.9.1) on 2026-11-17, reviewed by GitHub and rated medium with a CVSS 4.0 score of 6.9, while the pympp repository advisory still rates it low. NVD published the CVE on 2026-11-09 with that CNA score as its only score and the status Deferred.",
+      "sources": [
+        "src-stripe-mpp-ghsa-v858-global",
+        "src-stripe-mpp-nvd-63634",
+        "src-stripe-mpp-ghsa-pympp"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-291",
+      "text": "mppx 0.20.0 (2026-11-16) added an ERC-8004 agent identity provider, mppx/extensions/identity/erc8004, from wevm/mppx PR #1304. Its client prover signs each request with the agent's wallet and sends Agent-Id (eip155:<chainId>:<registry>:<agentId>) and Agent-Signature (<created>.<nonce>.<signature>); the server verifier reads getAgentWallet from the Identity Registry at 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432, on Tempo mainnet (chain 4217) by default, and accepts an EOA or ERC-1271 signature for 300 seconds plus 60 seconds of clock tolerance.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "topic": "identity",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-292",
+      "text": "The mppx ERC-8004 payment check treats a tempo charge whose transaction or proof credential names the agent's registered wallet as source as proof of the agent; with no credential, and for hash credentials, sessions, Zones and other methods, it requires the agent's request signature instead. The provider reads only getAgentWallet from the registry, so it uses no ERC-8004 reputation or validation data, and without a configured store a request signature can be replayed for up to six minutes.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "controls",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-293",
+      "text": "No MPP draft specifies an ERC-8004 integration or the Agent-Id and Agent-Signature headers: draft-payment-discovery-01 only cites ERC-8004 as defining on-chain identity registries, and mpp.dev's identity page named neither ERC-8004 nor Poppy on 2026-11-21.",
+      "sources": [
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-docs-identity"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-11-21",
+      "specVersion": "draft-payment-discovery-01"
+    },
+    {
+      "id": "clm-stripe-mpp-294",
+      "text": "An mppx pull request opened on 2026-11-19 and still open on 2026-11-21 (#1332) would bind ERC-8004 verification to a configured receiving origin; its author says a relayed signature can otherwise authenticate at another service when the request URL comes from an attacker-controlled Host. mppx 0.21.0 added optional exact host allowlists to its Express and Node adapters.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1332",
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-295",
+      "text": "mppx 0.19.1 (2026-11-16) added mppx/extensions/identity/poppy for Personal Agent Protocol 1.0 (Poppy) sessions: the client prover signs a fresh Poppy-Session token for every request, including the paid retry, and the server verifier checks it, its delegation and the agent's published keys before any payment challenge, returning the agent's client_id, a pseudonymous user ID, the session ID and an optional agent ID.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "topic": "identity",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-296",
+      "text": "mppx 0.20.1 (2026-11-16) added Attestation.Issuer.create, which signs audience-bound identity attestations with a local or remote Ed25519 key and serves its JSON Web Key Set; TempoId.Issuer and client helpers that trade a Tempo ID access token for tempo-id and email attestations; and x402 sign-in-with-x (evm.charge({ x402: { siwx } }) on the server, Siwx.wrapFetch on the client), so a wallet that proves its address can get a resource without paying when the server's grant allows it.",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "identity",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-297",
+      "text": "Tempo node release tempo/v1.19.0 (2026-11-19) is required for the T14 network upgrade, which Tempo has scheduled for the Moderato testnet on 2026-11-24 and for mainnet on 2026-12-08, both at 15:00 UTC, and whose scope it says may still change before activation; tempo/v1.18.4 (2026-11-16) was a maintenance release that activated no upgrade.",
+      "sources": [
+        "src-stripe-mpp-tempo-releases",
+        "src-stripe-mpp-tempo-t14"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-298",
+      "text": "T14 adds configurable accounts with up to 48 weighted signers and an approval threshold, lets an existing account become configurable at the same address in an optional and permanent upgrade after which its original key stops working on Tempo, and stops new admin access keys, while admin keys granted before T14 keep spending without limit until revoked.",
+      "sources": [
+        "src-stripe-mpp-tempo-t14",
+        "src-stripe-mpp-tempo-releases"
+      ],
+      "confidence": "verified",
+      "topic": "controls",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-299",
+      "text": "Tempo's T14 page says that for a payer that upgrades to a configurable account, channel deposits made before the upgrade still settle but cannot be topped up, and the account cannot sign its own session vouchers under T14, so it must set a separate single-key authorizedSigner until TIP-1166, planned for T15, which had no activation date on 2026-11-21.",
+      "sources": [
+        "src-stripe-mpp-tempo-t14",
+        "src-stripe-mpp-tempo-t15"
+      ],
+      "confidence": "verified",
+      "topic": "states",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-300",
+      "text": "mppx merged support for TIP-1166 configurable-account vouchers on 2026-11-20 (PR #1307), behind a configurableVouchers server option that defaults to false and in no release on 2026-11-21, and an open mpp-specs pull request (#408, opened 2026-11-16) would add methodDetails.configurableVouchers in a draft-tempo-session-01.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1307",
+        "src-stripe-mpp-gh-pr-408"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-301",
+      "text": "Tempo runs an x402 facilitator at api.tempo.xyz/v1/x402: buyers pay USDC on Base mainnet (eip155:8453) with x402's exact scheme to a Tempo deposit address that the public GET /supported route publishes as extra.payTo, and Tempo pays the seller in the OUSD stablecoin on Tempo mainnet (eip155:4217) at the payout address the seller names in extra.tempoSettlement. The verify, settle and payout routes need a Tempo API key with the mpp:write scope.",
+      "sources": [
+        "src-stripe-mpp-tempo-x402-facilitator",
+        "src-stripe-mpp-tempo-x402-supported",
+        "src-stripe-mpp-tempo-x402-api",
+        "src-stripe-mpp-mpp-x402-guide"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-302",
+      "text": "A tempoxyz/mpp pull request merged on 2026-11-18 added Tempo's x402 facilitator to mpp.dev's x402 guide; its author had asked to keep it as a draft until the facilitator was available in production, because the site deploys on merge. A testnet facilitator was linked on 2026-11-19, and Tempo's RSS feed carried no item about the facilitator through its newest item of 2026-11-19.",
+      "sources": [
+        "src-stripe-mpp-gh-mpp-pr-1255",
+        "src-stripe-mpp-tempo-x402-facilitator"
+      ],
+      "confidence": "verified",
+      "topic": "dates",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-303",
+      "text": "On 2026-11-19 mppx 0.21.1 added tempoX402() at mppx/x402/tempo, which fills payTo with the facilitator's deposit address and extra.tempoSettlement with the payout address, and pympp 0.26.0 added x402_extra and facilitator_pay_to(). On 2026-11-21 the public GET /supported route answered with the exact scheme on eip155:8453 (x402 version 2) and on base (x402 version 1).",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-pympp-releases",
+        "src-stripe-mpp-tempo-x402-supported"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-304",
+      "text": "With Tempo's facilitator the buyer signs a payment to Tempo's deposit address, not to the seller, so the seller depends on Tempo for the OUSD payout; the mpp.dev guide says sellers that already accept MPP on Tempo are paid there directly and do not need the facilitator.",
+      "sources": [
+        "src-stripe-mpp-tempo-x402-supported",
+        "src-stripe-mpp-tempo-x402-facilitator",
+        "src-stripe-mpp-mpp-x402-guide"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-305",
+      "text": "AWS added MPP support to Amazon Bedrock AgentCore payments at its general availability on 2026-08-18, alongside x402's upto scheme; AWS's notice calls it the Machine Payment Protocol. The preview notice of 2026-05-07 described only x402.",
+      "sources": [
+        "src-x402-aws-agentcore-payments-ga",
+        "src-x402-aws-agentcore-payments-preview"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-306",
+      "text": "AgentCore payments works for the buyer: an agent forwards the merchant's WWW-Authenticate: Payment challenge verbatim to ProcessPayment with paymentType MPP, and AgentCore checks the session budget, signs with the wallet and returns a ready-to-send Authorization value. It handles one challenge per call, only the charge intent in pull mode, and the evm (canonical USDC only), tempo and solana (server-sponsored fees only) methods, with Coinbase CDP or Stripe (Privy) wallets; solana needs Stripe (Privy).",
+      "sources": [
+        "src-x402-aws-agentcore-process-payment"
+      ],
+      "confidence": "verified",
+      "topic": "actors",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-307",
+      "text": "Two other AWS agent payment features use x402, not MPP. AWS Marketplace's agentic payments, posted 2026-11-19, support only x402, and AWS WAF's AI traffic monetization, posted 2026-06-15, answers with x402 settled through Coinbase's facilitator; AWS said that day that MPP support for WAF was coming soon, and the WAF developer guide read on 2026-11-21 still names only x402.",
+      "sources": [
+        "src-x402-aws-marketplace-x402",
+        "src-x402-aws-marketplace-seller-guide",
+        "src-x402-aws-waf-monetization",
+        "src-x402-aws-waf-monetization-blog",
+        "src-x402-aws-waf-docs"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-308",
+      "text": "On 2026-11-21 the latest releases of the other official MPP SDKs were pympp 0.26.0 (2026-11-19, with no 0.23.0 ever published), the Rust crate mpp 0.21.0 (2026-11-16), mpp-go v0.9.1 (2026-11-16) and mpp-rb 0.1.10 (2026-10-26). pympp 0.24.0 added identity primitives with a Tempo ID provider and 0.26.0 Zone payments for the Tempo charge method; the crate 0.21.0 added identity providers and stopped TempoChargeMethod::new from accepting a hash credential twice; mpp-go v0.9.1 prevents duplicate MCP payments and adds a database/sql replay store.",
+      "sources": [
+        "src-stripe-mpp-sdk-registries",
+        "src-stripe-mpp-pympp-releases",
+        "src-stripe-mpp-mpp-rs-releases",
+        "src-stripe-mpp-mpp-go-repo"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-309",
+      "text": "Read on 2026-11-21, MPPscan still showed 4,693,132 transactions, 445,223 USD, 225,341 senders and 6,223 recipients all time, the same as on 2026-11-14. Its 1-day and 7-day windows read 0, and its 30-day window read 417,898 transactions and 7,086 USD over only about 20 indexed days. Nothing had been indexed since 2026-11-11, so the falling windows show a stalled indexer, not lower MPP use.",
+      "sources": [
+        "src-stripe-mpp-mppscan"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-310",
+      "text": "The mpp.dev payments directory listed 142 services on 2026-11-21, of which 139 accept tempo, 10 stripe and 1 evm, and 22 carry the supportsMACH flag; new listings since 2026-11-14 include Bright Data and MillionVerifier, both served from mpp.tempo.xyz subdomains.",
+      "sources": [
+        "src-stripe-mpp-directory-api"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-311",
+      "text": "draft-payment-transport-mcp-00 requires -32042 for payment required and -32043 for a failed verification, but both collide with MCP: revision 2025-11-25, which the draft targets, defines -32042 as URL elicitation required, and revision 2026-07-28 reserves -32020 to -32099 for codes MCP defines and lists -32042 among codes its implementations must not emit.",
+      "sources": [
+        "src-stripe-mpp-mcp-transport",
+        "src-stripe-mpp-mcp-schema-2025-11-25",
+        "src-stripe-mpp-mcp-error-codes-2026-07-28"
+      ],
+      "confidence": "verified",
+      "topic": "transports",
+      "asOf": "2026-11-21",
+      "specVersion": "draft-payment-transport-mcp-00"
+    },
+    {
+      "id": "clm-stripe-mpp-312",
+      "text": "mpp-specs issue #374 has documented the code conflict since 2026-10-05 and was still open on 2026-11-21. Pull request #392, opened 2026-11-04, would have moved paid tools/call answers into a tool result with _meta org.paymentauth/payment-required and used -31042 and -31043 for other requests; its author closed it unmerged on 2026-11-17, so the draft and the mppx and mpp-go SDKs still use -32042 and -32043.",
+      "sources": [
+        "src-stripe-mpp-gh-issue-374",
+        "src-stripe-mpp-gh-pr-392",
+        "src-stripe-mpp-mppx-repo",
+        "src-stripe-mpp-mpp-go-repo"
+      ],
+      "confidence": "verified",
+      "topic": "governance",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-313",
+      "text": "At IETF 127 in San Francisco on 2026-11-20 the HTTP working group heard draft-nottingham-httpbis-402-00, an individual draft that would define only the meaning of status 402, with no new registries or headers. The author's slides list draft-httpauth-payment among current uses of 402, beside x402, h402 and L402, and propose clarifying that a client cannot assume a 402 means its own payment scheme.",
+      "sources": [
+        "src-orbit-httpbis-402-draft",
+        "src-orbit-httpbis-ietf127-402"
+      ],
+      "confidence": "verified",
+      "topic": "governance",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-314",
+      "text": "A show of hands at the HTTP working group's IETF 127 session of 2026-11-20 on interest in adopting draft-nottingham-httpbis-402-00 gave 15 yes, 3 no and 18 no opinion, with 75 people present.",
+      "sources": [
+        "src-orbit-httpbis-ietf127-402"
+      ],
+      "confidence": "verified",
+      "topic": "governance",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-315",
+      "text": "The MPP core draft did not change around IETF 127: on 2026-11-21 draft-httpauth-payment-01 (2026-09-09, expiring 2027-03-13) was still an individual submission with no Datatracker event since 2026-09-09.",
+      "sources": [
+        "src-stripe-mpp-ietf-current"
+      ],
+      "confidence": "verified",
+      "topic": "versions",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-stripe-mpp-316",
+      "text": "ERC-8004 defines agentWallet as the address where an agent receives payments and clears it when the agent is transferred, until the new owner sets it again. The mppx ERC-8004 provider also treats that wallet as the key that signs the agent's requests and pays, and it refuses an agent whose registry wallet is the zero address.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-stripe-mpp-mppx-pr-1304"
+      ],
+      "confidence": "verified",
+      "topic": "controls",
+      "asOf": "2026-11-21"
     }
   ]
 }

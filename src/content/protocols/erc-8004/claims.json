@@ -1392,7 +1392,7 @@
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-erc-8004-138",
@@ -2091,12 +2091,15 @@
     },
     {
       "id": "clm-erc-8004-206",
-      "text": "ERC-8226 requires EIP-165, EIP-712 and EIP-1271, defines IComplianceProvider and IAgentMandate, and assigns token compliance to a framework such as ERC-7943 or ERC-3643 and agent identity to a registry such as ERC-8004.",
+      "text": "ERC-8226 requires EIP-165, EIP-712 and EIP-1271. Since its rewrite of 2026-11-20 it defines three interfaces, IComplianceProvider, IAgentMandate and the optional IAgentExecutor, which before was a non-normative companion interface outside the specification. It assigns token compliance to a framework such as ERC-7943 or ERC-3643 and agent identity to a registry such as ERC-8004.",
       "sources": [
-        "src-erc-8226"
+        "src-erc-8226",
+        "src-orbit-erc-8226-pr-2191"
       ],
       "confidence": "verified",
-      "topic": "relations"
+      "topic": "relations",
+      "asOf": "2026-11-21",
+      "specVersion": "ERCS/erc-8226.md at 9912307 (2026-11-20)"
     },
     {
       "id": "clm-erc-8004-207",
@@ -2426,6 +2429,242 @@
       "confidence": "reported",
       "topic": "metrics",
       "asOf": "2026-11-14"
+    },
+    {
+      "id": "clm-erc-8004-238",
+      "text": "On 2026-11-20 ethereum/ERCs merged PR #2191, which rewrote ERC-8226 without changing its Draft status or its scope of tokenized regulated assets. A mandate is now keyed by agent, principal and target, the contract the agent calls, instead of agent, principal and asset (PR #2060, 2026-10-09). Its scope is a list of allowed actions with calldata constraints plus per-asset OUTFLOW and INFLOW limits, each with a per-transaction and a cumulative cap, that all the mandate's actions share.",
+      "sources": [
+        "src-orbit-erc-8226-pr-2191",
+        "src-erc-8226"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "specVersion": "ERCS/erc-8226.md at 9912307 (2026-11-20)",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-239",
+      "text": "On 2026-11-17 ethereum/ERCs merged PR #2181 for ERC-8048 (Onchain Metadata for Token Registries) and PR #2182 for ERC-8049 (Contract-Level Onchain Metadata), both Draft. ERC-8048's agent profile for ERC-721 tokens reserves the keys context, endpoint[<type>], address[<chain-id>] and account[<chain-id>][<index>], which must now be stored on-chain and must not appear in tokenURI JSON, where clients must ignore them. ERC-8049 applies the same rule to an ERC-20 contract.",
+      "sources": [
+        "src-erc-8004-erc-8048-pr-2181",
+        "src-erc-8004-erc-8049-pr-2182"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-240",
+      "text": "ERC-8048 explains its on-chain rule by saying that JSON can change without a MetadataSet event while clients act on these values, for example by sending funds to address[<chain-id>]. Its endpoint types are mcp, a2a, web, x402 and ens, and it describes web as aligned with ERC-8004's web service usage.",
+      "sources": [
+        "src-erc-8004-erc-8048-pr-2181"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-241",
+      "text": "An ERC-8004 registry is not an ERC-8048 implementation: it reads metadata with getMetadata, not metadata(uint256,string). ERC-8004 keeps service endpoints in the registration file, while its agentWallet is a reserved on-chain metadata key that can be set to a new address only with that wallet's signature (unsetAgentWallet or a token transfer clears it).",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-erc-8004-erc-8048-pr-2181"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-242",
+      "text": "ERC-8122 (Minimal Agent Registry, Draft) requires ERC-6909, ERC-7930, ERC-8048, ERC-8049 and ERC-8127 and stores all agent metadata on-chain through ERC-8048; on 2026-11-21 its text was still the one merged on 2026-02-24.",
+      "sources": [
+        "src-erc-8122"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-243",
+      "text": "On 2026-11-20, between 10:29:42Z and 10:30:43Z, the registry owner account 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603 upgraded the Identity, Reputation and Validation proxies on Neo X mainnet (chain 47763), a chain the contracts README does not list, from the 1.0.0 placeholder installed on 2026-10-21 to version 2.0.0. The Identity proxy points to the same implementation as on Base and the other two to different implementation addresses; no agent was registered on Neo X on 2026-11-21.",
+      "sources": [
+        "src-erc-8004-neox-explorer",
+        "src-erc-8004-chain-probe-2026-11-21",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified",
+      "topic": "observability",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-244",
+      "text": "A pull request to list the Neo X mainnet and Neo X T4 registries in the contracts README (#106, opened 2026-11-20 from the fork bane-labs/erc-8004-contracts) was open on 2026-11-21, as was a pull request of 2026-02-26 to list Flow EVM (#58), so the README still lists 25 mainnets.",
+      "sources": [
+        "src-erc-8004-contracts-pr-106",
+        "src-erc-8004-contracts-pr-58",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified",
+      "topic": "governance",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-245",
+      "text": "Read-only calls on 2026-11-21 found the same 2.0.0 registries under the same owner account on Flow EVM (chain 747), a chain the contracts README does not list, with the same three implementation addresses as Base and no agent registered.",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-11-21",
+        "src-erc-8004-contracts-pr-58"
+      ],
+      "confidence": "verified",
+      "topic": "observability",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-246",
+      "text": "8004scan's statistics API (mainnet view), read at 2026-11-21T07:04:55Z UTC, reported 2,137,737 registered agents, 898,568 feedback entries, 3,486,574 users, which its home page labels unique wallets, and 0 validations. That is 3.6%, 1.4% and 4.3% more than its 2026-11-14 reading of 2,062,896 agents, 885,869 feedback entries and 3,341,787 users; the home page showed the same figures and 29 networks.",
+      "sources": [
+        "src-8004scan-stats-api",
+        "src-8004scan"
+      ],
+      "confidence": "reported",
+      "topic": "metrics",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-247",
+      "text": "At the same reading 8004scan counted 1,124,484 agents on Base, 429,371 on Arc Mainnet, 388,228 on BSC, 37,011 on Ethereum and 30,445 on Optimism, against 1,091,461 on Base and 417,063 on Arc Mainnet on 2026-11-14. It listed 30 mainnet chains, 29 with a registry, and still left out 0G. Arc Mainnet was still not in the contracts README, where pull request #100 to add it was still open on 2026-11-21.",
+      "sources": [
+        "src-8004scan-stats-api",
+        "src-erc-8004-contracts-pr-100"
+      ],
+      "confidence": "reported",
+      "topic": "metrics",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-248",
+      "text": "A third, smaller Central City wave ran on Optimism. Its registry had issued ids up to 780 by 2026-11-14T00:00Z; ids 781 to 22,083 were minted on 2026-11-14 and 2026-11-15 (UTC), the highest id reached 25,901 on 2026-11-18, and a second, smaller rise from 2026-11-20 took it to 30,484 by 2026-11-21T07:05Z. Three independent random samples of ids in that range all point to Central City, each id with a different owner; a spot check found one Olas marketplace agent (id 22,084).",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-11-21"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-249",
+      "text": "Central City registrations also continued on Base and Arc: between the reads of 2026-11-14 and 2026-11-21 the highest Base agentId rose from 1,186,989 to 1,219,893, more than the Optimism rise over the same interval (5,598 to 30,328), and the highest Arc agentId from 417,132 to 429,353. The newest Base and Arc ids also point to centralcity.ai.",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-11-21",
+        "src-erc-8004-chain-probe-2026-11-14"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-250",
+      "text": "Central City's home page, read at 2026-11-21T07:05Z UTC, claims 1,549,572 Central City ERC-8004 agents on Base, Arc and Optimism, a figure it labels as last known, and 4,047,487 AI agents joined (vendor claims; it claimed 1,478,269 agents on 2026-11-14).",
+      "sources": [
+        "src-erc-8004-centralcity"
+      ],
+      "confidence": "reported",
+      "topic": "ecosystem",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-251",
+      "text": "0G's Identity Registry, which 8004scan does not index, had issued ids up to 3,941,278 on 2026-11-21, against 3,941,206 on 2026-11-14, so 8004scan's count plus 0G still exceeds 6 million registrations.",
+      "sources": [
+        "src-erc-8004-chain-probe-2026-11-21",
+        "src-8004scan-stats-api"
+      ],
+      "confidence": "verified",
+      "topic": "metrics",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-252",
+      "text": "wevm/mppx PR #1304 (merged 2026-11-16) added mppx/extensions/identity/erc8004, an ERC-8004 agent identity provider first published in mppx 0.20.0 (npm, 2026-11-16). Its client prover signs each request with the agent's wallet, as an EIP-191 message over the agent id, the method and URL, a created time and a nonce, and sends the Agent-Id and Agent-Signature headers.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-253",
+      "text": "The mppx server verifier reads getAgentWallet on the Identity Registry 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432, by default on Tempo mainnet (chain 4217), which the contracts README does not list. Other chains need a configured client or RPC URL, agents from another registry or chain are rejected, and an agent with no wallet is refused. A signature passes by EOA recovery or ERC-1271, stays valid for 300 seconds plus 60 seconds of clock tolerance, and is single-use only when a replay store is configured.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-erc-8004-contracts-readme"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-254",
+      "text": "The mppx payment check counts a tempo charge as proof of the agent when its transaction or proof credential names the agent's wallet as source. With no credential, and for hash credentials, sessions, Zones and other methods, it requires the agent's request signature instead. An optional allow hook applies the server operator's own policy; mppx does not read the Reputation or Validation registries.",
+      "sources": [
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-255",
+      "text": "The ERC-8004 provider is an mppx SDK feature, not part of ERC-8004 or of any MPP draft. No MPP draft specifies an ERC-8004 integration or the Agent-Id and Agent-Signature headers, and the payment discovery draft only cites ERC-8004 (mpp-specs 7bb99c8, searched 2026-11-21).",
+      "sources": [
+        "src-mpp-discovery-draft",
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-erc-8004-spec"
+      ],
+      "confidence": "verified",
+      "topic": "relations",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-256",
+      "text": "ERC-8004 defines agentWallet as the address where the agent receives payments; mppx also uses it as the account that signs the agent's requests and pays. Because a token transfer clears agentWallet, the mppx verifier refuses a transferred agent until the new owner binds a wallet again.",
+      "sources": [
+        "src-erc-8004-spec",
+        "src-stripe-mpp-mppx-pr-1304"
+      ],
+      "confidence": "verified",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-erc-8004-257",
+      "text": "An mppx pull request opened on 2026-11-19 (#1332) and still open on 2026-11-21 would bind ERC-8004 verification to a configured origin; its author says a relayed signature can authenticate at another service when the request URL comes from an attacker-controlled Host. mppx 0.21.0 (2026-11-19) added optional exact host allowlists to its Express and Node adapters.",
+      "sources": [
+        "src-erc-8004-mppx-pr-1332",
+        "src-stripe-mpp-mppx-changelog"
+      ],
+      "confidence": "reported",
+      "topic": "security",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-258",
+      "text": "MPP's identity playground on mpp.dev has an ERC-8004 sample with a shared MPP Demo Agent, ERC-8004 agent 1086 on the Moderato testnet registry, that anyone may sign as (tempoxyz/mpp PR #1256, merged 2026-11-18; registration file read 2026-11-21).",
+      "sources": [
+        "src-erc-8004-mpp-demo-agent"
+      ],
+      "confidence": "verified",
+      "topic": "ecosystem",
+      "asOf": "2026-11-21"
+    },
+    {
+      "id": "clm-erc-8004-259",
+      "text": "Circle's blog post of 2026-11-13 presents Anduin, research (arXiv 2611.05586) that rates x402 service providers from the payment graph, so that looking trusted to an agent costs real payments at the services that agent already uses. Circle reports that on 66 million x402 payments Anduin recommends providers about as accurately as collaborative filtering while being about 23 times more expensive to manipulate in the tested attack, and that fewer than 4,000 voluntary on-chain ratings, such as ERC-8004 feedback, were recorded across those payments.",
+      "sources": [
+        "src-orbit-circle-anduin"
+      ],
+      "confidence": "reported",
+      "topic": "security",
+      "asOf": "2026-11-13"
     }
   ]
 }

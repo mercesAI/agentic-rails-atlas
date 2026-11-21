@@ -1,7 +1,7 @@
 ---
 protocol: ap2
 title: AP2 in Simplified Technical English
-lastVerified: "2026-10-21"
+lastVerified: "2026-11-21"
 ---
 
 <SteDescription>
@@ -41,10 +41,11 @@ DO NOT APPROVE AN OPEN MANDATE WITH A LONG EXPIRY TIME. YOU CANNOT CANCEL AN OPE
 2. When the agent sends a Checkout Mandate, verify the signature chain.
 3. Calculate the hash of your latest signed checkout.
 4. Make sure that this hash is equal to the checkout_hash value.
-5. If the agent also sends an open mandate, examine each constraint.
-6. If you do not know a constraint type, reject the mandate.
-7. If a check fails, send a Checkout Receipt with the error code.
-8. If all checks are correct, complete the checkout and send a Checkout Receipt.
+5. If you use the AP2 Python SDK, give this hash to the verify function as expected_checkout_hash.
+6. If the agent also sends an open mandate, examine each constraint.
+7. If you do not know a constraint type, reject the mandate.
+8. If a check fails, send a Checkout Receipt with the error code.
+9. If all checks are correct, complete the checkout and send a Checkout Receipt.
 
 </SteProcedure>
 
@@ -79,7 +80,7 @@ The errors invalid_credential and invalid_mandate stop the purchase. The errors 
 </SteNote>
 
 <SteNote>
-No independent source shows that a company uses AP2 mandates in production. One company says that it uses AP2 version 0.2. Nobody verified this statement. This is correct on 2026-10-21.
+On 2026-11-17, Google said that Gemini uses AP2 to buy items for users. Google does not show the mandates, the signer or the verifier. No source shows AP2 mandates in a UCP checkout. One other company says that it uses AP2 version 0.2. Nobody verified this statement. This is correct on 2026-11-21.
 </SteNote>
 
 <SteTerms>

@@ -51,12 +51,39 @@
     },
     {
       "q": "Is AP2 live in Gemini or in UCP?",
-      "a": "Not verifiably. UCP specifies an AP2 extension and Google said in May 2026 it would bring AP2 to its products, but no primary source shows production use anywhere.",
+      "a": "In Gemini, Google says yes: since 2026-11-17 Gemini has used AP2 for purchases made with its new Google Pay checkout in Tasks in Gemini, for US users aged 18 and over. Google has published no AP2 version, mandate types, signer or verifier, so the details cannot be checked. Inside UCP, no source shows it: Google's UCP platform profiles declare no AP2 extension, and Google calls integrating UCP into Gemini its next step.",
       "misconception": true,
       "claimIds": [
-        "clm-ap2-139",
-        "clm-ap2-169",
-        "clm-ap2-106"
+        "clm-ap2-219",
+        "clm-ap2-221",
+        "clm-ap2-224",
+        "clm-ap2-139"
+      ]
+    },
+    {
+      "q": "Is Tasks in Gemini the same product as Gemini Spark?",
+      "a": "Yes. Google's Gemini help center says Spark, tested in beta since May, was renamed Task. Google's 2026-05-19 promise to bring AP2 to its products starting with Gemini Spark and its 2026-11-17 statement that Gemini uses AP2 concern the same product.",
+      "misconception": false,
+      "claimIds": [
+        "clm-ap2-223",
+        "clm-ap2-169"
+      ]
+    },
+    {
+      "q": "Do the Mastercard and Visa tokens in Gemini purchases mean Agent Pay or Verifiable Intent?",
+      "a": "No source says so. Google names American Express (coming soon), Mastercard and Visa for digital tokens on supported cards, but its post names no network program and does not say that the tokens or the networks take part in AP2.",
+      "misconception": true,
+      "claimIds": [
+        "clm-ap2-220"
+      ]
+    },
+    {
+      "q": "Does the AP2 Python SDK compare checkout_hash for me?",
+      "a": "Not by default. At commit e1ea56d, CheckoutMandateChain.verify() compares checkout_hash only when you pass expected_checkout_hash, and PaymentMandateChain.verify() compares transaction_id only when you pass expected_transaction_id. Compute both hashes from the checkout_jwt you hold and pass them. A third-party fix for the checkout side (PR 400) was open on 2026-11-21.",
+      "misconception": true,
+      "claimIds": [
+        "clm-ap2-226",
+        "clm-ap2-227"
       ]
     },
     {

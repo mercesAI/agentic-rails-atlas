@@ -433,11 +433,13 @@
     {
       "protocol": "erc-8004",
       "dimension": "composes-with",
-      "value": "x402 (x402Support, agentWallet, proofOfPayment); MPP discovery draft cites it; AP2 indirectly via A2A",
+      "value": "x402 (x402Support, agentWallet, proofOfPayment); MPP: the discovery draft cites it and the mppx SDK (0.20.0 and later) can authenticate an ERC-8004 agent; AP2 indirectly via A2A",
+      "detail": "The mppx identity provider (2026-11-16) is an SDK feature, not part of ERC-8004 or of an MPP draft.",
       "sources": [
         "src-erc-8004-spec",
         "src-mpp-discovery-draft",
-        "src-ap2-glossary"
+        "src-ap2-glossary",
+        "src-stripe-mpp-mppx-pr-1304"
       ],
       "confidence": "verified"
     },
@@ -461,13 +463,14 @@
       "protocol": "erc-8004",
       "dimension": "adoption-evidence",
       "value": "Many registrations, few live agents",
-      "detail": "2,062,896 agent ids on 8004scan on 2026-11-14 (699,098 on 2026-10-18), almost all of the growth from one platform's batch registrations on Base and Arc, plus about 3.94 million ids on 0G that 8004scan does not index; against 3% to 15% live in arXiv:2606.26028 (data to 2026-05-13). Count is not quality.",
+      "detail": "2,137,737 agent ids on 8004scan on 2026-11-21 (2,062,896 on 2026-11-14 and 699,098 on 2026-10-18), almost all of the growth from one platform's batch registrations on Base, Arc and, since 2026-11-14, Optimism, plus about 3.94 million ids on 0G that 8004scan does not index; against 3% to 15% live in arXiv:2606.26028 (data to 2026-05-13). Count is not quality.",
       "sources": [
         "src-8004scan",
         "src-8004scan-stats-api",
         "src-pub-2606-26028",
         "src-csoai-census",
-        "src-erc-8004-chain-probe-2026-11-14"
+        "src-erc-8004-chain-probe-2026-11-14",
+        "src-erc-8004-chain-probe-2026-11-21"
       ],
       "confidence": "reported"
     },
@@ -578,8 +581,8 @@
     {
       "protocol": "x402",
       "dimension": "latest-version-and-date",
-      "value": "Spec v2.0 (2025-12-09); @x402/core 2.31.0 (2026-11-12)",
-      "detail": "V2 launched 2025-12-11; the specification version has not changed since, while the SDKs release about weekly (as of 2026-11-14).",
+      "value": "Spec v2.0 (2025-12-09); @x402/core 2.32.0 (2026-11-20)",
+      "detail": "V2 launched 2025-12-11; the specification version has not changed since, while the SDKs release about weekly (as of 2026-11-21).",
       "sources": [
         "src-x402-spec-v2",
         "src-x402-npm-core",
@@ -615,13 +618,15 @@
     {
       "protocol": "x402",
       "dimension": "settlement-rails",
-      "value": "EVM chains, Solana, Lightning and other CAIP-2 networks; credit-backed cloudflare:402",
+      "value": "EVM chains, Solana, Lightning and other CAIP-2 networks; credit-backed cloudflare:402; outside the spec, AWS's own aws:base binding settles x402 purchases in US dollars on the AWS bill (since 2026-11-19)",
       "detail": "Fiat ids such as ach:us appear only as examples of the id format.",
       "sources": [
         "src-x402-spec-v2",
         "src-x402-docs-networks",
         "src-x402-scheme-batch-cf",
-        "src-x402-scheme-exact-lnbtc"
+        "src-x402-scheme-exact-lnbtc",
+        "src-x402-aws-agentcore-process-payment",
+        "src-x402-aws-fiat-extension"
       ],
       "confidence": "verified"
     },
@@ -741,13 +746,14 @@
       "protocol": "x402",
       "dimension": "refunds-and-disputes",
       "value": "No refunds in exact; no dispute process",
-      "detail": "auth-capture refunds captured funds; batch-settlement channels and Solana upto return unused escrow; third-party x402r adds refunds and arbitration.",
+      "detail": "auth-capture refunds captured funds; batch-settlement channels and Solana upto return unused escrow; third-party x402r adds refunds and arbitration. AWS Marketplace refunds aws:base sales as billing adjustments on invoices.",
       "sources": [
         "src-x402-scheme-exact",
         "src-x402-scheme-auth-capture",
         "src-x402-scheme-batch-evm",
         "src-x402-scheme-upto-svm",
-        "src-x402-docs-devtools"
+        "src-x402-docs-devtools",
+        "src-x402-aws-marketplace-seller-guide"
       ],
       "confidence": "verified"
     },
@@ -792,12 +798,15 @@
       "protocol": "x402",
       "dimension": "decentralization",
       "value": "Open and permissionless, concentrated in practice",
-      "detail": "In x402scan figures reported on 2026-07-21, Coinbase's facilitator carried about half of transactions and two thirds of volume. From 2025-09-17 to 2026-06-23 one facilitator held 63.54 percent of Base settlements and another 67.72 percent of Solana's.",
+      "detail": "In x402scan figures reported on 2026-07-21, Coinbase's facilitator carried about half of transactions and two thirds of volume. From 2025-09-17 to 2026-06-23 one facilitator held 63.54 percent of Base settlements and another 67.72 percent of Solana's. Cloudflare's gateway and AWS WAF's AI traffic monetization both settle through Coinbase's facilitator, while Tempo has run its own facilitator since 2026-11-19.",
       "sources": [
         "src-x402-docs-facilitator-concept",
         "src-x402-cdp-welcome",
         "src-x402-arxiv-2607-19545",
-        "src-x402-arxiv-2607-12575"
+        "src-x402-arxiv-2607-12575",
+        "src-x402-cf-mg-beta",
+        "src-x402-aws-waf-docs",
+        "src-stripe-mpp-tempo-x402-facilitator"
       ],
       "confidence": "reported"
     },
@@ -817,11 +826,12 @@
       "protocol": "x402",
       "dimension": "fees-and-who-pays-them",
       "value": "No protocol fee; facilitator fee plus gas",
-      "detail": "CDP: 1,000 free on-chain transactions a month, then $0.001 each; verification free (as of 2026-10-11). The facilitator pays gas on the EVM exact path and as Solana fee payer.",
+      "detail": "CDP: 1,000 free on-chain transactions a month, then $0.001 each; verification free (as of 2026-10-11). The facilitator pays gas on the EVM exact path and as Solana fee payer. AWS Marketplace takes its 3 percent SaaS listing fee on aws:base sales (as of 2026-11-21).",
       "sources": [
         "src-x402-fee-cdp",
         "src-x402-scheme-exact-evm",
-        "src-x402-scheme-exact-svm"
+        "src-x402-scheme-exact-svm",
+        "src-x402-aws-marketplace-listing-fees"
       ],
       "confidence": "verified"
     },
@@ -872,7 +882,7 @@
     {
       "protocol": "x402",
       "dimension": "reference-implementations-and-sdks",
-      "value": "@x402 TypeScript 2.31.0, PyPI x402 2.28.0, Go module v2.31.0 (versions on 2026-11-14)",
+      "value": "@x402 TypeScript 2.32.0, PyPI x402 2.29.0, Go module v2.32.0 (versions on 2026-11-21)",
       "detail": "Java is in the repository but unpublished. The deprecated legacy V1 npm package x402 (1.2.0, no release since 2026-04-16) still had 2.63M downloads in the 30 days to 2026-11-13, and its middleware had an open paywall bypass.",
       "sources": [
         "src-x402-npm-core",
@@ -889,7 +899,7 @@
       "protocol": "x402",
       "dimension": "adoption-evidence",
       "value": "Real but contested",
-      "detail": "Trackers disagree, each by its own method: x402scan counted about $1.89M and 4.93M transactions in the 30 days to 2026-11-14, while agenteconomy.to counted about 200.2M cumulative transactions and $43.0M (2026-11-14). Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21). The x402.org counter, unchanged at 75.41M transactions and $24.24M from 2025-12-14 to 2026-10-24, was removed by 2026-11-14.",
+      "detail": "Trackers disagree, each by its own method: x402scan counted about $1.89M and 4.93M transactions in the 30 days to 2026-11-14, while agenteconomy.to counted about 200.2M cumulative transactions and $43.0M (2026-11-14). Visa and Artemis adjusted cumulative activity to about $15.0M across 109.6M transactions (data to 2026-04-21). The x402.org counter, unchanged at 75.41M transactions and $24.24M from 2025-12-14 to 2026-10-24, was removed by 2026-11-14. A Solana Foundation talk on 2026-11-17 was reported claiming more than 400 million payments and $100 million since launch (self-reported).",
       "sources": [
         "src-x402scan-stats-20261114",
         "src-x402-agenteconomy-stats",
@@ -897,15 +907,17 @@
         "src-x402-site-wb-20251214",
         "src-x402-site-wb-20261024",
         "src-x402-visa-artemis-report",
-        "src-x402-arxiv-2607-12575"
+        "src-x402-arxiv-2607-12575",
+        "src-x402-breakpoint-decrypt",
+        "src-x402-breakpoint-cryptobriefing"
       ],
       "confidence": "reported"
     },
     {
       "protocol": "x402",
       "dimension": "published-security-research",
-      "value": "Yes: six 2026 papers, a 25-finding industry review (V12, 2026-10-22), two high-severity maintainer advisories and one CVE (CVE-2026-113603, medium, 2026-10-20)",
-      "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis; GHSA-3j63-5h8p-gf7c and GHSA-qr2g-p6q7-w82m have no CVE id, while CVE-2026-113603 came from a third-party CNA for a sign-in-with-x bypass whose fix was unmerged on 2026-11-14.",
+      "value": "Yes: eight 2026 papers, a 25-finding industry review (V12, 2026-10-22), three maintainer advisories (two high, one medium) and one CVE (CVE-2026-113603, medium, 2026-10-20)",
+      "detail": "Five attacks, free-riding flaws, facilitator risks, A402, PII leakage, formal analysis, the authority gap between mandates and wallet signatures, and wallet-side authority closure. GHSA-3j63-5h8p-gf7c, GHSA-qr2g-p6q7-w82m and GHSA-5cgh-j82v-jvrj (2026-11-18, batch-settlement vouchers) have no CVE id, while CVE-2026-113603 came from a third-party CNA for a sign-in-with-x bypass whose fix was unmerged on 2026-11-21.",
       "sources": [
         "src-x402-arxiv-2605-11781",
         "src-x402-arxiv-2605-30998",
@@ -917,7 +929,10 @@
         "src-x402-ghsa-2026",
         "src-x402-v12-25-vulns",
         "src-x402-cve-2026-113603",
-        "src-x402-gh-pr-3840"
+        "src-x402-gh-pr-3840",
+        "src-x402-arxiv-2611-25821",
+        "src-x402-arxiv-2611-24989",
+        "src-x402-ghsa-5cgh"
       ],
       "confidence": "verified"
     },
@@ -1279,11 +1294,12 @@
       "protocol": "visa-tap",
       "dimension": "adoption-evidence",
       "value": "Four merchants named live (2026-07-02); a live business-to-business invoice pilot with BILL and Billtrust (2026-10-20); Cloudflare and Akamai at the edge",
-      "detail": "No count of verifying merchants or of pilot transactions published (Visa newsroom and developer pages, 2026-11-14).",
+      "detail": "No count of verifying merchants or of pilot transactions published (Visa newsroom and developer pages, 2026-11-21). Visa's Agentic Ready acceptance phase (2026-11-17) counts more than 140 participants testing readiness, not TAP verifiers.",
       "sources": [
         "src-visa-eu-live",
         "src-visa-bill-billtrust",
-        "src-akamai-pr"
+        "src-akamai-pr",
+        "src-visa-tap-agentic-ready-acceptance"
       ],
       "confidence": "verified"
     },
@@ -1394,7 +1410,7 @@
       "protocol": "openai-acp",
       "dimension": "latest-version-and-date",
       "value": "2026-04-17 (dated folder)",
-      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18, none through 2026-11-14.",
+      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18, none through 2026-11-21.",
       "sources": [
         "src-openai-acp-changelog-20260417",
         "src-openai-acp-gh-commits",
@@ -1406,7 +1422,7 @@
       "protocol": "openai-acp",
       "dimension": "maturity",
       "value": "Beta spec, Draft RFCs; deployed for feeds in ChatGPT",
-      "detail": "2025 in-chat checkout scaled back in March 2026; external checkout from ChatGPT plugins generally available; payment sheet in private beta. OpenAI's developer docs, rewritten on 2026-11-13, no longer describe ACP, and ChatGPT Wallet (2026-11-13) pays on merchant checkouts outside ACP; no commit since 2026-07-18 (as of 2026-11-14).",
+      "detail": "2025 in-chat checkout scaled back in March 2026; external checkout from ChatGPT plugins generally available; payment sheet in private beta. OpenAI's developer docs, rewritten on 2026-11-13, no longer describe ACP, and ChatGPT Wallet (2026-11-13) pays on merchant checkouts outside ACP; no commit since 2026-07-18 (as of 2026-11-21).",
       "sources": [
         "src-openai-acp-readme",
         "src-openai-product-discovery",
@@ -1480,11 +1496,12 @@
       "protocol": "openai-acp",
       "dimension": "merchant-of-record",
       "value": "The merchant",
-      "detail": "OpenAI and PSPs are not merchant of record, as OpenAI's ACP docs said until 2026-11-13; for ChatGPT Wallet purchases OpenAI says the business handles the order, fulfillment, support and fraud decisions (2026-11-14).",
+      "detail": "OpenAI and PSPs are not merchant of record, as OpenAI's ACP docs said until 2026-11-13; for ChatGPT Wallet purchases OpenAI says the business handles the order, fulfillment, support and fraud decisions, and the Wallet terms (effective 2026-11-12) make the merchant the seller and merchant of record (2026-11-21).",
       "sources": [
         "src-openai-commerce-docs",
         "src-openai-acp-readme",
-        "src-openai-commerce-accept-payments"
+        "src-openai-commerce-accept-payments",
+        "src-orbit-chatgpt-wallet-terms"
       ],
       "confidence": "verified"
     },
@@ -1548,7 +1565,7 @@
       "protocol": "openai-acp",
       "dimension": "refunds-and-disputes",
       "value": "Merchant handles refunds and chargebacks; order adjustments report refund, return, dispute",
-      "detail": "No dispute protocol; a community dispute-resolution SEP (PR 316) awaits a sponsor (2026-11-14).",
+      "detail": "No dispute protocol; a community dispute-resolution SEP (PR 316) awaits a sponsor (2026-11-21).",
       "sources": [
         "src-openai-acp-schema-checkout-20260417",
         "src-openai-commerce-docs",
@@ -1689,7 +1706,7 @@
       "protocol": "openai-acp",
       "dimension": "adoption-evidence",
       "value": "Named partners, no volume data",
-      "detail": "Seven retailers for discovery; Target, Walmart and Etsy apps in ChatGPT; Copilot and PayPal announcements; ACP integration docs from Checkout.com, Worldpay and PayPal (2026-11-14); no GMV published. Meta's own agent Muse documents no ACP use.",
+      "detail": "Seven retailers for discovery; Target, Walmart and Etsy apps in ChatGPT, and an Instacart app whose in-chat checkout OpenAI said on 2025-12-08 was powered by ACP (status unknown); Copilot and PayPal announcements; ACP integration docs from Checkout.com, Worldpay and PayPal (2026-11-14); no GMV published. Meta's own agent Muse documents no ACP use.",
       "sources": [
         "src-openai-product-discovery",
         "src-openai-target-partnership",
@@ -1699,7 +1716,8 @@
         "src-openai-acp-checkout-com-docs",
         "src-openai-acp-worldpay-acp",
         "src-openai-acp-paypal-agent-ready",
-        "src-openai-acp-meta-muse"
+        "src-openai-acp-meta-muse",
+        "src-openai-acp-instacart-post"
       ],
       "confidence": "verified"
     },
@@ -1707,12 +1725,13 @@
       "protocol": "openai-acp",
       "dimension": "published-security-research",
       "value": "Little: one formal model covering ACP among four protocols",
-      "detail": "No CVEs or advisories (GitHub advisory APIs 2026-11-14; NVD keyword search 2026-10-20); an audit-trail critique.",
+      "detail": "No CVEs or advisories (GitHub repository advisory API 2026-11-21; NVD keyword search 2026-10-20); an audit-trail critique; a community security review of request signing filed as issue 331 (2026-11-20), not an advisory.",
       "sources": [
         "src-arxiv-2609-00060",
         "src-openai-acp-gh-advisories",
         "src-nvd-acp-search",
-        "src-arxiv-2607-19436"
+        "src-arxiv-2607-19436",
+        "src-openai-acp-gh-issue-331"
       ],
       "confidence": "verified"
     },
@@ -1733,13 +1752,14 @@
       "protocol": "openai-acp",
       "dimension": "biggest-open-question",
       "value": "Does ACP checkout still run anywhere besides ChatGPT's marketplace payment sheet, and who else runs it in production?",
-      "detail": "No source answers it as of 2026-11-14: OpenAI's merchant page says ChatGPT shopping is built on ACP, but its rewritten commerce docs and ChatGPT Wallet do not mention ACP.",
+      "detail": "No source answers it as of 2026-11-21: OpenAI's merchant page says ChatGPT shopping is built on ACP, but its rewritten commerce docs and ChatGPT Wallet do not mention ACP, and no 2026 source says whether the Instacart checkout that OpenAI said on 2025-12-08 was powered by ACP still runs.",
       "sources": [
         "src-openai-product-discovery",
         "src-ms-agentic-commerce",
         "src-chatgpt-merchants",
         "src-openai-commerce-playbook",
-        "src-openai-chatgpt-wallet"
+        "src-openai-chatgpt-wallet",
+        "src-openai-acp-instacart-post"
       ],
       "confidence": "verified"
     },
@@ -1812,7 +1832,7 @@
       "protocol": "ucp",
       "dimension": "latest-version-and-date",
       "value": "v2026-08-25 (2026-08-25)",
-      "detail": "As of 2026-11-14. The release branch gained the Ask capability by backport on 2026-11-02 (served as 2026-08-25, not in the git tag); main carries drafts; SDKs 0.5.x match it.",
+      "detail": "As of 2026-11-21. The release branch gained the Ask capability by backport on 2026-11-02 (served as 2026-08-25, not in the git tag); main carries drafts; SDKs 0.5.x match it.",
       "sources": [
         "src-ucp-gh-releases",
         "src-ucp-js-sdk-readme",
@@ -1824,7 +1844,7 @@
       "protocol": "ucp",
       "dimension": "maturity",
       "value": "Live on Google AI Mode and Gemini in the US since 2026-02-11 and in Canada since 2026-11-04",
-      "detail": "Four dated releases; AP2 extension live use unverified.",
+      "detail": "Four dated releases; live use of the AP2 extension inside UCP unverified.",
       "sources": [
         "src-ucp-google-feb2026",
         "src-ucp-google-canada",
@@ -2081,8 +2101,8 @@
     {
       "protocol": "ucp",
       "dimension": "adoption-evidence",
-      "value": "Live Google checkout in the US (Etsy and Wayfair since 2026-02-11; Target, Walmart, Nike, Sephora, Ulta Beauty and Shopify merchants named by Google on 2026-10-15) and in Canada since 2026-11-04 (lululemon, select Shopify merchants, Shoppers Drug Mart, Simons); Shopify says Ask is live across its storefronts, which serve 2026-08-25 profiles over MCP; 21 co-developers, 51 endorsers; no exact merchant count",
-      "detail": "As of 2026-11-14 (co-developer and endorser counts as of 2026-10-20). Google's own figure: hundreds of thousands of brands and retailers (2026-09-16, undefined); no volume published; AP2 inside UCP unverified.",
+      "value": "Live Google checkout in the US (Etsy and Wayfair since 2026-02-11; Target, Walmart, Nike, Sephora, Ulta Beauty and Shopify merchants named by Google on 2026-10-15) and in Canada since 2026-11-04 (lululemon, select Shopify merchants, Shoppers Drug Mart, Simons); grocery Connected Apps powered by UCP in the US from 2026-11-20 (Albertsons, Safeway, Shaw's, Target); Shopify says Ask is live across its storefronts, which serve 2026-08-25 profiles over MCP; 21 co-developers, 51 endorsers; no exact merchant count",
+      "detail": "As of 2026-11-21 (co-developer and endorser counts re-read 2026-11-21). Google's own figure: hundreds of thousands of brands and retailers (2026-09-16, undefined); no volume published; AP2 inside UCP unverified.",
       "sources": [
         "src-ucp-google-feb2026",
         "src-ucp-google-universal-cart-launch",
@@ -2091,7 +2111,8 @@
         "src-ucp-shopify-help-google",
         "src-ucp-stc-minutes-20261106",
         "src-ucp-allbirds-profile",
-        "src-ucp-site"
+        "src-ucp-site",
+        "src-ucp-google-connected-apps-20261120"
       ],
       "confidence": "verified"
     },
@@ -2169,7 +2190,7 @@
       "protocol": "stripe-mpp",
       "dimension": "governance-model",
       "value": "Core as an individual IETF draft; methods by rails; no foundation",
-      "detail": "No working group, charter or steering committee in the IETF record or the MPP repositories (2026-11-14). Tempo maintainers decide which methods enter the official spec repository, and one of them owns review of every spec file.",
+      "detail": "No working group, charter or steering committee in the IETF record or the MPP repositories (2026-11-21). Tempo maintainers decide which methods enter the official spec repository, and one of them owns review of every spec file.",
       "sources": [
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-governance",
@@ -2205,13 +2226,14 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "latest-version-and-date",
-      "value": "draft-httpauth-payment-01 (posted 2026-09-09; repository text edited in place 2026-11-11); mppx 0.19.0 (2026-11-14)",
-      "detail": "Latest as of 2026-11-14. paymentauth.org serves the 2026-11-11 text under the same name, so it differs from the IETF copy. Old name draft-ryan-httpauth-payment expired 2026-09-18.",
+      "value": "draft-httpauth-payment-01 (posted 2026-09-09; repository text edited in place 2026-11-11); mppx 0.21.1 (2026-11-19)",
+      "detail": "Latest as of 2026-11-21. paymentauth.org serves the 2026-11-11 text under the same name, so it differs from the IETF copy. Old name draft-ryan-httpauth-payment expired 2026-09-18.",
       "sources": [
         "src-stripe-mpp-ietf-current",
         "src-stripe-mpp-ietf-ryan",
         "src-stripe-mpp-paymentauth-01-txt",
-        "src-stripe-mpp-npm-mppx"
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-mppx-changelog"
       ],
       "confidence": "verified"
     },
@@ -2232,11 +2254,14 @@
       "protocol": "stripe-mpp",
       "dimension": "transports",
       "value": "HTTP authentication headers; JSON-RPC and MCP; SSE receipts",
-      "detail": "MCP error -32042 and _meta credential and receipt.",
+      "detail": "MCP error -32042 and _meta credential and receipt. -32042 means URL elicitation required in MCP 2025-11-25 and falls in the range MCP 2026-07-28 reserves; a pull request proposing a fix closed unmerged on 2026-11-17.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-mcp-transport",
-        "src-stripe-mpp-tempo-session"
+        "src-stripe-mpp-tempo-session",
+        "src-stripe-mpp-mcp-schema-2025-11-25",
+        "src-stripe-mpp-mcp-error-codes-2026-07-28",
+        "src-stripe-mpp-gh-pr-392"
       ],
       "confidence": "verified"
     },
@@ -2255,13 +2280,14 @@
       "protocol": "stripe-mpp",
       "dimension": "agent-identity-model",
       "value": "None in the core; per-route identity verifiers in the mppx SDK",
-      "detail": "Optional DID source. Since 2026-11-11 the core's repository text sets rules for combining Payment with other authentication but defines none. mppx verifiers (since 0.16.0, replacing request attestation) cover Web Bot Auth, TAP, Email OTP, Link, Persona, World ID and Tempo ID; TAP headers are optional in the card method.",
+      "detail": "Optional DID source. Since 2026-11-11 the core's repository text sets rules for combining Payment with other authentication but defines none. mppx verifiers (since 0.16.0, replacing request attestation) cover Web Bot Auth, TAP, Email OTP, Link, Persona, World ID and Tempo ID, plus Personal Agent Protocol (Poppy) sessions since 0.19.1 and ERC-8004 agents since 0.20.0 (2026-11-16); TAP headers are optional in the card method.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-blog-identity",
         "src-stripe-mpp-mppx-changelog",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-mppx-pr-1304"
       ],
       "confidence": "verified"
     },
@@ -2413,7 +2439,7 @@
       "protocol": "stripe-mpp",
       "dimension": "decentralization",
       "value": "Open spec, concentrated authorship",
-      "detail": "Five core authors from two companies; one Tempo maintainer owns review of every spec file; Tempo validators are permissioned; 136 of 139 directory listings accept Tempo (2026-11-14).",
+      "detail": "Five core authors from two companies; one Tempo maintainer owns review of every spec file; Tempo validators are permissioned; 139 of 142 directory listings accept Tempo (2026-11-21).",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-specs-agents-md",
@@ -2475,8 +2501,8 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "composes-with",
-      "value": "x402, Stripe SPT (also used by ACP), Visa TAP and VIC",
-      "detail": "AP2 complementary with no cross-reference. Mastercard AP4M is not a composition: Tempo said in Mastercard's 2026-06-10 release that it is working on MPP compatibility, and Mastercard's 2026-10-20 Early Access brief builds AP4M on x402 and names no MPP. The UCP and ERC-8004 repositories never mention MPP; MPP's discovery draft compares itself with ERC-8004 and calls itself compatible with future on-chain anchoring.",
+      "value": "x402, Stripe SPT (also used by ACP), Visa TAP and VIC; ERC-8004 through an mppx identity provider",
+      "detail": "AP2 complementary with no cross-reference. Mastercard AP4M is not a composition: Tempo said in Mastercard's 2026-06-10 release that it is working on MPP compatibility, and Mastercard's 2026-10-20 Early Access brief builds AP4M on x402 and names no MPP. The UCP and ERC-8004 repositories never mention MPP, and MPP's discovery draft only cites ERC-8004; since 2026-11-16 the mppx SDK ships an ERC-8004 identity provider that no MPP draft specifies. Tempo has also run an x402 facilitator since 2026-11-19.",
       "sources": [
         "src-stripe-mpp-vs-x402",
         "src-stripe-mpp-stripe-charge",
@@ -2485,21 +2511,24 @@
         "src-mcap-ap4m-2026",
         "src-stripe-mpp-mc-ap4m-early-access",
         "src-stripe-mpp-ucp-repo",
-        "src-stripe-mpp-discovery"
+        "src-stripe-mpp-discovery",
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-stripe-mpp-tempo-x402-facilitator"
       ],
       "confidence": "verified"
     },
     {
       "protocol": "stripe-mpp",
       "dimension": "reference-implementations-and-sdks",
-      "value": "mppx 0.19.0 (TypeScript, 2026-11-14), pympp, Rust mpp, mpp-go, mpp-rb, Visa mpp-card",
+      "value": "mppx 0.21.1 (TypeScript, 2026-11-19), pympp 0.26.0, Rust mpp 0.21.0, mpp-go v0.9.1, mpp-rb, Visa mpp-card",
       "detail": "mppx is the reference SDK that settles what the drafts leave open, and the mppx, mpp-rs, pympp and mpp-go SDKs take no outside pull requests (2026-11-14). Community SDKs in Elixir, Go and Swift.",
       "sources": [
         "src-stripe-mpp-npm-mppx",
         "src-stripe-mpp-sdk-registries",
         "src-stripe-mpp-sdk-index",
         "src-stripe-mpp-specs-agents-md",
-        "src-stripe-mpp-specs-contributing-2026"
+        "src-stripe-mpp-specs-contributing-2026",
+        "src-stripe-mpp-mppx-changelog"
       ],
       "confidence": "verified"
     },
@@ -2507,7 +2536,7 @@
       "protocol": "stripe-mpp",
       "dimension": "adoption-evidence",
       "value": "Live but small and mostly Tempo",
-      "detail": "MPPscan on 2026-10-21: 4,250,945 transactions and 437,665 USD all time, 8,620 USD in the previous 30 days. MPPscan on 2026-11-14: 4,693,132 transactions and 445,223 USD all time, with no transaction indexed after 2026-11-11, so its recent windows lag. Directory: 139 services, 136 accepting Tempo (2026-11-14).",
+      "detail": "MPPscan on 2026-10-21: 4,250,945 transactions and 437,665 USD all time, 8,620 USD in the previous 30 days. MPPscan on 2026-11-14 and again on 2026-11-21: 4,693,132 transactions and 445,223 USD all time, with no transaction indexed after 2026-11-11, so its recent windows lag. Directory: 142 services, 139 accepting Tempo (2026-11-21).",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api"
@@ -2517,14 +2546,16 @@
     {
       "protocol": "stripe-mpp",
       "dimension": "published-security-research",
-      "value": "Yes: one formal analysis, one SoK that includes MPP, and nine SDK advisories (unchanged on 2026-11-14)",
-      "detail": "Tamarin models in arXiv:2609.00060 (12 new and 9 known MPP cases); SoK arXiv:2604.15367. Advisories, all fixed: mppx GHSA-8x4m-qw58-3pcx, CVE-2026-34209, CVE-2026-34210, CVE-2026-63627 and CVE-2026-63628; Rust mpp GHSA-fxc9-7j2w-vx54 and GHSA-8xhq-x7vw-8rcw; pympp CVE-2026-63634 and GHSA-5r9p-36vq-j23h.",
+      "value": "Yes: one formal analysis, one SoK that includes MPP, and nine SDK advisories (unchanged on 2026-11-21)",
+      "detail": "Tamarin models in arXiv:2609.00060 (12 new and 9 known MPP cases); SoK arXiv:2604.15367. Advisories, all fixed: mppx GHSA-8x4m-qw58-3pcx, CVE-2026-34209, CVE-2026-34210, CVE-2026-63627 and CVE-2026-63628; Rust mpp GHSA-fxc9-7j2w-vx54 and GHSA-8xhq-x7vw-8rcw; pympp CVE-2026-63634 (low in its repository, medium in the GitHub Advisory Database since 2026-11-17) and GHSA-5r9p-36vq-j23h. mppx 0.20.0 and 0.21.0 (2026-11-16 and 2026-11-19) fixed further payment-boundary flaws with no advisory.",
       "sources": [
         "src-stripe-mpp-arxiv-2609-00060",
         "src-stripe-mpp-arxiv-2604-15367",
         "src-stripe-mpp-ghsa-other",
         "src-stripe-mpp-ghsa-mpp-rs",
-        "src-stripe-mpp-ghsa-pympp"
+        "src-stripe-mpp-ghsa-pympp",
+        "src-stripe-mpp-ghsa-v858-global",
+        "src-stripe-mpp-mppx-changelog"
       ],
       "confidence": "verified"
     },
@@ -2587,7 +2618,7 @@
       "protocol": "ap2",
       "dimension": "governance-model",
       "value": "Industry alliance working groups (FIDO)",
-      "detail": "Payments Technical Working Group chaired by Mastercard and Visa; no public deliverable found as of 2026-10-21.",
+      "detail": "Payments Technical Working Group chaired by Mastercard and Visa; no public deliverable found as of 2026-11-21.",
       "sources": [
         "src-ap2-fido-pr",
         "src-ap2-fido-pwg-2025"
@@ -2629,10 +2660,11 @@
       "protocol": "ap2",
       "dimension": "maturity",
       "value": "Draft specification with samples",
-      "detail": "No verified production use (searches of Google, UCP and partner pages, 2026-10-21).",
+      "detail": "v0.2.0 (2026-04-28) is the latest release, and main has not changed since 2026-04-29 (checked 2026-11-21). Google says Gemini has used AP2 for purchases since 2026-11-17, without technical detail.",
       "sources": [
-        "src-ap2-faq",
-        "src-ap2-pub-2608-23858"
+        "src-ap2-gh-releases",
+        "src-ap2-gh-commits",
+        "src-ap2-google-gemini-tasks-20261117"
       ],
       "confidence": "verified"
     },
@@ -2858,7 +2890,7 @@
       "protocol": "ap2",
       "dimension": "composes-with",
       "value": "UCP (extension), x402 (a2a-x402, v0.1 target), Mastercard Verifiable Intent",
-      "detail": "No documented link with TAP, ACP, the Machine Payments Protocol or ERC-8004 in the AP2 repository at e1ea56d (checked 2026-10-21).",
+      "detail": "No documented link with TAP, ACP, the Machine Payments Protocol or ERC-8004 in the AP2 repository at e1ea56d (checked 2026-11-21).",
       "sources": [
         "src-ap2-ucp-ext",
         "src-ap2-a2a-x402-v02",
@@ -2881,20 +2913,21 @@
     {
       "protocol": "ap2",
       "dimension": "adoption-evidence",
-      "value": "Unverified anywhere, including inside UCP",
-      "detail": "One self-reported deployment (issue 345); 3,240 GitHub stars on 2026-10-21.",
+      "value": "Google says Gemini uses it (2026-11-17); no mandate exchange documented, none inside UCP",
+      "detail": "Google's statement names no AP2 version, mandate types, signer or verifier; Google's UCP profiles declare no AP2 extension; one self-reported deployment (issue 345); 3,281 GitHub stars on 2026-11-21.",
       "sources": [
-        "src-ap2-faq",
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ucp-google-platform-profiles",
         "src-ap2-issue-345",
         "src-ap2-gh-repo"
       ],
-      "confidence": "unverified"
+      "confidence": "verified"
     },
     {
       "protocol": "ap2",
       "dimension": "published-security-research",
-      "value": "Yes: eight 2026 papers; no CVE or GitHub advisory found (2026-10-21)",
-      "detail": "48 threats (2608.23858), prompt injection, replay, Tamarin models (2609.00060), 14 code-proven findings (2607.21824) and approval-path attacks (2610.21063); searched NVD, GitHub repository advisories and the GitHub Advisory Database.",
+      "value": "Yes: eight 2026 papers and third-party GitHub reports; no CVE or GitHub advisory found (2026-11-21)",
+      "detail": "48 threats (2608.23858), prompt injection, replay, Tamarin models (2609.00060), 14 code-proven findings (2607.21824) and approval-path attacks (2610.21063); searched NVD, GitHub repository advisories and the GitHub Advisory Database. GitHub issues 398 and 399 (2026-11-14 and 2026-11-17) report gaps in the samples and the reference SDK.",
       "sources": [
         "src-ap2-pub-2608-23858",
         "src-ap2-pub-2601-22569",
@@ -2904,7 +2937,9 @@
         "src-ap2-pub-2609-00060",
         "src-ap2-pub-2609-11757",
         "src-ap2-pub-2610-21063",
-        "src-ap2-gh-advisories"
+        "src-ap2-gh-advisories",
+        "src-ap2-issue-398",
+        "src-ap2-issue-399"
       ],
       "confidence": "verified"
     },
@@ -2923,12 +2958,12 @@
     {
       "protocol": "ap2",
       "dimension": "biggest-open-question",
-      "value": "Will FIDO publish it and will anyone deploy it?",
-      "detail": "No public FIDO deliverable and no verified production use as of 2026-10-21; FIDO targets a first consolidated specification for mid-2027.",
+      "value": "Will FIDO publish it, and what does Gemini's AP2 use contain?",
+      "detail": "No public FIDO deliverable as of 2026-11-21, and FIDO targets a first consolidated specification for mid-2027. Google says Gemini uses AP2 but publishes no mandate details.",
       "sources": [
         "src-ap2-fido-pr",
         "src-ap2-fido-w3c-deck",
-        "src-ap2-faq"
+        "src-ap2-google-gemini-tasks-20261117"
       ],
       "confidence": "unverified"
     },
@@ -3010,8 +3045,8 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "maturity",
-      "value": "Mixed: regional pilots plus early live use through partners (as of 2026-11-14)",
-      "detail": "Network-level enablement in Europe (reported 2026-06-02); most transactions Mastercard names are controlled or pilots. Shopify says Shop Pay agent purchases from merchants off Shopify use Mastercard tokens (2026-10-28; Agent Pay per Mastercard's CEO, reported); a live flight purchase with Agent Pay and Verifiable Intent was announced on 2026-11-12; ChatGPT Wallet, built with Mastercard, began rolling out on 2026-11-13 with no Mastercard program named. AP4M in Early Access since 2026-10-20. No volume data.",
+      "value": "Mixed: regional pilots plus early live use through partners (as of 2026-11-21)",
+      "detail": "All European issuers enabled at network level (Mastercard, 2026-06-02); the CEO said on earnings calls that US issuers (2026-01-29) and nearly all Mastercards worldwide (2026-04-30) were enabled (reported). Most transactions Mastercard names are controlled or pilots. Shopify says Shop Pay agent purchases from merchants off Shopify use Mastercard tokens (2026-10-28; Agent Pay per Mastercard's CEO, reported); Mastercard and its partners announced two live purchases with Agent Pay and Verifiable Intent (2026-11-12 and 2026-11-19); ChatGPT Wallet, with Mastercard among its partners, began rolling out on 2026-11-13 with no Mastercard program named. AP4M in Early Access since 2026-10-20. No volume data.",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-santander-2026",
@@ -3020,7 +3055,10 @@
         "src-mcap-shopify-fall26",
         "src-mcap-q3-2026-transcript",
         "src-mcap-travelport-2026-11",
-        "src-openai-chatgpt-wallet"
+        "src-openai-chatgpt-wallet",
+        "src-mcap-antom-2026-11",
+        "src-mcap-q4-2025-transcript",
+        "src-mcap-q1-2026-transcript"
       ],
       "confidence": "verified"
     },
@@ -3236,7 +3274,7 @@
       "protocol": "mastercard-agent-pay",
       "dimension": "composes-with",
       "value": "x402 (AP4M builds on it, 2026-10-20); AP2 and UCP via VI (designed to work with AP2); ACP via Stripe SPT; network partner of ChatGPT Wallet (2026-11-13), which is not presented as ACP",
-      "detail": "MPP is not a composition: Tempo said in Mastercard's 2026-06-10 AP4M release that it is working with Mastercard on MPP compatibility, but Mastercard names no MPP link, and its 2026-10-20 brief opening AP4M Early Access builds AP4M on x402. OpenAI's ChatGPT Wallet names Mastercard as a partner but no Mastercard program, and does not mention ACP; Mastercard's CEO said on 2026-10-29 that a strategic OpenAI partnership includes the use of Agent Pay (reported).",
+      "detail": "MPP is not a composition: Tempo said in Mastercard's 2026-06-10 AP4M release that it is working with Mastercard on MPP compatibility, but Mastercard names no MPP link, and its 2026-10-20 brief opening AP4M Early Access builds AP4M on x402. OpenAI's ChatGPT Wallet names Mastercard as a partner but no Mastercard program, and does not mention ACP; Mastercard's CEO said on 2026-10-29 that a strategic OpenAI partnership includes the use of Agent Pay (reported). Google said on 2026-11-17 that Gemini uses AP2 for purchases and named Mastercard for digital tokens on supported cards, without naming Agent Pay or Verifiable Intent.",
       "sources": [
         "src-mcap-vi-landscape",
         "src-mcap-stripe-spt-2026",
@@ -3244,7 +3282,8 @@
         "src-mcap-x402-lf-july",
         "src-mcap-ap4m-early-access",
         "src-openai-chatgpt-wallet",
-        "src-mcap-q3-2026-transcript"
+        "src-mcap-q3-2026-transcript",
+        "src-ap2-google-gemini-tasks-20261117"
       ],
       "confidence": "verified"
     },
@@ -3264,15 +3303,19 @@
     {
       "protocol": "mastercard-agent-pay",
       "dimension": "adoption-evidence",
-      "value": "Named pilots, Mastercard tokens in Shop Pay agent purchases, one announced live flight purchase, and a ChatGPT Wallet network partnership (program not named); no volume data",
-      "detail": "Partner deployments as of 2026-11-14: Shopify (2026-10-28), Travelport, Booked AI and Basis Theory (2026-11-12) and OpenAI's ChatGPT Wallet (2026-11-13, no Mastercard program named). Mastercard's CEO called the numbers not yet significant on 2026-10-29 (reported).",
+      "value": "Named pilots, Mastercard tokens in Shop Pay agent purchases, two live purchases with Verifiable Intent announced by Mastercard and its partners, and a ChatGPT Wallet partnership (program not named); no volume data",
+      "detail": "Partner deployments as of 2026-11-21: Shopify (2026-10-28), Travelport, Booked AI and Basis Theory (2026-11-12), OpenAI's ChatGPT Wallet (2026-11-13, no Mastercard program named) and Antom (2026-11-19). Temu, Rakuten Mobile and Yeahka announced explorations in November 2026, not deployments. Mastercard's CEO called the numbers not yet significant on 2026-10-29 (reported).",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-trust-2026",
         "src-mcap-shopify-fall26",
         "src-mcap-travelport-2026-11",
         "src-openai-chatgpt-wallet",
-        "src-mcap-q3-2026-transcript"
+        "src-mcap-q3-2026-transcript",
+        "src-mcap-antom-2026-11",
+        "src-mcap-temu-2026-11",
+        "src-mcap-rakuten-mobile-2026-11",
+        "src-mcap-yeahka-agreement"
       ],
       "confidence": "verified"
     },
@@ -3346,11 +3389,12 @@
       "protocol": "erc-8004",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Millions of registrations (as of 2026-11-14), mostly batch registrations by single platforms, but only 3% to 15% live agents and majority Sybil reviewers in measured data.",
+      "justification": "Millions of registrations (as of 2026-11-21), mostly batch registrations by single platforms, but only 3% to 15% live agents and majority Sybil reviewers in measured data.",
       "sources": [
         "src-8004scan",
         "src-pub-2606-26028",
-        "src-erc-8004-chain-probe-2026-11-14"
+        "src-erc-8004-chain-probe-2026-11-14",
+        "src-erc-8004-chain-probe-2026-11-21"
       ]
     },
     {
@@ -3520,7 +3564,7 @@
       "protocol": "openai-acp",
       "axis": "maturity",
       "value": 2,
-      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18 (no maintainer comment, review, merge or commit between 2026-07-18 and 2026-11-14; the one maintainer action was closing SEP PR 178 unmerged on 2026-08-09).",
+      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18 (no maintainer comment, review, merge or commit between 2026-07-18 and 2026-11-21; the one maintainer action was closing SEP PR 178 unmerged on 2026-08-09).",
       "sources": [
         "src-openai-acp-readme",
         "src-openai-acp-gh-commits",
@@ -3605,7 +3649,7 @@
       "protocol": "ucp",
       "axis": "human-not-present",
       "value": 1,
-      "justification": "Buyer places the order in a trusted UI unless the AP2 extension is active, and AP2 live use is unverified.",
+      "justification": "Buyer places the order in a trusted UI unless the AP2 extension is active, and live use of the AP2 extension inside UCP is unverified.",
       "sources": [
         "src-ucp-checkout",
         "src-ucp-ap2-spec"
@@ -3659,7 +3703,7 @@
       "protocol": "stripe-mpp",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Millions of indexed transactions averaging one to two cents each (about 1.1 cents in the 30 days to 2026-10-21; MPPscan's index stops at 2026-11-11 in the 2026-11-14 reading), and few non-Tempo listings.",
+      "justification": "Millions of indexed transactions averaging one to two cents each (about 1.1 cents in the 30 days to 2026-10-21; MPPscan has indexed nothing after 2026-11-11, as read on 2026-11-14 and 2026-11-21), and few non-Tempo listings.",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-directory-api"
@@ -3689,7 +3733,7 @@
       "protocol": "ap2",
       "axis": "openness",
       "value": 4,
-      "justification": "Apache-2.0 specification and schemas in public; specification work now in a FIDO working group open to members, with no public draft found as of 2026-10-21.",
+      "justification": "Apache-2.0 specification and schemas in public; specification work now in a FIDO working group open to members, with no public draft found as of 2026-11-21.",
       "sources": [
         "src-ap2-repo",
         "src-ap2-fido-pr",
@@ -3710,7 +3754,7 @@
       "protocol": "ap2",
       "axis": "maturity",
       "value": 2,
-      "justification": "v0.2 specification with schemas and samples; spec contradictions open and no public FIDO draft as of 2026-10-21; FIDO targets a consolidated first version for mid-2027.",
+      "justification": "v0.2 specification with schemas and samples; spec contradictions open and no public FIDO draft as of 2026-11-21; FIDO targets a consolidated first version for mid-2027.",
       "sources": [
         "src-ap2-gh-releases",
         "src-ap2-issue-268",
@@ -3720,12 +3764,12 @@
     {
       "protocol": "ap2",
       "axis": "adoption-evidence",
-      "value": 1,
-      "justification": "Named collaborators and a UCP extension, but no verified production use.",
+      "value": 2,
+      "justification": "Google says Gemini has used AP2 for purchases since 2026-11-17 (US, Google Pay checkout in Tasks), but publishes no mandate types, signer or verifier, and no source shows mandates exchanged with merchants or networks or AP2 live inside UCP; raised from 1 for Google's statement alone.",
       "sources": [
-        "src-ap2-gcloud-launch",
-        "src-ap2-faq",
-        "src-ap2-issue-345"
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-release-notes-20261117",
+        "src-ap2-faq"
       ]
     },
     {
@@ -3772,36 +3816,41 @@
       "protocol": "mastercard-agent-pay",
       "axis": "maturity",
       "value": 2,
-      "justification": "Network enablement in several regions; most transactions Mastercard names are pilots, and live partner use of Mastercard tokens (Shop Pay in AI agents) and the ChatGPT Wallet partnership only appeared in late 2026; card-side developer docs are an early preview with no public specification.",
+      "justification": "All European issuers enabled at network level (2026-06-02) and, per the CEO on earnings calls, US issuers and then nearly all Mastercards worldwide (2026-01-29 and 2026-04-30, reported); most transactions Mastercard names are pilots, and live partner use of Mastercard tokens (Shop Pay in AI agents), two purchases with Verifiable Intent announced by Mastercard and its partners, and the ChatGPT Wallet partnership only appeared in late 2026; card-side developer docs are an early preview with no public specification, and no volume data is published.",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-dev-release-history",
         "src-mcap-shopify-fall26",
-        "src-openai-chatgpt-wallet"
+        "src-openai-chatgpt-wallet",
+        "src-mcap-q1-2026-transcript",
+        "src-mcap-antom-2026-11"
       ]
     },
     {
       "protocol": "mastercard-agent-pay",
       "axis": "adoption-evidence",
       "value": 2,
-      "justification": "Many named banks and partners, and the first named partner deployments in late 2026, but no volume data; the CEO called the numbers not yet significant (2026-10-29, reported).",
+      "justification": "Many named banks and partners, and the first named partner deployments in late 2026, among them two purchases with Verifiable Intent that Mastercard and its partners announced (2026-11-12 and 2026-11-19), but no volume data; the CEO called the numbers not yet significant (2026-10-29, reported).",
       "sources": [
         "src-mcap-europe-2026",
         "src-mcap-latam-2026",
         "src-mcap-trust-2026",
         "src-mcap-shopify-fall26",
-        "src-mcap-q3-2026-transcript"
+        "src-mcap-q3-2026-transcript",
+        "src-mcap-travelport-2026-11",
+        "src-mcap-antom-2026-11"
       ]
     },
     {
       "protocol": "mastercard-agent-pay",
       "axis": "human-not-present",
       "value": 3,
-      "justification": "Tokens with limits and VI Autonomous mandates support delegation; the companies behind one live purchase (2026-11-12) say it used VI, but no public record shows Autonomous mandates in live use or names who checks the chain.",
+      "justification": "Tokens with limits and VI Autonomous mandates support delegation; Mastercard and its partners say two announced live purchases used VI (2026-11-12, and 2026-11-19 on what Mastercard calls the consumer's pre-captured intent), but no public record shows Autonomous mandates in live use or names who checks the chain.",
       "sources": [
         "src-mcap-dev-level1",
         "src-mcap-vi-format",
-        "src-mcap-travelport-2026-11"
+        "src-mcap-travelport-2026-11",
+        "src-mcap-antom-2026-11"
       ]
     },
     {

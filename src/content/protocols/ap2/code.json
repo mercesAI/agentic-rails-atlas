@@ -37,10 +37,12 @@
       "side": "server",
       "code": "from ap2.sdk.payment_mandate_chain import PaymentMandateChain\nfrom ap2.sdk.utils import compute_sha256_b64url\n\npayloads = client.verify(\n    token=chain,\n    key_or_provider=lambda token: issuer_jwk,\n    expected_aud=\"merchant\",\n    expected_nonce=\"tx_abc\",\n)\nparsed = PaymentMandateChain.parse(payloads)\nviolations = parsed.verify(expected_transaction_id=\"tx_abc\")\nassert not violations\n\nreference = compute_sha256_b64url(client.get_closed_mandate_jwt(chain))",
       "docsUrl": "https://github.com/google-agentic-commerce/AP2/blob/main/code/sdk/python/ap2/sdk/README.md",
-      "note": "The reference value is what a Payment or Checkout Receipt carries.",
+      "note": "The reference value is what a Payment or Checkout Receipt carries. In a real flow expected_transaction_id is the hash of the checkout_jwt: PaymentMandateChain.verify() skips the comparison when it is omitted, and CheckoutMandateChain.verify() likewise compares checkout_hash only when expected_checkout_hash is passed (issue 399, 2026-11-17).",
       "sources": [
         "src-ap2-sdk-readme",
-        "src-ap2-schema-receipts"
+        "src-ap2-schema-receipts",
+        "src-ap2-sdk-payment-mandate-chain",
+        "src-ap2-issue-399"
       ]
     }
   ],

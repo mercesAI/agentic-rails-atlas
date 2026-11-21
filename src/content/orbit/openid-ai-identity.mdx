@@ -3,9 +3,9 @@ slug: openid-ai-identity
 name: OpenID Foundation AI identity work and related OAuth standards
 category: agent-identity
 starred: false
-oneLiner: The OpenID Foundation's AI Identity Management community group studies agent identity gaps; nearby proposals (OIDC-A, an expired OAuth on-behalf-of draft) and older standards (RFC 8693, RFC 9396, CIBA) are context, not parts of the eight.
-steward: OpenID Foundation (community group and CIBA); IETF OAuth working group (RFC 8693, RFC 9396); OIDC-A and the on-behalf-of draft are individual proposals
-status: Community group active; related RFCs and CIBA published; on-behalf-of draft expired
+oneLiner: The OpenID Foundation's AI Identity Management community group studies agent identity gaps, and its new AAuth working group, set to meet for the first time on 2026-11-30, is chartered to write agent identity and authorization specifications; nearby proposals (OIDC-A, an expired OAuth on-behalf-of draft) and older standards (RFC 8693, RFC 9396, CIBA) are context, not parts of the eight.
+steward: OpenID Foundation (AIIM community group, AAuth working group and CIBA); IETF OAuth working group (RFC 8693, RFC 9396, and agent delegation in its charter since 2026-06-04); OIDC-A and the on-behalf-of draft are individual proposals
+status: Community group active; AAuth working group listed on 2026-11-11, first meeting set for 2026-11-30, scope and drafts not yet approved; related RFCs and CIBA published; on-behalf-of draft expired
 relations:
   - to: ucp
     type: complements
@@ -19,17 +19,27 @@ sources:
   - src-ap2-pub-2510-25819
   - src-orbit-oidf-nist-response
   - src-orbit-oidf-emvco-response
+  - src-orbit-oidf-threat-classification
+  - src-orbit-oidf-aauth-wg
+  - src-orbit-oidf-aauth-charter
   - src-ap2-pub-2509-25974
   - src-orbit-oidca-repo
   - src-orbit-oauth-obo-draft
+  - src-orbit-oauth-charter-06
+  - src-orbit-oauth-ietf127-minutes
+  - src-orbit-rosenberg-aauth-draft
   - src-orbit-rfc8693
   - src-orbit-rfc9396
   - src-orbit-openid-ciba-core
   - src-ucp-identity-linking
   - src-ap2-agent-authorization
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-21"
 ---
 
-The OpenID Foundation's Artificial Intelligence Identity Management community group studies agent identity use cases and gaps; protocol work is outside its charter. <Cite ids="src-orbit-oidf-aiim-cg" /> It released the white paper "Identity Management for Agentic AI" on 2025-10-07, later posted to arXiv as 2510.25819, answered a NIST request for information on 2026-03-11, and published expert comments on the EMVCo agentic framework on 2026-10-08. <Cite ids="src-orbit-oidf-aiim-whitepaper src-ap2-pub-2510-25819 src-orbit-oidf-nist-response src-orbit-oidf-emvco-response" /> OIDC-A (OpenID Connect for Agents) is a single-author proposal on arXiv (2509.25974, 2025-09-30), not an OpenID Foundation specification. <Cite ids="src-ap2-pub-2509-25974 src-orbit-oidca-repo" /> The individual draft `draft-oauth-ai-agents-on-behalf-of-user` from WSO2 authors added `requested_actor` and `actor_token` to OAuth 2.0; its last revision, `-02`, is dated 2025-08-26, and it expired on 2026-02-27 without adoption. <Cite ids="src-orbit-oauth-obo-draft" />
+The OpenID Foundation's Artificial Intelligence Identity Management (AIIM) community group studies agent identity use cases and gaps; protocol work is outside its charter. <Cite ids="src-orbit-oidf-aiim-cg" /> It released the white paper "Identity Management for Agentic AI" on 2025-10-07, later posted to arXiv as 2510.25819, answered a NIST request for information on 2026-03-11, and published expert comments on the EMVCo agentic framework on 2026-10-08. <Cite ids="src-orbit-oidf-aiim-whitepaper src-ap2-pub-2510-25819 src-orbit-oidf-nist-response src-orbit-oidf-emvco-response" /> On 2026-10-12 it added "A Protocol-Agnostic Threat Classification for Cross-Boundary AI Agent Authorization", which traces the threats that appear when an agent crosses from one domain to another, such as permissions that widen in translation or access that lasts beyond its task, to handling agents like human users, and which presents itself as a shared threat model, not a fix. <Cite ids="src-orbit-oidf-threat-classification" />
+
+Separately, on 2026-11-11 the foundation listed an Agent Auth (AAuth) working group. Its charter covers specifications for agents that act for people and organizations: how an agent establishes its own identity and that of the party it represents, and how it gets and uses authorization across trust domains; payment protocols and changes to OAuth 2.0, OpenID Connect or RFC 9421 are out of scope. <Cite ids="src-orbit-oidf-aauth-wg src-orbit-oidf-aauth-charter" /> Its first meeting, set for 2026-11-30, is to decide whether to approve that scope, confirm Dick Hardt as editor and adopt contributions such as `draft-hardt-oauth-aauth-protocol` as working group drafts; no chairs had been named on 2026-11-21, and the charter's target dates, such as an Implementers Draft of AAuth Protocol 1.0 in the second quarter of 2027, are plans. <Cite ids="src-orbit-oidf-aauth-wg src-orbit-oidf-aauth-charter" />
+
+OIDC-A (OpenID Connect for Agents) is a single-author proposal on arXiv (2509.25974, 2025-09-30), not an OpenID Foundation specification. <Cite ids="src-ap2-pub-2509-25974 src-orbit-oidca-repo" /> The individual draft `draft-oauth-ai-agents-on-behalf-of-user` from WSO2 authors added `requested_actor` and `actor_token` to OAuth 2.0; its last revision, `-02`, is dated 2025-08-26, and it expired on 2026-02-27 without adoption. <Cite ids="src-orbit-oauth-obo-draft" /> The OAuth working group of the Internet Engineering Task Force (IETF) has had a charter that covers authorization of automated agents acting for users, including agents that act across administrative domains, since 2026-06-04. <Cite ids="src-orbit-oauth-charter-06" /> At IETF 127 on 2026-11-18 and 2026-11-20 the group heard several individual agent drafts, among them `draft-rosenberg-oauth-aauth`, a separate proposal that shares the AAuth name, and adopted none of them (as of 2026-11-21). <Cite ids="src-orbit-oauth-ietf127-minutes src-orbit-rosenberg-aauth-draft" />
 
 Three older standards often come up as building blocks: RFC 8693 OAuth 2.0 Token Exchange (January 2020), RFC 9396 Rich Authorization Requests with `authorization_details` (May 2023), and OpenID Connect CIBA Core 1.0, final on 2021-09-01, which lets a service ask a user to approve a request on another device. <Cite ids="src-orbit-rfc8693 src-orbit-rfc9396 src-orbit-openid-ciba-core" /> Among the eight only [UCP](/p/ucp/) uses one of them: its Identity Linking accelerated flow exchanges a token through RFC 8693 for a JWT authorization grant. <Cite ids="src-ucp-identity-linking" /> [AP2](/p/ap2/) uses OpenID4VP rather than any of the three. <Cite ids="src-ap2-agent-authorization" /> No specification among the eight cites RFC 9396, CIBA, OIDC-A or the on-behalf-of draft.

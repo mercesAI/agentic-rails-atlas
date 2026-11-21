@@ -71,7 +71,7 @@
       "protocol": "openai-acp",
       "dimension": "latest-version-and-date",
       "value": "2026-04-17 (dated folder)",
-      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18, none through 2026-11-14.",
+      "detail": "No GitHub release or tag; folder edited after release (2026-05-01, 2026-06-15); last commit 2026-07-18, none through 2026-11-21.",
       "sources": [
         "src-openai-acp-changelog-20260417",
         "src-openai-acp-gh-commits",
@@ -83,7 +83,7 @@
       "protocol": "openai-acp",
       "dimension": "maturity",
       "value": "Beta spec, Draft RFCs; deployed for feeds in ChatGPT",
-      "detail": "2025 in-chat checkout scaled back in March 2026; external checkout from ChatGPT plugins generally available; payment sheet in private beta. OpenAI's developer docs, rewritten on 2026-11-13, no longer describe ACP, and ChatGPT Wallet (2026-11-13) pays on merchant checkouts outside ACP; no commit since 2026-07-18 (as of 2026-11-14).",
+      "detail": "2025 in-chat checkout scaled back in March 2026; external checkout from ChatGPT plugins generally available; payment sheet in private beta. OpenAI's developer docs, rewritten on 2026-11-13, no longer describe ACP, and ChatGPT Wallet (2026-11-13) pays on merchant checkouts outside ACP; no commit since 2026-07-18 (as of 2026-11-21).",
       "sources": [
         "src-openai-acp-readme",
         "src-openai-product-discovery",
@@ -157,11 +157,12 @@
       "protocol": "openai-acp",
       "dimension": "merchant-of-record",
       "value": "The merchant",
-      "detail": "OpenAI and PSPs are not merchant of record, as OpenAI's ACP docs said until 2026-11-13; for ChatGPT Wallet purchases OpenAI says the business handles the order, fulfillment, support and fraud decisions (2026-11-14).",
+      "detail": "OpenAI and PSPs are not merchant of record, as OpenAI's ACP docs said until 2026-11-13; for ChatGPT Wallet purchases OpenAI says the business handles the order, fulfillment, support and fraud decisions, and the Wallet terms (effective 2026-11-12) make the merchant the seller and merchant of record (2026-11-21).",
       "sources": [
         "src-openai-commerce-docs",
         "src-openai-acp-readme",
-        "src-openai-commerce-accept-payments"
+        "src-openai-commerce-accept-payments",
+        "src-orbit-chatgpt-wallet-terms"
       ],
       "confidence": "verified"
     },
@@ -225,7 +226,7 @@
       "protocol": "openai-acp",
       "dimension": "refunds-and-disputes",
       "value": "Merchant handles refunds and chargebacks; order adjustments report refund, return, dispute",
-      "detail": "No dispute protocol; a community dispute-resolution SEP (PR 316) awaits a sponsor (2026-11-14).",
+      "detail": "No dispute protocol; a community dispute-resolution SEP (PR 316) awaits a sponsor (2026-11-21).",
       "sources": [
         "src-openai-acp-schema-checkout-20260417",
         "src-openai-commerce-docs",
@@ -366,7 +367,7 @@
       "protocol": "openai-acp",
       "dimension": "adoption-evidence",
       "value": "Named partners, no volume data",
-      "detail": "Seven retailers for discovery; Target, Walmart and Etsy apps in ChatGPT; Copilot and PayPal announcements; ACP integration docs from Checkout.com, Worldpay and PayPal (2026-11-14); no GMV published. Meta's own agent Muse documents no ACP use.",
+      "detail": "Seven retailers for discovery; Target, Walmart and Etsy apps in ChatGPT, and an Instacart app whose in-chat checkout OpenAI said on 2025-12-08 was powered by ACP (status unknown); Copilot and PayPal announcements; ACP integration docs from Checkout.com, Worldpay and PayPal (2026-11-14); no GMV published. Meta's own agent Muse documents no ACP use.",
       "sources": [
         "src-openai-product-discovery",
         "src-openai-target-partnership",
@@ -376,7 +377,8 @@
         "src-openai-acp-checkout-com-docs",
         "src-openai-acp-worldpay-acp",
         "src-openai-acp-paypal-agent-ready",
-        "src-openai-acp-meta-muse"
+        "src-openai-acp-meta-muse",
+        "src-openai-acp-instacart-post"
       ],
       "confidence": "verified"
     },
@@ -384,12 +386,13 @@
       "protocol": "openai-acp",
       "dimension": "published-security-research",
       "value": "Little: one formal model covering ACP among four protocols",
-      "detail": "No CVEs or advisories (GitHub advisory APIs 2026-11-14; NVD keyword search 2026-10-20); an audit-trail critique.",
+      "detail": "No CVEs or advisories (GitHub repository advisory API 2026-11-21; NVD keyword search 2026-10-20); an audit-trail critique; a community security review of request signing filed as issue 331 (2026-11-20), not an advisory.",
       "sources": [
         "src-arxiv-2609-00060",
         "src-openai-acp-gh-advisories",
         "src-nvd-acp-search",
-        "src-arxiv-2607-19436"
+        "src-arxiv-2607-19436",
+        "src-openai-acp-gh-issue-331"
       ],
       "confidence": "verified"
     },
@@ -410,13 +413,14 @@
       "protocol": "openai-acp",
       "dimension": "biggest-open-question",
       "value": "Does ACP checkout still run anywhere besides ChatGPT's marketplace payment sheet, and who else runs it in production?",
-      "detail": "No source answers it as of 2026-11-14: OpenAI's merchant page says ChatGPT shopping is built on ACP, but its rewritten commerce docs and ChatGPT Wallet do not mention ACP.",
+      "detail": "No source answers it as of 2026-11-21: OpenAI's merchant page says ChatGPT shopping is built on ACP, but its rewritten commerce docs and ChatGPT Wallet do not mention ACP, and no 2026 source says whether the Instacart checkout that OpenAI said on 2025-12-08 was powered by ACP still runs.",
       "sources": [
         "src-openai-product-discovery",
         "src-ms-agentic-commerce",
         "src-chatgpt-merchants",
         "src-openai-commerce-playbook",
-        "src-openai-chatgpt-wallet"
+        "src-openai-chatgpt-wallet",
+        "src-openai-acp-instacart-post"
       ],
       "confidence": "verified"
     }
@@ -446,7 +450,7 @@
       "protocol": "openai-acp",
       "axis": "maturity",
       "value": 2,
-      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18 (no maintainer comment, review, merge or commit between 2026-07-18 and 2026-11-14; the one maintainer action was closing SEP PR 178 unmerged on 2026-08-09).",
+      "justification": "Beta and Draft labels, mutable releases, examples that do not validate, and a quiet repository since 2026-07-18 (no maintainer comment, review, merge or commit between 2026-07-18 and 2026-11-21; the one maintainer action was closing SEP PR 178 unmerged on 2026-08-09).",
       "sources": [
         "src-openai-acp-readme",
         "src-openai-acp-gh-commits",
@@ -490,7 +494,7 @@
       "protocol": "openai-acp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme. Outside the spec, ChatGPT's cloud browser signs certain requests with Web Bot Auth (2026-11-14).",
+      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme. Outside the spec, ChatGPT's cloud browser signs certain requests with Web Bot Auth (2026-11-21).",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-acp-openapi-delegate-payment-20260417",
@@ -502,7 +506,7 @@
       "protocol": "openai-acp",
       "control": "agent-registration-kya",
       "support": "external",
-      "note": "No registry in ACP. Each platform runs its own merchant onboarding: for ChatGPT feeds, OpenAI's docs (rewritten 2026-11-13) have a business claim its profile and verify its identity in Business Hub, while OpenAI's merchant page keeps an application form and a waitlist (2026-11-14).",
+      "note": "No registry in ACP. Each platform runs its own merchant onboarding: for ChatGPT feeds, OpenAI's docs (rewritten 2026-11-13) have a business claim its profile and verify its identity in Business Hub, while OpenAI's merchant page keeps an application form and a waitlist (2026-11-21).",
       "sources": [
         "src-openai-commerce-product-feeds",
         "src-chatgpt-merchants",

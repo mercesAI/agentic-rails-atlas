@@ -79,3 +79,9 @@ Logged in `research/blocked.md`: imf.org (403, DOI used), mckinsey.com (timeouts
 
 - `pub-xue-2026-zkmldebloat` (arXiv 2609.10149): a Crossref title search (2026-11-15T03:58Z UTC) found the peer-reviewed version in the Proceedings of the 2026 ACM SIGSAC Conference on Computer and Communications Security (CCS 2026), DOI 10.1145/3830454.3846774, published 2026-11-14, same title and six authors. The record now has `peerReviewed: true`, the venue, the DOI, an inproceedings BibTeX entry, `verifiedVia: crossref` and `verifiedAt: 2026-11-14`.
 - `pub-meunier-2026-webbotauth`: the Web Bot Auth working group draft moved to revision `-01` on 2026-10-29 (Datatracker, expires 2027-05-02; same title and authors). Venue, summary, BibTeX and the verification log now name `-01`; since `-01` each `Signature-Agent` value is an HTTPS URL fetched directly as a JWK Set.
+
+## Refresh 2026-11-21
+
+- Added to micropayments and payment channels (1): `pub-ogrady-2026-bajillion` (arXiv 2611.21883, Patrick O'Grady and Guru-Vamsi Policharla, v1 2026-11-16, cs.CR), a clearing protocol for agent micropayments in which an untrusted operator can only omit payments. Tagged x402 and stripe-mpp as related; the abstract names neither protocol. Verified on the arXiv abstract page on 2026-11-21.
+- Added to grey literature (1): `pub-barr-2026-financialstability`, Governor Michael S. Barr's speech of 2026-11-16 (Milan), beside `pub-waller-2026-sibos`; read on federalreserve.gov on 2026-11-21. No protocol tag, because the speech names no protocol.
+- Both entries have rows in `verificationLog`. Counts after this refresh: 58 entries in this part.

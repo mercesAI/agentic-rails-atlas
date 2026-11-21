@@ -49,6 +49,15 @@
       ]
     },
     {
+      "name": "Tempo x402 facilitator",
+      "role": "Facilitator at api.tempo.xyz/v1/x402 since 2026-11-19: buyers pay USDC on Base mainnet with exact to Tempo's deposit address, which the public GET /supported publishes, and Tempo pays the seller in OUSD on Tempo mainnet at the address named in extra.tempoSettlement; sellers need an API key with the mpp:write scope. The buyer's signed payTo is Tempo's address, so the seller relies on Tempo for the payout.",
+      "status": "live",
+      "sources": [
+        "src-stripe-mpp-tempo-x402-facilitator",
+        "src-stripe-mpp-tempo-x402-supported"
+      ]
+    },
+    {
       "name": "Cloudflare Monetization Gateway",
       "role": "Closed beta that settles USDC on Base through Coinbase's facilitator; US sellers and buyers only.",
       "status": "beta",
@@ -72,6 +81,40 @@
       "sources": [
         "src-x402-cf-changelog",
         "src-x402-cf-mg-beta"
+      ]
+    },
+    {
+      "name": "AWS WAF AI traffic monetization (Amazon CloudFront)",
+      "role": "Seller side at the edge since 2026-06-15: a Monetize rule on a web ACL for a CloudFront distribution answers AI bots and agents with an x402 402 (a USDC price, Base and Solana, the publisher's payTo), verifies the payment at the edge and settles it through Coinbase Developer Platform's x402 facilitator after a successful origin fetch. Prices can differ by verification tier, Web Bot Auth included, and AWS takes no fee on content revenue. Stripe direct-account payments and MPP were announced as coming soon; the WAF guide read 2026-11-21 names only x402.",
+      "status": "live",
+      "sources": [
+        "src-x402-aws-waf-monetization",
+        "src-x402-aws-waf-monetization-blog",
+        "src-x402-aws-waf-docs"
+      ]
+    },
+    {
+      "name": "Amazon Bedrock AgentCore payments",
+      "role": "Buyer side, managed payments for agents. Announced in preview on 2026-05-07, it pays x402 from Coinbase CDP or Stripe Privy wallets within session spending limits, with the Coinbase x402 Bazaar MCP server reachable through AgentCore Gateway. General availability on 2026-08-18 added MPP and the x402 upto scheme, and since 2026-11-19 it also pays AWS Marketplace quotes on the AWS bill.",
+      "status": "live",
+      "sources": [
+        "src-x402-aws-agentcore-payments-preview",
+        "src-x402-aws-agentcore-payments-ga",
+        "src-x402-aws-agentcore-process-payment",
+        "src-x402-aws-marketplace-x402"
+      ]
+    },
+    {
+      "name": "AWS Marketplace agentic payments (x402 over AWS Billing)",
+      "role": "Seller marketplace since 2026-11-19: agents pay x402-enabled Marketplace sellers per request in US dollars through AgentCore payments, billed on the buyer's AWS bill with no crypto wallet. The seller's 402 offers exact on AWS's own aws:base network with asset iso4217:USD, payTo set to the product ID and a seller-signed quote token; the agent retries with a 5-minute payment token in PAYMENT-SIGNATURE, and nothing settles on chain. Exact only at launch, and one payment must be above $0.00 and at most $10,000.00 (an AgentCore rule). Named sellers: Tavily (AWS blog) and Deepgram (its own sample). aws:base is not part of the x402 specification.",
+      "status": "live",
+      "sources": [
+        "src-x402-aws-marketplace-x402",
+        "src-x402-aws-marketplace-x402-blog",
+        "src-x402-aws-agentcore-process-payment",
+        "src-x402-aws-marketplace-seller-guide",
+        "src-x402-aws-fiat-extension",
+        "src-x402-deepgram-agentcore-sample"
       ]
     },
     {
@@ -103,20 +146,22 @@
     },
     {
       "name": "Coinbase Agentic Wallets",
-      "role": "Coinbase-managed agent wallet that, as its docs described it on 2026-10-19, holds USDC and pays for x402 services within limits the owner sets, through the awal CLI or an MCP server; made available on 2026-02-11 per the CDP changelog as read on 2026-10-19. By 2026-11-14 its docs answered 404 and the changelog entry was gone; no retirement announcement was found.",
+      "role": "Coinbase-managed agent wallet, used through the awal CLI or Payments MCP, that pays for x402 services; made available on 2026-02-11 per the CDP changelog as read on 2026-10-19. awal 2.12.3 (2026-11-20) ships a notice that Payments MCP and Agentic Wallet are being retired in favor of Coinbase Wallet MCP, a different wallet, and a withdraw-only phase that would disable x402 payments; the flag endpoint the CLI reads answered 404 on 2026-11-21, so the notice was not active. The former docs redirect to Wallet MCP, and the CDP changelog has no retirement entry.",
       "status": "unknown",
       "sources": [
         "src-x402-cdp-agentic-wallet",
         "src-x402-cdp-changelog",
-        "src-x402-cdp-agentic-accounts"
+        "src-x402-awal-sunset",
+        "src-x402-awal-sunset-endpoint"
       ]
     },
     {
       "name": "Coinbase Wallet MCP and Coinbase for Agents",
-      "role": "The agent payment options in CDP's agentic accounts docs on 2026-11-14: Wallet MCP pays x402 services in USDC on Base or Base Sepolia with exact, upto and auth-capture, with the user's approval and a wallet signature for each paid request; Coinbase for Agents connects an agent to a Coinbase account through a remote MCP server or a local CLI.",
+      "role": "The agent payment options in CDP's agentic accounts docs (read 2026-11-21). Wallet MCP pays x402 in approval mode, where the user signs each prepared action through an approval link, or, for eligible connections, in agent-wallet mode, where a dedicated wallet with an expiring signing grant pays within a saved US dollar budget over a rolling 24-hour window. Its x402 table lists exact and upto on Base, Polygon and Arbitrum, auth-capture on Base mainnet, batch-settlement on those three networks for eligible autonomous sessions, and Solana payments in USDC or USDT in agent-wallet mode only. Coinbase for Agents connects an agent to a Coinbase account through a remote MCP server or a local CLI.",
       "status": "live",
       "sources": [
-        "src-x402-cdp-agentic-accounts"
+        "src-x402-cdp-agentic-accounts",
+        "src-x402-cdp-wallet-mcp"
       ]
     },
     {
@@ -128,6 +173,17 @@
         "src-x402-brave-guide",
         "src-x402-brave-llms",
         "src-x402-brave-402-probe"
+      ]
+    },
+    {
+      "name": "Pay.sh (Solana Foundation)",
+      "role": "The pay CLI (MIT, solana-foundation/pay) handles HTTP 402 payments over x402 and MPP. Decrypt and The Block reported on 2026-05-05 that the Solana Foundation and Google Cloud launched Pay.sh, a gateway through which agents pay per request in stablecoins on Solana, with Gemini and BigQuery among the Google Cloud services; that collaboration is reported only, since the Solana Foundation's post could not be read and pay.sh does not mention Google Cloud.",
+      "status": "live",
+      "sources": [
+        "src-x402-paysh-llms",
+        "src-x402-paysh-repo",
+        "src-x402-paysh-decrypt",
+        "src-x402-paysh-theblock"
       ]
     },
     {
@@ -152,75 +208,76 @@
     {
       "registry": "npm",
       "name": "@x402/core",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/core",
-      "note": "V2 core types, client and resource server. Versions in this list as of 2026-11-14 (2.31.0 published 2026-11-12); 2.29.0 (2026-10-28) shipped the HEAD-request fix. No SDK implemented the Lightning (lnbtc) binding on that date."
+      "note": "V2 core types, client and resource server. Versions in this list as of 2026-11-21 (2.32.0 published 2026-11-20); 2.29.0 (2026-10-28) shipped the HEAD-request fix. No SDK implemented the Lightning (lnbtc) binding on that date."
     },
     {
       "registry": "npm",
       "name": "@x402/evm",
-      "version": "2.31.0",
-      "url": "https://www.npmjs.com/package/@x402/evm"
+      "version": "2.32.0",
+      "url": "https://www.npmjs.com/package/@x402/evm",
+      "note": "2.32.0 (2026-11-20) carries the fix for the batch-settlement voucher advisory GHSA-5cgh-j82v-jvrj (affected 2.12.0 to 2.31.0) and reports a recipient mismatch with the spec code."
     },
     {
       "registry": "npm",
       "name": "@x402/svm",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/svm"
     },
     {
       "registry": "npm",
       "name": "@x402/fetch",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/fetch"
     },
     {
       "registry": "npm",
       "name": "@x402/axios",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/axios"
     },
     {
       "registry": "npm",
       "name": "@x402/express",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/express"
     },
     {
       "registry": "npm",
       "name": "@x402/hono",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/hono"
     },
     {
       "registry": "npm",
       "name": "@x402/next",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/next"
     },
     {
       "registry": "npm",
       "name": "@x402/fastify",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/fastify"
     },
     {
       "registry": "npm",
       "name": "@x402/paywall",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/paywall",
       "note": "Browser paywall for humans. A reflected script-injection flaw was fixed in 2.29.0 (2026-10-28) without an advisory."
     },
     {
       "registry": "npm",
       "name": "@x402/extensions",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/extensions"
     },
     {
       "registry": "npm",
       "name": "@x402/mcp",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://www.npmjs.com/package/@x402/mcp"
     },
     {
@@ -228,19 +285,19 @@
       "name": "x402",
       "version": "1.2.0",
       "url": "https://www.npmjs.com/package/x402",
-      "note": "Legacy V1 package (unscoped); x402-axios, x402-express, x402-fetch, x402-hono and x402-next are V1 too. Deprecated: the READMEs promise security patches only, but x402, x402-express and x402-hono have had no release since 2026-04-16 (x402-axios last released 1.2.1 on 2026-05-29), and the HEAD fix, the paywall script-injection fix and a fix for the open parameterized-route bypass (issue #3850) were all unreleased for V1 on 2026-11-14."
+      "note": "Legacy V1 package (unscoped); x402-axios, x402-express, x402-fetch, x402-hono and x402-next are V1 too. Deprecated: the READMEs promise security patches only, but x402, x402-express and x402-hono have had no release since 2026-04-16 (x402-axios last released 1.2.1 on 2026-05-29), and the HEAD fix, the paywall script-injection fix and a fix for the open parameterized-route bypass (issue #3850) were all unreleased for V1 on 2026-11-21."
     },
     {
       "registry": "pypi",
       "name": "x402",
-      "version": "2.28.0",
+      "version": "2.29.0",
       "url": "https://pypi.org/project/x402/",
-      "note": "V2 Python SDK, not legacy (2.28.0 published 2026-11-12). Extras include httpx, requests, fastapi, flask, evm, svm, tvm, cardano, mcp and extensions."
+      "note": "V2 Python SDK, not legacy (2.29.0 published 2026-11-20). Extras include httpx, requests, fastapi, flask, evm, svm, tvm, cardano, mcp and extensions."
     },
     {
       "registry": "go",
       "name": "github.com/x402-foundation/x402/go/v2",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "url": "https://github.com/x402-foundation/x402/tree/main/go",
       "note": "Requires Go 1.26.10 since v2.29.0 (v2.28.0 needed Go 1.24); covers evm, svm and casper."
     },
@@ -453,6 +510,24 @@
         "src-x402-lf-hursta"
       ],
       "caveat": "40 at the 2026-07-14 launch, 17 of them Premier; the Linux Foundation said more than 50 active members on 2026-10-01."
+    },
+    {
+      "id": "x402-solana-breakpoint-lifetime",
+      "metric": "Lifetime x402 payments (Solana Foundation talk, reported)",
+      "value": "over 400M payments and $100M",
+      "unit": "payments and USD",
+      "asOf": "2026-11-17",
+      "definition": "Figure attributed to Rishin Sharma of the Solana Foundation in a Breakpoint 2026 talk in London, as reported by Decrypt and Crypto Briefing on 2026-11-17; counted since the 2025 launch.",
+      "sources": [
+        "src-x402-breakpoint-decrypt",
+        "src-x402-breakpoint-cryptobriefing"
+      ],
+      "caveat": "Self-reported by an interested party and known only from press reports, with no method; about twice agenteconomy.to's cumulative count (about 200.2M transactions and $43.0M as of 2026-11-14).",
+      "disputed": true,
+      "disputeSources": [
+        "src-x402-agenteconomy-stats",
+        "src-x402scan-stats-20261114"
+      ]
     }
   ],
   "costs": [
@@ -552,6 +627,32 @@
       "sources": [
         "src-x402-fee-circle",
         "src-x402-fee-circle-gateway"
+      ]
+    },
+    {
+      "item": "AWS Marketplace agentic payments (aws:base)",
+      "value": "The buyer pays the seller's quoted US dollar price on the AWS bill; the seller pays AWS Marketplace's 3 percent SaaS listing fee",
+      "whoPays": "Buyer pays the quote; seller pays the listing fee",
+      "asOf": "2026-11-21",
+      "confidence": "verified",
+      "caveat": "No chain and no gas: AgentCore payments issues a payment token, and AWS Marketplace meters the charge, bills it and pays the seller through its disbursements. One AWS Billing payment must be above $0.00 and at most $10,000.00 (an AgentCore rule); refunds are billing adjustments on invoices.",
+      "sources": [
+        "src-x402-aws-marketplace-listing-fees",
+        "src-x402-aws-agentcore-process-payment",
+        "src-x402-aws-marketplace-seller-guide",
+        "src-x402-aws-marketplace-x402"
+      ]
+    },
+    {
+      "item": "AWS WAF AI traffic monetization",
+      "value": "No charge beyond standard AWS WAF pricing; AWS takes no fee on content revenue",
+      "whoPays": "The publisher pays standard AWS WAF charges",
+      "asOf": "2026-11-21",
+      "confidence": "verified",
+      "caveat": "Settlement runs through Coinbase Developer Platform's x402 facilitator, and AWS's posts do not say whether facilitator fees apply. Payouts go to the publisher's own wallet.",
+      "sources": [
+        "src-x402-aws-waf-monetization",
+        "src-x402-aws-waf-monetization-blog"
       ]
     },
     {

@@ -508,7 +508,7 @@
       "protocol": "openai-acp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme. Outside the spec, ChatGPT's cloud browser signs certain requests with Web Bot Auth (2026-11-14).",
+      "note": "The merchant authenticates the agent with a bearer token agreed out of band, plus a recommended detached Signature and Timestamp with algorithms agreed out of band; the agent verifies webhooks with a shared HMAC secret. No agent identity scheme. Outside the spec, ChatGPT's cloud browser signs certain requests with Web Bot Auth (2026-11-21).",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-acp-openapi-delegate-payment-20260417",
@@ -520,7 +520,7 @@
       "protocol": "openai-acp",
       "control": "agent-registration-kya",
       "support": "external",
-      "note": "No registry in ACP. Each platform runs its own merchant onboarding: for ChatGPT feeds, OpenAI's docs (rewritten 2026-11-13) have a business claim its profile and verify its identity in Business Hub, while OpenAI's merchant page keeps an application form and a waitlist (2026-11-14).",
+      "note": "No registry in ACP. Each platform runs its own merchant onboarding: for ChatGPT feeds, OpenAI's docs (rewritten 2026-11-13) have a business claim its profile and verify its identity in Business Hub, while OpenAI's merchant page keeps an application form and a waitlist (2026-11-21).",
       "sources": [
         "src-openai-commerce-product-feeds",
         "src-chatgpt-merchants",
@@ -790,13 +790,14 @@
       "protocol": "stripe-mpp",
       "control": "agent-identity-verification",
       "support": "partial",
-      "note": "The core payment is pseudonymous with an optional DID source, and since 2026-11-11 its repository text says how other authentication composes with Payment without defining any. mppx adds per-route identity verifiers outside the spec (Web Bot Auth, TAP, Email OTP, Link, Persona, World ID, Tempo ID or custom; request attestation before 0.16.0), and the card method allows optional TAP headers.",
+      "note": "The core payment is pseudonymous with an optional DID source, and since 2026-11-11 its repository text says how other authentication composes with Payment without defining any. mppx adds per-route identity verifiers outside the spec (Web Bot Auth, TAP, Email OTP, Link, Persona, World ID, Tempo ID, Poppy sessions since 0.19.1, ERC-8004 agents since 0.20.0, or custom; request attestation before 0.16.0), and the card method allows optional TAP headers.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-core-01-7bb99c8",
         "src-stripe-mpp-blog-identity",
         "src-stripe-mpp-mppx-changelog",
-        "src-stripe-mpp-card-charge"
+        "src-stripe-mpp-card-charge",
+        "src-stripe-mpp-mppx-pr-1304"
       ]
     },
     {

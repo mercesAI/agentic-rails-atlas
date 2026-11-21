@@ -3,11 +3,31 @@
   "items": [
     {
       "question": "Will FIDO publish AP2 as a standard, and when?",
-      "context": "FIDO gave no deliverable or date when the work began on 2026-04-28. On 2026-09-08 its Payments Technical Working Group presented targets: harmonized AP2 and Verifiable Intent specifications by the end of 2026 and a first consolidated version in mid-2027. No public FIDO draft or repository for AP2 was found on 2026-10-21, and the GitHub repository has not changed since 2026-04-29.",
+      "context": "FIDO gave no deliverable or date when the work began on 2026-04-28. On 2026-09-08 its Payments Technical Working Group presented targets: harmonized AP2 and Verifiable Intent specifications by the end of 2026 and a first consolidated version in mid-2027. No public FIDO draft or repository for AP2 was found on 2026-11-21, and the GitHub repository has not changed since 2026-04-29.",
       "sources": [
         "src-ap2-fido-pr",
         "src-ap2-fido-w3c-deck",
         "src-ap2-fido-spec-download",
+        "src-ap2-gh-commits"
+      ]
+    },
+    {
+      "question": "What does Gemini's use of AP2 contain?",
+      "context": "Google says Gemini has used AP2 for purchases since 2026-11-17, but names no AP2 version, mandate types, signer or verifier, and no source shows mandates reaching merchants, processors, Credential Providers or networks. The help page describes a browser and a possible virtual card number. The task settings (allowed merchants, a budget of up to $1000, an expiry within 14 days, optional confirmation) look like open-mandate constraints; that comparison is the atlas's own.",
+      "sources": [
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-release-notes-20261117",
+        "src-ap2-gemini-purchases-help",
+        "src-ap2-schema-open-payment"
+      ]
+    },
+    {
+      "question": "Will the reference SDK bind checkout_hash and transaction_id by default?",
+      "context": "Issue 399 and fix PR 400 (2026-11-17) target the checkout chain verifier, which compares checkout_hash only when the caller passes the expected hash; the payment chain verifier treats transaction_id the same way. Both were open on 2026-11-21, and no commit has reached main since 2026-04-29.",
+      "sources": [
+        "src-ap2-issue-399",
+        "src-ap2-pr-400",
+        "src-ap2-sdk-payment-mandate-chain",
         "src-ap2-gh-commits"
       ]
     },
@@ -21,10 +41,11 @@
     },
     {
       "question": "Who keeps state for payment.budget and payment.agent_recurrence?",
-      "context": "Both need history of earlier presentations, and the specification does not assign that role; Verifiable Intent calls such constraints network-enforced.",
+      "context": "Both need history of earlier presentations, and the specification does not assign that role; Verifiable Intent calls such constraints network-enforced. A report of 2026-11-14 says the v0.2 samples keep those counters only on the agent's side.",
       "sources": [
         "src-ap2-payment-mandate-doc",
-        "src-ap2-vi-spec"
+        "src-ap2-vi-spec",
+        "src-ap2-issue-398"
       ]
     },
     {

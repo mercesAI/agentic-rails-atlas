@@ -3,22 +3,25 @@
     "from": "stripe-mpp",
     "to": "x402",
     "type": "compatible-with",
-    "note": "MPP maps x402 headers onto Payment authentication and x402 exact onto charge; upto and batch-settlement are comparable to sessions. mppx's EVM charge has offered both protocols on one route since 0.6.29 (2026-06-02), 0.9.0 added dual MPP and x402 framework wrappers, and the mppx client prefers the Payment challenge.",
+    "note": "MPP maps x402 headers onto Payment authentication and x402 exact onto charge; upto and batch-settlement are comparable to sessions. mppx's EVM charge has offered both protocols on one route since 0.6.29 (2026-06-02), 0.9.0 added dual MPP and x402 framework wrappers, and the mppx client prefers the Payment challenge. Tempo also runs an x402 facilitator (live by 2026-11-19, with a tempoX402() helper in mppx 0.21.1) that takes USDC on Base and pays sellers in OUSD on Tempo; buyers pay Tempo's deposit address, so sellers rely on Tempo for the payout.",
     "sources": [
       "src-stripe-mpp-vs-x402",
       "src-stripe-mpp-mppx-changelog",
       "src-stripe-mpp-cloudflare",
-      "src-stripe-mpp-npm-mppx"
+      "src-stripe-mpp-npm-mppx",
+      "src-stripe-mpp-tempo-x402-facilitator",
+      "src-stripe-mpp-tempo-x402-supported"
     ]
   },
   {
     "from": "stripe-mpp",
     "to": "x402",
     "type": "competes-with",
-    "note": "Both are HTTP 402 payment protocols; MPP's comparison page, written by its authors, recommends MPP by default. Stripe co-authors MPP and sits on the x402 TSC.",
+    "note": "Both are HTTP 402 payment protocols; MPP's comparison page, written by its authors, recommends MPP by default. Stripe co-authors MPP and sits on the x402 TSC, and Tempo, MPP's other co-author, runs an x402 facilitator.",
     "sources": [
       "src-stripe-mpp-vs-x402",
-      "src-stripe-mpp-x402-tsc"
+      "src-stripe-mpp-x402-tsc",
+      "src-stripe-mpp-tempo-x402-facilitator"
     ]
   },
   {
@@ -66,6 +69,17 @@
     "sources": [
       "src-stripe-mpp-ap2-glossary",
       "src-stripe-mpp-ucp-repo"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "erc-8004",
+    "type": "complements",
+    "note": "An SDK link, not a specification link: since mppx 0.20.0 (2026-11-16) MPP's reference SDK ships an ERC-8004 identity provider (mppx/extensions/identity/erc8004). The agent signs requests with its wallet and sends Agent-Id and Agent-Signature; the server checks that the wallet the Identity Registry names for the agent (on Tempo mainnet by default) signed the request or the agent's tempo charge. No MPP draft specifies this; draft-payment-discovery-01 only cites ERC-8004 as prior art.",
+    "sources": [
+      "src-stripe-mpp-mppx-pr-1304",
+      "src-stripe-mpp-mppx-changelog",
+      "src-stripe-mpp-discovery"
     ]
   }
 ]

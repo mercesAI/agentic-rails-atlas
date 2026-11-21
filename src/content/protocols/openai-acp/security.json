@@ -1,23 +1,26 @@
 {
   "protocol": "openai-acp",
-  "summary": "ACP's one strong control is the allowance: a delegated token works for one merchant, one session, one use, up to a maximum amount and until an expiry, enforced by the PSP. Everything else is bilateral trust. The merchant authenticates the agent with a bearer token agreed out of band, and the agent verifies webhooks with a shared HMAC secret. Request signatures are only recommended on checkout and contradictory on Delegate Payment, request freshness is a SHOULD, and nothing records that the buyer approved the purchase. Order webhooks are well specified with HMAC and a 300-second window. As of 2026-11-14 no GitHub advisory exists for the repository (advisory APIs; an NVD keyword search found no CVE on 2026-10-20), and the published research models ACP formally but reports findings only in aggregate. The practical risks sit in implementations: key handling, card data at PSPs, content injection into the agent and drift between snapshots. At a PCI-attested seller a Stripe SPT can also be resolved once into card credentials, which brings card data back into the seller's scope. ChatGPT's own deployment adds mechanisms that the ACP spec does not define: its cloud browser signs certain requests with Web Bot Auth, ChatGPT Wallet asks for a security check before each purchase and hands the merchant a network token for that one transaction, and OpenAI is rolling out user signals in a Forwarded header with unregistered parameters (threats t12 and t13).",
+  "summary": "ACP's one strong control is the allowance: a delegated token works for one merchant, one session, one use, up to a maximum amount and until an expiry, enforced by the PSP. Everything else is bilateral trust. The merchant authenticates the agent with a bearer token agreed out of band, and the agent verifies webhooks with a shared HMAC secret. Request signatures are only recommended on checkout and contradictory on Delegate Payment, while the Delegate Authentication RFC lists them as required although its OpenAPI file marks them optional and the spec defers signing-key advertisement; request freshness is a SHOULD, and nothing records that the buyer approved the purchase. Order webhooks are well specified with HMAC and a 300-second window. As of 2026-11-21 no GitHub advisory exists for the repository (repository advisory API; an NVD keyword search found no CVE on 2026-10-20), a community security review filed as issue 331 on 2026-11-20 raises the signing gaps, and the published research models ACP formally but reports findings only in aggregate. The practical risks sit in implementations: key handling, card data at PSPs, content injection into the agent and drift between snapshots. At a PCI-attested seller a Stripe SPT can also be resolved once into card credentials, which brings card data back into the seller's scope. ChatGPT's own deployment adds mechanisms that the ACP spec does not define: its cloud browser signs certain requests with Web Bot Auth, ChatGPT Wallet asks for a security check before each purchase and hands the merchant a network token for that one transaction, and OpenAI is rolling out user signals in a Forwarded header with unregistered parameters (threats t12 and t13).",
   "threats": [
     {
       "id": "openai-acp-t1",
       "stride": "S",
       "title": "Stolen bearer token impersonates an agent",
-      "description": "The merchant authenticates the agent with a bearer token agreed out of band; the agent verifies the merchant's webhooks with a separate HMAC secret. Anyone holding the agent's token can create and complete sessions as that agent.",
+      "description": "The merchant authenticates the agent with a bearer token agreed out of band; the agent verifies the merchant's webhooks with a separate HMAC secret. Anyone holding the agent's token can create and complete sessions as that agent. Delegate Authentication is the one endpoint whose RFC header list marks the Signature header required and whose security section says it must be verified, but the discovery RFC defers signing-key advertisement until request signing is formalized, a gap a community security review (issue 331, 2026-11-20) also raises.",
       "preconditions": [
         "The key leaks from logs, config or a compromised service",
         "Request signatures are not enforced by the merchant"
       ],
       "impact": "Fraudulent orders charged to tokens the attacker obtained elsewhere, or reconnaissance of prices and stock.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Require the detached Signature and Timestamp on every request even though they are only recommended, and rotate keys. OpenAI publishes egress IP ranges for ChatGPT integrations but says an IP allowlist identifies its network, not a caller, and does not replace authentication (2026-11-14).",
+      "implementerNotes": "Require the detached Signature and Timestamp on every request even though they are only recommended, and rotate keys. OpenAI publishes egress IP ranges for ChatGPT integrations but says an IP allowlist identifies its network, not a caller, and does not replace authentication (2026-11-21).",
       "sources": [
         "src-openai-acp-rfc-checkout",
         "src-openai-acp-openapi-webhook-20260417",
-        "src-openai-acp-ip-egress"
+        "src-openai-acp-ip-egress",
+        "src-openai-acp-rfc-delegate-auth",
+        "src-openai-acp-rfc-discovery",
+        "src-openai-acp-gh-issue-331"
       ]
     },
     {
@@ -198,7 +201,7 @@
       "id": "openai-acp-t12",
       "stride": "T",
       "title": "Forged or stripped Forwarded risk signals (ChatGPT deployment, outside the ACP spec)",
-      "description": "OpenAI is rolling out user signals in the Forwarded header of its cloud browser traffic: asn, for, ip-country, ip-prefix, locale, tz and user-agent. Six of the seven parameters are unregistered, RFC 7239 warns that any node on the path, including the client, can change the header, and OpenAI does not say whether its Web Bot Auth signatures cover it (2026-11-14).",
+      "description": "OpenAI is rolling out user signals in the Forwarded header of its cloud browser traffic: asn, for, ip-country, ip-prefix, locale, tz and user-agent. Six of the seven parameters are unregistered, RFC 7239 warns that any node on the path, including the client, can change the header, and OpenAI does not say whether its Web Bot Auth signatures cover it (2026-11-21).",
       "preconditions": [
         "A merchant risk system trusts Forwarded values",
         "A proxy or client on the path can add or rewrite the header"
@@ -217,7 +220,7 @@
       "id": "openai-acp-t13",
       "stride": "E",
       "title": "ChatGPT Wallet network token reused beyond the approved purchase (outside the ACP spec)",
-      "description": "With ChatGPT Wallet the merchant's existing checkout receives a network token after the user approves one purchase. OpenAI says the customer consents only to that transaction and that the credential must not be reused or saved for another purchase; recurring billing needs separate consent (2026-11-14).",
+      "description": "With ChatGPT Wallet the merchant's existing checkout receives a network token after the user approves one purchase. OpenAI says the customer consents only to that transaction and that the credential must not be reused or saved for another purchase; recurring billing needs separate consent, and OpenAI's help article says that once the user agrees to a recurring plan the merchant may store the credential and charge it again (2026-11-21).",
       "preconditions": [
         "The checkout stores every card it sees for later use",
         "No separate consent is collected for recurring charges"
@@ -227,7 +230,8 @@
       "implementerNotes": "Do not save a Wallet credential as card on file; for subscriptions collect the customer's consent and follow your processor's practice for merchant-initiated transactions. Use the Payment Account Reference to link the token to an account instead of storing the credential. OpenAI also warns that risk systems may decline legitimate agent purchases.",
       "sources": [
         "src-openai-commerce-accept-payments",
-        "src-openai-chatgpt-wallet"
+        "src-openai-chatgpt-wallet",
+        "src-openai-wallet-help-purchases"
       ]
     }
   ],

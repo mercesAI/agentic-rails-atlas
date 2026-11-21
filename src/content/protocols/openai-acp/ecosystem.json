@@ -3,7 +3,7 @@
   "stewards": [
     {
       "name": "OpenAI",
-      "role": "Founding maintainer, TSC seat 1; runs ChatGPT, the main ACP agent surface. Its merchant page still says ChatGPT shopping is built on ACP, while its developer commerce docs, rewritten on 2026-11-13, and ChatGPT Wallet do not mention ACP (as of 2026-11-14).",
+      "role": "Founding maintainer, TSC seat 1; runs ChatGPT, the main ACP agent surface. Its merchant page still says ChatGPT shopping is built on ACP, while its developer commerce docs, rewritten on 2026-11-13, and ChatGPT Wallet do not mention ACP (as of 2026-11-21).",
       "sources": [
         "src-openai-acp-governance",
         "src-openai-acp-maintainers",
@@ -14,7 +14,7 @@
     },
     {
       "name": "Stripe",
-      "role": "Founding maintainer, TSC seat 2; co-developer. The ACP website calls Stripe, with its Shared Payment Token, the first compatible PSP (2026-11-14).",
+      "role": "Founding maintainer, TSC seat 2; co-developer. The ACP website calls Stripe, with its Shared Payment Token, the first compatible PSP (2026-11-21).",
       "sources": [
         "src-openai-acp-governance",
         "src-openai-acp-site"
@@ -36,7 +36,7 @@
   "implementers": [
     {
       "name": "ChatGPT product discovery (OpenAI)",
-      "role": "Agent surface ingesting merchant feeds through ACP, which OpenAI's merchant page still calls the base of ChatGPT shopping (2026-11-14); Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot and Wayfair named on 2026-03-24. Since the 2026-11-13 rewrite OpenAI's docs send businesses to Business Hub to upload full snapshots in OpenAI's own flat feed format, while the merchant page still shows a waitlist and a planned self-serve platform (2026-11-14).",
+      "role": "Agent surface ingesting merchant feeds through ACP, which OpenAI's merchant page still calls the base of ChatGPT shopping (2026-11-21); Target, Sephora, Nordstrom, Lowe's, Best Buy, The Home Depot and Wayfair named on 2026-03-24. Since the 2026-11-13 rewrite OpenAI's docs send businesses to Business Hub to upload full snapshots in OpenAI's own flat feed format, while the merchant page still shows a waitlist and a planned self-serve platform (2026-11-21).",
       "status": "live",
       "sources": [
         "src-openai-product-discovery",
@@ -47,16 +47,18 @@
     },
     {
       "name": "ChatGPT Wallet (OpenAI), not an ACP path",
-      "role": "Launched 2026-11-13 in dots for US ChatGPT Pro subscribers. The user approves each purchase in ChatGPT, and the card network issues a payment token that the merchant's existing checkout charges; built with American Express, Mastercard and Visa, with PSPs including Adyen, Checkout.com and Stripe. OpenAI does not present it as ACP: the merchant receives a network token, and neither the post nor the Accept payments guide names an ACP vault token or an SPT.",
+      "role": "Launched 2026-11-13 in dots for US ChatGPT Pro subscribers; OpenAI's help article (updated 2026-11-19) says it works only in conversations with a dot. The user approves each purchase in ChatGPT, OpenAI's post says the payment network then provides a payment token that the merchant's existing checkout charges, and the Wallet terms let OpenAI ask a PSP, card network or issuer for the credential. As read 2026-11-21 the post names American Express, Chase, Mastercard and Visa as partners, with Chase as a card issuer and launch-day coverage naming three, and PSPs including Adyen, Checkout.com and Stripe. OpenAI does not present it as ACP: the merchant receives a network token, and neither the post nor the Accept payments guide names an ACP vault token or an SPT.",
       "status": "live",
       "sources": [
         "src-openai-chatgpt-wallet",
-        "src-openai-commerce-accept-payments"
+        "src-openai-commerce-accept-payments",
+        "src-openai-wallet-help-purchases",
+        "src-orbit-chatgpt-wallet-terms"
       ]
     },
     {
       "name": "ChatGPT plugins (formerly the Apps SDK) external checkout (OpenAI)",
-      "role": "Users finish on the merchant's own checkout; generally available, with approval currently limited to plugins for physical goods (2026-10-20, unchanged on 2026-11-14). OpenAI's merchant page says there are no fees for purchases made on the merchant's site or app. OpenAI's commerce plugin guide recommends headless plugins, because iframe-based plugin UI is not supported in dots.",
+      "role": "Users finish on the merchant's own checkout; generally available, with approval currently limited to plugins for physical goods (2026-10-20, unchanged on 2026-11-21). OpenAI's merchant page says there are no fees for purchases made on the merchant's site or app. OpenAI's commerce plugin guide recommends headless plugins, because iframe-based plugin UI is not supported in dots.",
       "status": "live",
       "sources": [
         "src-openai-apps-monetization",
@@ -82,7 +84,7 @@
     },
     {
       "name": "ChatGPT Instant Checkout, 2025 form (OpenAI)",
-      "role": "In-chat ACP checkout launched with US Etsy sellers on 2025-09-29; scaled back in March 2026. OpenAI's plugin guidelines still list Instant Checkout as a beta for select marketplace partners (2026-11-14), while its rewritten commerce docs no longer describe it; no end date is published.",
+      "role": "In-chat ACP checkout launched with US Etsy sellers on 2025-09-29; scaled back in March 2026. OpenAI's plugin guidelines still list Instant Checkout as a beta for select marketplace partners (2026-11-21), while its rewritten commerce docs no longer describe it; no end date is published.",
       "status": "unknown",
       "sources": [
         "src-openai-buy-it",
@@ -135,12 +137,13 @@
     },
     {
       "name": "Card networks behind ChatGPT Wallet (American Express, Mastercard, Visa)",
-      "role": "OpenAI built Wallet with all three, and its post quotes American Express calling Wallet its first Agentic Commerce Experiences integration (reported). No source names the program that issues Wallet tokens. Mastercard's CEO said on 2026-10-29 that a broader OpenAI partnership includes the use of Agent Pay (reported); Visa announced an OpenAI collaboration under Visa Intelligent Commerce on 2026-06-10. None of these ties Wallet to ACP.",
+      "role": "OpenAI's post names all three among Wallet's partners, alongside the card issuer Chase (as read 2026-11-21; launch-day coverage named the three networks only), and quotes American Express calling Wallet its first Agentic Commerce Experiences integration (reported). No source names the program that issues Wallet tokens. Mastercard's CEO said on 2026-10-29 that a broader OpenAI partnership includes the use of Agent Pay (reported); Visa announced an OpenAI collaboration under Visa Intelligent Commerce on 2026-06-10. None of these ties Wallet to ACP.",
       "status": "announced",
       "sources": [
         "src-openai-chatgpt-wallet",
         "src-openai-acp-ma-q3-2026-call",
-        "src-openai-acp-visa-openai-22496"
+        "src-openai-acp-visa-openai-22496",
+        "src-openai-wallet-help-purchases"
       ]
     },
     {
@@ -180,6 +183,16 @@
       "sources": [
         "src-openai-target-partnership",
         "src-openai-product-discovery"
+      ]
+    },
+    {
+      "name": "Instacart app in ChatGPT",
+      "role": "OpenAI's post of 2025-12-08 calls it the first app to offer checkout directly within ChatGPT, powered by ACP, through OpenAI Instant Checkout after the user signs in with an Instacart account; Instacart's release says Stripe powers the transactions. No 2026 source says whether that in-chat checkout still runs, and OpenAI's merchant page says OpenAI is moving away from a standalone Instant Checkout experience (2026-11-21).",
+      "status": "unknown",
+      "sources": [
+        "src-openai-acp-instacart-post",
+        "src-openai-acp-instacart-release",
+        "src-chatgpt-merchants"
       ]
     },
     {
@@ -235,9 +248,9 @@
     {
       "id": "acp-gh-stars",
       "metric": "GitHub stars, agentic-commerce-protocol/agentic-commerce-protocol",
-      "value": 1602,
+      "value": 1607,
       "unit": "stars",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "definition": "Stars on the specification repository.",
       "sources": [
         "src-openai-acp-gh-repo"
@@ -249,7 +262,7 @@
       "metric": "GitHub forks",
       "value": 260,
       "unit": "forks",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "definition": "Forks of the specification repository.",
       "sources": [
         "src-openai-acp-gh-repo"
@@ -259,15 +272,15 @@
     {
       "id": "acp-gh-open-issues",
       "metric": "Open issues and pull requests",
-      "value": 148,
+      "value": 151,
       "unit": "items",
-      "asOf": "2026-11-14",
-      "definition": "The GitHub API open_issues_count for the specification repository, which includes open pull requests (91 issues and 57 pull requests on 2026-11-14).",
+      "asOf": "2026-11-21",
+      "definition": "The GitHub API open_issues_count for the specification repository, which includes open pull requests (93 issues and 58 pull requests on 2026-11-21).",
       "sources": [
         "src-openai-acp-gh-repo",
         "src-openai-acp-gh-comments"
       ],
-      "caveat": "Community activity; 67 comments since 2026-07-18, none by a maintainer."
+      "caveat": "Community activity; 89 comments since 2026-07-18, none by a maintainer (2026-11-21)."
     },
     {
       "id": "acp-cla-signatories",
@@ -297,8 +310,8 @@
       "metric": "Commits after the 2026-04-17 release",
       "value": 18,
       "unit": "commits",
-      "asOf": "2026-11-14",
-      "definition": "Commits on main from 2026-04-24 to 2026-07-18; none from then to 2026-11-14, and no maintainer comment or review either.",
+      "asOf": "2026-11-21",
+      "definition": "Commits on main from 2026-04-24 to 2026-07-18; none from then to 2026-11-21, and no maintainer comment or review either.",
       "sources": [
         "src-openai-acp-gh-commits",
         "src-openai-acp-gh-comments"
@@ -373,9 +386,9 @@
       "item": "External checkout from ChatGPT",
       "value": "No fees for purchases made on the merchant's own site or app",
       "whoPays": "Nobody beyond the merchant's own PSP fees",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "confidence": "verified",
-      "caveat": "OpenAI's merchant page as read on 2026-10-20 and 2026-11-14; the same sentences are in a 2026-04-04 capture. Its FAQ says there are no fees on purchases that start in ChatGPT and that OpenAI is moving away from a standalone Instant Checkout experience, with purchases completed on merchant-owned sites or apps.",
+      "caveat": "OpenAI's merchant page as read on 2026-10-20, 2026-11-14 and 2026-11-21; the same sentences are in a 2026-04-04 capture. Its FAQ says there are no fees on purchases that start in ChatGPT and that OpenAI is moving away from a standalone Instant Checkout experience, with purchases completed on merchant-owned sites or apps.",
       "sources": [
         "src-chatgpt-merchants",
         "src-openai-apps-monetization"
@@ -400,7 +413,7 @@
       "whoPays": "Merchant (Shopify)",
       "asOf": "2026-01-21",
       "confidence": "reported",
-      "caveat": "History: PYMNTS relaying The Information and a Shopify spokesperson in January 2026; not published by OpenAI, and the in-chat checkout it referred to was scaled back in March 2026. The same report said Google and Microsoft charged no extra fee for now. Shopify's Help Center now says there are no fees for selling in ChatGPT beyond standard payment processing (2026-11-14).",
+      "caveat": "History: PYMNTS relaying The Information and a Shopify spokesperson in January 2026; not published by OpenAI, and the in-chat checkout it referred to was scaled back in March 2026. The same report said Google and Microsoft charged no extra fee for now. Shopify's Help Center now says there are no fees for selling in ChatGPT beyond standard payment processing (2026-11-21).",
       "sources": [
         "src-pymnts-4pct",
         "src-openai-acp-shopify-help-chatgpt"
@@ -410,13 +423,14 @@
       "item": "ChatGPT Wallet purchases (not an ACP path)",
       "value": "No Wallet fee stated by OpenAI; CNBC reports OpenAI is not taking a cut of transactions to start",
       "whoPays": "Not stated",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "confidence": "reported",
-      "caveat": "OpenAI's Wallet post and Accept payments guide name no fee; the merchant's existing checkout charges the network token, so its normal card processing costs apply. The no-cut statement comes from CNBC, not from an OpenAI page.",
+      "caveat": "OpenAI's Wallet post, Wallet help article and Accept payments guide name no fee; the merchant's existing checkout charges the network token, so its normal card processing costs apply. The no-cut statement comes from CNBC, not from an OpenAI page.",
       "sources": [
         "src-openai-chatgpt-wallet",
         "src-openai-commerce-accept-payments",
-        "src-openai-acp-cnbc-wallet"
+        "src-openai-acp-cnbc-wallet",
+        "src-openai-wallet-help-purchases"
       ]
     },
     {
@@ -459,7 +473,7 @@
       "item": "Card processing",
       "value": "The merchant's normal PSP fees",
       "whoPays": "Merchant",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "confidence": "verified",
       "caveat": "Card economics are unchanged because the merchant charges the payment; OpenAI's Accept payments guide says the merchant's own checkout processes the payment.",
       "sources": [

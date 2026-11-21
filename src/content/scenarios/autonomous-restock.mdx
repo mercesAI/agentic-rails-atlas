@@ -2,7 +2,7 @@
 slug: autonomous-restock
 order: 4
 title: Autonomous restock while the user is away
-summary: A cafe owner signs AP2 v0.2 open mandates with allowed merchants, a per-order cap, a weekly recurrence and a total budget. While the owner is away the agent closes them with its own key, three verifiers check the bindings, and signed receipts come back. Specified only; production use is unverified.
+summary: A cafe owner signs AP2 v0.2 open mandates with allowed merchants, a per-order cap, a weekly recurrence and a total budget. While the owner is away the agent closes them with its own key, three verifiers check the bindings, and signed receipts come back. Specified only; no public source shows this mode in use.
 protocols:
   - ap2
 flow: multi-autonomous-restock
@@ -13,14 +13,14 @@ personas:
   - psp
   - controls-builder
   - fraud-risk
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-21"
 ---
 
 ## The situation
 
 A cafe owner wants coffee beans reordered whenever stock runs low, from one of two roasters, at most once a week, without approving each order. The owner is not present when the agent buys. AP2 v0.2 covers this with its human-not-present mode: the user signs open Checkout and Payment Mandates that include the agent's public key in `cnf`, and the agent later signs closed mandates with its own key.<Cite ids="clm-ap2-091 clm-ap2-092" />
 
-This scenario is specified, not observed. Production use of AP2 mandates is unverified anywhere, including inside UCP, as of 2026-10-21.<Cite ids="clm-ap2-139" /> One third party self-reported a merchant-side AP2 v0.2 deployment in a GitHub issue on 2026-08-29; nobody has verified it.<Cite ids="clm-ap2-140" /> No commit has reached the AP2 main branch since 2026-04-29, and specification work has moved to FIDO.<Cite ids="clm-ap2-029 clm-ap2-022" />
+This scenario is specified, not observed. Google says Gemini has used AP2 for purchases since 2026-11-17, but it publishes no mandate types, signer or verifier, and no public source shows AP2 mandates exchanged with merchants or networks as of 2026-11-21.<Cite ids="clm-ap2-219 clm-ap2-221 clm-ap2-139" /> A Gemini purchase task takes conditions that look like this scenario's limits (allowed merchants, a budget of up to $1000, an expiry within 14 days and optional confirmation), but that likeness is the atlas's comparison: Google does not say whether or which AP2 mandates those tasks create.<Cite ids="clm-ap2-222 clm-ap2-221" /> One third party self-reported a merchant-side AP2 v0.2 deployment in a GitHub issue on 2026-08-29; nobody has verified it.<Cite ids="clm-ap2-140" /> No commit has reached the AP2 main branch since 2026-04-29, and specification work has moved to FIDO.<Cite ids="clm-ap2-029 clm-ap2-022" />
 
 ## Actors
 

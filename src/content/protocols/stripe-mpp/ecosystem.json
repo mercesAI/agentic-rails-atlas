@@ -3,7 +3,7 @@
   "stewards": [
     {
       "name": "Tempo Labs",
-      "role": "Co-author of the core (three of five authors); sole author of both intent drafts, the MCP transport draft and the three Tempo method drafts; co-author of the discovery draft (with Merit Systems) and the stripe method drafts (with Stripe); runs mpp.dev.",
+      "role": "Co-author of the core (three of five authors); sole author of both intent drafts, the MCP transport draft and the three Tempo method drafts; co-author of the discovery draft (with Merit Systems) and the stripe method drafts (with Stripe); runs mpp.dev; since 2026-11-19 it also runs an x402 facilitator that takes USDC on Base and pays sellers in OUSD on Tempo.",
       "sources": [
         "src-stripe-mpp-core-01",
         "src-stripe-mpp-intent-charge",
@@ -14,7 +14,9 @@
         "src-stripe-mpp-tempo-subscription",
         "src-stripe-mpp-discovery",
         "src-stripe-mpp-stripe-charge",
-        "src-stripe-mpp-specs-repo"
+        "src-stripe-mpp-specs-repo",
+        "src-stripe-mpp-tempo-x402-facilitator",
+        "src-stripe-mpp-tempo-x402-supported"
       ]
     },
     {
@@ -118,7 +120,7 @@
     },
     {
       "name": "Tempo Wallet MACH",
-      "role": "On-chain credit that an agent spends over MPP at approved merchants on Tempo, within limits the user approves: 1 USD buys 1 MACH through Coinflow, and MACH does not expire and cannot be sent to another personal wallet, redeemed for cash, swapped or bridged. On 2026-10-21, 19 directory listings carried the supportsMACH flag.",
+      "role": "On-chain credit that an agent spends over MPP at approved merchants on Tempo, within limits the user approves: 1 USD buys 1 MACH through Coinflow, and MACH does not expire and cannot be sent to another personal wallet, redeemed for cash, swapped or bridged. On 2026-10-21, 19 directory listings carried the supportsMACH flag, and 22 on 2026-11-21.",
       "status": "live",
       "sources": [
         "src-stripe-mpp-tempo-wallet-agent",
@@ -142,71 +144,90 @@
         "src-stripe-mpp-tempo-credits",
         "src-stripe-mpp-tempo-wallet-agent"
       ]
+    },
+    {
+      "name": "Amazon Bedrock AgentCore payments (buyer side)",
+      "role": "Pays MPP charge challenges for agents since its general availability on 2026-08-18 (AWS's notice says Machine Payment Protocol): it checks a session budget, signs with a Coinbase CDP or Stripe (Privy) wallet and returns the Authorization value, for the evm, tempo and solana methods. Charge intent only, one challenge per call.",
+      "status": "live",
+      "sources": [
+        "src-x402-aws-agentcore-payments-ga",
+        "src-x402-aws-agentcore-process-payment"
+      ]
+    },
+    {
+      "name": "AWS WAF AI traffic monetization",
+      "role": "Answers AI bots and agents with x402 at the edge since 2026-06-15, settled through Coinbase's facilitator. AWS said MPP support was coming soon; the WAF developer guide read on 2026-11-21 still names only x402.",
+      "status": "announced",
+      "sources": [
+        "src-x402-aws-waf-monetization",
+        "src-x402-aws-waf-monetization-blog",
+        "src-x402-aws-waf-docs"
+      ]
     }
   ],
   "sdks": [
     {
       "registry": "npm",
       "name": "mppx",
-      "version": "0.19.0",
+      "version": "0.21.1",
       "url": "https://www.npmjs.com/package/mppx",
-      "note": "TypeScript SDK by wevm, MIT, and the reference SDK named in the shared AGENTS.md of mpp-specs; server, client, CLI, proxy; serves x402 exact offers since 0.6.29 (2026-06-02) and has dual MPP and x402 framework wrappers since 0.9.0 (2026-08-27). Since 0.16.0 (2026-10-28) it carries the per-route identity framework, and since 0.18.0 its Tempo server methods refuse to start in production without an explicitly configured store. Version 0.19.0 of 2026-11-14, latest as of that date."
+      "note": "TypeScript SDK by wevm, MIT, and the reference SDK named in the shared AGENTS.md of mpp-specs; server, client, CLI, proxy; serves x402 exact offers since 0.6.29 (2026-06-02) and has dual MPP and x402 framework wrappers since 0.9.0 (2026-08-27). Since 0.16.0 (2026-10-28) it carries the per-route identity framework, with Poppy (0.19.1) and ERC-8004 (0.20.0) providers since 2026-11-16, and since 0.18.0 its Tempo server methods refuse to start in production without an explicitly configured store. 0.20.0 (2026-11-16) and 0.21.0 (2026-11-19) fixed payment-boundary flaws without an advisory and both need migration; 0.21.1 adds tempoX402() for Tempo's x402 facilitator. Version 0.21.1 of 2026-11-19, latest as of 2026-11-21."
     },
     {
       "registry": "pypi",
       "name": "pympp",
-      "version": "0.22.0",
+      "version": "0.26.0",
       "url": "https://pypi.org/project/pympp/",
-      "note": "Python SDK by tempoxyz. Version 0.22.0 of 2026-11-09, latest as of 2026-11-14 (0.14.0 on 2026-10-21)."
+      "note": "Python SDK by tempoxyz. Version 0.26.0 of 2026-11-19, latest as of 2026-11-21 (0.22.0 on 2026-11-14; no 0.23.0 was published). 0.24.0 (2026-11-16) added identity primitives and a Tempo ID provider, 0.25.0 x402 Sign-In with X, and 0.26.0 Zone payments, x402_extra and facilitator_pay_to()."
     },
     {
       "registry": "crates",
       "name": "mpp",
-      "version": "0.20.0",
+      "version": "0.21.0",
       "url": "https://crates.io/crates/mpp",
-      "note": "Rust SDK (tempoxyz/mpp-rs). Version 0.20.0 of 2026-11-09, latest as of 2026-11-14 (0.16.0 on 2026-10-21)."
+      "note": "Rust SDK (tempoxyz/mpp-rs). Version 0.21.0 of 2026-11-16, latest as of 2026-11-21 (0.20.0 on 2026-11-14): Tempo Wallet's MACH funding link, identity providers, and a replay fix in TempoChargeMethod::new with no advisory."
     },
     {
       "registry": "go",
       "name": "github.com/tempoxyz/mpp-go",
-      "version": "v0.9.0",
+      "version": "v0.9.1",
       "url": "https://pkg.go.dev/github.com/tempoxyz/mpp-go",
-      "note": "Go SDK. Version v0.9.0 of 2026-11-09, latest as of 2026-11-14 (v0.2.0 on 2026-10-21)."
+      "note": "Go SDK. Version v0.9.1 of 2026-11-16, latest as of 2026-11-21 (v0.9.0 on 2026-11-14): prevents duplicate MCP payments and adds a database/sql replay store."
     },
     {
       "registry": "rubygems",
       "name": "mpp-rb",
       "version": "0.1.10",
       "url": "https://rubygems.org/gems/mpp-rb",
-      "note": "Ruby SDK in stripe/mpp-rb. Version 0.1.10 of 2026-10-26, latest as of 2026-11-14."
+      "note": "Ruby SDK in stripe/mpp-rb. Version 0.1.10 of 2026-10-26, latest as of 2026-11-21."
     },
     {
       "registry": "npm",
       "name": "mpp-card",
       "version": "0.1.8",
       "url": "https://www.npmjs.com/package/mpp-card",
-      "note": "Visa card method SDK; proprietary license; no TAP signing code. Version as of 2026-11-14, unchanged since 2026-03-18."
+      "note": "Visa card method SDK; proprietary license; no TAP signing code. Version as of 2026-11-21, unchanged since 2026-03-18."
     },
     {
       "registry": "npm",
       "name": "@solana/mpp",
       "version": "0.7.0",
       "url": "https://www.npmjs.com/package/@solana/mpp",
-      "note": "Solana method. Version as of 2026-11-14, unchanged since 2026-07-13."
+      "note": "Solana method. Version as of 2026-11-21, unchanged since 2026-07-13."
     },
     {
       "registry": "npm",
       "name": "@stellar/mpp",
       "version": "0.7.1",
       "url": "https://www.npmjs.com/package/@stellar/mpp",
-      "note": "Stellar method. Version as of 2026-11-14, unchanged since 2026-07-02."
+      "note": "Stellar method. Version as of 2026-11-21, unchanged since 2026-07-02."
     },
     {
       "registry": "npm",
       "name": "@buildonspark/lightning-mpp-sdk",
       "version": "0.1.4",
       "url": "https://www.npmjs.com/package/@buildonspark/lightning-mpp-sdk",
-      "note": "Lightning method SDK that extends mppx, in the Spark organization's repository (MIT), with Lightspark addresses among its npm maintainers; mpp.dev's lightning page lists session support as coming soon. Version 0.1.4 of 2026-03-18, latest as of 2026-11-14."
+      "note": "Lightning method SDK that extends mppx, in the Spark organization's repository (MIT), with Lightspark addresses among its npm maintainers; mpp.dev's lightning page lists session support as coming soon. Version 0.1.4 of 2026-03-18, latest as of 2026-11-21."
     }
   ],
   "metrics": [
@@ -215,14 +236,14 @@
       "metric": "MPPscan transactions, all time",
       "value": 4693132,
       "unit": "transactions",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "definition": "MPPscan's count of MPP payments.",
       "sources": [
         "src-stripe-mpp-mppscan",
         "src-stripe-mpp-visa-groundup",
         "src-stripe-mpp-merit-glossary"
       ],
-      "caveat": "The indexer's own definition: MPPscan publishes no counting method and does not say whether test or wash payments are excluded, while Visa and Artemis exclude identified wash and test activity from their adjusted totals. A Merit Systems page dated 2026-06-24 shows the same live figures, so they are not June values. Read on 2026-11-14, the newest indexed transaction dated from 2026-11-11T17:14:56Z and the 1-day window read 0, so the indexer appears to have stopped then. The count was 4,250,945 on 2026-10-21.",
+      "caveat": "The indexer's own definition: MPPscan publishes no counting method and does not say whether test or wash payments are excluded, while Visa and Artemis exclude identified wash and test activity from their adjusted totals. A Merit Systems page dated 2026-06-24 shows the same live figures, so they are not June values. Read on 2026-11-14, the newest indexed transaction dated from 2026-11-11T17:14:56Z and the 1-day window read 0, so the indexer appears to have stopped then. The count was 4,250,945 on 2026-10-21. Read again on 2026-11-21 the value had not changed, because the indexer had added nothing since 2026-11-11.",
       "disputed": false
     },
     {
@@ -230,24 +251,24 @@
       "metric": "MPPscan volume, all time",
       "value": 445223,
       "unit": "USD",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "definition": "Sum of indexed payment values.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "About 0.09 USD per transaction on average; indexed data ends on 2026-11-11. The total was 437,665 USD on 2026-10-21."
+      "caveat": "About 0.09 USD per transaction on average; indexed data ends on 2026-11-11. The total was 437,665 USD on 2026-10-21. Read again on 2026-11-21 the value had not changed, because the indexer had added nothing since 2026-11-11."
     },
     {
       "id": "stripe-mpp-mppscan-senders",
       "metric": "MPPscan unique senders and recipients, all time",
       "value": "225,341 / 6,223",
       "unit": "addresses",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "definition": "Distinct sending and receiving addresses.",
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "Addresses, not agents or businesses; indexed data ends on 2026-11-11. The figures were 224,823 / 6,138 on 2026-10-21."
+      "caveat": "Addresses, not agents or businesses; indexed data ends on 2026-11-11. The figures were 224,823 / 6,138 on 2026-10-21. Read again on 2026-11-21 the value had not changed, because the indexer had added nothing since 2026-11-11."
     },
     {
       "id": "stripe-mpp-mppscan-30d",
@@ -259,7 +280,7 @@
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "Not comparable with the earlier reading: indexed data ends on 2026-11-11, so the window holds about 26.6 indexed days. Per indexed day that is about 20,100 transactions and 327 USD, about 1.6 cents each. On 2026-10-21 the full window read 785,833 transactions and 8,620 USD, about 26,200 and 287 USD a day at about 1.1 cents each."
+      "caveat": "Not comparable with the earlier reading: indexed data ends on 2026-11-11, so the window holds about 26.6 indexed days. Per indexed day that is about 20,100 transactions and 327 USD, about 1.6 cents each. On 2026-10-21 the full window read 785,833 transactions and 8,620 USD, about 26,200 and 287 USD a day at about 1.1 cents each. Re-read on 2026-11-21 the window showed 417,898 transactions and 7,086 USD over only about 20 indexed days; the fall reflects the stalled indexer, not lower use."
     },
     {
       "id": "stripe-mpp-mppscan-7d",
@@ -271,19 +292,19 @@
       "sources": [
         "src-stripe-mpp-mppscan"
       ],
-      "caveat": "Holds only about 3.6 indexed days because indexed data ends on 2026-11-11, so do not read a decline into it. On 2026-10-21 the window read 120,727 transactions and 1,560 USD. Do not read the homepage numbers as all-time totals."
+      "caveat": "Holds only about 3.6 indexed days because indexed data ends on 2026-11-11, so do not read a decline into it. On 2026-10-21 the window read 120,727 transactions and 1,560 USD. Do not read the homepage numbers as all-time totals. Re-read on 2026-11-21 the window read 0, because nothing had been indexed since 2026-11-11."
     },
     {
       "id": "stripe-mpp-directory",
       "metric": "mpp.dev directory services",
-      "value": 139,
+      "value": 142,
       "unit": "services",
-      "asOf": "2026-11-14",
-      "definition": "Listings in mpp.dev/api/services; 136 accept tempo, 10 stripe, 1 evm; 19 carry the supportsMACH flag.",
+      "asOf": "2026-11-21",
+      "definition": "Listings in mpp.dev/api/services; 139 accept tempo, 10 stripe, 1 evm; 22 carry the supportsMACH flag.",
       "sources": [
         "src-stripe-mpp-directory-api"
       ],
-      "caveat": "A listing, not usage. The directory had 138 listings on 2026-10-21."
+      "caveat": "A listing, not usage. The directory had 139 listings on 2026-11-14 and 138 on 2026-10-21."
     },
     {
       "id": "stripe-mpp-directory-launch",
@@ -316,7 +337,7 @@
       "metric": "GitHub stars",
       "value": "mpp-specs 97; mppx 192",
       "unit": "stars",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "definition": "Stars on the two main repositories.",
       "sources": [
         "src-stripe-mpp-gh-specs-commits",

@@ -4,12 +4,12 @@
     {
       "title": "Charge per request (server)",
       "sdk": "mppx",
-      "version": "0.19.0",
+      "version": "0.21.1",
       "language": "typescript",
       "side": "server",
       "code": "import { Mppx, tempo } from 'mppx/server'\n\nconst mppx = Mppx.create({\n  methods: [\n    tempo({\n      recipient: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',\n    }),\n  ],\n  secretKey: process.env.MPP_SECRET_KEY!,\n})\n\nexport async function handler(request: Request) {\n  const response = await mppx.charge({ amount: '1' })(request)\n\n  if (response.status === 402) return response.challenge\n\n  return response.withReceipt(Response.json({ data: '...' }))\n}",
       "docsUrl": "https://mpp.dev/sdk/typescript",
-      "note": "From the README quick start at mppx 0.19.0, unchanged since 0.14.1. secretKey is the challenge-binding secret; the README asks for at least 32 bytes. Keep it out of source control. Since 0.18.0 (2026-11-09) tempo() throws at construction when no store is passed and NODE_ENV is production, a multi-instance platform such as Vercel or AWS Lambda is detected, or the code runs on Cloudflare Workers: pass a shared store (for example Store.redis() or Store.postgres()), or store: Store.memory() for a single instance. Locally it warns and falls back to memory.",
+      "note": "From the README quick start at mppx 0.21.1, unchanged since 0.14.1 (README.md is identical from 0.19.0 to 0.21.1). secretKey is the challenge-binding secret; the README asks for at least 32 bytes. Keep it out of source control. Since 0.18.0 (2026-11-09) tempo() throws at construction when no store is passed and NODE_ENV is production, a multi-instance platform such as Vercel or AWS Lambda is detected, or the code runs on Cloudflare Workers: pass a shared store (for example Store.redis() or Store.postgres()), or store: Store.memory() for a single instance. Locally it warns and falls back to memory.",
       "sources": [
         "src-stripe-mpp-mppx-repo",
         "src-stripe-mpp-mppx-changelog"
@@ -18,12 +18,12 @@
     {
       "title": "Pay automatically with fetch (client)",
       "sdk": "mppx",
-      "version": "0.19.0",
+      "version": "0.21.1",
       "language": "typescript",
       "side": "client",
       "code": "import { Mppx, tempo } from 'mppx/client'\nimport { privateKeyToAccount } from 'viem/accounts'\n\nMppx.create({\n  methods: [tempo({ account: privateKeyToAccount('0x...') })],\n})\n\n// Global fetch now handles 402 automatically\nconst res = await fetch('https://mpp.dev/api/ping/paid')",
       "docsUrl": "https://mpp.dev/sdk/typescript",
-      "note": "From the README quick start at mppx 0.19.0. Never put a real key in code; the atlas uses ephemeral keys on simulated chain ids only.",
+      "note": "From the README quick start at mppx 0.21.1 (README.md is identical from 0.19.0 to 0.21.1). Never put a real key in code; the atlas uses ephemeral keys on simulated chain ids only.",
       "sources": [
         "src-stripe-mpp-mppx-repo"
       ]
@@ -31,12 +31,12 @@
     {
       "title": "Require a verified email before the price (server)",
       "sdk": "mppx",
-      "version": "0.19.0",
+      "version": "0.21.1",
       "language": "typescript",
       "side": "server",
       "code": "import * as EmailOtp from 'mppx/extensions/identity/email-otp'\nimport { Mppx, tempo } from 'mppx/server'\n\nconst email = EmailOtp.Server.verifier({\n  allow: (address) => address.endsWith('@example.com'),\n  audience: 'https://api.example.com',\n  issuer: 'https://identity.mpp.tempo.xyz',\n})\nconst mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })\n\nexport async function handler(request: Request) {\n  const result = await mppx.charge({ amount: '0.05', identity: [email] })(request)\n  if (result.status === 402) return result.challenge\n  return result.withReceipt(Response.json({ email: result.identity?.get(email)?.email }))\n}",
       "docsUrl": "https://mpp.dev/extensions/identity",
-      "note": "From the Email OTP setup example on mpp.dev (docs source at tempoxyz/mpp d062df6, highlight markers removed), checked against the mppx 0.19.0 source of EmailOtp.Server.verifier. The verifier runs before the 402: a request without an attestation gets 401 with Identity-Attestation-Required, an address that allow rejects gets 403, and unreachable issuer keys get 503. Identity is an mppx extension, and its header fields are not part of any MPP draft. The example targets the Moderato testnet and passes no store.",
+      "note": "From the Email OTP setup example on mpp.dev (docs source at tempoxyz/mpp d062df6, unchanged at fe21782, highlight markers removed), checked against the mppx source of EmailOtp.Server.verifier, unchanged from 0.19.0 to 0.21.1. The verifier runs before the 402: a request without an attestation gets 401 with Identity-Attestation-Required, an address that allow rejects gets 403, and unreachable issuer keys get 503. Identity is an mppx extension, and its header fields are not part of any MPP draft. The example targets the Moderato testnet and passes no store.",
       "sources": [
         "src-stripe-mpp-docs-identity",
         "src-stripe-mpp-mppx-changelog"
@@ -45,12 +45,12 @@
     {
       "title": "Metered session route in a payments proxy (server)",
       "sdk": "mppx",
-      "version": "0.19.0",
+      "version": "0.21.1",
       "language": "typescript",
       "side": "server",
       "code": "import { openai, Proxy } from 'mppx/proxy'\nimport { Mppx, tempo } from 'mppx/server'\n\nconst mppx = Mppx.create({\n  methods: [tempo()],\n  secretKey: process.env.MPP_SECRET_KEY!,\n})\n\nconst proxy = Proxy.create({\n  services: [\n    openai({\n      apiKey: 'sk-...',\n      routes: {\n        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),\n        'POST /v1/completions': mppx.tempo.session({\n          amount: '0.0001',\n          unitType: 'token',\n        }),\n        'GET /v1/models': true,\n      },\n    }),\n  ],\n})",
       "docsUrl": "https://github.com/wevm/mppx/blob/b56505c4a7e6fd63b8bbac7f839dcf95c68b8d52/README.md",
-      "note": "Shortened from the README payments proxy example at mppx 0.19.0 (unchanged since 0.14.1): one route charges per call, one meters per token through a Tempo session. As with the charge example, tempo() needs a shared store in production since 0.18.0.",
+      "note": "Shortened from the README payments proxy example at mppx 0.21.1 (unchanged since 0.14.1): one route charges per call, one meters per token through a Tempo session. As with the charge example, tempo() needs a shared store in production since 0.18.0. Since 0.20.0, billable per-item session streams must call stream.charge() before the work, and billable SSE proxy session routes need unitType request; by the 0.21.1 source, this route uses the default HTTP transport, which still prepays each request, so the example stands (the atlas has not run it). Since 0.21.0, enabling proxy replay needs a stable replay.authority.",
       "sources": [
         "src-stripe-mpp-mppx-repo",
         "src-stripe-mpp-mppx-changelog"
@@ -59,12 +59,12 @@
     {
       "title": "CLI: pay, choose protocol, close sessions",
       "sdk": "mppx CLI",
-      "version": "0.19.0",
+      "version": "0.21.1",
       "language": "bash",
       "side": "cli",
       "code": "# create account - stored in keychain, autofunded on testnet\nmppx account create\n\n# make request - automatic payment handling, curl-like api\nmppx example.com\n\n# pay an x402 offer on a server that advertises both protocols\nmppx example.com --protocol x402\n\n# inspect and close retained sessions\nmppx sessions list\nmppx sessions close --all --yes",
       "docsUrl": "https://github.com/wevm/mppx/blob/b56505c4a7e6fd63b8bbac7f839dcf95c68b8d52/README.md",
-      "note": "Lines taken from the README CLI section at mppx 0.19.0 (the README also shows session selection, sessions view and custom escrow trust). Session channels are kept until you close them, which matters because Tempo session channels never expire.",
+      "note": "Lines taken from the README CLI section at mppx 0.21.1, unchanged from 0.19.0 (the README also shows session selection, sessions view and custom escrow trust). Session channels are kept until you close them, which matters because Tempo session channels never expire.",
       "sources": [
         "src-stripe-mpp-mppx-repo",
         "src-stripe-mpp-tempo-session"

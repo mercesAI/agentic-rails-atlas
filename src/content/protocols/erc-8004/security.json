@@ -47,10 +47,11 @@
       ],
       "impact": "Clients act on capabilities or endpoints that changed after they vetted the agent.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Prefer content-addressed URIs; cache and hash the file you vetted; re-check before each high-value call.",
+      "implementerNotes": "Prefer content-addressed URIs; cache and hash the file you vetted; re-check before each high-value call. For comparison, the Draft ERC-8048 keeps its own agent keys on-chain for this reason (since 2026-11-17).",
       "sources": [
         "src-erc-8004-spec",
-        "src-erc-8004-identity-sol"
+        "src-erc-8004-identity-sol",
+        "src-erc-8004-erc-8048-pr-2181"
       ]
     },
     {
@@ -145,10 +146,11 @@
       ],
       "impact": "Payments go to the previous owner; reputation carries over to a new operator.",
       "mitigatedBySpec": "partial",
-      "implementerNotes": "Read getAgentWallet right before paying; watch Transfer events; discount feedback older than the last transfer.",
+      "implementerNotes": "Read getAgentWallet right before paying; watch Transfer events; discount feedback older than the last transfer. An MPP server that uses the mppx ERC-8004 provider refuses a transferred agent until the new owner binds a wallet.",
       "sources": [
         "src-erc-8004-spec",
-        "src-erc-8004-identity-sol"
+        "src-erc-8004-identity-sol",
+        "src-stripe-mpp-mppx-pr-1304"
       ]
     },
     {
@@ -315,6 +317,15 @@
       "finding": "owner() of all three proxies on Ethereum and Base returns 0x547289319C3e6aedB179C0b8e8aF0B5ACd062603, an address with no contract code.",
       "sources": [
         "src-erc-8004-onchain-probe"
+      ]
+    },
+    {
+      "title": "Anduin: A sybil-resistant agentic marketplace reputation system",
+      "date": "2026-11-03",
+      "finding": "Rates x402 service providers from the payment graph between buyers and providers, so manipulation needs real payments at the services a buyer already uses. On 66 million x402 payments over 157 days the authors report about the same accuracy as collaborative filtering and about 23 times the manipulation cost in the tested attack; Circle's post says fewer than 4,000 voluntary on-chain ratings, such as ERC-8004 feedback, were recorded across those payments.",
+      "publicationId": "pub-ramji-2026-anduin",
+      "sources": [
+        "src-orbit-circle-anduin"
       ]
     }
   ],

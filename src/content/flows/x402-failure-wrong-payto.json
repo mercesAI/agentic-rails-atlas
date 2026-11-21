@@ -25,7 +25,9 @@
   "sources": [
     "src-x402-spec-v2",
     "src-x402-scheme-exact-evm",
-    "src-x402-sdk-evm-errors"
+    "src-x402-sdk-evm-errors",
+    "src-x402-sdk-evm-errors-e35",
+    "src-x402-gh-pr-4174"
   ],
   "steps": [
     {
@@ -82,7 +84,7 @@
       "from": "facilitator",
       "to": "server",
       "label": "Return isValid false (recipient mismatch)",
-      "detail": "The facilitator checks authorization.to against payTo in the server requirements. The spec code is invalid_exact_evm_payload_recipient_mismatch; the TypeScript facilitator reports invalid_exact_evm_recipient_mismatch.",
+      "detail": "The facilitator checks authorization.to against payTo in the server requirements and returns the spec code invalid_exact_evm_payload_recipient_mismatch. The TypeScript and Go facilitators send that code since @x402/evm 2.32.0 and Go v2.32.0 (2026-11-20); older releases send invalid_exact_evm_recipient_mismatch.",
       "payload": {
         "format": "json",
         "content": "// Illustrative example, spec version v2.0.\n{\n  \"isValid\": false,\n  \"invalidReason\": \"invalid_exact_evm_payload_recipient_mismatch\",\n  \"payer\": \"0xA11ce0000000000000000000000000000000a11c\"\n}",

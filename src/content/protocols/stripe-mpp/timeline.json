@@ -148,6 +148,19 @@
       "detail": "Tempo's statement; Mastercard makes no MPP claim."
     },
     {
+      "date": "2026-06-15",
+      "lane": "Stripe MPP",
+      "title": "AWS WAF says MPP support is coming soon to its x402 AI traffic monetization",
+      "kind": "announce",
+      "sources": [
+        "src-x402-aws-waf-monetization",
+        "src-x402-aws-waf-monetization-blog",
+        "src-x402-aws-waf-docs"
+      ],
+      "confidence": "verified",
+      "detail": "AWS WAF answers AI bots with x402, settled through Coinbase's facilitator, and AWS said Stripe direct-account payments and MPP support were coming soon. The WAF developer guide read on 2026-11-21 still names only x402."
+    },
+    {
       "date": "2026-06-16",
       "lane": "Stripe MPP",
       "title": "Circle usdc method merged",
@@ -187,10 +200,11 @@
       "kind": "security",
       "sources": [
         "src-stripe-mpp-ghsa-other",
-        "src-stripe-mpp-ghsa-pympp"
+        "src-stripe-mpp-ghsa-pympp",
+        "src-stripe-mpp-ghsa-v858-global"
       ],
       "confidence": "verified",
-      "detail": "Two medium mppx advisories fixed in 0.8.2 and a low pympp advisory fixed in 0.9.1 (repository publication dates)."
+      "detail": "Two medium mppx advisories fixed in 0.8.2, and a pympp advisory fixed in 0.9.1 that its repository rates low; the GitHub Advisory Database rated it medium when it added it on 2026-11-17. Dates are repository publication dates."
     },
     {
       "date": "2026-07-29",
@@ -213,6 +227,19 @@
       ],
       "confidence": "verified",
       "detail": "Shipped in 0.8.17 on 2026-08-10; blog 2026-08-12."
+    },
+    {
+      "date": "2026-08-18",
+      "lane": "Stripe MPP",
+      "title": "Amazon Bedrock AgentCore payments adds MPP at general availability",
+      "kind": "launch",
+      "sources": [
+        "src-x402-aws-agentcore-payments-ga",
+        "src-x402-aws-agentcore-payments-preview",
+        "src-x402-aws-agentcore-process-payment"
+      ],
+      "confidence": "verified",
+      "detail": "Buyer side: AgentCore pays MPP charge challenges for agents with the evm, tempo and solana methods and Coinbase CDP or Stripe (Privy) wallets. The 2026-05-07 preview described only x402."
     },
     {
       "date": "2026-08-25",
@@ -297,6 +324,19 @@
         "src-stripe-mpp-gh-pr-280"
       ],
       "confidence": "verified"
+    },
+    {
+      "date": "2026-10-05",
+      "lane": "Stripe MPP",
+      "title": "Spec issue flags that the MCP transport's error codes collide with MCP",
+      "kind": "governance",
+      "sources": [
+        "src-stripe-mpp-gh-issue-374",
+        "src-stripe-mpp-mcp-schema-2025-11-25",
+        "src-stripe-mpp-mcp-error-codes-2026-07-28"
+      ],
+      "confidence": "verified",
+      "detail": "mpp-specs issue #374: -32042 means URL elicitation required in MCP 2025-11-25, and MCP 2026-07-28 reserves -32020 to -32099 for its own codes. Still open on 2026-11-21."
     },
     {
       "date": "2026-10-15",
@@ -430,6 +470,117 @@
       ],
       "confidence": "verified",
       "detail": "Breaking: Web Bot Auth and TAP provers take a key pair or remote signer; adds Tempo ID and World ID verifiers."
+    },
+    {
+      "date": "2026-11-16",
+      "lane": "Stripe MPP",
+      "title": "mppx 0.19.1 to 0.20.1 add Poppy and ERC-8004 identity providers and session fixes",
+      "kind": "release",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-npm-mppx",
+        "src-stripe-mpp-mppx-pr-1304",
+        "src-stripe-mpp-mppx-pr-1300"
+      ],
+      "confidence": "verified",
+      "detail": "0.19.1 checks Personal Agent Protocol (Poppy) sessions before any challenge; 0.20.0 adds an ERC-8004 identity provider, an SDK feature in no MPP draft, and breaking session fixes for metering and payer binding; 0.20.1 adds an attestation issuer, Tempo ID attestations and x402 sign-in-with-x."
+    },
+    {
+      "date": "2026-11-16",
+      "lane": "Stripe MPP",
+      "title": "Other MPP SDKs release: pympp 0.24.0 and 0.25.0, Rust mpp 0.21.0, mpp-go v0.9.1",
+      "kind": "release",
+      "sources": [
+        "src-stripe-mpp-sdk-registries",
+        "src-stripe-mpp-pympp-releases",
+        "src-stripe-mpp-mpp-rs-releases",
+        "src-stripe-mpp-mpp-go-repo"
+      ],
+      "confidence": "verified",
+      "detail": "Identity providers in pympp and the Rust crate, a replay fix in the crate's TempoChargeMethod::new, and duplicate MCP payment prevention and a database/sql replay store in mpp-go. No spec change."
+    },
+    {
+      "date": "2026-11-17",
+      "lane": "Stripe MPP",
+      "title": "pympp advisory GHSA-v858-xh7w-8jr5 enters the GitHub Advisory Database as medium",
+      "kind": "security",
+      "sources": [
+        "src-stripe-mpp-ghsa-v858-global",
+        "src-stripe-mpp-nvd-63634",
+        "src-stripe-mpp-ghsa-pympp"
+      ],
+      "confidence": "verified",
+      "detail": "GitHub-reviewed with a CVSS 4.0 score of 6.9, while the repository advisory still says low. NVD published CVE-2026-63634 on 2026-11-09 with only that CNA score."
+    },
+    {
+      "date": "2026-11-17",
+      "lane": "Stripe MPP",
+      "title": "Pull request to move MPP's MCP binding off MCP's reserved codes closes unmerged",
+      "kind": "governance",
+      "sources": [
+        "src-stripe-mpp-gh-pr-392",
+        "src-stripe-mpp-mppx-repo",
+        "src-stripe-mpp-mpp-go-repo"
+      ],
+      "confidence": "verified",
+      "detail": "mpp-specs PR #392 (opened 2026-11-04) proposed a -01 that signals payment in a tool result and uses -31042 and -31043 elsewhere. Its author closed it without merge, so the draft, mppx and mpp-go still use -32042."
+    },
+    {
+      "date": "2026-11-19",
+      "lane": "Stripe MPP",
+      "title": "mppx 0.21.0 fixes payment-boundary flaws without an advisory",
+      "kind": "security",
+      "sources": [
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-mppx-pr-1325",
+        "src-stripe-mpp-mppx-pr-1326",
+        "src-stripe-mpp-mppx-pr-1184",
+        "src-stripe-mpp-mppx-pr-1315",
+        "src-stripe-mpp-npm-mppx"
+      ],
+      "confidence": "verified",
+      "detail": "Replay claims bound to their request, session sources bound to the funding payer, Express output held until payment verifies, only Payment-Authorization accepted as an explicit header, and Zone settlements that pay once. Breaking: proxy replay needs a stable replay.authority."
+    },
+    {
+      "date": "2026-11-19",
+      "lane": "Stripe MPP",
+      "title": "Tempo's x402 facilitator is live, with helpers in mppx 0.21.1 and pympp 0.26.0",
+      "kind": "launch",
+      "sources": [
+        "src-stripe-mpp-tempo-x402-facilitator",
+        "src-stripe-mpp-tempo-x402-supported",
+        "src-stripe-mpp-gh-mpp-pr-1255",
+        "src-stripe-mpp-mppx-changelog",
+        "src-stripe-mpp-pympp-releases"
+      ],
+      "confidence": "verified",
+      "detail": "Sellers keep x402 on Base: buyers pay USDC to Tempo's deposit address, and Tempo pays the seller in OUSD on Tempo. The docs merged on 2026-11-18 while their author asked to wait for production; no announcement was found."
+    },
+    {
+      "date": "2026-11-19",
+      "lane": "Stripe MPP",
+      "title": "Node release tempo/v1.19.0 schedules Tempo's T14 upgrade",
+      "kind": "release",
+      "sources": [
+        "src-stripe-mpp-tempo-releases",
+        "src-stripe-mpp-tempo-t14",
+        "src-stripe-mpp-tempo-t15"
+      ],
+      "confidence": "verified",
+      "detail": "T14 is scheduled for 2026-11-24 on testnet and 2026-12-08 on mainnet, at 15:00 UTC, and its scope may still change. For payers that upgrade to configurable accounts, older channel deposits cannot be topped up and vouchers need a separate single-key authorizedSigner until TIP-1166 in T15."
+    },
+    {
+      "date": "2026-11-20",
+      "lane": "Stripe MPP",
+      "title": "IETF 127 HTTP working group hears a 402 semantics draft that lists MPP's core draft as a use",
+      "kind": "governance",
+      "sources": [
+        "src-orbit-httpbis-402-draft",
+        "src-orbit-httpbis-ietf127-402",
+        "src-stripe-mpp-ietf-current"
+      ],
+      "confidence": "verified",
+      "detail": "draft-nottingham-httpbis-402-00 would define only the meaning of 402. A show of hands on adoption interest gave 15 yes, 3 no and 18 no opinion, with 75 present. The MPP core draft had no new revision."
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "protocol": "ap2",
-  "summary": "AP2 assumes every LLM and agent can be turned against the user, so it puts the user's approval on a non-agentic Trusted Surface and binds each closed mandate to one checkout with hashes, while open mandates are bound to the agent's key. Within that design, tampering with the checkout or payment and reusing a stolen mandate are well covered. The open problems sit before and after the signature: prompt injection that steers what the agent picks, replay at runtime because verifiers have no consume-once rule, no revocation of open mandates, no step-up in v0.2, and no retention rule for dispute evidence. No CVE or advisory was found for the repository (GitHub repository advisories, GitHub Advisory Database and NVD, searched 2026-10-21); the published findings come from 2026 research papers and unreviewed GitHub issues.",
+  "summary": "AP2 assumes every LLM and agent can be turned against the user, so it puts the user's approval on a non-agentic Trusted Surface and binds each closed mandate to one checkout with hashes, while open mandates are bound to the agent's key. Within that design, tampering with the checkout or payment and reusing a stolen mandate are well covered. The open problems sit before and after the signature: prompt injection that steers what the agent picks, replay at runtime because verifiers have no consume-once rule, no revocation of open mandates, no step-up in v0.2, and no retention rule for dispute evidence. No CVE or advisory was found for the repository (GitHub repository advisories, GitHub Advisory Database and NVD, searched 2026-11-21); the published findings come from 2026 research papers and unreviewed GitHub issues, including a 2026-11-17 report that the reference Python SDK compares checkout_hash only when the caller supplies the expected value.",
   "threats": [
     {
       "id": "ap2-t1",
@@ -31,11 +31,13 @@
       ],
       "impact": "User approves a different checkout than the merchant created.",
       "mitigatedBySpec": "yes",
-      "implementerNotes": "The merchant signs checkout_jwt and checks checkout_hash against its latest checkout before completing.",
+      "implementerNotes": "The merchant signs checkout_jwt and checks checkout_hash against its latest checkout before completing. With the reference Python SDK, compute the hash of the checkout_jwt you hold and pass it as expected_checkout_hash: CheckoutMandateChain.verify() skips the comparison otherwise (issue 399, 2026-11-17; fix PR 400 open on 2026-11-21).",
       "sources": [
         "src-ap2-security",
         "src-ap2-schema-checkout",
-        "src-ap2-spec-v02"
+        "src-ap2-spec-v02",
+        "src-ap2-issue-399",
+        "src-ap2-sdk-checkout-mandate-chain"
       ]
     },
     {
@@ -64,10 +66,11 @@
       ],
       "impact": "Unauthorized purchase.",
       "mitigatedBySpec": "yes",
-      "implementerNotes": "transaction_id names one checkout_jwt hash; open mandates must carry payment.reference.",
+      "implementerNotes": "transaction_id names one checkout_jwt hash; open mandates must carry payment.reference. The reference Python SDK's PaymentMandateChain.verify() compares transaction_id only when expected_transaction_id is passed, so compute it from the checkout_jwt and pass it (the atlas's reading of the code at e1ea56d).",
       "sources": [
         "src-ap2-security",
-        "src-ap2-schema-open-payment"
+        "src-ap2-schema-open-payment",
+        "src-ap2-sdk-payment-mandate-chain"
       ]
     },
     {
@@ -332,6 +335,24 @@
       "publicationId": "pub-kodathala-2026-approve",
       "sources": [
         "src-ap2-pub-2610-21063"
+      ]
+    },
+    {
+      "title": "Issue 398: payment constraints can slip through between roles",
+      "date": "2026-11-14",
+      "finding": "In the v0.2 Python samples, undisclosed Payment-side constraints that no verifier claims, mixed mandate pairs checked by different roles, and budget and recurrence counters kept only by the agent let payments settle that the user's constraints should block (third-party report, not reproduced).",
+      "sources": [
+        "src-ap2-issue-398"
+      ]
+    },
+    {
+      "title": "Issue 399: CheckoutMandateChain.verify() does not bind checkout_hash to checkout_jwt by default",
+      "date": "2026-11-17",
+      "finding": "The reference Python SDK compares checkout_hash only when the caller passes expected_checkout_hash, and the repository's happy-path tests use checkout_hash='hash', so a caller that copies them accepts a swapped checkout_jwt that meets the open constraints. A weakness of the reference code, not of the specification; fix PR 400 open on 2026-11-21.",
+      "sources": [
+        "src-ap2-issue-399",
+        "src-ap2-pr-400",
+        "src-ap2-sdk-checkout-mandate-chain"
       ]
     }
   ],

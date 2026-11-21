@@ -3,7 +3,7 @@
   "stewards": [
     {
       "name": "FIDO Alliance",
-      "role": "Develops agent-commerce specifications from the AP2 contribution in its Payments Technical Working Group (chaired by Mastercard and Visa) since the 2026-04-28 donation; a separate Agentic Authentication Technical Working Group covers agent authentication. No public deliverable was found as of 2026-10-21.",
+      "role": "Develops agent-commerce specifications from the AP2 contribution in its Payments Technical Working Group (chaired by Mastercard and Visa) since the 2026-04-28 donation; a separate Agentic Authentication Technical Working Group covers agent authentication. No public deliverable was found as of 2026-11-21.",
       "sources": [
         "src-ap2-fido-pr",
         "src-ap2-google-fido-blog"
@@ -21,18 +21,22 @@
   "implementers": [
     {
       "name": "Universal Commerce Protocol",
-      "role": "Specifies the AP2 extension dev.ucp.common.payment.ap2_mandate; live use unverified.",
+      "role": "Specifies the AP2 extension dev.ucp.common.payment.ap2_mandate; live use unverified, and Google's own UCP platform profiles declare no AP2 extension (read 2026-11-21).",
       "status": "announced",
       "sources": [
         "src-ap2-ucp-ext",
-        "src-ap2-faq"
+        "src-ap2-faq",
+        "src-ucp-google-platform-profiles"
       ]
     },
     {
-      "name": "Google products (Gemini Spark first)",
-      "role": "Google said on 2026-05-19 it would begin bringing AP2 to its products in the coming months.",
-      "status": "announced",
+      "name": "Google Gemini (Tasks in Gemini, Google Pay checkout), US",
+      "role": "Google says Gemini has used AP2 for purchases since 2026-11-17: checkout with Google Pay in Tasks in Gemini, rolling out to US users aged 18 and over in English. Tasks is the product Google called Gemini Spark when it promised AP2 on 2026-05-19. Google's statement only: no AP2 version, mandate types, signer or verifier is published.",
+      "status": "live",
       "sources": [
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-release-notes-20261117",
+        "src-ap2-gemini-tasks-help",
         "src-ucp-google-universal-cart"
       ]
     },
@@ -141,9 +145,9 @@
     {
       "id": "ap2-gh-stars",
       "metric": "GitHub stars, google-agentic-commerce/AP2",
-      "value": 3240,
+      "value": 3281,
       "unit": "stars",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-21",
       "definition": "Stars on the repository.",
       "sources": [
         "src-ap2-gh-repo"
@@ -153,9 +157,9 @@
     {
       "id": "ap2-gh-forks",
       "metric": "GitHub forks",
-      "value": 515,
+      "value": 524,
       "unit": "forks",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-21",
       "definition": "Forks of the repository.",
       "sources": [
         "src-ap2-gh-repo"
@@ -164,10 +168,10 @@
     {
       "id": "ap2-prs-since-v02",
       "metric": "Pull requests opened after the last commit, merged",
-      "value": "65 opened, 0 merged",
+      "value": "71 opened, 0 merged",
       "unit": "pull requests",
-      "asOf": "2026-10-21",
-      "definition": "Pull requests opened after commit e1ea56d (2026-04-29T16:51Z) to 2026-10-21.",
+      "asOf": "2026-11-21",
+      "definition": "Pull requests opened after commit e1ea56d (2026-04-29T16:51Z) to 2026-11-21.",
       "sources": [
         "src-ap2-gh-issues-since"
       ],
@@ -178,7 +182,7 @@
       "metric": "Commits on main since 2026-04-29",
       "value": 0,
       "unit": "commits",
-      "asOf": "2026-10-21",
+      "asOf": "2026-11-21",
       "definition": "GitHub commits API on main.",
       "sources": [
         "src-ap2-gh-commits"
@@ -186,17 +190,18 @@
     },
     {
       "id": "ap2-production",
-      "metric": "Verified production deployments",
-      "value": "none found",
+      "metric": "Production use stated by a primary source",
+      "value": "1 (Google Gemini, stated 2026-11-17)",
       "unit": "deployments",
-      "asOf": "2026-10-21",
-      "definition": "Primary sources showing live use of AP2 mandates.",
+      "asOf": "2026-11-21",
+      "definition": "Primary sources that state live use of AP2. A statement is not technical evidence: it shows no mandates exchanged between parties.",
       "sources": [
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-release-notes-20261117",
         "src-ap2-faq",
-        "src-ap2-pub-2608-23858",
         "src-ap2-issue-345"
       ],
-      "caveat": "One unverified self-report (issue 345).",
+      "caveat": "Google names no AP2 version, mandate types, signer or verifier, and no source shows mandates exchanged with merchants, processors, Credential Providers or networks, or AP2 in use inside UCP. A third party self-reports another deployment (issue 345), which is not counted.",
       "disputed": true,
       "disputeSources": [
         "src-ap2-issue-345"
@@ -208,7 +213,7 @@
       "item": "Protocol fee",
       "value": "None defined",
       "whoPays": "Nobody: costs are those of the underlying rail (card, bank transfer or x402)",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-21",
       "confidence": "verified",
       "caveat": "AP2 carries authorization evidence and prices nothing; rail fees still apply.",
       "sources": [
@@ -221,9 +226,10 @@
       "whoPays": "Not applicable",
       "asOf": "2026-01-12",
       "confidence": "reported",
-      "caveat": "Secondary reporting about UCP, not an AP2 fee.",
+      "caveat": "Secondary reporting about UCP, not an AP2 fee; Google's UCP FAQ still carried no fee text on 2026-11-21.",
       "sources": [
-        "src-ap2-register-ucp"
+        "src-ap2-register-ucp",
+        "src-ucp-google-faq"
       ]
     },
     {

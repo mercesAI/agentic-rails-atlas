@@ -1,6 +1,6 @@
 {
   "protocol": "ap2",
-  "generatedAt": "2026-10-11",
+  "generatedAt": "2026-11-21",
   "claims": [
     {
       "id": "clm-ap2-001",
@@ -202,7 +202,7 @@
     },
     {
       "id": "clm-ap2-021",
-      "text": "No FIDO specification or public draft based on AP2 was found as of 2026-10-21 on FIDO's specification download page, its agentic AI and payments pages, its news pages or the fido-alliance GitHub organization, although FIDO's Payments Technical Working Group had listed a move of the AP2 and Verifiable Intent specifications to a public repository for September 2026.",
+      "text": "No FIDO specification or public draft based on AP2 was found as of 2026-11-21 on FIDO's specification download page, its agentic AI and payments pages, its news feed or the fido-alliance GitHub organization, although FIDO's Payments Technical Working Group had listed a move of the AP2 and Verifiable Intent specifications to a public repository for September 2026.",
       "sources": [
         "src-ap2-fido-spec-download",
         "src-ap2-fido-agentic-ai",
@@ -210,7 +210,7 @@
       ],
       "confidence": "reported",
       "topic": "governance",
-      "asOf": "2026-10-21"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-022",
@@ -282,27 +282,27 @@
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-10-21"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-029",
-      "text": "No commit was merged to the AP2 main branch between 2026-04-29 and 2026-10-21.",
+      "text": "No commit was merged to the AP2 main branch between 2026-04-29 and 2026-11-21.",
       "sources": [
         "src-ap2-gh-commits"
       ],
       "confidence": "verified",
       "topic": "versions",
-      "asOf": "2026-10-21"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-030",
-      "text": "After the last commit on main (e1ea56d, merged 2026-04-29) and up to 2026-10-21, 65 pull requests and 47 issues were opened on the AP2 repository, and none of those pull requests was merged.",
+      "text": "After the last commit on main (e1ea56d, merged 2026-04-29) and up to 2026-11-21, 71 pull requests and 57 issues were opened on the AP2 repository, and none of those pull requests was merged.",
       "sources": [
         "src-ap2-gh-issues-since"
       ],
       "confidence": "verified",
       "topic": "metrics",
-      "asOf": "2026-10-21"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-031",
@@ -1266,13 +1266,13 @@
     },
     {
       "id": "clm-ap2-125",
-      "text": "No CVE or GitHub security advisory was found for the AP2 repository as of 2026-10-21 in its GitHub repository advisories, the GitHub Advisory Database or the NVD.",
+      "text": "No CVE or GitHub security advisory was found for the AP2 repository as of 2026-11-21 in its GitHub repository advisories, the GitHub Advisory Database or the NVD.",
       "sources": [
         "src-ap2-gh-advisories"
       ],
       "confidence": "verified",
       "topic": "security",
-      "asOf": "2026-10-21"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-126",
@@ -1406,14 +1406,16 @@
     },
     {
       "id": "clm-ap2-139",
-      "text": "Production use of AP2 mandates is unverified anywhere, including inside UCP.",
+      "text": "As of 2026-11-21 no public source shows AP2 mandates exchanged with merchants, Merchant Payment Processors, Credential Providers or card networks, whether in Gemini's purchases or inside UCP, where live use of the AP2 extension remains unverified.",
       "sources": [
         "src-ap2-faq",
-        "src-ap2-pub-2608-23858"
+        "src-ap2-pub-2608-23858",
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ucp-google-platform-profiles"
       ],
       "confidence": "unverified",
       "topic": "ecosystem",
-      "asOf": "2026-10-21"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-140",
@@ -1590,7 +1592,7 @@
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-158",
@@ -1600,7 +1602,7 @@
       ],
       "confidence": "verified",
       "topic": "relations",
-      "asOf": "2026-10-11"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ap2-159",
@@ -1987,12 +1989,13 @@
     },
     {
       "id": "clm-ap2-197",
-      "text": "ERC-8226 defines mandate fields such as validFrom, validUntil, maxTransactionValue, maxCumulativeValue, cumulativeUsed and revoked, and functions such as grantMandate, revokeMandate, extendMandate, canExecute, recordExecution and freezeAgent.",
+      "text": "ERC-8226 defines a Mandate struct with fields such as validFrom, validUntil and revoked; since the rewrite merged on 2026-11-20 each mandate is keyed by agent, principal and target contract, and maxTransactionValue, maxCumulativeValue and cumulativeUsed sit in per-asset Limit structs. Its functions include grantMandate, revokeMandate, extendMandate, canExecute, recordExecution and freezeAgent.",
       "sources": [
-        "src-ap2-erc8226"
+        "src-ap2-erc8226",
+        "src-orbit-erc-8226-pr-2191"
       ],
       "confidence": "verified",
-      "asOf": "2026-10-11",
+      "asOf": "2026-11-21",
       "topic": "relations"
     },
     {
@@ -2221,6 +2224,122 @@
       "confidence": "verified",
       "asOf": "2026-11-14",
       "topic": "compliance"
+    },
+    {
+      "id": "clm-ap2-219",
+      "text": "On 2026-11-17 Google said that Gemini now uses AP2 to make purchases, after describing a Gemini checkout through its new Google Pay integration. Checkout with Google Pay in Tasks in Gemini is rolling out in English on web, Android and iOS to US users aged 18 and over with personal Google accounts.",
+      "sources": [
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-release-notes-20261117"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-17",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-ap2-220",
+      "text": "In the same post Google says it works with American Express (coming soon), Mastercard and Visa to keep these purchases secure with digital tokens on supported cards. The post does not say that the tokens are AP2 artifacts or that the networks receive or verify AP2 data, and it names no Agent Pay, Agentic Tokens, Verifiable Intent, Visa Intelligent Commerce or Trusted Agent Protocol.",
+      "sources": [
+        "src-ap2-google-gemini-tasks-20261117"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-17",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-ap2-221",
+      "text": "Google has published no AP2 version, mandate types, signer or verifier for Gemini's purchases: the 2026-11-17 post names none of them and never uses the word mandate, and neither the Gemini release notes nor Google's help pages on purchases and Tasks name AP2 or UCP.",
+      "sources": [
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-release-notes-20261117",
+        "src-ap2-gemini-purchases-help",
+        "src-ap2-gemini-tasks-help"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-ap2-222",
+      "text": "Google's help page on purchases with Gemini (read 2026-11-21) requires users to be 18 or over and in the US, with a personal Google Account and a payment method in Google Wallet. The user sets the items, the merchants Gemini may browse and buy from, a maximum budget of up to $1000 and a task expiry within 14 days. Purchase confirmation is on by default; when it is off, Gemini completes the purchase once the conditions are met. Gemini needs permission to use a browser, may pay with a secure virtual card number and files receipts under Agents on wallet.google.com.",
+      "sources": [
+        "src-ap2-gemini-purchases-help"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-ap2-223",
+      "text": "Google's Gemini help center says Spark, which Google had tested in beta with subscribers since May, was renamed Task. Google's 2026-05-19 promise to bring AP2 to its products starting with Gemini Spark and its 2026-11-17 statement that Gemini uses AP2 therefore concern the same product, Tasks in Gemini.",
+      "sources": [
+        "src-ap2-gemini-tasks-help",
+        "src-ucp-google-universal-cart",
+        "src-ap2-google-gemini-tasks-20261117"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-ap2-224",
+      "text": "Google's 2026-11-17 post says integrating UCP into Gemini comes next, while Google's UCP FAQ (last updated 2026-11-03) already says a merchant's UCP integration powers AI Mode in Search and the Gemini web and mobile apps. Google's published UCP platform profiles, at ucp.goog/.well-known/ucp.json and the versioned 2026-01-23, 2026-04-08 and 2026-08-25 profiles, declare no AP2 mandate extension (read 2026-11-21).",
+      "sources": [
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ucp-google-faq",
+        "src-ucp-google-platform-profiles"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-ap2-225",
+      "text": "Google's pages disagree on per-purchase approval. The release notes say nothing is purchased without the user's go-ahead, after an explicit 1-tap and device approval; the 2026-11-17 post speaks of confirmation or pre-approval before buying; the Tasks help says Gemini is designed to always ask for review and confirmation before purchases; and the purchases help lets the user turn Purchase confirmation off, after which Gemini completes the purchase without asking first.",
+      "sources": [
+        "src-ap2-gemini-release-notes-20261117",
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-tasks-help",
+        "src-ap2-gemini-purchases-help"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "controls"
+    },
+    {
+      "id": "clm-ap2-226",
+      "text": "Issue 399, opened on 2026-11-17 by a third party together with fix PR 400, reports that CheckoutMandateChain.verify() in the reference Python SDK checks the open mandate's constraints against the checkout_jwt it is given but compares checkout_hash only when the caller passes expected_checkout_hash. The code at e1ea56d matches the report, and the repository's happy-path tests use checkout_hash='hash'. On 2026-11-21 both were open and unmerged, with no maintainer response, advisory or CVE.",
+      "sources": [
+        "src-ap2-issue-399",
+        "src-ap2-pr-400",
+        "src-ap2-sdk-checkout-mandate-chain"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "security",
+      "specVersion": "0.2"
+    },
+    {
+      "id": "clm-ap2-227",
+      "text": "In the same SDK at e1ea56d, PaymentMandateChain.verify() compares transaction_id only when expected_transaction_id is passed, and it does not receive the checkout_jwt, so the caller must compute that hash itself (the site's reading of the code).",
+      "sources": [
+        "src-ap2-sdk-payment-mandate-chain"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "security",
+      "specVersion": "0.2"
+    },
+    {
+      "id": "clm-ap2-228",
+      "text": "Issue 398 (2026-11-14) reports three ways user constraints can slip between roles in the v0.2 Python samples: undisclosed Payment-side constraints that neither the Credential Provider nor the network can tell are its own, mixed pairs of open mandates checked by different roles, and budget and recurrence counters that only the agent keeps.",
+      "sources": [
+        "src-ap2-issue-398"
+      ],
+      "confidence": "reported",
+      "asOf": "2026-11-21",
+      "topic": "security",
+      "specVersion": "0.2"
     }
   ]
 }

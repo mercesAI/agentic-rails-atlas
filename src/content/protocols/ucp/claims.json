@@ -1,6 +1,6 @@
 {
   "protocol": "ucp",
-  "generatedAt": "2026-11-14",
+  "generatedAt": "2026-11-21",
   "claims": [
     {
       "id": "clm-ucp-001",
@@ -108,13 +108,13 @@
     },
     {
       "id": "clm-ucp-011",
-      "text": "As of 2026-10-20 the Governing Council roster lists Amit Handa (Google), Ilya Grigorik (Shopify), Twum Djin (Stripe) and 2 open seats.",
+      "text": "As of 2026-11-21 the Governing Council roster lists Amit Handa (Google), Ilya Grigorik (Shopify), Twum Djin (Stripe) and 2 open seats.",
       "sources": [
         "src-ucp-maintainers"
       ],
       "confidence": "verified",
       "topic": "governance",
-      "asOf": "2026-10-20"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ucp-012",
@@ -1841,7 +1841,7 @@
       ],
       "confidence": "verified",
       "topic": "ecosystem",
-      "asOf": "2026-10-20"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ucp-167",
@@ -1851,17 +1851,18 @@
       ],
       "confidence": "verified",
       "topic": "ecosystem",
-      "asOf": "2026-10-20"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ucp-168",
-      "text": "The Rust crate ucp-schema, for runtime resolution of UCP schema annotations, is at version 1.4.1 on crates.io, published 2026-08-03.",
+      "text": "The Rust crate ucp-schema, for runtime resolution of UCP schema annotations, reached version 2.0.0 on crates.io on 2026-11-17. It is a breaking API release that removes ComposeError::UnknownParent, now reported as ComposeError::OrphanExtension, and adds type generation and profile-driven OpenAPI 3.1 generation; the previous version, 1.4.1, dates from 2026-08-03. It is a tool release, not a UCP protocol version.",
       "sources": [
-        "src-ucp-crates"
+        "src-ucp-crates",
+        "src-ucp-schema-v200-release"
       ],
       "confidence": "verified",
       "topic": "ecosystem",
-      "asOf": "2026-10-20"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ucp-169",
@@ -2016,14 +2017,13 @@
     },
     {
       "id": "clm-ucp-184",
-      "text": "Shopify's help center (read 2026-11-14) says direct checkout in Google AI Mode and Gemini is activated by default for eligible stores and can be deactivated in the Shopify admin. Eligible stores sell to customers in the United States, Canada or Australia, may be based in any country and need a Google Merchant Center account, and the checkout is rolling out gradually to customers in those three countries. On 2026-10-20 the page required a store based in the US selling to US customers. Australia rests on Shopify's statement: Google's own posts announced Canada only (2026-11-04).",
+      "text": "Shopify's help center (read 2026-11-21) says direct checkout in Google AI Mode and Gemini is activated by default for eligible stores and can be deactivated in the Shopify admin. Eligible stores sell to customers in the United States, Canada or Australia, may be based in any country and need a Google Merchant Center account, and the checkout is rolling out gradually to customers in those three countries. On 2026-10-20 the page required a store based in the US selling to US customers.",
       "sources": [
-        "src-ucp-shopify-help-google",
-        "src-ucp-google-canada"
+        "src-ucp-shopify-help-google"
       ],
       "confidence": "verified",
       "topic": "ecosystem",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ucp-185",
@@ -2154,14 +2154,15 @@
     },
     {
       "id": "clm-ucp-197",
-      "text": "Production use of AP2 mandates inside UCP, or anywhere else, is unverified as of 2026-10-20.",
+      "text": "Live use of AP2 mandates inside UCP is unverified as of 2026-11-21: no public source shows them in a UCP checkout, and Google's published UCP platform profiles declare no AP2 extension.",
       "sources": [
-        "src-ucp-google-universal-cart",
-        "src-ucp-ap2-spec"
+        "src-ucp-ap2-spec",
+        "src-ucp-google-platform-profiles",
+        "src-ucp-google-universal-cart"
       ],
       "confidence": "unverified",
       "topic": "relations",
-      "asOf": "2026-10-20"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ucp-198",
@@ -2651,13 +2652,15 @@
     },
     {
       "id": "clm-ucp-243",
-      "text": "Google's UCP implementation guides cover versions 2026-04-08 and 2026-01-23 only; no guide for v2026-08-25 existed on 2026-10-20 or on 2026-11-14, when the 2026-08-25 cart guide address answered 404.",
+      "text": "Google's versioned UCP implementation guides cover versions 2026-04-08 and 2026-01-23 only: the 2026-08-25 cart and native checkout guide addresses answered 404 on 2026-11-14 and again on 2026-11-21. Outside that versioned set, Google's grocery ordering guide for Connected Apps targets 2026-08-25; Google's changelog lists it under October 2026.",
       "sources": [
-        "src-ucp-google-guide-versions"
+        "src-ucp-google-guide-versions",
+        "src-ucp-google-grocery-guide",
+        "src-ucp-google-latest-updates"
       ],
       "confidence": "verified",
       "topic": "ecosystem",
-      "asOf": "2026-11-14"
+      "asOf": "2026-11-21"
     },
     {
       "id": "clm-ucp-244",
@@ -2845,7 +2848,7 @@
     },
     {
       "id": "clm-ucp-260",
-      "text": "UCP's MCP binding requires Streamable HTTP so that RFC 9421 signatures apply at the HTTP layer, but it pins no MCP revision. MCP's current revision, 2026-07-28, removed protocol sessions (Mcp-Session-Id) and the initialize handshake, and Google's UCP over MCP guide, still Early Access with REST as the recommended default, asks for a stateless tools/call endpoint in which each checkout tool succeeds on a single HTTP POST.",
+      "text": "UCP's MCP binding requires Streamable HTTP so that RFC 9421 signatures apply at the HTTP layer, but it pins no MCP revision. MCP's current revision, 2026-07-28, removed protocol sessions (Mcp-Session-Id) and the initialize handshake, and Google's UCP over MCP guide, still Early Access with REST as the default for native checkout and cart, asks for a stateless tools/call endpoint in which each checkout tool succeeds on a single HTTP POST.",
       "sources": [
         "src-ucp-signatures",
         "src-ucp-mcp-openrpc",
@@ -2880,6 +2883,130 @@
       "confidence": "verified",
       "topic": "metrics",
       "asOf": "2026-09-30"
+    },
+    {
+      "id": "clm-ucp-263",
+      "text": "On 2026-11-17 Google said Gemini now uses AP2 for purchases made through its new Google Pay checkout in Tasks in Gemini, and that integrating UCP into Gemini comes next. The statement describes no UCP flow, and Google's published UCP platform profiles declare no AP2 extension (read 2026-11-21).",
+      "sources": [
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-gemini-release-notes-20261117",
+        "src-ucp-google-platform-profiles"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-ucp-264",
+      "text": "On 2026-11-20 Google said it is rolling out new Connected Apps in the US, through Search and the Gemini app, for grocery runs, including Albertsons, Safeway, Shaw's and Target; the apps help users build an order and check out and are powered by UCP. The same post's Experian, H&R Block, Angi and Thumbtack items are not described as UCP.",
+      "sources": [
+        "src-ucp-google-connected-apps-20261120"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-20",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-ucp-265",
+      "text": "Google's grocery ordering guide for Connected Apps (last updated 2026-11-17; listed under October 2026 in Google's changelog) describes a sample integration for UCP 2026-08-25. The Google agent calls search_locations, search_catalog, create_cart, update_cart, get_cart, lookup_locations and cancel_cart; create_cart, update_cart and get_cart return a continue_url to the retailer's own checkout for the delivery address, time window and payment, and cancel_cart returns the cart state before deletion. MCP and REST are both supported, with MCP recommended for Connected Apps, and the user's Google Account is assumed to be linked to the retailer account over OAuth.",
+      "sources": [
+        "src-ucp-google-grocery-guide",
+        "src-ucp-google-latest-updates"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "flow",
+      "specVersion": "2026-08-25"
+    },
+    {
+      "id": "clm-ucp-266",
+      "text": "The grocery guide requires the scopes dev.ucp.common.location.search:read, dev.ucp.common.location.lookup:read, dev.ucp.shopping.catalog.search:read, dev.ucp.shopping.catalog.lookup:read and dev.ucp.shopping.cart:manage; dev.ucp.shopping.checkout:manage and dev.ucp.shopping.order:manage are optional, for integrations that also support UCP checkout or order management. Its buyer_address_locations array and context.buyer_address_location field are Google-specific vendor extensions, not core UCP.",
+      "sources": [
+        "src-ucp-google-grocery-guide"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "objects",
+      "specVersion": "2026-08-25"
+    },
+    {
+      "id": "clm-ucp-267",
+      "text": "Google's grocery guide describes Request-Id as an optional request identifier, while the UCP REST OpenAPI marks Request-Id as required at the v2026-08-25 tag and on main.",
+      "sources": [
+        "src-ucp-google-grocery-guide",
+        "src-ucp-rest-openapi"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "transports",
+      "specVersion": "2026-08-25"
+    },
+    {
+      "id": "clm-ucp-268",
+      "text": "By 2026-11-19 the Python and JavaScript SDKs pinned ucp-schema 2.0.0 in a new ucp-lock.json on main (draft channel) and added CalVer release workflows. Both READMEs say releases for the 2026-08-25 spec and later are versioned YYYYMMDD.MINOR.PATCH, for example 20260825.0.0. No such release was published as of 2026-11-21, when npm still listed @ucp-js/sdk 0.5.1 and PyPI ucp-sdk 0.5.0.",
+      "sources": [
+        "src-ucp-python-sdk-calver",
+        "src-ucp-js-sdk-calver",
+        "src-ucp-npm",
+        "src-ucp-pypi"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-ucp-269",
+      "text": "On 2026-11-13 UCP's Governing Council approved opening nominations for the founding Local Services and B2B Procurement Tech Councils. Applications close on 2026-11-27, review is to finish around 2026-12-04 and members are to be announced around 2026-12-11 (both dates tentative); ucp.dev dates both calls November 13, 2026.",
+      "sources": [
+        "src-ucp-gc-minutes-20261113",
+        "src-ucp-discussion-1093",
+        "src-ucp-discussion-1094",
+        "src-ucp-announcements-20261116"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "governance"
+    },
+    {
+      "id": "clm-ucp-270",
+      "text": "In its 2026-11-13 recap of the UCP Contributor Summit, the Governing Council agreed to look more closely at where PAP and UCP overlap, with the aim of avoiding fragmentation, and aligned on incubating lightweight vertical schemas on common UCP design patterns. The minutes do not expand PAP or name a company behind it.",
+      "sources": [
+        "src-ucp-gc-minutes-20261113"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "relations"
+    },
+    {
+      "id": "clm-ucp-271",
+      "text": "On 2026-11-20 UCP opened nominations for three time-bounded Regional Domain Working Groups, for APAC, EMEA and LATAM, jointly sponsored by the Shopping and Payments Tech Councils. Each is to run for eight weeks after the Governing Council approves its charter and participant roster and to deliver a regional roadmap readout and prioritized enhancement recommendations. The call gives no deadline; the council had agreed to the groups in principle on 2026-11-13.",
+      "sources": [
+        "src-ucp-discussion-1120",
+        "src-ucp-gc-minutes-20261113"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-20",
+      "topic": "governance"
+    },
+    {
+      "id": "clm-ucp-272",
+      "text": "Google's Merchant Center help on UCP-powered checkout (undated, read 2026-11-21) applies only to products with eligibility in the United States, Canada and Australia, says shoppers may see the checkout soon on surfaces such as AI Mode and Gemini, and links UCP checkout terms of service for the US, Canada, Australia and the UK. No Google source found says Australian checkout is live.",
+      "sources": [
+        "src-ucp-merchant-help-ucp-checkout"
+      ],
+      "confidence": "verified",
+      "asOf": "2026-11-21",
+      "topic": "ecosystem"
+    },
+    {
+      "id": "clm-ucp-273",
+      "text": "retailbiz reported on 2026-06-17 (updated 2026-06-24) that a checkout experience on Google was set to roll out in Australia, with single-item purchases in Search, including AI Mode, and the Gemini app. It named Adore Beauty, Bunnings, Kogan Group, Petbarn and THE ICONIC and quoted Adrian Vallelonga of Google Australia and New Zealand; no Google post on it was found.",
+      "sources": [
+        "src-ucp-retailbiz-australia"
+      ],
+      "confidence": "reported",
+      "asOf": "2026-06-24",
+      "topic": "ecosystem"
     }
   ]
 }

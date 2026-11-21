@@ -1,7 +1,7 @@
 ---
 protocol: stripe-mpp
 title: Stripe MPP in Simplified Technical English
-lastVerified: "2026-11-14"
+lastVerified: "2026-11-21"
 ---
 
 <SteDescription>
@@ -30,8 +30,9 @@ In AP2 documents, the letters MPP mean Merchant Payment Processor. That is a dif
 6. Do not use the description to make a decision.
 7. Pay with the payment method that the challenge names.
 8. Send the request again. Put the credential in the Authorization header.
-9. If the challenge has the `header` value, put the credential in the Payment-Authorization header.
-10. Read the Payment-Receipt header. Keep the reference value.
+9. If the `header` value of the challenge is Payment-Authorization, put the credential in the Payment-Authorization header.
+10. If the `header` value is a different value, do not use that challenge.
+11. Read the Payment-Receipt header. Keep the reference value.
 
 </SteProcedure>
 

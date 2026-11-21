@@ -43,7 +43,7 @@
     },
     {
       "q": "Can I still check out inside ChatGPT the way it launched in 2025?",
-      "a": "Not in the 2025 form. On 2026-03-24 OpenAI said the first Instant Checkout lacked flexibility and let merchants use their own checkout. In ChatGPT plugins (formerly the Apps SDK), external checkout is generally available, a plugin may show payment methods already saved with the merchant, and the payment sheet is a private beta for select marketplace partners. OpenAI's merchant page FAQ, read 2026-11-14, says it is moving away from a standalone Instant Checkout experience and purchases are completed on merchant-owned sites or apps; no end date is published. Since 2026-11-13 there is also ChatGPT Wallet, rolling out first in dots for US ChatGPT Pro subscribers: a dot completes the purchase on the merchant's own checkout with a network token after the user approves it, and OpenAI does not present Wallet as ACP.",
+      "a": "Not in the 2025 form. On 2026-03-24 OpenAI said the first Instant Checkout lacked flexibility and let merchants use their own checkout. In ChatGPT plugins (formerly the Apps SDK), external checkout is generally available, a plugin may show payment methods already saved with the merchant, and the payment sheet is a private beta for select marketplace partners. OpenAI's merchant page FAQ, read 2026-11-21, says it is moving away from a standalone Instant Checkout experience and purchases are completed on merchant-owned sites or apps; no end date is published. Since 2026-11-13 there is also ChatGPT Wallet, rolling out first in dots for US ChatGPT Pro subscribers: a dot completes the purchase on the merchant's own checkout with a network token after the user approves it, and OpenAI does not present Wallet as ACP. OpenAI and Instacart also launched the Instacart app on 2025-12-08 with checkout inside ChatGPT, which OpenAI said was powered by ACP; no 2026 source says whether that checkout still runs.",
       "misconception": true,
       "claimIds": [
         "clm-openai-acp-177",
@@ -55,16 +55,19 @@
         "clm-openai-acp-259",
         "clm-openai-acp-260",
         "clm-openai-acp-265",
-        "clm-openai-acp-262"
+        "clm-openai-acp-262",
+        "clm-openai-acp-305",
+        "clm-openai-acp-306"
       ]
     },
     {
       "q": "Is signing mandatory for Delegate Payment?",
-      "a": "Only in one place. RFC section 2.2 says the client must sign; the same RFC's header list says recommended, and the OpenAPI file marks the Signature header optional. On checkout, signatures are recommended.",
+      "a": "Only in one place. RFC section 2.2 says the client must sign; the same RFC's header list says recommended, and the OpenAPI file marks the Signature header optional. On checkout, signatures are recommended. Delegate Authentication's RFC goes further and lists the Signature header as required, although its own initialization section says the client should sign and its OpenAPI file marks the header optional; the discovery RFC defers the advertisement of signing keys.",
       "misconception": true,
       "claimIds": [
         "clm-openai-acp-142",
-        "clm-openai-acp-091"
+        "clm-openai-acp-091",
+        "clm-openai-acp-302"
       ]
     },
     {
@@ -111,7 +114,7 @@
     },
     {
       "q": "What does selling through ChatGPT cost a merchant?",
-      "a": "OpenAI's merchant page, as read on 2026-11-14, says shoppers go to your site or app by default with no fees for purchases made there, and its FAQ says there are no fees on purchases that start in ChatGPT. OpenAI states no fee for ChatGPT Wallet purchases either, and CNBC reports OpenAI is not taking a cut to start (reported). In 2025 OpenAI said merchants pay a small fee on completed Instant Checkout purchases, and a 4 percent figure for Shopify merchants is a secondary report only. ACP itself has no protocol fee, and the merchant's normal PSP fees apply.",
+      "a": "OpenAI's merchant page, as read on 2026-11-21, says shoppers go to your site or app by default with no fees for purchases made there, and its FAQ says there are no fees on purchases that start in ChatGPT. OpenAI states no fee for ChatGPT Wallet purchases either, and CNBC reports OpenAI is not taking a cut to start (reported). In 2025 OpenAI said merchants pay a small fee on completed Instant Checkout purchases, and a 4 percent figure for Shopify merchants is a secondary report only. ACP itself has no protocol fee, and the merchant's normal PSP fees apply.",
       "claimIds": [
         "clm-openai-acp-193",
         "clm-openai-acp-259",
@@ -135,7 +138,7 @@
     },
     {
       "q": "Is ChatGPT Wallet part of ACP?",
-      "a": "No source says so. OpenAI's Wallet post of 2026-11-13 never mentions ACP, Delegate Payment or Shared Payment Tokens. In Wallet the user approves each purchase in ChatGPT, the card network issues a payment token with a card number, security code and expiry, and the agent uses it on the merchant's existing checkout, so the merchant receives a network token. In ACP the agent calls the merchant's checkout API and passes a vault token from Delegate Payment. ChatGPT's cloud browser identifies itself with Web Bot Auth, which is a ChatGPT mechanism, not part of the ACP spec.",
+      "a": "No source says so. OpenAI's Wallet post of 2026-11-13 never mentions ACP, Delegate Payment or Shared Payment Tokens. In Wallet the user approves each purchase in ChatGPT; OpenAI's post says the payment network then provides a payment token with a card number, security code and expiry, and the Wallet terms let OpenAI ask a PSP, card network or issuer for the credential. The agent uses it on the merchant's existing checkout, so the merchant receives a network token. In ACP the agent calls the merchant's checkout API and passes a vault token from Delegate Payment. ChatGPT's cloud browser identifies itself with Web Bot Auth, which is a ChatGPT mechanism, not part of the ACP spec.",
       "misconception": true,
       "claimIds": [
         "clm-openai-acp-262",
@@ -143,7 +146,8 @@
         "clm-openai-acp-265",
         "clm-openai-acp-044",
         "clm-openai-acp-099",
-        "clm-openai-acp-269"
+        "clm-openai-acp-269",
+        "clm-openai-acp-294"
       ]
     }
   ]

@@ -44,7 +44,11 @@
       "pub-lotfi-2026-a2abreak",
       "pub-zhu-2026-runtimeauth",
       "pub-sfiris-2026-decisioncentered",
-      "pub-shen-2025-web3agents"
+      "pub-shen-2025-web3agents",
+      "pub-ramji-2026-anduin",
+      "pub-you-2026-signedunbound",
+      "pub-you-2026-authorityclosure",
+      "pub-nandi-2026-trustbound"
     ],
     "Agent identity and delegation": [
       "pub-chan-2024-visibility",
@@ -73,7 +77,8 @@
       "pub-uchibeke-2026-oap",
       "pub-chowdhury-2026-termstxt",
       "pub-figuera-2026-notarized",
-      "pub-grigor-2025-vet"
+      "pub-grigor-2025-vet",
+      "pub-ganesan-2026-agentauthenticator"
     ]
   },
   "publications": [
@@ -2050,6 +2055,144 @@
       "verifiedAt": "2026-10-19",
       "verifiedVia": "arxiv",
       "bibtex": "@misc{shen2025web3agents,\n  title = {{Web3 x AI Agents: Landscape, Integrations, and Foundational Challenges}},\n  author = {Yiming Shen and Jiashuo Zhang and Zhenzhe Shao and Wenxuan Luo and Yanlin Wang and Ting Chen and Lingfeng Bao and Jiachi Chen},\n  year = {2025},\n  eprint = {2508.02773},\n  archivePrefix = {arXiv},\n  url = {https://arxiv.org/abs/2508.02773}\n}"
+    },
+    {
+      "id": "pub-ramji-2026-anduin",
+      "title": "Anduin: A sybil-resistant agentic marketplace reputation system",
+      "authors": [
+        "Reza Ramji",
+        "Preston Vander Vos",
+        "Ziming Zeng",
+        "Duc V. Le"
+      ],
+      "year": 2026,
+      "peerReviewed": false,
+      "arxiv": "2611.05586",
+      "url": "https://arxiv.org/abs/2611.05586",
+      "themes": [
+        "reputation",
+        "sybil",
+        "measurement",
+        "markets"
+      ],
+      "protocols": [
+        "x402",
+        "erc-8004"
+      ],
+      "relation": "direct",
+      "summary": "Rates x402 service providers from settled payments instead of voluntary reviews. Payment flows form a bipartite graph between buyers and providers, and a provider's rating comes from paths that link it to the providers a buyer already pays, so faking trust takes real spending at those providers. On a 157-day dataset of 66 million agentic transactions worth $6.1 million across 16 blockchains, the authors propose a max-flow rating and two relaxed variants and report that, against simulated adversaries across 813 buyers, manipulation costs 20 percent of those buyers' total spend, about 23 times harder than collaborative filtering. Circle's companion post (2026-11-13) says its Amplified Flow variant comes close to collaborative filtering on accuracy without beating it.",
+      "whyItMatters": "Gives x402 buyers a provider ranking whose cost to fake can be measured, which review counts and usage rankings lack; it is Circle research, not a product, and needs no change to x402.",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{ramji2026anduin,\n  title = {{Anduin: A sybil-resistant agentic marketplace reputation system}},\n  author = {Reza Ramji and Preston Vander Vos and Ziming Zeng and Duc V. Le},\n  year = {2026},\n  eprint = {2611.05586},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.AI},\n  url = {https://arxiv.org/abs/2611.05586}\n}"
+    },
+    {
+      "id": "pub-you-2026-signedunbound",
+      "title": "Signed but Unbound: The Authority Gap Between Agent Commerce Mandates and Crypto Wallet Signatures",
+      "authors": [
+        "Shengwei You",
+        "Aditya Joshi",
+        "Andrey Kuehlkamp",
+        "Jarek Nabrzyski"
+      ],
+      "year": 2026,
+      "peerReviewed": false,
+      "arxiv": "2611.25821",
+      "url": "https://arxiv.org/abs/2611.25821",
+      "themes": [
+        "security",
+        "delegation",
+        "payments",
+        "measurement"
+      ],
+      "protocols": [
+        "x402"
+      ],
+      "relation": "direct",
+      "summary": "Names the authority gap between the terms an agent commerce protocol specifies (merchant, order, amount, facilitator) and what a token contract enforces from the fields a wallet signs. The authors define nine constraint classes, derive them for 12 authorization configurations, among them EIP-3009 transfers as used by x402's exact scheme and Coinbase's deployed Commerce Payments Protocol, and match the derivation in 31,800 trials on local copies of deployed contract code. Of 26,653 sampled USDC authorizations redeemed on Base (2026-05-04 to 2026-11-16; 97.8 percent of the decoded ones attributed to registered x402 facilitators), 98.7 percent followed a path that any holder of the signature could redeem. Committing the terms in the signed nonce binds the order, and their MandateLock recipient contract enforces the signed mandate for 25 percent more gas than a transfer that only the recipient can submit.",
+      "whyItMatters": "Measures, for x402's exact scheme on Base, how much of a buyer's approved mandate the signed EIP-3009 fields leave unenforced; the 98.7 percent is a redemption-path property of the sampled authorizations, and the fixes it tests (nonce commitment, a recipient contract) sit outside the x402 specification.",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{you2026signedunbound,\n  title = {{Signed but Unbound: The Authority Gap Between Agent Commerce Mandates and Crypto Wallet Signatures}},\n  author = {Shengwei You and Aditya Joshi and Andrey Kuehlkamp and Jarek Nabrzyski},\n  year = {2026},\n  eprint = {2611.25821},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2611.25821}\n}"
+    },
+    {
+      "id": "pub-you-2026-authorityclosure",
+      "title": "Signed, Valid, and Unauthorized: Authority Closure at the Trust Boundary Between Agent Commerce Protocols and Crypto Wallets",
+      "authors": [
+        "Shengwei You",
+        "Aditya Joshi",
+        "Andrey Kuehlkamp",
+        "Jarek Nabrzyski"
+      ],
+      "year": 2026,
+      "peerReviewed": false,
+      "arxiv": "2611.24989",
+      "url": "https://arxiv.org/abs/2611.24989",
+      "themes": [
+        "security",
+        "delegation",
+        "payments",
+        "formal-analysis"
+      ],
+      "protocols": [
+        "x402"
+      ],
+      "relation": "direct",
+      "summary": "Defines authority closure, the set of transfer sequences that holding a signed wallet object can enable, and calls a wallet object mandate-respecting when every such sequence meets the buyer's constraints (payee, asset, spending cap, time window). The authors characterize when that holds and implement Closure, a wallet-side checker for 13 families of signed objects. Across 2,130 generated objects and 62,979 execution programs, 265 objects with an observed violation passed both a field-and-expiry check and an address allow-list, while Closure rejected all 1,680 objects with an observed violation and accepted the other 450. In two local checkouts using the x402 reference client, approved payments settled and Closure refused requests outside the mandate before signing, with a median decision time of at most 12 microseconds per family.",
+      "whyItMatters": "A check a wallet can run before it signs, tested with the x402 reference client, for objects that permit more than the buyer approved; the companion to the same authors' authority-gap measurement.",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{you2026authorityclosure,\n  title = {{Signed, Valid, and Unauthorized: Authority Closure at the Trust Boundary Between Agent Commerce Protocols and Crypto Wallets}},\n  author = {Shengwei You and Aditya Joshi and Andrey Kuehlkamp and Jarek Nabrzyski},\n  year = {2026},\n  eprint = {2611.24989},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2611.24989}\n}"
+    },
+    {
+      "id": "pub-nandi-2026-trustbound",
+      "title": "TrustBound: Mechanized Completeness for Payment Epochs Initiated by AI Agents",
+      "authors": [
+        "Sandip Nandi",
+        "Aishwarya Bose",
+        "Apurba Bose",
+        "Soovadeep Bakshi"
+      ],
+      "year": 2026,
+      "peerReviewed": false,
+      "arxiv": "2611.19551",
+      "url": "https://arxiv.org/abs/2611.19551",
+      "themes": [
+        "formal-methods",
+        "payments",
+        "auditability"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "Asks when a trusted payment service can account for every payment in an epoch that an AI agent started and block further payments under earlier authority after the agent stops. In Lean models, operations are recorded before they receive execution authority and both steps are serialized behind an admission fence; the authors prove that fencing fixes a journal covering every modeled effect and outstanding right, that discharging those rights prevents further effects, and that truthful outcomes then give exact accounting, and they check six histories of an executable service against the model. Concurrent experiments exposed a conflict from reordered provider reads, which serializing retrieval with journal updates removed in all tested cases.",
+      "whyItMatters": "Separates stopping an agent's future payments from accounting for its past ones, the two duties any revocation or emergency stop in an agent payment stack must meet; the abstract names none of the eight protocols.",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{nandi2026trustbound,\n  title = {{TrustBound: Mechanized Completeness for Payment Epochs Initiated by AI Agents}},\n  author = {Sandip Nandi and Aishwarya Bose and Apurba Bose and Soovadeep Bakshi},\n  year = {2026},\n  eprint = {2611.19551},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2611.19551}\n}"
+    },
+    {
+      "id": "pub-ganesan-2026-agentauthenticator",
+      "title": "Agent Authenticator: Passkey-Grade, Hardware-Bound Authentication for AI Agents",
+      "authors": [
+        "Harish Santhanalakshmi Ganesan"
+      ],
+      "year": 2026,
+      "peerReviewed": false,
+      "arxiv": "2611.19536",
+      "url": "https://arxiv.org/abs/2611.19536",
+      "themes": [
+        "identity",
+        "authentication",
+        "passkeys",
+        "delegation"
+      ],
+      "protocols": [],
+      "relation": "related",
+      "summary": "Designs an authenticator that gives AI agents passkey-grade properties: per-service hardware-bound keys, no shared secrets, origin binding enforced by the runtime rather than the model, normalized attestation of the execution environment, human-signed scoped mandates and cross-device human approval for high-risk actions. It deploys as a profile over MCP authorization, OAuth token exchange (including the Identity Assertion JWT Authorization Grant), git and SSH rather than as a new identity system, and it keeps a signed, hash-chained record of each action it authorizes. The design is analyzed against prompt injection and same-host compromise and mapped onto five documented incidents.",
+      "whyItMatters": "Carries the passkey model over to agents that hold developer credentials; it targets coding agents rather than payments and names none of the eight protocols, but its scoped mandates and approval step mirror the user-authorization layer the payment protocols need.",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{ganesan2026agentauthenticator,\n  title = {{Agent Authenticator: Passkey-Grade, Hardware-Bound Authentication for AI Agents}},\n  author = {Harish Santhanalakshmi Ganesan},\n  year = {2026},\n  eprint = {2611.19536},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2611.19536}\n}"
     }
   ],
   "unverified": []

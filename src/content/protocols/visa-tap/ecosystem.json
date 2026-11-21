@@ -23,11 +23,12 @@
     },
     {
       "name": "Akamai",
-      "role": "TAP support across Akamai Cloud (announced 2025-12-17); Visa named Akamai among the providers supporting live merchant implementation on 2026-07-02.",
+      "role": "TAP support across Akamai Cloud (announced 2025-12-17). On 2026-06-15 Akamai announced an agentic security framework for its Bot & Agent Control products that cites TAP for agents in payment environments but names no TAP-specific setting; Visa named Akamai among the providers supporting live merchant implementation on 2026-07-02.",
       "status": "live",
       "sources": [
         "src-akamai-pr",
         "src-visa-dec18",
+        "src-visa-tap-akamai-framework-20260615",
         "src-visa-eu-live"
       ]
     },
@@ -57,18 +58,22 @@
     },
     {
       "name": "Launch feedback partners",
-      "role": "Adyen, Ant International, Checkout.com, Coinbase, CyberSource, Elavon, Fiserv, Microsoft, Nuvei, Shopify, Stripe and Worldpay gave feedback; not a list of deployments.",
+      "role": "Adyen, Ant International, Checkout.com, Coinbase, CyberSource, Elavon, Fiserv, Microsoft, Nuvei, Shopify, Stripe and Worldpay gave feedback; not a list of deployments. Adyen, Ant International (as Antom), Checkout.com, Fiserv and Stripe are named in Visa's Agentic Ready acceptance release of 2026-11-17, and Nuvei in its European and Asia Pacific lists of 2026-11-18, as participants testing readiness rather than TAP deployments.",
       "status": "unknown",
       "sources": [
-        "src-visa-tap-pr"
+        "src-visa-tap-pr",
+        "src-visa-tap-agentic-ready-acceptance",
+        "src-visa-tap-agentic-ready-europe",
+        "src-visa-tap-agentic-ready-apac"
       ]
     },
     {
       "name": "Visa Intelligent Commerce Connect",
-      "role": "Visa on-ramp that accepts agent payments initiated through TAP, MPP, ACP and UCP.",
+      "role": "Visa on-ramp that accepts agent payments initiated through TAP, MPP, ACP and UCP. Visa and Lianlian DigiTech announced a live business-to-business purchase through it on 2026-11-18; Visa has announced no general availability.",
       "status": "pilot",
       "sources": [
-        "src-visa-icc"
+        "src-visa-icc",
+        "src-visa-tap-lianlian-icc-20261118"
       ]
     },
     {
@@ -98,22 +103,47 @@
         "src-visa-bill-billtrust",
         "src-visa-commercial-2026-10-21"
       ]
+    },
+    {
+      "name": "Airwallex",
+      "role": "Agentic Ready acceptance participant that Visa says is working to build TAP into each interaction (2026-11-17); a stated plan, not a deployment.",
+      "status": "announced",
+      "sources": [
+        "src-visa-tap-agentic-ready-acceptance"
+      ]
+    },
+    {
+      "name": "J.P. Morgan Payments",
+      "role": "Named only in Visa's Perspectives copy of the 2026-11-17 release: testing how agentic network tokens and associated TAP signals move across merchant, acquiring and network infrastructure.",
+      "status": "announced",
+      "sources": [
+        "src-visa-tap-agentic-ready-acceptance-perspectives"
+      ]
+    },
+    {
+      "name": "Lianlian DigiTech",
+      "role": "Agent provider on Visa Intelligent Commerce: its LoopXPay agent, registered in the Agentic Directory, made a live business-to-business purchase (announced 2026-07-24), and its XWorker agent, also registered there, bought through Intelligent Commerce Connect (2026-11-18). Neither release says the agents sign with TAP, and neither gives counts.",
+      "status": "pilot",
+      "sources": [
+        "src-visa-tap-lianlian-loopxpay-20260724",
+        "src-visa-tap-lianlian-icc-20261118"
+      ]
     }
   ],
   "sdks": [
     {
       "registry": "npm",
       "name": "mppx",
-      "version": "0.19.0",
+      "version": "0.21.1",
       "url": "https://www.npmjs.com/package/mppx",
-      "note": "MIT; mppx/extensions/identity/tap provides a TAP prover and verifier since 0.16.0 (2026-10-28), replacing mppx/attestation/tap; since 0.19.0 the prover takes a key pair. Not a Visa package. Version as of 2026-11-14 (published 2026-11-14)."
+      "note": "MIT; mppx/extensions/identity/tap provides a TAP prover and verifier since 0.16.0 (2026-10-28), replacing mppx/attestation/tap; since 0.19.0 the prover takes a key pair, and the changelog lists no TAP change from 0.19.1 to 0.21.1. Not a Visa package. Version as of 2026-11-21 (published 2026-11-19)."
     },
     {
       "registry": "npm",
       "name": "@visa/cli",
-      "version": "5.0.0-rc.463",
+      "version": "5.0.0-rc.491",
       "url": "https://www.npmjs.com/package/@visa/cli",
-      "note": "Visa Crypto Labs CLI under Visa's own license. Release candidates from 5.0.0-rc.335 (2026-09-18) sign TAP requests; the latest release, 4.0.1, does not. Release candidate as of 2026-11-14 (rc.463, published 2026-11-15 01:17 UTC); latest still 4.0.1."
+      "note": "Visa Crypto Labs CLI under Visa's own license. Release candidates from 5.0.0-rc.335 (2026-09-18) sign TAP requests; the latest release, 4.0.1, does not. Release candidate as of 2026-11-21 (rc.491, published 2026-11-20 21:05 UTC, still with TAP request signing); latest still 4.0.1."
     },
     {
       "registry": "npm",
@@ -139,9 +169,9 @@
     {
       "id": "visa-tap-gh-stars",
       "metric": "GitHub stars, visa/trusted-agent-protocol",
-      "value": 222,
+      "value": 223,
       "unit": "stars",
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-21",
       "definition": "Stars on the sample repository.",
       "sources": [
         "src-visa-tap-gh-meta"
@@ -156,9 +186,10 @@
       "asOf": "2026-07-02",
       "definition": "Merchants Visa named in its live European agent transactions.",
       "sources": [
-        "src-visa-eu-live"
+        "src-visa-eu-live",
+        "src-visa-tap-agentic-ready-acceptance"
       ],
-      "caveat": "No total count of verifying merchants is published (Visa newsroom and developer pages, 2026-10-19)."
+      "caveat": "No total count of verifying merchants is published (Visa newsroom and developer pages, 2026-11-21); the Agentic Ready acceptance releases of 2026-11-17 and 2026-11-18 count participants testing readiness, not merchants that verify TAP."
     },
     {
       "id": "visa-eu-issuers-live",
@@ -170,7 +201,35 @@
       "sources": [
         "src-visa-eu-live"
       ],
-      "caveat": "VIC program metric, not TAP traffic."
+      "caveat": "VIC program metric, not TAP traffic. It counts issuers whose cardholders' agents completed live purchases, unlike Visa's later counts of issuers participating in Agentic Ready."
+    },
+    {
+      "id": "visa-agentic-ready-acceptance-participants",
+      "metric": "Initial participants in Agentic Ready for acceptance",
+      "value": "more than 140",
+      "unit": "participants",
+      "asOf": "2026-11-17",
+      "definition": "Merchants, payment service providers, acquirers, business-to-business suppliers and commerce platforms that Visa says the acceptance phase launched with.",
+      "sources": [
+        "src-visa-tap-agentic-ready-acceptance",
+        "src-visa-tap-agentic-ready-europe",
+        "src-visa-tap-agentic-ready-apac"
+      ],
+      "caveat": "Participants testing readiness, not live deployments or TAP verifiers. The European (more than 85) and Asia Pacific (50+) releases of 2026-11-18 list overlapping names, and Visa does not reconcile the three counts."
+    },
+    {
+      "id": "visa-agentic-ready-issuers",
+      "metric": "Issuers participating in Agentic Ready",
+      "value": "175+",
+      "unit": "issuers",
+      "asOf": "2026-11-17",
+      "definition": "Issuers across 45 markets that Visa says participate as they prepare for agentic commerce.",
+      "sources": [
+        "src-visa-tap-agentic-ready-acceptance",
+        "src-visa-tap-agentic-ready-europe",
+        "src-visa-tap-agentic-ready-apac"
+      ],
+      "caveat": "Self-reported VIC program figure for participating issuers, not issuers with live agent purchases or TAP traffic. Visa does not say whether its regional counts of 2026-11-18 (more than 40 European issuers; over 100 issuers in 10 Asia Pacific markets) are included, so the figures are not added."
     },
     {
       "id": "visa-agent-transactions-dec",

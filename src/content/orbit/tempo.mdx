@@ -7,12 +7,15 @@ oneLiner: "A payments-focused EVM Layer 1 incubated by Stripe and Paradigm that 
 steward: "Tempo Labs (company)"
 status: "Live"
 latestVersion:
-  label: "node release tempo/v1.18.3"
-  date: "2026-11-12"
+  label: "node release tempo/v1.19.0"
+  date: "2026-11-19"
 relations:
   - to: stripe-mpp
     type: same-steward
     note: "Tempo Labs co-authors and maintains MPP with Stripe; Tempo is the native stablecoin rail for MPP."
+  - to: x402
+    type: complements
+    note: "Tempo runs an x402 facilitator (live by 2026-11-19) that takes USDC on Base with the exact scheme and pays sellers in OUSD on Tempo; buyers pay Tempo's deposit address, so sellers rely on Tempo for the payout."
 sources:
   - src-orbit-tempo-mainnet
   - src-orbit-tempo-paradigm
@@ -26,9 +29,19 @@ sources:
   - src-stripe-mpp-docs-private-payments
   - src-orbit-mpp-specs-repo
   - src-orbit-tempo-testnet-theblock
-lastVerified: "2026-11-14"
+  - src-stripe-mpp-tempo-t14
+  - src-stripe-mpp-tempo-t15
+  - src-stripe-mpp-tempo-x402-facilitator
+  - src-stripe-mpp-tempo-x402-supported
+  - src-stripe-mpp-gh-mpp-pr-1255
+  - src-stripe-mpp-mppx-changelog
+lastVerified: "2026-11-21"
 ---
 
-Tempo was announced on 2025-09-04 as a payments-first blockchain incubated by Stripe and Paradigm, and its public testnet went live on 2025-12-09. <Cite ids="src-orbit-tempo-paradigm src-orbit-tempo-testnet" /> Tempo's mainnet went live on 2026-03-18, and the same post introduced [MPP](/p/stripe-mpp/) as an open standard co-authored by Stripe and Tempo that supports stablecoins, cards and other methods, so Tempo is one MPP payment method among several rather than a requirement. <Cite ids="src-orbit-tempo-mainnet" /> The mainnet's chain ID is 4217. <Cite ids="src-stripe-mpp-tempo-connection" /> Tempo Labs and Stripe maintain the MPP specifications repository, and the node software `tempoxyz/tempo` is licensed under MIT or Apache-2.0 at the user's option. <Cite ids="src-orbit-mpp-specs-repo src-orbit-tempo-repo" /> Its releases have been tagged `tempo/vX.Y.Z` since `tempo/v1.17.0` (2026-10-26), and the latest as of 2026-11-14, `tempo/v1.18.3`, came out on 2026-11-12. <Cite ids="src-stripe-mpp-tempo-releases" />
+Tempo was announced on 2025-09-04 as a payments-first blockchain incubated by Stripe and Paradigm, and its public testnet went live on 2025-12-09. <Cite ids="src-orbit-tempo-paradigm src-orbit-tempo-testnet" /> Tempo's mainnet went live on 2026-03-18, and the same post introduced [MPP](/p/stripe-mpp/) as an open standard co-authored by Stripe and Tempo that supports stablecoins, cards and other methods, so Tempo is one MPP payment method among several rather than a requirement. <Cite ids="src-orbit-tempo-mainnet" /> The mainnet's chain ID is 4217. <Cite ids="src-stripe-mpp-tempo-connection" /> Tempo Labs and Stripe maintain the MPP specifications repository, and the node software `tempoxyz/tempo` is licensed under MIT or Apache-2.0 at the user's option. <Cite ids="src-orbit-mpp-specs-repo src-orbit-tempo-repo" /> Its releases have been tagged `tempo/vX.Y.Z` since `tempo/v1.17.0` (2026-10-26), and the latest as of 2026-11-21, `tempo/v1.19.0`, came out on 2026-11-19, three days after the maintenance release `tempo/v1.18.4`. <Cite ids="src-stripe-mpp-tempo-releases" />
 
 Tempo said on 2026-10-14 that Tempo Zones, which keep customer stablecoin balances and payments private, were live, and its docs list Zones as live on mainnet. <Cite ids="src-stripe-mpp-tempo-privacy" /> The T13 network upgrade, which needs node release `tempo/v1.17.0`, activated on the testnet on 2026-10-29 and on mainnet on 2026-11-03. It adds a prover that checks an AWS Nitro attestation of each Zone batch before settlement, with a temporary fallback to sequencer signatures, and lets fees fall back to OUSD when a fee payer has too little pathUSD. <Cite ids="src-stripe-mpp-tempo-t13 src-stripe-mpp-tempo-releases" /> OUSD is a USD stablecoin operated by Open Standard, whose founding partners include Coinbase, Mastercard, Shopify, Stripe and Visa, and Tempo calls it the recommended stablecoin on Tempo. <Cite ids="src-stripe-mpp-tempo-ousd" /> Since the `mppx` SDK's 0.17.4 release (2026-11-07), an MPP payer can pay a Tempo charge from a Zone balance, which keeps its address off the public chain while the recipient, amount and timing stay public. <Cite ids="src-stripe-mpp-docs-private-payments" />
+
+`tempo/v1.19.0` is required for the T14 network upgrade, which Tempo has scheduled for the Moderato testnet on 2026-11-24 and for mainnet on 2026-12-08, both at 15:00 UTC; Tempo says its scope may still change before activation. <Cite ids="src-stripe-mpp-tempo-releases src-stripe-mpp-tempo-t14" /> T14 adds configurable accounts with up to 48 weighted signers and an approval threshold, lets an existing account upgrade at the same address in an optional, permanent step, and stops new admin access keys, while admin keys granted earlier keep spending without limit until revoked. <Cite ids="src-stripe-mpp-tempo-t14" /> For MPP sessions, a payer that upgrades cannot top up channel deposits made before the upgrade, and under T14 it cannot sign its own vouchers, so it needs a separate single-key signer until TIP-1166, which is planned for the unscheduled T15. <Cite ids="src-stripe-mpp-tempo-t14 src-stripe-mpp-tempo-t15" />
+
+Tempo also runs an [x402](/p/x402/) facilitator, so sellers can keep x402 on Base: buyers pay USDC with the exact scheme to Tempo's deposit address, and Tempo pays the seller in OUSD on Tempo at the address named in `extra.tempoSettlement`. <Cite ids="src-stripe-mpp-tempo-x402-facilitator src-stripe-mpp-tempo-x402-supported" /> Its documentation merged on 2026-11-18 while the author asked to wait for production, and `mppx` 0.21.1 added a helper for it on 2026-11-19. <Cite ids="src-stripe-mpp-gh-mpp-pr-1255 src-stripe-mpp-mppx-changelog" /> Because the buyer pays Tempo's address rather than the seller's, the seller relies on Tempo for the payout. <Cite ids="src-stripe-mpp-tempo-x402-supported src-stripe-mpp-tempo-x402-facilitator" />

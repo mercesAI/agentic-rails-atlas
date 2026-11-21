@@ -3,11 +3,12 @@
     "from": "ap2",
     "to": "mastercard-agent-pay",
     "type": "compatible-with",
-    "note": "Verifiable Intent shares AP2 v0.2 vct values with aligned constraint semantics and different key prefixes (payment.amount_range versus mandate.payment.amount_range); both were contributed to FIDO on 2026-04-28.",
+    "note": "Verifiable Intent shares AP2 v0.2 vct values with aligned constraint semantics and different key prefixes (payment.amount_range versus mandate.payment.amount_range); both were contributed to FIDO on 2026-04-28. Separately, Google says it works with American Express (coming soon), Mastercard and Visa to secure the Gemini purchases it describes as using AP2 with digital tokens on supported cards (2026-11-17); it names no Agent Pay program or Verifiable Intent.",
     "sources": [
       "src-ap2-vi-spec",
       "src-ap2-schema-open-payment",
-      "src-ap2-fido-pr"
+      "src-ap2-fido-pr",
+      "src-ap2-google-gemini-tasks-20261117"
     ]
   },
   {
@@ -38,10 +39,12 @@
   {
     "from": "erc-8004",
     "to": "stripe-mpp",
-    "type": "compatible-with",
-    "note": "The MPP payment discovery draft cites ERC-8004 and calls its off-chain discovery compatible with future on-chain anchoring; no integration is specified.",
+    "type": "complements",
+    "note": "The MPP payment discovery draft cites ERC-8004 without specifying an integration. Since mppx 0.20.0 (2026-11-16), MPP's reference SDK ships an ERC-8004 identity provider: the server reads getAgentWallet from the Identity Registry (on Tempo mainnet by default) and accepts a request, or a tempo charge, signed by that wallet. It is an SDK feature, not part of ERC-8004 or of an MPP draft.",
     "sources": [
-      "src-mpp-discovery-draft"
+      "src-mpp-discovery-draft",
+      "src-stripe-mpp-mppx-pr-1304",
+      "src-stripe-mpp-mppx-changelog"
     ]
   },
   {
@@ -60,24 +63,27 @@
     "from": "mastercard-agent-pay",
     "to": "ap2",
     "type": "complements",
-    "note": "Agent Pay is not AP2. Through Verifiable Intent it uses the same four mandate vct values as AP2 v0.2 on main, with aligned constraint semantics and a mandate. key prefix; both were contributed to FIDO on 2026-04-28. No live VI use inside AP2 is documented as of 2026-11-14; the one announced live VI use (2026-11-12) was an Agent Pay purchase.",
+    "note": "Agent Pay is not AP2. Through Verifiable Intent it uses the same four mandate vct values as AP2 v0.2 on main, with aligned constraint semantics and a mandate. key prefix; both were contributed to FIDO on 2026-04-28. No live VI use inside AP2 is documented as of 2026-11-21. Mastercard and its partners have announced two live VI uses (2026-11-12 flight, 2026-11-19 coffee through Antom), both Agent Pay purchases and neither an AP2 flow. Google's 2026-11-17 statement that Gemini uses AP2 for purchases names Mastercard only for digital tokens on supported cards, not Agent Pay or VI.",
     "sources": [
       "src-mcap-vi-format",
       "src-mcap-ap2-schema-open-payment",
       "src-mcap-fido-pr",
-      "src-mcap-travelport-2026-11"
+      "src-mcap-travelport-2026-11",
+      "src-mcap-antom-2026-11",
+      "src-ap2-google-gemini-tasks-20261117"
     ]
   },
   {
     "from": "mastercard-agent-pay",
     "to": "openai-acp",
     "type": "compatible-with",
-    "note": "Indirect: Stripe Shared Payment Tokens can carry Mastercard agentic network tokens, so an ACP checkout processed by Stripe can use one. ACP itself names Mastercard only as a card brand. Separately, Mastercard is one of three network partners of OpenAI's ChatGPT Wallet (2026-11-13), which OpenAI presents without reference to ACP and without naming a Mastercard program; Mastercard's CEO said on 2026-10-29 that a strategic partnership with OpenAI includes the use of Agent Pay (reported).",
+    "note": "Indirect: Stripe Shared Payment Tokens can carry Mastercard agentic network tokens, so an ACP checkout processed by Stripe can use one. ACP itself names Mastercard only as a card brand. Separately, Mastercard is one of the three card networks among the partners of OpenAI's ChatGPT Wallet (2026-11-13); as read 2026-11-21 the post names American Express, Chase, Mastercard and Visa, where the launch-day text named three, and Chase takes part as a card issuer. OpenAI presents Wallet without reference to ACP and without naming a Mastercard program; Mastercard's CEO said on 2026-10-29 that a strategic partnership with OpenAI includes the use of Agent Pay (reported).",
     "sources": [
       "src-mcap-stripe-spt-2026",
       "src-mcap-acp-schema",
       "src-openai-chatgpt-wallet",
-      "src-mcap-q3-2026-transcript"
+      "src-mcap-q3-2026-transcript",
+      "src-openai-wallet-help-purchases"
     ]
   },
   {
@@ -138,7 +144,7 @@
     "from": "openai-acp",
     "to": "mastercard-agent-pay",
     "type": "compatible-with",
-    "note": "No documented protocol link. Stripe says it might use Mastercard Agent Pay tokens under SPT card payments. Mastercard is one of three networks behind ChatGPT Wallet (2026-11-13), which OpenAI does not present as ACP; Mastercard's CEO said on 2026-10-29 that a broader OpenAI partnership includes the use of Agent Pay (reported), but no source names the program behind Wallet tokens.",
+    "note": "No documented protocol link. Stripe says it might use Mastercard Agent Pay tokens under SPT card payments. Mastercard is one of the three card networks among ChatGPT Wallet's named partners (2026-11-13), which OpenAI does not present as ACP; Mastercard's CEO said on 2026-10-29 that a broader OpenAI partnership includes the use of Agent Pay (reported), but no source names the program behind Wallet tokens.",
     "sources": [
       "src-fee-stripe-spt-docs",
       "src-openai-chatgpt-wallet",
@@ -176,7 +182,7 @@
     "from": "openai-acp",
     "to": "visa-tap",
     "type": "compatible-with",
-    "note": "Visa Intelligent Commerce tokens under SPTs: Stripe says it might use them for SPT card payments, so Visa agent tokens can sit under an ACP payment. TAP itself has no documented link to ACP. Visa announced a strategic collaboration with OpenAI under Visa Intelligent Commerce on 2026-06-10 and is one of three networks behind ChatGPT Wallet (2026-11-13); no source ties either to TAP, and OpenAI documents plain Web Bot Auth for ChatGPT's cloud browser, naming neither TAP's tags nor Visa's key store (as of 2026-11-14).",
+    "note": "Visa Intelligent Commerce tokens under SPTs: Stripe says it might use them for SPT card payments, so Visa agent tokens can sit under an ACP payment. TAP itself has no documented link to ACP. Visa announced a strategic collaboration with OpenAI under Visa Intelligent Commerce on 2026-06-10 and is one of the three card networks among ChatGPT Wallet's named partners (2026-11-13); no source ties either to TAP, and OpenAI documents plain Web Bot Auth for ChatGPT's cloud browser, naming neither TAP's tags nor Visa's key store (as of 2026-11-21).",
     "sources": [
       "src-fee-stripe-spt-docs",
       "src-openai-acp-visa-openai-22496",
@@ -192,6 +198,17 @@
     "sources": [
       "src-stripe-mpp-ap2-glossary",
       "src-stripe-mpp-ucp-repo"
+    ]
+  },
+  {
+    "from": "stripe-mpp",
+    "to": "erc-8004",
+    "type": "complements",
+    "note": "An SDK link, not a specification link: since mppx 0.20.0 (2026-11-16) MPP's reference SDK ships an ERC-8004 identity provider (mppx/extensions/identity/erc8004). The agent signs requests with its wallet and sends Agent-Id and Agent-Signature; the server checks that the wallet the Identity Registry names for the agent (on Tempo mainnet by default) signed the request or the agent's tempo charge. No MPP draft specifies this; draft-payment-discovery-01 only cites ERC-8004 as prior art.",
+    "sources": [
+      "src-stripe-mpp-mppx-pr-1304",
+      "src-stripe-mpp-mppx-changelog",
+      "src-stripe-mpp-discovery"
     ]
   },
   {
@@ -235,22 +252,25 @@
     "from": "stripe-mpp",
     "to": "x402",
     "type": "compatible-with",
-    "note": "MPP maps x402 headers onto Payment authentication and x402 exact onto charge; upto and batch-settlement are comparable to sessions. mppx's EVM charge has offered both protocols on one route since 0.6.29 (2026-06-02), 0.9.0 added dual MPP and x402 framework wrappers, and the mppx client prefers the Payment challenge.",
+    "note": "MPP maps x402 headers onto Payment authentication and x402 exact onto charge; upto and batch-settlement are comparable to sessions. mppx's EVM charge has offered both protocols on one route since 0.6.29 (2026-06-02), 0.9.0 added dual MPP and x402 framework wrappers, and the mppx client prefers the Payment challenge. Tempo also runs an x402 facilitator (live by 2026-11-19, with a tempoX402() helper in mppx 0.21.1) that takes USDC on Base and pays sellers in OUSD on Tempo; buyers pay Tempo's deposit address, so sellers rely on Tempo for the payout.",
     "sources": [
       "src-stripe-mpp-vs-x402",
       "src-stripe-mpp-mppx-changelog",
       "src-stripe-mpp-cloudflare",
-      "src-stripe-mpp-npm-mppx"
+      "src-stripe-mpp-npm-mppx",
+      "src-stripe-mpp-tempo-x402-facilitator",
+      "src-stripe-mpp-tempo-x402-supported"
     ]
   },
   {
     "from": "stripe-mpp",
     "to": "x402",
     "type": "competes-with",
-    "note": "Both are HTTP 402 payment protocols; MPP's comparison page, written by its authors, recommends MPP by default. Stripe co-authors MPP and sits on the x402 TSC.",
+    "note": "Both are HTTP 402 payment protocols; MPP's comparison page, written by its authors, recommends MPP by default. Stripe co-authors MPP and sits on the x402 TSC, and Tempo, MPP's other co-author, runs an x402 facilitator.",
     "sources": [
       "src-stripe-mpp-vs-x402",
-      "src-stripe-mpp-x402-tsc"
+      "src-stripe-mpp-x402-tsc",
+      "src-stripe-mpp-tempo-x402-facilitator"
     ]
   },
   {
@@ -267,12 +287,14 @@
     "from": "ucp",
     "to": "ap2",
     "type": "embeds",
-    "note": "AP2 is an optional UCP extension, dev.ucp.common.payment.ap2_mandate (dev.ucp.shopping.ap2_mandate before v2026-08-25). UCP places the merchant authorization, checkout mandate and payment mandate; AP2 defines the formats. Live use is unverified.",
+    "note": "AP2 is an optional UCP extension, dev.ucp.common.payment.ap2_mandate (dev.ucp.shopping.ap2_mandate before v2026-08-25). UCP places the merchant authorization, checkout mandate and payment mandate; AP2 defines the formats. Live use inside UCP is unverified; Google says Gemini uses AP2 for its Google Pay purchases outside any documented UCP flow (2026-11-17).",
     "sources": [
       "src-ucp-ap2-spec",
       "src-ucp-schema-ap2",
       "src-ucp-schema-ap2-0408",
-      "src-ucp-google-faq"
+      "src-ucp-google-faq",
+      "src-ap2-google-gemini-tasks-20261117",
+      "src-ucp-google-platform-profiles"
     ]
   },
   {
@@ -399,11 +421,14 @@
     "from": "x402",
     "to": "stripe-mpp",
     "type": "compatible-with",
-    "note": "MPP maps x402 exact onto its charge intent, and mppx can serve both protocols on one route; Stripe sits on the x402 TSC and co-authors MPP with Tempo.",
+    "note": "MPP maps x402 exact onto its charge intent, and mppx can serve both protocols on one route; Stripe sits on the x402 TSC and co-authors MPP with Tempo. Tempo has also run an x402 facilitator since 2026-11-19 that pays sellers in OUSD on Tempo, and Amazon Bedrock AgentCore payments pays both protocols' challenges for agents (MPP since 2026-08-18).",
     "sources": [
       "src-x402-mpp-vs-x402",
       "src-x402-tsc",
-      "src-stripe-mpp-governance"
+      "src-stripe-mpp-governance",
+      "src-stripe-mpp-tempo-x402-facilitator",
+      "src-x402-aws-agentcore-payments-ga",
+      "src-x402-aws-agentcore-process-payment"
     ]
   },
   {

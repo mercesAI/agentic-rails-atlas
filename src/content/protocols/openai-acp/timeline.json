@@ -58,6 +58,18 @@
       "confidence": "verified"
     },
     {
+      "date": "2025-12-08",
+      "lane": "OpenAI ACP",
+      "title": "Instacart app in ChatGPT with in-chat checkout",
+      "detail": "OpenAI called the Instacart app the first to offer a checkout experience directly within ChatGPT, powered by ACP: users sign in with an Instacart account and check out through Instant Checkout without leaving the chat. Instacart says Stripe powers the transactions. Its status in 2026 is not documented.",
+      "kind": "launch",
+      "sources": [
+        "src-openai-acp-instacart-post",
+        "src-openai-acp-instacart-release"
+      ],
+      "confidence": "verified"
+    },
+    {
       "date": "2025-12-11",
       "lane": "OpenAI ACP",
       "title": "Stripe Agentic Commerce Suite",
@@ -220,7 +232,7 @@
       "date": "2026-07-18",
       "lane": "OpenAI ACP",
       "title": "Last commit to date",
-      "detail": "Optional product url on checkout items (unreleased); no commits, tags, releases or maintainer comments through 2026-11-14.",
+      "detail": "Optional product url on checkout items (unreleased); no commits, tags, releases or maintainer comments through 2026-11-21.",
       "kind": "release",
       "sources": [
         "src-openai-acp-gh-commits",
@@ -232,7 +244,7 @@
       "date": "2026-10-16",
       "lane": "OpenAI ACP",
       "title": "Dispute-resolution extension proposed (PR 316)",
-      "detail": "A community SEP proposes a dispute-resolution extension for agent-initiated transactions and awaits a TSC sponsor; issue 315 (2026-10-15) asks for stored agent identity. A comment marked it ready for maintainer review on 2026-11-06; no maintainer reply through 2026-11-14.",
+      "detail": "A community SEP proposes a dispute-resolution extension for agent-initiated transactions and awaits a TSC sponsor; issue 315 (2026-10-15) asks for stored agent identity. A comment marked it ready for maintainer review on 2026-11-06, the PR gained a commit on 2026-11-16, and a 2026-11-18 comment asked Meta's TSC representative to sponsor it; no maintainer reply through 2026-11-21.",
       "kind": "governance",
       "sources": [
         "src-openai-acp-gh-pr-316",
@@ -245,10 +257,13 @@
       "date": "2026-11-10",
       "lane": "OpenAI ACP",
       "title": "Businesses in ChatGPT introduced",
-      "detail": "OpenAI announced Businesses in ChatGPT. Since the 2026-11-13 docs rewrite, its developer docs send businesses to Business Hub to claim a profile, verify identity and upload full product feed snapshots by manual upload, hosted URL or SFTP; the approved-partner form is gone from those docs, while the merchant page keeps its waitlist (2026-11-14).",
+      "detail": "OpenAI introduced Businesses in ChatGPT in beta. In Business Hub a business claims its profile and must pass Persona identity verification before it can publish changes, view insights, connect a product feed or create a Business Agent. Business Agents, for eligible US ecommerce and online service businesses, explain products and policies and link to the business's website; they cannot complete purchases, make bookings or check orders. Since the 2026-11-13 docs rewrite the developer docs describe full feed snapshots by manual upload, hosted URL or SFTP, while the merchant page keeps its waitlist (2026-11-21).",
       "kind": "launch",
       "sources": [
-        "src-openai-news-rss-20261114",
+        "src-openai-acp-businesses-post",
+        "src-openai-acp-release-notes",
+        "src-openai-acp-business-setup-help",
+        "src-openai-acp-business-agents-policy",
         "src-openai-commerce-product-feeds",
         "src-chatgpt-merchants"
       ],
@@ -266,6 +281,20 @@
         "src-openai-commerce-product-feeds",
         "src-openai-commerce-accept-payments",
         "src-openai-chatgpt-wallet"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "date": "2026-11-20",
+      "lane": "OpenAI ACP",
+      "title": "Community security review of request signing (issue 331)",
+      "detail": "A community issue, not a GitHub advisory, says agent-to-merchant request signing is under-specified and weakest on delegate_payment. At commit 7fdd78d the Delegate Authentication RFC lists the Signature header as required and says it must be verified, the Delegate Payment RFC lists it as recommended although its request rules say the client must sign, and the discovery RFC defers signing-key advertisement; no maintainer had responded by 2026-11-21.",
+      "kind": "security",
+      "sources": [
+        "src-openai-acp-gh-issue-331",
+        "src-openai-acp-rfc-delegate-auth",
+        "src-openai-acp-rfc-delegate-payment",
+        "src-openai-acp-rfc-discovery"
       ],
       "confidence": "verified"
     }

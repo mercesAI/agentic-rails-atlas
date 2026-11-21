@@ -15,7 +15,7 @@
     },
     {
       "q": "Is MPP an IETF standard?",
-      "a": "No. The core is an individual Internet-Draft, draft-httpauth-payment-01 (2026-09-09), with no working group, stream or intended status. IANA has registered none of its header or scheme names as of 2026-11-14.",
+      "a": "No. The core is an individual Internet-Draft, draft-httpauth-payment-01 (2026-09-09), with no working group, stream or intended status. IANA has registered none of its header or scheme names as of 2026-11-21.",
       "misconception": true,
       "claimIds": [
         "clm-stripe-mpp-006",
@@ -53,7 +53,7 @@
     },
     {
       "q": "Is session a standard MPP intent?",
-      "a": "Not yet. Only charge and subscription are in specs/intents. Session is defined inside six method specs, even though a June blog post called sessions a formal intent. The pull request for a generic session intent closed unmerged on 2026-09-28, a second attempt closed unmerged on 2026-11-07, and a third was still open on 2026-11-14.",
+      "a": "Not yet. Only charge and subscription are in specs/intents. Session is defined inside six method specs, even though a June blog post called sessions a formal intent. The pull request for a generic session intent closed unmerged on 2026-09-28, a second attempt closed unmerged on 2026-11-07, and a third was still open on 2026-11-21.",
       "misconception": true,
       "claimIds": [
         "clm-stripe-mpp-049",
@@ -70,6 +70,15 @@
         "clm-stripe-mpp-177",
         "clm-stripe-mpp-178",
         "clm-stripe-mpp-179"
+      ]
+    },
+    {
+      "q": "Does MPP use ERC-8004 agent identity?",
+      "a": "Not in its specifications: no MPP draft specifies how to use ERC-8004, and the discovery draft only cites it. Since mppx 0.20.0 (2026-11-16) the reference SDK ships an ERC-8004 identity provider. The agent signs each request with its wallet, and the server checks that the wallet the ERC-8004 Identity Registry names for the agent, on Tempo mainnet by default, signed the request or the agent's tempo charge. It is an SDK feature, and it reads no ERC-8004 reputation data.",
+      "claimIds": [
+        "clm-stripe-mpp-293",
+        "clm-stripe-mpp-291",
+        "clm-stripe-mpp-292"
       ]
     },
     {

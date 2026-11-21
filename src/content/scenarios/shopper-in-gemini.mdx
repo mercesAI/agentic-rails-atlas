@@ -2,7 +2,7 @@
 slug: shopper-in-gemini
 order: 3
 title: A shopper buys running shoes in Gemini
-summary: A shopper asks Gemini for running shoes. UCP handles discovery, checkout, the Google Pay handler and signed order webhooks; an AP2 checkout mandate with the human present is shown as the specification describes it, with live use unverified. Google Pay on Google surfaces uses only PAN_ONLY.
+summary: A shopper asks Gemini for running shoes. UCP handles discovery, checkout, the Google Pay handler and signed order webhooks; an AP2 checkout mandate with the human present is shown as the specification describes it, with live use inside UCP unverified. Google Pay on Google surfaces uses only PAN_ONLY.
 protocols:
   - ucp
   - ap2
@@ -14,14 +14,14 @@ personas:
   - psp
   - wallet-cp
   - controls-builder
-lastVerified: "2026-11-14"
+lastVerified: "2026-11-21"
 ---
 
 ## The situation
 
 A shopper asks Gemini for a pair of trail running shoes in size 10 under a set price, picks one, and pays with the card saved in Google Pay. The shopper is present for the whole purchase. The merchant, not Google, is the merchant of record and keeps the financial liability and the order.<Cite ids="clm-ucp-006" />
 
-Two layers are involved, and they are not equally live. UCP-powered checkout began rolling out to US shoppers in AI Mode in Search and the Gemini app on 2026-02-11, starting with Etsy and Wayfair items.<Cite ids="clm-ucp-174" /> It began rolling out to Canadian shoppers on 2026-11-04.<Cite ids="clm-ucp-257" /> The AP2 mandate layer is specified inside UCP as an optional extension.<Cite ids="clm-ucp-193" /> Google said on 2026-05-19 that it would begin bringing AP2 to its products in the coming months, starting with Gemini Spark.<Cite ids="clm-ap2-169" /> Production use of AP2 mandates is unverified anywhere, including inside UCP, as of 2026-10-20.<Cite ids="clm-ap2-139 clm-ucp-197" /> Read the AP2 steps below as "per spec; live use unverified".
+Two layers are involved, and they are not equally live. UCP-powered checkout began rolling out to US shoppers in AI Mode in Search and the Gemini app on 2026-02-11, starting with Etsy and Wayfair items.<Cite ids="clm-ucp-174" /> It began rolling out to Canadian shoppers on 2026-11-04.<Cite ids="clm-ucp-257" /> The AP2 mandate layer is specified inside UCP as an optional extension.<Cite ids="clm-ucp-193" /> Google said on 2026-05-19 that it would begin bringing AP2 to its products in the coming months, starting with Gemini Spark.<Cite ids="clm-ap2-169" /> On 2026-11-17 it said Gemini now uses AP2 for purchases made with its new Google Pay checkout in Tasks in Gemini, the product formerly called Spark, without publishing mandate types, a signer or a verifier.<Cite ids="clm-ap2-219 clm-ap2-223 clm-ap2-221" /> The same post calls integrating UCP into Gemini the next step, while Google's UCP FAQ already says a merchant's UCP integration powers the Gemini apps.<Cite ids="clm-ap2-224" /> Google's help page for those purchases mentions a browser and a possible virtual card number and does not mention UCP.<Cite ids="clm-ap2-222 clm-ap2-221" /> No public source shows AP2 mandates inside a UCP checkout as of 2026-11-21, and Google's own UCP platform profiles declare no AP2 extension.<Cite ids="clm-ap2-139 clm-ucp-197" /> Read the AP2 steps below as "per spec; live use inside UCP unverified".
 
 ## Actors
 

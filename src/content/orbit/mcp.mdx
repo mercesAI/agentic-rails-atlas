@@ -12,7 +12,7 @@ relations:
     note: x402 defines an MCP transport (payment required in a tool result, payment and settlement carried in _meta) and ships an @x402/mcp package.
   - to: stripe-mpp
     type: complements
-    note: The MPP specs repository defines a JSON-RPC and MCP transport for the Payment authentication scheme.
+    note: The MPP specs repository defines a JSON-RPC and MCP transport for the Payment authentication scheme. It targets MCP 2025-11-25, where -32042 already means URL elicitation required, and its required error codes -32042 and -32043 fall in the range that MCP 2026-07-28 reserves for codes its own specification defines.
   - to: openai-acp
     type: complements
     note: The 2026-04-17 ACP release added an MCP transport binding whose tools map to the REST checkout operations.
@@ -37,6 +37,14 @@ sources:
   - src-orbit-mcp-changelog-2026-07-28
   - src-orbit-mcp-releases
   - src-orbit-mcp-release-cycle
+  - src-orbit-mcp-sep-3415
+  - src-orbit-mcp-events-overview
+  - src-orbit-mcp-error-codes-2026-07-28
+  - src-orbit-mcp-schema-2025-11-25
+  - src-orbit-mcp-python-sdk-oauth-advisory
+  - src-orbit-mcp-ts-sdk-oauth-advisory
+  - src-orbit-agentproto-charter
+  - src-orbit-agentproto-usecases-wg-draft
   - src-gloss-mcp-spec
   - src-gloss-aaif-lf
   - src-orbit-aaif-projects
@@ -44,6 +52,9 @@ sources:
   - src-x402-transport-mcp-v2
   - src-x402-npm-downloads
   - src-stripe-mpp-mcp-transport
+  - src-stripe-mpp-gh-issue-374
+  - src-stripe-mpp-gh-pr-392
+  - src-orbit-mppx-mcp-codes
   - src-openai-acp-mcp-binding
   - src-openai-acp-openrpc-20260417
   - src-openai-acp-changelog-20260417
@@ -55,8 +66,9 @@ sources:
   - src-x402-ap2-repo
   - src-visa-ai-repo
   - src-visa-mcp-server
+  - src-visa-tap-npm-search
   - src-mcap-npm-mcp
-lastVerified: "2026-11-14"
+lastVerified: "2026-11-21"
 ---
 
 ## What it is
@@ -65,16 +77,18 @@ MCP standardizes how an AI application talks to a server that offers capabilitie
 
 ## Status
 
-MCP is live and uses dated specification revisions. The current revision is 2026-07-28, released on 2026-07-28 after a release candidate on 2026-05-29, and no later revision had been released on 2026-11-14. <Cite ids="src-orbit-mcp-versioning src-orbit-mcp-releases" /> The revision makes the protocol stateless. It removes the `initialize` handshake and protocol-level sessions with their `Mcp-Session-Id` header, so every request carries its protocol version and client capabilities in `_meta`, and servers must implement `server/discover`. Tasks leave the core for an extension, Roots, Sampling and Logging are deprecated, and Dynamic Client Registration is deprecated in favor of Client ID Metadata Documents. <Cite ids="src-orbit-mcp-changelog-2026-07-28" /> On 2026-11-11 the maintainers moved MCP to a six-month release schedule, generally on the last Tuesday of March and September, and said they are targeting 2027-03-30 for the next revision; that date is a plan, not a release. <Cite ids="src-orbit-mcp-release-cycle" />
+MCP is live and uses dated specification revisions. The current revision is 2026-07-28, released on 2026-07-28 after a release candidate on 2026-05-29, and no later revision had been released on 2026-11-21. <Cite ids="src-orbit-mcp-versioning src-orbit-mcp-releases" /> The revision makes the protocol stateless. It removes the `initialize` handshake and protocol-level sessions with their `Mcp-Session-Id` header, so every request carries its protocol version and client capabilities in `_meta`, and servers must implement `server/discover`. Tasks leave the core for an extension, Roots, Sampling and Logging are deprecated, and Dynamic Client Registration is deprecated in favor of Client ID Metadata Documents. <Cite ids="src-orbit-mcp-changelog-2026-07-28" /> On 2026-11-11 the maintainers moved MCP to a six-month release schedule, generally on the last Tuesday of March and September, and said they are targeting 2027-03-30 for the next revision; that date is a plan, not a release. <Cite ids="src-orbit-mcp-release-cycle" /> Extensions move on their own track. On 2026-11-19 the maintainers merged SEP-3415, a Specification Enhancement Proposal, with status Final, which puts the Events extension (`io.modelcontextprotocol/events`) in the Beta stage of MCP's extension lifecycle; it lets a server list event types and deliver them by polling, over a long-lived stream or as signed webhooks, and it applies to revision 2026-07-28 onward. <Cite ids="src-orbit-mcp-sep-3415 src-orbit-mcp-events-overview" />
 
-On 2025-12-09 the Linux Foundation announced the Agentic AI Foundation (AAIF), with Anthropic contributing MCP alongside Block's goose and OpenAI's AGENTS.md. The founding platinum members were Amazon Web Services, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft and OpenAI. <Cite ids="src-gloss-aaif-lf" /> AAIF listed ten projects on 2026-11-14, among them A2A, a hosted project since 2026-08-17. <Cite ids="src-orbit-aaif-projects src-orbit-a2a-aaif-blog" />
+On 2025-12-09 the Linux Foundation announced the Agentic AI Foundation (AAIF), with Anthropic contributing MCP alongside Block's goose and OpenAI's AGENTS.md. The founding platinum members were Amazon Web Services, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft and OpenAI. <Cite ids="src-gloss-aaif-lf" /> AAIF listed ten projects on 2026-11-14, among them A2A, a hosted project since 2026-08-17. <Cite ids="src-orbit-aaif-projects src-orbit-a2a-aaif-blog" /> Outside AAIF, the Internet Engineering Task Force (IETF) chartered an Agent Communication Protocols (agentproto) working group on 2026-10-08 to define a dialog management protocol whose context MCP and A2A could carry with their own mechanisms; its charter leaves any change to those protocols to their maintainers, and the group posted its first working group draft, on use cases and requirements, on 2026-11-20. <Cite ids="src-orbit-agentproto-charter src-orbit-agentproto-usecases-wg-draft" />
+
+The official software development kits (SDKs) ship separately from the specification, and the Python and TypeScript SDKs published GitHub security advisories for one flaw class in their OAuth client support, both rated high: an MCP server that is hostile or compromised could have the client send OAuth credentials meant for a legitimate authorization server, such as a client secret or a signed client assertion, to an authorization server of the MCP server's choosing (GHSA-qx49-fqc8-xw99 of 2026-09-28 for Python, GHSA-6qxp-vccf-f47h of 2026-09-30 for TypeScript). <Cite ids="src-orbit-mcp-python-sdk-oauth-advisory src-orbit-mcp-ts-sdk-oauth-advisory" /> The fixes are in `mcp` 1.30.0 and 2.2.0 and in `@modelcontextprotocol/sdk` 1.31.0 and `@modelcontextprotocol/client` 2.2.0, and servers built with the SDKs and stdio clients were not affected; in both SDKs the bundled providers that sign in with a client secret or a private key keep following the MCP server's choice after the upgrade until the caller names the expected issuer. <Cite ids="src-orbit-mcp-python-sdk-oauth-advisory src-orbit-mcp-ts-sdk-oauth-advisory" />
 
 ## How it relates to the eight
 
 For agentic payments MCP is the plumbing that other rails ride on. Several of the eight define how their messages travel inside MCP calls.
 
 - [x402](/p/x402/) defines an MCP transport: a tool result with `isError: true` carries the `PaymentRequired` data, the client retries with payment in `_meta["x402/payment"]`, and settlement comes back in `_meta["x402/payment-response"]`. <Cite ids="src-x402-transport-mcp-v2" /> The project publishes an `@x402/mcp` package. <Cite ids="src-x402-npm-downloads" />
-- [MPP](/p/stripe-mpp/) has a draft JSON-RPC and MCP transport for its Payment authentication scheme. It was written against MCP revision 2025-11-25: servers and clients advertise payment support in the `initialize` handshake, which revision 2026-07-28 removes, and credentials and receipts travel in MCP's `_meta` (as of 2026-11-14). <Cite ids="src-stripe-mpp-mcp-transport" />
+- [MPP](/p/stripe-mpp/) has a draft JSON-RPC and MCP transport for its Payment authentication scheme. It was written against MCP revision 2025-11-25: servers and clients advertise payment support in the `initialize` handshake, which revision 2026-07-28 removes, and credentials and receipts travel in MCP's `_meta` (as of 2026-11-21). <Cite ids="src-stripe-mpp-mcp-transport" /> Its required error codes also conflict with MCP's own rules. The draft answers a paid call with `-32042` and a failed verification with `-32043`, but in revision 2025-11-25 `-32042` already means that URL elicitation is required, and revision 2026-07-28 reserves `-32020` to `-32099` for codes the MCP specification defines and names `-32042` among older codes that its implementations must not send. <Cite ids="src-stripe-mpp-mcp-transport src-orbit-mcp-schema-2025-11-25 src-orbit-mcp-error-codes-2026-07-28" /> An issue in the MPP specifications repository has tracked the conflict since 2026-10-05, and a pull request that would have moved payment for tool calls into a tool result was closed unmerged by its own author on 2026-11-17, so the draft and the `mppx` SDK still use `-32042` (as of 2026-11-21). <Cite ids="src-stripe-mpp-gh-issue-374 src-stripe-mpp-gh-pr-392 src-orbit-mppx-mcp-codes" />
 - [ACP](/p/openai-acp/) added an MCP transport binding in its 2026-04-17 release; its OpenRPC file defines MCP tools that map one to one to the REST checkout operations, with authentication handled at the MCP server level. <Cite ids="src-openai-acp-changelog-20260417 src-openai-acp-mcp-binding src-openai-acp-openrpc-20260417" />
 - [UCP](/p/ucp/) lists MCP as a transport with an OpenRPC schema, specifies Streamable HTTP rather than SSE, and applies the same RFC 9421 signature rules to MCP POST requests. <Cite ids="src-ucp-mcp-openrpc src-ucp-signatures" />
 - [ERC-8004](/p/erc-8004/) registration files accept an `MCP` service entry with endpoint and version, and feedback entries may name an MCP tool, prompt or resource. <Cite ids="src-erc-8004-spec" />
@@ -88,4 +102,6 @@ For agentic payments MCP is the plumbing that other rails ride on. Several of th
 - 2025-12-09: MCP joins the Agentic AI Foundation under the Linux Foundation. <Cite ids="src-gloss-aaif-lf" />
 - 2026-05-29: release candidate of revision 2026-07-28 published. <Cite ids="src-orbit-mcp-releases" />
 - 2026-07-28: revision 2026-07-28 released; the protocol becomes stateless. <Cite ids="src-orbit-mcp-releases src-orbit-mcp-changelog-2026-07-28" />
+- 2026-09-28: the Python SDK publishes an advisory on OAuth credential redirection; the TypeScript SDK follows on 2026-09-30 for the same flaw class. <Cite ids="src-orbit-mcp-python-sdk-oauth-advisory src-orbit-mcp-ts-sdk-oauth-advisory" />
 - 2026-11-11: maintainers announce a six-month release cycle, with the next revision targeted for 2027-03-30. <Cite ids="src-orbit-mcp-release-cycle" />
+- 2026-11-19: SEP-3415 merged with status Final; the Events extension enters Beta. <Cite ids="src-orbit-mcp-sep-3415 src-orbit-mcp-events-overview" />

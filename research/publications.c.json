@@ -27,7 +27,8 @@
       "pub-pass-2015-decentralized",
       "pub-poon-2016-lightning",
       "pub-miller-2017-sprites",
-      "pub-chaum-1983-blind"
+      "pub-chaum-1983-blind",
+      "pub-ogrady-2026-bajillion"
     ],
     "Card payment security (TAP and Agent Pay context)": [
       "pub-murdoch-2010-chipandpin",
@@ -76,7 +77,8 @@
       "pub-cheris-2025-bain",
       "pub-suresh-2026-worldpay",
       "pub-visa-2026-groundup",
-      "pub-mastercard-2026-trust"
+      "pub-mastercard-2026-trust",
+      "pub-barr-2026-financialstability"
     ]
   },
   "entries": [
@@ -1716,6 +1718,57 @@
       "verifiedAt": "2026-10-21",
       "verifiedVia": "publisher",
       "bibtex": "@misc{mastercard2026trust,\n  title = {{Trust for agentic commerce: Powering secure value exchange in a world where AI agents shop, pay and act on our behalf}},\n  author = {{Mastercard}},\n  year = {2026},\n  howpublished = {White paper},\n  note = {September 2026; landing page dated 2026-09-30},\n  url = {https://www.mastercard.com/content/dam/mccom/shared/news-and-trends/stories/2026/trust-for-agentic-commerce-white-paper/Trust%20for%20agentic%20commerce%20white%20paper.pdf}\n}"
+    },
+    {
+      "id": "pub-ogrady-2026-bajillion",
+      "title": "Bajillion: Cryptographic Clearing for Micropayments",
+      "authors": [
+        "Patrick O'Grady",
+        "Guru-Vamsi Policharla"
+      ],
+      "year": 2026,
+      "peerReviewed": false,
+      "arxiv": "2611.21883",
+      "url": "https://arxiv.org/abs/2611.21883",
+      "themes": [
+        "micropayments",
+        "cryptography",
+        "payments"
+      ],
+      "protocols": [
+        "x402",
+        "stripe-mpp"
+      ],
+      "relation": "related",
+      "summary": "A clearing protocol for micropayments at the scale of web traffic, motivated by AI agents that pay a fraction of a cent per request. A sender signs a payment request, an untrusted operator answers with a preconfirmation that promises the receiver payment, and at the close of each epoch the operator posts only the net effect on chain. A malicious operator can only omit payments, never debit a sender beyond what it signed or misdirect a transfer, so posted balances are final at once and senders never raise disputes; a shortchanged receiver can prove that a close omitted a preconfirmed payment, which halts the protocol and lets every user exit with its finalized balance. The authors define an ideal functionality for accountable clearing and prove that Bajillion realizes it.",
+      "whyItMatters": "A design point for per-request agent payments beside x402 and MPP sessions: netting by an untrusted operator whose worst case is provably limited to omission; the abstract names neither protocol.",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "arxiv",
+      "bibtex": "@misc{ogrady2026bajillion,\n  title = {{Bajillion: Cryptographic Clearing for Micropayments}},\n  author = {Patrick O'Grady and Guru-Vamsi Policharla},\n  year = {2026},\n  eprint = {2611.21883},\n  archivePrefix = {arXiv},\n  primaryClass = {cs.CR},\n  url = {https://arxiv.org/abs/2611.21883}\n}"
+    },
+    {
+      "id": "pub-barr-2026-financialstability",
+      "title": "Some Potential Financial Stability Implications of Artificial Intelligence",
+      "authors": [
+        "Michael S. Barr"
+      ],
+      "year": 2026,
+      "venue": "Speech at the Seventh Annual ACM International Conference on Artificial Intelligence in Finance, Milan",
+      "peerReviewed": false,
+      "url": "https://www.federalreserve.gov/newsevents/speech/barr20261116a.htm",
+      "themes": [
+        "central-banks",
+        "regulation",
+        "consent",
+        "authentication"
+      ],
+      "protocols": [],
+      "relation": "grey",
+      "summary": "A Federal Reserve Governor speech of 2026-11-16 on how AI could affect financial stability. It reports that major banks now find AI agents attempting actions in retail customer accounts without the bank being able to verify authenticity, consent and alignment with customer instructions, calls for strict authentication, explicit consent verification for specific actions, technical limits on agent capabilities and both rules- and values-based constraints, and warns that agents could accelerate deposit outflows in periods of stress.",
+      "whyItMatters": "A supervisor's account, from the bank's side, of the gap the atlas protocols try to close: an agent acting in an account with no verifiable proof of the customer's consent. A speech, not guidance.",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "publisher",
+      "bibtex": "@misc{barr2026financialstability,\n  title = {{Some Potential Financial Stability Implications of Artificial Intelligence}},\n  author = {Michael S. Barr},\n  year = {2026},\n  howpublished = {Speech, Board of Governors of the Federal Reserve System},\n  note = {Seventh Annual ACM International Conference on Artificial Intelligence in Finance, Milan, 2026-11-16},\n  url = {https://www.federalreserve.gov/newsevents/speech/barr20261116a.htm}\n}"
     }
   ],
   "unverified": [],
@@ -2143,6 +2196,22 @@
       "endpoint": "https://www.mastercard.com/us/en/news-and-trends/Insights/2026/mastercard-agentic-commerce-trust-white-paper.html",
       "check": "title, date and publisher read on the landing page; the PDF fetched in a headed Chrome session",
       "note": "Landing page dated 2026-09-30 and linked from the mastercard.com copy of the 2026-09-30 release as the Agent Pay Trust Framework; the 16-page PDF is dated September 2026. Replaces the unverified seed of 2026-10-11, when mastercard.com refused automated clients."
+    },
+    {
+      "id": "pub-ogrady-2026-bajillion",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "arxiv",
+      "endpoint": "https://arxiv.org/abs/2611.21883",
+      "check": "arXiv title, authors, category and abstract read on the abstract page",
+      "note": "Only v1 (Mon, 16 Nov 2026 20:53:04 UTC); primary category cs.CR."
+    },
+    {
+      "id": "pub-barr-2026-financialstability",
+      "verifiedAt": "2026-11-21",
+      "verifiedVia": "publisher",
+      "endpoint": "https://www.federalreserve.gov/newsevents/speech/barr20261116a.htm",
+      "check": "title, speaker, venue and date read on the publisher page",
+      "note": "Page dated November 16, 2026; venue line: the Seventh Annual Association for Computing Machinery International Conference on Artificial Intelligence in Finance, Milan, Italy. Text read."
     }
   ]
 }

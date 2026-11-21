@@ -13,14 +13,14 @@ personas:
   - agent-dev
   - controls-builder
   - wallet-cp
-lastVerified: "2026-11-14"
+lastVerified: "2026-11-21"
 ---
 
 ## The situation
 
 A coding agent calls a large language model and does not know in advance how many tokens the answer will take. A per-request price does not fit, and an on-chain payment per token would cost more than the tokens. The seller wants to stop serving the moment money stops; the agent wants to stop paying the moment the answer ends. No human is present during the stream: the owner set a budget earlier.
 
-The Machine Payments Protocol (MPP) handles this with a payment channel on the Tempo chain. The agent deposits into an escrow, signs off-chain vouchers that raise a running total as tokens arrive, and the server settles on chain when it chooses.<Cite ids="clm-stripe-mpp-100" /> One correction up front: "session" is not a standardized MPP intent. The only intents in the specification folder are `charge` and `subscription`, and a pull request for a generic session intent was closed without merging on 2026-09-28.<Cite ids="clm-stripe-mpp-049 clm-stripe-mpp-048" /> A second attempt closed unmerged on 2026-11-07, and a third was still open on 2026-11-14.<Cite ids="clm-stripe-mpp-284" /> The session in this scenario is the one defined by the Tempo payment method.<Cite ids="clm-stripe-mpp-088" />
+The Machine Payments Protocol (MPP) handles this with a payment channel on the Tempo chain. The agent deposits into an escrow, signs off-chain vouchers that raise a running total as tokens arrive, and the server settles on chain when it chooses.<Cite ids="clm-stripe-mpp-100" /> One correction up front: "session" is not a standardized MPP intent. The only intents in the specification folder are `charge` and `subscription`, and a pull request for a generic session intent was closed without merging on 2026-09-28.<Cite ids="clm-stripe-mpp-049 clm-stripe-mpp-048" /> A second attempt closed unmerged on 2026-11-07, and a third was still open on 2026-11-21.<Cite ids="clm-stripe-mpp-284" /> The session in this scenario is the one defined by the Tempo payment method.<Cite ids="clm-stripe-mpp-088" />
 
 ## Actors
 
@@ -66,7 +66,7 @@ The current core draft is `draft-httpauth-payment-01`, published 2026-09-09; it 
 
 ## What is observable from outside
 
-Tempo settlement is public, and MPPscan by Merit Systems indexes MPP servers, agents, transactions and volume.<Cite ids="clm-stripe-mpp-138" /> MPPscan reported 785,833 transactions and 8,620 USD of volume in the 30 days to 2026-10-21, about 1.1 cents per transaction.<Cite ids="clm-stripe-mpp-172" /> Read on 2026-11-14, its newest indexed transaction dated from 2026-11-11, so its rolling windows were short of data and not comparable.<Cite ids="clm-stripe-mpp-280" /> On chain an observer sees the open, each top-up, any settle and the close, with payer, payee and amounts.<Cite ids="src-stripe-mpp-tempo-session" /> The vouchers themselves stay off chain, so per-token pricing and the timing of use stay between agent and server.<Cite ids="clm-scn-metered-inference-004" /> Challenges, credentials and receipts are bilateral HTTP headers.<Cite ids="clm-stripe-mpp-091 clm-stripe-mpp-124 clm-stripe-mpp-125" />
+Tempo settlement is public, and MPPscan by Merit Systems indexes MPP servers, agents, transactions and volume.<Cite ids="clm-stripe-mpp-138" /> MPPscan reported 785,833 transactions and 8,620 USD of volume in the 30 days to 2026-10-21, about 1.1 cents per transaction.<Cite ids="clm-stripe-mpp-172" /> Read on 2026-11-14, its newest indexed transaction dated from 2026-11-11, so its rolling windows were short of data and not comparable.<Cite ids="clm-stripe-mpp-280" /> On 2026-11-21 it had still indexed nothing newer.<Cite ids="clm-stripe-mpp-309" /> On chain an observer sees the open, each top-up, any settle and the close, with payer, payee and amounts.<Cite ids="src-stripe-mpp-tempo-session" /> The vouchers themselves stay off chain, so per-token pricing and the timing of use stay between agent and server.<Cite ids="clm-scn-metered-inference-004" /> Challenges, credentials and receipts are bilateral HTTP headers.<Cite ids="clm-stripe-mpp-091 clm-stripe-mpp-124 clm-stripe-mpp-125" />
 
 ## What can go wrong
 
@@ -74,6 +74,7 @@ Tempo settlement is public, and MPPscan by Merit Systems indexes MPP servers, ag
 - **A top-up during a pending close.** It cancels the close request and emits `CloseRequestCancelled`.<Cite ids="clm-stripe-mpp-205" />
 - **Bad vouchers.** A wrong signer, a total above the deposit or a too-small increase is rejected; the server serves nothing more and carries the risk of anything it delivered beyond its last accepted voucher.<Cite ids="clm-scn-metered-inference-005 clm-scn-metered-inference-001" />
 - **SDK bugs.** CVE-2026-34209 let a close voucher equal to the settled amount close or grief a channel for free in mppx before 0.4.11.<Cite ids="clm-stripe-mpp-127" /> The TypeScript (`mppx`) and Rust (`mpp`) SDKs both had critical advisories within two weeks of launch.<Cite ids="clm-stripe-mpp-198" />
+- **An account upgrade on Tempo.** Tempo's T14 upgrade, scheduled for the testnet on 2026-11-24 and for mainnet on 2026-12-08, lets a payer turn its account into a configurable account.<Cite ids="clm-stripe-mpp-297 clm-stripe-mpp-298" /> A payer that does so cannot top up a channel funded before the upgrade, and under T14 it cannot sign its own vouchers, so the agent needs a separate single-key `authorizedSigner`.<Cite ids="clm-stripe-mpp-299" />
 - **Wrong cost model.** Session v2 cut gas for opening a channel with an existing reserve balance by 72.1 percent, but raised gas for settling to a new payee balance by 79.4 percent. The 72 percent figure is a best case for one operation, not a general saving.<Cite ids="clm-stripe-mpp-169" />
 
 Costs: MPP defines no protocol fee.<Cite ids="clm-stripe-mpp-170" /> For a 50,000-gas transfer Tempo's base fee is capped at about $0.0006 (as of 2026-10-11).<Cite ids="clm-stripe-mpp-161" />

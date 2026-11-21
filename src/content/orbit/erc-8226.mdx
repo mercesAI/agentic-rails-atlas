@@ -3,12 +3,12 @@ slug: erc-8226
 name: "ERC-8226 Regulated Agent Mandate"
 category: agent-identity
 starred: false
-oneLiner: "A Draft ERC (RAMS) that lets a KYC-verified principal give an on-chain agent scoped, time-bounded and capped authority over a regulated token, which the token checks at execution time."
+oneLiner: "A Draft ERC (RAMS) for agents acting on tokenized regulated assets: a principal who passed KYC (know your customer) checks gives the agent a mandate for one target contract, with allowed actions, calldata rules and per-asset limits, checked by a regulated token, the principal's own account or an executor."
 steward: "Authors Ludovico Rossi, Dario Lo Buglio, Thamer Dridi and Nabil El Alami Khalifi (Brickken); Ethereum ERC process"
 status: "Draft"
 latestVersion:
-  label: "ERCs commit f4df3d0 (multi-asset mandates, PR #2060)"
-  date: "2026-10-09"
+  label: "ERCs commit 9912307 (scoped by target, PR #2191)"
+  date: "2026-11-20"
 relations:
   - to: erc-8004
     type: complements
@@ -18,11 +18,19 @@ relations:
     note: "An on-chain analogue of an AP2 mandate: bounded, revocable authority from a principal to an agent; neither references the other."
 sources:
   - src-erc-8226
+  - src-orbit-erc-8226-pr-2191
   - src-orbit-erc-8226-prs
   - src-orbit-erc-8226-magicians
+  - src-orbit-erc-8226-magicians-20261120
   - src-orbit-erc-8226-brickken
   - src-ap2-erc8226
-lastVerified: "2026-10-11"
+lastVerified: "2026-11-21"
 ---
 
-ERC-8226 splits compliance into three layers: token compliance (for example ERC-7943 or ERC-3643), mandate compliance (this ERC) and agent identity (a registry such as [ERC-8004](/p/erc-8004/)). <Cite ids="src-erc-8226 src-ap2-erc8226" /> The principal signs a mandate with EIP-712 (EIP-1271 for contract accounts) that sets validity dates and per-transaction and cumulative caps; tokens call `canExecute` before acting and `recordExecution` to consume the cap, enforcers can freeze an agent or principal, and only the principal can revoke. <Cite ids="src-erc-8226" /> Created on 2026-04-12 and first merged into `ethereum/ERCs` on 2026-05-12, it moved to one mandate per agent, principal and asset on 2026-10-09; its Ethereum Magicians thread had 50 posts by then. <Cite ids="src-orbit-erc-8226-prs src-orbit-erc-8226-magicians" /> The spec text does not mention AP2, x402 or any card network; see [ERC-3643](/orbit/erc-3643/) for how it bridges token compliance and agent identity. <Cite ids="src-erc-8226 src-orbit-erc-8226-brickken" />
+ERC-8226 splits compliance into three layers: token compliance (for example ERC-7943 or ERC-3643), mandate compliance (this ERC) and agent identity (a registry such as [ERC-8004](/p/erc-8004/)). <Cite ids="src-erc-8226 src-ap2-erc8226" /> Its scope is still AI agents acting on tokenized regulated assets, for a principal whose eligibility, such as KYC (know your customer) status, a compliance provider confirms. <Cite ids="src-erc-8226 src-orbit-erc-8226-pr-2191" />
+
+Since a rewrite merged on 2026-11-20 (PR #2191), a mandate is keyed by agent, principal and target, the contract the agent calls: a token, a pool, a router or any other contract. From 2026-10-09 until then it was keyed by agent, principal and asset. <Cite ids="src-orbit-erc-8226-pr-2191" /> The principal signs the mandate with EIP-712 (ERC-1271 for contract accounts). It sets a validity window and a list of allowed actions, each a 32-byte label with rules on calldata words (equals, not equals, at most, at least). It also sets per-asset limits on what leaves the principal's account (OUTFLOW) and what enters it (INFLOW), each with a per-transaction and a cumulative cap that all the mandate's actions share. <Cite ids="src-erc-8226 src-orbit-erc-8226-pr-2191" /> A contract in the agent's path calls `canExecute` to check the mandate and `recordExecution` to record what moved; a non-zero amount on an asset and direction with no limit fails with `NO_LIMIT`, and a failing check makes `recordExecution` revert with `MandateBlocked(reason)`. A new grant clears the old actions and limits, and the principal signs each limit's starting `cumulativeUsed`, so a re-issued mandate can carry over budget already spent. <Cite ids="src-erc-8226" />
+
+That checking contract can be a regulated token that gates its own functions, the principal's own account running shared EIP-7702 delegate code or a module such as a Safe module, or, on chains without EIP-7702, a standalone executor that serves one principal. The three venues were already in the 2026-10-09 text. The rewrite moved the optional `IAgentExecutor` interface into the specification, made the EIP-7702 account venue one shared, stateless deployment per chain and registry, added a smart-account module as an alternative, and asks executors to measure the principal's balance changes around each call instead of reading amounts from calldata. <Cite ids="src-orbit-erc-8226-pr-2191 src-erc-8226" /> The principal and the operators it approves grant, extend and revoke mandates, directly or by signature, and operators cannot approve other operators. Enforcers freeze agents or principals and may remove an operator in an emergency, but cannot revoke a mandate. <Cite ids="src-erc-8226 src-orbit-erc-8226-pr-2191" />
+
+Created on 2026-04-12 and first merged into `ethereum/ERCs` on 2026-05-12, it is still a Draft. <Cite ids="src-orbit-erc-8226-prs src-erc-8226" /> The author announced the rewrite in the Ethereum Magicians thread on 2026-11-20 and posted the authors' own test deployments on Ethereum Sepolia and Base Sepolia the same day; the thread had 57 posts by then. <Cite ids="src-orbit-erc-8226-magicians-20261120" /> The text still names ERC-8004 only as an example identity layer and does not mention AP2, x402 or any card network; see [ERC-3643](/orbit/erc-3643/) for how it bridges token compliance and agent identity. <Cite ids="src-erc-8226 src-orbit-erc-8226-pr-2191 src-orbit-erc-8226-brickken" />

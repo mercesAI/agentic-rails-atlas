@@ -3,24 +3,36 @@ slug: klarna-app
 name: "Klarna Agentic Product Protocol"
 category: card-wallet-commerce
 starred: false
-oneLiner: "An open product-feed specification and API from Klarna that gives AI agents structured, live product, price and availability data."
+oneLiner: "An open product-feed specification and API from Klarna that gives AI agents structured, live product, price and availability data. Separately, Klarna has a shopping app in ChatGPT, a payment handler for agent checkout that Adyen runs live, and its own AI assistant in early access."
 steward: "Klarna (company)"
-status: "Live"
+status: "Feed and API live since 2025-12-15; payment handler live in Adyen Agentic since 2026-11-20 (per Klarna); AI assistant open to a small group of early users since 2026-11-17"
 latestVersion:
   label: "launch"
   date: "2025-12-15"
 relations:
   - to: openai-acp
     type: competes-with
-    note: "A product-feed format for agents that overlaps with ACP product feeds."
+    note: "A product-feed format for agents that overlaps with ACP product feeds. Klarna's separate Shopping Search app in ChatGPT (2026-05-20) sends shoppers to the merchant's site to pay."
   - to: ucp
     type: competes-with
-    note: "Overlaps with UCP catalog capabilities, although Klarna is also a listed UCP endorser."
+    note: "Overlaps with UCP catalog capabilities, although Klarna is also a listed UCP endorser and said on 2026-02-02 that it is joining UCP."
 sources:
   - src-orbit-klarna-app-newsroom
   - src-orbit-klarna-app
   - src-ucp-site
-lastVerified: "2026-11-14"
+  - src-orbit-klarna-app-ap2
+  - src-orbit-klarna-app-ucp
+  - src-orbit-klarna-app-shopping-search
+  - src-orbit-adyen-klarna-20261120
+  - src-orbit-klarna-app-handler-search
+  - src-orbit-klarna-app-assistant
+lastVerified: "2026-11-21"
 ---
 
 Klarna launched the Agentic Product Protocol on 2025-12-15 as an open product-feed specification and API, saying both were available that day. <Cite ids="src-orbit-klarna-app-newsroom src-orbit-klarna-app" /> Klarna claims more than 100 million products and 400 million prices standardized across 13 markets (company figures, as of 2025-12-15). <Cite ids="src-orbit-klarna-app-newsroom" /> As a feed format it overlaps with [ACP](/p/openai-acp/) product feeds and [UCP](/p/ucp/) catalog capabilities, and Klarna is also a listed UCP endorser. <Cite ids="src-ucp-site" />
+
+Klarna also backs other companies' agent protocols. It announced support for Google's [AP2](/p/ap2/) on 2025-10-13 and said on 2026-02-02 that it is joining UCP; both are statements of support, not live AP2 or UCP payment products. <Cite ids="src-orbit-klarna-app-ap2 src-orbit-klarna-app-ucp" /> On 2026-05-20 it launched the Klarna Shopping Search app in ChatGPT, which runs on Klarna's Product Search MCP server over more than 100 million products and 400 million merchant listings across 13 markets (company figures, as of 2026-05-20). The app shows prices, availability and offers from several merchants and then sends the shopper to the merchant's site to pay, so checkout happens there, not inside ChatGPT. <Cite ids="src-orbit-klarna-app-shopping-search" />
+
+On the payment side, Klarna and Adyen announced on 2026-11-20 that shoppers can choose Klarna when an AI agent checks out for them through [Adyen Agentic](/orbit/#orbit-adyen-agentic), where, the companies say, it is the first way to pay other than a card. Merchants that already take Klarna through Adyen can turn it on without a new integration, the agent offers the same Klarna options as the merchant's own checkout, and the shopper still reviews and confirms each purchase. <Cite ids="src-orbit-adyen-klarna-20261120" /> Adyen built the integration on a component Klarna calls its open payment handler. Klarna describes it as a published specification that other payment providers can use too, says Adyen is the first to run it live, and does not present it as part of the Agentic Product Protocol. <Cite ids="src-orbit-adyen-klarna-20261120" /> No copy of the specification was found on 2026-11-21, so its protocol binding, version and fields are unknown. <Cite ids="src-orbit-klarna-app-handler-search" />
+
+Klarna now has an AI assistant of its own as well. On 2026-11-17 it announced the Klarna AI-assistant, which takes on shopping, returns, bookings and routine admin for its user. A small group of early users has it, and others can join a waitlist. The release headline promises that the assistant picks the best product and price and makes the purchase, but the release describes no payment flow, card network or agent protocol. <Cite ids="src-orbit-klarna-app-assistant" /> The assistant builds on the shopping assistant in the Klarna app, and Klarna says its customers have spent more than $34 billion through the app's built-in browser since 2020 (company figure, as of 2026-11-17). <Cite ids="src-orbit-klarna-app-assistant" />

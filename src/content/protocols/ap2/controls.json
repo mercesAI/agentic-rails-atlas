@@ -224,9 +224,18 @@
     },
     {
       "item": "Compare checkout_hash with the hash of your latest checkout_jwt before completing.",
-      "why": "It is the binding that stops a stale or altered checkout.",
+      "why": "It is the binding that stops a stale or altered checkout. The reference Python SDK compares it only when you pass expected_checkout_hash (issue 399, 2026-11-17).",
       "sources": [
-        "src-ap2-spec-v02"
+        "src-ap2-spec-v02",
+        "src-ap2-issue-399",
+        "src-ap2-sdk-checkout-mandate-chain"
+      ]
+    },
+    {
+      "item": "When you verify a Payment Mandate chain with the Python SDK, pass expected_transaction_id computed from the checkout_jwt.",
+      "why": "PaymentMandateChain.verify() skips the transaction_id comparison when the argument is missing.",
+      "sources": [
+        "src-ap2-sdk-payment-mandate-chain"
       ]
     },
     {

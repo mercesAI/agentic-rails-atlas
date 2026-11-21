@@ -6,11 +6,12 @@
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "The merchant is merchant of record and handles refunds and chargebacks, as OpenAI's ACP docs said until 2026-11-13; for ChatGPT Wallet purchases OpenAI says the business handles the order, support and fraud decisions (2026-11-14). For card purchases, Regulation Z limits unauthorized use to use without actual, implied or apparent authority, capped at the lesser of $50 or the amount before notice. Whether an agent acting outside the buyer's intent has apparent authority is untested.",
+      "text": "The merchant is merchant of record and handles refunds and chargebacks, as OpenAI's ACP docs said until 2026-11-13; for ChatGPT Wallet purchases OpenAI says the business handles the order, support and fraud decisions, and the Wallet terms (effective 2026-11-12) name the merchant as seller and merchant of record (2026-11-21). For card purchases, Regulation Z limits unauthorized use to use without actual, implied or apparent authority, capped at the lesser of $50 or the amount before notice. Whether an agent acting outside the buyer's intent has apparent authority is untested.",
       "sources": [
         "src-openai-commerce-docs",
         "src-openai-commerce-accept-payments",
-        "src-policy-regz-1026-12"
+        "src-policy-regz-1026-12",
+        "src-orbit-chatgpt-wallet-terms"
       ],
       "confidence": "verified"
     },
@@ -115,6 +116,17 @@
         "src-openai-acp-council-psd3",
         "src-policy-oeil-psr",
         "src-reg-ep-psr-train"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "EU",
+      "topic": "liability",
+      "text": "The European Commission's Digital Fairness Act proposal (COM(2026) 1100, 2026-11-11) would require a business that offers consumers an automated system that concludes contracts for them to have the consumer choose at first use whether to confirm every contract, only certain types of contract under criteria the consumer sets, including a maximum price and a time limit for that choice, or none. The system would also have to disclose any payment the business receives for proposing a contract, or any conflict of interest, and then have the consumer confirm that contract whatever the earlier choice. These agent rules (Article 26) do not apply to the provision of financial services. It is a proposal, not law, at the preparatory stage in Parliament (2026-11-21).",
+      "sources": [
+        "src-policy-eu-dfa-proposal",
+        "src-policy-eu-dfa-press",
+        "src-policy-oeil-dfa"
       ],
       "confidence": "verified"
     },
@@ -240,10 +252,11 @@
     {
       "jurisdiction": "card-networks",
       "topic": "sca",
-      "text": "ChatGPT Wallet, outside the ACP spec: the user approves each purchase with a security check such as Face ID, the customer consents only to that transaction, and the merchant must not reuse or save the network token for another purchase. Recurring charges need the customer's consent and follow the processor's practice for merchant-initiated transactions (2026-11-14).",
+      "text": "ChatGPT Wallet, outside the ACP spec: the user approves each purchase with biometric verification, such as Face ID or Touch ID, on a supported device; the customer consents only to that transaction, and the merchant must not reuse or save the network token for another purchase. Recurring charges need the customer's consent and follow the processor's practice for merchant-initiated transactions, and OpenAI's help article adds that once the user agrees to a recurring plan, the merchant may store the credential and charge it again (2026-11-21).",
       "sources": [
         "src-openai-chatgpt-wallet",
-        "src-openai-commerce-accept-payments"
+        "src-openai-commerce-accept-payments",
+        "src-openai-wallet-help-purchases"
       ],
       "confidence": "verified"
     },
@@ -260,8 +273,10 @@
     {
       "jurisdiction": "US",
       "topic": "ai-rules",
-      "text": "OpenAI's plugin guidelines bar plugins from selling goods such as adult content, gambling, illegal or regulated drugs, prescription and age-restricted medications, tobacco and nicotine, and weapons; the list covers plugins and does not name alcohol (2026-11-14). OpenAI's ACP docs, as read on 2026-10-11, also listed alcohol among products excluded from ChatGPT shopping. ACP itself has age_verification_required and region_restricted message codes.",
+      "text": "OpenAI's Commerce policies (updated 2026-09-29) set eligibility standards for product listings and merchant participation in its shopping experiences and bar, among other categories, alcoholic beverages over 0.5% ABV and distillation kits, tobacco and nicotine, weapons, illegal or regulated drugs, prescription-only medications, supplements, gambling and adult sexual content; OpenAI's Business Hub help article says feed products must follow them. OpenAI's plugin guidelines keep a separate prohibited-goods list for plugins that does not name alcohol (2026-11-21), and OpenAI's ACP docs, as read on 2026-10-11, also listed alcohol among excluded products. ACP itself has age_verification_required and region_restricted message codes.",
       "sources": [
+        "src-openai-acp-commerce-policies",
+        "src-openai-acp-business-setup-help",
         "src-openai-acp-plugin-guidelines",
         "src-openai-commerce-docs",
         "src-openai-acp-schema-checkout-20260417"
@@ -271,8 +286,9 @@
     {
       "jurisdiction": "US",
       "topic": "liability",
-      "text": "ChatGPT Wallet, outside the ACP spec: OpenAI says users keep their card's protections for eligible disputes, that the business handles the order, fulfillment, customer support and fraud decisions, and that customers bear final responsibility for the actions they take. The last statement is OpenAI's position in its merchant FAQ, not a liability rule (2026-11-14).",
+      "text": "ChatGPT Wallet, outside the ACP spec: its terms (effective 2026-11-12) make the merchant the seller and merchant of record, say OpenAI is not a bank, card issuer, payment network, lender or merchant for Wallet purchases and holds no purchase funds, and say OpenAI does not decide or fund merchant refunds or card chargebacks unless required by law or separately promised, while the cardholder agreement and issuer and network rules, including dispute rights, still apply. OpenAI says the business handles the order, fulfillment, customer support and fraud decisions, and its merchant FAQ says customers bear final responsibility for the actions they take, which is OpenAI's position, not a liability rule (2026-11-21).",
       "sources": [
+        "src-orbit-chatgpt-wallet-terms",
         "src-openai-chatgpt-wallet",
         "src-openai-commerce-accept-payments",
         "src-openai-commerce-agent-access"
@@ -286,6 +302,15 @@
       "sources": [
         "src-openai-commerce-accept-payments",
         "src-openai-acp-iana-forwarded"
+      ],
+      "confidence": "verified"
+    },
+    {
+      "jurisdiction": "US",
+      "topic": "data-protection",
+      "text": "ChatGPT Wallet, outside the ACP spec: OpenAI's Wallet Privacy Notice (effective 2026-11-12, from OpenAI OpCo, LLC) says a service provider collects the card number and security code, OpenAI receives a tokenized credential and limited card details, and OpenAI shares data with merchants, issuers, networks and payment providers to process purchases but does not sell Wallet information or share it for targeted advertising.",
+      "sources": [
+        "src-orbit-chatgpt-wallet-privacy"
       ],
       "confidence": "verified"
     },

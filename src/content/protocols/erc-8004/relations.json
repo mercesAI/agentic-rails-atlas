@@ -14,10 +14,12 @@
   {
     "from": "erc-8004",
     "to": "stripe-mpp",
-    "type": "compatible-with",
-    "note": "The MPP payment discovery draft cites ERC-8004 and calls its off-chain discovery compatible with future on-chain anchoring; no integration is specified.",
+    "type": "complements",
+    "note": "The MPP payment discovery draft cites ERC-8004 without specifying an integration. Since mppx 0.20.0 (2026-11-16), MPP's reference SDK ships an ERC-8004 identity provider: the server reads getAgentWallet from the Identity Registry (on Tempo mainnet by default) and accepts a request, or a tempo charge, signed by that wallet. It is an SDK feature, not part of ERC-8004 or of an MPP draft.",
     "sources": [
-      "src-mpp-discovery-draft"
+      "src-mpp-discovery-draft",
+      "src-stripe-mpp-mppx-pr-1304",
+      "src-stripe-mpp-mppx-changelog"
     ]
   },
   {

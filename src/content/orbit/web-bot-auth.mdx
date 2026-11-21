@@ -7,7 +7,7 @@ oneLiner: An IETF working group that standardizes how bots, crawlers and AI agen
 steward: IETF Web Bot Auth (webbotauth) working group, Web and Internet Transport area; chairs David Schinazi and Rifaat Shekh-Yusef
 status: Working group draft (-01); charter milestones not yet met
 latestVersion:
-  label: draft-ietf-webbotauth-httpsig-protocol-01 (current revision on 2026-11-14)
+  label: draft-ietf-webbotauth-httpsig-protocol-01 (current revision on 2026-11-21)
   date: "2026-10-29"
 relations:
   - to: visa-tap
@@ -30,6 +30,11 @@ sources:
   - src-orbit-wba-wg-history
   - src-orbit-wba-wg-drafts-api
   - src-orbit-wba-ietf123-minutes
+  - src-orbit-wba-ietf127-minutes
+  - src-orbit-wba-issue-144
+  - src-orbit-wba-issue-145
+  - src-orbit-ietf127-meeting
+  - src-orbit-mole-ietf127
   - src-wba-draft
   - src-orbit-wba-indiv-protocol
   - src-orbit-wba-architecture-draft
@@ -44,6 +49,8 @@ sources:
   - src-openai-commerce-docs
   - src-orbit-chatgpt-wba-directory
   - src-orbit-willison-chatgpt-agent
+  - src-x402-aws-waf-monetization
+  - src-x402-aws-waf-monetization-blog
   - src-openai-acp-rfcs-dir
   - src-orbit-pap-spec-1-0
   - src-visa-tap-spec
@@ -57,7 +64,7 @@ sources:
   - src-stripe-mpp-blog-identity
   - src-orbit-mppx-changelog
   - src-ap2-issue-268
-lastVerified: "2026-11-14"
+lastVerified: "2026-11-21"
 ---
 
 ## What it is
@@ -68,13 +75,15 @@ The working group's one adopted document, `draft-ietf-webbotauth-httpsig-protoco
 
 ## Status
 
-The group was created in BOF state on 2025-06-15, met at IETF 123 on 2025-07-21, and had its charter approved on 2025-10-23. <Cite ids="src-orbit-wba-wg-history src-orbit-wba-ietf123-minutes src-orbit-wba-wg-about" /> The working group draft `-00` was posted on 2026-09-01 by T. Meunier (Cloudflare) and S. Major (Google). Revision `-01` followed on 2026-10-29 and is still the current revision and the group's only adopted document on 2026-11-14; it expires on 2027-05-02. <Cite ids="src-wba-draft src-orbit-wba-wg-drafts-api" /> Besides the direct JWK Set rule, `-01` removes the `directory`, `jwks_uri` and `cimd` value types of `-00`, recommends that a site that expects signatures ask for one with `Accept-Signature`, separates a key's JWK `alg` from the signature `alg`, and asks operators to use distinct `Signature-Agent` URLs for a crawler and for a user-directed agent. <Cite ids="src-wba-draft" /> The charter milestones (two standards-track documents due 2026-04-30 and a best-practice document due 2026-08-31) were still listed and not met on 2026-11-14. <Cite ids="src-orbit-wba-wg-about src-orbit-wba-wg-drafts-api" />
+The group was created in BOF state on 2025-06-15, met at IETF 123 on 2025-07-21, and had its charter approved on 2025-10-23. <Cite ids="src-orbit-wba-wg-history src-orbit-wba-ietf123-minutes src-orbit-wba-wg-about" /> The working group draft `-00` was posted on 2026-09-01 by T. Meunier (Cloudflare) and S. Major (Google). Revision `-01` followed on 2026-10-29 and is still the current revision and the group's only adopted document on 2026-11-21; it expires on 2027-05-02. <Cite ids="src-wba-draft src-orbit-wba-wg-drafts-api" /> Besides the direct JWK Set rule, `-01` removes the `directory`, `jwks_uri` and `cimd` value types of `-00`, recommends that a site that expects signatures ask for one with `Accept-Signature`, separates a key's JWK `alg` from the signature `alg`, and asks operators to use distinct `Signature-Agent` URLs for a crawler and for a user-directed agent. <Cite ids="src-wba-draft" /> The charter milestones (two standards-track documents due 2026-04-30 and a best-practice document due 2026-08-31) were still listed and not met on 2026-11-21. <Cite ids="src-orbit-wba-wg-about src-orbit-wba-wg-drafts-api" />
+
+The group's session at IETF 127 in San Francisco on 2026-11-17 ended with room outcomes, not draft text (minutes revision 00; the meeting's proceedings were not final on 2026-11-21): replace the `web-bot-auth` tag, which speakers called ambiguous because nobody coordinates tag values, with a dedicated signature parameter or with a rule on which headers every signature must cover, where the chair's note records room consensus for a boolean parameter; fix a minimum signed set (authority, `signature-agent` and freshness) that a server may not extend while a client may sign more, which the chair called the sense in the room; and add SHOULD-level response headers that explain a failed verification. <Cite ids="src-orbit-wba-ietf127-minutes src-orbit-wba-issue-144 src-orbit-wba-issue-145 src-orbit-ietf127-meeting" /> Room consensus still has to be confirmed on the mailing list, which showed no such confirmation by 2026-11-21, and no `-02` had been posted, so `-01` and its tag rule remain the current text. <Cite ids="src-orbit-wba-ietf127-minutes src-orbit-wba-wg-drafts-api" /> The chairs also re-confirmed that mechanisms that work per user, per session or per sub-agent are outside the current charter as they read it, whether they add session and sub-agent identifiers to signatures, as the Signed Agent Metadata proposal would, or manage per-user and per-session quotas without exposing user or session identities to the site, as PACE would. <Cite ids="src-orbit-wba-ietf127-minutes" /> Chair David Schinazi pointed work on privacy-preserving rate limits to MOLE (Moderation Of unLinkable Endorsements), a separate birds-of-a-feather (BoF) session at the same meeting. <Cite ids="src-orbit-wba-ietf127-minutes src-orbit-mole-ietf127" />
 
 The draft has a line of individual predecessors. The architecture and key directory drafts started on 2025-04-15, and Cloudflare announced the approach on its blog the same season, on 2025-05-15. <Cite ids="src-orbit-wba-architecture-draft src-orbit-wba-directory-draft src-orbit-cf-blog-web-bot-auth" /> In 2026 the work was folded into `draft-meunier-webbotauth-httpsig-protocol` (`-00` on 2026-06-26, `-02` on 2026-08-18), which the working group draft replaced. <Cite ids="src-orbit-wba-indiv-protocol src-orbit-wba-httpsig-directory-draft" /> Other individual drafts around the group, such as a registry and signature agent card draft, are not adopted. <Cite ids="src-orbit-wba-registry-draft src-orbit-wba-related-drafts-api" />
 
 ## Deployed versus specified
 
-Deployments do not follow the working group text yet. ChatGPT's agent has signed its requests with Web Bot Auth since at least 2025-08-04, when a developer captured them with the `web-bot-auth` tag, and Cloudflare named ChatGPT agent among its first signed agents on 2025-08-28. <Cite ids="src-orbit-willison-chatgpt-agent src-orbit-cf-blog-signed-agents" /> What is new is OpenAI's own guidance for merchants. It is part of the commerce docs that OpenAI rewrote between 2026-11-12 and 2026-11-13; the earlier docs, as archived on 2026-11-07, listed no such page. It says that ChatGPT signs certain requests from its cloud browser with `Signature`, `Signature-Input` and a `Signature-Agent` header set to the quoted string `"https://chatgpt.com"`, and that Akamai, Cloudflare, HUMAN and Vercel verify these signatures automatically; the guidance does not cover OpenAI's web crawlers. <Cite ids="src-openai-commerce-agent-access src-openai-commerce-docs" /> The keys are served at `https://chatgpt.com/.well-known/http-message-signatures-directory`, which held one Ed25519 key with a seven-day expiry in a signed directory response on 2026-11-14. That key id differs from the one captured in 2025, so a verifier should fetch the directory rather than pin a key. <Cite ids="src-orbit-chatgpt-wba-directory src-orbit-willison-chatgpt-agent" /> OpenAI documents plain Web Bot Auth, not Visa TAP: its guidance names neither TAP's tags nor Visa's key store (as of 2026-11-14). <Cite ids="src-openai-commerce-agent-access" />
+Deployments do not follow the working group text yet. ChatGPT's agent has signed its requests with Web Bot Auth since at least 2025-08-04, when a developer captured them with the `web-bot-auth` tag, and Cloudflare named ChatGPT agent among its first signed agents on 2025-08-28. <Cite ids="src-orbit-willison-chatgpt-agent src-orbit-cf-blog-signed-agents" /> What is new is OpenAI's own guidance for merchants. It is part of the commerce docs that OpenAI rewrote between 2026-11-12 and 2026-11-13; the earlier docs, as archived on 2026-11-07, listed no such page. It says that ChatGPT signs certain requests from its cloud browser with `Signature`, `Signature-Input` and a `Signature-Agent` header set to the quoted string `"https://chatgpt.com"`, and that Akamai, Cloudflare, HUMAN and Vercel verify these signatures automatically; the guidance does not cover OpenAI's web crawlers. <Cite ids="src-openai-commerce-agent-access src-openai-commerce-docs" /> The keys are served at `https://chatgpt.com/.well-known/http-message-signatures-directory`, which held one Ed25519 key with a seven-day expiry in a signed directory response on 2026-11-14. That key id differs from the one captured in 2025, so a verifier should fetch the directory rather than pin a key. <Cite ids="src-orbit-chatgpt-wba-directory src-orbit-willison-chatgpt-agent" /> OpenAI documents plain Web Bot Auth, not Visa TAP: its guidance names neither TAP's tags nor Visa's key store (as of 2026-11-14). <Cite ids="src-openai-commerce-agent-access" /> AWS WAF also verifies Web Bot Auth signatures: its AI traffic monetization, announced on 2026-06-15, lets a publisher set access and prices by verification status, and it counts an agent as verified when a Web Bot Auth (Ed25519) signature confirms its identity or when it comes from a documented IP range with known user agents and domain names. <Cite ids="src-x402-aws-waf-monetization src-x402-aws-waf-monetization-blog" />
 
 The quoted string is the form that `-01` calls legacy. Under `-01` a verifier would fetch `https://chatgpt.com` itself as a JWK Set, and that URL serves a web page, so a strict `-01` verifier cannot get ChatGPT's keys from the header (as of 2026-11-14). <Cite ids="src-openai-commerce-agent-access src-orbit-chatgpt-wba-directory src-wba-draft" /> Cloudflare's own Web Bot Auth reference (last updated 2026-10-08) still follows the earlier individual directory and architecture drafts. It requires a key directory at the well-known path, accepts only the string form, and fails a message that uses the dictionary form of later drafts; it does no nonce validation and recommends a short `expires` instead. <Cite ids="src-orbit-cf-wba-reference" /> Cloudflare and ChatGPT therefore interoperate on the format that came before the working group draft, not on `-01`. Outside the eight, [Personal Agent Protocol](/orbit/personal-agent-protocol/) 1.0 recommends that a personal agent also sign its session requests with Web Bot Auth. <Cite ids="src-orbit-pap-spec-1-0" />
 
@@ -96,3 +105,4 @@ The quoted string is the form that `-01` calls legacy. Under `-01` a verifier wo
 - 2026-06-26: `draft-meunier-webbotauth-httpsig-protocol-00` posted. <Cite ids="src-orbit-wba-indiv-protocol" />
 - 2026-09-01: working group draft `draft-ietf-webbotauth-httpsig-protocol-00` posted. <Cite ids="src-wba-draft" />
 - 2026-10-29: `-01` posted; every `Signature-Agent` value becomes a URL fetched directly as a JWK Set. <Cite ids="src-wba-draft src-orbit-wba-wg-drafts-api" />
+- 2026-11-17: session at IETF 127; room consensus, still to be confirmed on the list, for a boolean parameter in place of the `web-bot-auth` tag, and a sense in the room for a fixed minimum signed set (no `-02` by 2026-11-21). <Cite ids="src-orbit-wba-ietf127-minutes src-orbit-wba-issue-144 src-orbit-wba-issue-145 src-orbit-wba-wg-drafts-api" />

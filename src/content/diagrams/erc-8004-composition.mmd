@@ -2,6 +2,7 @@ flowchart TB
   E["ERC-8004 registries"]
   X["x402"]
   M["MPP discovery draft<br/>(Tempo Labs, Merit Systems)"]
+  MX["mppx, MPP's reference SDK<br/>(0.20.0 and later)"]
   A2A["A2A agent card (service entry)"]
   AP2["AP2"]
   NONE["Visa TAP, OpenAI ACP, Google UCP, Mastercard Agent Pay: no documented relation"]
@@ -15,6 +16,7 @@ flowchart TB
   T["ERC-3643 regulated tokens"]
   X -- "x402Support, agentWallet payee, proofOfPayment" --- E
   M -. "cites, future anchoring" .-> E
+  MX -- "Agent-Id header, reads getAgentWallet" --> E
   E -- "lists" --> A2A
   A2A -. "AP2 extends A2A" .- AP2
   E -.- NONE

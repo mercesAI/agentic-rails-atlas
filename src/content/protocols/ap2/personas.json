@@ -102,7 +102,7 @@
       "pains": [
         "Liability stays with network rules, which do not mention AP2",
         "No step-up mechanism in v0.2",
-        "Production evidence missing"
+        "Gemini's AP2 use is announced without mandate details"
       ],
       "implements": [
         "Mandate verification where it acts as Credential Provider or behind the network",
@@ -135,7 +135,8 @@
         "src-ap2-faq",
         "src-reg-worldpay-liability",
         "src-visa-rules-public",
-        "src-mastercard-rules-2026-06"
+        "src-mastercard-rules-2026-06",
+        "src-ap2-google-gemini-tasks-20261117"
       ]
     },
     {
@@ -149,7 +150,7 @@
       "pains": [
         "Signature rule conflict for the Checkout JWT (issue 268)",
         "Line-item matching needs a max-flow style check",
-        "No proof of production use to justify the work"
+        "No source shows mandates reaching a merchant, even in Gemini purchases that Google says use AP2"
       ],
       "implements": [
         "checkout_jwt signing with ECDSA",
@@ -169,7 +170,7 @@
       ],
       "firstSteps": [
         "Sign checkouts with ES256 and include enough entropy",
-        "Implement checkout_hash comparison against the latest checkout_jwt",
+        "Implement checkout_hash comparison against the latest checkout_jwt; with the Python SDK, pass expected_checkout_hash, which it does not compute for you",
         "Add UCP dev.ucp.common.payment.ap2_mandate to /.well-known/ucp if you sell through UCP"
       ],
       "metrics": [
@@ -182,7 +183,9 @@
         "src-ap2-spec-v02",
         "src-ap2-issue-268",
         "src-ap2-checkout-mandate-doc",
-        "src-ap2-ucp-ext"
+        "src-ap2-ucp-ext",
+        "src-ap2-google-gemini-tasks-20261117",
+        "src-ap2-issue-399"
       ]
     },
     {
