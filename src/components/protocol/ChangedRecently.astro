@@ -1,5 +1,10 @@
 ---
-/** "What changed recently" callout: facts.changedRecently entries from the 6 months before lastVerified. */
+/**
+ * "What changed recently" callout: facts.changedRecently entries from the 6 months before the
+ * window's end. The window ends at lastVerified, or at the newest entry when a refresh added an
+ * entry but could not re-check the whole page (lastVerified then stays put), so the title never
+ * ends before the entries it lists.
+ */
 import Callout from '../ui/Callout.astro';
 import Cite from '../ui/Cite.astro';
 import type { FactsFile } from '../../lib/schemas';
@@ -9,15 +14,15 @@ export interface Props {
   lastVerified: string;
 }
 const { items, lastVerified } = Astro.props;
-const end = Date.parse(`${lastVerified}T00:00:00Z`);
-const start = new Date(end);
+const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+const to = sorted[0] && sorted[0].date > lastVerified ? sorted[0].date : lastVerified;
+const start = new Date(Date.parse(`${to}T00:00:00Z`));
 start.setUTCMonth(start.getUTCMonth() - 6);
 const from = start.toISOString().slice(0, 10);
-const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
 const recent = sorted.filter((i) => i.date >= from);
 const shown = recent.length ? recent : sorted.slice(0, 3);
 ---
-<Callout kind="changed" title={`What changed recently (${from} to ${lastVerified})`}>
+<Callout kind="changed" title={`What changed recently (${from} to ${to})`}>
   {recent.length === 0 && <p>No dated change is recorded in this window. The latest recorded changes follow.</p>}
   {shown.length === 0 ? (
     <p>No recent change is recorded yet.</p>
