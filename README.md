@@ -55,7 +55,7 @@ The site is a static build in `dist/`, so any static host works. It runs on Clou
 
 ## Visitor statistics
 
-People are counted by Cloudflare Web Analytics (no cookies; Cloudflare adds the beacon at its edge), bots and AI bots by Cloudflare's edge records. `pnpm stats` prints one table for 24 hours, 7 days and 30 days from a read-only API token kept in `.env`, which git ignores. `.env.example` lists the keys, and `pnpm stats --check` checks the token, the ids and the dataset fields.
+People are counted by Cloudflare Web Analytics (no cookies; Cloudflare adds the beacon at its edge), bots and AI bots by Cloudflare's edge records. Both are read outside this repository, which holds no analytics code or credentials.
 
 ## Optional data
 
