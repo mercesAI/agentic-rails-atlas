@@ -314,16 +314,17 @@ export default function UcpPlayground() {
 
   function advance(hours: number) {
     const t = now + hours * 3600_000;
+    const moved = `Clock moved ${hours} ${hours === 1 ? 'hour' : 'hours'}.`;
     setNow(t);
     if (session) {
       const r = expireIfDue(session, t, policy, ctx);
       setSession(r.session);
       setAnnounce(
         r.outcome === 'applied'
-          ? `Clock moved ${hours} hours. expires_at passed, so the session is canceled.`
-          : `Clock moved ${hours} hours. The session has not expired.`,
+          ? `${moved} expires_at passed, so the session is canceled.`
+          : `${moved} The session has not expired.`,
       );
-    } else setAnnounce(`Clock moved ${hours} hours.`);
+    } else setAnnounce(moved);
   }
 
   // Wire rendering for the transport switcher.

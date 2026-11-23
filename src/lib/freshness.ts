@@ -21,3 +21,8 @@ export function freshness(date: string, buildDate: string): { level: FreshnessLe
   const level: FreshnessLevel = days < 30 ? 'green' : days <= 90 ? 'amber' : 'red';
   return { level, days };
 }
+
+/** FreshnessBadge tooltip: "1 day before the build date ..." or "N days before ...". */
+export function freshnessTitle(days: number, buildDate: string): string {
+  return `${days} ${days === 1 ? 'day' : 'days'} before the build date ${buildDate}`;
+}

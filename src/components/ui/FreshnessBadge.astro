@@ -4,7 +4,7 @@
  * The dot shape also changes (filled, half, hollow) so color is not the only channel.
  */
 import { BUILD_DATE } from '../../lib/constants';
-import { freshness, FRESHNESS_LABELS } from '../../lib/freshness';
+import { freshness, freshnessTitle, FRESHNESS_LABELS } from '../../lib/freshness';
 
 export interface Props {
   date: string;
@@ -13,7 +13,7 @@ export interface Props {
 const { date, buildDate = BUILD_DATE } = Astro.props;
 const { level, days } = freshness(date, buildDate);
 ---
-<span class="fresh" data-level={level} title={`${days} days before the build date ${buildDate}`}>
+<span class="fresh" data-level={level} title={freshnessTitle(days, buildDate)}>
   <span class="fresh__dot" aria-hidden="true"></span>
   <span>Verified <time datetime={date}>{date}</time></span>
   <span class="sr-only">({FRESHNESS_LABELS[level]})</span>

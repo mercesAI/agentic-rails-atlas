@@ -322,8 +322,8 @@ export function lifetimeOf(payload: Record<string, unknown>): number | undefined
 export function humanDuration(sec: number): string {
   if (sec % 86400 === 0) return `${sec / 86400} day${sec === 86400 ? '' : 's'}`;
   if (sec % 3600 === 0) return `${sec / 3600} hour${sec === 3600 ? '' : 's'}`;
-  if (sec % 60 === 0) return `${sec / 60} minutes`;
-  return `${sec} seconds`;
+  if (sec % 60 === 0) return `${sec / 60} minute${sec === 60 ? '' : 's'}`;
+  return `${sec} second${sec === 1 ? '' : 's'}`;
 }
 
 export function trustFor(keys: VIKeys, now: number, spentSoFar = 0): ViTrust {

@@ -404,7 +404,9 @@ describe('Verifiable Intent builder and verifier', () => {
     expect(humanDuration(30 * 86400)).toBe('30 days');
     expect(humanDuration(3600)).toBe('1 hour');
     expect(humanDuration(300)).toBe('5 minutes');
+    expect(humanDuration(60)).toBe('1 minute');
     expect(humanDuration(45)).toBe('45 seconds');
+    expect(humanDuration(1)).toBe('1 second');
     expect(lifetimeOf({})).toBeUndefined();
   });
 });
