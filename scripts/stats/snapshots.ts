@@ -1,5 +1,5 @@
 /**
- * One JSON file per complete UTC day in private/stats/daily/<host>/ (git ignores private/). The
+ * One JSON file per complete UTC day in work/stats/daily/<host>/ (git ignores work/). The
  * edge dataset keeps 31 days, so these files are the only record of anything older, and they
  * give the 30-day comparison its previous period. A day is written only when every configured
  * part of it was fetched without error, so a failed day is fetched again on the next run.

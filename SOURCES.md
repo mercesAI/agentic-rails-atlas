@@ -1,9 +1,9 @@
 # SOURCES.md: how sources are managed
 
 ## Registry
-- Every source is a record in `src/content/sources/sources.json` (schema: `Source` in ATLAS_PROMPT.md 12.3).
+- Every source is a record in `src/content/sources/sources.json` (schema: `Source` in `src/lib/schemas.ts`).
 - IDs are `src-<protocol-or-topic>-<short-slug>` (example `src-x402-spec-v2`). IDs are stable; never reuse an ID for a different URL.
-- Research-stage records live in `research/protocols/<slug>.sources.json` and are merged into the registry by `scripts/verify/merge-sources.ts`.
+- Research-stage records live in `research/protocols/<slug>.sources.json` and are merged into the registry by `scripts/merge-content.ts`.
 
 ## Claims
 - A claim is one plain sentence with `sources[]`, `confidence` and (for numbers and time-sensitive statements) `asOf`.

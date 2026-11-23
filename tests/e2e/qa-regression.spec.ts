@@ -1,4 +1,4 @@
-/** Regression tests for the 2026-10-14 QA sweep (verification/qa/REPORT.md). */
+/** Regression tests for the 2026-10-14 QA sweep. */
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';

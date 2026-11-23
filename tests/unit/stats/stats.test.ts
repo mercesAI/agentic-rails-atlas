@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -130,15 +130,14 @@ describe('Cloudflare client', () => {
 describe('config', () => {
   it('reads only ATLAS_STATS_ keys, in file order, without overriding the environment', () => {
     const root = tempDir();
-    mkdirSync(join(root, 'private', 'stats'), { recursive: true });
-    writeFileSync(join(root, 'private', 'stats', '.env'), `ATLAS_STATS_CF_TOKEN=from-private\nCLOUDFLARE_API_TOKEN=deploy-token\n`);
-    writeFileSync(join(root, '.env.local'), `ATLAS_STATS_CF_TOKEN=from-local\nATLAS_STATS_CF_ZONE_ID=${ZONE}\n`);
+    writeFileSync(join(root, '.env.local'), `ATLAS_STATS_CF_TOKEN=from-local\nCLOUDFLARE_API_TOKEN=deploy-token\n`);
+    writeFileSync(join(root, '.env'), `ATLAS_STATS_CF_TOKEN=from-env\nATLAS_STATS_CF_ZONE_ID=${ZONE}\n`);
     const env: Record<string, string | undefined> = { ATLAS_STATS_CF_ACCOUNT_ID: ACCOUNT };
-    expect(loadStatsEnv(root, env)).toEqual(['private/stats/.env', '.env.local']);
-    expect(env.ATLAS_STATS_CF_TOKEN).toBe('from-private');
+    expect(loadStatsEnv(root, env)).toEqual(['.env.local', '.env']);
+    expect(env.ATLAS_STATS_CF_TOKEN).toBe('from-local');
     expect(env.ATLAS_STATS_CF_ZONE_ID).toBe(ZONE);
     expect(env.CLOUDFLARE_API_TOKEN).toBeUndefined();
-    expect(readConfig(env).config).toMatchObject({ token: 'from-private', zoneId: ZONE, accountId: ACCOUNT, host: HOST });
+    expect(readConfig(env).config).toMatchObject({ token: 'from-local', zoneId: ZONE, accountId: ACCOUNT, host: HOST });
   });
 
   it('reports what is missing or malformed, including a token broken over lines', () => {

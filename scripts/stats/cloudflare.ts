@@ -1,7 +1,7 @@
 /**
  * Read-only access to Cloudflare's GraphQL Analytics API for `pnpm stats`.
  *
- * Datasets (docs/ANALYTICS.md lists the sources):
+ * Datasets (see Cloudflare's GraphQL Analytics API documentation):
  * - httpRequestsAdaptiveGroups (zone): every request Cloudflare's edge served, on all plans,
  *   kept at least 31 days, up to 30 days per query. Used for the bot and AI-bot classes.
  * - rumPageloadEventsAdaptiveGroups (account): Web Analytics page loads from the beacon. Used

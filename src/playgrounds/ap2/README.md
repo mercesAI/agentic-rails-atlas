@@ -1,6 +1,6 @@
 # AP2 playground
 
-Client-side simulation of the Agent Payments Protocol. Default spec version v0.2 (tag `v0.2.0`, 2026-04-28); a toggle shows the v0.1 model (tag `v0.1.0`, 2025-09-16). Sources: `research/vendor/AP2/code/sdk/schemas/ap2/*.json`, `docs/ap2/*.md`, `src/ap2/types/mandate.py` at `v0.1.0`, and `research/protocols/ap2.md`.
+Client-side simulation of the Agent Payments Protocol. Default spec version v0.2 (tag `v0.2.0`, 2026-04-28); a toggle shows the v0.1 model (tag `v0.1.0`, 2025-09-16). Sources: `research/vendor/AP2/code/sdk/schemas/ap2/*.json`, `docs/ap2/*.md`, and `src/ap2/types/mandate.py` at `v0.1.0`.
 
 ## What it covers
 

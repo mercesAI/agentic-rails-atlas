@@ -5,10 +5,10 @@ import { startEdgeServer, type EdgeServer } from './support/edge-server';
 
 /**
  * Cloudflare Web Analytics counts a reader only on a page that loads its beacon, which the edge
- * adds to HTML asked for with text/html (docs/ANALYTICS.md). These tests run the production
- * build behind a stand-in for the edge (support/edge-server.ts) with the service worker on and
- * follow a returning reader. Request routing would switch off the HTTP cache, and with it the
- * 304 that hid the tag on atlas.merces.ai on 2026-11-15, so nothing here is routed.
+ * adds to HTML asked for with text/html. These tests run the production build behind a
+ * stand-in for the edge (support/edge-server.ts) with the service worker on and follow a
+ * returning reader. Request routing would switch off the HTTP cache, and with it the 304 that
+ * hid the tag on atlas.merces.ai on 2026-11-15, so nothing here is routed.
  */
 const DIST = join(process.cwd(), 'dist');
 let edge: EdgeServer;

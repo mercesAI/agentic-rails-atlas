@@ -32,11 +32,14 @@ const links = first(import.meta.glob<LinkReport>('/src/generated/link-report.jso
 const citations = first(import.meta.glob<CitationReport>('/src/generated/citation-report.json', { eager: true, import: 'default' }));
 const waivers = first(import.meta.glob<{ waivers: { protocol?: string; check?: string; reason: string }[] }>('/coverage-waivers.json', { eager: true, import: 'default' }));
 const draft = first(import.meta.glob<{ stubs?: GlossaryStub[] }>('/research/glossary.draft.json', { eager: true, import: 'default' }));
+if (draft === undefined) throw new Error('Missing research/glossary.draft.json: the /methodology/ page reads it, so it must stay at that path.');
 const RAW = import.meta.glob<string>(['/research/blocked.md', '/research/conflicts.md', '/ATLAS_ERRATA.md'], { eager: true, query: '?raw', import: 'default' });
 
 const md = await createMarkdownProcessor({ rehypePlugins: [rehypeTableWrap] });
 async function renderMd(path: string): Promise<string | null> {
   const raw = RAW[path];
+  // A missing log fails the build. The fallback text below is only for a file that exists but is empty.
+  if (raw === undefined) throw new Error(`Missing ${path.slice(1)}: the /methodology/ page renders this file, so it must stay at that path.`);
   if (!raw) return null;
   // The research logs name the internal brief files; readers see neutral names.
   const body = raw
@@ -243,7 +246,7 @@ const STATUS_TEXT: Record<string, string> = { pass: 'Pass', fail: 'Gaps remain',
   {conflictsHtml ? <div class="cc-md" set:html={conflictsHtml} /> : <p>No conflicts are logged.</p>}
 
   <h2 id="errata">Errata</h2>
-  <p>Corrections to the seed facts the research started from (the initial and follow-up research briefs), and where the corrected statement now lives.</p>
+  <p>Corrections to the seed facts the research started from (the initial and follow-up research briefs), and the pages and files that now carry the corrected statement.</p>
   {errataHtml ? <div class="cc-md cc-scroll" set:html={errataHtml} /> : <p>No errata are logged.</p>}
 
   <h2 id="statistics">Visitor statistics</h2>

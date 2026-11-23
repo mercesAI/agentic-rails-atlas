@@ -40,7 +40,7 @@ import { githubMetaFromRecord, type GithubMeta } from './github-meta';
 /*
  * Typed wrappers: content.ts `getFlow`, `getStateMachine` and `getDiagramMeta`
  * share one generic helper whose return type is the union of all three
- * collections (noted in docs/integration-notes/template.md).
+ * collections.
  */
 export const flowById = async (id: string) => ((await getFlow(id)) as Flow | null) ?? null;
 export const machineById = async (id: string) => ((await getStateMachine(id)) as StateMachine | null) ?? null;
@@ -48,7 +48,7 @@ export const diagramMetaById = async (id: string) => ((await getDiagramMeta(id))
 
 type MdxModule = { default: (props: Record<string, unknown>) => unknown };
 
-/** Optional `src/content/protocols/<slug>/compare.mdx` (alternative to the marker; see docs/integration-notes/template.md). */
+/** Optional `src/content/protocols/<slug>/compare.mdx` (alternative to the marker). */
 const COMPARE_MODULES = import.meta.glob<MdxModule>('/src/content/protocols/*/compare.mdx');
 const COMPARE_RAW = import.meta.glob<string>('/src/content/protocols/*/compare.mdx', { query: '?raw', import: 'default' });
 const GITHUB = import.meta.glob<unknown>('/src/generated/github/*.json', { eager: true, import: 'default' });

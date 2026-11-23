@@ -11,7 +11,8 @@ import { startEdgeServer, type EdgeServer } from './support/edge-server';
  * data: font (a font subset Vite had inlined) on every page, Zod's eval probe on the home page,
  * and a data: module script that the router appends after a navigation into a page whose last
  * new module script is inline (the glossary). The beacon here is a same-origin stub, so only
- * the live check in docs/ANALYTICS.md shows that the policy lets the real beacon load.
+ * a live check on atlas.merces.ai after a deploy shows that the policy lets the real beacon
+ * load.
  */
 const DIST = join(process.cwd(), 'dist');
 const PAGES = existsSync(DIST)

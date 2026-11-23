@@ -30,7 +30,7 @@
  * copy from a fetch without that header (the router's page fetches, and prefetches in browsers
  * whose prefetch asks without it) would come back by 304 without the tag; and only navigations
  * refresh a cached page, so a router answer never replaces a copy that has the tag. A reader is
- * otherwise not counted (docs/ANALYTICS.md).
+ * otherwise not counted.
  * Runtime copies are stored under the pathname, as lookups ignore the query string; Pagefind
  * requests pagefind-entry.json with a fresh ?ts= on every start, which would otherwise add one
  * cache entry per search.
@@ -207,7 +207,7 @@ async function store(cache, key, res) {
 // the Accept header, and such a response has no ETag; HTML asked for otherwise comes without
 // the tag and with an ETag. Pages are precached with a browser's Accept header, so the cached
 // copies carry the tag and no copy without it lands in the HTTP cache for a navigation to
-// revalidate (docs/ANALYTICS.md).
+// revalidate.
 const PAGE_ACCEPT = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
 function isPageUrl(url) {
   return url.endsWith('/') || url.endsWith('.html');

@@ -2,7 +2,7 @@
 
 Client-side simulation of two things on the Mastercard Agent Pay page. No network calls, no real cards, tokens or keys. Keys are generated with WebCrypto at mount, are non-extractable and are never stored.
 
-Sources: the page content in `src/content/protocols/mastercard-agent-pay/` (claims, flows, the state machines `mastercard-agent-pay-token-lifecycle` and `mastercard-agent-pay-vi-mandate-state`), `verification/mastercard-agent-pay.md`, and `research/vendor/verifiable-intent` (`main`, 2026-04-20: `spec/credential-format.md`, `spec/constraints.md`).
+Sources: the page content in `src/content/protocols/mastercard-agent-pay/` (claims, flows, the state machines `mastercard-agent-pay-token-lifecycle` and `mastercard-agent-pay-vi-mandate-state`) and `research/vendor/verifiable-intent` (`main`, 2026-04-20: `spec/credential-format.md`, `spec/constraints.md`).
 
 ## What it covers
 

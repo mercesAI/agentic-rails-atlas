@@ -1,12 +1,13 @@
 /**
  * Classifies one edge request row (user agent, optional Cloudflare verified-bot category) into
- * the traffic classes of docs/ANALYTICS.md. Pure: no network, no file access.
+ * the traffic classes that pnpm stats reports. Pure: no network, no file access.
  *
  * Order (first match wins): a known user agent token, then a Cloudflare verified-bot category,
  * then a self-declared bot, then an HTTP library or headless browser, then browser-like traffic.
- * Tokens come from each operator's crawler documentation (read 2026-11-14; sources in
- * docs/ANALYTICS.md). Matching is a case-insensitive substring test, so a token anywhere in the
- * user agent counts (OAI-SearchBot, for example, appends its token to a full Chrome string).
+ * Tokens come from each operator's crawler documentation (read 2026-11-14). Matching is a
+ * case-insensitive substring test, so a token anywhere
+ * in the user agent counts (OAI-SearchBot, for example, appends its token to a full Chrome
+ * string).
  */
 
 export const TRAFFIC_CLASSES = [

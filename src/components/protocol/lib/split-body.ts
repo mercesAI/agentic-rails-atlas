@@ -2,10 +2,10 @@
  * Splitting the protocol MDX body between section B and section P.
  *
  * Writers end `index.mdx` with a `## Compare and compose` heading followed by
- * a few paragraphs (docs/briefs/WRITER_BRIEF.md). The layout renders the body
- * once, to an HTML string, and splits it at that heading: everything before it
- * goes to section B, everything after it to section P. The heading itself is
- * dropped because section P carries its own lettered heading.
+ * a few paragraphs. The layout renders the body once, to an HTML string, and
+ * splits it at that heading: everything before it goes to section B,
+ * everything after it to section P. The heading itself is dropped because
+ * section P carries its own lettered heading.
  *
  * Pure functions: no Astro imports, unit tested in tests/unit/islands/split-body.test.ts.
  */

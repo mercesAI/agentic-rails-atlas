@@ -4,15 +4,15 @@
  *   pnpm stats            table: people, bots and AI bots for 24h, 7d and 30d
  *   pnpm stats --json     the same as JSON (for the daily brief in Claude Code)
  *   pnpm stats --check    checks the token, the ids and the dataset fields, then stops
- *   pnpm stats --no-snapshots   skips the daily files in private/stats/daily/
+ *   pnpm stats --no-snapshots   skips the daily files in work/stats/daily/
  *   pnpm stats --host <name>    another host in the zone
  *
- * Setup and the meaning of every number: docs/ANALYTICS.md. Exit codes: 0 fine; 1 setup problem
+ * The settings go in .env (keys in .env.example; see config.ts). Exit codes: 0 fine; 1 setup problem
  * (missing settings, or no configured dataset usable with this token); 2 some numbers could not
  * be fetched (the rest are still printed).
  */
 import { join } from 'node:path';
-import { ROOT, isMain, parseArgs } from '../lib/io';
+import { ROOT, isMain, parseArgs, rel } from '../lib/io';
 import { AI_CLASSES } from './classify';
 import {
   createClient,
@@ -34,7 +34,7 @@ import { changesOf, formatReport, headlineOf, summarizeEdge, summarizePeople, ty
 import { readSnapshots, sumEdge, sumPeople, writeSnapshot, type DailySnapshot } from './snapshots';
 import { DAY_MS, chunk, completeDays, dayWindow, isoSeconds, previous, rolling, windowEnd, type TimeWindow, type WindowKey } from './windows';
 
-export const SNAPSHOT_DIR = join(ROOT, 'private', 'stats', 'daily');
+export const SNAPSHOT_DIR = join(ROOT, 'work', 'stats', 'daily');
 const DEFAULT_MAX_SECONDS = 30 * 86_400;
 const DEFAULT_PAGE_SIZE = 10_000;
 
@@ -228,7 +228,7 @@ export async function buildReport(
     topAiAgents7d: [],
     topPages7d: [],
     topReferrers7d: [],
-    snapshots: { dir: `private/stats/daily/${config.host}`, days: 0, written: [], oldest: null },
+    snapshots: { dir: rel(ROOT, dir), days: 0, written: [], oldest: null },
     setupFailed: !f.usable().ok && (!config.zoneId || !ds.edge?.enabled) && (!config.accountId || !ds.rum?.enabled),
     fields: {
       edgeUserAgent: ds.ef.userAgent,
@@ -329,7 +329,7 @@ async function runCheck(client: Client, config: StatsConfig, loadedFrom: string[
   for (const w of warnings) out.push(`Warning: ${w}`);
   out.push(
     errors.length
-      ? 'Result: fix the problems above (docs/ANALYTICS.md, steps 3 and 4).'
+      ? 'Result: fix the problems above. The settings go in .env (keys in .env.example); the token needs Account Analytics Read and zone Analytics Read.'
       : warnings.length
         ? 'Result: ready, with the warnings above. Run pnpm stats.'
         : 'Result: ready. Run pnpm stats.',
@@ -344,7 +344,7 @@ async function main(): Promise<void> {
   const loadedFrom = loadStatsEnv(ROOT);
   const { config, problems } = readConfig(process.env, values.get('host'));
   if (!config) {
-    console.error(['pnpm stats is not set up yet:', ...problems.map((p) => `- ${p}`), 'See docs/ANALYTICS.md, steps 3 and 4.'].join('\n'));
+    console.error(['pnpm stats is not set up yet:', ...problems.map((p) => `- ${p}`), 'Put ATLAS_STATS_CF_TOKEN and ATLAS_STATS_CF_ZONE_ID and/or ATLAS_STATS_CF_ACCOUNT_ID in .env (keys in .env.example; the token needs Account Analytics Read and zone Analytics Read), then run pnpm stats --check.'].join('\n'));
     process.exitCode = 1;
     return;
   }

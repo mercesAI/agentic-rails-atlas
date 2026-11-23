@@ -5,13 +5,13 @@ import { ROOT } from '../../../../scripts/lib/io';
 
 /**
  * public/_headers is copied to dist/ and applied by Cloudflare's assets host. These checks pin
- * the choices docs/ANALYTICS.md explains: the Web Analytics beacon host is allowed as a bare
- * host (the edge loads /beacon.min.js/<version> and a manual snippet would load
- * /beacon.min.js; a host source covers both), the beacon reports to this origin so connect-src
- * stays 'self', and the referrer policy in the header and in the page's meta tag agree. They
- * also pin what keeps the console free of policy errors: fonts and scripts come from files
- * (astro.config.mjs), nothing needs eval (client islands import no Zod) and Pagefind's wasm
- * compiles under 'wasm-unsafe-eval'.
+ * three choices: the Web Analytics beacon host is allowed as a bare host (the edge loads
+ * /beacon.min.js/<version> and a manual snippet would load /beacon.min.js; a host source
+ * covers both), the beacon reports to this origin so connect-src stays 'self', and the
+ * referrer policy in the header and in the page's meta tag agree. They also pin what keeps the
+ * console free of policy errors: fonts and scripts come from files (astro.config.mjs), nothing
+ * needs eval (client islands import no Zod) and Pagefind's wasm compiles under
+ * 'wasm-unsafe-eval'.
  */
 const headers = readFileSync(join(ROOT, 'public', '_headers'), 'utf8');
 const base = readFileSync(join(ROOT, 'src', 'layouts', 'Base.astro'), 'utf8');

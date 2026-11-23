@@ -5,8 +5,9 @@
 # the edge. A host, not a path: the edge loads /beacon.min.js/<version> and a manual
 # snippet would load /beacon.min.js; a host source covers both.
 # The beacon posts to /cdn-cgi/rum on this origin, so connect-src stays 'self'.
-# same-origin keeps the referrer on this site only; other sites still get none
-# (docs/ANALYTICS.md explains both choices).
+# same-origin keeps the referrer on this site only; other sites still get none. Cloudflare's
+# FAQ says the beacon needs the Referer header, and under no-referrer every page opened in a
+# new tab counted as a new visit.
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com {{INLINE_SCRIPT_HASHES}}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   Referrer-Policy: same-origin

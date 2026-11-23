@@ -139,7 +139,7 @@ export const COMPARISON: ComparisonRow[] = [
   { aspect: 'Key directory', tap: "Payment scheme's key store (Visa's URL not named in the spec since October 2026)", wba: `Each Signature-Agent URL is fetched directly as a JWK Set; ${WBA_DIRECTORY_PATH} is one such URL (since -01, which dropped the -00 default directory, jwks_uri and cimd types)` },
 ];
 
-/** Spec quirks shown in the UI (ATLAS_ERRATA R16 and R17, research dossier). */
+/** Spec quirks shown in the UI (ATLAS_ERRATA R16 and R17; the claims in src/content/protocols/visa-tap/claims.json). */
 export const SPEC_QUIRKS: string[] = [
   "The TAP spec's example keyid, nonce, timestamps and signature reuse a Web Bot Auth draft test vector, and the browsing and checkout examples print the same signature, so the published examples cannot verify against the requests they sit under.",
   'The example created and expires are 3,600 seconds apart, while the same spec caps the window at 8 minutes. Pick the 3,600-second window below to see a strict verifier block it.',

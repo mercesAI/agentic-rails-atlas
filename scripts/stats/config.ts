@@ -1,14 +1,14 @@
 /**
  * Configuration for `pnpm stats`. Values come from the environment, then from the first of these
- * files that defines them: private/stats/.env (recommended: nothing else reads it), .env.local,
- * .env. Only ATLAS_STATS_* keys are read, so Wrangler's CLOUDFLARE_API_TOKEN is never used and
- * this read-only token is never picked up by a deploy. Git ignores all three files.
+ * files that defines them: .env.local, then .env (the documented place for the settings). Only
+ * ATLAS_STATS_* keys are read, so Wrangler's CLOUDFLARE_API_TOKEN is never used and this
+ * read-only token is never picked up by a deploy. Git ignores both files.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseEnv } from 'node:util';
 
-export const ENV_FILES = ['private/stats/.env', '.env.local', '.env'] as const;
+export const ENV_FILES = ['.env.local', '.env'] as const;
 export const DEFAULT_HOST = 'atlas.merces.ai';
 
 export interface StatsConfig {
